@@ -8,6 +8,7 @@ const expectedExports = [
   'createOwnerBookingRequest',
   'getPublicServiceAvailability',
   'createPublicBookingRequest',
+  'getPublicPaymentOptions',
   'processNotificationJob',
   'syncBookingOperationalState',
   'sendBookingReminderNotifications',

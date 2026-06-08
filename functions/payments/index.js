@@ -19,6 +19,8 @@ const {
   requireAppId,
   requireBusinessId
 } = require('./shared');
+const { cleanPublicSlug, readPublicPaymentOptions } = require('./publicOptions');
+const { assertRateLimit } = require('../security');
 const webhooks = require('./webhooks');
 const { cappedMaxInstances } = require('../runtimeOptions');
 
@@ -32,6 +34,28 @@ const paymentCallableOptions = {
   concurrency: paymentCpu === 'gcf_gen1' ? 1 : 20,
   maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_PAYMENT_MAX_INSTANCES, 1)
 };
+
+const getPublicPaymentOptions = onCall(paymentCallableOptions, async (request) => {
+  try {
+    const appId = requireAppId(request.data?.appId);
+    const publicSlug = cleanPublicSlug(request.data?.publicSlug || request.data?.slug);
+    await assertRateLimit({
+      db: admin.firestore(),
+      appId,
+      workspaceSlug: publicSlug,
+      action: 'public_payment_options',
+      request
+    });
+    return await readPublicPaymentOptions({
+      appId,
+      publicSlug
+    });
+  } catch (error) {
+    console.error('getPublicPaymentOptions failed', error);
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError('internal', 'Payment options could not be loaded.');
+  }
+});
 
 const savePaymentGatewaySettings = onCall({
   ...paymentCallableOptions,
@@ -294,6 +318,7 @@ const markManualBookingPaid = onCall({
 });
 
 module.exports = {
+  getPublicPaymentOptions,
   initiatePayment,
   markManualBookingPaid,
   savePaymentGatewaySettings,

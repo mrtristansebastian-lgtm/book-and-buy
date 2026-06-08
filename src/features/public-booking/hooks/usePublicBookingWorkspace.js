@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as FirebaseSDK from '../../../services/firebase';
-import { appId, db, isFirebaseConfigured } from '../../../services/firebase';
+import { appId, db, functions, httpsCallable, isFirebaseConfigured } from '../../../services/firebase';
 import { buildBookingSlug } from '../../../utils/slugs';
 import { guestModeStorageKey, safeLocalGet } from '../../../utils/publicBookingRoute';
 
@@ -14,6 +14,17 @@ const stripPublicDraftFields = (settings = {}) => {
   } = settings || {};
   return publishableSettings;
 };
+
+const manualGatewayIds = new Set(['manual_eft', 'cash']);
+const manualCredentialSummaryFields = ['accountHolder', 'bankName', 'accountNumber', 'branchCode', 'accountType', 'referencePrefix', 'instructions'];
+
+const sanitizeManualCredentialSummary = (credentialSummary = {}) => (
+  manualCredentialSummaryFields.reduce((acc, field) => {
+    const value = String(credentialSummary[field] || '').trim().slice(0, field === 'instructions' ? 1000 : 260);
+    if (value) acc[field] = value;
+    return acc;
+  }, {})
+);
 
 export function usePublicBookingWorkspace({
   guestMode,
@@ -120,15 +131,28 @@ export function usePublicBookingWorkspace({
       return () => { cancelled = true; };
     }
 
-    const gatewayIds = ['stripe', 'payfast', 'yoco', 'paystack', 'manual_eft', 'cash'];
-    const loadGatewayOption = async (gatewayId) => {
+    const getCallablePaymentOptions = async () => {
+      if (!functions || !httpsCallable) {
+        throw new Error('Payment options callable is not available.');
+      }
+      const callable = httpsCallable(functions, 'getPublicPaymentOptions');
+      const result = await callable({ appId, publicSlug });
+      const options = Array.isArray(result?.data?.options) ? result.data.options : [];
+      return {
+        options,
+        manualPaymentOptions: Array.isArray(result?.data?.manualPaymentOptions)
+          ? result.data.manualPaymentOptions
+          : options.filter(option => manualGatewayIds.has(option.id))
+      };
+    };
+
+    const loadManualGatewayOption = async (gatewayId) => {
       try {
         const snap = await FirebaseSDK.getDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'users', publicWorkspace.ownerId, 'payment_settings', gatewayId));
         if (!snap.exists()) return null;
         const data = snap.data() || {};
         if (data.enabled !== true) return null;
-        const manual = gatewayId === 'manual_eft' || gatewayId === 'cash';
-        if (!manual && data.configured !== true) return null;
+        const credentialSummary = sanitizeManualCredentialSummary(data.credentialSummary || {});
         return {
           id: gatewayId,
           gatewayType: gatewayId,
@@ -136,8 +160,8 @@ export function usePublicBookingWorkspace({
           enabled: true,
           configured: data.configured !== false,
           mode: data.mode || 'live',
-          credentialSummary: data.credentialSummary || {},
-          instructions: data.credentialSummary?.instructions || ''
+          credentialSummary,
+          instructions: credentialSummary.instructions || ''
         };
       } catch (error) {
         const isPermissionDenied = error?.code === 'permission-denied' || /missing or insufficient permissions/i.test(error?.message || '');
@@ -147,12 +171,25 @@ export function usePublicBookingWorkspace({
         return null;
       }
     };
-    Promise.all(gatewayIds.map(loadGatewayOption))
-      .then((options) => {
+
+    const loadFallbackManualOptions = async () => {
+      const options = await Promise.all(['manual_eft', 'cash'].map(loadManualGatewayOption));
+      const enabledOptions = options.filter(Boolean);
+      return {
+        options: enabledOptions,
+        manualPaymentOptions: enabledOptions
+      };
+    };
+
+    getCallablePaymentOptions()
+      .catch((error) => {
+        console.warn('Public payment options callable unavailable; using manual payment fallback.', error);
+        return loadFallbackManualOptions();
+      })
+      .then((paymentResult) => {
         if (!cancelled) {
-          const enabledOptions = options.filter(Boolean);
-          setPublicPaymentOptions(enabledOptions);
-          setPublicManualPaymentOptions(enabledOptions.filter(option => ['manual_eft', 'cash'].includes(option.id)));
+          setPublicPaymentOptions(paymentResult?.options || []);
+          setPublicManualPaymentOptions(paymentResult?.manualPaymentOptions || []);
         }
       })
       .catch((error) => {

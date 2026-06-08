@@ -29,3 +29,34 @@ export interface InitiatePaymentPayload {
   successUrl?: string;
   cancelUrl?: string;
 }
+
+export interface PublicPaymentOption {
+  id: PaymentGatewayId;
+  gatewayType: PaymentGatewayId;
+  name: string;
+  enabled: true;
+  configured: boolean;
+  mode: "test" | "live";
+  credentialSummary?: {
+    accountHolder?: string;
+    bankName?: string;
+    accountNumber?: string;
+    branchCode?: string;
+    accountType?: string;
+    referencePrefix?: string;
+    instructions?: string;
+  };
+  instructions?: string;
+}
+
+export interface GetPublicPaymentOptionsPayload {
+  appId: string;
+  publicSlug: string;
+}
+
+export interface GetPublicPaymentOptionsResult {
+  ok: boolean;
+  publicSlug: string;
+  options: PublicPaymentOption[];
+  manualPaymentOptions: PublicPaymentOption[];
+}

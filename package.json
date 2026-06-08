@@ -15,7 +15,7 @@
     "test:bookings": "node --test src/features/bookings/utils/*.test.mjs",
     "e2e": "playwright test",
     "e2e:booking": "playwright test tests/e2e/revenue-path.spec.mjs --project=chromium",
-    "revenue:check": "npm run test:bookings && node scripts/revenue-path-check.mjs",
+    "revenue:check": "npm run test:bookings && npm --prefix functions run test:payments && node scripts/revenue-path-check.mjs",
     "check": "npm run typecheck && npm run build && node scripts/health-check.mjs",
     "security:audit": "npm audit --omit=dev",
     "smoke": "npm run check && node scripts/smoke-check.mjs && npm run revenue:check",
