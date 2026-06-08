@@ -19,6 +19,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - 8.7/10: Bookings desk filtering/sorting moved into a pure tested model, manual paid revenue now requires server confirmation in configured workspaces, stable booking QA selectors were added, and smoke now runs revenue-path tests.
 - 8.8/10: Booking revenue now has deterministic Playwright coverage for guest manual booking, booking dialogs, mark-paid confirmation, and public booking shell; public payment option loading now preserves allowed manual/cash options when hosted gateway reads are denied.
 - 8.9/10: Public hosted payment options now load through a server-backed callable that reads published workspace ownership, returns sanitized display-only gateway options, strips hosted credential summaries, and keeps manual/cash fallback resilient until the callable is deployed.
+- 9.0/10: Functions and Hosting were deployed to `build-a-booking`; `getPublicPaymentOptions` is live, listed as a callable, direct callable verification returns the safe public result shape, and the production public booking page loads cleanly without console errors.
 
 ## Revenue Path Cleanup
 
@@ -54,6 +55,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [x] Extract shared Functions runtime options and utility helpers out of `functions/index.js`.
 - [x] Deploy all Functions with quota-safe launch runtime settings.
 - [x] Add `getPublicPaymentOptions` callable for display-safe public hosted/manual payment options.
+- [x] Deploy `getPublicPaymentOptions` and current Hosting build to production.
 - [ ] Split `functions/index.js` into bookings, email, notifications, reminders, operational sync, and billing modules while keeping exported function names unchanged.
 - [ ] Add callable input validation helpers for bookings, availability, email, notifications, and payments.
 - [ ] Add Firebase Emulator tests for staff/admin/client access, public booking writes, slot locks, payment secrets, client access records, and notification writes.
@@ -72,12 +74,13 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [x] Add booking revenue-path model tests and stable selectors for future Playwright flows.
 - [x] Keep booking-core JS under 300 KB and report bundle sizes with `npm run bundle:report`.
 - [x] Browser-QA public booking load/cart path and dashboard editor preview after runtime split.
+- [x] Verify production public booking page loads on `https://build-a-booking.web.app/#/book/your-business` with no browser errors.
 
 ## Current Known Risks
 
 - [ ] `ClientPortal.jsx`, `WorkspaceInbox.jsx`, and `functions/index.js` still carry too much responsibility.
 - [ ] Public booking layout is accepted, but global CSS, Firebase, and booking-step preloads are still broad; next pass should route-level CSS and smarter public funnel preload control.
-- [ ] Hosted payment launch QA still needs provider sandbox verification for Stripe, Yoco, PayFast, and Paystack after the new callable is deployed.
+- [ ] Hosted payment launch QA still needs configured provider sandbox credentials/options for Stripe, Yoco, PayFast, and Paystack; current `your-business` callable verification returns no configured payment options.
 - [ ] Large global, booking, and editor CSS bundles need route-level consolidation after runtime modules are stable.
 - [ ] Functions production audit reports moderate transitive `uuid` advisories through latest Firebase Admin; do not force npm's downgrade unless Firebase publishes a safe update path.
 - [ ] Cloud Run regional CPU quota is tight; keep the low-CPU launch profile until quota is raised and traffic testing proves the higher profile is needed.
