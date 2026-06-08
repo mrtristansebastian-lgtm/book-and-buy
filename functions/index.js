@@ -2,7 +2,6 @@ const admin = require('firebase-admin');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { onDocumentCreated, onDocumentWritten } = require('firebase-functions/v2/firestore');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
-const { defineSecret } = require('firebase-functions/params');
 const {
   bookingBlocksAvailability,
   getLockBucketIds,
@@ -25,7 +24,6 @@ const {
 const {
   backfillWorkspaceScaleCollections
 } = require('./scaleCollections');
-const { cappedMaxInstances } = require('./runtimeOptions');
 const {
   buildClientBookingEmail,
   buildOwnerBookingRequestEmail,
@@ -36,80 +34,36 @@ const {
   normalizeEmail: normalizeEmailAddress,
   sendEmail
 } = require('./emailService');
+const {
+  RESEND_API_KEY,
+  DEFAULT_APP_ID,
+  REMINDER_UTC_OFFSET,
+  REMINDER_TIME_ZONE,
+  REMINDER_WINDOW_BEHIND_MS,
+  REMINDER_WINDOW_AHEAD_MS,
+  SLOT_LOCK_TTL_MS,
+  IDEMPOTENCY_TTL_MS,
+  publicCallableOptions,
+  bookingCallableOptions,
+  workerFunctionOptions,
+  emailCallableOptions,
+  emailWorkerFunctionOptions
+} = require('./functionConfig');
+const {
+  cleanString,
+  requireString,
+  safeLockId,
+  safeDocumentId,
+  safeThreadId,
+  normalizeEmail,
+  isValidEmail,
+  timestampValue
+} = require('./functionUtils');
 
 admin.initializeApp();
 
 const db = admin.firestore();
 const serverTimestamp = () => admin.firestore.FieldValue.serverTimestamp();
-const RESEND_API_KEY = defineSecret('RESEND_API_KEY');
-const DEFAULT_APP_ID = process.env.BUILD_A_BOOKING_APP_ID || 'build-a-booking-v2';
-const REMINDER_UTC_OFFSET = process.env.BOOKING_REMINDER_UTC_OFFSET || '+02:00';
-const REMINDER_TIME_ZONE = process.env.BOOKING_REMINDER_TIME_ZONE || 'Africa/Johannesburg';
-const REMINDER_WINDOW_BEHIND_MS = 30 * 60 * 1000;
-const REMINDER_WINDOW_AHEAD_MS = 15 * 60 * 1000;
-const ENFORCE_APP_CHECK = process.env.BUILD_A_BOOKING_ENFORCE_APP_CHECK === 'true';
-const SLOT_LOCK_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000;
-const publicCallableOptions = {
-  region: 'us-central1',
-  timeoutSeconds: 30,
-  memory: '512MiB',
-  concurrency: 40,
-  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_PUBLIC_MAX_INSTANCES, 2),
-  ...(ENFORCE_APP_CHECK ? { enforceAppCheck: true } : {})
-};
-const bookingCallableOptions = {
-  ...publicCallableOptions,
-  concurrency: 10,
-  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_BOOKING_MAX_INSTANCES, 2)
-};
-const workerFunctionOptions = {
-  region: 'us-central1',
-  maxInstances: 1
-};
-const emailCallableOptions = {
-  ...publicCallableOptions,
-  timeoutSeconds: 30,
-  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_EMAIL_MAX_INSTANCES, 2),
-  secrets: [RESEND_API_KEY]
-};
-const emailWorkerFunctionOptions = {
-  ...workerFunctionOptions,
-  timeoutSeconds: 30,
-  secrets: [RESEND_API_KEY]
-};
-
-const cleanString = (value, max = 240) => (
-  String(value || '').trim().slice(0, max)
-);
-
-const requireString = (value, label, max = 240) => {
-  const next = cleanString(value, max);
-  if (!next) throw new HttpsError('invalid-argument', `${label} is required.`);
-  return next;
-};
-
-const safeLockId = (dateKey, time) => (
-  `${cleanString(dateKey, 32)}_${cleanString(time, 32)}`
-    .replace(/[^a-zA-Z0-9_-]/g, '-')
-    .slice(0, 120)
-);
-
-const safeDocumentId = (value, max = 180) => (
-  cleanString(value, max)
-    .replace(/[^a-zA-Z0-9@._:-]/g, '-')
-    .slice(0, max) || `id-${Date.now()}`
-);
-
-const safeThreadId = (ownerId, bookingId) => (
-  `${cleanString(ownerId, 80)}_${cleanString(bookingId, 80)}`
-    .replace(/[^a-zA-Z0-9_-]/g, '-')
-    .slice(0, 160)
-);
-
-const normalizeEmail = (email = '') => cleanString(email, 180).toLowerCase();
-
-const isValidEmail = (email = '') => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(email));
 
 const getAuthActionSettings = (mode = 'auth') => {
   const { baseUrl } = getEmailRuntimeConfig({ resendApiKeySecret: RESEND_API_KEY });
@@ -398,14 +352,6 @@ const backfillAvailabilityHoldsForWorkspace = async ({ appId, ownerId }) => {
     });
   }
   return bookingsSnap.size;
-};
-
-const timestampValue = (value) => {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (value?.toMillis) return value.toMillis();
-  if (typeof value?.seconds === 'number') return value.seconds * 1000;
-  const parsed = new Date(value || 0).getTime();
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : Date.now();
 };
 
 const backfillThreadTimestampsForWorkspace = async ({ appId, ownerId }) => {

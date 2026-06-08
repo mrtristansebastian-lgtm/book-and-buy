@@ -14,6 +14,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - 8.2/10: Booking service display simplified to Rail/Dropdown category modes, desktop booking layout centered services above calendar/time, mobile stack preserved, and smoke/browser QA passed.
 - 8.3/10: Public Booking orchestration shrunk again by extracting the service display model hook and selection-section composer, with typecheck, health, smoke, and live editor-preview QA passing.
 - 8.4/10: Desktop booking selection restored to the centered vertical flow, Finance/payment settings moved derived rows/metrics/export logic into focused model utilities, imported finance normalizers shared cleanly, and typecheck/build/health/smoke/scale/functions syntax gates passed.
+- 8.5/10: Firebase email secret unblocked, Functions runtime config and shared utility helpers extracted from the god file, and backend lint now protects all deployed function export names before refactors can ship.
 
 ## Revenue Path Cleanup
 
@@ -38,6 +39,9 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 
 ## Security And Backend
 
+- [x] Set the `RESEND_API_KEY` Firebase Secret Manager value needed for email Functions deploy.
+- [x] Add a Functions export continuity check for all callable, trigger, webhook, and payment exports.
+- [x] Extract shared Functions runtime options and utility helpers out of `functions/index.js`.
 - [ ] Split `functions/index.js` into bookings, email, notifications, reminders, operational sync, and billing modules while keeping exported function names unchanged.
 - [ ] Add callable input validation helpers for bookings, availability, email, notifications, and payments.
 - [ ] Add Firebase Emulator tests for staff/admin/client access, public booking writes, slot locks, payment secrets, client access records, and notification writes.
