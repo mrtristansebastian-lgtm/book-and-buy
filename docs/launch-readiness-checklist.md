@@ -15,6 +15,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - 8.3/10: Public Booking orchestration shrunk again by extracting the service display model hook and selection-section composer, with typecheck, health, smoke, and live editor-preview QA passing.
 - 8.4/10: Desktop booking selection restored to the centered vertical flow, Finance/payment settings moved derived rows/metrics/export logic into focused model utilities, imported finance normalizers shared cleanly, and typecheck/build/health/smoke/scale/functions syntax gates passed.
 - 8.5/10: Firebase email secret unblocked, Functions runtime config and shared utility helpers extracted from the god file, and backend lint now protects all deployed function export names before refactors can ship.
+- 8.6/10: All Firebase Functions deployed successfully after adding a quota-safe launch profile with one max instance, low CPU, and 256MiB callable memory; production backend now matches the committed source.
 
 ## Revenue Path Cleanup
 
@@ -42,6 +43,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [x] Set the `RESEND_API_KEY` Firebase Secret Manager value needed for email Functions deploy.
 - [x] Add a Functions export continuity check for all callable, trigger, webhook, and payment exports.
 - [x] Extract shared Functions runtime options and utility helpers out of `functions/index.js`.
+- [x] Deploy all Functions with quota-safe launch runtime settings.
 - [ ] Split `functions/index.js` into bookings, email, notifications, reminders, operational sync, and billing modules while keeping exported function names unchanged.
 - [ ] Add callable input validation helpers for bookings, availability, email, notifications, and payments.
 - [ ] Add Firebase Emulator tests for staff/admin/client access, public booking writes, slot locks, payment secrets, client access records, and notification writes.
@@ -64,3 +66,4 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [ ] Public booking layout is accepted, but global CSS, Firebase, and booking-step preloads are still broad; next pass should route-level CSS and smarter public funnel preload control.
 - [ ] Large global, booking, and editor CSS bundles need route-level consolidation after runtime modules are stable.
 - [ ] Functions production audit reports moderate transitive `uuid` advisories through latest Firebase Admin; do not force npm's downgrade unless Firebase publishes a safe update path.
+- [ ] Cloud Run regional CPU quota is tight; keep the low-CPU launch profile until quota is raised and traffic testing proves the higher profile is needed.
