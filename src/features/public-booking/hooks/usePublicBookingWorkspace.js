@@ -121,24 +121,33 @@ export function usePublicBookingWorkspace({
     }
 
     const gatewayIds = ['stripe', 'payfast', 'yoco', 'paystack', 'manual_eft', 'cash'];
-    Promise.all(gatewayIds.map(async (gatewayId) => {
-      const snap = await FirebaseSDK.getDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'users', publicWorkspace.ownerId, 'payment_settings', gatewayId));
-      if (!snap.exists()) return null;
-      const data = snap.data() || {};
-      if (data.enabled !== true) return null;
-      const manual = gatewayId === 'manual_eft' || gatewayId === 'cash';
-      if (!manual && data.configured !== true) return null;
-      return {
-        id: gatewayId,
-        gatewayType: gatewayId,
-        name: gatewayId === 'cash' ? 'Pay on site' : (data.providerName || (gatewayId === 'manual_eft' ? 'Manual EFT' : gatewayId)),
-        enabled: true,
-        configured: data.configured !== false,
-        mode: data.mode || 'live',
-        credentialSummary: data.credentialSummary || {},
-        instructions: data.credentialSummary?.instructions || ''
-      };
-    }))
+    const loadGatewayOption = async (gatewayId) => {
+      try {
+        const snap = await FirebaseSDK.getDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'users', publicWorkspace.ownerId, 'payment_settings', gatewayId));
+        if (!snap.exists()) return null;
+        const data = snap.data() || {};
+        if (data.enabled !== true) return null;
+        const manual = gatewayId === 'manual_eft' || gatewayId === 'cash';
+        if (!manual && data.configured !== true) return null;
+        return {
+          id: gatewayId,
+          gatewayType: gatewayId,
+          name: gatewayId === 'cash' ? 'Pay on site' : (data.providerName || (gatewayId === 'manual_eft' ? 'Manual EFT' : gatewayId)),
+          enabled: true,
+          configured: data.configured !== false,
+          mode: data.mode || 'live',
+          credentialSummary: data.credentialSummary || {},
+          instructions: data.credentialSummary?.instructions || ''
+        };
+      } catch (error) {
+        const isPermissionDenied = error?.code === 'permission-denied' || /missing or insufficient permissions/i.test(error?.message || '');
+        if (!isPermissionDenied) {
+          console.error('Could not load payment option', gatewayId, error);
+        }
+        return null;
+      }
+    };
+    Promise.all(gatewayIds.map(loadGatewayOption))
       .then((options) => {
         if (!cancelled) {
           const enabledOptions = options.filter(Boolean);

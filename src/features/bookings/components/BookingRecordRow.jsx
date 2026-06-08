@@ -93,6 +93,7 @@ export const BookingRecordRow = ({
                 onClick={() => onSetBookingInfo(booking)}
                 className="booking-record-info-button"
                 aria-label={`View booking information for ${booking.clientName}`}
+                data-testid="booking-action-info"
               >
                 <Info size={13} />
                 <span>Info</span>

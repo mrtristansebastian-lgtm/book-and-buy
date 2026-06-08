@@ -120,6 +120,8 @@ export const BookingServicesSection = ({
                     }
                     setSelectedServiceId(service.id);
                 }}
+                data-testid="booking-service-option"
+                data-service-id={service.id}
                 className={`booking-service-option appearance-none outline-none focus:outline-none text-left rounded-2xl border p-4 md:p-5 transition-all booking-service-border-${serviceBorderStyle} ${showServiceImageSlot ? 'has-service-image' : 'is-text-only-service'} ${!hasServiceImage && isPreview ? 'has-placeholder-image' : ''} ${isPreviewPlaceholder ? 'is-preview-empty' : ''} ${isActive ? `is-selected scale-[1.01] shadow-xl ${nativeAccentBorderClass}` : 'hover:-translate-y-0.5'}`}
                 style={getServiceCardStyle({ isActive, settings, nativeAccent, serviceBorderStyle })}
             >

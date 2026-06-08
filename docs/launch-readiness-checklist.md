@@ -17,6 +17,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - 8.5/10: Firebase email secret unblocked, Functions runtime config and shared utility helpers extracted from the god file, and backend lint now protects all deployed function export names before refactors can ship.
 - 8.6/10: All Firebase Functions deployed successfully after adding a quota-safe launch profile with one max instance, low CPU, and 256MiB callable memory; production backend now matches the committed source.
 - 8.7/10: Bookings desk filtering/sorting moved into a pure tested model, manual paid revenue now requires server confirmation in configured workspaces, stable booking QA selectors were added, and smoke now runs revenue-path tests.
+- 8.8/10: Booking revenue now has deterministic Playwright coverage for guest manual booking, booking dialogs, mark-paid confirmation, and public booking shell; public payment option loading now preserves allowed manual/cash options when hosted gateway reads are denied.
 
 ## Revenue Path Cleanup
 
@@ -38,7 +39,10 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [x] Clean Finance/payment settings and payment-attempt surfaces.
 - [x] Extract Bookings desk filtering/sorting into a focused tested model.
 - [x] Harden manual booking paid flow so configured workspaces do not mark revenue paid after callable failure.
-- [ ] Finish Bookings desk dialogs/action drawer polish and manual booking UX refinements.
+- [x] Add accessible dialog semantics and stable launch QA hooks for booking info, running-late, confirm, and service selection surfaces.
+- [x] Add deterministic Playwright revenue smoke for guest manual booking, booking dialogs, mark-paid confirmation, and public booking shell.
+- [x] Harden public payment option loading so denied hosted-gateway reads do not wipe out allowed manual/cash options.
+- [ ] Finish deeper Bookings desk action drawer and manual booking UX refinements.
 - [ ] Clean Schedule/calendar state, views, and Google sync boundaries.
 
 ## Security And Backend
@@ -60,6 +64,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [ ] Add Capacitor Android/iOS QA for native auth, uploads, safe areas, navigation, public booking, and payment redirects.
 - [ ] Add accessibility checks for focus states, labels, dialogs, keyboard flow, contrast, and reduced motion.
 - [ ] Keep largest JS under 900 KB and total JS under 1.3 MB until deeper code splitting lands.
+- [x] Add Playwright booking revenue flow for guest manual booking, booking dialogs, mark-paid confirmation, and public booking shell.
 - [x] Add booking revenue-path model tests and stable selectors for future Playwright flows.
 - [x] Keep booking-core JS under 300 KB and report bundle sizes with `npm run bundle:report`.
 - [x] Browser-QA public booking load/cart path and dashboard editor preview after runtime split.
@@ -68,6 +73,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 
 - [ ] `ClientPortal.jsx`, `WorkspaceInbox.jsx`, and `functions/index.js` still carry too much responsibility.
 - [ ] Public booking layout is accepted, but global CSS, Firebase, and booking-step preloads are still broad; next pass should route-level CSS and smarter public funnel preload control.
+- [ ] Hosted public payment options need a callable/server-backed public options contract before full hosted payment launch QA; manual/cash options are now resilient under current strict rules.
 - [ ] Large global, booking, and editor CSS bundles need route-level consolidation after runtime modules are stable.
 - [ ] Functions production audit reports moderate transitive `uuid` advisories through latest Firebase Admin; do not force npm's downgrade unless Firebase publishes a safe update path.
 - [ ] Cloud Run regional CPU quota is tight; keep the low-CPU launch profile until quota is raised and traffic testing proves the higher profile is needed.

@@ -15,9 +15,15 @@ export const ConfirmActionDialog = ({ dialog, onCancel, onConfirm }) => {
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/45 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full sm:max-w-md bg-white rounded-t-[1.5rem] sm:rounded-lg border border-neutral-100 shadow-2xl p-6 md:p-7 animate-in fade-in zoom-in-95 duration-300">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-action-title"
+        data-testid="confirm-action-dialog"
+        className="w-full sm:max-w-md bg-white rounded-t-[1.5rem] sm:rounded-lg border border-neutral-100 shadow-2xl p-6 md:p-7 animate-in fade-in zoom-in-95 duration-300"
+      >
         <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-neutral-400 mb-3">{dialog.eyebrow || 'Confirm Action'}</p>
-        <h2 className="text-2xl font-bold tracking-tight text-black mb-3">{dialog.title}</h2>
+        <h2 id="confirm-action-title" className="text-2xl font-bold tracking-tight text-black mb-3">{dialog.title}</h2>
         <p className="text-sm leading-relaxed text-neutral-500 mb-6">{dialog.body}</p>
         {!!dialog.items?.length && (
           <div className="mb-6 rounded-lg border border-neutral-100 bg-neutral-50 p-3">
@@ -30,10 +36,10 @@ export const ConfirmActionDialog = ({ dialog, onCancel, onConfirm }) => {
           </div>
         )}
         <div className="grid grid-cols-2 gap-3">
-          <button type="button" onClick={onCancel} className="h-12 rounded-full bg-white border border-neutral-200 text-black text-[10px] font-bold uppercase tracking-widest hover:border-black transition-colors">
+          <button type="button" data-testid="confirm-action-cancel" onClick={onCancel} className="h-12 rounded-full bg-white border border-neutral-200 text-black text-[10px] font-bold uppercase tracking-widest hover:border-black transition-colors">
             Cancel
           </button>
-          <button type="button" onClick={onConfirm} className="h-12 rounded-full bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors">
+          <button type="button" data-testid="confirm-action-confirm" onClick={onConfirm} className="h-12 rounded-full bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors">
             {dialog.actionLabel || 'Confirm'}
           </button>
         </div>
