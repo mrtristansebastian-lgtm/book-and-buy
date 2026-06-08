@@ -1,0 +1,12 @@
+        /* True final mobile/nav support polish. Keep this at EOF so legacy dark cascades cannot win. */
+        html body .native-ui .support-desk-shell .support-thread-row .support-thread-preview-divider,
+        html body .native-ui .support-inbox-pro .support-thread-row .support-thread-preview-divider {
+            display: block !important;
+            width: 100% !important;
+            height: 1px !important;
+            margin-top: 0.8rem !important;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(203, 255, 184, 0.64) 10%, rgba(183, 255, 240, 0.7) 34%, rgba(185, 227, 255, 0.68) 56%, rgba(255, 212, 242, 0.62) 78%, transparent 100%) !important;
+            opacity: 0.86 !important;
+        }
+

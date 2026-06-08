@@ -1,0 +1,250 @@
+        .editor-cinema-panel .editor-publish-footer,
+        .mobile-editor-panel .editor-publish-footer {
+            background: rgba(255,255,255,0.92) !important;
+            backdrop-filter: blur(24px);
+        }
+
+        @media (max-width: 767px) {
+            .editor-cinema-header {
+                padding: 1rem;
+                align-items: flex-start;
+            }
+
+            .editor-cinema-header-actions button {
+                min-height: 2.35rem;
+                padding: 0 0.7rem;
+            }
+
+            .editor-cinema-hero {
+                min-height: 12rem;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .editor-cinema-hero-copy h3 {
+                font-size: 2.35rem;
+            }
+
+            .editor-cinema-track button {
+                min-width: 7.2rem;
+                min-height: 4.35rem;
+            }
+
+            .editor-cinema-stage-head,
+            .editor-cinema-stage-body {
+                grid-template-columns: 1fr;
+                flex-direction: column;
+            }
+
+            .editor-cinema-stage-body,
+            .cinema-theme-preview > div,
+            .cinema-date-strip,
+            .cinema-slot-strip,
+            .cinema-button-preview,
+            .cinema-feature-preview,
+            .cinema-color-grid,
+            .cinema-font-grid,
+            .cinema-toggle-grid,
+            .cinema-field-grid,
+            .cinema-text-card-row {
+                grid-template-columns: 1fr;
+            }
+
+            .cinema-brand-preview,
+            .cinema-theme-preview,
+            .cinema-type-preview,
+            .cinema-visual-preview,
+            .cinema-button-preview,
+            .cinema-feature-preview,
+            .cinema-copy-preview,
+            .cinema-launch-preview {
+                min-height: unset;
+            }
+
+            .cinema-brand-preview textarea:nth-of-type(1),
+            .cinema-theme-preview h4,
+            .cinema-type-preview h4,
+            .cinema-launch-preview h4 {
+                font-size: 2.65rem;
+            }
+        }
+
+        .mobile-editor-panel .editor-panel-scroll {
+            padding-bottom: 9rem !important;
+        }
+
+        .mobile-editor-panel .editor-cinema-hero {
+            min-height: 5.6rem !important;
+            padding: 0.95rem !important;
+            align-items: center !important;
+        }
+
+        .mobile-editor-panel .editor-cinema-hero-copy h3 {
+            max-width: 25rem;
+            font-size: clamp(1.45rem, 3.4vw, 1.85rem) !important;
+            line-height: 0.92 !important;
+        }
+
+        .mobile-editor-panel .editor-cinema-hero-copy p {
+            max-width: 22rem !important;
+            font-size: 0.74rem !important;
+        }
+
+        .mobile-editor-panel .editor-cinema-stage-body {
+            grid-template-columns: 1fr;
+        }
+
+        .mobile-editor-panel .editor-cinema-stage-head h3 {
+            font-size: clamp(1.55rem, 3.4vw, 2.15rem);
+            line-height: 0.9;
+        }
+
+        .mobile-editor-panel .cinema-brand-preview,
+        .mobile-editor-panel .cinema-theme-preview,
+        .mobile-editor-panel .cinema-type-preview,
+        .mobile-editor-panel .cinema-visual-preview,
+        .mobile-editor-panel .cinema-button-preview,
+        .mobile-editor-panel .cinema-feature-preview,
+        .mobile-editor-panel .cinema-copy-preview,
+        .mobile-editor-panel .cinema-launch-preview {
+            min-height: 15rem;
+        }
+
+        .mobile-editor-panel .cinema-brand-preview textarea:nth-of-type(1),
+        .mobile-editor-panel .cinema-theme-preview h4,
+        .mobile-editor-panel .cinema-type-preview h4,
+        .mobile-editor-panel .cinema-launch-preview h4 {
+            min-height: 3.4rem;
+            font-size: clamp(1.85rem, 4.3vw, 2.45rem);
+            letter-spacing: -0.06em;
+            line-height: 0.96;
+        }
+
+        .mobile-editor-panel .cinema-theme-preview > div,
+        .mobile-editor-panel .cinema-date-strip,
+        .mobile-editor-panel .cinema-slot-strip,
+        .mobile-editor-panel .cinema-button-preview,
+        .mobile-editor-panel .cinema-feature-preview,
+        .mobile-editor-panel .cinema-color-grid,
+        .mobile-editor-panel .cinema-font-grid,
+        .mobile-editor-panel .cinema-toggle-grid,
+        .mobile-editor-panel .cinema-field-grid,
+        .mobile-editor-panel .cinema-display-grid,
+        .mobile-editor-panel .cinema-media-display-suite {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .mobile-editor-panel .cinema-look-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .editor-preview-room-nav {
+            --editor-room-nav-x: 0px;
+            --editor-room-nav-y: 0px;
+            position: absolute;
+            z-index: 64;
+            display: flex;
+            gap: 0.35rem;
+            padding: 0.42rem;
+            border-radius: 1.35rem;
+            border: 1px solid rgba(15,23,42,0.08);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.94), rgba(250,250,249,0.9)) padding-box,
+                linear-gradient(115deg, rgba(203,255,184,0.52), rgba(183,255,240,0.45), rgba(210,203,255,0.42), rgba(255,212,242,0.38)) border-box;
+            box-shadow: 0 22px 70px -46px rgba(15,23,42,0.72), inset 0 1px 0 rgba(255,255,255,0.92);
+            backdrop-filter: blur(24px) saturate(1.35);
+            touch-action: none;
+        }
+
+        .mobile-editor-device-option {
+            min-height: 2.5rem !important;
+        }
+
+        .editor-preview-room-nav.is-desktop {
+            top: 50%;
+            right: clamp(1rem, 2vw, 1.75rem);
+            left: auto;
+            transform: translate(var(--editor-room-nav-x), calc(-50% + var(--editor-room-nav-y)));
+            flex-direction: column;
+            border-radius: 1.35rem;
+            max-height: min(72vh, 36rem);
+            max-width: none;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .editor-preview-room-nav.is-phone {
+            top: 50%;
+            left: max(1rem, 5vw);
+            transform: translate(var(--editor-room-nav-x), calc(-50% + var(--editor-room-nav-y)));
+            flex-direction: column;
+            border-radius: 1.35rem;
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .editor-preview-room-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .editor-preview-room-nav button {
+            min-width: 2.35rem;
+            height: 2.5rem;
+            min-height: 2.5rem;
+            border-radius: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            border: 1px solid rgba(15,23,42,0.06);
+            background: rgba(255,255,255,0.72);
+            color: #667085;
+            font-size: 0.58rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            white-space: nowrap;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.84);
+            transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .editor-preview-room-nav-grip {
+            cursor: grab;
+            color: #98a2b3 !important;
+            background: rgba(248,250,252,0.62) !important;
+        }
+
+        .editor-preview-room-nav-grip:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+
+        .editor-preview-room-nav.is-desktop button {
+            width: 2.5rem;
+            min-width: 2.5rem;
+            padding: 0;
+        }
+
+        .editor-preview-room-nav.is-desktop button span {
+            display: none;
+        }
+
+        .editor-preview-room-nav.is-phone button span {
+            display: none;
+        }
+
+        .editor-preview-room-nav button:hover {
+            transform: translateY(-1px);
+            color: #050505;
+            border-color: rgba(15,23,42,0.14);
+            background: rgba(255,255,255,0.96);
+        }
+
+        .editor-preview-room-nav button.is-active {
+            color: #050505;
+            border: 1px solid transparent;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,249,0.94)) padding-box,
+                var(--native-accent-button-gradient) border-box;
+            box-shadow: 0 18px 40px -34px var(--native-accent-glow), inset 0 1px 0 rgba(255,255,255,0.88);
+        }
+

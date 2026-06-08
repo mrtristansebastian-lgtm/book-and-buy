@@ -1,0 +1,140 @@
+        .editor-command-stage {
+            border-radius: 30px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background:
+                linear-gradient(135deg, rgba(5, 5, 5, 0.96), rgba(17, 24, 39, 0.94)),
+                #050505;
+            color: #fff;
+            overflow: hidden;
+            box-shadow: 0 32px 90px -62px rgba(0, 0, 0, 0.8);
+        }
+
+        .editor-command-stage-screen {
+            position: relative;
+            min-height: 13rem;
+            padding: clamp(1.1rem, 2.4vw, 1.5rem);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .editor-command-stage-screen::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 18% 20%, rgba(217, 249, 157, 0.28), transparent 28%),
+                radial-gradient(circle at 72% 10%, rgba(56, 189, 248, 0.22), transparent 32%),
+                radial-gradient(circle at 82% 100%, rgba(217, 70, 239, 0.18), transparent 34%);
+            opacity: 0.95;
+            pointer-events: none;
+        }
+
+        .editor-command-stage.is-playing .editor-command-stage-screen::before {
+            animation: editorStudioSceneSweep 1.35s ease-in-out infinite alternate;
+        }
+
+        @keyframes editorStudioSceneSweep {
+            from { transform: translateX(-4%) scale(1); opacity: 0.76; }
+            to { transform: translateX(4%) scale(1.04); opacity: 1; }
+        }
+
+        .editor-command-stage-screen > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .editor-command-stage-orbit {
+            width: 5.5rem;
+            height: 5.5rem;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .editor-command-stage-orbit span {
+            position: absolute;
+            inset: -40%;
+            background: conic-gradient(from 120deg, #d9f99d, #7dd3fc, #c4b5fd, #f9a8d4, #d9f99d);
+            animation: editorStudioOrbit 7s linear infinite;
+            opacity: 0.8;
+        }
+
+        .editor-command-stage-orbit svg {
+            position: relative;
+            z-index: 1;
+            padding: 0.5rem;
+            border-radius: 18px;
+            background: #050505;
+            color: #fff;
+        }
+
+        @keyframes editorStudioOrbit {
+            to { transform: rotate(360deg); }
+        }
+
+        .editor-command-stage h4 {
+            max-width: 13ch;
+            color: #fff;
+            font-size: clamp(2rem, 4.5vw, 3.5rem);
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            line-height: 0.9;
+            margin-top: 0.4rem;
+        }
+
+        .editor-command-stage p {
+            max-width: 34rem;
+            margin-top: 0.8rem;
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .editor-command-stage-rail {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .editor-command-stage-rail button {
+            min-height: 4rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.56);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            font-size: 0.64rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            transition: color 180ms ease, background 180ms ease;
+        }
+
+        .editor-command-stage-rail button:last-child {
+            border-right: 0;
+        }
+
+        .editor-command-stage-rail button span {
+            color: rgba(255, 255, 255, 0.34);
+            font-size: 0.58rem;
+        }
+
+        .editor-command-stage-rail button.is-active {
+            color: #050505;
+            background: linear-gradient(135deg, #d9f99d, #bae6fd, #f5d0fe);
+        }
+
+        .editor-command-stage-rail button.is-active span {
+            color: rgba(5, 5, 5, 0.48);
+        }

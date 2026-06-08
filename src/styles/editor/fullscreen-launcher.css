@@ -1,0 +1,169 @@
+        .editor-floating-launch-toolbar,
+        .editor-floating-launch-popover {
+            position: absolute;
+            left: 50%;
+            z-index: 150;
+            transform: translateX(-50%);
+        }
+
+        .editor-floating-launch-toolbar {
+            bottom: clamp(0.9rem, 2.5vh, 1.35rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.34rem;
+            width: max-content;
+            max-width: calc(100vw - 1rem);
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 0.32rem;
+            box-shadow:
+                0 20px 52px -34px rgba(15, 23, 42, 0.44),
+                inset 0 1px 0 rgba(255,255,255,0.96);
+            backdrop-filter: blur(20px) saturate(1.12);
+            -webkit-backdrop-filter: blur(20px) saturate(1.12);
+        }
+
+        .editor-floating-launch-toolbar button {
+            position: relative;
+            min-width: 4.55rem;
+            width: auto;
+            height: 2.45rem;
+            padding: 0 0.66rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.36rem;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            background: #ffffff;
+            color: #050505;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.96);
+            transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+            font-size: 0.56rem;
+            font-weight: 900;
+            letter-spacing: 0.075em;
+            line-height: 1;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .editor-floating-launch-toolbar button:hover,
+        .editor-floating-launch-toolbar button.is-active {
+            transform: translateY(-1px);
+            border-color: transparent;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-accent-gradient) border-box;
+            box-shadow:
+                0 18px 40px -32px var(--native-accent-glow),
+                inset 0 1px 0 rgba(255,255,255,0.96);
+        }
+
+        .editor-floating-launch-toolbar button.is-primary {
+            background: #050505;
+            border-color: #050505;
+            color: #ffffff;
+        }
+
+        .editor-floating-launch-toolbar button svg {
+            width: 0.92rem;
+            height: 0.92rem;
+            display: block;
+            margin: 0;
+            flex: 0 0 auto;
+            stroke-width: 2.1;
+        }
+
+        .editor-floating-launch-toolbar .editor-launch-action-label {
+            position: static;
+            min-width: 0;
+            height: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            background: transparent;
+            color: currentColor;
+            font: inherit;
+            letter-spacing: inherit;
+            line-height: 1;
+        }
+
+        .editor-floating-launch-toolbar .editor-launch-count {
+            position: absolute;
+            top: -0.18rem;
+            right: -0.18rem;
+            min-width: 1rem;
+            height: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid #ffffff;
+            background: #050505;
+            color: #ffffff;
+            font-size: 0.55rem;
+            font-weight: 820;
+            line-height: 1;
+        }
+
+        @media (max-width: 390px) {
+            .editor-floating-launch-toolbar {
+                gap: 0.24rem;
+                padding: 0.26rem;
+            }
+
+            .editor-floating-launch-toolbar button {
+                min-width: 4.1rem;
+                height: 2.36rem;
+                padding: 0 0.48rem;
+                gap: 0.26rem;
+                font-size: 0.5rem;
+                letter-spacing: 0.045em;
+            }
+
+            .editor-floating-launch-toolbar button svg {
+                width: 0.84rem;
+                height: 0.84rem;
+            }
+        }
+
+        .editor-floating-launch-popover {
+            bottom: 4.25rem;
+            width: min(25rem, calc(100vw - 2rem));
+            border-radius: 14px;
+            border: 1px solid rgba(15, 23, 42, 0.085);
+            background: rgba(255,255,255,0.97);
+            box-shadow:
+                0 30px 80px -42px rgba(15, 23, 42, 0.5),
+                inset 0 1px 0 rgba(255,255,255,0.96);
+            overflow: hidden;
+            backdrop-filter: blur(20px) saturate(1.12);
+            -webkit-backdrop-filter: blur(20px) saturate(1.12);
+        }
+
+        .mobile-editor-panel > .editor-floating-launch-toolbar {
+            position: relative;
+            left: auto;
+            bottom: auto;
+            transform: none;
+            align-self: center;
+            flex-shrink: 0;
+            margin: 0.55rem auto 0.82rem;
+            z-index: 80;
+            max-width: calc(100% - 1.5rem);
+        }
+
+        .mobile-editor-panel > .editor-floating-launch-popover {
+            left: 50%;
+            bottom: 4.9rem;
+            z-index: 120;
+            width: min(25rem, calc(100% - 1.25rem));
+        }
+
+        .mobile-editor-panel > .editor-floating-launch-toolbar + * {
+            margin-top: 0;
+        }
+

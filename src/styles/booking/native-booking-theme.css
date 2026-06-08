@@ -1,0 +1,131 @@
+        .native-booking-theme {
+            animation: native-accent-sync var(--native-accent-duration) var(--native-accent-easing) infinite;
+        }
+
+        .native-booking-theme .booking-gradient-accent {
+            background-color: #dfffd2;
+            background-image: var(--native-booking-accent-gradient) !important;
+            background-size: 420% 420% !important;
+            background-position: var(--native-accent-x) 50% !important;
+        }
+
+        .native-booking-theme .booking-gradient-button {
+            color: #050505 !important;
+            border-color: transparent !important;
+            background-color: #eaffdf !important;
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.48), rgba(255,255,255,0.16)),
+                var(--native-booking-accent-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            box-shadow: 0 22px 50px -34px var(--native-accent-button-glow) !important;
+        }
+
+        .native-booking-theme .booking-gradient-chip {
+            color: #050505 !important;
+            border: 1px solid transparent !important;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96)) padding-box,
+                var(--native-booking-accent-gradient) border-box !important;
+            background-size: auto, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+        }
+
+        .native-booking-theme .booking-gradient-border {
+            border: 1px solid transparent !important;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98)) padding-box,
+                var(--native-booking-accent-gradient) border-box !important;
+            background-size: auto, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+        }
+
+        .native-booking-theme .booking-gradient-card {
+            --native-beam-peak: 0.22;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            box-shadow: 0 24px 74px -54px var(--native-accent-glow) !important;
+        }
+
+        .native-booking-theme .booking-gradient-card > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .native-booking-theme .booking-gradient-card::before {
+            content: "";
+            position: absolute;
+            inset: -54%;
+            z-index: 0;
+            background:
+                linear-gradient(112deg, transparent 30%, rgba(255,255,255,0.78) 42%, rgba(244,255,58,0.17) 47%, rgba(57,255,20,0.18) 51%, rgba(20,167,255,0.2) 56%, rgba(117,92,255,0.18) 61%, rgba(255,79,216,0.16) 66%, transparent 76%),
+                var(--native-accent-gradient);
+            background-size: 240% 100%, 420% 420%;
+            background-position: 50% 50%, var(--native-accent-x) 50%;
+            background-blend-mode: screen, normal;
+            opacity: var(--native-beam-peak);
+            filter: blur(14px) saturate(1.18);
+            transform: translate3d(-14%, 0, 0) rotate(-8deg);
+            pointer-events: none;
+        }
+
+        .native-theme-card-preview {
+            animation: native-accent-sync var(--native-accent-duration) var(--native-accent-easing) infinite;
+        }
+
+        .native-theme-card-preview::before {
+            content: "";
+            position: absolute;
+            inset: -38%;
+            z-index: 0;
+            background:
+                linear-gradient(112deg, transparent 34%, rgba(255,255,255,0.76), rgba(20,167,255,0.14), rgba(117,92,255,0.14), rgba(255,79,216,0.12), transparent 68%),
+                var(--native-accent-gradient);
+            background-size: 260% 100%, 420% 420%;
+            background-position: 50% 50%, var(--native-accent-x) 50%;
+            opacity: 0.08;
+            filter: blur(22px) saturate(1.1);
+            pointer-events: none;
+        }
+
+        .native-theme-card-preview > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .native-theme-swatch,
+        .native-theme-action,
+        .native-theme-soft-pill {
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0.14)),
+                var(--native-booking-accent-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+        }
+
+        .native-theme-swatch {
+            background-image: var(--native-booking-accent-gradient) !important;
+            background-size: 420% 420% !important;
+            border-color: rgba(255,255,255,0.7) !important;
+        }
+
+        .native-theme-soft-slot {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95)) padding-box,
+                var(--native-booking-accent-gradient) border-box !important;
+            background-size: auto, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+        }
+
+        .native-home-nav::after {
+            content: "";
+            position: absolute;
+            inset-inline: 0;
+            bottom: -1px;
+            height: 1px;
+            background-image: var(--native-accent-gradient);
+            background-size: 420% 420%;
+            background-position: var(--native-accent-x) 50%;
+            opacity: 0.7;
+        }

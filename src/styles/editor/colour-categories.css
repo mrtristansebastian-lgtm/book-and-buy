@@ -1,0 +1,416 @@
+        .palette-flow-room {
+            display: grid;
+            gap: 0.78rem;
+        }
+
+        .color-system-room {
+            gap: 0.9rem;
+        }
+
+        .editor-color-sync-note {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.1rem 0.04rem;
+        }
+
+        .editor-color-sync-note > span {
+            width: 2rem;
+            height: 2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: #f6f7f9;
+            color: #050505;
+            box-shadow: inset 0 0 0 1px rgba(15,23,42,0.06);
+        }
+
+        .editor-color-sync-note p {
+            margin: 0;
+            color: #667085;
+            font-size: 0.72rem;
+            font-weight: 760;
+            line-height: 1.35;
+            letter-spacing: 0;
+        }
+
+        .editor-color-sync-note button {
+            min-height: 2.18rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.34rem;
+            padding: 0 0.72rem;
+            border: 1px solid rgba(15, 23, 42, 0.09);
+            border-radius: 999px;
+            background: #ffffff;
+            color: #050505;
+            font-size: 0.55rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: transform 150ms ease, border-color 150ms ease;
+        }
+
+        .editor-color-sync-note button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(5, 5, 5, 0.18);
+        }
+
+        .editor-color-drop-board {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.58rem;
+        }
+
+        .editor-color-category-board {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.68rem;
+        }
+
+        .editor-color-category-tile {
+            appearance: none;
+            text-align: left;
+            cursor: pointer;
+            --editor-category-color: #050505;
+            min-width: 0;
+            display: grid;
+            gap: 0.62rem;
+            padding: 0.72rem;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.94);
+            transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+        }
+
+        .editor-color-category-tile:hover,
+        .editor-color-category-tile.is-active {
+            transform: translateY(-1px);
+            border-color: color-mix(in srgb, var(--editor-category-color) 38%, rgba(15,23,42,0.09));
+            background: rgba(255,255,255,0.96);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 14px 30px -28px rgba(15,23,42,0.36);
+        }
+
+        .editor-color-category-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .editor-color-category-head span,
+        .editor-color-category-head small {
+            display: block;
+            letter-spacing: 0;
+        }
+
+        .editor-color-category-head span {
+            color: #050505;
+            font-size: 0.78rem;
+            font-weight: 900;
+            line-height: 1.05;
+        }
+
+        .editor-color-category-head small {
+            margin-top: 0.14rem;
+            color: #8a94a6;
+            font-size: 0.56rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .editor-color-category-preview {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            min-width: max-content;
+        }
+
+        .editor-color-category-preview i {
+            width: 1.22rem;
+            height: 1.22rem;
+            display: block;
+            border-radius: 999px;
+            border: 2px solid #fff;
+            box-shadow: 0 10px 20px -16px rgba(15,23,42,0.9), inset 0 0 0 1px rgba(15,23,42,0.08);
+        }
+
+        .editor-color-category-preview i + i {
+            margin-left: -0.38rem;
+        }
+
+        .editor-color-category-controls {
+            display: grid;
+            gap: 0.58rem;
+        }
+
+        .editor-color-category-detail {
+            --editor-category-color: #050505;
+            display: grid;
+            gap: 0.82rem;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .editor-color-category-detail-head {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.95rem;
+            padding-bottom: 0.68rem;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+        }
+
+        .editor-color-category-detail-head span,
+        .editor-color-category-detail-head small {
+            display: block;
+            letter-spacing: 0;
+        }
+
+        .editor-color-category-detail-head span {
+            color: #050505;
+            font-size: 1rem;
+            font-weight: 920;
+            line-height: 1.05;
+        }
+
+        .editor-color-category-detail-head small {
+            margin-top: 0.12rem;
+            color: #8a94a6;
+            font-size: 0.68rem;
+            font-weight: 720;
+            line-height: 1.2;
+        }
+
+        .editor-color-back-button {
+            min-width: 5.65rem;
+            height: 2.34rem;
+            flex: 0 0 auto;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            background: rgba(255,255,255,0.9);
+            color: #050505;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.28rem;
+            padding: 0 0.68rem 0 0.52rem;
+            font-size: 0.6rem;
+            font-weight: 920;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.94);
+            transition: transform 150ms ease, border-color 150ms ease;
+        }
+
+        .editor-color-back-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(5, 5, 5, 0.16);
+        }
+
+        .editor-color-control-row {
+            --editor-row-color: #050505;
+            --editor-row-css-color: var(--editor-row-color);
+            min-width: 0;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 0.72rem;
+            min-height: 4.15rem;
+            padding: 0.66rem;
+            border: 1px solid rgba(15, 23, 42, 0.055);
+            border-radius: 15px;
+            background: rgba(255,255,255,0.86);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.94);
+            transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+        }
+
+        .editor-color-control-row:hover {
+            transform: translateY(-1px);
+            border-color: color-mix(in srgb, var(--editor-row-color) 26%, rgba(15,23,42,0.08));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.94), 0 16px 30px -28px rgba(15,23,42,0.5);
+        }
+
+        .editor-color-control-copy {
+            min-width: 0;
+        }
+
+        .editor-color-control-copy b,
+        .editor-color-control-copy small {
+            display: block;
+            min-width: 0;
+            letter-spacing: 0;
+        }
+
+        .editor-color-control-copy b {
+            color: #050505;
+            font-size: 0.82rem;
+            font-weight: 900;
+            line-height: 1.05;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .editor-color-control-copy small {
+            margin-top: 0.16rem;
+            color: #8a94a6;
+            font-size: 0.63rem;
+            font-weight: 700;
+            line-height: 1.15;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .editor-color-copy-button {
+            min-width: 2.2rem;
+            height: 2.2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.32rem;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.9);
+            color: #475569;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.94);
+        }
+
+        .editor-color-copy-button span {
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .editor-color-spectrum-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+            background: rgba(248, 250, 252, 0.62);
+            backdrop-filter: blur(10px);
+        }
+
+        .editor-color-spectrum-popover {
+            --editor-spectrum-color: #050505;
+            width: 100%;
+            max-width: 22rem;
+            display: grid;
+            gap: 0.72rem;
+            padding: 0.82rem;
+            border: 1px solid color-mix(in srgb, var(--editor-spectrum-color) 24%, rgba(15, 23, 42, 0.08));
+            border-radius: 20px;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 26px 80px -48px rgba(15, 23, 42, 0.58), inset 0 1px 0 rgba(255,255,255,0.94);
+        }
+
+        .editor-color-spectrum-head {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 0.62rem;
+        }
+
+        .editor-color-spectrum-head b,
+        .editor-color-spectrum-head small {
+            display: block;
+            min-width: 0;
+            letter-spacing: 0;
+        }
+
+        .editor-color-spectrum-head b {
+            color: #050505;
+            font-size: 0.82rem;
+            font-weight: 950;
+            line-height: 1.05;
+        }
+
+        .editor-color-spectrum-head small {
+            margin-top: 0.16rem;
+            color: #8a94a6;
+            font-size: 0.62rem;
+            font-weight: 760;
+            line-height: 1.2;
+        }
+
+        .editor-color-spectrum-close {
+            width: 2rem;
+            height: 2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 999px;
+            background: #ffffff;
+            color: #475569;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .editor-color-spectrum-picker {
+            display: grid;
+            gap: 0.42rem;
+        }
+
+        .editor-color-spectrum-picker span {
+            color: #7a8492;
+            font-size: 0.56rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .editor-color-spectrum-picker input {
+            width: 100%;
+            height: 5.6rem;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 16px;
+            background: var(--editor-spectrum-color);
+            cursor: pointer;
+        }
+
+        .editor-color-spectrum-code-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .editor-color-spectrum-code {
+            width: 100%;
+            height: 2.2rem;
+            min-width: 0;
+            padding: 0 0.62rem;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            border-radius: 11px;
+            background: rgba(255,255,255,0.94);
+            color: #050505;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 0.62rem;
+            font-weight: 800;
+            outline: none;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        .editor-color-spectrum-code:focus {
+            border-color: color-mix(in srgb, var(--editor-spectrum-color) 42%, rgba(15,23,42,0.14));
+            box-shadow:
+                0 0 0 3px color-mix(in srgb, var(--editor-spectrum-color) 13%, transparent),
+                inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+

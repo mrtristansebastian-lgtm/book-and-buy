@@ -1,0 +1,164 @@
+        @media (max-width: 767px) {
+            .finance-studio .dashboard-page-header h2 {
+                font-size: 2.6rem;
+                line-height: 0.95;
+            }
+
+            .finance-hero {
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+            }
+
+            .finance-hero-accent {
+                display: none !important;
+            }
+
+            .finance-hero-head {
+                border-bottom: 0 !important;
+                padding: 0 0 0.9rem !important;
+            }
+
+            .finance-hero-body {
+                padding: 0 !important;
+            }
+
+            .finance-timeline-chart {
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+
+            .finance-timeline-statbar {
+                gap: 0 !important;
+                margin-bottom: 1.05rem !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            .finance-timeline-statbar > div {
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding: 0.86rem 0.2rem !important;
+            }
+
+            .finance-timeline-statbar > div + div {
+                border-top: 1px solid rgba(15, 23, 42, 0.07) !important;
+            }
+
+            .finance-desk {
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+            }
+
+            .finance-desk-head {
+                border-bottom: 0 !important;
+                padding: 0 0 0.85rem !important;
+            }
+
+            .finance-desk-head h3 {
+                font-size: 1.9rem !important;
+                line-height: 0.96 !important;
+            }
+
+            .finance-desk-tabs {
+                border: 0 !important;
+                border-radius: 0.95rem !important;
+                background: #f4f4f4 !important;
+                box-shadow: none !important;
+            }
+
+            .finance-desk-tabs button {
+                border-radius: 0.72rem !important;
+                box-shadow: none !important;
+            }
+
+            .finance-desk-controls {
+                border-bottom: 0 !important;
+                padding: 0.2rem 0 0.85rem !important;
+                gap: 0.68rem !important;
+            }
+
+            .finance-desk-controls input,
+            .finance-desk-controls select {
+                border-color: rgba(15, 23, 42, 0.08) !important;
+                background-color: #ffffff !important;
+                box-shadow: none !important;
+            }
+
+            .finance-desk-list {
+                border-top: 1px solid rgba(15, 23, 42, 0.07) !important;
+                background: transparent !important;
+            }
+
+            .finance-desk-list.divide-y > :not([hidden]) ~ :not([hidden]) {
+                border-color: rgba(15, 23, 42, 0.07) !important;
+            }
+
+            .finance-desk-row {
+                padding: 1rem 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            .finance-desk-row:hover {
+                transform: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            .finance-timeline-canvas {
+                height: clamp(13.5rem, 58vw, 16rem) !important;
+                min-height: 13.5rem !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                background-image: none !important;
+                box-shadow: none !important;
+                overflow: visible !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .finance-timeline-canvas svg {
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            .finance-modal-gateway-list {
+                scroll-snap-type: x mandatory;
+            }
+
+            .finance-modal-gateway-list button {
+                scroll-snap-align: start;
+            }
+
+            .finance-modal {
+                align-items: flex-end !important;
+            }
+
+            .finance-modal-panel {
+                height: min(91vh, calc(100dvh - 0.75rem));
+                max-height: calc(100dvh - 0.75rem) !important;
+                border-bottom-left-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+            }
+
+            .finance-modal-body {
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .finance-modal-config {
+                padding-bottom: calc(2rem + env(safe-area-inset-bottom)) !important;
+            }
+        }

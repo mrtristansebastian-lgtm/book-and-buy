@@ -1,0 +1,194 @@
+@media (min-width: 768px) {
+  html body .native-ui .finance-studio,
+  html body .native-ui .support-page-shell,
+  html body .native-ui .services-studio,
+  html body .native-ui .client-directory-card,
+  html body .native-ui .booking-desk-shell,
+  html body .native-ui .finance-hero,
+  html body .native-ui .finance-desk {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  html body .native-ui .finance-studio {
+    padding: 1.25rem 0 0 !important;
+  }
+
+  html body .native-ui .finance-hero,
+  html body .native-ui .finance-desk,
+  html body .native-ui .booking-desk-shell,
+  html body .native-ui .support-inbox-card.support-desk-shell:not(.fixed),
+  html body .native-ui .schedule-calendar-card,
+  html body .native-ui .schedule-team-card,
+  html body .native-ui .client-directory-card {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html body .native-ui .finance-hero-accent,
+  html body .native-ui .support-inbox-card > .native-gradient-line {
+    display: none !important;
+  }
+
+  html body .native-ui .finance-hero-head,
+  html body .native-ui .finance-desk-head,
+  html body .native-ui .finance-desk-controls,
+  html body .native-ui .booking-desk-command,
+  html body .native-ui .client-directory-command,
+  html body .native-ui .schedule-calendar-command {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html body .native-ui .finance-hero-head,
+  html body .native-ui .finance-hero-body,
+  html body .native-ui .finance-desk-head,
+  html body .native-ui .finance-desk-controls {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  html body .native-ui .finance-timeline-chart {
+    display: grid !important;
+    grid-template-columns: minmax(18rem, 0.36fr) minmax(0, 0.64fr) !important;
+    align-items: stretch !important;
+    gap: clamp(1rem, 1.7vw, 1.35rem) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html body .native-ui .finance-timeline-statbar {
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.72rem !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  html body .native-ui .finance-timeline-statbar > div,
+  html body .native-ui .finance-timeline-statbar > div:first-child {
+    min-height: 7.2rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    border: 0 !important;
+    border-radius: 0.72rem !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(250, 251, 252, 0.58)) !important;
+    color: #050505 !important;
+    padding: clamp(1rem, 1.35vw, 1.25rem) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78) !important;
+  }
+
+  html body .native-ui .finance-timeline-statbar > div:first-child {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.12)),
+      var(--native-accent-button-gradient) !important;
+    background-size: 100% 100%, 420% 420% !important;
+    background-position: 0 0, var(--native-accent-x) 50% !important;
+  }
+
+  html body .native-ui .finance-timeline-statbar > div p {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  html body .native-ui .finance-timeline-statbar > div p:first-child {
+    color: rgba(15, 23, 42, 0.5) !important;
+    font-size: 0.58rem !important;
+    letter-spacing: 0.1em !important;
+  }
+
+  html body .native-ui .finance-timeline-statbar > div p:nth-child(2),
+  html body .native-ui .finance-timeline-statbar > div:first-child p:nth-child(2) {
+    color: #050505 !important;
+    font-size: clamp(1.75rem, 2.15vw, 2.42rem) !important;
+    line-height: 0.96 !important;
+    letter-spacing: -0.035em !important;
+  }
+
+  html body .native-ui .finance-chart-module {
+    min-height: clamp(22rem, 42dvh, 27rem) !important;
+    border-radius: 0.72rem !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(250, 251, 252, 0.62)) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+  }
+
+  html body .native-ui .finance-timeline-canvas {
+    height: 100% !important;
+    min-height: clamp(22rem, 42dvh, 27rem) !important;
+    border: 0 !important;
+    border-radius: 0.72rem !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  html body .native-ui .finance-timeline-canvas svg {
+    height: 100% !important;
+  }
+
+  html body .native-ui .finance-axis-label {
+    font-size: 0.72rem !important;
+    font-weight: 780 !important;
+    fill: rgba(71, 85, 105, 0.68) !important;
+  }
+
+  html body .native-ui .finance-axis-label-x {
+    font-size: 0.78rem !important;
+  }
+
+  html body .native-ui .finance-chart-line-shadow {
+    stroke-width: 6 !important;
+    opacity: 0.22 !important;
+  }
+
+  html body .native-ui .finance-chart-line {
+    stroke-width: 4.2 !important;
+  }
+
+  html body .native-ui .finance-chart-dot {
+    stroke-width: 3 !important;
+  }
+
+  html body .native-ui .finance-desk {
+    margin-top: 1.25rem !important;
+  }
+
+  html body .native-ui .finance-desk-head {
+    display: grid !important;
+    grid-template-columns: minmax(16rem, 1fr) auto !important;
+    align-items: end !important;
+    gap: 1rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 1rem !important;
+  }
+
+  html body .native-ui .finance-desk-head-actions {
+    justify-content: end !important;
+  }
+
+  html body .native-ui .finance-desk-controls {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.22fr) minmax(12rem, 0.22fr) !important;
+    gap: 0.72rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  html body .native-ui .finance-desk-list {
+    max-height: min(42rem, calc(100dvh - 13.6rem)) !important;
+    overflow-y: auto !important;
+  }
+}

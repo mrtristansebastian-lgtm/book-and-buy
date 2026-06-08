@@ -1,0 +1,184 @@
+        .editor-studio-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 260;
+            background: rgba(5, 5, 6, 0.36);
+            backdrop-filter: blur(18px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(1rem, 3vw, 2.4rem);
+        }
+
+        .mobile-editor-panel:has(.editor-studio-modal-backdrop) {
+            overflow: visible;
+            z-index: 320;
+        }
+
+        .mobile-editor-shell:has(.editor-studio-modal-backdrop) {
+            position: relative;
+            z-index: 320;
+            overflow: visible;
+        }
+
+        .native-ui:has(.editor-studio-modal-backdrop) .dashboard-sidebar {
+            z-index: 20;
+        }
+
+        .native-ui:has(.finance-modal) .dashboard-sidebar {
+            z-index: 0;
+        }
+
+        .mobile-editor-panel:has(.editor-studio-modal-backdrop) .editor-panel-scroll {
+            overflow: visible;
+        }
+
+        .editor-studio-modal-shell {
+            width: min(880px, 100%);
+            max-height: min(84vh, 780px);
+            border-radius: 26px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .editor-studio-modal-backdrop {
+                padding-left: calc(20rem + clamp(1rem, 3vw, 2.4rem));
+                justify-content: center;
+            }
+
+            .editor-studio-modal-shell {
+                width: min(840px, calc(100vw - 22rem));
+            }
+        }
+
+        .editor-studio-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: clamp(0.85rem, 1.8vw, 1.15rem);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+            background: rgba(255,255,255,0.92);
+        }
+
+        .editor-studio-modal-header h3 {
+            font-size: clamp(1.55rem, 3vw, 2.25rem);
+        }
+
+        .editor-studio-modal-body {
+            overflow-y: auto;
+            padding: clamp(0.85rem, 1.8vw, 1.15rem);
+            background: linear-gradient(180deg, rgba(248,250,252,0.78), #fff);
+        }
+
+        .editor-studio-modal-stack {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .editor-studio-two-col {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .editor-studio-panel {
+            border-radius: 22px;
+            padding: 1rem;
+        }
+
+        .editor-studio-media-box {
+            min-height: 10rem;
+            margin: 0.8rem 0;
+            border-radius: 20px;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #cbd5e1;
+        }
+
+        .editor-studio-media-box.square {
+            aspect-ratio: 1;
+            min-height: 0;
+        }
+
+        .editor-studio-media-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .editor-studio-link-row {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            min-height: 3.6rem;
+            margin: 0.8rem 0;
+            border-radius: 18px;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            background: #f8fafc;
+            padding: 0 1rem;
+            color: #94a3b8;
+            font-size: 0.78rem;
+            font-weight: 900;
+        }
+
+        .editor-studio-link-row input,
+        .editor-studio-copy-field input {
+            flex: 1;
+            min-width: 0;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: #050505;
+            font-weight: 900;
+        }
+
+        .editor-studio-theme-brief {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.94), rgba(248,250,252,0.82));
+        }
+
+        .editor-studio-theme-brief h4 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+        }
+
+        .editor-studio-step-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .editor-studio-step-head > span {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 999px;
+            background: #050505;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 900;
+        }
+
+        .editor-studio-step-head strong {
+            display: block;
+            color: #050505;
+            font-size: 1rem;
+        }
+
+        .editor-studio-step-head small {
+            color: #94a3b8;
+            font-weight: 700;
+        }
+

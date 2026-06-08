@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Build A Booking</string>
+    <string name="title_activity_main">Build A Booking</string>
+    <string name="package_name">com.buildabooking.app</string>
+    <string name="custom_url_scheme">com.buildabooking.app</string>
+</resources>

@@ -1,0 +1,129 @@
+@media (max-width: 767px) {
+            .dashboard-main > div:not(.mobile-editor-shell) {
+                padding: 0.75rem 0.75rem calc(7.35rem + env(safe-area-inset-bottom)) !important;
+                scroll-padding-bottom: calc(7.35rem + env(safe-area-inset-bottom));
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) > header {
+                margin-bottom: 0.9rem !important;
+                gap: 0.85rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) > header h1,
+            .dashboard-main > div:not(.mobile-editor-shell) > header h2 {
+                font-size: 2.45rem !important;
+                line-height: 0.92 !important;
+                letter-spacing: -0.025em !important;
+                margin-bottom: 0.45rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) > header p {
+                font-size: 0.78rem !important;
+                line-height: 1.35 !important;
+                margin-top: 0.4rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) > header button {
+                height: 2.5rem !important;
+                padding-left: 0.85rem !important;
+                padding-right: 0.85rem !important;
+                font-size: 0.58rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .grid {
+                gap: 0.7rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .saas-card {
+                border-radius: 8px !important;
+                box-shadow: 0 14px 36px -30px rgba(15, 23, 42, 0.42) !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .saas-card[class~="p-5"],
+            .dashboard-main > div:not(.mobile-editor-shell) .saas-card[class~="p-6"],
+            .dashboard-main > div:not(.mobile-editor-shell) .saas-card[class~="p-8"],
+            .dashboard-main > div:not(.mobile-editor-shell) .saas-card > [class~="p-5"],
+            .dashboard-main > div:not(.mobile-editor-shell) .saas-card > [class~="p-6"],
+            .dashboard-main > div:not(.mobile-editor-shell) .saas-card > [class~="p-8"],
+            .dashboard-main > div:not(.mobile-editor-shell) [class~="rounded-lg"][class~="border"][class~="p-5"],
+            .dashboard-main > div:not(.mobile-editor-shell) [class~="rounded-lg"][class~="border"][class~="p-6"] {
+                padding: 0.9rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .mb-8 {
+                margin-bottom: 1rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .mb-7 {
+                margin-bottom: 0.85rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .mb-6 {
+                margin-bottom: 0.9rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .mb-5 {
+                margin-bottom: 0.75rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .metric-value {
+                font-size: 1.65rem !important;
+                line-height: 0.95 !important;
+                letter-spacing: -0.025em !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .text-3xl,
+            .dashboard-main > div:not(.mobile-editor-shell) .text-4xl,
+            .dashboard-main > div:not(.mobile-editor-shell) .text-5xl,
+            .dashboard-main > div:not(.mobile-editor-shell) .text-6xl {
+                line-height: 1 !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .w-14.h-14,
+            .dashboard-main > div:not(.mobile-editor-shell) .w-12.h-12,
+            .dashboard-main > div:not(.mobile-editor-shell) .w-11.h-11,
+            .dashboard-main > div:not(.mobile-editor-shell) .w-10.h-10,
+            .dashboard-main > div:not(.mobile-editor-shell) .w-9.h-9 {
+                width: 2.25rem !important;
+                height: 2.25rem !important;
+                border-radius: 0.55rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) svg {
+                width: 0.95rem;
+                height: 0.95rem;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .uppercase[class*="tracking-"] {
+                letter-spacing: 0.075em !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) span[class*="uppercase"][class*="rounded-md"],
+            .dashboard-main > div:not(.mobile-editor-shell) span[class*="uppercase"][class*="rounded-lg"] {
+                font-size: 0.52rem !important;
+                line-height: 1.05 !important;
+                padding: 0.28rem 0.45rem !important;
+                max-width: 7rem;
+                text-align: right;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) section[data-tour="dashboard-hero"] {
+                margin-bottom: 0.85rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) section[data-tour="dashboard-hero"] h2 {
+                font-size: 1.6rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) section[data-tour="dashboard-hero"] p {
+                font-size: 0.8rem !important;
+            }
+
+            .dashboard-main > div:not(.mobile-editor-shell) .inline-grid button,
+            .dashboard-main > div:not(.mobile-editor-shell) .inline-flex button,
+            .dashboard-main > div:not(.mobile-editor-shell) button.h-10,
+            .dashboard-main > div:not(.mobile-editor-shell) button.h-11,
+            .dashboard-main > div:not(.mobile-editor-shell) button.h-12 {
+                min-height: 2.35rem;
+            }
+}

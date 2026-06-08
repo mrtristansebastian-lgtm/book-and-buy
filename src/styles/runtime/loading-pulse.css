@@ -1,0 +1,7 @@
+        /* Loading Pulse Animation */
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+        }
+        .animate-subtle-pulse { animation: subtle-pulse 1.5s ease-in-out infinite; }
+

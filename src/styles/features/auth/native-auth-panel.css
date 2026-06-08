@@ -1,0 +1,5 @@
+        .native-auth-panel {
+            box-shadow:
+                0 34px 90px -48px rgba(15, 23, 42, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.9);
+        }

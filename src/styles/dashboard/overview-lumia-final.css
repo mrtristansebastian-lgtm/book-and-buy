@@ -1,0 +1,346 @@
+        /* Lumia dashboard final overrides */
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-board {
+            width: 100% !important;
+            display: grid !important;
+            gap: clamp(1rem, 1.7vw, 1.4rem) !important;
+            padding-bottom: clamp(6rem, 8vw, 8rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-topline {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(22rem, 34rem) !important;
+            gap: clamp(1rem, 2vw, 2.25rem) !important;
+            align-items: end !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting h2 {
+            margin: 0 !important;
+            color: #030303 !important;
+            font-size: clamp(2.15rem, 4.5vw, 4.8rem) !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.055em !important;
+            line-height: 0.92 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting p {
+            max-width: 44rem !important;
+            margin: 0.78rem 0 0 !important;
+            color: #647083 !important;
+            font-size: clamp(0.96rem, 1.1vw, 1.12rem) !important;
+            font-weight: 570 !important;
+            line-height: 1.42 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-live {
+            width: max-content !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.48rem !important;
+            margin-bottom: 0.75rem !important;
+            padding: 0.46rem 0.68rem !important;
+            border-radius: 0.72rem !important;
+            border: 1px solid rgba(15, 23, 42, 0.055) !important;
+            background: rgba(255, 255, 255, 0.66) !important;
+            color: #647083 !important;
+            font-size: 0.62rem !important;
+            font-weight: 850 !important;
+            letter-spacing: 0.12em !important;
+            text-transform: uppercase !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-live span {
+            width: 0.55rem !important;
+            height: 0.55rem !important;
+            border-radius: 999px !important;
+            background: #b8ff4d !important;
+            box-shadow: 0 0 0 0.28rem rgba(184, 255, 77, 0.18) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-topline .dashboard-period-tabs {
+            width: 100% !important;
+            max-width: none !important;
+            justify-self: end !important;
+            border-radius: 1.1rem !important;
+            background: rgba(255, 255, 255, 0.58) !important;
+            border: 1px solid rgba(15, 23, 42, 0.045) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.62),
+                0 18px 52px -46px rgba(15, 23, 42, 0.42) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            grid-auto-rows: minmax(16rem, auto) !important;
+            gap: clamp(0.85rem, 1.25vw, 1.1rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile {
+            --tile-ink: #ffffff;
+            --tile-muted: rgba(255, 255, 255, 0.82);
+            --tile-glass: rgba(255, 255, 255, 0.18);
+            --tile-glass-strong: rgba(255, 255, 255, 0.28);
+            position: relative !important;
+            overflow: hidden !important;
+            min-height: 17rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: clamp(1rem, 1.3vw, 1.2rem) !important;
+            padding: clamp(1rem, 1.55vw, 1.35rem) !important;
+            border-radius: 1.35rem !important;
+            border: 1px solid color-mix(in srgb, var(--tile-bg, #111827) 82%, #000000) !important;
+            background: var(--tile-bg, #111827) !important;
+            color: var(--tile-ink) !important;
+            box-shadow:
+                0 28px 78px -60px color-mix(in srgb, var(--tile-bg, #111827) 70%, #000000),
+                inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+            isolation: isolate !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile::after {
+            content: "" !important;
+            position: absolute !important;
+            inset: 0 !important;
+            z-index: -1 !important;
+            pointer-events: none !important;
+            background:
+                radial-gradient(circle at 88% 10%, rgba(255, 255, 255, 0.28), transparent 10rem),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0)) !important;
+            opacity: 0.9 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-finance {
+            --tile-bg: #efc20f;
+            --tile-ink: #080806;
+            --tile-muted: rgba(8, 8, 6, 0.72);
+            --tile-glass: rgba(255, 255, 255, 0.34);
+            --tile-glass-strong: rgba(255, 255, 255, 0.46);
+            grid-column: span 2 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings {
+            --tile-bg: #75f047;
+            --tile-ink: #061106;
+            --tile-muted: rgba(6, 17, 6, 0.72);
+            --tile-glass: rgba(255, 255, 255, 0.3);
+            --tile-glass-strong: rgba(255, 255, 255, 0.42);
+            grid-column: span 2 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule {
+            --tile-bg: #35cfff;
+            --tile-ink: #031015;
+            --tile-muted: rgba(3, 16, 21, 0.72);
+            --tile-glass: rgba(255, 255, 255, 0.3);
+            --tile-glass-strong: rgba(255, 255, 255, 0.42);
+            grid-column: span 2 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support {
+            --tile-bg: #9a2cff;
+            grid-column: span 2 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-head,
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main,
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-actions {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 1rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-icon {
+            width: 2.9rem !important;
+            height: 2.9rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex: 0 0 auto !important;
+            border-radius: 0.92rem !important;
+            background: var(--tile-glass) !important;
+            color: var(--tile-ink) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-eyebrow {
+            margin-left: auto !important;
+            color: var(--tile-muted) !important;
+            font-size: 0.64rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.16em !important;
+            text-transform: uppercase !important;
+            text-align: right !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main {
+            align-items: end !important;
+            margin-top: auto !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main h3 {
+            max-width: 12ch !important;
+            margin: 0 !important;
+            color: var(--tile-ink) !important;
+            font-size: clamp(1.7rem, 2.7vw, 3rem) !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.055em !important;
+            line-height: 0.9 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main p {
+            max-width: 30rem !important;
+            margin: 0.75rem 0 0 !important;
+            color: var(--tile-muted) !important;
+            font-size: 0.94rem !important;
+            font-weight: 680 !important;
+            line-height: 1.35 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-value {
+            flex: 0 0 auto !important;
+            text-align: right !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-value strong {
+            display: block !important;
+            color: var(--tile-ink) !important;
+            font-size: clamp(2.5rem, 4.7vw, 5rem) !important;
+            font-weight: 950 !important;
+            letter-spacing: -0.07em !important;
+            line-height: 0.84 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-value span {
+            display: block !important;
+            margin-top: 0.65rem !important;
+            color: var(--tile-muted) !important;
+            font-size: 0.64rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.15em !important;
+            text-transform: uppercase !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-metrics {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 0.62rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-metrics div {
+            min-height: 4.2rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            gap: 0.34rem !important;
+            border-radius: 0.95rem !important;
+            background: var(--tile-glass) !important;
+            padding: 0.75rem !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-metrics span {
+            color: var(--tile-muted) !important;
+            font-size: 0.56rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.14em !important;
+            text-transform: uppercase !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-metrics strong {
+            color: var(--tile-ink) !important;
+            font-size: clamp(1.15rem, 1.7vw, 1.6rem) !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.045em !important;
+            line-height: 1 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-actions {
+            justify-content: flex-start !important;
+            flex-wrap: wrap !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-actions button {
+            min-height: 2.7rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.52rem !important;
+            border-radius: 999px !important;
+            background: var(--tile-glass-strong) !important;
+            color: var(--tile-ink) !important;
+            padding: 0 1rem !important;
+            font-size: 0.62rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.11em !important;
+            text-transform: uppercase !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+            transition: transform 180ms ease, background-color 180ms ease !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-actions button:hover {
+            transform: translateY(-1px) !important;
+            background: rgba(255, 255, 255, 0.48) !important;
+        }
+
+        @media (max-width: 1180px) {
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-topline {
+                grid-template-columns: 1fr !important;
+                align-items: start !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-topline .dashboard-period-tabs {
+                justify-self: stretch !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-board {
+                padding-bottom: 7.5rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-grid {
+                grid-template-columns: 1fr !important;
+                grid-auto-rows: auto !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-finance,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support {
+                grid-column: auto !important;
+                min-height: 16rem !important;
+                border-radius: 1.18rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                align-items: start !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-value {
+                text-align: left !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-metrics {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 0.5rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-metrics div {
+                min-height: 3.8rem !important;
+                padding: 0.62rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-actions button {
+                flex: 1 1 0 !important;
+                padding: 0 0.7rem !important;
+            }
+        }
+

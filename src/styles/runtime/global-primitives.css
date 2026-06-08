@@ -1,0 +1,106 @@
+        /* NUCLEAR SCROLLBAR WIPE */
+        ::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+            -webkit-appearance: none !important;
+        }
+        * {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+
+        button, a, div {
+            -webkit-tap-highlight-color: transparent;
+            outline: none !important;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .saas-card {
+            background: #ffffff;
+            border: 1px solid #E8EAEE;
+            border-radius: 8px;
+            box-shadow: 0 18px 48px -32px rgba(15, 23, 42, 0.35);
+        }
+
+        .saas-panel {
+            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,248,250,0.96));
+            border: 1px solid #E4E7EC;
+            border-radius: 8px;
+        }
+
+        .metric-value {
+            font-feature-settings: "tnum" on, "lnum" on;
+        }
+
+        .brand-loader-orbit {
+            position: relative;
+            width: 4.25rem;
+            height: 4.25rem;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: #ffffff;
+            box-shadow: 0 22px 60px -42px rgba(15, 23, 42, 0.45), inset 0 0 0 1px rgba(228, 231, 236, 0.9);
+        }
+
+        .brand-loader-orbit::before {
+            content: "";
+            position: absolute;
+            inset: -3px;
+            border-radius: inherit;
+            border: 2px solid rgba(228, 231, 236, 0.9);
+            border-top-color: #050505;
+            animation: brand-loader-spin 0.9s linear infinite;
+        }
+
+        @keyframes brand-loader-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .brand-loader-dot {
+            position: relative;
+            width: 1.7rem;
+            height: 1.7rem;
+            border-radius: 999px;
+            display: inline-grid;
+            place-items: center;
+            background: #ffffff;
+            box-shadow: inset 0 0 0 1px rgba(228, 231, 236, 0.9);
+        }
+
+        .brand-loader-dot::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            border: 2px solid rgba(228, 231, 236, 0.85);
+            border-top-color: #050505;
+            animation: brand-loader-spin 0.75s linear infinite;
+        }
+
+        .booking-page-loader .brand-loader-orbit {
+            width: 4.25rem;
+            height: 4.25rem;
+        }
+
+        .booking-client-loader-logo {
+            width: 2.45rem;
+            height: 2.45rem;
+            display: block;
+            object-fit: contain;
+        }
+
+        .booking-client-loader-fallback {
+            font-size: 1.45rem;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }

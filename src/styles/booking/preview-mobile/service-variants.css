@@ -1,0 +1,89 @@
+        .editor-preview-frame.is-mobile-preview .booking-services-menu,
+        .editor-preview-frame.is-mobile-preview .booking-services-cards,
+        .editor-preview-frame.is-mobile-preview .booking-services-luxury {
+            grid-template-columns: 1fr !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-gallery {
+            grid-template-columns: 1fr !important;
+            gap: 0.7rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-gallery > button {
+            min-height: 12.2rem;
+            padding: 0.9rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-gallery .booking-service-image {
+            width: 100% !important;
+            height: 6.6rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-gallery > button.is-text-only-service h5 {
+            margin-top: 2.15rem;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-menu > button > div > div:last-child {
+            grid-template-columns: 1fr;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-menu > button .mt-4 {
+            grid-column: auto;
+            grid-row: auto;
+            justify-content: flex-start;
+            margin-top: 0.55rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-menu .booking-service-facts,
+        .booking-flow-public .booking-services-menu .booking-service-facts {
+            grid-column: auto;
+            grid-row: auto;
+            justify-content: flex-start;
+            margin-top: 0.55rem !important;
+            flex-wrap: wrap;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-luxury .booking-service-image {
+            width: 100% !important;
+            height: 6.6rem !important;
+            min-height: 6.6rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-compact {
+            grid-template-columns: 1fr !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-signature {
+            grid-template-columns: 1fr !important;
+            gap: 0.52rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-signature > button {
+            min-height: 5rem;
+            padding: 0.82rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-signature .booking-service-shell {
+            flex-direction: row !important;
+            gap: 0.72rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-signature .booking-service-copy {
+            grid-template-columns: 1fr;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-signature .booking-service-title-line,
+        .editor-preview-frame.is-mobile-preview .booking-services-signature .booking-service-copy p,
+        .editor-preview-frame.is-mobile-preview .booking-services-signature .booking-service-facts {
+            grid-column: 1;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-signature .booking-service-copy p {
+            -webkit-line-clamp: 2;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-signature .booking-service-facts {
+            grid-row: auto;
+            justify-content: flex-start;
+            margin-top: 0.52rem !important;
+        }

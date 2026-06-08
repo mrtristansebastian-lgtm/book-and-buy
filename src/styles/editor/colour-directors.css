@@ -1,0 +1,183 @@
+        .cinema-native-gradient-note {
+            margin: -0.05rem 0 0;
+            color: #657083;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .cinema-color-directors {
+            display: grid;
+            gap: 0.64rem;
+        }
+
+        .cinema-color-directors.is-dense {
+            gap: 0.82rem;
+        }
+
+        .cinema-color-section {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .cinema-color-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 1.2rem;
+            padding: 0 0.08rem;
+        }
+
+        .cinema-color-section-title span {
+            color: #98a2b3;
+            font-size: 0.56rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .cinema-color-section-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+
+        .cinema-color-director {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 22px;
+            background: rgba(255,255,255,0.84);
+            padding: 0.76rem 0.78rem;
+            box-shadow: 0 18px 42px -40px rgba(15, 23, 42, 0.45);
+        }
+
+        .cinema-color-directors.is-dense .cinema-color-director {
+            min-width: 0;
+            border-radius: 16px;
+            padding: 0.62rem;
+            background: rgba(255,255,255,0.9);
+            box-shadow: none;
+        }
+
+        .cinema-color-director-head {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 0.76rem;
+        }
+
+        .cinema-color-directors.is-dense .cinema-color-director-head {
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 0.52rem;
+        }
+
+        .cinema-color-orb {
+            width: 2.4rem;
+            height: 2.4rem;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            box-shadow: 0 14px 30px -22px currentColor;
+        }
+
+        .cinema-color-directors.is-dense .cinema-color-orb {
+            width: 1.86rem;
+            height: 1.86rem;
+            border-radius: 10px;
+        }
+
+        .cinema-color-director-head b {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 950;
+            letter-spacing: -0.02em;
+            line-height: 1.08;
+        }
+
+        .cinema-color-director-head small {
+            display: block;
+            margin-top: 0.16rem;
+            color: #6b7483;
+            font-size: 0.7rem;
+            font-weight: 700;
+            line-height: 1.32;
+            letter-spacing: -0.005em;
+        }
+
+        .cinema-color-edit {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.38rem;
+            min-height: 2.4rem;
+            padding: 0 0.95rem;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            border-radius: 999px;
+            background: #fff;
+            color: #050505;
+            font-size: 0.64rem;
+            font-weight: 950;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 14px 35px -28px rgba(15, 23, 42, 0.55);
+        }
+
+        .cinema-color-directors.is-dense .cinema-color-edit {
+            grid-column: 1 / -1;
+            width: 100%;
+            min-height: 2.05rem;
+            padding: 0 0.72rem;
+            font-size: 0.55rem;
+            box-shadow: none;
+        }
+
+        .editor-cinema-control-panel > .cinema-control-title {
+            padding: 0 0.12rem;
+        }
+
+        .editor-cinema-control-panel > .cinema-control-title span {
+            color: #7b8797;
+            font-size: 0.62rem;
+            font-weight: 950;
+            letter-spacing: 0.07em;
+        }
+
+        .editor-cinema-control-panel > .cinema-control-title small {
+            max-width: 35rem;
+            margin-top: 0.2rem;
+            color: #596579;
+            font-size: 0.82rem;
+            font-weight: 720;
+            line-height: 1.38;
+            letter-spacing: -0.01em;
+        }
+
+        .cinema-color-edit input[type="color"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .cinema-color-grid i {
+            width: 1.15rem;
+            height: 1.15rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.9);
+        }
+
+        .cinema-color-grid i + i {
+            margin-left: -0.42rem;
+        }
+
+        .cinema-color-grid input[type="color"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+

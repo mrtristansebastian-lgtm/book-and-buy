@@ -1,0 +1,11 @@
+        /* Final mobile schedule flattening: keep day tiles, remove the outer panel texture. */
+
+        @media (max-width: 767px) {
+
+            html body .native-ui .notification-center.notification-center-compact {
+                top: calc(4.25rem + env(safe-area-inset-top)) !important;
+                right: 0.75rem !important;
+                z-index: 175 !important;
+            }
+        }
+

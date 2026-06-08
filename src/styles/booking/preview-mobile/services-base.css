@@ -1,0 +1,81 @@
+        .editor-preview-frame.is-mobile-preview .booking-services-grid > button,
+        .booking-flow-public .booking-services-grid > button {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid > button,
+        .editor-preview-frame.is-mobile-preview .booking-calendar-look > button,
+        .editor-preview-frame.is-mobile-preview .booking-time-look > button {
+            transform: none !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid > button > div,
+        .booking-flow-public .booking-services-grid > button > div {
+            min-width: 0;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid h5,
+        .booking-flow-public .booking-services-grid h5,
+        .editor-preview-frame.is-mobile-preview .booking-faq-section .booking-faq-question,
+        .booking-flow-public .booking-faq-section .booking-faq-question {
+            overflow-wrap: anywhere;
+            hyphens: auto;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid p,
+        .booking-flow-public .booking-services-grid p,
+        .editor-preview-frame.is-mobile-preview .booking-faq-section .booking-faq-answer,
+        .booking-flow-public .booking-faq-section .booking-faq-answer {
+            overflow-wrap: anywhere;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid span,
+        .booking-flow-public .booking-services-grid span,
+        .editor-preview-frame.is-mobile-preview .booking-time-look span,
+        .booking-flow-public .booking-time-look span {
+            max-width: 100%;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid > button > div {
+            align-items: flex-start;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) > button > div {
+            flex-direction: column;
+            gap: 0.82rem;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) > button.is-text-only-service > div {
+            gap: 0 !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) .booking-service-image {
+            width: 3.2rem !important;
+            height: 3.2rem !important;
+            border-radius: 1rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) > button > div > div:last-child {
+            width: 100%;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) h5 {
+            font-size: 0.96rem !important;
+            line-height: 1.12 !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) p {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-size: 0.74rem !important;
+            line-height: 1.34 !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) .booking-service-facts,
+        .booking-flow-public .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) .booking-service-facts {
+            margin-top: 0.5rem !important;
+            gap: 0.4rem !important;
+        }

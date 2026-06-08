@@ -1,0 +1,241 @@
+        /* Dashboard command board refinement: calmer color, stronger hierarchy, app-like mosaic. */
+        html body .native-ui .dashboard-overview-page {
+            background:
+                radial-gradient(circle at 12% -8%, rgba(184, 255, 77, 0.08), transparent 24rem),
+                linear-gradient(180deg, #f7f8fa 0%, #f2f4f6 100%) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-board {
+            gap: clamp(1.25rem, 2vw, 1.8rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-topline {
+            grid-template-columns: minmax(0, 1fr) minmax(24rem, 36rem) !important;
+            align-items: center !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-live {
+            border-radius: 999px !important;
+            background: rgba(255, 255, 255, 0.78) !important;
+            color: rgba(15, 23, 42, 0.56) !important;
+            box-shadow:
+                0 18px 46px -42px rgba(15, 23, 42, 0.48),
+                inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting h2 {
+            font-size: clamp(2.65rem, 4.7vw, 5.2rem) !important;
+            letter-spacing: -0.065em !important;
+            max-width: 13ch !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting p {
+            max-width: 38rem !important;
+            color: rgba(71, 85, 105, 0.88) !important;
+            font-weight: 650 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-topline .dashboard-period-tabs {
+            height: 3.65rem !important;
+            padding: 0.42rem !important;
+            border-radius: 1.28rem !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.68)) padding-box,
+                linear-gradient(135deg, rgba(15, 23, 42, 0.075), rgba(15, 23, 42, 0.02)) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 28px 74px -62px rgba(15, 23, 42, 0.52),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-grid {
+            grid-template-columns: minmax(28rem, 1.18fr) minmax(17rem, 0.74fr) minmax(17rem, 0.74fr) !important;
+            grid-template-rows: minmax(17rem, 0.84fr) minmax(18rem, 1fr) !important;
+            align-items: stretch !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile {
+            min-height: 0 !important;
+            border-radius: 1.65rem !important;
+            padding: clamp(1.1rem, 1.5vw, 1.45rem) !important;
+            border-color: color-mix(in srgb, var(--tile-bg, #111827) 70%, rgba(255, 255, 255, 0.34)) !important;
+            background:
+                radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--tile-bg, #111827) 72%, #ffffff) 0%, transparent 22rem),
+                linear-gradient(145deg, color-mix(in srgb, var(--tile-bg, #111827) 94%, #ffffff) 0%, var(--tile-bg, #111827) 58%, color-mix(in srgb, var(--tile-bg, #111827) 82%, #000000) 100%) !important;
+            box-shadow:
+                0 34px 90px -68px color-mix(in srgb, var(--tile-bg, #111827) 72%, #000000),
+                inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile::after {
+            background:
+                linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent 24%, transparent 76%, rgba(255, 255, 255, 0.16)),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0)) !important;
+            opacity: 0.52 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-finance {
+            --tile-bg: #f2c318;
+            grid-column: 1 / 2 !important;
+            grid-row: 1 / 3 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings {
+            --tile-bg: #65e655;
+            grid-column: 2 / 3 !important;
+            grid-row: 1 / 2 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule {
+            --tile-bg: #38c8f7;
+            grid-column: 3 / 4 !important;
+            grid-row: 1 / 2 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support {
+            --tile-bg: #7b4dff;
+            grid-column: 2 / 4 !important;
+            grid-row: 2 / 3 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-head {
+            align-items: flex-start !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-icon {
+            width: 3.05rem !important;
+            height: 3.05rem !important;
+            border-radius: 1rem !important;
+            background: rgba(255, 255, 255, 0.26) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-eyebrow {
+            max-width: 10rem !important;
+            line-height: 1.3 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main {
+            align-items: flex-end !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main h3 {
+            font-size: clamp(1.95rem, 3vw, 3.45rem) !important;
+            max-width: 11ch !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main p {
+            max-width: 22rem !important;
+            font-size: 0.98rem !important;
+            letter-spacing: -0.01em !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-value strong {
+            font-size: clamp(3.2rem, 5.5vw, 6.4rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings .dashboard-lumia-tile-main,
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule .dashboard-lumia-tile-main {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            align-items: start !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings .dashboard-lumia-value,
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule .dashboard-lumia-value {
+            text-align: left !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings .dashboard-lumia-value strong,
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule .dashboard-lumia-value strong {
+            font-size: clamp(3.4rem, 5.4vw, 5.2rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support .dashboard-lumia-tile-main h3 {
+            max-width: 12ch !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-metrics div {
+            min-height: 4.45rem !important;
+            border-radius: 1.08rem !important;
+            background: color-mix(in srgb, var(--tile-glass, rgba(255, 255, 255, 0.18)) 84%, rgba(255, 255, 255, 0.14)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-actions {
+            padding-top: 0.1rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-actions button {
+            min-height: 2.85rem !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            background: rgba(255, 255, 255, 0.34) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support .dashboard-lumia-actions button {
+            background: rgba(255, 255, 255, 0.19) !important;
+        }
+
+        @media (max-width: 1280px) {
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                grid-template-rows: none !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-finance,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support {
+                grid-column: span 1 !important;
+                grid-row: auto !important;
+                min-height: 18rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support {
+                grid-column: span 2 !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui .dashboard-overview-page {
+                padding: 0.82rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-topline {
+                gap: 1rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting h2 {
+                max-width: 12ch !important;
+                font-size: clamp(2.2rem, 9.3vw, 3.1rem) !important;
+                line-height: 0.9 !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting p {
+                font-size: 0.96rem !important;
+                line-height: 1.38 !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-finance,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-support {
+                grid-column: 1 / -1 !important;
+                min-height: 17rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-main {
+                align-items: start !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-value strong,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-bookings .dashboard-lumia-value strong,
+            html body .native-ui .dashboard-overview-page .dashboard-lumia-tile-schedule .dashboard-lumia-value strong {
+                font-size: clamp(3rem, 13vw, 4.5rem) !important;
+            }
+        }
+

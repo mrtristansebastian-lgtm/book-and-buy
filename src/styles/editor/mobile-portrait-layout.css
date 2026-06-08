@@ -1,0 +1,44 @@
+        @media (max-width: 767px) and (orientation: portrait) {
+            .mobile-editor-rotate-prompt {
+                display: flex;
+            }
+            .mobile-editor-preview {
+                display: none !important;
+            }
+            .mobile-editor-panel {
+                width: 100% !important;
+            }
+            .editor-panel-header {
+                padding: 1.15rem 1.25rem 0.95rem !important;
+                gap: 0.75rem !important;
+                align-items: stretch !important;
+            }
+            .editor-panel-header h2 {
+                font-size: 2.45rem !important;
+                line-height: 0.9 !important;
+            }
+            .editor-tab-rail {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 1.35rem !important;
+                scroll-snap-type: x mandatory;
+            }
+            .editor-tab-button {
+                flex: 1 1 0 !important;
+                min-width: 0;
+                scroll-snap-align: start;
+                padding: 0.75rem 0.5rem !important;
+                font-size: 0.5rem !important;
+                letter-spacing: 0.12em !important;
+            }
+            .editor-publish-footer {
+                padding: 0.85rem 1rem calc(0.85rem + env(safe-area-inset-bottom)) !important;
+            }
+            .editor-publish-button {
+                min-height: 3.35rem !important;
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+                font-size: 0.58rem !important;
+                letter-spacing: 0.12em !important;
+            }
+        }

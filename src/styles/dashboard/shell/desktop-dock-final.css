@@ -1,0 +1,50 @@
+        /* Desktop dock final pass: icon-only rail with labels kept for screen readers via aria-label/title. */
+        @media (min-width: 768px) {
+            html body .native-ui .dashboard-main > div:not(.mobile-editor-shell) {
+                padding-left: clamp(5.85rem, 6.35vw, 6.8rem) !important;
+            }
+
+            html body .native-ui .dashboard-main > div.dashboard-overview-page:not(.mobile-editor-shell) {
+                padding-left: clamp(7.1rem, 7.5vw, 8rem) !important;
+            }
+
+            html body .native-ui .desktop-bottom-nav {
+                width: 4.85rem !important;
+            }
+
+            html body .native-ui .desktop-nav-dock {
+                padding: 0.48rem !important;
+                gap: 0.18rem !important;
+                border-radius: 1.55rem !important;
+            }
+
+            html body .native-ui .desktop-nav-tab {
+                gap: 0 !important;
+                border-radius: 1.16rem !important;
+            }
+
+            html body .native-ui .desktop-nav-tab > span:not(.desktop-nav-tab-icon) {
+                position: absolute !important;
+                width: 1px !important;
+                height: 1px !important;
+                overflow: hidden !important;
+                clip: rect(0 0 0 0) !important;
+                white-space: nowrap !important;
+            }
+
+            html body .native-ui .desktop-nav-tab-icon {
+                width: 2.75rem !important;
+                height: 2.75rem !important;
+            }
+
+            html body .native-ui .desktop-nav-tab-icon svg {
+                width: 1.72rem !important;
+                height: 1.72rem !important;
+            }
+
+            html body .native-ui .desktop-nav-tab-icon i {
+                top: 0.22rem !important;
+                right: 0.18rem !important;
+            }
+        }
+

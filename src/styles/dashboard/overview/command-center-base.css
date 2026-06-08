@@ -1,0 +1,310 @@
+        /* Working dashboard command center */
+        html body .native-ui .dashboard-overview-page .dashboard-command-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: clamp(0.9rem, 1.35vw, 1.15rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-tile {
+            --tile-ink: #050505;
+            --tile-muted: rgba(5, 5, 5, 0.64);
+            --tile-glass: rgba(255, 255, 255, 0.34);
+            min-height: 25rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0.92rem !important;
+            padding: clamp(1rem, 1.45vw, 1.35rem) !important;
+            border-radius: 1.55rem !important;
+            border: 1px solid color-mix(in srgb, var(--tile-bg, #ffffff) 70%, #000000) !important;
+            background:
+                radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--tile-bg, #ffffff) 82%, #ffffff), transparent 19rem),
+                linear-gradient(145deg, color-mix(in srgb, var(--tile-bg, #ffffff) 96%, #ffffff), var(--tile-bg, #ffffff)) !important;
+            color: var(--tile-ink) !important;
+            box-shadow:
+                0 32px 88px -72px color-mix(in srgb, var(--tile-bg, #ffffff) 70%, #000000),
+                inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+            overflow: hidden !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-tile-bookings { --tile-bg: #68e957; }
+        html body .native-ui .dashboard-overview-page .dashboard-command-tile-schedule { --tile-bg: #38c8f7; }
+        html body .native-ui .dashboard-overview-page .dashboard-command-tile-finance { --tile-bg: #f2c318; }
+        html body .native-ui .dashboard-overview-page .dashboard-command-tile-support {
+            --tile-bg: #8152ff;
+            --tile-ink: #ffffff;
+            --tile-muted: rgba(255, 255, 255, 0.76);
+            --tile-glass: rgba(255, 255, 255, 0.18);
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-head {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 1rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-summary {
+            display: flex !important;
+            align-items: flex-end !important;
+            justify-content: space-between !important;
+            gap: 1rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-summary h3 {
+            max-width: 12ch !important;
+            margin: 0 !important;
+            color: var(--tile-ink) !important;
+            font-size: clamp(1.65rem, 2.4vw, 2.75rem) !important;
+            font-weight: 920 !important;
+            letter-spacing: -0.055em !important;
+            line-height: 0.92 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-summary p {
+            margin: 0.55rem 0 0 !important;
+            color: var(--tile-muted) !important;
+            font-size: 0.9rem !important;
+            font-weight: 720 !important;
+            line-height: 1.25 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-total {
+            text-align: right !important;
+            flex: 0 0 auto !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-total strong {
+            display: block !important;
+            color: var(--tile-ink) !important;
+            font-size: clamp(2.8rem, 5vw, 5rem) !important;
+            font-weight: 960 !important;
+            letter-spacing: -0.07em !important;
+            line-height: 0.82 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-total span {
+            display: block !important;
+            margin-top: 0.6rem !important;
+            color: var(--tile-muted) !important;
+            font-size: 0.62rem !important;
+            font-weight: 920 !important;
+            letter-spacing: 0.14em !important;
+            text-transform: uppercase !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-mini-stat-row {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 0.55rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-mini-stat-row span {
+            min-height: 3.1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            gap: 0.12rem !important;
+            border-radius: 0.95rem !important;
+            background: var(--tile-glass) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            padding: 0.62rem 0.72rem !important;
+            color: var(--tile-muted) !important;
+            font-size: 0.6rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.1em !important;
+            text-transform: uppercase !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-mini-stat-row strong {
+            color: var(--tile-ink) !important;
+            font-size: 1.2rem !important;
+            letter-spacing: -0.04em !important;
+            line-height: 1 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-feed {
+            display: grid !important;
+            gap: 0.48rem !important;
+            margin-top: auto !important;
+            max-height: 15.4rem !important;
+            overflow-y: auto !important;
+            padding-right: 0.15rem !important;
+            scrollbar-width: thin !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-row,
+        html body .native-ui .dashboard-overview-page .dashboard-empty-row {
+            min-height: 3.45rem !important;
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: auto minmax(0, 1fr) auto !important;
+            align-items: center !important;
+            gap: 0.72rem !important;
+            border-radius: 1rem !important;
+            background: rgba(255, 255, 255, 0.54) !important;
+            border: 1px solid rgba(255, 255, 255, 0.24) !important;
+            color: var(--tile-ink) !important;
+            padding: 0.58rem 0.66rem !important;
+            text-align: left !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-tile-support .dashboard-activity-row,
+        html body .native-ui .dashboard-overview-page .dashboard-command-tile-support .dashboard-empty-row {
+            background: rgba(255, 255, 255, 0.14) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-empty-row {
+            display: flex !important;
+            justify-content: center !important;
+            color: var(--tile-muted) !important;
+            font-size: 0.76rem !important;
+            font-weight: 820 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-row:not(.is-static):hover {
+            transform: translateY(-1px) !important;
+            background: rgba(255, 255, 255, 0.68) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot {
+            width: 0.72rem !important;
+            height: 0.72rem !important;
+            border-radius: 999px !important;
+            background: #050505 !important;
+            box-shadow: 0 0 0 0.3rem rgba(5, 5, 5, 0.08) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-paid-confirmed {
+            background: #1f7aff !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-confirmed,
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-paid { background: #0bbf5f !important; }
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-pending,
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-manual_pending { background: #ffb020 !important; }
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-waitlist { background: #ff8a1f !important; }
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-reschedule { background: #ff4fd8 !important; }
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-confirmed-unpaid,
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-unread { background: #ffffff !important; }
+        html body .native-ui .dashboard-overview-page .dashboard-activity-dot.is-open { background: #9cffef !important; }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-copy {
+            min-width: 0 !important;
+            display: grid !important;
+            gap: 0.18rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-copy strong {
+            color: var(--tile-ink) !important;
+            font-size: 0.88rem !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.02em !important;
+            line-height: 1.05 !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-copy small {
+            color: var(--tile-muted) !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            line-height: 1.15 !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-activity-action {
+            min-width: 3.1rem !important;
+            color: var(--tile-ink) !important;
+            font-size: 0.58rem !important;
+            font-weight: 950 !important;
+            letter-spacing: 0.11em !important;
+            text-align: right !important;
+            text-transform: uppercase !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-staff-toggle,
+        html body .native-ui .dashboard-overview-page .dashboard-segment-mini {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.45rem !important;
+            overflow-x: auto !important;
+            scrollbar-width: none !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-staff-toggle button,
+        html body .native-ui .dashboard-overview-page .dashboard-segment-mini button {
+            min-height: 2.65rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            border-radius: 999px !important;
+            background: rgba(255, 255, 255, 0.34) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            color: var(--tile-ink) !important;
+            padding: 0 0.82rem !important;
+            font-size: 0.62rem !important;
+            font-weight: 930 !important;
+            letter-spacing: 0.09em !important;
+            text-transform: uppercase !important;
+            white-space: nowrap !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-staff-toggle button span {
+            width: 1.62rem !important;
+            height: 1.62rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 999px !important;
+            background: var(--staff-color, #39ff14) !important;
+            color: #050505 !important;
+            font-size: 0.56rem !important;
+            font-weight: 950 !important;
+            letter-spacing: 0 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-staff-toggle button.is-active,
+        html body .native-ui .dashboard-overview-page .dashboard-segment-mini button.is-active {
+            background: rgba(255, 255, 255, 0.72) !important;
+            box-shadow: inset 0 0 0 1px rgba(5, 5, 5, 0.12) !important;
+        }
+
+        @media (max-width: 980px) {
+            html body .native-ui .dashboard-overview-page .dashboard-command-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-command-tile {
+                min-height: 24rem !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui .dashboard-overview-page .dashboard-command-summary {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                align-items: start !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-command-total {
+                text-align: left !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-command-total strong {
+                font-size: clamp(2.8rem, 12vw, 4.2rem) !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-command-tile {
+                min-height: 25rem !important;
+                border-radius: 1.28rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-activity-feed {
+                max-height: 14.5rem !important;
+            }
+        }

@@ -1,0 +1,47 @@
+        .editor-command-launchpad,
+        .editor-command-summary {
+            border-radius: 26px;
+            padding: clamp(1rem, 2vw, 1.2rem);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .editor-command-summary {
+            background: #050505;
+            color: #fff;
+        }
+
+        .editor-command-summary h4 {
+            color: #fff;
+        }
+
+        .editor-command-summary p {
+            max-width: 36rem;
+            margin-top: 0.45rem;
+            color: rgba(255, 255, 255, 0.66);
+            font-size: 0.88rem;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+
+        .editor-command-swatches {
+            display: flex;
+            align-items: center;
+            padding: 0.35rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .editor-command-swatches span {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 999px;
+            border: 2px solid rgba(255,255,255,0.9);
+            box-shadow: 0 16px 30px -20px #000;
+        }
+
+        .editor-command-swatches span + span {
+            margin-left: -0.65rem;
+        }

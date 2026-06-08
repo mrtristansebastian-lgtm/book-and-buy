@@ -1,0 +1,154 @@
+        .mobile-editor-preview {
+            background:
+                radial-gradient(circle at 14% 10%, rgba(217, 249, 157, 0.16), transparent 30%),
+                radial-gradient(circle at 88% 12%, rgba(186, 230, 253, 0.22), transparent 32%),
+                linear-gradient(180deg, #f8f9fb, #eef0f3) !important;
+        }
+
+        .mobile-editor-preview-toolbar {
+            left: 50%;
+            width: min(calc(100% - 2rem), 52rem);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .editor-preview-control-row {
+            display: flex;
+            width: 100%;
+            min-width: 0;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            overflow-x: auto;
+            overflow-y: visible;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            pointer-events: auto;
+        }
+
+        .editor-preview-control-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .editor-preview-device-switcher,
+        .editor-preview-step-switcher,
+        .mobile-editor-toolbar-actions {
+            flex: 0 0 auto;
+            pointer-events: auto;
+        }
+
+        .editor-preview-step-switcher {
+            max-width: min(29rem, calc(100vw - 18rem));
+        }
+
+        .mobile-editor-device-switcher,
+        .editor-preview-room-nav {
+            border-color: rgba(15, 23, 42, 0.08) !important;
+            background: rgba(255, 255, 255, 0.76) !important;
+            box-shadow: 0 18px 58px -44px rgba(15, 23, 42, 0.62) !important;
+        }
+
+        .editor-preview-room-nav {
+            align-items: center !important;
+            gap: 0.42rem !important;
+            padding: 0.58rem 0.48rem 0.78rem !important;
+            scroll-padding-block: 0.75rem;
+        }
+
+        .editor-preview-room-nav button {
+            width: 2.25rem !important;
+            min-width: 2.25rem !important;
+            height: 2.25rem !important;
+            min-height: 2.25rem !important;
+            flex: 0 0 auto;
+        }
+
+        .editor-preview-room-nav .editor-preview-room-nav-grip {
+            margin-bottom: 0.08rem;
+        }
+
+        .editor-preview-room-nav::after {
+            content: "";
+            flex: 0 0 0.08rem;
+        }
+
+        .editor-publish-footer {
+            padding: 0.72rem 0.88rem !important;
+            background: rgba(255, 255, 255, 0.86) !important;
+            backdrop-filter: blur(22px) saturate(1.2);
+            -webkit-backdrop-filter: blur(22px) saturate(1.2);
+        }
+
+        .editor-publish-footer p {
+            display: none;
+        }
+
+        .editor-publish-footer button,
+        .editor-publish-footer .editor-publish-button {
+            min-height: 2.72rem !important;
+            height: 2.72rem !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            font-size: 0.6rem !important;
+            letter-spacing: 0.08em !important;
+        }
+
+        @media (min-width: 1280px) {
+            .editor-cinema-stage-body {
+                grid-template-columns: 1fr !important;
+            }
+
+            .cinema-look-grid {
+                grid-template-columns: repeat(auto-fit, minmax(8.6rem, 1fr)) !important;
+            }
+        }
+
+        @media (max-width: 1180px) {
+            .mobile-editor-panel:not(.mobile-editor-panel-collapsed) {
+                width: min(52vw, 590px) !important;
+                flex-basis: min(52vw, 590px) !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .mobile-editor-preview-toolbar {
+                left: 0.75rem;
+                right: 0.75rem;
+                width: auto;
+                transform: none;
+            }
+
+            .editor-preview-control-row {
+                justify-content: flex-start;
+            }
+
+            .editor-preview-step-switcher {
+                max-width: none;
+            }
+
+            .mobile-editor-panel:not(.mobile-editor-panel-collapsed) {
+                width: 100% !important;
+                flex-basis: 100% !important;
+            }
+
+            .editor-cinema-stage-head {
+                align-items: flex-start !important;
+            }
+
+            .editor-cinema-nav-buttons {
+                width: 100%;
+            }
+
+            .editor-cinema-nav-buttons button {
+                flex: 1 1 0;
+            }
+
+            .cinema-color-directors,
+            .cinema-color-section-grid,
+            .cinema-social-fields,
+            .cinema-media-actions,
+            .cinema-media-display-suite,
+            .cinema-text-card-row {
+                grid-template-columns: 1fr !important;
+            }
+        }

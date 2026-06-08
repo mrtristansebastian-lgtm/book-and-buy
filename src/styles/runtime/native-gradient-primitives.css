@@ -1,0 +1,56 @@
+        .native-ui .native-gradient-button,
+        .native-ui .native-gradient-icon {
+            color: #050505 !important;
+            background-color: #eefcff !important;
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.18)),
+                var(--native-accent-button-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            border-color: rgba(15, 23, 42, 0.08) !important;
+            box-shadow: 0 20px 52px -38px var(--native-accent-glow) !important;
+        }
+
+        .native-ui .native-gradient-ring {
+            border-color: transparent !important;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98)) padding-box,
+                var(--native-accent-gradient) border-box !important;
+            background-size: auto, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            box-shadow: 0 24px 72px -54px var(--native-accent-glow) !important;
+        }
+
+        .native-ui .native-subtle-gradient {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(57,255,20,0.18), transparent 28%),
+                radial-gradient(circle at 82% 18%, rgba(20,167,255,0.20), transparent 30%),
+                radial-gradient(circle at 72% 88%, rgba(255,79,216,0.16), transparent 30%),
+                var(--native-accent-gradient);
+            background-size: 130% 130%, 150% 150%, 150% 150%, 420% 420%;
+            background-position: 0 0, 100% 0, 70% 100%, var(--native-accent-x) 50%;
+        }
+
+        .native-ui .native-gradient-line {
+            background-image: var(--native-accent-gradient);
+            background-size: 420% 420%;
+            background-position: var(--native-accent-x) 50%;
+        }
+
+        .native-ui :where(.support-thread-icon-chip, .support-thread-unread-count, .booking-avatar-placeholder) {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .native-ui :where(.support-thread-icon-chip) > svg {
+            display: block;
+            flex: 0 0 auto;
+            margin: auto;
+            stroke-width: 2;
+        }
+
+        .native-ui :where(.support-thread-icon-chip:has(> svg:only-child)) {
+            line-height: 0;
+        }

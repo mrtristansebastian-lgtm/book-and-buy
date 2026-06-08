@@ -1,0 +1,154 @@
+        .cinema-media-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .cinema-media-action-card {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.88));
+            padding: 1rem;
+            display: grid;
+            gap: 0.8rem;
+            box-shadow: 0 18px 44px -40px rgba(15, 23, 42, 0.34);
+        }
+
+        .cinema-media-action-card strong {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 950;
+            letter-spacing: -0.03em;
+            color: #050505;
+            margin-bottom: 0.18rem;
+        }
+
+        .cinema-media-action-card small {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 750;
+            line-height: 1.45;
+            color: #64748b;
+        }
+
+        .cinema-media-action-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cinema-media-action-controls button {
+            height: 2.6rem;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            background: #fff;
+            color: #050505;
+            padding: 0 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            font-size: 0.62rem;
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+        }
+
+        .cinema-media-action-controls button:last-child {
+            width: 2.6rem;
+            padding: 0;
+        }
+
+        .cinema-media-action-controls button.is-add-media {
+            width: auto !important;
+            min-width: 7.2rem;
+            padding: 0 1rem !important;
+            white-space: nowrap;
+        }
+
+        .cinema-media-action-controls button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(15, 23, 42, 0.22);
+        }
+
+        .cinema-media-action-controls button.is-active {
+            background: #050505;
+            color: #fff;
+            border-color: #050505;
+        }
+
+        .cinema-industry-list {
+            max-height: 26rem;
+            overflow-y: auto;
+            padding: 0;
+            scrollbar-width: thin;
+        }
+
+        .cinema-industry-list button {
+            border-radius: 18px;
+            min-height: 4.2rem;
+            justify-content: space-between;
+            padding: 0 0.85rem;
+            text-align: left;
+        }
+
+        .cinema-industry-list button span {
+            display: block;
+        }
+
+        .cinema-industry-list button small {
+            display: block;
+            margin-top: 0.2rem;
+            color: #94a3b8;
+            font-size: 0.56rem;
+            font-weight: 850;
+            max-width: 14rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cinema-color-grid-multi button,
+        .cinema-color-grid-multi label,
+        .cinema-color-grid-multi .cinema-color-tile {
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 4.2rem;
+        }
+
+        .cinema-color-grid-multi .cinema-color-tile > button,
+        .cinema-color-grid-multi .cinema-color-tile > label:not(.cinema-color-depth) {
+            min-height: auto;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .cinema-swatches {
+            display: flex;
+            align-items: center;
+        }
+
+        .cinema-range-control {
+            padding: 0.85rem;
+            place-items: stretch;
+            align-items: stretch;
+            border-style: solid;
+        }
+
+        .cinema-range-control input {
+            width: 100%;
+            accent-color: #050505;
+        }
+
+        .cinema-range-control small,
+        .cinema-helper-copy {
+            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 750;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+

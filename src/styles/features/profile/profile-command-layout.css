@@ -1,0 +1,62 @@
+html body .native-ui .profile-page .profile-command-grid {
+  gap: 0.82rem !important;
+}
+
+html body .native-ui .profile-page .profile-command-card {
+  border-radius: 0.72rem !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .profile-page .profile-command-meta {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  html body .native-ui .profile-page .dashboard-action-strip,
+  html body .native-ui .profile-page .profile-mobile-hub {
+    max-width: none !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: clamp(1rem, 1.35vw, 1.35rem) !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-card {
+    min-height: clamp(15rem, 32dvh, 18.5rem) !important;
+    grid-template-columns: 3.45rem minmax(0, 1fr) 2.35rem !important;
+    gap: 0.62rem 1.05rem !important;
+    padding: clamp(1.12rem, 1.5vw, 1.55rem) !important;
+    align-content: center !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-icon {
+    width: 3.08rem !important;
+    height: 3.08rem !important;
+    border-radius: 0.96rem !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-copy {
+    padding-right: 3.2rem !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-copy > span {
+    font-size: clamp(1.45rem, 1.68vw, 1.72rem) !important;
+    line-height: 1.02 !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-quick {
+    gap: 0.34rem !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-quick button,
+  html body .native-ui .profile-page .profile-command-quick span {
+    min-height: 2.05rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  html body .native-ui .profile-page .profile-command-arrow {
+    width: 2.35rem !important;
+    height: 2.35rem !important;
+  }
+}

@@ -1,0 +1,102 @@
+        /* Profile Activity Center tabs and split signal panels. */
+        .profile-activity-tabs {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 0.4rem !important;
+            padding: 0.72rem clamp(1rem, 2vw, 1.45rem) 0 !important;
+        }
+
+        .profile-activity-tabs button,
+        .profile-activity-filter-tabs button {
+            min-width: 0 !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(15, 23, 42, 0.075) !important;
+            background: rgba(255, 255, 255, 0.84) !important;
+            color: #667085 !important;
+            font-size: 0.58rem !important;
+            font-weight: 950 !important;
+            letter-spacing: 0.1em !important;
+            text-transform: uppercase !important;
+            transition: color 160ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+        }
+
+        .profile-activity-tabs button {
+            min-height: 2.78rem !important;
+        }
+
+        .profile-activity-tabs button.is-active,
+        .profile-activity-filter-tabs button.is-active {
+            color: #050505 !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 247, 249, 0.94)) padding-box,
+                var(--native-accent-button-gradient) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 14px 34px -29px var(--native-accent-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+        }
+
+        .profile-activity-summary {
+            padding: 0.82rem clamp(1rem, 2vw, 1.45rem) !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.055) !important;
+        }
+
+        .profile-activity-summary span {
+            min-height: 2.9rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            border-radius: 999px !important;
+            background: rgba(15, 23, 42, 0.035) !important;
+            border: 1px solid rgba(15, 23, 42, 0.055) !important;
+            color: #667085 !important;
+            font-size: 0.72rem !important;
+            font-weight: 760 !important;
+            text-align: center !important;
+        }
+
+        .profile-activity-filter-tabs {
+            display: flex !important;
+            gap: 0.42rem !important;
+            overflow-x: auto !important;
+            scrollbar-width: none !important;
+            padding: 0.75rem clamp(1rem, 2vw, 1.45rem) !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.055) !important;
+        }
+
+        .profile-activity-filter-tabs::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        .profile-activity-filter-tabs button {
+            min-height: 2.28rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.45rem !important;
+            padding: 0 0.76rem !important;
+            flex: 0 0 auto !important;
+        }
+
+        .profile-activity-filter-tabs button strong {
+            min-width: 1.34rem !important;
+            height: 1.34rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 999px !important;
+            background: rgba(15, 23, 42, 0.065) !important;
+            color: inherit !important;
+            font-size: 0.54rem !important;
+            font-weight: 950 !important;
+            letter-spacing: 0 !important;
+        }
+
+        .profile-activity-row-icon.is-reschedule { background: #ff4fd8 !important; color: #050505 !important; }
+        .profile-activity-row-icon.is-services { background: #ff6a00 !important; color: #fff !important; }
+        .profile-activity-row-icon.is-team { background: #081a3d !important; color: #fff !important; }
+        .profile-activity-row-icon.is-schedule { background: #38c8f7 !important; color: #050505 !important; }
+        .profile-activity-row-icon.is-editor { background: #3f52ff !important; color: #fff !important; }
+        .profile-activity-row-icon.is-migration { background: #64748b !important; color: #fff !important; }
+

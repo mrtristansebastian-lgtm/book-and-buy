@@ -1,0 +1,19 @@
+        /* Final desktop seamless workspace surfaces: make PC feel like an app, not nested website cards. */
+        @media (min-width: 768px) {
+            html body .native-ui.dashboard-light .dashboard-main > div:not(.mobile-editor-shell),
+            html body .native-ui.dashboard-light .dashboard-overview-page,
+            html body .native-ui.dashboard-light .finance-studio {
+                background: #f6f7f9 !important;
+                background-image: none !important;
+            }
+
+            html body .native-ui .support-desk-shell .support-thread-row.is-active {
+                background:
+                    linear-gradient(90deg, rgba(57,255,20,0.052), rgba(20,184,166,0.04), transparent 62%) !important;
+            }
+
+            html body .native-ui .finance-desk-row {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+        }

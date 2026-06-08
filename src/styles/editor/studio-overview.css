@@ -1,0 +1,209 @@
+        .editor-studio-hero,
+        .editor-studio-workflow,
+        .editor-studio-panel,
+        .editor-studio-card,
+        .editor-studio-modal-shell {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.86);
+            box-shadow: 0 24px 90px -72px rgba(15, 23, 42, 0.75);
+        }
+
+        .editor-studio-hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: clamp(1.25rem, 3vw, 2rem);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1.5rem;
+            min-height: 176px;
+        }
+
+        .editor-studio-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 12% 0%, rgba(196, 181, 253, 0.24), transparent 34%),
+                radial-gradient(circle at 82% 22%, rgba(125, 211, 252, 0.22), transparent 36%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(248, 250, 252, 0.62));
+            pointer-events: none;
+        }
+
+        .editor-studio-hero > *,
+        .editor-studio-workflow > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .editor-studio-kicker,
+        .editor-studio-panel-title {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .editor-studio-hero h3,
+        .editor-studio-modal-header h3,
+        .editor-studio-theme-brief h4,
+        .editor-studio-workflow h4 {
+            margin: 0.55rem 0 0;
+            color: #050505;
+            font-weight: 950;
+            letter-spacing: -0.055em;
+            line-height: 0.94;
+        }
+
+        .editor-studio-hero h3 {
+            max-width: 11ch;
+            font-size: clamp(2.2rem, 5.2vw, 3.45rem);
+        }
+
+        .editor-studio-hero p,
+        .editor-studio-workflow p,
+        .editor-studio-theme-brief p {
+            max-width: 34rem;
+            margin-top: 1rem;
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            font-weight: 600;
+        }
+
+        .editor-studio-primary-action,
+        .editor-studio-light-button {
+            min-height: 3rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            padding: 0 1rem;
+            font-size: 0.64rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .editor-studio-primary-action {
+            color: #fff;
+            background: #050505;
+            box-shadow: 0 18px 42px -24px rgba(0, 0, 0, 0.9);
+        }
+
+        .editor-studio-light-button {
+            color: #050505;
+            background: #fff;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+        }
+
+        .editor-studio-primary-action:hover,
+        .editor-studio-light-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .editor-studio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .editor-studio-card {
+            border-radius: 22px;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 0.9rem;
+            align-items: center;
+            text-align: left;
+            transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+        }
+
+        .editor-studio-card:hover,
+        .editor-studio-card.is-active {
+            transform: translateY(-2px);
+            border-color: rgba(117, 92, 255, 0.35);
+            background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(240,249,255,0.78));
+        }
+
+        .editor-studio-card-icon,
+        .editor-studio-card-arrow,
+        .editor-studio-modal-close {
+            width: 2.55rem;
+            height: 2.55rem;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #050505;
+            background: #f8fafc;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+        }
+
+        .editor-studio-card strong {
+            display: block;
+            color: #050505;
+            font-size: 0.95rem;
+            letter-spacing: -0.025em;
+        }
+
+        .editor-studio-card small {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.72rem;
+            line-height: 1.45;
+            font-weight: 700;
+            margin-top: 0.2rem;
+        }
+
+        .editor-studio-workflow {
+            border-radius: 24px;
+            padding: 1.15rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .editor-studio-workflow::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(196,181,253,0.16), rgba(125,211,252,0.13), transparent 70%);
+            pointer-events: none;
+        }
+
+        .editor-studio-workflow h4 {
+            font-size: 1.5rem;
+        }
+
+        .editor-studio-workflow p {
+            margin-top: 0.5rem;
+            font-size: 0.78rem;
+        }
+
+        .editor-studio-preview-pills {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .editor-studio-preview-pills span {
+            width: 2.05rem;
+            height: 2.05rem;
+            border-radius: 999px;
+            border: 2px solid #fff;
+            box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.8);
+        }
+
+        .editor-studio-preview-pills span + span {
+            margin-left: -0.55rem;
+        }
+

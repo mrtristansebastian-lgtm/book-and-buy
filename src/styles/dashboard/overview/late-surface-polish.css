@@ -1,0 +1,72 @@
+        .dashboard-overview-page section[data-tour="dashboard-hero"],
+        .dashboard-overview-page .dashboard-overview-shell {
+            background: transparent !important;
+            background-image: none !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+        }
+
+        .dashboard-overview-page section[data-tour="dashboard-hero"] {
+            padding: 0 !important;
+        }
+
+        .dashboard-overview-page .dashboard-overview-shell[class~="p-5"],
+        .dashboard-overview-page .dashboard-overview-shell[class~="p-6"] {
+            padding: 0 !important;
+        }
+
+        .dashboard-overview-page .dashboard-overview-shell > [class*="border-b"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        .dashboard-overview-page .native-stat-grid {
+            gap: clamp(0.7rem, 1.4vw, 1rem) !important;
+        }
+
+        .dashboard-overview-page .native-stat-card {
+            min-height: 9rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .dashboard-overview-page .dashboard-period-tabs {
+            width: 100%;
+        }
+
+        .dashboard-overview-page .dashboard-overview-shell .space-y-3 > :not([hidden]) ~ :not([hidden]),
+        .dashboard-overview-page .dashboard-overview-shell .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: 0.72rem !important;
+        }
+
+        @media (max-width: 767px) {
+            .dashboard-overview-page {
+                padding-left: 0.9rem !important;
+                padding-right: 0.9rem !important;
+            }
+
+            .dashboard-overview-page section[data-tour="dashboard-hero"] {
+                margin-bottom: 1.05rem !important;
+            }
+
+            .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child {
+                gap: 1rem !important;
+                margin-bottom: 1rem !important;
+            }
+
+            .dashboard-overview-page .native-stat-grid {
+                gap: 0.68rem !important;
+            }
+
+            .dashboard-overview-page .native-stat-card {
+                min-height: 7.45rem;
+                padding: 0.88rem !important;
+            }
+
+            .dashboard-overview-page .dashboard-overview-shell > [class*="border-b"] {
+                padding-top: 0 !important;
+            }
+        }

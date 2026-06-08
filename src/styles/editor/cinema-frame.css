@@ -1,0 +1,89 @@
+        .editor-cinema-header {
+            padding: clamp(1rem, 2.6vw, 2rem);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(24px);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 1rem;
+        }
+
+        .editor-cinema-header span,
+        .editor-cinema-hero-copy span,
+        .editor-cinema-stage-head span,
+        .cinema-theme-preview > span,
+        .cinema-type-preview > span,
+        .cinema-control-title span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: #94a3b8;
+            font-size: 0.63rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .editor-cinema-header h2 {
+            margin: 0;
+            color: #050505;
+            font-size: clamp(2rem, 4vw, 3.15rem);
+            font-weight: 950;
+            letter-spacing: -0.07em;
+            line-height: 0.9;
+        }
+
+        .editor-cinema-header-actions,
+        .editor-cinema-hero-actions,
+        .editor-cinema-nav-buttons,
+        .cinema-launch-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+        }
+
+        .editor-cinema-header-actions button,
+        .editor-cinema-hero-actions button,
+        .editor-cinema-nav-buttons button,
+        .editor-cinema-control-panel > button,
+        .editor-cinema-control-panel > label,
+        .cinema-launch-actions button {
+            min-height: 2.75rem;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+            color: #050505;
+            padding: 0 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            box-shadow: 0 16px 34px -30px rgba(15, 23, 42, 0.55);
+        }
+
+        .editor-cinema-header-actions button:first-child,
+        .editor-cinema-hero-actions button:first-child,
+        .editor-cinema-nav-buttons button:last-child,
+        .cinema-launch-actions button:nth-child(2) {
+            background: #050505;
+            color: #fff;
+            border-color: #050505;
+        }
+
+        .editor-cinema-header-actions button:disabled,
+        .editor-cinema-nav-buttons button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .editor-cinema-studio {
+            display: grid;
+            gap: 1rem;
+        }
+

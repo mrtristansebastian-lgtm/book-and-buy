@@ -1,0 +1,201 @@
+        .booking-desk-input,
+        .booking-desk-select {
+            height: 2.85rem !important;
+            border-radius: 0.72rem !important;
+            border-color: rgba(15, 23, 42, 0.075) !important;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,250,251,0.96)) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.96) !important;
+            letter-spacing: 0 !important;
+        }
+
+        .booking-desk-select {
+            appearance: none;
+            -webkit-appearance: none;
+            color: #050505 !important;
+            padding-left: 0.95rem !important;
+            padding-right: 2.35rem !important;
+            font-size: 0.78rem !important;
+            font-weight: 720 !important;
+            letter-spacing: 0 !important;
+            text-transform: none;
+        }
+
+        .booking-desk-select-field,
+        .booking-desk-menu {
+            min-width: 0;
+        }
+
+        .booking-desk-menu {
+            font-family: inherit;
+        }
+
+        .booking-desk-menu summary {
+            list-style: none;
+            cursor: pointer;
+        }
+
+        .booking-desk-menu summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .booking-desk-select-face {
+            display: flex;
+            min-height: 2.85rem;
+            width: 100%;
+            min-width: 0;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 0.72rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.99), rgba(247,248,250,0.96));
+            padding: 0.55rem 2.4rem 0.55rem 1rem;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.96);
+            color: #050505;
+            transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease, transform 160ms ease;
+            font-family: inherit;
+        }
+
+        .booking-desk-select-kicker {
+            display: none;
+        }
+
+        .booking-desk-select-face > span {
+            display: block;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.82rem;
+            font-weight: 650;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .booking-desk-menu-panel {
+            position: absolute;
+            z-index: 80;
+            top: calc(100% + 0.42rem);
+            left: 0;
+            right: 0;
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 0.9rem;
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 24px 48px -34px rgba(15,23,42,0.6), inset 0 1px 0 rgba(255,255,255,0.86);
+            padding: 0.28rem;
+        }
+
+        .booking-desk-menu-panel button {
+            width: 100%;
+            min-height: 2.15rem;
+            border-radius: 0.64rem;
+            padding: 0.48rem 0.72rem;
+            text-align: left;
+            color: #111827;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 620;
+            line-height: 1.1;
+            letter-spacing: 0;
+            transition: background 140ms ease, color 140ms ease;
+        }
+
+        .booking-desk-menu-panel button:hover,
+        .booking-desk-menu-panel button.is-selected {
+            background: #f4f5f7;
+            color: #050505;
+        }
+
+        .booking-desk-native-select {
+            position: absolute;
+            inset: 0;
+            height: 100% !important;
+            width: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .booking-desk-select-field:hover .booking-desk-select-face,
+        .booking-desk-native-select:focus + .booking-desk-select-face,
+        .booking-desk-select-field:focus-within .booking-desk-select-face,
+        .booking-desk-menu:hover .booking-desk-select-face,
+        .booking-desk-menu[open] .booking-desk-select-face,
+        .booking-desk-menu:focus-within .booking-desk-select-face {
+            border-color: rgba(5, 5, 5, 0.18);
+            background: #ffffff;
+            box-shadow:
+                0 0 0 3px rgba(15, 23, 42, 0.04),
+                inset 0 1px 0 rgba(255,255,255,0.96);
+        }
+
+        .booking-desk-select-field svg,
+        .booking-desk-menu svg {
+            position: absolute;
+            right: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7b8190;
+            pointer-events: none;
+        }
+
+        .booking-desk-select:focus {
+            border-color: rgba(5, 5, 5, 0.24) !important;
+            box-shadow:
+                0 0 0 3px rgba(15, 23, 42, 0.045),
+                inset 0 1px 0 rgba(255,255,255,0.96) !important;
+        }
+
+        .booking-record-row select {
+            appearance: none;
+            -webkit-appearance: none;
+            min-height: 2.45rem;
+            border-radius: 0.68rem !important;
+            border-color: rgba(15, 23, 42, 0.075) !important;
+            background-color: #ffffff !important;
+            background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237b8190' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.75rem center !important;
+            padding-right: 2.25rem !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.96) !important;
+            font-weight: 720 !important;
+        }
+
+        .booking-filter-chip {
+            min-height: 2.45rem !important;
+            height: 2.45rem !important;
+            border-radius: 0.78rem !important;
+            padding-inline: 0.78rem !important;
+            gap: 0.48rem !important;
+            border: 1px solid transparent;
+            background: rgba(255,255,255,0.68) !important;
+            color: #667085 !important;
+            font-size: 0.62rem !important;
+            font-weight: 840 !important;
+            letter-spacing: 0.025em !important;
+            box-shadow: none !important;
+        }
+
+        .booking-filter-chip:hover {
+            background: rgba(255,255,255,0.96) !important;
+            border-color: rgba(15, 23, 42, 0.08);
+            color: #050505 !important;
+        }
+
+        .booking-filter-chip.is-active {
+            background: #050505 !important;
+            color: #ffffff !important;
+            border-color: #050505;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 16px 34px -24px rgba(0,0,0,0.6) !important;
+        }
+
+        .booking-filter-count {
+            min-width: 1.55rem !important;
+            height: 1.55rem !important;
+            padding-inline: 0.38rem;
+            font-size: 0.62rem !important;
+            font-weight: 850 !important;
+            letter-spacing: 0 !important;
+        }

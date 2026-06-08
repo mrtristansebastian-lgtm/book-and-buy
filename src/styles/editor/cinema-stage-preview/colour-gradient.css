@@ -1,0 +1,210 @@
+        .cinema-chip-scroll {
+            display: flex;
+            gap: 0.55rem;
+            overflow-x: auto;
+            padding-bottom: 0.15rem;
+            scrollbar-width: none;
+        }
+
+        .cinema-chip-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cinema-chip-scroll button {
+            min-width: 8.5rem;
+            min-height: 3rem;
+            padding: 0 0.85rem;
+            font-size: 0.62rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .cinema-chip-scroll button.is-active,
+        .cinema-color-grid .is-active,
+        .cinema-font-grid .is-active {
+            background: #050505;
+            color: #fff;
+            border-color: #050505;
+        }
+
+        .cinema-color-grid .cinema-color-tile.is-active {
+            background: #050505;
+            color: #fff;
+            border-color: #050505;
+        }
+
+        .cinema-color-grid button,
+        .cinema-color-grid label,
+        .cinema-color-tile {
+            min-height: 3rem;
+            padding: 0 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.58rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cinema-color-tile {
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+            gap: 0.58rem;
+            padding: 0.68rem 0.8rem;
+            overflow: visible;
+        }
+
+        .cinema-color-tile > button,
+        .cinema-color-tile > label:not(.cinema-color-depth) {
+            min-height: auto;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            box-shadow: none;
+        }
+
+        .cinema-color-tile > button:hover,
+        .cinema-color-tile > label:not(.cinema-color-depth):hover {
+            transform: none;
+        }
+
+        .cinema-color-depth {
+            display: grid !important;
+            grid-template-columns: auto minmax(4rem, 1fr) auto;
+            align-items: center !important;
+            gap: 0.48rem !important;
+            min-height: auto !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            color: inherit !important;
+            font-size: 0.48rem !important;
+            letter-spacing: 0.08em;
+            opacity: 0.92;
+        }
+
+        .cinema-color-depth input {
+            width: 100%;
+            accent-color: currentColor;
+        }
+
+        .cinema-gradient-mode {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
+            padding: 0.25rem;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 16px;
+            background: rgba(248, 250, 252, 0.88);
+        }
+
+        .cinema-gradient-mode.is-single {
+            grid-template-columns: 1fr;
+        }
+
+        .cinema-gradient-mode.is-single .editor-native-gradient-toggle {
+            min-height: 2.72rem;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            padding: 0.52rem 0.58rem 0.52rem 0.82rem;
+        }
+
+        .cinema-gradient-mode.is-single .editor-native-gradient-toggle span {
+            font-size: 0.72rem;
+            font-weight: 950;
+        }
+
+        .cinema-gradient-mode.is-single .editor-native-gradient-toggle i {
+            position: relative;
+            width: 3.42rem;
+            height: 1.92rem;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            background: #f4f4f5;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
+            transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .cinema-gradient-mode.is-single .editor-native-gradient-toggle i::after {
+            content: "";
+            position: absolute;
+            left: 0.2rem;
+            top: 0.2rem;
+            width: 1.42rem;
+            height: 1.42rem;
+            border-radius: 999px;
+            background: #ffffff;
+            box-shadow: 0 10px 20px -12px rgba(15, 23, 42, 0.65);
+            transition: transform 200ms ease, background 200ms ease;
+        }
+
+        .cinema-gradient-mode.is-single .editor-native-gradient-toggle.is-on i {
+            border-color: transparent;
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0.1)),
+                var(--native-accent-button-gradient);
+            background-size: 100% 100%, 420% 420%;
+            background-position: 0 0, var(--native-accent-x) 50%;
+            box-shadow: 0 16px 36px -28px var(--native-accent-glow);
+        }
+
+        .cinema-gradient-mode.is-single .editor-native-gradient-toggle.is-on i::after {
+            transform: translateX(1.48rem);
+            background: #050505;
+        }
+
+        .cinema-gradient-mode button {
+            border: 1px solid transparent;
+            border-radius: 12px;
+            min-height: 3.28rem;
+            background: transparent;
+            color: #050505;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 0.12rem;
+            padding: 0.62rem 0.72rem;
+            text-align: left;
+            transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+        }
+
+        .cinema-gradient-mode button span,
+        .cinema-gradient-mode button small {
+            display: block;
+            letter-spacing: 0;
+            line-height: 1.1;
+        }
+
+        .cinema-gradient-mode button span {
+            font-size: 0.68rem;
+            font-weight: 950;
+        }
+
+        .cinema-gradient-mode button small {
+            color: #7a8492;
+            font-size: 0.58rem;
+            font-weight: 800;
+        }
+
+        .cinema-gradient-mode button.is-active {
+            background: #050505;
+            color: #fff;
+            border-color: #050505;
+            box-shadow: 0 12px 26px -22px rgba(5, 5, 5, 0.75);
+        }
+
+        .cinema-gradient-mode button.is-active small {
+            color: rgba(255,255,255,0.66);
+        }

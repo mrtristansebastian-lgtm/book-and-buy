@@ -1,0 +1,97 @@
+        /* Finance-style dashboard hero: period control above, greeting left, metrics right. */
+        html body .native-ui .dashboard-overview-page .dashboard-hero-control-row {
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+            margin-bottom: clamp(1.1rem, 1.8vw, 1.55rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-hero-main {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1.08fr) minmax(25rem, 0.72fr) !important;
+            align-items: stretch !important;
+            gap: clamp(1rem, 2vw, 1.45rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-greeting-panel {
+            min-height: clamp(14rem, 18vw, 17rem) !important;
+            max-width: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            padding: clamp(1.35rem, 2.2vw, 2.2rem) clamp(1.5rem, 3vw, 3rem) !important;
+            border-radius: 1.35rem !important;
+            background:
+                radial-gradient(circle at 8% 4%, rgba(203, 255, 184, 0.22), transparent 16rem),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.12)) !important;
+            border: 1px solid rgba(15, 23, 42, 0.045) !important;
+            box-shadow:
+                0 24px 72px -64px rgba(15, 23, 42, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-greeting-panel h2 {
+            font-size: clamp(3.1rem, 5.4vw, 5.5rem) !important;
+            line-height: 0.88 !important;
+            letter-spacing: -0.055em !important;
+            max-width: 13ch !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-greeting-panel p {
+            max-width: 42rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-hero-main .native-stat-grid {
+            align-self: stretch !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+            min-height: clamp(14rem, 18vw, 17rem) !important;
+            height: 100% !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-hero-main .native-stat-card {
+            min-height: 0 !important;
+            padding: clamp(1rem, 1.4vw, 1.25rem) !important;
+            border-right: 0 !important;
+        }
+
+        @media (min-width: 1024px) {
+            html body .native-ui .dashboard-overview-page .dashboard-hero-main .native-stat-card:nth-child(1),
+            html body .native-ui .dashboard-overview-page .dashboard-hero-main .native-stat-card:nth-child(2) {
+                border-bottom: 1px solid rgba(15, 23, 42, 0.065) !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-hero-main .native-stat-card:nth-child(odd) {
+                border-right: 1px solid rgba(15, 23, 42, 0.065) !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui .dashboard-overview-page .dashboard-hero-control-row {
+                margin-bottom: 1rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-hero-main {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 0.9rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-greeting-panel {
+                min-height: 0 !important;
+                padding: 1.15rem !important;
+                border-radius: 1.05rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-greeting-panel h2 {
+                font-size: clamp(2.2rem, 11vw, 3rem) !important;
+                max-width: none !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-hero-main .native-stat-grid {
+                min-height: 0 !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+

@@ -1,0 +1,42 @@
+        .mobile-editor-panel .cinema-faq-editor,
+        .mobile-editor-panel .cinema-social-card {
+            border-radius: 10px !important;
+            border: 1px solid rgba(15, 23, 42, 0.065) !important;
+            background: #ffffff !important;
+            padding: 0.72rem !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.96) !important;
+        }
+
+        .mobile-editor-panel .cinema-faq-card {
+            padding: 0.62rem !important;
+            background: #fbfcfd !important;
+        }
+
+        .mobile-editor-panel .cinema-faq-card-head button,
+        .mobile-editor-panel .cinema-faq-editor-head button {
+            min-height: 2rem !important;
+            border-radius: 999px !important;
+            padding: 0 0.72rem !important;
+            font-size: 0.56rem !important;
+            font-weight: 820 !important;
+            letter-spacing: 0.075em !important;
+            text-transform: uppercase !important;
+        }
+
+        .mobile-editor-panel .cinema-feature-preview span {
+            border-radius: 999px !important;
+            border: 1px solid rgba(15, 23, 42, 0.075) !important;
+            background: #ffffff !important;
+            color: #667085 !important;
+            font-size: 0.58rem !important;
+            font-weight: 780 !important;
+            letter-spacing: 0.04em !important;
+        }
+
+        .mobile-editor-panel .cinema-feature-preview span.is-on {
+            border-color: transparent !important;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-accent-gradient) border-box !important;
+            color: #050505 !important;
+        }

@@ -1,0 +1,33 @@
+{
+  "appId": "com.buildabooking.app",
+  "appName": "Build A Booking",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "localhost",
+      "accounts.google.com",
+      "apis.google.com",
+      "www.googleapis.com",
+      "www.gstatic.com",
+      "build-a-booking.firebaseapp.com",
+      "build-a-booking.web.app"
+    ]
+  },
+  "plugins": {
+    "FirebaseAuthentication": {
+      "providers": [
+        "google.com"
+      ],
+      "authDomain": "build-a-booking.firebaseapp.com"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 900,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
+    }
+  }
+}

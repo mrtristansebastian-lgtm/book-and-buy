@@ -1,0 +1,315 @@
+.app-login-screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.app-login-header {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 18px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.app-login-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.app-login-brand-mark {
+  width: 30px;
+  height: 30px;
+}
+
+.app-login-brand span {
+  color: #050505;
+  font-size: 1.05rem;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.app-login-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-login-text-button,
+.app-login-header-button {
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: #111111;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.app-login-text-button {
+  color: #737373;
+  padding: 0 8px;
+}
+
+.app-login-header-button {
+  padding: 0 18px;
+  border-radius: 999px;
+  background: #050505;
+  color: #ffffff;
+}
+
+.app-login-main {
+  width: min(620px, calc(100% - 32px));
+  margin: auto;
+  padding: 42px 0 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-login-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 560px;
+}
+
+.app-login-mark-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 18px 48px -36px rgba(15, 23, 42, 0.55);
+  margin-bottom: 24px;
+}
+
+.app-login-mark {
+  width: 36px;
+  height: 36px;
+}
+
+.app-login-kicker {
+  margin: 0 0 12px;
+  color: #8a8a8a;
+  font-size: 0.67rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.app-login-copy h1 {
+  margin: 0;
+  max-width: 620px;
+  color: #050505;
+  font-size: 4.1rem;
+  line-height: 0.98;
+  letter-spacing: 0;
+  font-weight: 850;
+}
+
+.app-login-body {
+  margin: 16px 0 0;
+  max-width: 420px;
+  color: #575757;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  font-weight: 620;
+}
+
+.app-login-actions {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.app-login-primary,
+.app-login-secondary,
+.app-login-secondary-actions button {
+  min-height: 48px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.app-login-primary {
+  background: #050505;
+  color: #ffffff;
+  box-shadow: 0 24px 50px -36px rgba(15, 23, 42, 0.7);
+}
+
+.app-login-secondary,
+.app-login-secondary-actions button {
+  background: #ffffff;
+  border-color: #e7e7e7;
+  color: #111111;
+}
+
+.app-login-primary:hover,
+.app-login-secondary:hover,
+.app-login-secondary-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.app-login-secondary:hover,
+.app-login-secondary-actions button:hover {
+  border-color: #050505;
+}
+
+.app-login-secondary-actions {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.app-login-secondary-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  color: #5b5b5b;
+  font-size: 0.66rem;
+}
+
+.app-login-footer {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 0 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.app-login-footer button {
+  border: 0;
+  background: transparent;
+  color: #a3a3a3;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.app-login-footer button:hover {
+  color: #050505;
+}
+
+.app-login-footer span {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: #dddddd;
+}
+
+@media (max-width: 860px) {
+  .app-login-main {
+    padding-top: 28px;
+  }
+
+  .app-login-copy {
+    align-items: center;
+    text-align: center;
+    max-width: none;
+  }
+
+  .app-login-copy h1 {
+    font-size: 3.65rem;
+  }
+
+  .app-login-body {
+    font-size: 1.08rem;
+  }
+
+  .app-login-actions,
+  .app-login-secondary-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-login-header {
+    width: min(100% - 24px, 1120px);
+    padding: 14px 0;
+  }
+
+  .app-login-brand span {
+    font-size: 0.96rem;
+  }
+
+  .app-login-text-button {
+    display: none;
+  }
+
+  .app-login-header-button {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 0.62rem;
+  }
+
+  .app-login-main {
+    width: min(100% - 24px, 620px);
+    margin: 0 auto;
+    padding-bottom: 34px;
+  }
+
+  .app-login-copy h1 {
+    font-size: 3rem;
+  }
+
+  .app-login-body {
+    font-size: 1rem;
+  }
+
+  .app-login-actions,
+  .app-login-primary,
+  .app-login-secondary {
+    width: 100%;
+  }
+
+  .app-login-secondary-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .app-login-footer {
+    width: min(100% - 24px, 760px);
+    padding-bottom: 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-login-copy h1 {
+    font-size: 2.7rem;
+  }
+}

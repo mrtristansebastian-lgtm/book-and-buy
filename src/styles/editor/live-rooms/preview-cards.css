@@ -1,0 +1,177 @@
+        .editor-live-workbench-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .editor-live-workbench-body {
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+            gap: 0.85rem;
+            margin-top: 1rem;
+            align-items: start;
+        }
+
+        .editor-live-section-preview,
+        .editor-live-control-deck {
+            min-width: 0;
+        }
+
+        .editor-live-preview-card,
+        .editor-live-control-deck > .editor-studio-panel,
+        .editor-live-faq-card {
+            border-radius: 22px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+            box-shadow: 0 20px 60px -52px rgba(15, 23, 42, 0.55);
+        }
+
+        .editor-live-preview-card {
+            padding: 1rem;
+            min-height: 18rem;
+            display: grid;
+            gap: 0.8rem;
+            align-content: start;
+        }
+
+        .editor-live-banner-preview {
+            min-height: 7rem;
+            border-radius: 18px;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #cbd5e1;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .editor-live-banner-preview img,
+        .editor-live-logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .editor-live-brand-frame {
+            display: grid;
+            gap: 0.55rem;
+        }
+
+        .editor-live-logo-preview {
+            border-radius: 18px;
+            background: #f8fafc;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .editor-live-brand-frame textarea,
+        .editor-live-brand-frame input,
+        .copy-preview-card input,
+        .editor-live-copy-grid input,
+        .editor-live-faq-card input,
+        .editor-live-faq-card textarea {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: #050505;
+        }
+
+        .editor-live-brand-frame textarea:nth-of-type(1) {
+            min-height: 3.45rem;
+            resize: none;
+            font-size: clamp(1.75rem, 3.8vw, 2.85rem);
+            font-weight: 950;
+            letter-spacing: -0.055em;
+            line-height: 0.95;
+        }
+
+        .editor-live-brand-frame textarea:nth-of-type(2) {
+            min-height: 4.2rem;
+            resize: none;
+            color: #64748b;
+            font-size: 0.95rem;
+            font-weight: 650;
+            line-height: 1.45;
+        }
+
+        .editor-live-theme-brief h4 {
+            color: #050505;
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 950;
+            letter-spacing: -0.06em;
+            line-height: 0.95;
+        }
+
+        .editor-live-theme-brief p {
+            margin-top: 0.55rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .editor-live-theme-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .editor-live-theme-strip button {
+            min-height: 8.5rem;
+            border-radius: 18px;
+            border: 1px solid;
+            padding: 0.75rem;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .editor-live-theme-strip span {
+            font-size: 0.56rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .editor-live-theme-strip b {
+            font-size: 1.65rem;
+            letter-spacing: -0.05em;
+        }
+
+        .editor-live-date-row,
+        .editor-live-slot-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .editor-live-date-row button,
+        .editor-live-slot-row button {
+            min-height: 4.2rem;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+
+        .visuals-preview-card > input {
+            min-height: 3.4rem;
+            border: 0;
+            outline: 0;
+            padding: 0 1rem;
+            text-align: center;
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }

@@ -1,0 +1,173 @@
+        @media (min-width: 768px) {
+            html body .native-ui .finance-studio {
+                width: min(100%, 76rem) !important;
+                max-width: 76rem !important;
+            }
+
+            html body .native-ui .finance-studio .dashboard-page-header {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) auto !important;
+                align-items: end !important;
+                gap: 1.25rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+
+            html body .native-ui .finance-studio .dashboard-page-header h2 {
+                font-size: clamp(3.2rem, 5vw, 4.65rem) !important;
+                line-height: 0.9 !important;
+            }
+
+            html body .native-ui .finance-studio .dashboard-page-header p {
+                display: none !important;
+            }
+
+            html body .native-ui .finance-studio .dashboard-page-header > div:last-child {
+                width: auto !important;
+                min-width: min(30rem, 42vw) !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(12rem, 1fr)) !important;
+                gap: 0.72rem !important;
+            }
+
+            html body .native-ui .finance-studio .dashboard-page-header button {
+                height: 3rem !important;
+                border-radius: 1.05rem !important;
+            }
+
+            html body .native-ui .finance-hero-accent {
+                display: none !important;
+            }
+
+            html body .native-ui .finance-hero-head h3 {
+                font-size: clamp(2rem, 3.2vw, 3rem) !important;
+                line-height: 0.95 !important;
+            }
+
+            html body .native-ui .finance-hero-head > div:last-child {
+                display: grid !important;
+                grid-template-columns: minmax(9rem, 10.5rem) minmax(24rem, 35rem) !important;
+                gap: 0.7rem !important;
+                width: auto !important;
+            }
+
+            html body .native-ui .finance-hero-head label {
+                width: 100% !important;
+            }
+
+            html body .native-ui .finance-hero-head select {
+                height: 2.95rem !important;
+                border-radius: 0.95rem !important;
+            }
+
+            html body .native-ui .finance-period-tabs {
+                min-width: 0 !important;
+                height: 2.95rem !important;
+                border-radius: 0.95rem !important;
+                align-items: stretch !important;
+            }
+
+            html body .native-ui .finance-period-tab {
+                min-height: 0 !important;
+                height: 100% !important;
+                border-radius: 0.72rem !important;
+            }
+
+            html body .native-ui .finance-timeline-statbar {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1.25fr) minmax(16rem, 0.8fr) !important;
+                grid-template-rows: repeat(2, minmax(5.35rem, auto)) !important;
+                gap: 0.78rem !important;
+                margin-bottom: 1.35rem !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                overflow: visible !important;
+            }
+
+            html body .native-ui .finance-timeline-statbar > div {
+                min-width: 0 !important;
+                min-height: 5.35rem !important;
+                border: 0 !important;
+                border-radius: 1.18rem !important;
+                background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 250, 249, 0.76)) !important;
+                padding: 1.1rem 1.2rem !important;
+                box-shadow:
+                    0 20px 52px -46px rgba(15, 23, 42, 0.46),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            }
+
+            html body .native-ui .finance-timeline-statbar > div:first-child {
+                grid-row: 1 / 3 !important;
+                min-height: 11.5rem !important;
+                background:
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+                    var(--native-accent-button-gradient) !important;
+                background-size: 100% 100%, 420% 420% !important;
+                background-position: 0 0, var(--native-accent-x) 50% !important;
+                color: #050505 !important;
+                box-shadow:
+                    0 28px 68px -54px var(--native-accent-glow),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+            }
+
+            html body .native-ui .finance-timeline-statbar > div p:first-child {
+                color: rgba(5, 5, 5, 0.52) !important;
+            }
+
+            html body .native-ui .finance-timeline-statbar > div:first-child p:nth-child(2) {
+                color: #050505 !important;
+                font-size: clamp(2.5rem, 5vw, 4.15rem) !important;
+                line-height: 0.88 !important;
+            }
+
+            html body .native-ui .finance-timeline-statbar > div:not(:first-child) p:nth-child(2) {
+                font-size: clamp(1.55rem, 2.1vw, 2rem) !important;
+                line-height: 0.96 !important;
+            }
+
+            html body .native-ui .finance-chart-expand-button {
+                top: 0.55rem !important;
+                right: 0.55rem !important;
+                min-width: 2.85rem !important;
+                width: 2.85rem !important;
+                height: 2.85rem !important;
+                border-radius: 999px !important;
+            }
+
+            html body .native-ui .finance-chart-expand-button span {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
+            }
+
+            html body .native-ui .finance-axis-label {
+                font-size: 22px !important;
+                font-weight: 830 !important;
+                fill: #667085 !important;
+            }
+
+            html body .native-ui .finance-axis-label-x {
+                font-size: 20px !important;
+                fill: #7d8797 !important;
+            }
+
+            html body .native-ui .finance-axis-line {
+                stroke: transparent !important;
+            }
+
+            html body .native-ui .finance-axis-baseline {
+                stroke: rgba(15, 23, 42, 0.12) !important;
+            }
+
+            html body .native-ui .finance-grid-line {
+                stroke: rgba(148, 163, 184, 0.2) !important;
+            }
+
+            html body .native-ui .finance-chart-line {
+                stroke-width: 4.2 !important;
+            }
+        }

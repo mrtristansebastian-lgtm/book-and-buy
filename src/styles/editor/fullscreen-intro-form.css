@@ -1,0 +1,256 @@
+        .editor-fullscreen-workspace .cinema-intro-editor {
+            display: grid !important;
+            gap: 0.7rem !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-intro-fields {
+            display: grid !important;
+            gap: 0.7rem !important;
+            min-width: 0;
+            border: 0 !important;
+            background: transparent !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card {
+            display: grid !important;
+            gap: 0.34rem !important;
+            padding: 0.72rem 0.86rem !important;
+            border: 1px solid rgba(15, 23, 42, 0.08) !important;
+            border-radius: 1rem !important;
+            background: #ffffff !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92) !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card span {
+            color: #374151 !important;
+            font-size: 0.78rem !important;
+            font-weight: 820 !important;
+            letter-spacing: 0 !important;
+            line-height: 1.2 !important;
+            text-transform: none !important;
+        }
+
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-intro-editor .cinema-text-card input,
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-intro-editor .cinema-text-card textarea,
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card input,
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card textarea {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-color: transparent !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            color: #111827 !important;
+            font-size: 0.88rem !important;
+            font-weight: 430 !important;
+            line-height: 1.38 !important;
+            letter-spacing: 0 !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card input::placeholder,
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card textarea::placeholder {
+            color: #adb5c1 !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card.is-hero input {
+            font-size: 0.9rem !important;
+            font-weight: 460 !important;
+            line-height: 1.34 !important;
+        }
+
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-intro-editor .cinema-subtext-card textarea,
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-subtext-card textarea {
+            display: block !important;
+            height: auto !important;
+            min-height: 1.34rem !important;
+            max-height: 5.4rem !important;
+            field-sizing: content;
+            resize: none !important;
+            overflow-y: auto !important;
+            padding: 0 !important;
+            padding-right: 0.2rem !important;
+            font-weight: 430 !important;
+            line-height: 1.34 !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-intro-editor .cinema-text-card:focus-within {
+            border-color: transparent !important;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) border-box !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x, 50%) 50% !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92) !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-form-room {
+            display: grid !important;
+            gap: 0 !important;
+            min-width: 0;
+        }
+
+        .editor-fullscreen-workspace .cinema-form-room .cinema-toggle-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0 !important;
+            border-top: 1px solid rgba(15, 23, 42, 0.075) !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-form-room .cinema-toggle-grid button {
+            min-height: 2.86rem !important;
+            border: 0 !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.075) !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding: 0.82rem 0 !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-form-room .cinema-toggle-grid button.is-on,
+        .editor-fullscreen-workspace .cinema-form-room .cinema-toggle-grid button:hover {
+            border-color: rgba(15, 23, 42, 0.075) !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-form-room .cinema-toggle-grid button span {
+            color: #050505 !important;
+            font-size: 0.78rem !important;
+            font-weight: 760 !important;
+            letter-spacing: 0 !important;
+            text-transform: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-form-room .cinema-toggle-grid button.is-disabled span {
+            color: #a5adba !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-editor {
+            display: grid !important;
+            gap: 0.86rem !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-card {
+            padding: 0.82rem 0 !important;
+            border: 0 !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.075) !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card,
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-faq-card .cinema-text-card {
+            display: grid !important;
+            gap: 0.32rem !important;
+            padding: 0.72rem 0.86rem !important;
+            border: 1px solid rgba(15, 23, 42, 0.08) !important;
+            border-radius: 1rem !important;
+            background: #ffffff !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92) !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card:focus-within,
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-faq-card .cinema-text-card:focus-within {
+            border-color: transparent !important;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) border-box !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x, 50%) 50% !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92) !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card > span,
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-faq-card .cinema-text-card > span {
+            margin: 0 !important;
+            color: #374151 !important;
+            font-size: 0.78rem !important;
+            font-weight: 820 !important;
+            letter-spacing: 0 !important;
+            line-height: 1.2 !important;
+            text-transform: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card input,
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card textarea,
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-faq-card .cinema-text-card input,
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-faq-card .cinema-text-card textarea {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            padding: 0.04rem 0 !important;
+            border: 0 !important;
+            border-color: transparent !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            color: #111827 !important;
+            font-size: 0.88rem !important;
+            font-weight: 430 !important;
+            line-height: 1.38 !important;
+            letter-spacing: 0 !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card textarea,
+        html body .native-ui .editor-fullscreen-workspace .mobile-editor-panel .editor-panel-scroll .cinema-faq-card .cinema-text-card textarea {
+            min-height: 2.8rem !important;
+            max-height: 7rem !important;
+            field-sizing: content;
+            resize: none !important;
+            overflow-y: auto !important;
+        }
+
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card input::placeholder,
+        .editor-fullscreen-workspace .cinema-faq-card .cinema-text-card textarea::placeholder {
+            color: #adb5c1 !important;
+        }
+
+        .mobile-editor-panel > .editor-floating-launch-toolbar {
+            width: calc(100% - 1.2rem) !important;
+            max-width: none !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 0.5rem !important;
+            align-self: center !important;
+            margin: 0.5rem auto 0.62rem !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        .mobile-editor-panel > .editor-floating-launch-toolbar button {
+            width: 100% !important;
+            min-width: 0 !important;
+            height: 2.72rem !important;
+            border-radius: 8px !important;
+            padding: 0 0.9rem !important;
+            gap: 0.42rem !important;
+            font-size: 0.6rem !important;
+            font-weight: 880 !important;
+            letter-spacing: 0.075em !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92) !important;
+        }
+

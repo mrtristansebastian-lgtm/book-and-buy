@@ -1,0 +1,204 @@
+        @property --native-accent-x {
+            syntax: '<percentage>';
+            inherits: true;
+            initial-value: 0%;
+        }
+
+        :root {
+            --native-accent-gradient: linear-gradient(115deg, #39ff14 0%, #eaff32 12%, #39ff14 24%, #12f0cf 38%, #14a7ff 52%, #755cff 66%, #ff4fd8 80%, #755cff 88%, #14a7ff 94%, #12f0cf 98%, #39ff14 100%);
+            --native-accent-button-gradient: linear-gradient(115deg, #cbffb8 0%, #f1ff9a 12%, #c9ffbf 24%, #b7fff0 38%, #b9e3ff 52%, #d2cbff 66%, #ffd4f2 80%, #d8ccff 88%, #c1e7ff 94%, #c0fff1 98%, #cbffb8 100%);
+            --native-booking-accent-gradient: linear-gradient(115deg, #b9e3ff 0%, #d2cbff 16%, #ffd4f2 32%, #f4ff9d 48%, #c9ffbf 64%, #b7fff0 80%, #b9e3ff 100%);
+            --native-accent-glow: rgba(20, 167, 255, 0.28);
+            --native-accent-button-glow: rgba(117, 92, 255, 0.16);
+            --native-accent-border: #755cff;
+            --native-accent-duration: 24s;
+            --native-accent-easing: ease-in-out;
+            --native-beam-duration: 12s;
+            --native-accent-x: 0%;
+            --app-control-bg: rgba(255, 255, 255, 0.72);
+            --app-control-bg-focus: #ffffff;
+            --app-control-border: rgba(15, 23, 42, 0.16);
+            --app-control-border-focus: transparent;
+            --app-control-text: #050505;
+            --app-control-placeholder: #9aa3b2;
+            --app-control-icon: #7d8594;
+            --app-control-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+            --app-control-focus-ring: 0 0 0 0 rgba(15, 23, 42, 0);
+        }
+
+        .native-ui :where(
+            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
+            textarea
+        ):not(.booking-desk-native-select):not(.native-control-input) {
+            border: 1px solid var(--app-control-border) !important;
+            border-radius: 999px !important;
+            background-color: var(--app-control-bg) !important;
+            background-image: none !important;
+            color: var(--app-control-text) !important;
+            font-size: 0.84rem !important;
+            font-weight: 520 !important;
+            letter-spacing: 0 !important;
+            box-shadow: var(--app-control-shadow) !important;
+            outline: none !important;
+            transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+        }
+
+        .native-ui :where(textarea):not(.native-control-input) {
+            border-radius: 1rem !important;
+        }
+
+        .native-ui :where(select):not(.booking-desk-native-select) {
+            border-radius: 0.72rem !important;
+            border-color: var(--app-control-border) !important;
+            background-color: #fff !important;
+            color: var(--app-control-text) !important;
+            font-size: 0.84rem !important;
+            font-weight: 520 !important;
+            letter-spacing: 0 !important;
+            box-shadow: var(--app-control-shadow) !important;
+            outline: none !important;
+            transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+        }
+
+        .native-ui :where(
+            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
+            select
+        ):not(.booking-desk-native-select) {
+            min-height: 2.52rem;
+        }
+
+        .native-ui :where(textarea) {
+            resize: vertical;
+        }
+
+        .native-ui :where(
+            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
+            textarea
+        ):not(.booking-desk-native-select):not(.native-control-input):focus {
+            border-color: transparent !important;
+            background:
+                linear-gradient(var(--app-control-bg-focus), var(--app-control-bg-focus)) padding-box,
+                var(--native-booking-accent-gradient) border-box !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            box-shadow: var(--app-control-shadow) !important;
+        }
+
+        .native-ui :where(select):not(.booking-desk-native-select):focus {
+            border-color: var(--app-control-border-focus) !important;
+            background-color: var(--app-control-bg-focus) !important;
+            box-shadow: var(--app-control-shadow) !important;
+        }
+
+        .native-ui :where(input::placeholder, textarea::placeholder) {
+            color: var(--app-control-placeholder) !important;
+            font-weight: 500 !important;
+        }
+
+        .native-ui .native-control-pill {
+            border-width: 1px !important;
+            border-style: solid !important;
+            border-color: var(--app-control-border) !important;
+            background: var(--app-control-bg-focus) !important;
+            background-clip: padding-box !important;
+            box-shadow: var(--app-control-shadow) !important;
+            transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+        }
+
+        .native-ui .native-control-pill:focus-within {
+            border-color: transparent !important;
+            background:
+                linear-gradient(var(--app-control-bg-focus), var(--app-control-bg-focus)) padding-box,
+                var(--native-booking-accent-gradient) border-box !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            box-shadow: var(--app-control-shadow) !important;
+        }
+
+        .native-ui .native-control-pill :where(input, textarea).native-control-input,
+        .native-ui .native-control-pill :where(input, textarea).native-control-input:focus {
+            min-height: auto !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            background-image: none !important;
+            color: var(--app-control-text) !important;
+            font-size: 0.88rem !important;
+            font-weight: 430 !important;
+            line-height: 1.35 !important;
+            box-shadow: none !important;
+        }
+
+        .native-ui select:not(.booking-desk-native-select) {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237d8594' stroke-width='2.35' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.86rem center !important;
+            padding-right: 2.35rem !important;
+        }
+
+        .native-ui .support-quick-control select,
+        .native-ui .booking-desk-native-select,
+        .support-quick-control select,
+        .booking-desk-native-select {
+            background-image: none !important;
+        }
+
+        :root.app-idle {
+            --native-accent-duration: 24s;
+            --native-beam-duration: 12s;
+        }
+
+        :root.app-hidden {
+            --native-accent-duration: 120s;
+            --native-beam-duration: 120s;
+        }
+
+        :root.app-mobile-browser.app-idle {
+            --native-accent-duration: 90s;
+            --native-beam-duration: 90s;
+        }
+
+        @keyframes native-accent-sync {
+            0%, 100% { --native-accent-x: 0%; }
+            50% { --native-accent-x: 100%; }
+        }
+
+        .native-ui,
+        .native-home {
+            animation: native-accent-sync var(--native-accent-duration) var(--native-accent-easing) infinite;
+        }
+
+        .native-ui .bg-\[\#39FF14\] {
+            background-color: #eaffdf !important;
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.48), rgba(255,255,255,0.18)),
+                var(--native-accent-button-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            background-blend-mode: soft-light, normal !important;
+        }
+
+        .native-ui .text-\[\#39FF14\] {
+            color: var(--native-accent-border) !important;
+        }
+
+        .native-ui .border-\[\#39FF14\],
+        .native-ui .focus\:border-\[\#39FF14\]:focus {
+            border-color: var(--native-accent-border) !important;
+        }
+
+        .native-ui .shadow-\[\#39FF14\]\/20,
+        .native-ui .shadow-\[\#39FF14\]\/50 {
+            box-shadow: 0 20px 44px -30px var(--native-accent-button-glow) !important;
+        }
+
+        .native-ui .native-accent-text {
+            background-image: var(--native-accent-gradient);
+            background-size: 420% 420%;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            background-position: var(--native-accent-x) 50%;
+        }

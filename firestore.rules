@@ -1,0 +1,330 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isPasswordAccount() {
+      return signedIn() &&
+        request.auth.token.firebase != null &&
+        request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
+    function verifiedSignedIn() {
+      return signedIn() &&
+        (!isPasswordAccount() || request.auth.token.email_verified == true);
+    }
+
+    function isOwner(userId) {
+      return verifiedSignedIn() && request.auth.uid == userId;
+    }
+
+    function hasStaffAccess(appId, userId) {
+      return verifiedSignedIn() &&
+        request.auth.token.email != null &&
+        exists(/databases/$(database)/documents/artifacts/$(appId)/staffAccess/$(request.auth.token.email)/workspaces/$(userId)) &&
+        get(/databases/$(database)/documents/artifacts/$(appId)/staffAccess/$(request.auth.token.email)/workspaces/$(userId)).data.status == 'active';
+    }
+
+    function staffRole(appId, userId) {
+      return get(/databases/$(database)/documents/artifacts/$(appId)/staffAccess/$(request.auth.token.email)/workspaces/$(userId)).data.role;
+    }
+
+    function staffProfileId(appId, userId) {
+      return get(/databases/$(database)/documents/artifacts/$(appId)/staffAccess/$(request.auth.token.email)/workspaces/$(userId)).data.staffId;
+    }
+
+    function isOwnStaffCalendar(appId, userId, calendarId) {
+      return hasStaffAccess(appId, userId) &&
+        calendarId is string &&
+        staffProfileId(appId, userId) == calendarId;
+    }
+
+    function isOwnStaffCalendarDocument(appId, userId, data) {
+      return data.calendarId is string &&
+        isOwnStaffCalendar(appId, userId, data.calendarId);
+    }
+
+    function canStaff(appId, userId) {
+      return isOwner(userId) || hasStaffAccess(appId, userId);
+    }
+
+    function canAdmin(appId, userId) {
+      return isOwner(userId) || (hasStaffAccess(appId, userId) && staffRole(appId, userId) == 'admin');
+    }
+
+    function customClaimAdminFor(userId) {
+      return verifiedSignedIn() &&
+        request.auth.token.role == 'admin' &&
+        (
+          request.auth.token.businessId == userId ||
+          (request.auth.token.businessIds is list && request.auth.token.businessIds.hasAny([userId]))
+        );
+    }
+
+    function canPaymentAdmin(appId, userId) {
+      return canAdmin(appId, userId) || customClaimAdminFor(userId);
+    }
+
+    function isManualPublicGateway(gatewayId) {
+      return gatewayId in ['manual_eft', 'cash'];
+    }
+
+    function isThreadParticipant(appId, threadData) {
+      return verifiedSignedIn() &&
+        threadData.ownerId is string &&
+        (
+          canStaff(appId, threadData.ownerId) ||
+          (request.auth.token.email != null && threadData.clientEmail == request.auth.token.email)
+        );
+    }
+
+    function canAccessThread(appId, threadId) {
+      return exists(/databases/$(database)/documents/artifacts/$(appId)/clientThreads/$(threadId)) &&
+        isThreadParticipant(appId, get(/databases/$(database)/documents/artifacts/$(appId)/clientThreads/$(threadId)).data);
+    }
+
+    match /artifacts/{appId}/accounts/{accountId} {
+      allow read, create, update: if signedIn() && request.auth.uid == accountId;
+      allow delete: if false;
+    }
+
+    match /artifacts/{appId}/accountLookup/{email} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() &&
+        request.auth.token.email == email &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.email == email;
+      allow delete: if false;
+    }
+
+    match /artifacts/{appId}/staffAccess/{email}/workspaces/{ownerId} {
+      allow read: if signedIn() && (request.auth.token.email == email || canAdmin(appId, ownerId));
+      allow create, update: if canAdmin(appId, ownerId) &&
+        request.resource.data.ownerId == ownerId &&
+        request.resource.data.email == email &&
+        request.resource.data.status in ['active', 'revoked'] &&
+        request.resource.data.role in ['staff', 'admin'];
+      allow delete: if canAdmin(appId, ownerId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/config/{docId} {
+      allow read: if canStaff(appId, userId);
+      allow write: if docId == 'clients'
+        ? canStaff(appId, userId)
+        : canAdmin(appId, userId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/clients/{clientId} {
+      allow read, create, update, delete: if canStaff(appId, userId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/staff/{staffId} {
+      allow read: if canStaff(appId, userId);
+      allow create, update, delete: if canAdmin(appId, userId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/services/{serviceId} {
+      allow read: if canStaff(appId, userId);
+      allow create, update, delete: if canAdmin(appId, userId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/calendarDefaults/{calendarId} {
+      allow read: if canStaff(appId, userId);
+      allow create, update: if canAdmin(appId, userId) ||
+        (
+          isOwnStaffCalendar(appId, userId, calendarId) &&
+          request.resource.data.calendarId == calendarId
+        );
+      allow delete: if canAdmin(appId, userId) ||
+        isOwnStaffCalendar(appId, userId, resource.data.calendarId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/calendarDays/{calendarDayId} {
+      allow read: if canStaff(appId, userId);
+      allow create, update: if canAdmin(appId, userId) ||
+        isOwnStaffCalendarDocument(appId, userId, request.resource.data);
+      allow delete: if canAdmin(appId, userId) ||
+        isOwnStaffCalendarDocument(appId, userId, resource.data);
+    }
+
+    match /artifacts/{appId}/users/{userId}/availabilityDays/{dateKey}/{document=**} {
+      allow read: if canStaff(appId, userId);
+      allow write: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/bookings/{bookingId} {
+      allow read, update, delete: if canStaff(appId, userId);
+      allow create: if canStaff(appId, userId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/clientErrors/{errorId} {
+      allow read, delete: if canAdmin(appId, userId);
+      allow create: if canStaff(appId, userId) &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.ownerId == userId &&
+        request.resource.data.error is map &&
+        request.resource.data.error.message is string;
+      allow update: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/idempotencyKeys/{keyId} {
+      allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/payment_settings/{gatewayId} {
+      allow read: if canPaymentAdmin(appId, userId) ||
+        (isManualPublicGateway(gatewayId) && resource.data.enabled == true);
+      allow create, update: if canPaymentAdmin(appId, userId) &&
+        gatewayId in ['stripe', 'payfast', 'yoco', 'paystack', 'manual_eft', 'cash'] &&
+        request.resource.data.keys().hasOnly([
+          'gatewayType',
+          'enabled',
+          'mode',
+          'providerName',
+          'credentialSummary',
+          'configured',
+          'updatedBy',
+          'updatedAt'
+        ]) &&
+        request.resource.data.gatewayType == gatewayId &&
+        request.resource.data.enabled is bool &&
+        request.resource.data.mode in ['test', 'live'] &&
+        request.resource.data.updatedBy == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/private/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/payment_attempts/{attemptId} {
+      allow read: if canPaymentAdmin(appId, userId);
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/processed_transactions/{transactionId} {
+      allow read: if canPaymentAdmin(appId, userId);
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/finance/{financeDoc} {
+      allow read: if canPaymentAdmin(appId, userId);
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/users/{userId}/financeImports/{importId} {
+      allow read, create, update, delete: if canPaymentAdmin(appId, userId);
+    }
+
+    match /artifacts/{appId}/users/{userId}/notifications/{notificationId} {
+      allow read, update, delete: if canStaff(appId, userId);
+      allow create: if canStaff(appId, userId) ||
+        (
+          verifiedSignedIn() &&
+          request.auth.token.email != null &&
+          request.resource.data.ownerId == userId &&
+          request.resource.data.audience == 'owner' &&
+          request.resource.data.clientEmail == request.auth.token.email
+        );
+    }
+
+    match /artifacts/{appId}/clientAccess/{email}/bookings/{bookingId} {
+      allow read: if verifiedSignedIn() &&
+        (request.auth.token.email == email || (resource.data.ownerId is string && canStaff(appId, resource.data.ownerId)));
+      allow create, update: if verifiedSignedIn() &&
+        request.resource.data.ownerId is string &&
+        canStaff(appId, request.resource.data.ownerId) &&
+        request.resource.data.clientEmail == email;
+      allow delete: if false;
+    }
+
+    match /artifacts/{appId}/clientAccess/{email}/notifications/{notificationId} {
+      allow read, update: if verifiedSignedIn() &&
+        (request.auth.token.email == email || (resource.data.ownerId is string && canStaff(appId, resource.data.ownerId)));
+      allow create: if verifiedSignedIn() &&
+        request.resource.data.clientEmail == email &&
+        (
+          request.auth.token.email == email ||
+          (request.resource.data.ownerId is string && canStaff(appId, request.resource.data.ownerId))
+        );
+      allow delete: if false;
+    }
+
+    match /artifacts/{appId}/clientThreads/{threadId} {
+      allow read: if isThreadParticipant(appId, resource.data);
+      allow create: if verifiedSignedIn() &&
+        request.resource.data.ownerId is string &&
+        (
+          canStaff(appId, request.resource.data.ownerId) ||
+          (request.auth.token.email != null && request.resource.data.clientEmail == request.auth.token.email)
+        );
+      allow update: if isThreadParticipant(appId, resource.data) &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.clientEmail == resource.data.clientEmail;
+      allow delete: if canAdmin(appId, resource.data.ownerId);
+
+      match /messages/{messageId} {
+        allow read: if canAccessThread(appId, threadId);
+        allow create: if canAccessThread(appId, threadId) &&
+          request.resource.data.text is string &&
+          request.resource.data.text.size() <= 3000;
+        allow update, delete: if false;
+      }
+    }
+
+    match /artifacts/{appId}/public/data/workspaces/{slug} {
+      allow read: if true;
+      allow create, update: if signedIn() &&
+        request.resource.data.ownerId is string &&
+        canAdmin(appId, request.resource.data.ownerId);
+      allow delete: if signedIn() &&
+        resource.data.ownerId is string &&
+        canAdmin(appId, resource.data.ownerId);
+
+      match /bookingSubmissions/{bookingId} {
+        allow read, create, update, delete: if false;
+      }
+
+      match /slotLocks/{lockId} {
+        allow read, write: if false;
+      }
+
+      match /services/{serviceId} {
+        allow read: if true;
+        allow create, update, delete: if signedIn() &&
+          get(/databases/$(database)/documents/artifacts/$(appId)/public/data/workspaces/$(slug)).data.ownerId is string &&
+          canAdmin(appId, get(/databases/$(database)/documents/artifacts/$(appId)/public/data/workspaces/$(slug)).data.ownerId);
+      }
+
+      match /staff/{staffId} {
+        allow read: if true;
+        allow create, update, delete: if signedIn() &&
+          get(/databases/$(database)/documents/artifacts/$(appId)/public/data/workspaces/$(slug)).data.ownerId is string &&
+          canAdmin(appId, get(/databases/$(database)/documents/artifacts/$(appId)/public/data/workspaces/$(slug)).data.ownerId);
+      }
+    }
+
+    match /artifacts/{appId}/notificationJobs/{jobId} {
+      allow read: if signedIn() &&
+        resource.data.ownerId is string &&
+        canStaff(appId, resource.data.ownerId);
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/securityRateLimits/{rateLimitId} {
+      allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/reminderQueue/{jobId} {
+      allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/billing/{ownerId}/{document=**} {
+      allow read: if canAdmin(appId, ownerId);
+      allow write: if false;
+    }
+  }
+}

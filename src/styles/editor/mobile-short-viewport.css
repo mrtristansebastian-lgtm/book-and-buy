@@ -1,0 +1,133 @@
+        @media (max-height: 520px) and (max-width: 950px) {
+            .dashboard-sidebar,
+            .desktop-sidebar-toggle {
+                display: none !important;
+            }
+            .desktop-editor-panel-toggle {
+                display: none !important;
+            }
+            .dashboard-main {
+                padding-bottom: 76px !important;
+            }
+            .mobile-bottom-nav {
+                display: block !important;
+            }
+            .mobile-bottom-nav.mobile-bottom-nav-collapsed {
+                transform: translateY(120%) !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+            .mobile-editor-shell {
+                flex-direction: row;
+                height: 100%;
+                max-height: 100%;
+                overflow: hidden;
+                overscroll-behavior: none;
+            }
+            .mobile-editor-panel {
+                width: 46vw !important;
+                min-width: 320px;
+                flex: 0 0 46vw;
+            }
+            .editor-panel-header {
+                padding: 1.25rem !important;
+                gap: 0.85rem !important;
+            }
+            .editor-tab-rail {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 1.25rem !important;
+            }
+            .editor-tab-button {
+                min-width: max-content;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            .editor-panel-scroll {
+                padding: 1.1rem 1.25rem !important;
+            }
+            .editor-publish-footer {
+                padding: 0.9rem 1.25rem !important;
+            }
+            .editor-publish-button {
+                min-height: 3.15rem !important;
+                padding-top: 0.85rem !important;
+                padding-bottom: 0.85rem !important;
+                font-size: 0.58rem !important;
+                letter-spacing: 0.12em !important;
+            }
+            .mobile-editor-panel.mobile-editor-panel-collapsed {
+                width: 0 !important;
+                min-width: 0 !important;
+                flex: 0 0 0 !important;
+                border-width: 0 !important;
+            }
+            .mobile-editor-preview {
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                flex: 1 1 auto !important;
+                padding-top: 4rem !important;
+                padding-bottom: 5.25rem !important;
+            }
+            .mobile-editor-rotate-prompt {
+                display: none !important;
+            }
+            .mobile-editor-install-action,
+            .mobile-editor-compact-controls {
+                display: flex !important;
+            }
+            .mobile-editor-compact-controls {
+                right: 0.9rem !important;
+                bottom: 0.9rem !important;
+            }
+            .mobile-editor-compact-controls button {
+                height: 2.15rem !important;
+                padding-left: 0.7rem !important;
+                padding-right: 0.7rem !important;
+                letter-spacing: 0.12em !important;
+            }
+            .mobile-editor-preview-toolbar {
+                top: 0.75rem !important;
+                left: 1rem;
+                right: 1rem;
+                flex-direction: row !important;
+                justify-content: center;
+                gap: 0.55rem !important;
+            }
+            .mobile-editor-toolbar-actions {
+                gap: 0.45rem !important;
+            }
+            .mobile-editor-device-option {
+                padding-left: 1.25rem !important;
+                padding-right: 1.25rem !important;
+                letter-spacing: 0.1em !important;
+            }
+            .mobile-editor-install-action {
+                height: 2.4rem !important;
+                padding-left: 0.85rem !important;
+                padding-right: 0.85rem !important;
+                letter-spacing: 0.12em !important;
+            }
+            .mobile-editor-refresh-action {
+                display: flex !important;
+                padding: 0.68rem !important;
+            }
+            .editor-preview-room-nav.is-desktop {
+                top: 50% !important;
+                right: 0.65rem !important;
+                max-height: 62vh !important;
+                padding: 0.25rem !important;
+                gap: 0.2rem !important;
+                background: rgba(255,255,255,0.9) !important;
+            }
+            .editor-preview-room-nav.is-desktop button {
+                width: 2rem !important;
+                min-width: 2rem !important;
+                height: 2rem !important;
+                padding: 0 !important;
+            }
+            .editor-preview-room-nav.is-desktop button span {
+                display: none !important;
+            }
+        }

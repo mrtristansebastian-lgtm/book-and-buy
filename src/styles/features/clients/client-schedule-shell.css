@@ -1,0 +1,94 @@
+html body .native-ui .clients-page .client-directory-card,
+html body .native-ui .team-page .team-roster-shell,
+html body .native-ui .team-page .team-empty-state,
+html body .native-ui .schedule-page .schedule-team-card,
+html body .native-ui .schedule-page .schedule-calendar-card {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .clients-page .client-directory-command,
+html body .native-ui .schedule-page .schedule-calendar-command {
+  padding-inline: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .clients-page .client-directory-command {
+  position: relative;
+  z-index: 1;
+  padding-inline: 1.25rem !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.065) !important;
+}
+
+html body .native-ui .clients-page .client-directory-tools {
+  display: grid;
+  gap: 0.76rem;
+}
+
+html body .native-ui .clients-page .client-directory-topline {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+}
+
+html body .native-ui .clients-page .client-search-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+html body .native-ui .clients-page .client-directory-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  flex: 0 0 auto;
+}
+
+html body .native-ui .clients-page .client-directory-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  min-width: 5.3rem;
+  height: 3rem;
+  padding: 0 0.94rem;
+  border: 1px solid rgba(15, 23, 42, 0.075);
+  border-radius: 0.9rem;
+  background: #ffffff;
+  color: #050505;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  box-shadow: 0 14px 34px -32px rgba(15, 23, 42, 0.48), inset 0 1px 0 rgba(255,255,255,0.92);
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+html body .native-ui .clients-page .client-directory-action:hover {
+  border-color: rgba(5, 5, 5, 0.38);
+  transform: translateY(-1px);
+}
+
+html body .native-ui .clients-page .client-directory-action.is-primary {
+  border-color: #050505;
+  background: #050505;
+  color: #ffffff;
+  box-shadow: 0 18px 40px -30px rgba(5, 5, 5, 0.45);
+}
+
+html body .native-ui .clients-page .client-directory-card > div:last-child {
+  margin-top: 0;
+  border-top: 0;
+  background: #ffffff;
+}
+
+html body .native-ui .clients-page .client-directory-row {
+  background: #ffffff;
+}
+
+html body .native-ui .clients-page .client-directory-row:hover {
+  background: #fafafa;
+}

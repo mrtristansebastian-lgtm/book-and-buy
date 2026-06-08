@@ -1,0 +1,22 @@
+        .team-roster-rail {
+            scroll-snap-type: x proximity;
+            scroll-padding-inline: 0.25rem 1.25rem;
+            padding-inline: 0.12rem 1.25rem;
+        }
+
+        .team-roster-card {
+            scroll-snap-align: start;
+            min-height: 8.25rem;
+        }
+
+        @media (max-width: 767px) {
+            .team-roster-rail {
+                margin-inline: -0.15rem;
+                padding-inline: 0.15rem 1.65rem;
+            }
+
+            .team-roster-card {
+                min-width: 6.25rem !important;
+            }
+        }
+

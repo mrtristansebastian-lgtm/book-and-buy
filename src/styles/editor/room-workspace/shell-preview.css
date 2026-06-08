@@ -1,0 +1,118 @@
+        .editor-room-workspace {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .editor-room-font-strip,
+        .editor-room-spectrum,
+        .editor-room-preview-shell {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 26px;
+            box-shadow: 0 28px 80px -66px rgba(15, 23, 42, 0.65);
+        }
+
+        .editor-room-font-strip,
+        .editor-room-spectrum {
+            display: grid;
+            grid-template-columns: minmax(8.5rem, 0.58fr) minmax(0, 1.8fr);
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.72rem;
+        }
+
+        .editor-room-font-strip strong,
+        .editor-room-spectrum strong {
+            display: block;
+            color: #050505;
+            font-size: 0.82rem;
+            line-height: 1.1;
+        }
+
+        .editor-room-font-rail,
+        .editor-room-spectrum-rail {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            overflow-x: auto;
+            padding-bottom: 0.1rem;
+            scrollbar-width: none;
+        }
+
+        .editor-room-font-rail::-webkit-scrollbar,
+        .editor-room-spectrum-rail::-webkit-scrollbar {
+            display: none;
+        }
+
+        .editor-room-font-rail button {
+            min-width: 6.25rem;
+            min-height: 3.55rem;
+            border-radius: 15px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #f8fafc;
+            color: #050505;
+            display: grid;
+            align-content: center;
+            gap: 0.2rem;
+            padding: 0.65rem;
+            transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .editor-room-font-rail button b {
+            font-size: 1.18rem;
+            line-height: 1;
+        }
+
+        .editor-room-font-rail button span,
+        .editor-room-spectrum-rail button span,
+        .editor-room-custom-color span {
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .editor-room-font-rail button:hover,
+        .editor-room-font-rail button.is-active {
+            transform: translateY(-1px);
+            background: #050505;
+            color: #fff;
+            border-color: #050505;
+            box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.8);
+        }
+
+        .editor-room-preview-shell {
+            overflow: hidden;
+        }
+
+        .editor-room-preview-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.8rem 0.8rem 0;
+        }
+
+        .editor-room-preview-top h4 {
+            color: #050505;
+            font-size: clamp(1.25rem, 2.2vw, 1.85rem);
+            line-height: 1;
+            font-weight: 850;
+            letter-spacing: -0.055em;
+        }
+
+        .editor-room-live-badge {
+            min-height: 1.8rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 0.65rem;
+            background: linear-gradient(135deg, #ccfbf1, #dbeafe, #f5d0fe);
+            color: #050505;
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }

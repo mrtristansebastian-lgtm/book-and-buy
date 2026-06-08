@@ -1,0 +1,73 @@
+        .editor-cinema-stage {
+            background:
+                radial-gradient(circle at 14% 6%, rgba(217, 249, 157, 0.18), transparent 24%),
+                radial-gradient(circle at 100% 8%, rgba(186, 230, 253, 0.2), transparent 28%),
+                rgba(255,255,255,0.82);
+        }
+
+        .editor-cinema-stage-head {
+            padding: clamp(1rem, 2vw, 1.35rem);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+        }
+
+        .editor-cinema-stage-head h3 {
+            margin-top: 0.28rem;
+            color: #050505;
+            font-size: clamp(1.65rem, 3.4vw, 2.55rem);
+            font-weight: 950;
+            letter-spacing: -0.075em;
+            line-height: 0.9;
+        }
+
+        .editor-cinema-stage-head p {
+            max-width: 28rem;
+            margin-top: 0.45rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1.42;
+        }
+
+        .editor-cinema-stage-body {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+            padding: clamp(0.85rem, 2vw, 1.2rem);
+        }
+
+        .editor-cinema-live-card {
+            display: none;
+        }
+
+        .editor-cinema-live-card,
+        .editor-cinema-control-panel {
+            min-width: 0;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.78);
+            background: rgba(255,255,255,0.76);
+            backdrop-filter: blur(24px) saturate(1.2);
+            padding: clamp(0.85rem, 2vw, 1.1rem);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.54), 0 22px 60px -54px rgba(15,23,42,0.72);
+        }
+
+        .editor-cinema-control-panel {
+            display: grid;
+            gap: 0.75rem;
+            align-content: start;
+        }
+
+        .editor-cinema-control-panel.editor-cinema-control-panel-flush {
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+            padding: 0;
+        }
+
+        .editor-cinema-control-panel input[type="file"] {
+            display: none;
+        }

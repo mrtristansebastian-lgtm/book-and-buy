@@ -1,0 +1,45 @@
+        @media (max-width: 767px) {
+            .editor-panel-scroll {
+                padding: 1rem !important;
+            }
+
+            .editor-live-room-head {
+                align-items: flex-start;
+            }
+
+            .editor-live-room-head p,
+            .editor-live-room-actions {
+                display: none;
+            }
+
+            .editor-live-room-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-live-room-card {
+                min-height: 4.3rem;
+            }
+
+            .editor-live-room-copy small,
+            .editor-live-room-card em {
+                display: none;
+            }
+
+            .editor-live-workbench-body {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-live-preview-card {
+                min-height: unset;
+            }
+
+            .editor-live-theme-strip,
+            .editor-live-feature-toggles,
+            .editor-live-feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-live-brand-frame textarea:nth-of-type(1) {
+                font-size: 1.95rem;
+            }
+        }

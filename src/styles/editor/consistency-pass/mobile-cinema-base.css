@@ -1,0 +1,163 @@
+        /* Editor consistency pass: calmer Vercel/iOS surfaces to match Support. */
+        .mobile-editor-panel {
+            box-shadow: 18px 0 54px -46px rgba(15, 23, 42, 0.42) !important;
+        }
+
+        .mobile-editor-preview {
+            background:
+                linear-gradient(180deg, #f7f8fa 0%, #f3f4f6 100%) !important;
+        }
+
+        .editor-cinema-header {
+            min-height: 4.2rem !important;
+            padding: 1.05rem 1.15rem !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.075) !important;
+            background: rgba(255, 255, 255, 0.92) !important;
+            backdrop-filter: blur(18px) saturate(1.08) !important;
+            -webkit-backdrop-filter: blur(18px) saturate(1.08) !important;
+        }
+
+        .editor-cinema-hero {
+            min-height: 4.25rem !important;
+            border-radius: 8px !important;
+            border: 1px solid rgba(15, 23, 42, 0.075) !important;
+            background: #ffffff !important;
+            box-shadow:
+                0 18px 48px -38px rgba(15, 23, 42, 0.28),
+                inset 0 1px 0 rgba(255,255,255,0.94) !important;
+        }
+
+        .editor-cinema-hero::before {
+            content: none !important;
+        }
+
+        .editor-cinema-hero-copy span,
+        .editor-cinema-stage-head span,
+        .cinema-look-picker-head span,
+        .cinema-control-title span {
+            color: #98a2b3 !important;
+            letter-spacing: 0.075em !important;
+        }
+
+        .editor-cinema-hero-copy h3 {
+            font-size: clamp(1.22rem, 2vw, 1.58rem) !important;
+            font-weight: 830 !important;
+            letter-spacing: 0 !important;
+            line-height: 1.02 !important;
+        }
+
+        .editor-cinema-hero-copy p,
+        .editor-cinema-stage-head p,
+        .cinema-control-title small {
+            color: #667085 !important;
+            font-weight: 560 !important;
+        }
+
+        .editor-cinema-stage,
+        .editor-cinema-control-panel,
+        .cinema-look-picker,
+        .cinema-visual-preview,
+        .editor-cinema-live-card {
+            border-radius: 8px !important;
+            border: 1px solid rgba(15, 23, 42, 0.075) !important;
+            background: #ffffff !important;
+            box-shadow:
+                0 18px 48px -40px rgba(15, 23, 42, 0.32),
+                inset 0 1px 0 rgba(255,255,255,0.94) !important;
+        }
+
+        .editor-cinema-stage-head {
+            padding: 1rem 1.05rem !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+        }
+
+        .editor-cinema-stage-head h3 {
+            font-weight: 820 !important;
+            letter-spacing: 0 !important;
+        }
+
+        .editor-cinema-nav-buttons button,
+        .editor-cinema-control-panel > button,
+        .editor-cinema-control-panel > label,
+        .cinema-look-grid button {
+            border-radius: 0.65rem !important;
+            border-color: rgba(15, 23, 42, 0.075) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.94) !important;
+        }
+
+        .cinema-look-picker {
+            padding: 0.72rem !important;
+        }
+
+        .cinema-look-grid {
+            gap: 0.48rem !important;
+        }
+
+        .cinema-look-grid button {
+            min-height: 6.3rem !important;
+            padding: 0.62rem !important;
+            background: #ffffff !important;
+            display: grid !important;
+            grid-template-rows: 3.35rem auto !important;
+            gap: 0.5rem !important;
+        }
+
+        .cinema-look-grid button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(15, 23, 42, 0.16) !important;
+            box-shadow: 0 14px 34px -30px rgba(15, 23, 42, 0.42), inset 0 1px 0 rgba(255,255,255,0.94) !important;
+        }
+
+        .cinema-look-grid button.is-active {
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-accent-button-gradient, linear-gradient(135deg, #d9ff63, #9cf7e6, #d8b4fe)) border-box !important;
+            border-color: transparent !important;
+            color: #050505 !important;
+            box-shadow: 0 18px 38px -32px rgba(15, 23, 42, 0.5), inset 0 1px 0 rgba(255,255,255,0.94) !important;
+        }
+
+        .cinema-look-grid .cinema-look-preview {
+            height: 3.35rem !important;
+            border-radius: 12px !important;
+            padding: 0.38rem !important;
+            gap: 0.2rem !important;
+            background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+            border: 1px solid rgba(15, 23, 42, 0.08) !important;
+        }
+
+        .cinema-look-grid .cinema-look-preview b {
+            background: rgba(15, 23, 42, 0.16) !important;
+        }
+
+        .cinema-look-grid span {
+            font-size: 0.66rem !important;
+            font-weight: 920 !important;
+            letter-spacing: 0.03em !important;
+        }
+
+        .cinema-look-grid .cinema-look-preview[data-look="gallery"] b:first-child,
+        .cinema-look-grid .cinema-look-preview[data-look="editorial"] b:first-child,
+        .cinema-look-grid .cinema-look-preview[data-look="hero"] b:first-child,
+        .cinema-look-grid .cinema-look-preview[data-look="glow"] b:first-child,
+        .cinema-look-grid .cinema-look-preview[data-look="solid"] b:first-child,
+        .cinema-look-grid .cinema-look-preview[data-look="numbered"] b:nth-child(odd),
+        .cinema-look-grid .cinema-look-preview[data-look="button"] b:first-child {
+            background: rgba(15, 23, 42, 0.82) !important;
+        }
+
+        .cinema-look-grid .cinema-look-preview[data-look="cards"] b:nth-child(n+5),
+        .cinema-look-grid .cinema-look-preview[data-look="labels"] b:nth-child(n+5),
+        .cinema-look-grid .cinema-look-preview[data-look="button"] b:not(:first-child),
+        .cinema-look-grid .cinema-look-preview[data-look="none"] b {
+            display: none !important;
+        }
+
+        .cinema-look-grid .cinema-look-preview[data-look="glow"] b:first-child,
+        .cinema-look-grid .cinema-look-preview[data-look="solid"] b:first-child {
+            box-shadow: 0 0 0 3px rgba(217, 249, 157, 0.42) !important;
+        }
+
+        .editor-preview-frame {
+            filter: drop-shadow(0 28px 58px rgba(15, 23, 42, 0.14)) !important;
+        }

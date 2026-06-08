@@ -1,0 +1,119 @@
+        .booking-calendar-studio > button {
+            border-radius: 1.6rem !important;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 42px -34px rgba(15, 23, 42, 0.45);
+        }
+
+        .booking-calendar-classic {
+            align-items: stretch;
+        }
+
+        .booking-calendar-classic > button {
+            min-width: 7.1rem !important;
+            border-radius: 0.95rem !important;
+            background: var(--booking-calendar-tile-bg) !important;
+        }
+
+        .booking-calendar-editorial > button {
+            min-width: 7.8rem !important;
+            min-height: 9.4rem !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            border-left: 0 !important;
+            border-right: 0 !important;
+            border-top: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .booking-calendar-editorial > button span,
+        .booking-calendar-editorial > button strong {
+            transform: scale(1.08);
+        }
+
+        .booking-calendar-compact {
+            height: auto !important;
+            display: grid !important;
+            grid-template-columns: repeat(7, minmax(4.8rem, 1fr));
+            overflow-x: auto;
+        }
+
+        .booking-calendar-compact > button {
+            min-width: 4.8rem !important;
+            min-height: 5.25rem !important;
+            border-radius: 0.75rem !important;
+            padding: 0.65rem !important;
+        }
+
+        .booking-calendar-glow > button {
+            border-radius: 1.25rem !important;
+            background: var(--booking-calendar-tile-bg) !important;
+        }
+
+        .booking-calendar-glow > button[aria-pressed="true"],
+        .booking-calendar-glow > button:hover {
+            transform: translateY(-0.18rem);
+            box-shadow: 0 0 0 2px currentColor, 0 26px 58px -24px currentColor !important;
+        }
+
+        .booking-time-pill > button {
+            border-radius: 999px !important;
+            min-height: 2.38rem;
+            box-shadow: 0 7px 18px -18px rgba(15, 23, 42, 0.28);
+        }
+
+        .booking-time-blocks {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .booking-time-blocks > button {
+            min-height: 3.05rem;
+            border-radius: 1rem !important;
+            justify-content: center !important;
+            padding: 0.82rem !important;
+            text-align: center;
+        }
+
+        .booking-time-minimal {
+            grid-template-columns: 1fr !important;
+        }
+
+        .booking-time-minimal > button {
+            min-height: 3.1rem;
+            justify-content: space-between !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            border-radius: 0 !important;
+            border-left: 0 !important;
+            border-right: 0 !important;
+            border-top: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .booking-time-minimal > button::after {
+            content: "Book";
+            font-size: 0.58rem;
+            font-weight: 950;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            opacity: 0.42;
+        }
+
+        .booking-time-luxury > button {
+            min-height: 2.95rem;
+            border-radius: 0.25rem 1.2rem 0.25rem 1.2rem !important;
+            letter-spacing: 0.03em;
+        }
+
+        .booking-time-compact {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            gap: 0.45rem !important;
+        }
+
+        .booking-time-compact > button {
+            min-height: 2.75rem;
+            padding: 0.52rem !important;
+            border-radius: 0.7rem !important;
+            font-size: 0.72rem !important;
+        }
+

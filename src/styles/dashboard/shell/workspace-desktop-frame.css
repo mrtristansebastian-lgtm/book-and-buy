@@ -1,0 +1,134 @@
+/* Workspace shell
+   Source of truth for the app frame, attached navigation, dashboard feed fit,
+   Finance command layout, and seamless Services desk. */
+
+@media (min-width: 768px) {
+  html body .native-ui .dashboard-main > div:not(.mobile-editor-shell) {
+    padding: clamp(1.35rem, 2vw, 2rem) clamp(1.6rem, 2.4vw, 2.4rem) 2rem clamp(6.3rem, 6.9vw, 7.1rem) !important;
+    background: #ffffff !important;
+  }
+
+  html body .native-ui .dashboard-main > div.communications-page:not(.mobile-editor-shell) {
+    padding: 0 0 0 5.2rem !important;
+    overflow: hidden !important;
+  }
+
+  html body .native-ui .dashboard-main > div.bookings-page:not(.mobile-editor-shell) {
+    padding: 0 0 0 5.2rem !important;
+    overflow: hidden !important;
+  }
+
+  html body .native-ui .dashboard-main > div.services-page:not(.mobile-editor-shell) {
+    padding: 0 0 0 5.2rem !important;
+    overflow: hidden !important;
+  }
+
+  html body .native-ui .dashboard-main > div.clients-page:not(.mobile-editor-shell) {
+    padding: 0 0 0 5.2rem !important;
+    overflow: hidden !important;
+  }
+
+  html body .native-ui .dashboard-main > div.finance-page:not(.mobile-editor-shell) {
+    padding: 0 0 0 5.2rem !important;
+    overflow-y: auto !important;
+  }
+
+  html body .native-ui .desktop-bottom-nav {
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 5.2rem !important;
+    height: 100dvh !important;
+    transform: none !important;
+  }
+
+  html body .native-ui .desktop-nav-dock {
+    height: 100% !important;
+    padding: 0.45rem 0.42rem !important;
+    gap: 0.16rem !important;
+    border-width: 0 1px 0 0 !important;
+    border-style: solid !important;
+    border-color: rgba(15, 23, 42, 0.075) !important;
+    border-radius: 0 !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.68) !important;
+  }
+
+  html body .native-ui .desktop-nav-tab {
+    border-radius: 0.52rem !important;
+  }
+
+  html body .native-ui .desktop-nav-tab.is-active {
+    box-shadow: inset 0 0 0 1px rgba(5, 5, 5, 0.07) !important;
+  }
+
+  html body .native-ui .desktop-nav-tab-icon {
+    width: 2.52rem !important;
+    height: 2.52rem !important;
+  }
+
+  html body .native-ui .communications-page .support-page-shell,
+  html body .native-ui .communications-page .support-desk-shell,
+  html body .native-ui .communications-page .support-workspace-grid {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+  }
+
+  html body .native-ui.dashboard-light .communications-page .support-inbox-card.support-desk-shell.saas-card {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+  }
+
+  html body .native-ui .bookings-page .booking-desk-shell {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+  }
+
+  html body .native-ui .bookings-page .booking-record-list {
+    max-height: calc(100dvh - 14.55rem) !important;
+  }
+
+  html body .native-ui .services-page .service-desk-shell {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  html body .native-ui .services-page .service-desk-command {
+    padding: 1.08rem 1.25rem !important;
+  }
+
+  html body .native-ui .services-page .service-desk-list {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+
+  html body .native-ui .clients-page .client-directory-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+
+  html body .native-ui .clients-page .client-directory-command {
+    padding: 1.08rem 1.25rem !important;
+  }
+
+  html body .native-ui .clients-page .client-directory-card > div:last-child {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+}

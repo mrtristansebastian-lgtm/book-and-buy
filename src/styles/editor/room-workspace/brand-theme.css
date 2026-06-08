@@ -1,0 +1,205 @@
+        .editor-room-live-card {
+            min-height: 17.5rem;
+            margin: 0.8rem;
+            border-radius: 22px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: linear-gradient(180deg, #fff, #f8fafc);
+            padding: clamp(0.85rem, 1.8vw, 1.1rem);
+            display: grid;
+            gap: 0.75rem;
+            align-content: center;
+        }
+
+        .editor-room-banner-preview {
+            min-height: 6.4rem;
+            border-radius: 18px;
+            background: #f1f5f9;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .editor-room-banner-preview img,
+        .editor-room-logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .editor-room-brand-main {
+            display: grid;
+            gap: 0.55rem;
+            justify-items: start;
+        }
+
+        .editor-room-brand-main[style*="center"] {
+            justify-items: center;
+        }
+
+        .editor-room-brand-main[style*="right"] {
+            justify-items: end;
+        }
+
+        .editor-room-logo-preview {
+            border-radius: 18px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .editor-room-inline-kicker,
+        .editor-room-inline-title,
+        .editor-room-inline-copy,
+        .editor-room-copy-preview input,
+        .editor-room-copy-preview textarea,
+        .editor-room-faq-live input,
+        .editor-room-faq-live textarea {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: #050505;
+        }
+
+        .editor-room-inline-kicker {
+            max-width: 34rem;
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        .editor-room-inline-title {
+            max-width: 40rem;
+            font-size: clamp(1.9rem, 4.8vw, 3.5rem);
+            line-height: 0.92;
+            font-weight: 900;
+            letter-spacing: -0.075em;
+        }
+
+        .editor-room-inline-copy {
+            max-width: 34rem;
+            min-height: 3.35rem;
+            resize: none;
+            color: #64748b;
+            font-size: clamp(0.88rem, 1.6vw, 1.05rem);
+            line-height: 1.35;
+            font-weight: 650;
+        }
+
+        .editor-room-theme-brief-inline {
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .editor-room-theme-brief-inline span,
+        .editor-room-calendar-mini span,
+        .editor-room-slot-mini span,
+        .editor-room-copy-preview span {
+            color: #94a3b8;
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .editor-room-theme-brief-inline h5,
+        .editor-room-faq-live h5 {
+            color: #050505;
+            font-size: clamp(1.35rem, 3vw, 2.15rem);
+            line-height: 0.95;
+            font-weight: 900;
+            letter-spacing: -0.065em;
+        }
+
+        .editor-room-theme-brief-inline p,
+        .editor-room-muted-note {
+            max-width: 42rem;
+            color: #64748b;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            font-weight: 650;
+        }
+
+        .editor-room-industry-mini-grid,
+        .editor-room-theme-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .editor-room-industry-mini-grid button,
+        .editor-room-theme-mini-grid button {
+            border-radius: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+            color: #050505;
+            text-align: left;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.68rem;
+        }
+
+        .editor-room-industry-mini-grid button.is-active {
+            background: #050505;
+            color: #fff;
+        }
+
+        .editor-room-industry-mini-grid span,
+        .editor-room-theme-mini-grid span:first-child {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.55rem;
+        }
+
+        .editor-room-industry-mini-grid i,
+        .editor-room-spectrum-rail i,
+        .editor-room-custom-color i {
+            width: 1.45rem;
+            height: 1.45rem;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+        }
+
+        .editor-room-industry-mini-grid i + i,
+        .editor-room-spectrum-rail i + i {
+            margin-left: -0.45rem;
+        }
+
+        .editor-room-theme-mini-grid button {
+            min-height: 7rem;
+            display: grid;
+            align-content: space-between;
+        }
+
+        .editor-room-theme-mini-grid b {
+            display: block;
+            font-size: 1.5rem;
+            letter-spacing: -0.06em;
+        }
+
+        .editor-room-theme-mini-grid em {
+            min-height: 2rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-style: normal;
+            font-size: 0.56rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }

@@ -1,0 +1,111 @@
+@media (max-width: 767px) {
+  html body .native-ui .finance-hero-head,
+  html body .native-ui .finance-hero-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html body .native-ui .finance-timeline-chart {
+    display: grid !important;
+    gap: 0.9rem !important;
+  }
+
+  html body .native-ui .finance-timeline-statbar {
+    order: 1 !important;
+  }
+
+  html body .native-ui .finance-chart-module {
+    order: 2 !important;
+  }
+
+  html body .native-ui .finance-desk-list,
+  html body .native-ui .service-desk-command,
+  html body .native-ui .service-desk-list,
+  html body .native-ui .clients-page .client-directory-command,
+  html body .native-ui .clients-page .client-directory-card > div:last-child {
+    width: calc(100% + 1.64rem) !important;
+    margin-left: -0.82rem !important;
+    margin-right: -0.82rem !important;
+  }
+
+  html body .native-ui .finance-desk-list,
+  html body .native-ui .service-desk-command,
+  html body .native-ui .service-desk-list,
+  html body .native-ui .clients-page .client-directory-command,
+  html body .native-ui .clients-page .client-directory-card > div:last-child {
+    border-left: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html body .native-ui .service-desk-shell {
+    display: block !important;
+    min-height: calc(100dvh - 6.1rem);
+  }
+
+  html body .native-ui .service-desk-command {
+    padding: 0.88rem 0.82rem 0.8rem !important;
+    background: #ffffff;
+  }
+
+  html body .native-ui .service-scope-grid {
+    grid-template-columns: 1fr;
+    gap: 0.62rem;
+  }
+
+  html body .native-ui .service-scope-panel {
+    padding: 0.68rem;
+    border-radius: 0.62rem;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html body .native-ui .service-desk-list {
+    margin-top: 0;
+    background: #ffffff;
+  }
+
+  html body .native-ui .clients-page .client-directory-card {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body .native-ui .clients-page .client-directory-command {
+    padding: 0.88rem 0.82rem 0.8rem !important;
+    background: #ffffff !important;
+  }
+
+  html body .native-ui .clients-page .client-directory-topline {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.62rem;
+  }
+
+  html body .native-ui .clients-page .client-directory-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  html body .native-ui .clients-page .client-directory-action {
+    min-width: 0;
+    height: 2.7rem;
+    border-radius: 0.82rem;
+    font-size: 0.62rem;
+    padding-inline: 0.7rem;
+  }
+
+  html body .native-ui .clients-page .client-directory-card > div:last-child {
+    max-height: none !important;
+    margin-top: 0;
+    background: #ffffff;
+  }
+
+  html body .native-ui .finance-desk-row {
+    padding-left: 0.88rem !important;
+    padding-right: 0.88rem !important;
+  }
+}

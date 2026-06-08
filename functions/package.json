@@ -1,0 +1,16 @@
+{
+  "name": "build-a-booking-functions",
+  "private": true,
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "scripts": {
+    "lint": "node scripts/syntax-check.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.10.0",
+    "firebase-functions": "^7.2.5",
+    "stripe": "^22.1.1"
+  }
+}

@@ -1,0 +1,111 @@
+html body .native-ui .finance-desk {
+  background: transparent !important;
+}
+
+html body .native-ui .finance-desk-head > div:first-child > p {
+  display: none !important;
+}
+
+html body .native-ui .finance-desk-head h3 {
+  margin: 0 !important;
+  font-size: clamp(1.45rem, 2.1vw, 2.1rem) !important;
+  letter-spacing: 0 !important;
+}
+
+html body .native-ui .finance-desk-head-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.56rem !important;
+}
+
+html body .native-ui .finance-desk-icon-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.42rem !important;
+}
+
+html body .native-ui .finance-desk-icon-button {
+  width: 2.92rem !important;
+  height: 2.92rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.075) !important;
+  border-radius: 0.86rem !important;
+  background: #ffffff !important;
+  color: #050505 !important;
+  box-shadow: 0 14px 34px -32px rgba(15, 23, 42, 0.48), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+}
+
+html body .native-ui .finance-desk-icon-button.is-primary {
+  border-color: transparent !important;
+  background: var(--native-accent-button-gradient) !important;
+  background-size: 420% 420% !important;
+  background-position: var(--native-accent-x) 50% !important;
+}
+
+html body .native-ui .finance-desk-tabs {
+  gap: 0.42rem !important;
+  min-width: min(100%, 26rem) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .finance-desk-tabs button {
+  min-height: 2.92rem !important;
+  height: 2.92rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.075) !important;
+  border-radius: 0.86rem !important;
+  background: #ffffff !important;
+  color: #667085 !important;
+  font-size: 0.62rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.035em !important;
+  box-shadow: 0 14px 34px -32px rgba(15, 23, 42, 0.48), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+}
+
+html body .native-ui .finance-desk-tabs button.bg-black,
+html body .native-ui .finance-desk-tabs button.text-white {
+  border-color: #050505 !important;
+  background: #050505 !important;
+  color: #ffffff !important;
+  box-shadow: 0 18px 40px -30px rgba(5, 5, 5, 0.42) !important;
+}
+
+html body .native-ui .finance-desk-controls input,
+html body .native-ui .finance-desk-controls .booking-desk-select-face {
+  height: 3rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.075) !important;
+  border-radius: 0.9rem !important;
+  background: #ffffff !important;
+  color: #050505 !important;
+  font-weight: 780 !important;
+  box-shadow: 0 14px 34px -32px rgba(15, 23, 42, 0.48), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+}
+
+html body .native-ui .finance-desk-controls input::placeholder {
+  color: #98a2b3 !important;
+}
+
+html body .native-ui .finance-desk-list {
+  margin-top: 0 !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
+  background: #ffffff !important;
+}
+
+html body .native-ui .finance-desk-row {
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+  background: #ffffff !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .finance-desk-row:hover {
+  background: #fafafa !important;
+}
+
+html body .native-ui .finance-desk-row .finance-gateway-mark {
+  border-radius: 0.72rem !important;
+  background: #ffffff !important;
+}

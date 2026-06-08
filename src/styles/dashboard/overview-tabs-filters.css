@@ -1,0 +1,96 @@
+        /* Dashboard premium tab language: remove status pill, use gradient-border switches. */
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-live {
+            display: none !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting {
+            padding-top: 0 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-greeting h2 {
+            margin-top: 0 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-period-tabs,
+        html body .native-ui .dashboard-overview-page > .dashboard-lumia-board > .dashboard-period-tabs,
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-board > .dashboard-period-tabs,
+        html body .native-ui .dashboard-overview-page .dashboard-command-filterbar .dashboard-filter-strip,
+        html body .native-ui .dashboard-overview-page .dashboard-schedule-tabs {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(247, 248, 250, 0.5)) padding-box,
+                linear-gradient(135deg, rgba(203, 255, 184, 0.42), rgba(185, 227, 255, 0.36), rgba(255, 212, 242, 0.42)) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 16px 44px -40px rgba(15, 23, 42, 0.42),
+                inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-period-tab,
+        html body .native-ui .dashboard-overview-page .dashboard-filter-chip,
+        html body .native-ui .dashboard-overview-page .dashboard-schedule-tabs button {
+            color: rgba(15, 23, 42, 0.58) !important;
+            background: transparent !important;
+            border: 1px solid transparent !important;
+            box-shadow: none !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-period-tab.is-active,
+        html body .native-ui .dashboard-overview-page .dashboard-filter-chip.is-active,
+        html body .native-ui .dashboard-overview-page .dashboard-schedule-tabs button.is-active {
+            color: #050505 !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 248, 250, 0.9)) padding-box,
+                var(--native-accent-button-gradient) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 14px 32px -27px var(--native-accent-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.88) !important;
+        }
+
+        /* Time toggle gets the premium gradient-border treatment; inner dashboard filters stay quiet. */
+        html body .native-ui .dashboard-overview-page .dashboard-period-tabs,
+        html body .native-ui .dashboard-overview-page > .dashboard-lumia-board > .dashboard-period-tabs,
+        html body .native-ui .dashboard-overview-page .dashboard-lumia-board > .dashboard-period-tabs {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(248, 249, 250, 0.58)) padding-box,
+                var(--native-accent-button-gradient) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 18px 48px -42px rgba(15, 23, 42, 0.36),
+                inset 0 1px 0 rgba(255, 255, 255, 0.84) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-period-tab.is-active {
+            color: #050505 !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 248, 250, 0.9)) padding-box,
+                var(--native-accent-button-gradient) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 14px 32px -27px var(--native-accent-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-command-filterbar .dashboard-filter-strip,
+        html body .native-ui .dashboard-overview-page .dashboard-schedule-tabs {
+            background: rgba(255, 255, 255, 0.44) !important;
+            border: 1px solid rgba(15, 23, 42, 0.055) !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-filter-chip,
+        html body .native-ui .dashboard-overview-page .dashboard-schedule-tabs button {
+            color: var(--tile-muted) !important;
+            background: transparent !important;
+            border: 1px solid transparent !important;
+            box-shadow: none !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-filter-chip.is-active,
+        html body .native-ui .dashboard-overview-page .dashboard-schedule-tabs button.is-active {
+            color: #050505 !important;
+            background: rgba(255, 255, 255, 0.72) !important;
+            border: 1px solid rgba(15, 23, 42, 0.06) !important;
+            box-shadow: inset 0 0 0 1px rgba(5, 5, 5, 0.07) !important;
+        }
+

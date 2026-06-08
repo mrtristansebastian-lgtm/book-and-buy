@@ -1,0 +1,57 @@
+        /* Final mobile surface correction: keep the dock, remove the full-width strip behind it. */
+
+        html body .native-ui .support-desk-shell .support-thread-row.is-active .support-thread-preview-divider,
+        html body .native-ui .support-inbox-pro .support-thread-row.is-active .support-thread-preview-divider {
+            height: 1px !important;
+            margin-top: 0.8rem !important;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(203, 255, 184, 0.9) 10%, rgba(183, 255, 240, 0.95) 34%, rgba(185, 227, 255, 0.92) 56%, rgba(255, 212, 242, 0.9) 78%, transparent 100%) !important;
+            opacity: 0.92 !important;
+        }
+
+        .support-desk-shell .support-thread-row.is-active .support-thread-preview-divider,
+        .support-inbox-pro .support-thread-row.is-active .support-thread-preview-divider {
+            height: 1px !important;
+            margin-top: 0.8rem !important;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(203, 255, 184, 0.9) 10%, rgba(183, 255, 240, 0.95) 34%, rgba(185, 227, 255, 0.92) 56%, rgba(255, 212, 242, 0.9) 78%, transparent 100%) !important;
+            opacity: 0.92;
+        }
+
+        .finance-timeline-statbar > div {
+            display: flex !important;
+            min-width: 0;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+        }
+
+        .finance-timeline-statbar > div > p {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            text-align: center !important;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .finance-timeline-statbar > div > p:nth-child(2) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            letter-spacing: -0.02em;
+        }
+
+        @media (max-width: 767px) {
+
+            html body .native-ui .finance-timeline-statbar > div {
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+            }
+
+            html body .native-ui .finance-timeline-statbar > div > p {
+                text-align: center !important;
+            }
+        }

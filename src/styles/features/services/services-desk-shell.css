@@ -1,0 +1,52 @@
+html body .native-ui .services-studio {
+  width: 100%;
+}
+
+html body .native-ui .service-desk-shell {
+  width: 100%;
+  min-height: calc(100dvh - 4rem);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+html body .native-ui .service-desk-command {
+  display: grid;
+  gap: 0.76rem;
+  padding: 1.08rem 1.25rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  background: #ffffff;
+}
+
+html body .native-ui .service-scope-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+html body .native-ui .service-scope-panel {
+  padding: 0.84rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 0.72rem;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78), 0 14px 34px -34px rgba(15, 23, 42, 0.32);
+}
+
+html body .native-ui .service-desk-list {
+  margin-top: 0;
+  border-top: 0;
+  background: #ffffff;
+}
+
+html body .native-ui .service-desk-row {
+  background: #ffffff;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html body .native-ui .service-desk-row:hover,
+html body .native-ui .service-desk-row-active {
+  background: #fafafa;
+}

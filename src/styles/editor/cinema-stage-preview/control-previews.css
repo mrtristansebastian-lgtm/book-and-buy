@@ -1,0 +1,151 @@
+        .cinema-theme-preview > div,
+        .cinema-date-strip,
+        .cinema-slot-strip,
+        .cinema-button-preview,
+        .cinema-feature-preview,
+        .cinema-color-grid,
+        .cinema-font-grid,
+        .cinema-toggle-grid,
+        .cinema-field-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+
+        .cinema-theme-preview > div {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .cinema-theme-preview button,
+        .cinema-date-strip button,
+        .cinema-slot-strip button,
+        .cinema-button-preview button,
+        .cinema-feature-preview span,
+        .cinema-chip-scroll button,
+        .cinema-color-grid button,
+        .cinema-color-grid label,
+        .cinema-color-tile,
+        .cinema-font-grid button,
+        .cinema-toggle-grid button,
+        .cinema-field-grid label,
+        .cinema-faq-editor,
+        .cinema-faq-editor label {
+            border-radius: 18px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: rgba(248,250,252,0.86);
+            color: #050505;
+        }
+
+        .cinema-theme-preview button {
+            min-height: 5.8rem;
+            padding: 0.75rem;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: default;
+        }
+
+        .cinema-theme-preview button i {
+            display: block;
+            width: 100%;
+            height: 2.7rem;
+            border-radius: 14px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 18px 28px -24px rgba(15, 23, 42, 0.72);
+        }
+
+        .cinema-theme-preview button small,
+        .cinema-field-grid label,
+        .cinema-faq-editor label {
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .cinema-theme-preview button b,
+        .cinema-type-spec b {
+            font-size: 2rem;
+            font-weight: 950;
+            letter-spacing: -0.06em;
+        }
+
+        .cinema-type-spec {
+            border-radius: 24px;
+            background: #050505;
+            color: #fff;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .cinema-date-strip button,
+        .cinema-slot-strip button {
+            min-height: 4.7rem;
+            font-size: 0.9rem;
+            font-weight: 950;
+        }
+
+        .cinema-button-preview button {
+            min-height: 4.2rem;
+            font-size: 0.72rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .cinema-button-preview .secondary {
+            background: #fff;
+            color: #050505;
+        }
+
+        .cinema-button-preview .ghost {
+            background: transparent;
+        }
+
+        .cinema-feature-preview span,
+        .cinema-toggle-grid button {
+            min-height: 3.8rem;
+            padding: 0.75rem;
+            font-size: 0.72rem;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cinema-feature-preview span.is-on,
+        .cinema-toggle-grid button.is-on {
+            background: linear-gradient(135deg, rgba(217, 249, 157, 0.72), rgba(186, 230, 253, 0.58), rgba(243, 232, 255, 0.6));
+            border-color: rgba(14, 165, 233, 0.28);
+        }
+
+        .cinema-toggle-grid button i {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 999px;
+            background: #e5e7eb;
+        }
+
+        .cinema-toggle-grid button.is-on i {
+            background: #050505;
+        }
+
+        .cinema-toggle-grid button.is-disabled {
+            opacity: 0.48;
+            cursor: not-allowed;
+        }
+
+        .cinema-copy-preview input {
+            min-height: 4rem;
+            border-radius: 18px;
+            background: #f8fafc;
+            padding: 0 1rem;
+            font-size: 1rem;
+            font-weight: 850;
+        }

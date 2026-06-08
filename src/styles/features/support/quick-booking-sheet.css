@@ -1,0 +1,131 @@
+        .support-quick-booking-sheet {
+            max-height: min(650px, calc(100dvh - 2rem)) !important;
+            overflow-y: auto;
+            padding-bottom: 0 !important;
+        }
+
+        .support-quick-booking-overlay {
+            z-index: 5000 !important;
+        }
+
+        @media (min-width: 1024px) {
+            .support-quick-booking-overlay {
+                padding-left: 20rem !important;
+            }
+        }
+
+        .support-quick-head {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            background: #ffffff;
+        }
+
+        .support-quick-field > span {
+            display: block;
+            margin-bottom: 0.32rem;
+            color: #8c94a3;
+            font-size: 0.58rem;
+            font-weight: 680;
+            letter-spacing: 0;
+        }
+
+        .support-quick-field input,
+        .support-quick-field select,
+        .support-quick-field textarea {
+            width: 100%;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 0.72rem;
+            background: #fbfcfd;
+            color: #050505;
+            outline: none;
+            font-size: 0.82rem;
+            font-weight: 520;
+            line-height: 1.35;
+            padding: 0.62rem 0.82rem;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+            transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+        }
+
+        .support-quick-field input,
+        .support-quick-field select {
+            height: 2.52rem;
+        }
+
+        .support-quick-control {
+            position: relative;
+            display: block;
+        }
+
+        .support-quick-control input,
+        .support-quick-control select {
+            padding-right: 2.35rem !important;
+        }
+
+        .support-quick-control select {
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .support-quick-control svg {
+            position: absolute;
+            right: 0.78rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7d8594;
+            pointer-events: none;
+        }
+
+        .support-quick-control input[type="date"]::-webkit-calendar-picker-indicator,
+        .support-quick-control input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+        }
+
+        .support-quick-field textarea {
+            resize: vertical;
+            min-height: 3.35rem;
+        }
+
+        .support-quick-actions {
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            padding: 0.55rem 1.25rem 0.65rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.86), #ffffff 35%);
+            border-top: 1px solid rgba(15, 23, 42, 0.055);
+        }
+
+        @media (min-width: 640px) {
+            .support-quick-actions {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+
+        .support-quick-field input:focus,
+        .support-quick-field select:focus,
+        .support-quick-field textarea:focus {
+            border-color: transparent;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) border-box;
+            background-size: 100% 100%, 420% 420%;
+            background-position: 0 0, var(--native-accent-x, 50%) 50%;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        .support-quick-booking-sheet button[type="button"],
+        .support-quick-booking-sheet button[type="submit"] {
+            height: 2.45rem;
+            border-radius: 999px;
+            font-size: 0.64rem;
+            letter-spacing: 0;
+            font-weight: 760;
+        }
+
+        .support-desk-shell .support-chat-canvas,
+        .client-chat-shell .client-chat-canvas {
+            background:
+                linear-gradient(180deg, #fbfbfa 0%, #f7f7f4 100%) !important;
+        }
+

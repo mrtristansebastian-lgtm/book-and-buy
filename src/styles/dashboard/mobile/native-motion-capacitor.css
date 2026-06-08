@@ -1,0 +1,69 @@
+@media (max-width: 767px) {
+            [data-theme-card] {
+                content-visibility: auto;
+                contain: layout paint style;
+                contain-intrinsic-size: 230px;
+                transition: border-color 180ms ease, box-shadow 180ms ease !important;
+            }
+
+            [data-theme-card]:hover {
+                transform: none !important;
+            }
+
+            :root:not(.capacitor-native) .native-feature-card,
+            :root:not(.capacitor-native) .native-ui .native-stat-card {
+                content-visibility: auto;
+                contain: layout paint style;
+                contain-intrinsic-size: 185px;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            :root.app-idle .native-booking-theme .booking-gradient-card::before {
+                opacity: var(--native-beam-peak) !important;
+                filter: blur(14px) saturate(1.18) !important;
+            }
+
+            :root.capacitor-native {
+                --native-accent-duration: 24s;
+                --native-beam-duration: 12s;
+            }
+
+            :root.capacitor-native .native-theme-card-preview,
+            :root.capacitor-native .native-theme-card-preview::before {
+                animation: native-accent-sync var(--native-accent-duration) var(--native-accent-easing) infinite !important;
+            }
+
+            :root.capacitor-native .native-theme-card-preview::before {
+                opacity: 0.08 !important;
+                filter: blur(22px) saturate(1.1) !important;
+            }
+
+            :root.capacitor-native .native-feature-card::before,
+            :root.capacitor-native .native-ui .native-stat-card::before {
+                animation: native-panel-beam var(--native-beam-duration) cubic-bezier(0.45, 0, 0.2, 1) infinite !important;
+                animation-delay: var(--feature-wave-delay, var(--stat-wave-delay, 0s)) !important;
+                opacity: 0;
+                filter: blur(14px) saturate(1.22) !important;
+            }
+
+            :root.capacitor-native .native-feature-card::after,
+            :root.capacitor-native .native-ui .native-stat-card::after {
+                animation: native-panel-border-beam var(--native-beam-duration) cubic-bezier(0.45, 0, 0.2, 1) infinite !important;
+                animation-delay: var(--feature-wave-delay, var(--stat-wave-delay, 0s)) !important;
+                opacity: 0.32;
+            }
+
+            :root.capacitor-native .native-booking-theme .booking-gradient-card::before {
+                opacity: var(--native-beam-peak) !important;
+                filter: blur(14px) saturate(1.18) !important;
+            }
+
+            :root:not(.capacitor-native) .mobile-editor-shell [data-theme-card],
+            :root:not(.capacitor-native) .mobile-editor-shell .native-theme-card-preview,
+            :root:not(.capacitor-native) .mobile-editor-shell .booking-gradient-card {
+                contain: layout paint style;
+                content-visibility: auto;
+                box-shadow: 0 12px 32px -28px rgba(15, 23, 42, 0.3) !important;
+            }
+}

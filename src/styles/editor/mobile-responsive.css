@@ -1,0 +1,240 @@
+        @media (max-width: 767px) {
+            .editor-panel-header {
+                padding: 1.1rem 1.25rem !important;
+                gap: 0.85rem !important;
+            }
+
+            .editor-panel-scroll {
+                padding: 1rem 1.1rem 7.25rem !important;
+                gap: 1rem !important;
+            }
+
+            .editor-room-launcher {
+                border-radius: 22px;
+                padding: 0.9rem;
+            }
+
+            .editor-room-launcher-head {
+                align-items: stretch;
+            }
+
+            .editor-room-launcher-head h4 {
+                font-size: 1.45rem;
+            }
+
+            .editor-room-launcher-head p {
+                display: none;
+            }
+
+            .editor-room-launcher-actions {
+                display: none;
+            }
+
+            .editor-room-launcher-actions .editor-command-secondary {
+                width: 100%;
+                min-height: 2.35rem;
+            }
+
+            .editor-room-launcher-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-room-launcher .editor-command-journey-card {
+                min-height: 4.25rem;
+                grid-template-columns: auto 1fr auto;
+                grid-template-rows: auto auto;
+                border-radius: 18px;
+                padding: 0.68rem;
+            }
+
+            .editor-room-launcher .editor-command-step {
+                display: inline-flex;
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            .editor-room-launcher .editor-command-icon {
+                grid-column: 1;
+                grid-row: 2;
+                width: 1.95rem;
+                height: 1.95rem;
+            }
+
+            .editor-room-launcher .editor-command-card-copy {
+                grid-column: 2;
+                grid-row: 1 / 3;
+                align-self: center;
+            }
+
+            .editor-room-launcher .editor-command-card-copy small {
+                min-height: auto;
+                font-size: 0.72rem;
+            }
+
+            .editor-room-launcher .editor-command-meta {
+                display: none;
+            }
+
+            .editor-room-launcher .editor-command-chevron {
+                display: block;
+                position: static;
+                grid-column: 3;
+                grid-row: 1 / 3;
+                align-self: center;
+            }
+
+            .editor-command-hero {
+                min-height: auto;
+                border-radius: 26px;
+            }
+
+            .editor-command-hero-copy h3 {
+                max-width: 9.5ch;
+                font-size: 2.25rem;
+            }
+
+            .editor-command-hero-actions,
+            .editor-command-launchpad,
+            .editor-command-summary,
+            .editor-command-section-head {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .editor-command-primary,
+            .editor-command-secondary,
+            .editor-command-shortcuts button {
+                width: 100%;
+            }
+
+            .editor-command-stage-screen {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .editor-command-stage h4 {
+                max-width: 10ch;
+                font-size: 2.25rem;
+            }
+
+            .editor-command-stage-rail {
+                grid-template-columns: repeat(5, minmax(4.25rem, 1fr));
+                overflow-x: auto;
+            }
+
+            .editor-command-journey-card {
+                grid-template-columns: auto 1fr auto;
+                min-height: auto;
+            }
+
+            .editor-command-step,
+            .editor-command-meta {
+                display: none;
+            }
+
+            .editor-command-icon {
+                width: 2.35rem;
+                height: 2.35rem;
+            }
+
+            .editor-studio-hero {
+                min-height: auto;
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .editor-studio-hero h3 {
+                max-width: 10ch;
+                font-size: 2.35rem;
+            }
+
+            .editor-studio-grid,
+            .editor-studio-two-col,
+            .editor-studio-industry-grid,
+            .editor-studio-feature-grid,
+            .editor-studio-faq-list,
+            .editor-studio-theme-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-studio-feature-toggle {
+                min-height: 4.65rem;
+                border-radius: 20px;
+                padding: 0.85rem;
+            }
+
+            .editor-studio-faq-head {
+                flex-direction: column;
+            }
+
+            .editor-studio-faq-master {
+                width: 100%;
+            }
+
+            .editor-studio-faq-add {
+                min-height: 5.8rem;
+            }
+
+            .editor-studio-modal-backdrop {
+                align-items: flex-end;
+                padding: 0.65rem;
+            }
+
+            .editor-studio-modal-shell {
+                max-height: 88vh;
+                border-radius: 28px;
+            }
+
+            .editor-room-font-strip,
+            .editor-room-spectrum {
+                grid-template-columns: 1fr;
+                border-radius: 22px;
+            }
+
+            .editor-room-live-card {
+                min-height: auto;
+                margin: 0.75rem;
+                border-radius: 22px;
+            }
+
+            .editor-room-preview-top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .editor-room-font-rail button {
+                min-width: 6rem;
+                min-height: 4rem;
+            }
+
+            .editor-room-font-rail button b {
+                font-size: 1.25rem;
+            }
+
+            .editor-room-inline-title {
+                font-size: 2.45rem;
+            }
+
+            .editor-room-industry-mini-grid,
+            .editor-room-theme-mini-grid,
+            .editor-room-feature-line,
+            .editor-room-copy-preview,
+            .editor-room-visual-preview {
+                grid-template-columns: 1fr;
+            }
+
+            .editor-room-industry-mini-grid {
+                max-height: 18rem;
+                overflow-y: auto;
+            }
+
+            .editor-room-date-row,
+            .editor-room-slot-mini > div {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .editor-room-theme-mini-grid button {
+                min-height: 8rem;
+            }
+        }
+

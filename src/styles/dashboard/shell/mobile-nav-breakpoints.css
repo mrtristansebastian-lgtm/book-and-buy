@@ -1,0 +1,63 @@
+        /* Rotated phones can cross the desktop width breakpoint; keep them on mobile navigation. */
+        @media (hover: none) and (pointer: coarse) and (orientation: landscape),
+               (orientation: landscape) and (max-width: 1400px) and (max-height: 700px) {
+            html body .native-ui .desktop-bottom-nav {
+                display: none !important;
+            }
+
+            html body .native-ui .desktop-editor-panel-toggle {
+                display: none !important;
+            }
+
+            html body .native-ui .mobile-bottom-nav {
+                display: block !important;
+            }
+
+            html body .native-ui .dashboard-main > div:not(.mobile-editor-shell) {
+                padding-left: max(1rem, env(safe-area-inset-left)) !important;
+                padding-right: max(1rem, env(safe-area-inset-right)) !important;
+                padding-bottom: calc(6.25rem + env(safe-area-inset-bottom)) !important;
+            }
+
+            html body .native-ui .mobile-editor-shell {
+                height: 100% !important;
+                max-height: 100% !important;
+                overflow: hidden !important;
+            }
+
+            html body .native-ui .mobile-editor-preview {
+                justify-content: center !important;
+                align-items: center !important;
+                padding-top: calc(5.2rem + env(safe-area-inset-top)) !important;
+                padding-bottom: calc(6.65rem + env(safe-area-inset-bottom)) !important;
+                padding-left: max(1rem, env(safe-area-inset-left)) !important;
+                padding-right: max(1rem, env(safe-area-inset-right)) !important;
+            }
+
+            html body .native-ui .editor-preview-mount-shell {
+                margin-top: clamp(1.4rem, 5vh, 2.4rem) !important;
+                transform-origin: center center !important;
+            }
+
+            html body .native-ui .editor-preview-frame.is-desktop-preview {
+                box-shadow: 0 34px 90px -52px rgba(0, 0, 0, 0.44) !important;
+            }
+
+            html body .native-ui .mobile-editor-preview-toolbar {
+                top: calc(0.6rem + env(safe-area-inset-top)) !important;
+            }
+
+            html body .native-ui .mobile-editor-compact-controls {
+                right: max(0.85rem, env(safe-area-inset-right)) !important;
+                bottom: calc(0.82rem + env(safe-area-inset-bottom)) !important;
+                padding: 0.38rem !important;
+            }
+
+            html body .native-ui .mobile-editor-compact-controls button {
+                min-width: 4.4rem !important;
+                height: 2.35rem !important;
+                padding: 0 0.85rem !important;
+                justify-content: center !important;
+            }
+        }
+

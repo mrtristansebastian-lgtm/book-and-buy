@@ -1,0 +1,44 @@
+        /* Final editor/header compacting and gradient button readability. */
+        .mobile-editor-panel .editor-panel-scroll {
+            padding-top: 0.95rem !important;
+        }
+
+        .editor-cinema-studio {
+            gap: 0.58rem !important;
+        }
+
+        .editor-cinema-hero {
+            min-height: 4.45rem !important;
+            padding: 0.72rem 0.9rem !important;
+            border-radius: 18px !important;
+            align-items: center !important;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.92), rgba(248,250,252,0.84)) padding-box,
+                linear-gradient(115deg, rgba(203,255,184,0.56), rgba(185,227,255,0.48), rgba(255,212,242,0.32)) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow: 0 18px 48px -42px rgba(15, 23, 42, 0.52), inset 0 1px 0 rgba(255,255,255,0.68) !important;
+        }
+
+        .editor-cinema-hero-copy {
+            max-width: 21rem !important;
+        }
+
+        .editor-cinema-hero-copy span {
+            font-size: 0.56rem !important;
+            letter-spacing: 0.16em !important;
+        }
+
+        .editor-cinema-hero-copy h3 {
+            margin-top: 0.08rem !important;
+            font-size: clamp(1.2rem, 2vw, 1.58rem) !important;
+            line-height: 0.96 !important;
+            letter-spacing: -0.045em !important;
+        }
+
+        .editor-cinema-hero-copy p {
+            margin-top: 0.2rem !important;
+            max-width: 19rem !important;
+            font-size: 0.68rem !important;
+            line-height: 1.25 !important;
+        }
+

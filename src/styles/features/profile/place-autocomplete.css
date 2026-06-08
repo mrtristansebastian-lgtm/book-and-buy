@@ -1,0 +1,82 @@
+.bookify-place-input-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.bookify-place-clear {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(245 245 245);
+  color: rgb(82 82 82);
+  font-size: 0.78rem;
+  font-weight: 950;
+  line-height: 1;
+  transform: translateY(-50%);
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.bookify-place-clear:hover {
+  background: rgb(229 229 229);
+  color: rgb(0 0 0);
+  transform: translateY(-50%) scale(1.03);
+}
+
+.pac-container {
+  z-index: 99999 !important;
+  margin-top: 0.42rem;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 18px 50px -28px rgba(15, 23, 42, 0.55), 0 1px 0 rgba(15, 23, 42, 0.04);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+}
+
+.pac-container.bookify-places-dismissed {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transform: translateY(-0.35rem) scale(0.985);
+}
+
+.pac-item {
+  min-height: 2.7rem;
+  padding: 0.62rem 0.85rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.055);
+  color: rgb(82 82 82);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.pac-item:first-child {
+  border-top: 0;
+}
+
+.pac-item:hover,
+.pac-item-selected {
+  background: rgb(250 250 250);
+}
+
+.pac-item-query {
+  color: rgb(0 0 0);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.pac-matched {
+  font-weight: 950;
+}
+
+.pac-logo::after {
+  margin: 0.2rem 0.7rem 0.55rem;
+  opacity: 0.62;
+}

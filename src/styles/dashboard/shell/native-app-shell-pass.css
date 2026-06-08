@@ -1,0 +1,278 @@
+        /* Native app shell pass: redundant page headings removed, support uses the gained space. */
+        html body .native-ui .dashboard-action-strip {
+            min-height: 0 !important;
+        }
+
+        html body .native-ui .team-roster-actions,
+        html body .native-ui .booking-desk-head-actions,
+        html body .native-ui .finance-desk-head-actions {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 0.65rem !important;
+            min-width: 0 !important;
+        }
+
+        html body .native-ui .team-roster-actions {
+            flex-wrap: wrap !important;
+        }
+
+        html body .native-ui .team-roster-active-count {
+            min-height: 2.35rem !important;
+            align-items: center !important;
+            border-radius: 0.82rem !important;
+            background: rgba(15, 23, 42, 0.045) !important;
+            color: #697181 !important;
+        }
+
+        html body .native-ui .team-save-inline-button,
+        html body .native-ui .booking-add-inline-button {
+            min-height: 2.5rem !important;
+            padding: 0 0.95rem !important;
+            border-radius: 0.9rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.42rem !important;
+            background: #050505 !important;
+            color: #ffffff !important;
+            border: 1px solid #050505 !important;
+            box-shadow: 0 16px 38px -30px rgba(0, 0, 0, 0.6) !important;
+            font-size: 0.66rem !important;
+            line-height: 1 !important;
+            font-weight: 850 !important;
+            letter-spacing: 0.08em !important;
+            text-transform: uppercase !important;
+            white-space: nowrap !important;
+            transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease !important;
+        }
+
+        html body .native-ui .team-save-inline-button:hover,
+        html body .native-ui .booking-add-inline-button:hover {
+            filter: brightness(1.08) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        html body .native-ui .finance-desk-head-actions {
+            width: min(100%, 31rem) !important;
+        }
+
+        html body .native-ui .finance-desk-icon-actions {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.45rem !important;
+            flex: 0 0 auto !important;
+        }
+
+        html body .native-ui .finance-desk-icon-button {
+            width: 2.7rem !important;
+            height: 2.7rem !important;
+            border-radius: 0.95rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #050505 !important;
+            background: #ffffff !important;
+            border: 1px solid rgba(15, 23, 42, 0.08) !important;
+            box-shadow: 0 16px 36px -30px rgba(15, 23, 42, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+        }
+
+        html body .native-ui .finance-desk-icon-button.is-primary {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+                var(--native-accent-button-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            border-color: transparent !important;
+        }
+
+        html body .native-ui .finance-desk-icon-button:hover {
+            transform: translateY(-1px) !important;
+            border-color: rgba(15, 23, 42, 0.18) !important;
+            box-shadow: 0 18px 42px -32px rgba(15, 23, 42, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui .team-roster-actions,
+            html body .native-ui .booking-desk-head-actions,
+            html body .native-ui .finance-desk-head-actions {
+                width: 100% !important;
+                justify-content: stretch !important;
+            }
+
+            html body .native-ui .booking-desk-head-actions,
+            html body .native-ui .finance-desk-head-actions {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+
+            html body .native-ui .booking-add-inline-button {
+                width: 100% !important;
+            }
+
+            html body .native-ui .finance-desk-icon-actions {
+                width: 100% !important;
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            html body .native-ui .finance-desk-icon-button {
+                width: 100% !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            html body .native-ui .communications-page {
+                overflow: hidden !important;
+            }
+
+            html body .native-ui .communications-page .support-page-shell,
+            html body .native-ui .communications-page .support-inbox-card.support-desk-shell:not(.fixed) {
+                height: calc(100dvh - clamp(3rem, 6vw, 6rem)) !important;
+                min-height: min(46rem, calc(100dvh - clamp(3rem, 6vw, 6rem))) !important;
+            }
+
+            html body .native-ui .communications-page .support-workspace-grid {
+                min-height: 0 !important;
+                height: 100% !important;
+            }
+
+            html body .native-ui .communications-page .support-thread-list,
+            html body .native-ui .communications-page .support-chat-panel {
+                min-height: 0 !important;
+                height: 100% !important;
+            }
+
+            html body .native-ui .communications-page .support-thread-list > div:last-child {
+                max-height: none !important;
+                min-height: 0 !important;
+                height: calc(100% - 8.3rem) !important;
+            }
+
+            html body .native-ui .communications-page .support-chat-canvas {
+                min-height: 0 !important;
+                flex: 1 1 auto !important;
+            }
+        }
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.86)) !important;
+            background-image:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.86)) !important;
+            border: 1px solid rgba(15, 23, 42, 0.075) !important;
+            border-radius: 1.12rem !important;
+            box-shadow:
+                0 24px 64px -54px rgba(15, 23, 42, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            overflow: hidden !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell[class~="p-5"],
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell[class~="p-6"] {
+            padding: 1.25rem !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-main .dashboard-overview-page .dashboard-overview-shell[class~="p-5"],
+        html body .native-ui.dashboard-light .dashboard-main .dashboard-overview-page .dashboard-overview-shell[class~="p-6"] {
+            padding: 1.25rem !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell > [class*="border-b"] {
+            padding-left: 1.25rem !important;
+            padding-right: 1.25rem !important;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.07) !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.38)) !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .divide-y > :not([hidden]) ~ :not([hidden]) {
+            border-color: rgba(15, 23, 42, 0.07) !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .hover\:bg-neutral-50:hover {
+            background: rgba(248, 250, 252, 0.8) !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell button[class*="border-neutral-200"] {
+            border-color: rgba(15, 23, 42, 0.1) !important;
+            box-shadow: 0 14px 34px -32px rgba(15, 23, 42, 0.28) !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .bg-neutral-50 {
+            background: rgba(248, 250, 252, 0.74) !important;
+            border-color: rgba(15, 23, 42, 0.07) !important;
+        }
+
+        html body .native-ui .dashboard-quick-access-row {
+            display: grid !important;
+            grid-template-columns: repeat(4, 2.9rem) !important;
+            gap: 0.55rem !important;
+            justify-content: end !important;
+            align-items: center !important;
+        }
+
+        html body .native-ui .dashboard-quick-access-button {
+            width: 2.9rem !important;
+            height: 2.9rem !important;
+            border-radius: 1rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #050505 !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.86)) padding-box,
+                linear-gradient(135deg, rgba(15, 23, 42, 0.11), rgba(15, 23, 42, 0.035)) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 18px 38px -32px rgba(15, 23, 42, 0.42),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+        }
+
+        html body .native-ui .dashboard-quick-access-button:hover {
+            transform: translateY(-1px) !important;
+            box-shadow:
+                0 22px 46px -34px rgba(15, 23, 42, 0.54),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+        }
+
+        html body .native-ui .dashboard-quick-access-button.is-gradient {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+                var(--native-accent-button-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            border-color: transparent !important;
+            color: #050505 !important;
+            box-shadow:
+                0 20px 46px -36px var(--native-accent-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell[class~="p-5"],
+            html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell[class~="p-6"],
+            html body .native-ui.dashboard-light .dashboard-main .dashboard-overview-page .dashboard-overview-shell[class~="p-5"],
+            html body .native-ui.dashboard-light .dashboard-main .dashboard-overview-page .dashboard-overview-shell[class~="p-6"] {
+                padding: 1rem !important;
+            }
+
+            html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell > [class*="border-b"] {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+
+            html body .native-ui .dashboard-quick-access-row {
+                grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+                width: 100% !important;
+                justify-content: stretch !important;
+            }
+
+            html body .native-ui .dashboard-quick-access-button {
+                width: 100% !important;
+                height: 2.7rem !important;
+                border-radius: 0.95rem !important;
+            }
+        }
+

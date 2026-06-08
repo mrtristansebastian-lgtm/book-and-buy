@@ -1,0 +1,213 @@
+        /* Dashboard overview quality pass: one native surface for metrics, quieter modules below. */
+        html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] {
+            margin-bottom: clamp(1.15rem, 2vw, 1.65rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(24rem, 34rem) !important;
+            align-items: center !important;
+            gap: clamp(2rem, 5vw, 5.5rem) !important;
+            margin-bottom: clamp(1.8rem, 2.8vw, 2.45rem) !important;
+            min-height: clamp(9.4rem, 13vw, 11.8rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child > div:first-child {
+            max-width: min(100%, 48rem) !important;
+            align-self: center !important;
+            padding-left: clamp(0.9rem, 2.1vw, 2.2rem) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child > div:last-child {
+            width: 100% !important;
+            align-self: center !important;
+            display: grid !important;
+            justify-items: end !important;
+            gap: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-period-tabs {
+            width: 100% !important;
+            max-width: 31rem !important;
+            justify-self: end !important;
+            height: 3.35rem !important;
+            padding: 0.38rem !important;
+            border-radius: 1.18rem !important;
+            border: 1px solid transparent !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(248, 250, 252, 0.72)) padding-box,
+                linear-gradient(135deg, rgba(15, 23, 42, 0.07), rgba(15, 23, 42, 0.018)) border-box !important;
+            box-shadow:
+                0 24px 62px -52px rgba(15, 23, 42, 0.44),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-period-tab {
+            height: 100% !important;
+            border-radius: 0.82rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-period-tab.is-active {
+            box-shadow:
+                0 16px 34px -28px var(--native-accent-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-grid {
+            position: relative !important;
+            isolation: isolate !important;
+            gap: 0 !important;
+            padding: 0.42rem !important;
+            border-radius: 1.35rem !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(250, 251, 252, 0.74)) padding-box,
+                linear-gradient(135deg, rgba(15, 23, 42, 0.075), rgba(15, 23, 42, 0.02)) border-box !important;
+            border: 1px solid transparent !important;
+            box-shadow:
+                0 28px 74px -62px rgba(15, 23, 42, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+            overflow: hidden !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card {
+            min-height: 8.65rem !important;
+            border: 0 !important;
+            border-radius: 1rem !important;
+            background: transparent !important;
+            background-image: none !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            overflow: visible !important;
+            padding: 1.2rem !important;
+            transition: background 160ms ease, transform 160ms ease !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card::before,
+        html body .native-ui .dashboard-overview-page .native-stat-card::after {
+            display: none !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card:hover {
+            background: rgba(255, 255, 255, 0.7) !important;
+            transform: none !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card > div:first-child {
+            margin-bottom: 1.6rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card .w-10.h-10 {
+            width: 2.25rem !important;
+            height: 2.25rem !important;
+            border-radius: 0.82rem !important;
+            background: rgba(15, 23, 42, 0.045) !important;
+            color: #050505 !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74) !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card span[class*="uppercase"][class*="rounded-md"] {
+            background: rgba(15, 23, 42, 0.045) !important;
+            color: rgba(15, 23, 42, 0.52) !important;
+            border: 1px solid rgba(15, 23, 42, 0.035) !important;
+            border-radius: 0.58rem !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card p:first-of-type {
+            color: rgba(15, 23, 42, 0.42) !important;
+            letter-spacing: 0.18em !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .native-stat-card .metric-value {
+            letter-spacing: -0.035em !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell {
+            border-color: rgba(15, 23, 42, 0.06) !important;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78)) !important;
+            box-shadow:
+                0 28px 70px -62px rgba(15, 23, 42, 0.42),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell > [class*="border-b"] {
+            min-height: 5.8rem !important;
+            background: rgba(255, 255, 255, 0.5) !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .divide-y > div,
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .space-y-3 > button {
+            transition: background 160ms ease, border-color 160ms ease, transform 160ms ease !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .divide-y > div:hover {
+            background: rgba(248, 250, 252, 0.62) !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .space-y-3 > button {
+            border-radius: 1rem !important;
+            background: rgba(255, 255, 255, 0.82) !important;
+            border-color: rgba(15, 23, 42, 0.075) !important;
+            box-shadow: none !important;
+        }
+
+        html body .native-ui.dashboard-light .dashboard-overview-page .dashboard-overview-shell .space-y-3 > button:hover {
+            background: #ffffff !important;
+            border-color: rgba(15, 23, 42, 0.12) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        @media (min-width: 1024px) {
+            html body .native-ui .dashboard-overview-page .native-stat-card:not(:last-child) {
+                border-right: 1px solid rgba(15, 23, 42, 0.065) !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child {
+                display: flex !important;
+                min-height: 0 !important;
+                gap: 1rem !important;
+                margin-bottom: 1.1rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child > div:last-child {
+                display: flex !important;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+                padding-top: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child > div:first-child {
+                padding-left: 0 !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .dashboard-period-tabs,
+            html body .native-ui .dashboard-overview-page .dashboard-quick-access-row {
+                width: 100% !important;
+                max-width: none !important;
+                justify-self: stretch !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .native-stat-grid {
+                gap: 0.42rem !important;
+                padding: 0.42rem !important;
+                border-radius: 1.1rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .native-stat-card {
+                min-height: 7.15rem !important;
+                padding: 0.9rem !important;
+                background: rgba(255, 255, 255, 0.64) !important;
+            }
+        }
+

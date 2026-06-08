@@ -1,0 +1,128 @@
+        @media (max-width: 767px) and (orientation: portrait) {
+            .editor-fullscreen-workspace.editor-preview-device-mobile .mobile-editor-preview {
+                padding-top: calc(3.35rem + env(safe-area-inset-top)) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .mobile-editor-preview {
+                justify-content: flex-start !important;
+                padding-top: calc(4.35rem + env(safe-area-inset-top)) !important;
+                padding-bottom: calc(16.65rem + env(safe-area-inset-bottom)) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .editor-preview-frame.is-mobile-preview {
+                width: min(21.35rem, calc(100vw - 4.25rem)) !important;
+                height: min(24.15rem, calc(100dvh - 28.55rem)) !important;
+                min-height: 19.35rem !important;
+                max-width: calc(100vw - 4.25rem) !important;
+                border-width: 8px !important;
+                border-radius: 2.32rem !important;
+                box-shadow: 0 18px 58px -38px rgba(15, 23, 42, 0.48) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .editor-preview-room-nav.is-desktop,
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .editor-preview-room-nav.is-phone {
+                top: 31.5% !important;
+                right: 0.36rem !important;
+                transform: translateY(-50%) scale(0.82) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.editor-preview-device-desktop .editor-preview-room-nav {
+                display: none !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.editor-preview-device-desktop .mobile-editor-preview {
+                justify-content: center !important;
+                padding: 5.5rem 0.8rem calc(11rem + env(safe-area-inset-bottom)) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime .editor-portrait-desktop-prompt {
+                margin-top: -1.4rem;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .mobile-editor-panel {
+                top: clamp(20rem, 47dvh, 25rem) !important;
+                left: 0.55rem !important;
+                right: 0.55rem !important;
+                bottom: calc(4.7rem + env(safe-area-inset-bottom)) !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                height: auto !important;
+                max-height: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+                transform: translateY(0) scale(1) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .mobile-editor-portrait-guides {
+                display: none !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .editor-panel-scroll {
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                padding: 0.48rem 0.58rem 0.68rem !important;
+                overflow-y: auto !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .mobile-editor-panel > .editor-floating-launch-toolbar {
+                position: relative !important;
+                left: auto !important;
+                right: auto !important;
+                bottom: auto !important;
+                width: calc(100% - 1rem) !important;
+                max-width: none !important;
+                flex-shrink: 0 !important;
+                align-self: center !important;
+                margin: 0.34rem auto 0.42rem !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                transform: none !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .mobile-editor-panel > .editor-floating-launch-toolbar button {
+                min-width: 0 !important;
+                flex: 1 1 0 !important;
+                height: 2.28rem !important;
+                padding: 0 0.38rem !important;
+                gap: 0.24rem !important;
+                font-size: 0.5rem !important;
+                letter-spacing: 0.045em !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-portrait-runtime.mobile-editor-room-open .mobile-editor-panel > .editor-floating-launch-toolbar button svg {
+                width: 0.82rem !important;
+                height: 0.82rem !important;
+            }
+        }
+
+        .editor-fullscreen-workspace.mobile-editor-room-open .mobile-editor-panel > .editor-floating-launch-toolbar {
+            width: calc(100% - 1.2rem) !important;
+            max-width: none !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 0.5rem !important;
+            margin: 0.5rem auto 0.62rem !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .editor-fullscreen-workspace.mobile-editor-room-open .mobile-editor-panel > .editor-floating-launch-toolbar button {
+            width: 100% !important;
+            min-width: 0 !important;
+            height: 2.72rem !important;
+            flex: initial !important;
+            border-radius: 8px !important;
+            padding: 0 0.9rem !important;
+            gap: 0.42rem !important;
+            font-size: 0.6rem !important;
+            font-weight: 880 !important;
+            letter-spacing: 0.075em !important;
+        }
+

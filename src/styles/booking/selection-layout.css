@@ -1,0 +1,98 @@
+        .booking-selection-stack {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(2.8rem, 6vw, 4rem);
+            flex: 1;
+            min-width: 0;
+        }
+
+        .booking-selection-workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+            min-width: 0;
+        }
+
+        .booking-selection-workspace > [data-preview-section] {
+            min-width: 0;
+        }
+
+        .booking-selection-action {
+            width: 100%;
+            min-width: 0;
+        }
+
+        @media (min-width: 1024px) {
+            .booking-flow-public .booking-selection-workspace.has-service-step,
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                row-gap: clamp(2.4rem, 4vw, 3.4rem);
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="services"],
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="services"] {
+                width: min(100%, 50rem);
+                margin-inline: auto;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="staff"],
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="staff"] {
+                width: min(100%, 44rem);
+                margin-inline: auto;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="calendar"],
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="calendar"] {
+                width: min(100%, 34rem);
+                margin-inline: auto;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="time"],
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="time"] {
+                width: min(100%, 34rem);
+                margin-inline: auto;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="faq"],
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="faq"] {
+                width: min(100%, 44rem);
+                margin-inline: auto;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step [data-preview-section="services"] .booking-services-grid,
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step [data-preview-section="services"] .booking-services-grid {
+                justify-content: center !important;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step [data-preview-section="services"] .booking-services-wrap,
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step [data-preview-section="services"] .booking-services-wrap {
+                width: 100%;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step [data-preview-section="calendar"],
+            .booking-flow-public .booking-selection-workspace.has-service-step [data-preview-section="time"],
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step [data-preview-section="calendar"],
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step [data-preview-section="time"] {
+                align-self: center;
+            }
+
+            .booking-flow-public .booking-selection-workspace.has-service-step .booking-time-look,
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step .booking-time-look {
+                max-width: 100%;
+            }
+
+            .booking-flow-public .booking-selection-action,
+            .editor-preview-frame.is-desktop-preview .booking-selection-action {
+                width: min(100%, 42rem);
+                margin-inline: auto;
+            }
+        }
+
+        @media (min-width: 1180px) {
+            .booking-flow-public .booking-selection-workspace.has-service-step,
+            .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step {
+                align-items: center;
+            }
+        }

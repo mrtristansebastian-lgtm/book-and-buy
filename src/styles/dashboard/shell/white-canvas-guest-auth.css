@@ -1,0 +1,91 @@
+/* White workspace canvas: page shells stay seamless instead of sitting on off-white panels. */
+html,
+body,
+#root,
+html body .native-ui.dashboard-light,
+html body .native-ui.dashboard-light .dashboard-main,
+html body .native-ui.dashboard-light .dashboard-main > div:not(.mobile-editor-shell),
+html body .native-ui .client-portal-shell,
+html body .native-ui .owner-manual-shell,
+html body .native-ui .support-chat-canvas,
+html body .native-ui .client-chat-canvas {
+  background: #ffffff !important;
+}
+
+html body .native-ui .guest-profile-auth-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 1rem !important;
+  border: 1px solid rgba(5, 5, 5, 0.08) !important;
+  border-radius: 1rem !important;
+  background:
+    linear-gradient(135deg, rgba(57, 255, 20, 0.09), rgba(255, 255, 255, 0) 48%),
+    #ffffff !important;
+  box-shadow: 0 22px 64px -48px rgba(5, 5, 5, 0.32) !important;
+}
+
+html body .native-ui .guest-profile-auth-card span {
+  display: block !important;
+  margin-bottom: 0.32rem !important;
+  color: #8a9099 !important;
+  font-size: 0.58rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+html body .native-ui .guest-profile-auth-card strong {
+  display: block !important;
+  color: #050505 !important;
+  font-size: 1rem !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.01em !important;
+}
+
+html body .native-ui .guest-profile-auth-card p {
+  max-width: 34rem !important;
+  margin-top: 0.28rem !important;
+  color: #68707b !important;
+  font-size: 0.8rem !important;
+  font-weight: 620 !important;
+  line-height: 1.45 !important;
+}
+
+html body .native-ui .guest-profile-auth-card > div:last-child {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+html body .native-ui .guest-profile-auth-card button {
+  height: 2.65rem !important;
+  padding: 0 1rem !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #f4f4f5 !important;
+  color: #050505 !important;
+  font-size: 0.62rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+}
+
+html body .native-ui .guest-profile-auth-card button:last-child {
+  background: #050505 !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 767px) {
+  html body .native-ui .guest-profile-auth-card {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  html body .native-ui .guest-profile-auth-card > div:last-child {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+}

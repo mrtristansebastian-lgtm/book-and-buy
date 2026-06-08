@@ -1,0 +1,39 @@
+        /* True final overview polish: remove only dashboard overview shells, not inner controls. */
+
+        html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"],
+        html body .native-ui .dashboard-overview-page .dashboard-overview-shell[class~="p-5"],
+        html body .native-ui .dashboard-overview-page .dashboard-overview-shell[class~="p-6"] {
+            padding: 0 !important;
+        }
+
+        html body .native-ui .dashboard-main .dashboard-overview-page section[data-tour="dashboard-hero"].saas-card[class~="p-5"],
+        html body .native-ui .dashboard-main .dashboard-overview-page section[data-tour="dashboard-hero"].saas-card[class~="p-6"],
+        html body .native-ui .dashboard-main .dashboard-overview-page section[data-tour="dashboard-hero"].saas-card[class~="p-8"],
+        html body .native-ui .dashboard-main .dashboard-overview-page section[data-tour="dashboard-hero"].saas-card[class~="lg:p-8"] {
+            padding: 0 !important;
+        }
+
+        html body .native-ui .dashboard-overview-page .dashboard-overview-shell > [class*="border-b"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        @media (max-width: 767px) {
+            html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] {
+                padding: 0 !important;
+                margin-bottom: 1.05rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page section[data-tour="dashboard-hero"] > .flex:first-child {
+                margin-bottom: 1rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .native-stat-grid {
+                gap: 0.68rem !important;
+            }
+
+            html body .native-ui .dashboard-overview-page .native-stat-card {
+                min-height: 7.45rem !important;
+                padding: 0.88rem !important;
+            }
+        }

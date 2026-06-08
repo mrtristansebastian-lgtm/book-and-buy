@@ -1,0 +1,12 @@
+@import './dashboard/shell/workspace-desktop-frame.css';
+@import './dashboard/shell/workspace-feature-surfaces.css';
+@import './features/services/services-desk-shell.css';
+@import './features/clients/client-schedule-shell.css';
+@import './features/finance/finance-desk-shell.css';
+@import './features/support/support-team-shell.css';
+@import '/src/styles/features/schedule/schedule-workspace.css';
+@import './features/profile/profile-command-layout.css';
+@import './features/profile/place-autocomplete.css';
+@import './dashboard/mobile/workspace-shell-mobile.css';
+@import './dashboard/mobile/workspace-feature-mobile.css';
+@import './dashboard/shell/white-canvas-guest-auth.css';

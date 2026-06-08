@@ -1,0 +1,130 @@
+        .editor-preview-frame.is-mobile-preview .booking-services-grid,
+        .booking-flow-public .booking-services-grid {
+            min-width: 0;
+        }
+
+        .editor-preview-frame .booking-flow-preview-shell {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            animation: none !important;
+            transform: none !important;
+            opacity: 1 !important;
+        }
+
+        .editor-preview-frame .booking-flow-preview {
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+            opacity: 1 !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-flow-preview-shell {
+            padding: clamp(1.6rem, 7vw, 1.95rem) !important;
+        }
+
+        .editor-preview-frame.is-desktop-preview .booking-flow-preview-shell {
+            padding: clamp(3.4rem, 5.4vw, 4.6rem) !important;
+        }
+
+        .editor-preview-frame.is-desktop-preview .booking-flow-preview [data-preview-section="form"],
+        .editor-preview-frame.is-desktop-preview .booking-flow-preview .space-y-10,
+        .editor-preview-frame.is-desktop-preview .booking-flow-preview [data-preview-section="action"] {
+            max-width: 58rem;
+        }
+
+        .editor-preview-frame.is-desktop-preview .booking-flow-preview [data-preview-section="action"] {
+            margin-bottom: 1.75rem !important;
+            padding-bottom: 0.25rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview header {
+            margin-bottom: 2rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview header h1 {
+            font-size: clamp(2.28rem, 12vw, 3.55rem) !important;
+            line-height: 0.9 !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-page-hero,
+        .editor-preview-frame.is-mobile-preview .booking-page-hero.has-banner {
+            grid-template-columns: 1fr !important;
+            gap: 1.05rem !important;
+            margin-bottom: 2.6rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-kicker {
+            gap: 0.72rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-kicker span {
+            letter-spacing: 0.18em !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-page-hero.has-banner .booking-hero-copy,
+        .editor-preview-frame.is-mobile-preview .booking-hero-media {
+            grid-column: 1 !important;
+            grid-row: auto !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-page-hero.logo-placement-top .booking-hero-copy,
+        .editor-preview-frame.is-mobile-preview .booking-page-hero.logo-placement-badge .booking-hero-copy {
+            padding-top: 0.9rem;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-media {
+            height: min(var(--hero-media-height, 220px), 11.5rem) !important;
+            min-height: 8.8rem !important;
+            border-radius: 1.25rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-title-lockup {
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-page-hero.logo-placement-badge .booking-hero-title-lockup {
+            width: 100% !important;
+            max-width: 100% !important;
+            align-items: flex-start !important;
+            gap: 0.72rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-page-hero.logo-placement-title .booking-hero-title-lockup {
+            flex-direction: column;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-title {
+            overflow-wrap: normal !important;
+            word-break: normal !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-logo-frame {
+            width: var(--booking-logo-size, 96px) !important;
+            height: var(--booking-logo-size, 96px) !important;
+            max-width: 11rem !important;
+            max-height: 11rem !important;
+            border-radius: 0 !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-logo-badge,
+        .editor-preview-frame.is-mobile-preview .booking-preview-media-drop.is-logo.booking-hero-logo-badge {
+            width: min(var(--booking-logo-size, 104px), 5.2rem) !important;
+            height: min(var(--booking-logo-size, 104px), 5.2rem) !important;
+            max-width: 5.2rem !important;
+            max-height: 5.2rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview header p {
+            font-size: clamp(0.95rem, 4.5vw, 1.15rem) !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview [data-preview-section] h4 {
+            font-size: clamp(1.2rem, 6vw, 1.55rem) !important;
+            line-height: 1.08 !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .flex.flex-col.gap-16 {
+            gap: 2.8rem !important;
+        }

@@ -1,0 +1,53 @@
+        @media (hover: none) and (pointer: coarse) {
+            :root:not(.capacitor-native) .mobile-editor-shell [data-theme-card],
+            :root:not(.capacitor-native) .mobile-editor-shell .native-theme-card-preview,
+            :root:not(.capacitor-native) .mobile-editor-shell .booking-gradient-card {
+                contain: layout paint style;
+                content-visibility: auto;
+                transition: border-color 180ms ease, box-shadow 180ms ease !important;
+                transform: none !important;
+            }
+
+        }
+
+        .mobile-editor-rotate-prompt,
+        .mobile-editor-install-prompt {
+            display: none;
+        }
+
+        .mobile-editor-install-action,
+        .mobile-editor-compact-controls {
+            display: none;
+        }
+
+        .mobile-bottom-nav.mobile-bottom-nav-collapsed {
+            transform: translateY(120%) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .mobile-bottom-nav {
+            height: calc(5.85rem + env(safe-area-inset-bottom));
+            pointer-events: none;
+        }
+
+        .notification-center {
+            top: calc(0.75rem + env(safe-area-inset-top)) !important;
+            right: 4.35rem !important;
+        }
+
+        .notification-center > button {
+            width: 2.75rem !important;
+            height: 2.75rem !important;
+        }
+
+        .notification-center > div {
+            padding-top: calc(env(safe-area-inset-top) + 0.35rem);
+        }
+
+        .notification-center.notification-center-compact {
+            top: calc(4.35rem + env(safe-area-inset-top)) !important;
+            right: 0.75rem !important;
+        }

@@ -1,0 +1,118 @@
+        /* Full-preview editor workspace: toolbar opens editing sheets. */
+        .editor-fullscreen-workspace {
+            position: relative !important;
+            background: #f6f7f9 !important;
+            --editor-panel-dock-width: clamp(22rem, 32vw, 28rem);
+        }
+
+        .editor-fullscreen-workspace .mobile-editor-preview {
+            display: flex !important;
+            flex: 1 1 100% !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            padding-inline: clamp(1rem, 3vw, 2.3rem) !important;
+        }
+
+        .editor-fullscreen-workspace .mobile-editor-panel {
+            position: absolute !important;
+            top: clamp(0.75rem, 2vh, 1.2rem) !important;
+            right: clamp(0.75rem, 2vw, 1.25rem) !important;
+            bottom: clamp(0.75rem, 2vh, 1.2rem) !important;
+            left: auto !important;
+            width: min(var(--editor-panel-dock-width), calc(100vw - 2rem)) !important;
+            min-width: min(22rem, calc(100vw - 2rem)) !important;
+            max-width: calc(100vw - 2rem) !important;
+            z-index: 120 !important;
+            border: 1px solid rgba(15, 23, 42, 0.085) !important;
+            border-radius: 18px !important;
+            background: rgba(255,255,255,0.96) !important;
+            box-shadow:
+                0 34px 96px -48px rgba(15, 23, 42, 0.52),
+                inset 0 1px 0 rgba(255,255,255,0.96) !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: translateX(1rem) scale(0.985) !important;
+            transition: opacity 180ms ease, transform 220ms ease !important;
+            backdrop-filter: blur(22px) saturate(1.08) !important;
+            -webkit-backdrop-filter: blur(22px) saturate(1.08) !important;
+        }
+
+        .editor-fullscreen-workspace.mobile-editor-room-open .mobile-editor-panel {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            transform: translateX(0) scale(1) !important;
+        }
+
+        @media (min-width: 901px) {
+            .editor-fullscreen-workspace.mobile-editor-room-open .mobile-editor-preview {
+                padding-right: calc(var(--editor-panel-dock-width) + clamp(1.4rem, 3vw, 2.6rem)) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-room-open .editor-preview-room-nav.is-desktop,
+            .editor-fullscreen-workspace.mobile-editor-room-open .editor-preview-room-nav.is-phone {
+                right: calc(var(--editor-panel-dock-width) + clamp(1.45rem, 3vw, 2.75rem)) !important;
+            }
+        }
+
+        .editor-fullscreen-workspace .editor-cinema-header {
+            min-height: 4.05rem !important;
+            padding: 0.82rem 0.9rem !important;
+        }
+
+        .editor-fullscreen-workspace .editor-cinema-header h2 {
+            font-size: 1.25rem !important;
+            line-height: 1 !important;
+        }
+
+        .editor-modal-kicker {
+            margin: 0 0 0.14rem !important;
+            color: #98a2b3 !important;
+            font-size: 0.56rem !important;
+            font-weight: 820 !important;
+            letter-spacing: 0.075em !important;
+            line-height: 1 !important;
+            text-transform: uppercase !important;
+        }
+
+        .editor-modal-close-button {
+            width: 2.22rem;
+            height: 2.22rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            background: #ffffff;
+            color: #667085;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.96);
+        }
+
+        .editor-modal-close-button:hover {
+            color: #050505;
+            border-color: rgba(15, 23, 42, 0.18);
+        }
+
+        .editor-fullscreen-workspace .editor-cinema-stage {
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        .editor-fullscreen-workspace .editor-cinema-stage-head {
+            display: none !important;
+        }
+
+        .editor-fullscreen-workspace .editor-cinema-stage-body {
+            padding: 0.66rem !important;
+            background: transparent !important;
+        }
+
+        .editor-fullscreen-workspace .editor-publish-footer {
+            display: none !important;
+        }
+
+        .editor-fullscreen-workspace .desktop-editor-panel-toggle {
+            display: none !important;
+        }
+

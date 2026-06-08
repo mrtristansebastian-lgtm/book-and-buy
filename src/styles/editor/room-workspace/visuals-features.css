@@ -1,0 +1,111 @@
+        .editor-room-visual-preview {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            align-items: stretch;
+        }
+
+        .editor-room-calendar-mini,
+        .editor-room-slot-mini {
+            border-radius: 18px;
+            background: #fff;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            padding: 0.78rem;
+            display: grid;
+            gap: 0.62rem;
+            align-content: start;
+        }
+
+        .editor-room-date-row,
+        .editor-room-slot-mini > div {
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        .editor-room-date-row {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .editor-room-slot-mini > div {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .editor-room-date-row button,
+        .editor-room-slot-mini button {
+            min-height: 2.85rem;
+            border-radius: 14px;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            font-size: 0.82rem;
+            font-weight: 900;
+        }
+
+        .editor-room-date-row button.is-active {
+            box-shadow: 0 18px 45px -32px rgba(15, 23, 42, 0.9);
+        }
+
+        .editor-room-action-edit {
+            grid-column: 1 / -1;
+            min-height: 3.05rem;
+            border: 0;
+            outline: 0;
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .editor-room-feature-line {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.55rem;
+        }
+
+        .editor-room-feature-line button {
+            min-height: 3.45rem;
+            border-radius: 15px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: #fff;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.65rem;
+            padding: 0.62rem;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .editor-room-feature-line button i {
+            width: 2.25rem;
+            height: 1.35rem;
+            border-radius: 999px;
+            background: #e5e7eb;
+            position: relative;
+        }
+
+        .editor-room-feature-line button i::after {
+            content: "";
+            width: 0.95rem;
+            height: 0.95rem;
+            border-radius: 999px;
+            background: #fff;
+            position: absolute;
+            top: 0.2rem;
+            left: 0.22rem;
+            box-shadow: 0 5px 14px rgba(15, 23, 42, 0.18);
+        }
+
+        .editor-room-feature-line button.is-on {
+            color: #050505;
+            background: linear-gradient(135deg, #ecfeff, #faf5ff);
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+
+        .editor-room-feature-line button.is-on i {
+            background: linear-gradient(135deg, #ccfbf1, #bfdbfe, #f5d0fe);
+        }
+
+        .editor-room-feature-line button.is-on i::after {
+            transform: translateX(0.82rem);
+        }

@@ -1,0 +1,45 @@
+{
+  "name": "build-a-booking",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "build:analyze": "vite build --sourcemap && node scripts/bundle-report.mjs",
+    "bundle:report": "node scripts/bundle-report.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "health": "node scripts/health-check.mjs",
+    "scale:check": "node scripts/scale-readiness-check.mjs",
+    "check": "npm run typecheck && npm run build && node scripts/health-check.mjs",
+    "security:audit": "npm audit --omit=dev",
+    "smoke": "npm run check && node scripts/smoke-check.mjs",
+    "mobile:assets": "capacitor-assets generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#000000' --logoSplashScale 0.18",
+    "mobile:sync": "npm run build && cap sync",
+    "mobile:android": "npm run mobile:sync && cap open android"
+  },
+  "dependencies": {
+    "@capacitor-firebase/authentication": "^8.2.0",
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
+    "firebase": "^12.13.0",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^6.0.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "terser": "^5.48.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.13"
+  }
+}
