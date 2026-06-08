@@ -16,6 +16,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - 8.4/10: Desktop booking selection restored to the centered vertical flow, Finance/payment settings moved derived rows/metrics/export logic into focused model utilities, imported finance normalizers shared cleanly, and typecheck/build/health/smoke/scale/functions syntax gates passed.
 - 8.5/10: Firebase email secret unblocked, Functions runtime config and shared utility helpers extracted from the god file, and backend lint now protects all deployed function export names before refactors can ship.
 - 8.6/10: All Firebase Functions deployed successfully after adding a quota-safe launch profile with one max instance, low CPU, and 256MiB callable memory; production backend now matches the committed source.
+- 8.7/10: Bookings desk filtering/sorting moved into a pure tested model, manual paid revenue now requires server confirmation in configured workspaces, stable booking QA selectors were added, and smoke now runs revenue-path tests.
 
 ## Revenue Path Cleanup
 
@@ -35,7 +36,9 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [x] Update accepted desktop booking layout: centered services first, then calendar and time stacked vertically, mobile vertical stack preserved.
 - [x] Finish shrinking Public Booking orchestration by extracting selection-section composition and display-model helpers.
 - [x] Clean Finance/payment settings and payment-attempt surfaces.
-- [ ] Clean Bookings desk actions, dialogs, and manual booking flow.
+- [x] Extract Bookings desk filtering/sorting into a focused tested model.
+- [x] Harden manual booking paid flow so configured workspaces do not mark revenue paid after callable failure.
+- [ ] Finish Bookings desk dialogs/action drawer polish and manual booking UX refinements.
 - [ ] Clean Schedule/calendar state, views, and Google sync boundaries.
 
 ## Security And Backend
@@ -57,6 +60,7 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [ ] Add Capacitor Android/iOS QA for native auth, uploads, safe areas, navigation, public booking, and payment redirects.
 - [ ] Add accessibility checks for focus states, labels, dialogs, keyboard flow, contrast, and reduced motion.
 - [ ] Keep largest JS under 900 KB and total JS under 1.3 MB until deeper code splitting lands.
+- [x] Add booking revenue-path model tests and stable selectors for future Playwright flows.
 - [x] Keep booking-core JS under 300 KB and report bundle sizes with `npm run bundle:report`.
 - [x] Browser-QA public booking load/cart path and dashboard editor preview after runtime split.
 

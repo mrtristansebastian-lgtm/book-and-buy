@@ -12,7 +12,7 @@ export const ManualBookingSheet = ({
   workspaceServices
 }) => (
   <div className="manual-booking-overlay fixed inset-0 z-[220] bg-black/45 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-6">
-    <form onSubmit={onSubmit} className="manual-booking-sheet w-full md:max-w-5xl max-h-[94dvh] overflow-y-auto bg-white rounded-t-[1.6rem] md:rounded-2xl border border-neutral-100 shadow-2xl shadow-black/30">
+    <form onSubmit={onSubmit} data-testid="manual-booking-form" className="manual-booking-sheet w-full md:max-w-5xl max-h-[94dvh] overflow-y-auto bg-white rounded-t-[1.6rem] md:rounded-2xl border border-neutral-100 shadow-2xl shadow-black/30">
       <div className="manual-booking-header sticky top-0 z-10 bg-white/92 backdrop-blur-xl border-b border-neutral-100 p-4 md:p-6 flex items-start justify-between gap-4">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-1">Manual Booking</p>
@@ -38,7 +38,7 @@ export const ManualBookingSheet = ({
           <div className="manual-booking-grid">
             <label className="manual-booking-field md:col-span-2">
               <span>Name</span>
-              <input name="clientName" required placeholder="Client name" />
+              <input name="clientName" data-testid="manual-booking-client-name" required placeholder="Client name" />
             </label>
             <label className="manual-booking-field">
               <span>Phone</span>
@@ -63,11 +63,11 @@ export const ManualBookingSheet = ({
           <div className="manual-booking-grid">
             <label className="manual-booking-field">
               <span>Date</span>
-              <input name="bookingDate" type="date" required defaultValue={getLocalDateStr(new Date())} />
+              <input name="bookingDate" data-testid="manual-booking-date" type="date" required defaultValue={getLocalDateStr(new Date())} />
             </label>
             <label className="manual-booking-field">
               <span>Time</span>
-              <input name="bookingTime" type="time" required defaultValue="09:00" />
+              <input name="bookingTime" data-testid="manual-booking-time" type="time" required defaultValue="09:00" />
             </label>
             <label className="manual-booking-field">
               <span>Status</span>
@@ -129,7 +129,7 @@ export const ManualBookingSheet = ({
           <div className="manual-booking-grid">
             <label className="manual-booking-field">
               <span>Method</span>
-              <select name="paymentMethod" defaultValue="">
+              <select name="paymentMethod" data-testid="manual-booking-payment-method" defaultValue="">
                 <option value="">No payment yet</option>
                 <option value="cash">Cash</option>
                 <option value="manual_eft">Direct EFT</option>
@@ -141,7 +141,7 @@ export const ManualBookingSheet = ({
             </label>
             <label className="manual-booking-field">
               <span>Payment Status</span>
-              <select name="paymentStatus" defaultValue="unpaid">
+              <select name="paymentStatus" data-testid="manual-booking-payment-status" defaultValue="unpaid">
                 <option value="unpaid">Unpaid</option>
                 <option value="manual_pending">Pending payment</option>
                 <option value="paid">Paid</option>
@@ -170,7 +170,7 @@ export const ManualBookingSheet = ({
         <button type="button" onClick={onClose} className="h-12 px-5 rounded-xl bg-white border border-neutral-200 text-black text-[10px] font-bold uppercase tracking-widest hover:border-black transition-colors">
           Cancel
         </button>
-        <button type="submit" className="h-12 px-6 rounded-xl bg-black text-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-neutral-800 transition-colors shadow-xl shadow-black/10">
+        <button type="submit" data-testid="manual-booking-submit" className="h-12 px-6 rounded-xl bg-black text-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-neutral-800 transition-colors shadow-xl shadow-black/10">
           <Check size={15} /> Save Booking
         </button>
       </div>

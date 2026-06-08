@@ -12,9 +12,11 @@
     "typecheck": "tsc --noEmit",
     "health": "node scripts/health-check.mjs",
     "scale:check": "node scripts/scale-readiness-check.mjs",
+    "test:bookings": "node --test src/features/bookings/utils/*.test.mjs",
+    "revenue:check": "npm run test:bookings && node scripts/revenue-path-check.mjs",
     "check": "npm run typecheck && npm run build && node scripts/health-check.mjs",
     "security:audit": "npm audit --omit=dev",
-    "smoke": "npm run check && node scripts/smoke-check.mjs",
+    "smoke": "npm run check && node scripts/smoke-check.mjs && npm run revenue:check",
     "mobile:assets": "capacitor-assets generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#000000' --logoSplashScale 0.18",
     "mobile:sync": "npm run build && cap sync",
     "mobile:android": "npm run mobile:sync && cap open android"

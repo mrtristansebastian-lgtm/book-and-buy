@@ -20,7 +20,7 @@ export const BookingDesk = ({
   onOpenManualBooking,
   safeStaffList
 }) => (
-  <section data-tour="bookings-queue" className="saas-card booking-desk-shell overflow-hidden">
+  <section data-tour="bookings-queue" data-testid="booking-desk" className="saas-card booking-desk-shell overflow-hidden">
     <div className="booking-desk-command p-4 md:p-5 border-b border-neutral-100">
       <div className="booking-desk-head flex flex-col xl:flex-row xl:items-start justify-between gap-4">
         <div className="booking-desk-title-block">
@@ -36,6 +36,7 @@ export const BookingDesk = ({
           <button
             type="button"
             onClick={onOpenManualBooking}
+            data-testid="booking-open-manual-booking"
             className="booking-add-inline-button"
           >
             <Plus size={14} /> Booking
@@ -45,6 +46,7 @@ export const BookingDesk = ({
               <button
                 key={period.id}
                 type="button"
+                data-testid={`booking-period-${period.id}`}
                 onClick={() => {
                   onBookingDeskPeriodChange(period.id);
                   if (period.id === 'custom') onOpenCustomRange();
@@ -64,6 +66,7 @@ export const BookingDesk = ({
           <input
             value={bookingSearch}
             onChange={(event) => onBookingSearchChange(event.target.value)}
+            data-testid="booking-search"
             placeholder="Search client, phone, email, note"
             aria-label="Search bookings"
             className="booking-desk-input w-full h-12 rounded-lg bg-white border border-neutral-200 pl-11 pr-4 text-sm font-bold text-black outline-none focus:border-black transition-colors"
@@ -80,6 +83,7 @@ export const BookingDesk = ({
                 <button
                   key={value}
                   type="button"
+                  data-testid={`booking-payment-filter-${value}`}
                   className={bookingPaymentFilter === value ? 'is-selected' : ''}
                   onClick={(event) => {
                     onBookingPaymentFilterChange(value);
@@ -101,6 +105,7 @@ export const BookingDesk = ({
                 <button
                   key={value}
                   type="button"
+                  data-testid={`booking-sort-${value}`}
                   className={bookingSort === value ? 'is-selected' : ''}
                   onClick={(event) => {
                     onBookingSortChange(value);
@@ -120,6 +125,7 @@ export const BookingDesk = ({
               <button
                 key={filter.id}
                 type="button"
+                data-testid={`booking-filter-${filter.id}`}
                 onClick={() => onBookingFilterChange(filter.id)}
                 className={`booking-filter-chip h-11 px-3 rounded-lg text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${bookingDesk.activeFilter === filter.id ? 'is-active bg-black text-white shadow-lg' : 'bg-neutral-50 text-neutral-500 hover:bg-neutral-100 hover:text-black'}`}
               >

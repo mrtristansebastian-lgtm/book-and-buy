@@ -10,6 +10,7 @@ import {
   X
 } from 'lucide-react';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
+import { isManualPaymentMarkable } from '../utils/bookingPaymentModel';
 
 const RunningPersonIcon = ({ size = 14, strokeWidth = 2.6, ...props }) => (
   <svg
@@ -62,12 +63,18 @@ export const BookingRecordRow = ({
       : booking.status === 'declined'
         ? 'bg-red-50 text-red-600'
         : 'bg-black text-white';
-  const hasManualPayment = Boolean(booking.paymentMethod || booking.paymentGateway || booking.paymentStatus === 'manual_pending');
   const isPaid = booking.paymentStatus === 'paid';
   const isConfirmed = booking.status === 'confirmed';
+  const canMarkManualPayment = isManualPaymentMarkable(booking);
+  const showPaymentButton = isPaid || canMarkManualPayment;
 
   return (
-    <div className={`booking-record-row p-4 md:p-5 ${booking.status === 'declined' ? 'opacity-50 grayscale' : ''}`}>
+    <div
+      data-testid="booking-record-row"
+      data-booking-id={booking.id || ''}
+      data-booking-status={booking.status || ''}
+      className={`booking-record-row p-4 md:p-5 ${booking.status === 'declined' ? 'opacity-50 grayscale' : ''}`}
+    >
       <div className="booking-record-grid grid grid-cols-1 2xl:grid-cols-12 gap-4 2xl:items-center">
         <div className="booking-record-client 2xl:col-span-5 flex items-center gap-4 min-w-0">
           <div className="booking-record-avatar-wrap relative shrink-0">
@@ -151,6 +158,7 @@ export const BookingRecordRow = ({
               <button
                 onClick={() => openBookingChat(booking)}
                 aria-label={`Open chat for ${booking.clientName}`}
+                data-testid="booking-action-chat"
                 className="h-10 px-3 rounded-lg bg-white border border-neutral-200 text-neutral-600 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-50 hover:text-black hover:border-black transition-all"
               >
                 <MessagesSquare size={14} /> Chat
@@ -159,11 +167,12 @@ export const BookingRecordRow = ({
                 onClick={() => sendRunningLateToBooking(booking)}
                 aria-label={`Send running late update to ${booking.clientName}`}
                 title="Running late"
+                data-testid="booking-action-late"
                 className="h-10 px-3 rounded-lg bg-white border border-neutral-200 text-neutral-600 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-50 hover:text-black hover:border-neutral-300 transition-all"
               >
                 <RunningPersonIcon size={14} /> Late
               </button>
-              {hasManualPayment && (
+              {showPaymentButton && (
                 <button
                   type="button"
                   onClick={() => {
@@ -178,6 +187,7 @@ export const BookingRecordRow = ({
                   }}
                   aria-label={isPaid ? `${booking.clientName} payment is paid` : `Mark ${booking.clientName} booking as paid`}
                   aria-disabled={isPaid}
+                  data-testid={isPaid ? 'booking-action-paid' : 'booking-action-mark-paid'}
                   className={`booking-payment-button h-10 px-3 rounded-lg flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all ${isPaid ? 'is-paid cursor-default' : 'is-unpaid bg-white text-neutral-700 border border-neutral-200 hover:bg-white hover:text-black hover:border-neutral-300 hover:-translate-y-0.5'}`}
                 >
                   <DollarSign size={14} strokeWidth={2.8} /> {isPaid ? 'Paid' : 'Mark Paid'}
@@ -186,6 +196,7 @@ export const BookingRecordRow = ({
               <button
                 onClick={() => sendReviewToBooking(booking)}
                 aria-label={`Send review request to ${booking.clientName}`}
+                data-testid="booking-action-review"
                 className="h-10 px-3 rounded-lg bg-white border border-neutral-200 text-neutral-600 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-50 hover:text-black transition-all"
               >
                 <Mail size={14} /> Review
@@ -199,16 +210,17 @@ export const BookingRecordRow = ({
                 aria-disabled={isConfirmed}
                 disabled={isConfirmed}
                 title={booking.status === 'waitlist' ? 'Notify waitlist' : isConfirmed ? 'Already confirmed' : 'Move to waitlist'}
+                data-testid="booking-action-waitlist"
                 className={`booking-waitlist-button h-10 px-3 rounded-lg flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all ${booking.status === 'waitlist' ? 'is-waitlist bg-amber-100 text-amber-800 hover:bg-amber-200' : isConfirmed ? 'is-disabled bg-white border border-neutral-200 text-neutral-300 cursor-default' : 'bg-white border border-neutral-200 text-neutral-600 hover:bg-amber-50 hover:text-amber-700'}`}
               >
                 <Hourglass size={14} /> {booking.status === 'waitlist' ? 'Notify' : 'Waitlist'}
               </button>
               {(booking.status === 'pending' || booking.status === 'waitlist') && (
                 <>
-                  <button onClick={() => approveBooking(booking)} aria-label={`Approve booking for ${booking.clientName}`} className="h-10 px-3 rounded-lg bg-[#39FF14] text-black flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:brightness-95 transition-all">
+                  <button onClick={() => approveBooking(booking)} aria-label={`Approve booking for ${booking.clientName}`} data-testid="booking-action-approve" className="h-10 px-3 rounded-lg bg-[#39FF14] text-black flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:brightness-95 transition-all">
                     <Check size={15} strokeWidth={3} /> Approve
                   </button>
-                  <button type="button" aria-label={`Deny booking for ${booking.clientName}`} onClick={() => updateBooking(booking.id, { status: 'declined' })} className="h-10 w-10 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-red-500 hover:bg-red-50 transition-all">
+                  <button type="button" aria-label={`Deny booking for ${booking.clientName}`} data-testid="booking-action-decline" onClick={() => updateBooking(booking.id, { status: 'declined' })} className="h-10 w-10 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-red-500 hover:bg-red-50 transition-all">
                     <X size={16} strokeWidth={3} />
                   </button>
                 </>

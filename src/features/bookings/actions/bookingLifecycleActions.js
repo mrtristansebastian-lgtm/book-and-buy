@@ -1,7 +1,11 @@
 import * as FirebaseSDK from '../../../services/firebase';
 import { appId, db, functions, isFirebaseConfigured } from '../../../services/firebase';
 import { makeClientNotification, NOTIFICATION_TYPES } from '../../../services/notifications';
-import { parseAmountToCents } from '../utils/bookingActionHelpers';
+import {
+  buildManualPaymentCallablePayload,
+  buildManualPaymentUpdate,
+  isManualPaymentMarkable
+} from '../utils/bookingPaymentModel';
 
 const normalizeEmail = (email = '') => String(email || '').trim().toLowerCase();
 
@@ -200,38 +204,35 @@ export function createBookingLifecycleActions({
       return;
     }
 
-    const amountInCents = Number.isSafeInteger(Number(booking.amountInCents))
-      ? Number(booking.amountInCents)
-      : parseAmountToCents(booking.servicePrice);
-    const paymentMethod = booking.paymentMethod || booking.paymentGateway || 'manual';
-    const updates = {
-      paymentStatus: 'paid',
-      paymentMethod,
-      paymentGateway: booking.paymentGateway || paymentMethod,
-      paymentProviderName: booking.paymentProviderName || (paymentMethod === 'cash' ? 'Cash' : 'Manual payment'),
-      manualPayment: true,
-      amountPaidInCents: amountInCents,
-      paidAt: Date.now()
-    };
+    if (!isManualPaymentMarkable(booking)) {
+      showToast('Only cash and manual EFT bookings can be marked paid manually.');
+      return false;
+    }
 
-    if (functions && FirebaseSDK.httpsCallable && isFirebaseConfigured && user) {
+    const updates = buildManualPaymentUpdate(booking);
+
+    if (isFirebaseConfigured && user) {
+      if (!functions || !FirebaseSDK.httpsCallable) {
+        showToast('Secure payment service is not available yet.');
+        return false;
+      }
       try {
         const callable = FirebaseSDK.httpsCallable(functions, 'markManualBookingPaid');
-        await callable({
+        await callable(buildManualPaymentCallablePayload({
           appId,
-          businessId: workspaceOwnerId,
-          bookingId: booking.id,
-          paymentMethod,
-          amountInCents,
-          currency: booking.currency || 'ZAR'
-        });
+          booking,
+          workspaceOwnerId
+        }));
       } catch (error) {
-        console.error('markManualBookingPaid failed, applying local booking status update', error);
+        console.error('markManualBookingPaid failed', error);
+        showToast(error?.message || 'Payment could not be confirmed on the server.');
+        return false;
       }
     }
 
     await updateBooking(booking.id, updates);
     showToast(`${booking.clientName || 'Booking'} marked as paid.`);
+    return true;
   };
 
   const deleteBooking = async (bookingId) => {
