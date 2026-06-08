@@ -45,10 +45,12 @@ const getTenant = (req) => ({
 
 const sendOk = (res, body = { received: true }) => res.status(200).json(body);
 const sendDenied = (res, message = 'Invalid signature') => res.status(401).json({ ok: false, message });
+const webhookCpu = process.env.BUILD_A_BOOKING_FUNCTION_CPU === '1' ? 1 : 'gcf_gen1';
 
 const wrapWebhook = (gatewayType, handler) => onRequest({
   region: 'us-central1',
   cors: false,
+  cpu: webhookCpu,
   maxInstances: 1,
   secrets: [PAYMENT_SETTINGS_ENCRYPTION_KEY]
 }, async (req, res) => {

@@ -11,24 +11,29 @@ const REMINDER_WINDOW_AHEAD_MS = 15 * 60 * 1000;
 const ENFORCE_APP_CHECK = process.env.BUILD_A_BOOKING_ENFORCE_APP_CHECK === 'true';
 const SLOT_LOCK_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const IDEMPOTENCY_TTL_MS = 24 * 60 * 60 * 1000;
+const FUNCTION_CPU = process.env.BUILD_A_BOOKING_FUNCTION_CPU === '1' ? 1 : 'gcf_gen1';
+const CALLABLE_CONCURRENCY = FUNCTION_CPU === 'gcf_gen1' ? 1 : 40;
+const BOOKING_CONCURRENCY = FUNCTION_CPU === 'gcf_gen1' ? 1 : 10;
 
 const publicCallableOptions = {
   region: 'us-central1',
   timeoutSeconds: 30,
   memory: '512MiB',
-  concurrency: 40,
+  cpu: FUNCTION_CPU,
+  concurrency: CALLABLE_CONCURRENCY,
   maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_PUBLIC_MAX_INSTANCES, 1),
   ...(ENFORCE_APP_CHECK ? { enforceAppCheck: true } : {})
 };
 
 const bookingCallableOptions = {
   ...publicCallableOptions,
-  concurrency: 10,
+  concurrency: BOOKING_CONCURRENCY,
   maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_BOOKING_MAX_INSTANCES, 1)
 };
 
 const workerFunctionOptions = {
   region: 'us-central1',
+  cpu: FUNCTION_CPU,
   maxInstances: 1
 };
 

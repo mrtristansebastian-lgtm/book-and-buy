@@ -23,11 +23,13 @@ const webhooks = require('./webhooks');
 const { cappedMaxInstances } = require('../runtimeOptions');
 
 const serverTimestamp = () => admin.firestore.FieldValue.serverTimestamp();
+const paymentCpu = process.env.BUILD_A_BOOKING_FUNCTION_CPU === '1' ? 1 : 'gcf_gen1';
 const paymentCallableOptions = {
   region: 'us-central1',
   timeoutSeconds: 30,
   memory: '512MiB',
-  concurrency: 20,
+  cpu: paymentCpu,
+  concurrency: paymentCpu === 'gcf_gen1' ? 1 : 20,
   maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_PAYMENT_MAX_INSTANCES, 1)
 };
 
