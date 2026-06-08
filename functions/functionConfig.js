@@ -17,14 +17,14 @@ const publicCallableOptions = {
   timeoutSeconds: 30,
   memory: '512MiB',
   concurrency: 40,
-  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_PUBLIC_MAX_INSTANCES, 2),
+  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_PUBLIC_MAX_INSTANCES, 1),
   ...(ENFORCE_APP_CHECK ? { enforceAppCheck: true } : {})
 };
 
 const bookingCallableOptions = {
   ...publicCallableOptions,
   concurrency: 10,
-  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_BOOKING_MAX_INSTANCES, 2)
+  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_BOOKING_MAX_INSTANCES, 1)
 };
 
 const workerFunctionOptions = {
@@ -35,7 +35,7 @@ const workerFunctionOptions = {
 const emailCallableOptions = {
   ...publicCallableOptions,
   timeoutSeconds: 30,
-  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_EMAIL_MAX_INSTANCES, 2),
+  maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_EMAIL_MAX_INSTANCES, 1),
   secrets: [RESEND_API_KEY]
 };
 
