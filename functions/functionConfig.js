@@ -18,7 +18,7 @@ const BOOKING_CONCURRENCY = FUNCTION_CPU === 'gcf_gen1' ? 1 : 10;
 const publicCallableOptions = {
   region: 'us-central1',
   timeoutSeconds: 30,
-  memory: '512MiB',
+  memory: '256MiB',
   cpu: FUNCTION_CPU,
   concurrency: CALLABLE_CONCURRENCY,
   maxInstances: cappedMaxInstances(process.env.BUILD_A_BOOKING_PUBLIC_MAX_INSTANCES, 1),
