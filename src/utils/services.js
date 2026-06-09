@@ -39,12 +39,12 @@ export const createServiceFromTemplate = (template = {}, overrides = {}) => norm
 export const formatServicePrice = (service = {}) => {
   const rawPrice = service.price ?? '';
   const priceText = String(rawPrice).trim();
+  if (service.priceType === 'quote') return 'Quote after consult';
   if (!priceText) return '';
   const looksFormatted = /[^\d\s.,-]/.test(priceText);
   const value = looksFormatted ? priceText : `${service.currency || 'R'}${priceText}`;
   if (service.priceType === 'hourly') return `${value}/hr`;
   if (service.priceType === 'from') return `From ${value}`;
-  if (service.priceType === 'quote') return 'Quote after consult';
   return value;
 };
 

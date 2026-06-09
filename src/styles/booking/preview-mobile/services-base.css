@@ -56,6 +56,12 @@
             border-radius: 1rem !important;
         }
 
+        .editor-preview-frame.is-mobile-preview .booking-services-grid:is(.booking-services-rail, .booking-services-tiles):not(.booking-services-menu):not(.booking-services-compact) .booking-service-image {
+            width: 100% !important;
+            height: clamp(5.05rem, 23vw, 5.75rem) !important;
+            border-radius: 0.96rem !important;
+        }
+
         .editor-preview-frame.is-mobile-preview .booking-services-grid:not(.booking-services-menu):not(.booking-services-compact) > button > div > div:last-child {
             width: 100%;
         }

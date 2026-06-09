@@ -84,13 +84,17 @@ export const BusinessCalendar = ({
         onChangeApplyScope={setApplyScope}
         onClose={() => schedule.setSettingsModalOpen(false)}
         onDeleteSlot={schedule.actions.deleteDefaultSlot}
+        onDeleteServiceAvailabilityPeriod={schedule.actions.deleteServiceAvailabilityPeriod}
         onEditSlot={schedule.actions.startEditingDefaultSlot}
+        onSaveServiceAvailabilityPeriod={schedule.actions.upsertServiceAvailabilityPeriod}
         onUpdateAvailabilityRules={schedule.actions.updateAvailabilityRules}
         onSaveAvailabilitySettings={onSave}
         onSaveDefaults={schedule.actions.saveGeneratedDefaultSlots}
         onToggleWaitlist={schedule.actions.toggleWaitlist}
         selectedDate={schedule.selectedDate}
         selectedCalendarName={schedule.selectedCalendar?.name || 'Business Overview'}
+        serviceAvailabilityPeriods={schedule.serviceAvailabilityPeriods}
+        services={settings.services || []}
         waitlistEnabled={schedule.waitlistEnabled}
       />
 

@@ -13,9 +13,24 @@ const {
 const {
   alignBookingWithWorkspace,
   assertRateLimit,
-  validateAvailabilityLookupPayload,
   validatePublicBookingPayload
 } = require('./security');
+const {
+  validateAvailabilityLookupPayload
+} = require('./availabilityValidators');
+const {
+  validateCreateOwnerBookingRequestPayload,
+  validateCreatePublicBookingRequestPayload
+} = require('./bookingValidators');
+const {
+  validateAuthVerificationEmailContext,
+  validatePasswordResetEmailPayload,
+  validateSendBookingClientEmailPayload
+} = require('./emailValidators');
+const {
+  normalizeNotificationJobPayload,
+  normalizeReminderQueueJobPayload
+} = require('./notificationValidators');
 const {
   getCachedAvailabilityBookings,
   getCachedAvailabilityBookingsInTransaction,
@@ -31,7 +46,6 @@ const {
   buildVerificationEmail,
   getEmailProviderStatus,
   getEmailRuntimeConfig,
-  normalizeEmail: normalizeEmailAddress,
   sendEmail
 } = require('./emailService');
 const {
@@ -51,12 +65,10 @@ const {
 } = require('./functionConfig');
 const {
   cleanString,
-  requireString,
   safeLockId,
   safeDocumentId,
   safeThreadId,
   normalizeEmail,
-  isValidEmail,
   timestampValue
 } = require('./functionUtils');
 
@@ -449,63 +461,6 @@ const getOwnerBookingWorkspace = async ({ appId, ownerId }) => {
   };
 };
 
-const validateOwnerBookingPayload = (incoming = {}) => {
-  if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) {
-    throw new HttpsError('invalid-argument', 'Booking must be an object.');
-  }
-  const status = cleanString(incoming.status || 'confirmed', 40).toLowerCase();
-  const dateKey = cleanString(incoming.dateKey, 32);
-  const time = requireString(incoming.time, 'Booking time', 80);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
-    throw new HttpsError('invalid-argument', 'Booking date is invalid.');
-  }
-  if (time !== 'Waitlist' && !/^([01]?\d|2[0-3]):[0-5]\d(?:\s*(?:-|to)\s*([01]?\d|2[0-3]):[0-5]\d)?$/i.test(time)) {
-    throw new HttpsError('invalid-argument', 'Booking time is invalid.');
-  }
-
-  const amountInCents = Number(incoming.amountInCents || incoming.amountPaidInCents || 0);
-  const timestamp = Number(incoming.timestamp || Date.now());
-  return {
-    clientName: requireString(incoming.clientName, 'Client name', 120),
-    clientPhone: cleanString(incoming.clientPhone, 60),
-    clientEmail: normalizeEmail(incoming.clientEmail),
-    clientBirthday: cleanString(incoming.clientBirthday, 80),
-    clientNote: cleanString(incoming.clientNote, 1000),
-    clientEmailOptIn: Boolean(incoming.clientEmailOptIn && incoming.clientEmail),
-    serviceId: cleanString(incoming.serviceId, 120),
-    serviceName: cleanString(incoming.serviceName, 180),
-    serviceDescription: cleanString(incoming.serviceDescription, 700),
-    servicePrice: cleanString(incoming.servicePrice, 80),
-    servicePriceType: cleanString(incoming.servicePriceType, 40),
-    serviceDuration: cleanString(incoming.serviceDuration, 80),
-    serviceCategory: cleanString(incoming.serviceCategory, 120),
-    amountInCents: Number.isFinite(amountInCents) ? Math.max(0, Math.round(amountInCents)) : 0,
-    currency: cleanString(incoming.currency || 'ZAR', 12).toUpperCase(),
-    staffId: cleanString(incoming.staffId, 120),
-    staffName: cleanString(incoming.staffName, 120),
-    staffPhotoURL: cleanString(incoming.staffPhotoURL, 500),
-    paymentMethod: cleanString(incoming.paymentMethod, 60).toLowerCase(),
-    paymentGateway: cleanString(incoming.paymentGateway || incoming.paymentMethod, 60).toLowerCase(),
-    paymentProviderName: cleanString(incoming.paymentProviderName, 120),
-    paymentStatus: cleanString(incoming.paymentStatus || (incoming.paymentMethod ? 'manual_pending' : 'unpaid'), 60).toLowerCase(),
-    paymentReference: cleanString(incoming.paymentReference, 180),
-    notificationChannels: {
-      email: Boolean(incoming.notificationChannels?.email || incoming.clientEmailOptIn),
-      portal: Boolean(incoming.notificationChannels?.portal || incoming.clientEmail)
-    },
-    date: requireString(incoming.date, 'Booking date label', 120),
-    dateKey,
-    time,
-    status: status || 'confirmed',
-    noShowHistory: Boolean(incoming.noShowHistory),
-    source: cleanString(incoming.source || 'manual-owner', 120),
-    threadId: cleanString(incoming.threadId, 160),
-    timestamp: Number.isFinite(timestamp) ? timestamp : Date.now(),
-    createdAt: Number.isFinite(Number(incoming.createdAt)) ? Number(incoming.createdAt) : serverTimestamp(),
-    updatedAt: Number.isFinite(Number(incoming.updatedAt)) ? Number(incoming.updatedAt) : serverTimestamp()
-  };
-};
-
 const applyWorkspaceDefaultsToOwnerBooking = ({ booking, workspace }) => {
   const service = (workspace.services || []).find(item => cleanString(item.id, 120) === booking.serviceId) || null;
   const staff = (workspace.publicStaff || []).find(item => item.id === booking.staffId) || null;
@@ -865,14 +820,8 @@ exports.getEmailProviderStatus = onCall(emailCallableOptions, async (request) =>
 });
 
 exports.sendAuthVerificationEmail = onCall(emailCallableOptions, async (request) => {
-  if (!request.auth?.uid) {
-    throw new HttpsError('unauthenticated', 'Sign in before sending a verification email.');
-  }
-  const email = normalizeEmail(request.auth.token?.email || '');
-  if (!isValidEmail(email)) {
-    throw new HttpsError('failed-precondition', 'This account is missing a valid email address.');
-  }
-  if (request.auth.token?.email_verified === true) {
+  const { email, alreadyVerified } = validateAuthVerificationEmailContext(request.auth);
+  if (alreadyVerified) {
     return { ok: true, skipped: true, alreadyVerified: true, reason: 'Email is already verified.' };
   }
   await authEmailRateLimit({ request, email });
@@ -889,10 +838,7 @@ exports.sendAuthVerificationEmail = onCall(emailCallableOptions, async (request)
 });
 
 exports.sendPasswordResetEmail = onCall(emailCallableOptions, async (request) => {
-  const email = normalizeEmailAddress(request.data?.email || '');
-  if (!isValidEmail(email)) {
-    throw new HttpsError('invalid-argument', 'Enter a valid email address.');
-  }
+  const { email } = validatePasswordResetEmailPayload(request.data);
   await authEmailRateLimit({ request, email });
 
   try {
@@ -915,14 +861,17 @@ exports.sendPasswordResetEmail = onCall(emailCallableOptions, async (request) =>
 });
 
 exports.sendBookingClientEmail = onCall(emailCallableOptions, async (request) => {
-  const appId = requireString(request.data?.appId || DEFAULT_APP_ID, 'App ID', 120);
-  const ownerId = requireString(request.data?.ownerId || request.auth?.uid, 'Workspace owner', 120);
-  const bookingId = requireString(request.data?.bookingId, 'Booking', 160);
-  const templateKey = cleanString(request.data?.templateKey, 40);
-  const allowedTemplates = new Set(['bookingReceived', 'confirmed', 'declined', 'waitlist', 'runningLate', 'review', 'reminder24h', 'reminder2h']);
-  if (!allowedTemplates.has(templateKey)) {
-    throw new HttpsError('invalid-argument', 'Email template is not supported.');
-  }
+  const {
+    appId,
+    ownerId,
+    bookingId,
+    templateKey,
+    extra
+  } = validateSendBookingClientEmailPayload({
+    data: request.data,
+    authUid: request.auth?.uid,
+    defaultAppId: DEFAULT_APP_ID
+  });
   await assertCanWriteOwnerBooking({ appId, ownerId, request });
 
   const bookingSnap = await db
@@ -942,18 +891,25 @@ exports.sendBookingClientEmail = onCall(emailCallableOptions, async (request) =>
     communications,
     settings,
     templateKey,
-    extra: request.data?.extra || {}
+    extra
   });
 });
 
 exports.createOwnerBookingRequest = onCall(bookingCallableOptions, async (request) => {
-  const appId = requireString(request.data?.appId || DEFAULT_APP_ID, 'App ID', 120);
-  const ownerId = requireString(request.data?.ownerId || request.auth?.uid, 'Workspace owner', 120);
-  const idempotencyKey = cleanString(request.data?.idempotencyKey, 180);
+  const {
+    appId,
+    ownerId,
+    idempotencyKey,
+    rawBooking
+  } = validateCreateOwnerBookingRequestPayload({
+    data: request.data,
+    authUid: request.auth?.uid,
+    defaultAppId: DEFAULT_APP_ID,
+    serverTimestamp
+  });
   await assertCanWriteOwnerBooking({ appId, ownerId, request });
 
   const workspace = await getOwnerBookingWorkspace({ appId, ownerId });
-  const rawBooking = validateOwnerBookingPayload(request.data?.booking || {});
   return writeOwnerBookingTransaction({
     appId,
     ownerId,
@@ -1007,10 +963,12 @@ exports.getPublicServiceAvailability = onCall(publicCallableOptions, async (requ
 });
 
 exports.createPublicBookingRequest = onCall(bookingCallableOptions, async (request) => {
-  const appId = requireString(request.data?.appId, 'App ID', 120);
-  const workspaceSlug = requireString(request.data?.workspaceSlug, 'Workspace slug', 120).toLowerCase();
-  const rawBooking = request.data?.booking || {};
-  const idempotencyKey = cleanString(request.data?.idempotencyKey || rawBooking.idempotencyKey, 180);
+  const {
+    appId,
+    workspaceSlug,
+    rawBooking,
+    idempotencyKey
+  } = validateCreatePublicBookingRequestPayload({ data: request.data });
 
   await assertRateLimit({
     db,
@@ -1393,6 +1351,7 @@ exports.processNotificationJob = onDocumentCreated({
   if (!snap) return;
 
   const job = snap.data() || {};
+  const notificationJob = normalizeNotificationJobPayload(job);
   const status = getEmailProviderStatus({ resendApiKeySecret: RESEND_API_KEY });
   if (!status.configured) {
     await snap.ref.set({
@@ -1402,7 +1361,7 @@ exports.processNotificationJob = onDocumentCreated({
         clientPortal: 'active',
         missing: status.missing
       },
-      lastNote: job.type === 'new-booking-request'
+      lastNote: notificationJob.type === 'new-booking-request'
         ? 'Booking notification queued. Connect Resend secrets to enable email sending.'
         : 'Notification queued.',
       updatedAt: serverTimestamp()
@@ -1410,9 +1369,8 @@ exports.processNotificationJob = onDocumentCreated({
     return;
   }
 
-  const ownerId = cleanString(job.ownerId, 120);
-  const bookingId = cleanString(job.bookingId, 160);
-  if (!ownerId || !bookingId) {
+  const { ownerId, bookingId } = notificationJob;
+  if (!notificationJob.hasBookingReference) {
     await snap.ref.set({
       status: 'skipped',
       providerState: { email: 'skipped', reason: 'missing-booking-reference', clientPortal: 'active' },
@@ -1460,7 +1418,7 @@ exports.processNotificationJob = onDocumentCreated({
       results.owner = { ok: false, skipped: true, reason: ownerEmail ? 'Owner booking email is turned off.' : 'Missing owner email.' };
     }
 
-    if (job.channels?.email && normalizeEmail(booking.clientEmail) && getEmailChannelEnabled(communications, 'clientBookingReceived', true)) {
+    if (notificationJob.channels.email && normalizeEmail(booking.clientEmail) && getEmailChannelEnabled(communications, 'clientBookingReceived', true)) {
       results.client = await sendClientBookingEmail({
         appId,
         ownerId,
@@ -1545,10 +1503,9 @@ exports.sendBookingReminderNotifications = onSchedule({
 
   for (const queueDoc of queueSnap.docs) {
     const job = queueDoc.data() || {};
-    const ownerId = cleanString(job.ownerId, 120);
-    const bookingId = cleanString(job.bookingId, 120);
-    const reminderKey = cleanString(job.reminderKey, 20);
-    if (!ownerId || !bookingId || !['24h', '2h'].includes(reminderKey)) {
+    const reminderJob = normalizeReminderQueueJobPayload(job);
+    const { ownerId, bookingId, reminderKey } = reminderJob;
+    if (!reminderJob.isSupported) {
       await queueDoc.ref.set({ status: 'skipped', updatedAtMs: nowMs, updatedAt: serverTimestamp() }, { merge: true });
       continue;
     }
@@ -1582,8 +1539,8 @@ exports.sendBookingReminderNotifications = onSchedule({
         booking,
         ownerId,
         reminderKey,
-        title: job.title || (reminderKey === '24h' ? 'Your booking is tomorrow' : 'Your booking is coming up soon'),
-        body: job.body || 'Open your client portal for booking details.'
+        title: reminderJob.title || (reminderKey === '24h' ? 'Your booking is tomorrow' : 'Your booking is coming up soon'),
+        body: reminderJob.body || 'Open your client portal for booking details.'
       });
       let emailResult = { ok: false, skipped: true, reason: 'Reminder notification was not created.' };
       if (created) {

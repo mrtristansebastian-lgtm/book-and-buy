@@ -1183,20 +1183,45 @@
 
         .booking-flow-public .booking-checkout-form .booking-text-control,
         .booking-flow-public .booking-checkout-form .booking-text-control:focus,
+        .booking-flow-public .booking-checkout-form .booking-text-control:focus-visible,
         .editor-preview-frame .booking-checkout-form .booking-text-control,
-        .editor-preview-frame .booking-checkout-form .booking-text-control:focus {
+        .editor-preview-frame .booking-checkout-form .booking-text-control:focus,
+        .editor-preview-frame .booking-checkout-form .booking-text-control:focus-visible {
+            appearance: none !important;
+            -webkit-appearance: none !important;
             min-height: 1.8rem !important;
             padding: 0 !important;
             border: 0 !important;
             border-radius: 0 !important;
             background: transparent !important;
+            background-color: transparent !important;
             background-image: none !important;
             color: #111827 !important;
             font-size: 0.92rem !important;
             font-weight: 430 !important;
             line-height: 1.38 !important;
             letter-spacing: 0 !important;
+            outline: 0 !important;
             box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+        }
+
+        html body .native-ui .booking-checkout-form input.booking-text-control,
+        html body .native-ui .booking-checkout-form input.booking-text-control:focus,
+        html body .native-ui .booking-checkout-form input.booking-text-control:focus-visible,
+        html body .native-ui .booking-checkout-form textarea.booking-text-control,
+        html body .native-ui .booking-checkout-form textarea.booking-text-control:focus,
+        html body .native-ui .booking-checkout-form textarea.booking-text-control:focus-visible {
+            min-height: 1.8rem !important;
+            padding: 0 !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+            outline: 0 !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
         }
 
         .booking-flow-public .booking-checkout-form input::placeholder,
@@ -1417,9 +1442,100 @@
             text-align: center !important;
         }
 
+        .booking-flow-public .booking-success-detail,
+        .editor-preview-frame .booking-success-detail {
+            position: relative;
+            min-height: 7.15rem;
+            display: grid !important;
+            align-content: center;
+            justify-items: center;
+            gap: 0.34rem;
+            overflow: hidden;
+            border-radius: 1.28rem !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.92),
+                0 18px 44px -38px rgba(15, 23, 42, 0.42) !important;
+        }
+
+        .booking-flow-public .booking-success-detail::before,
+        .editor-preview-frame .booking-success-detail::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        .booking-flow-public .booking-success-detail > *,
+        .editor-preview-frame .booking-success-detail > * {
+            position: relative;
+            z-index: 1;
+        }
+
         .booking-flow-public .booking-success-detail-label,
         .editor-preview-frame .booking-success-detail-label {
             justify-content: center !important;
+            gap: 0.42rem !important;
+            font-size: 0.56rem !important;
+            letter-spacing: 0.16em !important;
+            opacity: 0.78 !important;
+        }
+
+        .booking-flow-public .booking-success-detail-label > span,
+        .editor-preview-frame .booking-success-detail-label > span {
+            width: 0.95rem;
+            height: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: #050505;
+            box-shadow: none;
+        }
+
+        .booking-flow-public .booking-success-detail-label > span::before,
+        .editor-preview-frame .booking-success-detail-label > span::before {
+            content: "";
+            width: 0.86rem;
+            height: 0.62rem;
+            display: block;
+            border: 1.7px solid currentColor;
+            border-radius: 0.16rem;
+            box-shadow:
+                inset 0 0.2rem 0 currentColor,
+                inset 0 -0.15rem 0 currentColor;
+        }
+
+        .booking-flow-public .booking-success-detail:first-child > p:nth-child(2),
+        .editor-preview-frame .booking-success-detail:first-child > p:nth-child(2) {
+            margin-top: 0.12rem !important;
+            font-size: clamp(1.08rem, 2.2vw, 1.28rem) !important;
+            letter-spacing: 0.025em !important;
+            line-height: 1.05 !important;
+        }
+
+        .booking-flow-public .booking-success-detail:last-child > p:first-child,
+        .editor-preview-frame .booking-success-detail:last-child > p:first-child {
+            margin-top: 0.1rem !important;
+            font-size: clamp(1rem, 1.9vw, 1.14rem) !important;
+            line-height: 1.15 !important;
+            opacity: 1 !important;
+        }
+
+        .booking-flow-public .booking-success-detail:last-child > p:last-child,
+        .editor-preview-frame .booking-success-detail:last-child > p:last-child,
+        .booking-flow-public .booking-success-detail:first-child > p:last-child,
+        .editor-preview-frame .booking-success-detail:first-child > p:last-child {
+            max-width: 16rem;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            line-height: 1.35 !important;
+            opacity: 0.58 !important;
         }
 
         .booking-flow-public .booking-success-payment,
@@ -1444,6 +1560,10 @@
             margin-bottom: 0 !important;
             border-color: rgba(17, 24, 39, 0.1) !important;
             background: #ffffff !important;
+            border-radius: 1.35rem !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.92),
+                0 20px 52px -44px rgba(15, 23, 42, 0.5) !important;
             text-align: center !important;
         }
 
@@ -1459,9 +1579,23 @@
         .booking-flow-public .booking-portal-icon,
         .editor-preview-frame .booking-portal-icon {
             margin-top: 0 !important;
-            width: 1.65rem !important;
-            height: 1.65rem !important;
-            border-radius: 999px !important;
+            width: 2.35rem !important;
+            height: 2.35rem !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(17, 24, 39, 0.09) !important;
+            border-radius: 0.92rem !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.88),
+                0 14px 32px -26px rgba(15, 23, 42, 0.55) !important;
+        }
+
+        .booking-flow-public .booking-portal-icon img,
+        .editor-preview-frame .booking-portal-icon img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            padding: 0.3rem;
         }
 
         .booking-flow-public .booking-portal-copy,
@@ -1718,3 +1852,97 @@
             line-height: 1.1 !important;
             max-width: 18rem !important;
         }
+
+/* Final command-flow guard: keep the booking, cart, checkout, and success
+   surfaces crisp even when later preview/mobile rules polish native mode. */
+.booking-style-command-flow .booking-service-option,
+.booking-style-command-flow .booking-service-image,
+.booking-style-command-flow .booking-service-image-placeholder,
+.booking-style-command-flow .booking-category-dropdown-trigger,
+.booking-style-command-flow .booking-category-menu,
+.booking-style-command-flow .booking-category-menu button,
+.booking-style-command-flow .booking-service-category-rail button,
+.booking-style-command-flow .booking-calendar-look > button,
+.booking-style-command-flow .booking-time-look button,
+.booking-style-command-flow .booking-time-look > button,
+.booking-style-command-flow .booking-gradient-button,
+.booking-style-command-flow [data-preview-section="action"] > button,
+.booking-style-command-flow .booking-cart-hero,
+.booking-style-command-flow .booking-cart-badge,
+.booking-style-command-flow .booking-checkout-summary,
+.booking-style-command-flow .booking-summary-row,
+.booking-style-command-flow .booking-summary-icon,
+.booking-style-command-flow .booking-summary-count,
+.booking-style-command-flow .booking-summary-total,
+.booking-style-command-flow .booking-checkout-panel,
+.booking-style-command-flow .booking-checkout-email,
+.booking-style-command-flow .booking-checkout-form .booking-text-field,
+.booking-style-command-flow .booking-checkout-form .booking-text-control,
+.booking-style-command-flow .booking-payment-box,
+.booking-style-command-flow .booking-payment-icon,
+.booking-style-command-flow .booking-payment-option,
+.booking-style-command-flow .booking-payment-option-icon,
+.booking-style-command-flow .booking-payment-empty,
+.booking-style-command-flow .booking-funnel-primary,
+.booking-style-command-flow .booking-funnel-back,
+.booking-style-command-flow .booking-success-panel,
+.booking-style-command-flow .booking-success-detail,
+.booking-style-command-flow .booking-success-payment,
+.booking-style-command-flow .booking-success-icon,
+.booking-style-command-flow .booking-success-portal > div,
+.booking-style-command-flow .booking-success-portal button,
+.booking-style-command-flow .booking-portal-icon {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.booking-style-command-flow .booking-service-option,
+.booking-style-command-flow .booking-service-option.booking-gradient-border,
+.booking-style-command-flow .booking-service-option.is-selected,
+.booking-style-command-flow .booking-category-dropdown-trigger,
+.booking-style-command-flow .booking-category-dropdown-trigger.booking-gradient-border,
+.booking-style-command-flow .booking-category-menu,
+.booking-style-command-flow .booking-service-category-rail button,
+.booking-style-command-flow .booking-calendar-look > button,
+.booking-style-command-flow .booking-time-look > button,
+.booking-style-command-flow .booking-time-look button,
+.booking-style-command-flow .booking-time-look button > span,
+.booking-style-command-flow .booking-cart-hero,
+.booking-style-command-flow .booking-checkout-summary,
+.booking-style-command-flow .booking-summary-row,
+.booking-style-command-flow .booking-summary-total,
+.booking-style-command-flow .booking-checkout-panel,
+.booking-style-command-flow .booking-checkout-email,
+.booking-style-command-flow .booking-checkout-form .booking-text-field,
+.booking-style-command-flow .booking-payment-box,
+.booking-style-command-flow .booking-payment-option,
+.booking-style-command-flow .booking-payment-empty,
+.booking-style-command-flow .booking-success-panel,
+.booking-style-command-flow .booking-success-detail,
+.booking-style-command-flow .booking-success-payment,
+.booking-style-command-flow .booking-success-portal > div {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.booking-style-command-flow .booking-gradient-button,
+.booking-style-command-flow .booking-funnel-primary,
+.booking-style-command-flow [data-preview-section="action"] > button {
+    background-image: none !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+}
+
+.booking-style-command-flow .booking-checkout-form .booking-text-control,
+.booking-style-command-flow .booking-checkout-form input.booking-text-control,
+.booking-style-command-flow .booking-checkout-form textarea.booking-text-control,
+.booking-style-command-flow .booking-checkout-form select.booking-text-control {
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}

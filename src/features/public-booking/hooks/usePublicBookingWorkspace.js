@@ -48,8 +48,14 @@ export function usePublicBookingWorkspace({
     if (!publicSlug) return;
     const localGuestSettings = settingsRef.current || settings;
     const localGuestSlug = buildBookingSlug(localGuestSettings.slug || localGuestSettings.brandName || localGuestSettings.businessName || 'studio');
-    if (!user && (guestMode || safeLocalGet(guestModeStorageKey) === 'true') && localGuestSlug === publicSlug) {
-      const publishableGuestSettings = stripPublicDraftFields(localGuestSettings);
+    const isGuestPublicPreview = !user && (guestMode || safeLocalGet(guestModeStorageKey) === 'true');
+    const guestSettingsForSlug = localGuestSlug === publicSlug
+      ? localGuestSettings
+      : publicSlug === 'your-business'
+        ? { slug: publicSlug, brandName: 'Your Business' }
+        : null;
+    if (isGuestPublicPreview && guestSettingsForSlug) {
+      const publishableGuestSettings = stripPublicDraftFields(guestSettingsForSlug);
       setPublicError('');
       setPublicWorkspace({
         ...publishableGuestSettings,

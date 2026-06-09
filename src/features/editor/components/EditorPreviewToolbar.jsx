@@ -37,8 +37,8 @@ export function EditorPreviewToolbar({
       <div className="mobile-editor-preview-toolbar absolute top-4 md:top-8 z-50">
         <div className="editor-preview-control-row">
           <div className="mobile-editor-device-switcher editor-preview-device-switcher flex bg-white/60 backdrop-blur-xl p-1.5 rounded-full border border-white/80 shadow-sm">
-            <button onClick={() => handleEditorDeviceChange('desktop')} className={`mobile-editor-device-option px-8 py-2.5 rounded-full text-[9px] font-bold uppercase tracking-[0.4em] transition-all duration-700 ${device === 'desktop' ? 'bg-black text-white shadow-lg' : 'text-neutral-400 hover:text-black'}`}>PC</button>
-            <button onClick={() => handleEditorDeviceChange('mobile')} className={`mobile-editor-device-option px-8 py-2.5 rounded-full text-[9px] font-bold uppercase tracking-[0.4em] transition-all duration-700 ${device === 'mobile' ? 'bg-black text-white shadow-lg' : 'text-neutral-400 hover:text-black'}`}>Mobile</button>
+            <button onClick={() => handleEditorDeviceChange('desktop')} className={`mobile-editor-device-option editor-preview-device-option px-8 py-2.5 rounded-full text-[9px] font-bold uppercase tracking-[0.4em] transition-all duration-700 ${device === 'desktop' ? 'bg-black text-white shadow-lg' : 'text-neutral-400 hover:text-black'}`}>PC</button>
+            <button onClick={() => handleEditorDeviceChange('mobile')} className={`mobile-editor-device-option editor-preview-device-option px-8 py-2.5 rounded-full text-[9px] font-bold uppercase tracking-[0.4em] transition-all duration-700 ${device === 'mobile' ? 'bg-black text-white shadow-lg' : 'text-neutral-400 hover:text-black'}`}>Mobile</button>
           </div>
           <div className="mobile-editor-device-switcher editor-preview-step-switcher flex bg-white/60 backdrop-blur-xl p-1.5 rounded-full border border-white/80 shadow-sm overflow-x-auto no-scrollbar">
             {editorPreviewSteps.map((step) => (
@@ -46,7 +46,7 @@ export function EditorPreviewToolbar({
                 key={step.id}
                 type="button"
                 onClick={() => handlePreviewStepChange(step.id)}
-                className={`mobile-editor-device-option px-4 md:px-5 py-2 rounded-full text-[8px] font-bold uppercase tracking-[0.28em] transition-all duration-500 whitespace-nowrap ${previewStep === step.id ? 'bg-black text-white shadow-lg' : 'text-neutral-400 hover:text-black'}`}
+                className={`mobile-editor-device-option editor-preview-step-option px-4 md:px-5 py-2 rounded-full text-[8px] font-bold uppercase tracking-[0.28em] transition-all duration-500 whitespace-nowrap ${previewStep === step.id ? 'bg-black text-white shadow-lg' : 'text-neutral-400 hover:text-black'}`}
               >
                 {step.label}
               </button>

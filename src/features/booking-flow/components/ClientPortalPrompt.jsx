@@ -34,8 +34,8 @@ export const ClientPortalPrompt = ({
   return (
     <div className="booking-portal-prompt mb-8 w-full max-w-lg rounded-2xl border p-4" style={{ borderColor: withColorAlpha(settings.primaryColor || settings.headingColor || '#000000', 13, '#000000'), backgroundColor: withColorAlpha(settings.primaryColor || settings.headingColor || '#000000', 4, '#000000') }}>
       <div className="booking-portal-head flex items-start gap-3">
-        <span className="booking-portal-icon mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: settings.primaryColor || settings.headingColor || '#000000', color: settings.buttonTextColor || '#000000' }}>
-          <span className="h-2 w-2 rounded-full bg-current" />
+        <span className="booking-portal-icon mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', color: settings.buttonTextColor || '#000000' }}>
+          <img src={settings.logo || '/build-a-booking-official-mark.jpg'} alt="" aria-hidden="true" />
         </span>
         <div className="booking-portal-copy min-w-0">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.24em]" style={{ color: settings.headingColor }}>Track this booking</p>

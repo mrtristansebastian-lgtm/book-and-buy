@@ -35,6 +35,32 @@ export const serviceWorkflowPlacements = [
   'Client profile history'
 ];
 
+export const serviceDurationOptions = [
+  { minutes: 15, label: '15 min' },
+  { minutes: 30, label: '30 min' },
+  { minutes: 45, label: '45 min' },
+  { minutes: 60, label: '1 hour' },
+  { minutes: 75, label: '1h 15m' },
+  { minutes: 90, label: '1h 30m' },
+  { minutes: 120, label: '2 hours' },
+  { minutes: 150, label: '2h 30m' },
+  { minutes: 180, label: '3 hours' },
+  { minutes: 240, label: '4 hours' }
+];
+
+export const normalizeServiceDurationValue = (value) => {
+  const text = String(value || '').trim().toLowerCase();
+  if (!text) return '';
+  const hourMatch = text.match(/(\d+(?:\.\d+)?)\s*(h|hr|hour)/);
+  if (hourMatch) {
+    const minutes = Math.round(Number(hourMatch[1]) * 60);
+    return Number.isFinite(minutes) && minutes > 0 ? String(minutes) : '';
+  }
+  const numberMatch = text.match(/\d+(?:\.\d+)?/);
+  const minutes = numberMatch ? Math.round(Number(numberMatch[0])) : Number(text);
+  return Number.isFinite(minutes) && minutes > 0 ? String(minutes) : '';
+};
+
 export const getStaffInitial = (staff = {}) => (
   staff.name || staff.email || 'S'
 ).charAt(0).toUpperCase();

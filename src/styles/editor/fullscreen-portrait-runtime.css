@@ -126,3 +126,39 @@
             letter-spacing: 0.075em !important;
         }
 
+        @media (min-width: 901px) {
+            .editor-fullscreen-workspace.mobile-editor-room-open .mobile-editor-preview-toolbar {
+                left: clamp(1rem, 2.4vw, 2rem) !important;
+                right: calc(var(--editor-panel-dock-width) + clamp(1.55rem, 3vw, 2.8rem)) !important;
+                width: auto !important;
+                transform: none !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-room-open .editor-preview-control-row {
+                justify-content: center !important;
+                gap: clamp(0.34rem, 0.75vw, 0.58rem) !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-room-open .editor-preview-device-switcher {
+                flex: 0 1 auto !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-room-open .editor-preview-step-switcher {
+                flex: 1 1 21rem !important;
+                max-width: min(26rem, 100%) !important;
+                justify-content: center !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-room-open .editor-preview-device-option {
+                min-width: clamp(3.9rem, 5.8vw, 5rem) !important;
+                padding-inline: clamp(0.72rem, 1.2vw, 1.35rem) !important;
+                letter-spacing: 0.28em !important;
+            }
+
+            .editor-fullscreen-workspace.mobile-editor-room-open .editor-preview-step-option {
+                flex: 1 1 0 !important;
+                min-width: 0 !important;
+                padding-inline: clamp(0.5rem, 1vw, 0.95rem) !important;
+                letter-spacing: 0.16em !important;
+            }
+        }

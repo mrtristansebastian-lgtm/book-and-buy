@@ -29,8 +29,6 @@ const PUBLIC_BOOKING_FIELDS = new Set([
   'notificationChannels'
 ]);
 
-const AVAILABILITY_SERVICE_FIELDS = new Set(['serviceId', 'serviceDuration']);
-
 const RATE_LIMITS = Object.freeze({
   booking_create: {
     limit: 6,
@@ -55,7 +53,6 @@ const RATE_LIMITS = Object.freeze({
 });
 
 const MAX_PUBLIC_BOOKING_PAYLOAD_BYTES = 12_000;
-const MAX_AVAILABILITY_PAYLOAD_BYTES = 4_000;
 
 const cleanString = (value, max = 240) => (
   String(value ?? '')
@@ -174,26 +171,6 @@ const assertRateLimit = async ({ db, appId, workspaceSlug, action, request, subj
   });
 };
 
-const validateAvailabilityLookupPayload = (data = {}) => {
-  assertPayloadSize(data, MAX_AVAILABILITY_PAYLOAD_BYTES, 'Availability request');
-  const appId = requireString(data.appId, 'App ID', 120);
-  const workspaceSlug = requireString(data.workspaceSlug, 'Workspace slug', 120).toLowerCase();
-  const dateKey = assertPattern(requireString(data.dateKey, 'Date', 32), /^\d{4}-\d{2}-\d{2}$/, 'Date');
-  const requestedStaffId = cleanString(data.staffId, 120);
-  const service = data.service || {};
-  rejectUnknownFields(service, AVAILABILITY_SERVICE_FIELDS, 'Availability service');
-  return {
-    appId,
-    workspaceSlug,
-    dateKey,
-    requestedStaffId,
-    incoming: {
-      serviceId: requireString(service.serviceId, 'Service', 120),
-      serviceDuration: cleanString(service.serviceDuration, 80)
-    }
-  };
-};
-
 const validatePublicBookingPayload = (incoming = {}) => {
   assertPayloadSize(incoming, MAX_PUBLIC_BOOKING_PAYLOAD_BYTES, 'Booking request');
   rejectUnknownFields(incoming, PUBLIC_BOOKING_FIELDS, 'Booking');
@@ -266,6 +243,5 @@ module.exports = {
   assertRateLimit,
   cleanString,
   requireString,
-  validateAvailabilityLookupPayload,
   validatePublicBookingPayload
 };

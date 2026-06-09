@@ -23,8 +23,10 @@ export const BookingDetailsForm = ({
     showServiceStep
 }) => (
     <section className={layout === 'checkout' ? 'pt-5' : 'pt-10'} style={{ order: sectionOrder ?? (showServiceStep ? 5 : 4) }}>
-        <div className={`flex flex-col ${pageItems} ${pageTextClass} ${layout === 'checkout' ? 'mb-3' : 'mb-8'} px-1 ${inspectClass}`} data-preview-section="form" onClick={() => previewInspectEnabled && onInspect('form')}>
-            <h3 className={`${layout === 'checkout' ? 'text-[8px] tracking-[0.28em] mb-1.5' : 'text-[9px] tracking-[0.4em] mb-2'} font-bold uppercase opacity-40`} style={{ color: settings.bodyColor }} contentEditable={previewInspectEnabled} suppressContentEditableWarning onBlur={(event) => isPreview && onSettingChange?.('detailsHeading', event.currentTarget.textContent.replace(/^\d+\s*\/\/\s*/i, '').trim())}>{detailsStepNumber} // {settings.detailsHeading || "Your Details"}</h3>
+        <div className={`flex flex-col ${pageItems} ${pageTextClass} ${layout === 'checkout' ? 'mb-0' : 'mb-8'} px-1 ${inspectClass}`} data-preview-section="form" onClick={() => previewInspectEnabled && onInspect('form')}>
+            {layout !== 'checkout' && (
+                <h3 className="text-[9px] tracking-[0.4em] mb-2 font-bold uppercase opacity-40" style={{ color: settings.bodyColor }} contentEditable={previewInspectEnabled} suppressContentEditableWarning onBlur={(event) => isPreview && onSettingChange?.('detailsHeading', event.currentTarget.textContent.replace(/^\d+\s*\/\/\s*/i, '').trim())}>{detailsStepNumber} // {settings.detailsHeading || "Your Details"}</h3>
+            )}
             <h4 className={`${layout === 'checkout' ? 'sr-only' : 'text-xl md:text-2xl'} font-bold tracking-tight`} style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
                 {isWaitlistMode ? 'Join Standby' : (settings.detailsSubHeading || "Secure Your Slot")}
             </h4>

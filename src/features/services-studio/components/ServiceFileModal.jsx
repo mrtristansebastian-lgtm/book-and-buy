@@ -1,8 +1,10 @@
-import { Briefcase, Camera, Check, Clock, DollarSign, Image, Trash2, UserPlus, X } from 'lucide-react';
+import { Check, DollarSign, Image, Trash2, UserPlus, X } from 'lucide-react';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import {
   getStaffInitial,
   priceTypes,
+  normalizeServiceDurationValue,
+  serviceDurationOptions,
   serviceWorkflowPlacements
 } from '../servicesStudioModel';
 
@@ -25,6 +27,8 @@ export function ServiceFileModal({
 }) {
   if (!isOpen) return null;
 
+  const selectedDuration = normalizeServiceDurationValue(draft.duration);
+
   return (
     <div className="service-modal fixed inset-0 z-[150] bg-black/45 backdrop-blur-sm p-3 md:p-6 flex items-end md:items-center justify-center">
       <div className="service-modal-panel w-full max-w-6xl max-h-[92vh] rounded-[1.75rem] bg-white border border-white/80 shadow-2xl shadow-black/25 overflow-hidden flex flex-col">
@@ -38,7 +42,7 @@ export function ServiceFileModal({
               Set the service clients can book, who can deliver it, and what details carry into bookings and the calendar.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="w-11 h-11 rounded-full border border-neutral-200 bg-white text-black inline-flex items-center justify-center shrink-0">
+          <button type="button" onClick={onClose} className="w-11 h-11 rounded-full border border-neutral-200 bg-white text-black inline-flex items-center justify-center shrink-0" aria-label="Close service editor">
             <X size={18} />
           </button>
         </div>
@@ -64,14 +68,31 @@ export function ServiceFileModal({
                   <span>Name</span>
                   <input value={draft.name} onChange={(event) => onUpdateDraft('name', event.target.value)} placeholder="Service name" />
                 </label>
-                <label className="service-field">
+                <label className="service-field sm:col-span-2">
                   <span>Category</span>
                   <input value={draft.category} onChange={(event) => onUpdateDraft('category', event.target.value)} placeholder="Cut, class, consult..." />
                 </label>
-                <label className="service-field">
+                <div className="service-field service-duration-picker sm:col-span-2">
                   <span>Duration</span>
-                  <input value={draft.duration} onChange={(event) => onUpdateDraft('duration', event.target.value)} placeholder="60 or 1 hour" />
-                </label>
+                  <div className="service-duration-grid" role="radiogroup" aria-label="Service duration">
+                    {serviceDurationOptions.map(option => {
+                      const value = String(option.minutes);
+                      const active = selectedDuration === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          className={active ? 'is-active' : ''}
+                          onClick={() => onUpdateDraft('duration', value)}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 <label className="service-field sm:col-span-2">
                   <span>Description</span>
                   <textarea value={draft.description} onChange={(event) => onUpdateDraft('description', event.target.value)} placeholder="What is included, who it is for, and anything clients should know." rows={4} />
@@ -159,9 +180,15 @@ export function ServiceFileModal({
                     </button>
                   </div>
                 ))}
-                <label className="aspect-square rounded-xl border border-dashed border-neutral-300 bg-neutral-50 flex items-center justify-center cursor-pointer">
-                  <Camera size={20} />
-                  <input type="file" accept="image/*" className="hidden" onChange={onGalleryUpload} />
+                <label
+                  className="service-gallery-upload aspect-square rounded-xl border border-dashed border-neutral-300 bg-neutral-50 flex items-center justify-center cursor-pointer"
+                  aria-label="Upload service images"
+                >
+                  <span className="service-media-placeholder">
+                    <span className="service-media-placeholder-icon" />
+                    <span className="service-media-placeholder-action" />
+                  </span>
+                  <input type="file" accept="image/*" multiple className="service-gallery-upload-input" onChange={onGalleryUpload} aria-label="Upload service images" />
                 </label>
               </div>
               <div className="flex gap-2">
@@ -181,20 +208,32 @@ export function ServiceFileModal({
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-3">Booking Preview</p>
               <div className="rounded-2xl bg-white border border-neutral-100 p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-black text-white inline-flex items-center justify-center shrink-0">
+                  <div className={`w-12 h-12 rounded-xl inline-flex items-center justify-center shrink-0 ${draft.imageUrls?.[0] ? 'bg-black text-white overflow-hidden' : 'service-preview-media-cell'}`}>
                     {draft.imageUrls?.[0] ? (
                       <img src={draft.imageUrls[0]} alt="" className="w-full h-full object-cover rounded-xl" />
                     ) : (
-                      <Briefcase size={18} />
+                      <span className="service-media-placeholder is-compact">
+                        <span className="service-media-placeholder-icon" />
+                      </span>
                     )}
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-black text-black">{draft.name || 'Service name'}</h3>
                     <p className="text-xs text-neutral-500 mt-1">{draft.description || 'Client-facing description will show here.'}</p>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {draft.category && <span className="rounded-full bg-neutral-100 px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-neutral-500">{draft.category}</span>}
-                      {formatServiceDuration(draft.duration) && <span className="rounded-full bg-neutral-100 px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-neutral-500 inline-flex items-center gap-1"><Clock size={11} />{formatServiceDuration(draft.duration)}</span>}
-                      {formatServicePrice(draft) && <span className="rounded-full bg-neutral-100 px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-neutral-500">{formatServicePrice(draft)}</span>}
+                    <div className="service-preview-specs mt-3">
+                      {formatServicePrice(draft) && (
+                        <span className="service-preview-stat is-price">
+                          <small>Price</small>
+                          <strong>{formatServicePrice(draft)}</strong>
+                        </span>
+                      )}
+                      {formatServiceDuration(draft.duration) && (
+                        <span className="service-preview-stat">
+                          <small>Duration</small>
+                          <strong>{formatServiceDuration(draft.duration)}</strong>
+                        </span>
+                      )}
+                      {draft.category && <span className="service-preview-category">{draft.category}</span>}
                     </div>
                   </div>
                 </div>

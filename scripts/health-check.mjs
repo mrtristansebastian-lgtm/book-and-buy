@@ -44,11 +44,19 @@ const jsAssets = assets
   .filter((name) => name.endsWith('.js'))
   .map((name) => ({ name, size: statSync(join(assetsDir, name)).size }))
   .sort((a, b) => b.size - a.size);
+const cssAssets = assets
+  .filter((name) => name.endsWith('.css'))
+  .map((name) => ({ name, size: statSync(join(assetsDir, name)).size }))
+  .sort((a, b) => b.size - a.size);
 
 const largestJs = jsAssets[0];
 const totalJs = jsAssets.reduce((total, asset) => total + asset.size, 0);
+const largestCss = cssAssets[0];
+const totalCss = cssAssets.reduce((total, asset) => total + asset.size, 0);
 const largestBudget = 900 * 1024;
 const totalBudget = 1300 * 1024;
+const largestCssBudget = 650 * 1024;
+const totalCssBudget = 900 * 1024;
 const bookingCoreBudget = 300 * 1024;
 const bookingCore = jsAssets.find((asset) => asset.name.startsWith('booking-core-') || asset.name.startsWith('booking-page-'));
 const publicBookingRuntime = jsAssets.find((asset) => asset.name.startsWith('public-booking-runtime-'));
@@ -59,6 +67,12 @@ if (largestJs && largestJs.size > largestBudget) {
 }
 if (totalJs > totalBudget) {
   failures.push(`Total JS is ${(totalJs / 1024).toFixed(1)} KB. Budget is 1300 KB.`);
+}
+if (largestCss && largestCss.size > largestCssBudget) {
+  failures.push(`Largest CSS asset is ${(largestCss.size / 1024).toFixed(1)} KB. Budget is 650 KB.`);
+}
+if (totalCss > totalCssBudget) {
+  failures.push(`Total CSS is ${(totalCss / 1024).toFixed(1)} KB. Budget is 900 KB.`);
 }
 if (bookingCore && bookingCore.size > bookingCoreBudget) {
   failures.push(`Booking core JS is ${(bookingCore.size / 1024).toFixed(1)} KB. Budget is 300 KB.`);
@@ -82,6 +96,9 @@ console.log('Build A Booking health check');
 console.log(`- JS chunks: ${jsAssets.length}`);
 console.log(`- Largest JS: ${largestJs ? `${(largestJs.size / 1024).toFixed(1)} KB (${largestJs.name})` : 'n/a'}`);
 console.log(`- Total JS: ${(totalJs / 1024).toFixed(1)} KB`);
+console.log(`- CSS assets: ${cssAssets.length}`);
+console.log(`- Largest CSS: ${largestCss ? `${(largestCss.size / 1024).toFixed(1)} KB (${largestCss.name})` : 'n/a'}`);
+console.log(`- Total CSS: ${(totalCss / 1024).toFixed(1)} KB`);
 console.log(`- Booking core JS: ${bookingCore ? `${(bookingCore.size / 1024).toFixed(1)} KB (${bookingCore.name})` : 'n/a'}`);
 console.log(`- Public booking runtime: ${publicBookingRuntime ? `${(publicBookingRuntime.size / 1024).toFixed(1)} KB (${publicBookingRuntime.name})` : 'n/a'}`);
 console.log('- SEO/PWA files: checked');

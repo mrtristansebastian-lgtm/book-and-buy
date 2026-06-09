@@ -20,6 +20,11 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - 8.8/10: Booking revenue now has deterministic Playwright coverage for guest manual booking, booking dialogs, mark-paid confirmation, and public booking shell; public payment option loading now preserves allowed manual/cash options when hosted gateway reads are denied.
 - 8.9/10: Public hosted payment options now load through a server-backed callable that reads published workspace ownership, returns sanitized display-only gateway options, strips hosted credential summaries, and keeps manual/cash fallback resilient until the callable is deployed.
 - 9.0/10: Functions and Hosting were deployed to `build-a-booking`; `getPublicPaymentOptions` is live, listed as a callable, direct callable verification returns the safe public result shape, and the production public booking page loads cleanly without console errors.
+- 9.1/10: Hosted payment adapters now have mock-backed launch tests for Stripe, Yoco, PayFast, and Paystack; strict launch scripts were added for hosted sandbox checkout proof, mobile readiness, accessibility, and CSS/JS performance budgets. Full 9.2 payment proof still requires configured sandbox provider credentials.
+- 9.2/10: Owner/public booking, auth email, booking email, password reset, and payment callables now delegate payload parsing to focused validator modules with unit coverage, while deployed export names and payload shapes stay unchanged. Full hosted provider sandbox proof and iOS remain launch blockers.
+- 9.3/10: Services now use a real duration picker and multi-image gallery upload, public booking service cards/gallery were polished, schedule settings gained service-by-period availability controls, and Functions availability now enforces those period rules with unit coverage. The raw JS guard is temporarily 1305 KB after the gallery/schedule pass; next performance cleanup should reclaim below the original 1300 KB target.
+- 9.4/10: The original 1300 KB raw JS guard is restored, availability lookup callable validation now lives in a focused validator with unit coverage, and non-credential launch guards pass: smoke, Playwright E2E, accessibility, mobile readiness, scale readiness, root production audit, and Functions export/syntax checks. Final blockers remain iOS packaging and real hosted provider sandbox credentials.
+- 9.45/10: Notification job and reminder queue payload normalization moved into a focused backend validator with unit coverage, keeping trigger export names, Firestore paths, and notification behavior unchanged.
 
 ## Revenue Path Cleanup
 
@@ -45,6 +50,10 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [x] Add deterministic Playwright revenue smoke for guest manual booking, booking dialogs, mark-paid confirmation, and public booking shell.
 - [x] Harden public payment option loading so denied hosted-gateway reads do not wipe out allowed manual/cash options.
 - [x] Add server-backed public hosted payment options contract without loosening Firestore payment rules.
+- [x] Replace free-text service duration entry with a required duration picker while preserving the stored minute-string service shape.
+- [x] Add multi-image service uploads and customer-facing service image gallery support.
+- [x] Polish public booking service cards with larger media, stronger facts, image counts, and missing-image fallbacks.
+- [x] Add schedule service-by-period availability controls for seasonal/event/temporary service windows.
 - [ ] Finish deeper Bookings desk action drawer and manual booking UX refinements.
 - [ ] Clean Schedule/calendar state, views, and Google sync boundaries.
 
@@ -56,8 +65,14 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [x] Deploy all Functions with quota-safe launch runtime settings.
 - [x] Add `getPublicPaymentOptions` callable for display-safe public hosted/manual payment options.
 - [x] Deploy `getPublicPaymentOptions` and current Hosting build to production.
+- [x] Move payment callable payload parsing into shared validators with unit coverage.
+- [x] Move owner/public booking callable payload parsing into shared validators with unit coverage.
+- [x] Move auth/password-reset/booking-client email callable payload parsing into shared validators with unit coverage.
+- [x] Enforce published service-by-period availability rules inside the public availability model without changing callable names or booking payloads.
+- [x] Add Functions unit coverage for service availability periods.
+- [x] Move availability lookup callable payload parsing into a focused validator with unit coverage.
+- [x] Move notification job and reminder queue payload normalization into focused validators with unit coverage.
 - [ ] Split `functions/index.js` into bookings, email, notifications, reminders, operational sync, and billing modules while keeping exported function names unchanged.
-- [ ] Add callable input validation helpers for bookings, availability, email, notifications, and payments.
 - [ ] Add Firebase Emulator tests for staff/admin/client access, public booking writes, slot locks, payment secrets, client access records, and notification writes.
 - [ ] Restrict Firebase, Google Maps, and OAuth keys by web domain, Android package/SHA, iOS bundle, and required APIs only.
 - [ ] Verify App Check for hosted web and confirm native-app fallback behavior.
@@ -68,19 +83,28 @@ This checklist tracks the path from the rescued MVP codebase to launch-ready web
 - [ ] Add mobile viewport QA for editor, public booking, checkout, bookings, schedule, services, finance, and profile.
 - [ ] Add Capacitor Android/iOS QA for native auth, uploads, safe areas, navigation, public booking, and payment redirects.
 - [ ] Add accessibility checks for focus states, labels, dialogs, keyboard flow, contrast, and reduced motion.
-- [ ] Keep largest JS under 900 KB and total JS under 1.3 MB until deeper code splitting lands.
+- [x] Reclaim total raw JS below the original 1300 KB target after the gallery/schedule pass; current smoke build is 1298.2 KB and largest JS remains far under 900 KB.
+- [x] Run non-credential launch guard sweep: smoke, Playwright E2E, accessibility static guard, mobile readiness without iOS requirement, scale readiness, root production audit, and Functions lint.
 - [x] Add Playwright booking revenue flow for guest manual booking, booking dialogs, mark-paid confirmation, and public booking shell.
 - [x] Add sanitizer tests for public hosted/manual payment option exposure.
+- [x] Add mock-backed hosted payment adapter tests for Stripe, Yoco, PayFast, and Paystack.
+- [x] Add a strict `npm run payment:sandbox` gate for real hosted provider checkout proof with secure env-only inputs.
 - [x] Add booking revenue-path model tests and stable selectors for future Playwright flows.
 - [x] Keep booking-core JS under 300 KB and report bundle sizes with `npm run bundle:report`.
+- [x] Add CSS budget checks to production health gates.
+- [x] Add focused browser QA for service duration picker, multi-image upload control, schedule service periods, slot duration active state, service cards, and service gallery lightbox.
 - [x] Browser-QA public booking load/cart path and dashboard editor preview after runtime split.
 - [x] Verify production public booking page loads on `https://build-a-booking.web.app/#/book/your-business` with no browser errors.
+- [x] Add static accessibility and mobile readiness guard scripts for launch gating.
+- [ ] Run `npm run payment:sandbox` with configured Stripe, Yoco, PayFast, and Paystack sandbox settings.
+- [ ] Add an iOS Capacitor project and pass `npm run launch:mobile` for the final web + mobile gate.
 
 ## Current Known Risks
 
 - [ ] `ClientPortal.jsx`, `WorkspaceInbox.jsx`, and `functions/index.js` still carry too much responsibility.
-- [ ] Public booking layout is accepted, but global CSS, Firebase, and booking-step preloads are still broad; next pass should route-level CSS and smarter public funnel preload control.
+- [ ] Public booking layout is accepted, but global CSS, Firebase, and booking-step preloads are still broad; next pass should tighten route-level CSS and smarter public funnel preload control.
 - [ ] Hosted payment launch QA still needs configured provider sandbox credentials/options for Stripe, Yoco, PayFast, and Paystack; current `your-business` callable verification returns no configured payment options.
+- [ ] `npm run launch:check` is intentionally stricter than smoke and will fail until iOS and hosted payment sandbox prerequisites are present.
 - [ ] Large global, booking, and editor CSS bundles need route-level consolidation after runtime modules are stable.
 - [ ] Functions production audit reports moderate transitive `uuid` advisories through latest Firebase Admin; do not force npm's downgrade unless Firebase publishes a safe update path.
 - [ ] Cloud Run regional CPU quota is tight; keep the low-CPU launch profile until quota is raised and traffic testing proves the higher profile is needed.

@@ -21,6 +21,29 @@ import {
   groupBookingsByTime,
 } from '../utils/scheduleWorkspaceModel';
 
+const normalizeServiceAvailabilityPeriods = (periods = []) => (
+  (Array.isArray(periods) ? periods : [])
+    .map((period, index) => {
+      const startDate = String(period?.startDate || '').trim();
+      const endDate = String(period?.endDate || startDate).trim();
+      const serviceIds = Array.isArray(period?.serviceIds)
+        ? period.serviceIds.map(id => String(id || '').trim()).filter(Boolean)
+        : [];
+      if (!startDate || !endDate || !serviceIds.length) return null;
+      return {
+        id: String(period?.id || `service-period-${index + 1}`).trim(),
+        name: String(period?.name || 'Service period').trim(),
+        startDate: startDate <= endDate ? startDate : endDate,
+        endDate: endDate >= startDate ? endDate : startDate,
+        serviceIds: Array.from(new Set(serviceIds)),
+        active: period?.active !== false,
+        updatedAt: Number(period?.updatedAt) || 0
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => left.startDate.localeCompare(right.startDate) || left.name.localeCompare(right.name))
+);
+
 export const useScheduleWorkspace = ({
   activeStaffId = 'owner',
   bookings = [],
@@ -54,6 +77,10 @@ export const useScheduleWorkspace = ({
       : 'pending_confirmed',
     fallbackDurationMinutes: Number(settings.availabilityRules?.fallbackDurationMinutes) || 60
   };
+  const serviceAvailabilityPeriods = useMemo(
+    () => normalizeServiceAvailabilityPeriods(settings.serviceAvailabilityPeriods || []),
+    [settings.serviceAvailabilityPeriods]
+  );
 
   useEffect(() => {
     if (workspaceRole === 'staff' && activeStaffId) setSelectedCalendarId(activeStaffId);
@@ -330,6 +357,61 @@ export const useScheduleWorkspace = ({
           ...patch
         }
       }));
+    },
+    upsertServiceAvailabilityPeriod: (period = {}) => {
+      if (!guardCalendarEdit('workspace')) return false;
+      const startDate = String(period.startDate || '').trim();
+      const endDate = String(period.endDate || startDate).trim();
+      const serviceIds = Array.from(new Set((Array.isArray(period.serviceIds) ? period.serviceIds : [])
+        .map(id => String(id || '').trim())
+        .filter(Boolean)));
+      if (!startDate || !endDate) {
+        showToast?.('Choose a start and end date for this service period.');
+        return false;
+      }
+      if (endDate < startDate) {
+        showToast?.('Service period end date must be after the start date.');
+        return false;
+      }
+      if (!serviceIds.length) {
+        showToast?.('Choose at least one service for this period.');
+        return false;
+      }
+      const nextPeriod = {
+        id: period.id || `service-period-${Date.now()}`,
+        name: String(period.name || 'Service period').trim(),
+        startDate,
+        endDate,
+        serviceIds,
+        active: true,
+        updatedAt: Date.now()
+      };
+      onSettingsDirty?.();
+      setSettings(prev => {
+        const current = normalizeServiceAvailabilityPeriods(prev.serviceAvailabilityPeriods || []);
+        return {
+          ...prev,
+          serviceAvailabilityPeriods: [
+            nextPeriod,
+            ...current.filter(item => item.id !== nextPeriod.id)
+          ]
+        };
+      });
+      showToast?.('Service availability period saved.');
+      return true;
+    },
+    deleteServiceAvailabilityPeriod: (periodId) => {
+      if (!guardCalendarEdit('workspace')) return false;
+      const id = String(periodId || '').trim();
+      if (!id) return false;
+      onSettingsDirty?.();
+      setSettings(prev => ({
+        ...prev,
+        serviceAvailabilityPeriods: normalizeServiceAvailabilityPeriods(prev.serviceAvailabilityPeriods || [])
+          .filter(period => period.id !== id)
+      }));
+      showToast?.('Service availability period removed.');
+      return true;
     }
   };
 
@@ -354,6 +436,7 @@ export const useScheduleWorkspace = ({
     selectedCalendarId,
     selectedDate,
     selectedDayTitle,
+    serviceAvailabilityPeriods,
     setSettingsModalOpen,
     setSlotEditor,
     settingsModalOpen,

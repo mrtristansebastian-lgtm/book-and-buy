@@ -64,6 +64,41 @@ const parseDurationMinutes = (value, fallbackMinutes = 60) => {
     : fallbackMinutes;
 };
 
+const normalizeServiceAvailabilityPeriods = (workspace = {}) => (
+  (Array.isArray(workspace.serviceAvailabilityPeriods) ? workspace.serviceAvailabilityPeriods : [])
+    .map(period => {
+      const startDate = cleanString(period?.startDate, 32);
+      const endDate = cleanString(period?.endDate || startDate, 32);
+      const serviceIds = Array.isArray(period?.serviceIds)
+        ? period.serviceIds.map(id => cleanString(id, 120)).filter(Boolean)
+        : [];
+      if (!period || period.active === false || !startDate || !endDate || !serviceIds.length) return null;
+      return {
+        startDate: startDate <= endDate ? startDate : endDate,
+        endDate: endDate >= startDate ? endDate : startDate,
+        serviceIds: new Set(serviceIds),
+        mode: cleanString(period.mode || 'allow', 24)
+      };
+    })
+    .filter(Boolean)
+);
+
+const serviceIsAvailableForDate = ({ workspace = {}, serviceId = '', dateKey = '' }) => {
+  const cleanServiceId = cleanString(serviceId, 120);
+  const cleanDateKey = cleanString(dateKey, 32);
+  if (!cleanServiceId || !cleanDateKey) return true;
+  const matchingPeriods = normalizeServiceAvailabilityPeriods(workspace)
+    .filter(period => cleanDateKey >= period.startDate && cleanDateKey <= period.endDate);
+  if (!matchingPeriods.length) return true;
+
+  const blocked = matchingPeriods.some(period => period.mode === 'block' && period.serviceIds.has(cleanServiceId));
+  if (blocked) return false;
+
+  const allowPeriods = matchingPeriods.filter(period => period.mode !== 'block');
+  if (!allowPeriods.length) return true;
+  return allowPeriods.some(period => period.serviceIds.has(cleanServiceId));
+};
+
 const normalizePublicStaffList = (workspace = {}) => {
   const staff = Array.isArray(workspace.publicStaff) ? workspace.publicStaff : [];
   const normalized = staff
@@ -163,6 +198,16 @@ const getServiceAvailabilityModel = ({
 
   const service = getServiceForAvailability({ workspace, incoming });
   const durationMinutes = parseDurationMinutes(service.duration, rules.fallbackDurationMinutes);
+  if (!serviceIsAvailableForDate({ workspace, serviceId: service.id, dateKey })) {
+    return {
+      rules,
+      durationMinutes,
+      staffOptions: [],
+      timeOptions: [],
+      selectedOption: null,
+      unavailableReason: 'Service not available for this period'
+    };
+  }
   const allStaff = normalizePublicStaffList(workspace);
   const serviceStaffIds = new Set(service.staffIds || []);
   const eligibleStaff = allStaff.filter(staff => !serviceStaffIds.size || serviceStaffIds.has(staff.id));
@@ -223,5 +268,6 @@ module.exports = {
   getServiceAvailabilityModel,
   normalizeAvailabilityRules,
   parseDurationMinutes,
+  serviceIsAvailableForDate,
   timeToMinutes
 };

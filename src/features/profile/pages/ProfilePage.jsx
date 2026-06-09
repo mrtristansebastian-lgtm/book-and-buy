@@ -116,7 +116,7 @@ export const ProfilePage = ({
             communications={communications}
             onCommunicationsChange={setCommunications}
             onSaveCommunications={saveCommunications}
-            onSettingChange={handleSettingChange}
+            onSettingChange={(key, value) => handleSettingChange(key, value, { source: 'Notifications' })}
             settings={settings}
             showToast={showToast}
           />

@@ -934,6 +934,144 @@ html body .native-ui .schedule-settings-actions.is-availability {
   padding-top: 0.85rem;
 }
 
+html body .native-ui .schedule-service-periods {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 0.95rem;
+}
+
+html body .native-ui .schedule-service-period-range {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+html body .native-ui .schedule-service-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.5rem;
+}
+
+html body .native-ui .schedule-service-check-grid button {
+  min-height: 3.5rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.46rem 0.62rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  padding: 0.62rem 0.72rem;
+  text-align: left;
+}
+
+html body .native-ui .schedule-service-check-grid button > span {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  grid-row: span 2;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  color: #fff;
+}
+
+html body .native-ui .schedule-service-check-grid button strong {
+  overflow: hidden;
+  color: currentColor;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-service-check-grid button small {
+  overflow: hidden;
+  color: currentColor;
+  font-size: 0.64rem;
+  font-weight: 760;
+  opacity: 0.56;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-service-check-grid button.is-active {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .schedule-service-check-grid button.is-active > span {
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+html body .native-ui .schedule-settings-actions.is-service-periods {
+  justify-content: flex-start;
+  padding-top: 0;
+}
+
+html body .native-ui .schedule-service-period-list {
+  display: grid;
+  gap: 0.45rem;
+  border-top: 1px solid #eef2f7;
+  padding-top: 0.75rem;
+}
+
+html body .native-ui .schedule-service-period-row {
+  min-height: 3.4rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.62rem 0.62rem 0.62rem 0.78rem;
+}
+
+html body .native-ui .schedule-service-period-row div {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+html body .native-ui .schedule-service-period-row strong {
+  overflow: hidden;
+  color: #111827;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-service-period-row small {
+  overflow: hidden;
+  color: #6b7280;
+  font-size: 0.68rem;
+  font-weight: 760;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-service-period-row button {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 html body .native-ui .schedule-slot-backdrop {
   position: fixed;
   z-index: 1300;
@@ -1060,7 +1198,7 @@ html body .native-ui .schedule-slot-duration span {
 
 html body .native-ui .schedule-slot-duration > div:last-child {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.45rem;
 }
 
@@ -1068,6 +1206,12 @@ html body .native-ui .schedule-slot-duration button {
   border: 1px solid #e5e7eb;
   background: #f9fafb;
   color: #4b5563;
+}
+
+html body .native-ui .schedule-slot-duration button.is-active {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
 }
 
 html body .native-ui .schedule-slot-time-grid {
@@ -1232,6 +1376,7 @@ html body .native-ui .schedule-slot-actions button svg {
 
   html body .native-ui .schedule-slot-time-grid.has-range,
   html body .native-ui .schedule-custom-range,
+  html body .native-ui .schedule-service-period-range,
   html body .native-ui .schedule-settings-choice-grid,
   html body .native-ui .schedule-settings-inline-grid,
   html body .native-ui .schedule-slot-actions.has-delete {
@@ -1269,6 +1414,6 @@ html body .native-ui .schedule-slot-actions button svg {
   }
 
   html body .native-ui .schedule-slot-duration > div:last-child {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

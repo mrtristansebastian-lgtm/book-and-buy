@@ -12,6 +12,16 @@ import {
 const dashboardFallbackRoute = { view: 'dashboard', activeTab: 'overview', editorTab: 'introduction' };
 const clientFallbackRoute = { view: 'client', activeTab: 'overview', editorTab: 'introduction' };
 
+const getHashForWorkspaceRoute = (route = {}) => (
+  route.view === 'dashboard'
+    ? `#/dashboard/${route.activeTab || 'overview'}`
+    : route.view === 'client'
+      ? '#/client'
+      : route.view === 'authAction'
+        ? '#/auth/action'
+        : ''
+);
+
 export function useWorkspaceRoute({ confirmLeavingUnsavedChanges, loading }) {
   const [initialWorkspaceRoute] = useState(getInitialWorkspaceRoute);
   const startsInGuestWorkspace = useMemo(
@@ -56,11 +66,23 @@ export function useWorkspaceRoute({ confirmLeavingUnsavedChanges, loading }) {
       : getCurrentAuthReturnRoute()
   ), [getCurrentAuthReturnRoute]);
 
+  const restoreCurrentWorkspaceHash = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const currentRoute = normalizeWorkspaceRoute({ view, activeTab, editorTab }, dashboardFallbackRoute);
+    const nextHash = getHashForWorkspaceRoute(currentRoute);
+    window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}${nextHash}`);
+  }, [activeTab, editorTab, view]);
+
   const syncRouteStateFromLocation = useCallback(() => {
     if (typeof window === 'undefined') return false;
     if (window.location.search.includes('auth=google')) return false;
     const nextRoute = getWorkspaceRouteFromUrl();
     if (!nextRoute) return false;
+    const leavingCurrentWork = nextRoute.view !== view || (nextRoute.view === 'dashboard' && nextRoute.activeTab !== activeTab);
+    if (leavingCurrentWork && !confirmLeavingUnsavedChanges()) {
+      restoreCurrentWorkspaceHash();
+      return false;
+    }
 
     saveWorkspaceRoute(nextRoute);
     setView(currentView => currentView === nextRoute.view ? currentView : nextRoute.view);
@@ -71,11 +93,15 @@ export function useWorkspaceRoute({ confirmLeavingUnsavedChanges, loading }) {
       }
     }
     return true;
-  }, []);
+  }, [activeTab, confirmLeavingUnsavedChanges, restoreCurrentWorkspaceHash, view]);
 
   useEffect(() => {
     const syncPublicRoute = () => {
       const nextPublicSlug = getPublicBookingSlug();
+      if (nextPublicSlug && !publicSlug && !loading && !confirmLeavingUnsavedChanges()) {
+        restoreCurrentWorkspaceHash();
+        return;
+      }
       setPublicSlug(nextPublicSlug);
       if (!nextPublicSlug && !loading) syncRouteStateFromLocation();
     };
@@ -85,7 +111,7 @@ export function useWorkspaceRoute({ confirmLeavingUnsavedChanges, loading }) {
       window.removeEventListener('popstate', syncPublicRoute);
       window.removeEventListener('hashchange', syncPublicRoute);
     };
-  }, [loading, syncRouteStateFromLocation]);
+  }, [confirmLeavingUnsavedChanges, loading, publicSlug, restoreCurrentWorkspaceHash, syncRouteStateFromLocation]);
 
   useEffect(() => {
     if (publicSlug || loading) return;

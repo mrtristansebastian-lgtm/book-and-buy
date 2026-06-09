@@ -4,5 +4,7 @@ export { ServiceFileModal } from './components/ServiceFileModal';
 export {
   blankService,
   filterServices,
-  getCategoryOptions
+  getCategoryOptions,
+  normalizeServiceDurationValue,
+  serviceDurationOptions
 } from './servicesStudioModel';

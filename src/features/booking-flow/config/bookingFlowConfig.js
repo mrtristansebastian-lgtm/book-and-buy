@@ -9,7 +9,9 @@ export const previewServiceSamples = [
     category: 'Category',
     description: 'Short service description appears here.',
     duration: '60',
-    price: '',
+    price: '450',
+    currency: 'R',
+    priceType: 'fixed',
     active: true,
     imageUrls: [],
     isPreviewPlaceholder: true
@@ -20,7 +22,9 @@ export const previewServiceSamples = [
     category: 'Category',
     description: 'Use this empty state to tune service layout.',
     duration: '30',
-    price: '',
+    price: '320',
+    currency: 'R',
+    priceType: 'fixed',
     active: true,
     imageUrls: [],
     isPreviewPlaceholder: true

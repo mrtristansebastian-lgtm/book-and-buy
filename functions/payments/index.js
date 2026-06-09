@@ -3,23 +3,23 @@ const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { PAYMENT_SETTINGS_ENCRYPTION_KEY, decryptJson, encryptJson } = require('./crypto');
 const { createGatewayPayment } = require('./gatewayFactory');
 const {
-  assertSafeCents,
   assertWorkspaceAdmin,
-  cleanCredentials,
   cleanString,
   credentialFieldLabels,
   getFunctionBaseUrl,
   getGatewayConfig,
   getMissingRequiredCredentialFields,
   gatewayDisplayNames,
-  normalizeCurrency,
-  normalizeGatewayType,
   pathRefs,
-  publicGatewayDoc,
-  requireAppId,
-  requireBusinessId
+  publicGatewayDoc
 } = require('./shared');
-const { cleanPublicSlug, readPublicPaymentOptions } = require('./publicOptions');
+const { readPublicPaymentOptions } = require('./publicOptions');
+const {
+  validateInitiatePaymentPayload,
+  validateManualPaymentPayload,
+  validatePublicPaymentOptionsPayload,
+  validateSaveGatewaySettingsPayload
+} = require('./validators');
 const { assertRateLimit } = require('../security');
 const webhooks = require('./webhooks');
 const { cappedMaxInstances } = require('../runtimeOptions');
@@ -37,8 +37,7 @@ const paymentCallableOptions = {
 
 const getPublicPaymentOptions = onCall(paymentCallableOptions, async (request) => {
   try {
-    const appId = requireAppId(request.data?.appId);
-    const publicSlug = cleanPublicSlug(request.data?.publicSlug || request.data?.slug);
+    const { appId, publicSlug } = validatePublicPaymentOptionsPayload(request.data);
     await assertRateLimit({
       db: admin.firestore(),
       appId,
@@ -62,15 +61,18 @@ const savePaymentGatewaySettings = onCall({
   secrets: [PAYMENT_SETTINGS_ENCRYPTION_KEY]
 }, async (request) => {
   try {
-    const appId = requireAppId(request.data?.appId);
-    const businessId = requireBusinessId(request.data?.businessId);
-    const gatewayType = normalizeGatewayType(request.data?.gatewayType);
-    const enabled = Boolean(request.data?.enabled);
-    const mode = cleanString(request.data?.mode, 12) === 'live' ? 'live' : 'test';
+    const {
+      appId,
+      businessId,
+      gatewayType,
+      enabled,
+      mode,
+      providerName,
+      credentials
+    } = validateSaveGatewaySettingsPayload(request.data);
 
     await assertWorkspaceAdmin({ appId, businessId, auth: request.auth });
 
-    const credentials = cleanCredentials(gatewayType, request.data?.credentials || {});
     const refs = pathRefs(appId, businessId, gatewayType);
     if (enabled) {
       const existingSecretSnap = await refs.secretGatewayRef.get();
@@ -105,7 +107,7 @@ const savePaymentGatewaySettings = onCall({
       gatewayType,
       enabled,
       mode,
-      providerName: request.data?.providerName || gatewayType,
+      providerName,
       ...(hasCredentials ? publicGatewayDoc(credentials) : {}),
       ...(hasCredentials ? { configured: true } : {}),
       updatedBy: request.auth.uid,
@@ -126,34 +128,28 @@ const initiatePayment = onCall({
   secrets: [PAYMENT_SETTINGS_ENCRYPTION_KEY]
 }, async (request) => {
   try {
-    const appId = requireAppId(request.data?.appId);
-    const businessId = requireBusinessId(request.data?.businessId);
-    const gatewayType = normalizeGatewayType(request.data?.gatewayType);
-    if (gatewayType === 'manual_eft' || gatewayType === 'cash') {
-      throw new HttpsError(
-        'failed-precondition',
-        'Manual payment methods are tracked on bookings and do not create hosted checkout sessions.'
-      );
-    }
-    const amountInCents = assertSafeCents(request.data?.amountInCents);
-    const currency = normalizeCurrency(request.data?.currency || 'ZAR');
-    const bookingId = cleanString(request.data?.bookingId, 180);
-    const description = cleanString(request.data?.description, 240) || 'Build A Booking payment';
-    const customerEmail = cleanString(request.data?.customerEmail, 220).toLowerCase();
-    const customerName = cleanString(request.data?.customerName, 160);
-
-    if (!request.auth?.uid && !bookingId) {
-      throw new HttpsError('unauthenticated', 'Sign in or provide a booking reference before starting checkout.');
-    }
+    const {
+      appId,
+      businessId,
+      gatewayType,
+      amountInCents,
+      currency,
+      bookingId,
+      description,
+      customerEmail,
+      customerName,
+      successUrl: requestedSuccessUrl,
+      cancelUrl: requestedCancelUrl
+    } = validateInitiatePaymentPayload(request.data, request.auth);
 
     const { publicConfig, credentials } = await getGatewayConfig({ appId, businessId, gatewayType });
     const refs = pathRefs(appId, businessId, gatewayType);
     const paymentAttemptRef = refs.userRef.collection('payment_attempts').doc();
     const paymentId = paymentAttemptRef.id;
     const baseUrl = getFunctionBaseUrl(request);
-    const successUrl = cleanString(request.data?.successUrl, 1000) ||
+    const successUrl = requestedSuccessUrl ||
       `https://build-a-booking.web.app/#/dashboard/bookings?payment=${encodeURIComponent(paymentId)}&status=success`;
-    const cancelUrl = cleanString(request.data?.cancelUrl, 1000) ||
+    const cancelUrl = requestedCancelUrl ||
       `https://build-a-booking.web.app/#/dashboard/bookings?payment=${encodeURIComponent(paymentId)}&status=cancelled`;
 
     const metadata = {
@@ -233,21 +229,14 @@ const markManualBookingPaid = onCall({
   ...paymentCallableOptions
 }, async (request) => {
   try {
-    const appId = requireAppId(request.data?.appId);
-    const businessId = requireBusinessId(request.data?.businessId);
-    const bookingId = cleanString(request.data?.bookingId, 180);
-    if (!bookingId) {
-      throw new HttpsError('invalid-argument', 'bookingId is required.');
-    }
-
-    const paymentMethod = cleanString(request.data?.paymentMethod || 'manual_eft', 40).toLowerCase();
-    if (!['manual_eft', 'cash', 'manual'].includes(paymentMethod)) {
-      throw new HttpsError('invalid-argument', 'Only cash and manual EFT can be marked paid manually.');
-    }
-
-    const amountRaw = Number(request.data?.amountInCents || 0);
-    const requestedAmount = Number.isSafeInteger(amountRaw) && amountRaw >= 0 ? amountRaw : 0;
-    const currency = normalizeCurrency(request.data?.currency || 'ZAR');
+    const {
+      appId,
+      businessId,
+      bookingId,
+      paymentMethod,
+      requestedAmount,
+      currency
+    } = validateManualPaymentPayload(request.data);
 
     await assertWorkspaceAdmin({ appId, businessId, auth: request.auth });
 

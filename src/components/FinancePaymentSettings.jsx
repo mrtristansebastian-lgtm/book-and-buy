@@ -32,8 +32,6 @@ import {
   mergeFinanceRecords
 } from '../features/finance/utils/financeDeskModel';
 
-export { MigrationImportPanel } from '../features/finance/components/MigrationImportPanel';
-
 export const FinancePaymentSettings = ({
   appId,
   businessId,

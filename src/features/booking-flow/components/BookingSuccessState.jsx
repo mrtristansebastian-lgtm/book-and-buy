@@ -21,7 +21,7 @@ export const BookingSuccessState = ({
 }) => {
     const paymentDisplay = selectedManualPaymentOption ? getPaymentOptionDisplay(selectedManualPaymentOption) : null;
     const isHostedPayment = selectedManualPaymentOption ? isHostedPaymentOption(selectedManualPaymentOption) : false;
-    const paymentReference = submittedBooking?.paymentReference || submittedBooking?.bookingId || 'Use your booking ID';
+    const paymentReference = submittedBooking?.paymentReference || submittedBooking?.bookingId || (isPreview ? 'BAB-2026-0842' : 'Pending');
     const savedSuccessHeading = String(settings.successHeading || '').trim();
     const successHeading = savedSuccessHeading && savedSuccessHeading !== 'Booking Confirmed!'
         ? savedSuccessHeading
@@ -34,7 +34,6 @@ export const BookingSuccessState = ({
     const successNextCopy = savedSuccessNextCopy && savedSuccessNextCopy !== 'They can confirm, follow up, or help adjust the booking.'
         ? savedSuccessNextCopy
         : 'We will confirm the slot, follow up if needed, or help adjust the booking.';
-
     return (
     <div className={`booking-success-step min-h-full flex items-center justify-center ${previewSuccessMotionClass} p-4 md:p-10 relative z-10`} style={{ backgroundColor: settings.backgroundColor, color: settings.bodyColor }}>
         <main className="booking-success-panel flex w-full max-w-3xl flex-col items-center rounded-3xl border p-5 text-center md:p-7" style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', borderColor: settings.pageBorderColor || withColorAlpha(settings.headingColor || '#000000', 7, '#000000') }}>
@@ -53,15 +52,12 @@ export const BookingSuccessState = ({
             <div className="booking-success-details mt-6 grid w-full gap-3 md:grid-cols-[1fr_1fr]">
                 <div className="booking-success-detail rounded-2xl border p-4" style={{ borderColor: withColorAlpha(settings.headingColor || '#000000', 6, '#000000'), backgroundColor: withColorAlpha(settings.headingColor || '#000000', 2, '#000000') }}>
                     <p className="booking-success-detail-label flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: settings.headingColor }}>
-                        <span className="h-1.5 w-1.5 rounded-full bg-current" /> {settings.successReferenceLabel || 'Reference'}
+                        <span aria-hidden="true" /> {settings.successReferenceLabel || 'Booking ID'}
                     </p>
                     <p className="mt-2 text-xl font-black tracking-tight" style={{ color: settings.headingColor }}>{paymentReference}</p>
                     <p className="mt-1 text-xs font-semibold opacity-50" style={{ color: settings.bodyColor }}>{settings.successReferenceCopy || 'Keep this for updates with the business.'}</p>
                 </div>
                 <div className="booking-success-detail rounded-2xl border p-4" style={{ borderColor: withColorAlpha(settings.headingColor || '#000000', 6, '#000000'), backgroundColor: withColorAlpha(settings.headingColor || '#000000', 2, '#000000') }}>
-                    <p className="booking-success-detail-label flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: settings.headingColor }}>
-                        <span className="h-1.5 w-1.5 rounded-full bg-current" /> {settings.successNextLabel || 'Next'}
-                    </p>
                     <p className="mt-2 text-sm font-black" style={{ color: settings.headingColor }}>{isWaitlistMode ? 'Waitlist review' : (settings.successNextTitle || 'Business review')}</p>
                     <p className="mt-1 text-xs font-semibold leading-relaxed opacity-50" style={{ color: settings.bodyColor }}>{successNextCopy}</p>
                 </div>

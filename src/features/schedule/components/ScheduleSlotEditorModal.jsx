@@ -1,5 +1,5 @@
 import { Trash2, X } from 'lucide-react';
-import { addMinutesToTime, timePartsToValue, toTimeParts } from '../utils/businessCalendarUtils';
+import { addMinutesToTime, timePartsToValue, timeValueToMinutes, toTimeParts } from '../utils/businessCalendarUtils';
 
 export const ScheduleSlotEditorModal = ({
   deleteSlotFromEditor,
@@ -15,11 +15,16 @@ export const ScheduleSlotEditorModal = ({
     ? new Date(`${slotEditor.dateStr}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
     : (slotEditor.label || 'Selected day');
   const durationOptions = [
+    { label: '15m', minutes: 15 },
     { label: '30m', minutes: 30 },
+    { label: '45m', minutes: 45 },
     { label: '1h', minutes: 60 },
     { label: '90m', minutes: 90 },
     { label: '2h', minutes: 120 }
   ];
+  const selectedDurationMinutes = isRangeMode
+    ? Math.max(0, (timeValueToMinutes(slotEditor.end) || 0) - (timeValueToMinutes(slotEditor.start) || 0))
+    : 0;
 
   const setTimeField = (field, value) => updateEditor({ [field]: value });
   const setTimePart = (field, part, rawValue) => {
@@ -96,10 +101,10 @@ export const ScheduleSlotEditorModal = ({
 
           <div className="schedule-slot-segmented">
             <button type="button" className={!isRangeMode ? 'is-active' : ''} onClick={() => updateEditor({ mode: 'single', end: '' })}>
-              Set time
+              Single slot
             </button>
             <button type="button" className={isRangeMode ? 'is-active' : ''} onClick={() => updateEditor({ mode: 'range', end: slotEditor.end || addMinutesToTime(slotEditor.start, 60) })}>
-              Period
+              Time period
             </button>
           </div>
 
@@ -111,7 +116,12 @@ export const ScheduleSlotEditorModal = ({
               </div>
               <div>
                 {durationOptions.map(option => (
-                  <button type="button" key={option.label} onClick={() => setDurationFromStart(option.minutes)}>
+                  <button
+                    type="button"
+                    key={option.label}
+                    className={selectedDurationMinutes === option.minutes ? 'is-active' : ''}
+                    onClick={() => setDurationFromStart(option.minutes)}
+                  >
                     {option.label}
                   </button>
                 ))}

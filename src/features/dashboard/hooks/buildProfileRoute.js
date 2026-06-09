@@ -54,7 +54,10 @@ export function buildProfileRoute({
       saveProfileChanges: settingsState.saveProfileChanges,
       saveCommunications: profile.saveCommunications,
       setActiveProfileSection: profile.setActiveProfileSection,
-      setCommunications: profile.setCommunications,
+      setCommunications: (nextCommunications) => {
+        settingsState.markWorkspaceDirty({ source: 'Notifications' });
+        profile.setCommunications(nextCommunications);
+      },
       setKeepLoggedIn: auth.setKeepLoggedIn,
       setProfileSystemFilter: profile.setProfileSystemFilter,
       setShowOwnerManual: profile.setShowOwnerManual,

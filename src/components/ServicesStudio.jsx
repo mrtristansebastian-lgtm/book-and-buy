@@ -6,7 +6,8 @@ import {
   ServiceFileModal,
   blankService,
   filterServices,
-  getCategoryOptions
+  getCategoryOptions,
+  normalizeServiceDurationValue
 } from '../features/services-studio';
 
 export const ServicesStudio = ({
@@ -80,6 +81,10 @@ export const ServicesStudio = ({
       showToast?.('Give this service a name first.');
       return;
     }
+    if (!normalizeServiceDurationValue(cleaned.duration)) {
+      showToast?.('Choose a real service duration.');
+      return;
+    }
     const exists = services.some(service => service.id === cleaned.id);
     const nextServices = exists
       ? services.map(service => service.id === cleaned.id ? cleaned : service)
@@ -98,7 +103,10 @@ export const ServicesStudio = ({
     if (saved) closeServiceModal();
   };
 
-  const updateDraft = (key, value) => setDraft(prev => ({ ...prev, [key]: value }));
+  const updateDraft = (key, value) => setDraft(prev => ({
+    ...prev,
+    [key]: key === 'duration' ? normalizeServiceDurationValue(value) : value
+  }));
 
   const toggleStaff = (staffId) => {
     setDraft(prev => {
@@ -120,24 +128,28 @@ export const ServicesStudio = ({
   };
 
   const handleGalleryUpload = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(event.target.files || []).filter(Boolean);
+    if (!files.length) return;
     if (onImageUpload) {
-      onImageUpload(file, {
-        folder: 'services',
-        title: 'Crop service image',
-        ratioKey: 'gallery'
-      }, (url) => {
-        setDraft(prev => ({ ...prev, imageUrls: [...(prev.imageUrls || []), url] }));
+      files.forEach((file, index) => {
+        onImageUpload(file, {
+          folder: 'services',
+          title: files.length > 1 ? `Crop service image ${index + 1}` : 'Crop service image',
+          ratioKey: 'gallery'
+        }, (url) => {
+          setDraft(prev => ({ ...prev, imageUrls: [...(prev.imageUrls || []), url] }));
+        });
       });
       event.target.value = '';
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setDraft(prev => ({ ...prev, imageUrls: [...(prev.imageUrls || []), String(reader.result || '')] }));
-    };
-    reader.readAsDataURL(file);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setDraft(prev => ({ ...prev, imageUrls: [...(prev.imageUrls || []), String(reader.result || '')] }));
+      };
+      reader.readAsDataURL(file);
+    });
     event.target.value = '';
   };
 

@@ -31,6 +31,17 @@
             overflow: hidden;
         }
 
+        .booking-map-section {
+            width: min(100%, 46rem);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .booking-map-section .booking-map-embed:first-child,
+        .booking-map-section .booking-map-link:first-child {
+            margin-top: 0;
+        }
+
         .booking-venue-gallery-intro {
             margin-top: 0.45rem;
             max-width: 36rem;
@@ -704,6 +715,7 @@
         .booking-style-command-flow [data-preview-section="time"],
         .booking-style-command-flow [data-preview-section="faq"],
         .booking-style-command-flow [data-preview-section="venue-gallery"],
+        .booking-style-command-flow [data-preview-section="venue-map"],
         .booking-style-command-flow [data-preview-section="social"] {
             border-radius: 0 !important;
         }

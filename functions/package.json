@@ -7,7 +7,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "node scripts/syntax-check.js && node scripts/export-check.js",
-    "test:payments": "node --test payments/*.test.mjs"
+    "test:payments": "node --test payments/*.test.mjs bookingValidators.test.mjs emailValidators.test.mjs availability.test.mjs availabilityValidators.test.mjs notificationValidators.test.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.10.0",

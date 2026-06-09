@@ -1,5 +1,5 @@
-import { useId } from 'react';
-import { Check, ChevronDown, Clock, ImageIcon, Plus } from 'lucide-react';
+import { useId, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { getFontFamily } from '../../../data/fonts';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import { withColorAlpha } from '../../../utils/theme';
@@ -32,6 +32,7 @@ export const BookingServicesSection = ({
     settings
 }) => {
     const categoryDropdownId = useId();
+    const [galleryState, setGalleryState] = useState(null);
 
     if (activeServices.length === 0 && !isPreview) return null;
 
@@ -56,6 +57,13 @@ export const BookingServicesSection = ({
         : serviceCardsForDisplay;
     const serviceCards = visibleServiceCards.length > 0 ? visibleServiceCards : serviceCardsForDisplay;
     const selectedCategoryLabel = selectedServiceCategory === 'All' ? 'All services' : selectedServiceCategory;
+    const galleryImages = Array.isArray(galleryState?.service?.imageUrls)
+        ? galleryState.service.imageUrls.filter(Boolean)
+        : [];
+    const galleryIndex = galleryImages.length
+        ? Math.min(galleryState?.index || 0, galleryImages.length - 1)
+        : 0;
+    const galleryImage = galleryImages[galleryIndex];
 
     const selectCategory = (category) => {
         setSelectedServiceCategory(category);
@@ -68,20 +76,20 @@ export const BookingServicesSection = ({
         }
     };
 
-    const renderServiceMeta = ({ duration, price, className = '', priceColor, mutedColor, showClock = false } = {}) => {
+    const renderServiceMeta = ({ duration, price, className = '', priceColor, mutedColor } = {}) => {
         if (!duration && !price) return null;
         return (
-            <div className={`booking-service-meta ${className}`.trim()} aria-label="Service price and duration">
-                {duration && (
-                    <span className="booking-service-meta-item is-duration" style={mutedColor ? { color: mutedColor } : undefined}>
-                        {showClock && <Clock size={12} />}
-                        {duration}
-                    </span>
-                )}
-                {duration && price && <span className="booking-service-meta-separator" aria-hidden="true">/</span>}
+            <div className={`booking-service-meta ${className}`.trim()} aria-label="Price and duration">
                 {price && (
                     <span className="booking-service-meta-item is-price" style={priceColor ? { color: priceColor } : undefined}>
-                        {price}
+                        <span className="booking-service-meta-label">Price</span>
+                        <strong>{price}</strong>
+                    </span>
+                )}
+                {duration && (
+                    <span className="booking-service-meta-item is-duration" style={mutedColor ? { color: mutedColor } : undefined}>
+                        <span className="booking-service-meta-label">Duration</span>
+                        <strong>{duration}</strong>
                     </span>
                 )}
             </div>
@@ -89,13 +97,10 @@ export const BookingServicesSection = ({
     };
 
     const renderServiceImagePlaceholder = (showAction = false) => (
-        <span className={`booking-service-image-placeholder ${showAction ? 'has-add-action' : ''}`} aria-hidden={showAction ? undefined : 'true'}>
-            <ImageIcon className="booking-service-image-placeholder-icon" size={22} />
+        <span className={`booking-service-image-placeholder ${showAction ? 'has-add-action' : ''}`} aria-hidden="true">
+            <span className="booking-service-image-placeholder-icon" />
             {showAction && (
-                <span className="booking-service-image-placeholder-action">
-                    <Plus size={13} />
-                    <span>Add services</span>
-                </span>
+                <span className="booking-service-image-placeholder-action" />
             )}
         </span>
     );
@@ -106,7 +111,14 @@ export const BookingServicesSection = ({
         const price = formatServicePrice(service);
         const duration = formatServiceDuration(service.duration);
         const hasServiceImage = Boolean(service.imageUrls?.[0]);
+        const imageCount = Array.isArray(service.imageUrls) ? service.imageUrls.filter(Boolean).length : 0;
         const showServiceImageSlot = hasServiceImage || isPreview;
+        const openGallery = (event, index = 0) => {
+            if (!imageCount) return;
+            event.stopPropagation();
+            event.preventDefault();
+            setGalleryState({ service, index });
+        };
 
         return (
             <button
@@ -127,9 +139,37 @@ export const BookingServicesSection = ({
             >
                 <div className="booking-service-shell flex items-start gap-4">
                     {showServiceImageSlot && (
-                        <div className="booking-service-image w-14 h-14 rounded-2xl overflow-hidden shrink-0 flex items-center justify-center" style={{ backgroundColor: isActive ? (settings.primaryColor || '#000') : serviceBgColor, color: isActive ? (settings.buttonTextColor || '#000') : serviceTextColor }}>
+                        <div
+                            className={`booking-service-image w-14 h-14 rounded-2xl overflow-hidden shrink-0 flex items-center justify-center ${hasServiceImage ? 'is-gallery-enabled' : ''}`}
+                            role={hasServiceImage ? 'button' : undefined}
+                            tabIndex={hasServiceImage ? 0 : undefined}
+                            aria-label={hasServiceImage ? `${service.name} photos` : undefined}
+                            onClick={(event) => openGallery(event)}
+                            onKeyDown={(event) => {
+                                if (!hasServiceImage) return;
+                                if (event.key === 'Enter' || event.key === ' ') openGallery(event);
+                            }}
+                            style={{ backgroundColor: isActive ? (settings.primaryColor || '#000') : serviceBgColor, color: isActive ? (settings.buttonTextColor || '#000') : serviceTextColor }}
+                        >
                             {hasServiceImage ? (
-                                <img src={service.imageUrls[0]} alt="" className="w-full h-full object-cover" />
+                                <>
+                                    <span className="booking-service-image-fallback" aria-hidden="true">
+                                        {renderServiceImagePlaceholder(false)}
+                                    </span>
+                                    <img
+                                        src={service.imageUrls[0]}
+                                        alt=""
+                                        className="w-full h-full object-cover"
+                                        onError={(event) => {
+                                            event.currentTarget.style.display = 'none';
+                                        }}
+                                    />
+                                    {imageCount > 1 && (
+                                        <span className="booking-service-image-count" aria-label="Images">
+                                            {imageCount}
+                                        </span>
+                                    )}
+                                </>
                             ) : (
                                 renderServiceImagePlaceholder(isPreviewPlaceholder)
                             )}
@@ -146,7 +186,7 @@ export const BookingServicesSection = ({
                             </div>
                             {isActive && (
                                 <span className="booking-service-selected-mark" style={{ color: settings.primaryColor, borderColor: `${settings.primaryColor || '#000'}40`, backgroundColor: `${settings.primaryColor || '#000'}0F` }}>
-                                    <Check size={14} />
+                                    <span aria-hidden="true">✓</span>
                                 </span>
                             )}
                         </div>
@@ -174,7 +214,7 @@ export const BookingServicesSection = ({
     const renderCategoryRail = () => {
         if (!hasCategoryChoices) return null;
         return (
-            <div className="booking-service-category-rail" aria-label="Service categories">
+            <div className="booking-service-category-rail" aria-label="Categories">
                 {categoriesForDisplay.map(category => {
                     const isActive = selectedServiceCategory === category;
                     return (
@@ -219,7 +259,7 @@ export const BookingServicesSection = ({
                     aria-controls={categoryDropdownId}
                     aria-expanded={serviceDropdownOpen}
                     aria-haspopup="true"
-                    aria-label="Choose service category"
+                    aria-label="Category"
                     onClick={(event) => {
                         event.stopPropagation();
                         setServicesDropdownOpen(open => !open);
@@ -240,7 +280,7 @@ export const BookingServicesSection = ({
                 <div
                     id={categoryDropdownId}
                     className="booking-category-dropdown-panel"
-                    aria-label="Service categories"
+                    aria-label="Categories"
                 >
                     {categoriesForDisplay.map(category => {
                         const isActive = selectedServiceCategory === category;
@@ -262,7 +302,7 @@ export const BookingServicesSection = ({
                                 }}
                             >
                                 <span>{category}</span>
-                                {isActive && <Check size={13} />}
+                                {isActive && <span aria-hidden="true">✓</span>}
                             </button>
                         );
                     })}
@@ -286,6 +326,62 @@ export const BookingServicesSection = ({
                     {serviceCards.map((service, index) => renderServiceButton(service, { isActive: activeServices.length === 0 && index === 0 }))}
                 </div>
             </div>
+            {galleryImage && (
+                <div
+                    className="booking-service-gallery-lightbox"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Service gallery"
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        setGalleryState(null);
+                    }}
+                >
+                    <div className="booking-service-gallery-panel" onClick={(event) => event.stopPropagation()}>
+                        <div className="booking-service-gallery-topbar">
+                            <div>
+                                <strong>{galleryState.service.name || 'Gallery'}</strong>
+                                <span>{galleryIndex + 1} of {galleryImages.length}</span>
+                            </div>
+                            <button type="button" onClick={() => setGalleryState(null)} aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div className="booking-service-gallery-image">
+                            <span className="booking-service-gallery-fallback" aria-hidden="true">
+                                <span className="booking-service-gallery-fallback-mark" />
+                            </span>
+                            <img
+                                src={galleryImage}
+                                alt=""
+                                onError={(event) => {
+                                    event.currentTarget.style.display = 'none';
+                                }}
+                            />
+                            {galleryImages.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="is-previous"
+                                        onClick={() => setGalleryState(prev => ({ ...prev, index: (galleryIndex - 1 + galleryImages.length) % galleryImages.length }))}
+                                        aria-label="Previous"
+                                    >
+                                        <ChevronDown className="booking-service-gallery-chevron is-previous" size={18} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="is-next"
+                                        onClick={() => setGalleryState(prev => ({ ...prev, index: (galleryIndex + 1) % galleryImages.length }))}
+                                        aria-label="Next"
+                                    >
+                                        <ChevronDown className="booking-service-gallery-chevron is-next" size={18} />
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };

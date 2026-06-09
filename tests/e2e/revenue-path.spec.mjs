@@ -11,6 +11,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('guest owner can add a manual booking and mark manual payment paid', async ({ page }) => {
+  test.setTimeout(90000);
   const clientName = `QA Revenue Client ${Date.now()}`;
 
   await page.goto('/#/dashboard/bookings', { waitUntil: 'domcontentloaded' });

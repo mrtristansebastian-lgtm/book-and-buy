@@ -96,3 +96,484 @@
                 align-items: center;
             }
         }
+
+/* Command Flow is the square, system-control direction. Keep this at the end
+   of the booking runtime cascade so native preview/card polish cannot leak in. */
+.booking-flow-public.booking-style-command-flow .booking-service-option,
+.editor-preview-frame .booking-style-command-flow .booking-service-option,
+.booking-flow-public.booking-style-command-flow .booking-service-option.booking-gradient-border,
+.editor-preview-frame .booking-style-command-flow .booking-service-option.booking-gradient-border,
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-trigger,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-trigger,
+.booking-flow-public.booking-style-command-flow .booking-calendar-look > button,
+.editor-preview-frame .booking-style-command-flow .booking-calendar-look > button,
+.booking-flow-public.booking-style-command-flow .booking-time-look > button,
+.editor-preview-frame .booking-style-command-flow .booking-time-look > button,
+.booking-flow-public.booking-style-command-flow .booking-time-look button,
+.editor-preview-frame .booking-style-command-flow .booking-time-look button,
+.booking-flow-public.booking-style-command-flow .booking-checkout-summary,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-summary,
+.booking-flow-public.booking-style-command-flow .booking-summary-row,
+.editor-preview-frame .booking-style-command-flow .booking-summary-row,
+.booking-flow-public.booking-style-command-flow .booking-summary-total,
+.editor-preview-frame .booking-style-command-flow .booking-summary-total,
+.booking-flow-public.booking-style-command-flow .booking-checkout-panel,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-panel,
+.booking-flow-public.booking-style-command-flow .booking-checkout-email,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-email,
+.booking-flow-public.booking-style-command-flow .booking-checkout-form .booking-text-field,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-form .booking-text-field,
+.booking-flow-public.booking-style-command-flow .booking-payment-box,
+.editor-preview-frame .booking-style-command-flow .booking-payment-box,
+.booking-flow-public.booking-style-command-flow .booking-payment-option,
+.editor-preview-frame .booking-style-command-flow .booking-payment-option,
+.booking-flow-public.booking-style-command-flow .booking-funnel-primary,
+.editor-preview-frame .booking-style-command-flow .booking-funnel-primary,
+.booking-flow-public.booking-style-command-flow .booking-funnel-back,
+.editor-preview-frame .booking-style-command-flow .booking-funnel-back,
+.booking-flow-public.booking-style-command-flow .booking-success-panel,
+.editor-preview-frame .booking-style-command-flow .booking-success-panel,
+.booking-flow-public.booking-style-command-flow .booking-success-detail,
+.editor-preview-frame .booking-style-command-flow .booking-success-detail,
+.booking-flow-public.booking-style-command-flow .booking-success-payment,
+.editor-preview-frame .booking-style-command-flow .booking-success-payment,
+.booking-flow-public.booking-style-command-flow .booking-success-portal > div,
+.editor-preview-frame .booking-style-command-flow .booking-success-portal > div,
+.booking-flow-public.booking-style-command-flow .booking-success-portal button,
+.editor-preview-frame .booking-style-command-flow .booking-success-portal button,
+.booking-flow-public.booking-style-command-flow .booking-portal-icon,
+.editor-preview-frame .booking-style-command-flow .booking-portal-icon {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-service-option,
+.editor-preview-frame .booking-style-command-flow .booking-service-option,
+.booking-flow-public.booking-style-command-flow .booking-service-option.booking-gradient-border,
+.editor-preview-frame .booking-style-command-flow .booking-service-option.booking-gradient-border,
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-trigger,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-trigger,
+.booking-flow-public.booking-style-command-flow .booking-time-look > button,
+.editor-preview-frame .booking-style-command-flow .booking-time-look > button,
+.booking-flow-public.booking-style-command-flow .booking-time-look button,
+.editor-preview-frame .booking-style-command-flow .booking-time-look button,
+.booking-flow-public.booking-style-command-flow .booking-checkout-summary,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-summary,
+.booking-flow-public.booking-style-command-flow .booking-summary-row,
+.editor-preview-frame .booking-style-command-flow .booking-summary-row,
+.booking-flow-public.booking-style-command-flow .booking-summary-total,
+.editor-preview-frame .booking-style-command-flow .booking-summary-total,
+.booking-flow-public.booking-style-command-flow .booking-checkout-panel,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-panel,
+.booking-flow-public.booking-style-command-flow .booking-checkout-email,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-email,
+.booking-flow-public.booking-style-command-flow .booking-checkout-form .booking-text-field,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-form .booking-text-field,
+.booking-flow-public.booking-style-command-flow .booking-payment-box,
+.editor-preview-frame .booking-style-command-flow .booking-payment-box,
+.booking-flow-public.booking-style-command-flow .booking-payment-option,
+.editor-preview-frame .booking-style-command-flow .booking-payment-option,
+.booking-flow-public.booking-style-command-flow .booking-success-panel,
+.editor-preview-frame .booking-style-command-flow .booking-success-panel,
+.booking-flow-public.booking-style-command-flow .booking-success-detail,
+.editor-preview-frame .booking-style-command-flow .booking-success-detail,
+.booking-flow-public.booking-style-command-flow .booking-success-payment,
+.editor-preview-frame .booking-style-command-flow .booking-success-payment,
+.booking-flow-public.booking-style-command-flow .booking-success-portal > div,
+.editor-preview-frame .booking-style-command-flow .booking-success-portal > div {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-checkout-form .booking-text-control,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-form .booking-text-control,
+.booking-flow-public.booking-style-command-flow .booking-checkout-form input.booking-text-control,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-form input.booking-text-control,
+.booking-flow-public.booking-style-command-flow .booking-checkout-form textarea.booking-text-control,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-form textarea.booking-text-control,
+.booking-flow-public.booking-style-command-flow .booking-checkout-form select.booking-text-control,
+.editor-preview-frame .booking-style-command-flow .booking-checkout-form select.booking-text-control {
+    border: 0 !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown {
+    width: min(100%, 30rem) !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-trigger,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-trigger,
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-panel,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-panel {
+    border-color: transparent !important;
+    border-radius: 0 !important;
+    background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        var(--native-booking-accent-gradient, linear-gradient(115deg, #b9e3ff, #d2cbff, #ffd4f2, #f4ff9d, #c9ffbf, #b7fff0)) border-box !important;
+    background-position: 0 0, var(--native-accent-x, 50%) 50% !important;
+    box-shadow: none !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-trigger,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-trigger {
+    min-height: 3rem !important;
+    padding-inline: 0.98rem !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-panel,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-panel {
+    padding: 0.38rem !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-panel button,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-panel button {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-category-dropdown-panel button.is-active,
+.editor-preview-frame .booking-style-command-flow .booking-category-dropdown-panel button.is-active {
+    background: #050505 !important;
+    color: #ffffff !important;
+}
+
+.booking-flow-public .booking-cart-summary,
+.editor-preview-frame .booking-cart-summary {
+    max-width: 23rem !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-head,
+.editor-preview-frame .booking-cart-summary .booking-summary-head {
+    margin-bottom: 0.7rem !important;
+    padding-bottom: 0.58rem !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-title,
+.editor-preview-frame .booking-cart-summary .booking-summary-title {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-title p,
+.editor-preview-frame .booking-cart-summary .booking-summary-title p {
+    font-size: 0.52rem !important;
+    letter-spacing: 0.26em !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-rows,
+.editor-preview-frame .booking-cart-summary .booking-summary-rows {
+    gap: 0.46rem !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-row,
+.editor-preview-frame .booking-cart-summary .booking-summary-row {
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 0.56rem 0.72rem !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-icon,
+.editor-preview-frame .booking-cart-summary .booking-summary-icon {
+    width: 1.4rem !important;
+    height: 1.4rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-top: 0 !important;
+    border-radius: 999px !important;
+    opacity: 0.88 !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-copy,
+.editor-preview-frame .booking-cart-summary .booking-summary-copy {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+        "label label"
+        "value meta" !important;
+    align-items: end !important;
+    column-gap: 0.75rem !important;
+    row-gap: 0.14rem !important;
+    text-align: left !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-label,
+.editor-preview-frame .booking-cart-summary .booking-summary-label {
+    grid-area: label !important;
+    width: 100% !important;
+    font-size: 0.48rem !important;
+    letter-spacing: 0.18em !important;
+    line-height: 1 !important;
+    text-align: left !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-value,
+.editor-preview-frame .booking-cart-summary .booking-summary-value {
+    grid-area: value !important;
+    min-width: 0 !important;
+    margin-top: 0 !important;
+    font-size: 0.8rem !important;
+    line-height: 1.08 !important;
+    text-align: left !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-meta,
+.editor-preview-frame .booking-cart-summary .booking-summary-meta {
+    grid-area: meta !important;
+    margin-top: 0.12rem !important;
+    font-size: 0.56rem !important;
+    line-height: 1.1 !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-total,
+.editor-preview-frame .booking-cart-summary .booking-summary-total {
+    min-height: 0 !important;
+    margin-top: 0.56rem !important;
+    padding: 0.72rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.32rem !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-total,
+.editor-preview-frame .booking-cart-summary .booking-cart-summary-total {
+    display: inline-flex !important;
+    width: 100% !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.32rem !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-total > span,
+.editor-preview-frame .booking-cart-summary .booking-summary-total > span {
+    width: auto !important;
+    max-width: none !important;
+    text-align: left !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-total > span:first-child,
+.editor-preview-frame .booking-cart-summary .booking-summary-total > span:first-child {
+    font-size: 0.72rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    color: #050505 !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-summary-total > span:last-child,
+.editor-preview-frame .booking-cart-summary .booking-summary-total > span:last-child {
+    font-size: 0.88rem !important;
+    line-height: 1 !important;
+    text-align: left !important;
+}
+
+.booking-flow-public.booking-style-command-flow .booking-cart-summary .booking-summary-icon,
+.editor-preview-frame .booking-style-command-flow .booking-cart-summary .booking-summary-icon,
+.booking-flow-public.booking-style-command-flow .booking-cart-summary .booking-summary-total,
+.editor-preview-frame .booking-style-command-flow .booking-cart-summary .booking-summary-total {
+    border-radius: 0 !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-row,
+.editor-preview-frame .booking-cart-summary .booking-cart-summary-row {
+    display: grid !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    grid-template-columns: 1.45rem minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 0.56rem !important;
+    padding: 0.62rem 0.72rem !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    text-align: left !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-icon,
+.editor-preview-frame .booking-cart-summary .booking-cart-summary-icon {
+    width: 1.45rem !important;
+    height: 1.45rem !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    background: #ffffff !important;
+    color: #050505 !important;
+}
+
+.booking-summary-glyph {
+    position: relative;
+    display: block;
+    width: 0.78rem;
+    height: 0.78rem;
+    color: currentColor;
+}
+
+.booking-summary-glyph::before,
+.booking-summary-glyph::after {
+    content: "";
+    position: absolute;
+    box-sizing: border-box;
+}
+
+.booking-summary-glyph::before {
+    left: 0.08rem;
+    right: 0.08rem;
+    bottom: 0.08rem;
+    height: 0.48rem;
+    border: 1.5px solid currentColor;
+    border-radius: 0.12rem;
+}
+
+.booking-summary-glyph::after {
+    left: 0.27rem;
+    top: 0.04rem;
+    width: 0.24rem;
+    height: 0.22rem;
+    border: 1.5px solid currentColor;
+    border-bottom: 0;
+    border-radius: 0.1rem 0.1rem 0 0;
+    box-shadow: 0 0.3rem 0 -0.09rem currentColor;
+}
+
+.booking-summary-glyph-D::before {
+    inset: 0.08rem;
+    border: 1.5px solid currentColor;
+    border-radius: 0.11rem;
+    box-shadow: inset 0 0.21rem 0 -0.1rem currentColor;
+}
+
+.booking-summary-glyph-D::after {
+    left: 0.21rem;
+    top: 0;
+    width: 0.36rem;
+    height: 0.24rem;
+    border-left: 1.5px solid currentColor;
+    border-right: 1.5px solid currentColor;
+}
+
+.booking-summary-glyph-T::before {
+    inset: 0.08rem;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+}
+
+.booking-summary-glyph-T::after {
+    left: 0.38rem;
+    top: 0.22rem;
+    width: 0.2rem;
+    height: 0.24rem;
+    border-left: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-copy,
+.editor-preview-frame .booking-cart-summary .booking-cart-summary-copy {
+    display: grid !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+        "label label"
+        "value meta" !important;
+    align-items: end !important;
+    column-gap: 0.75rem !important;
+    row-gap: 0.16rem !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-copy .booking-summary-label,
+.editor-preview-frame .booking-cart-summary .booking-cart-summary-copy .booking-summary-label {
+    grid-area: label !important;
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-copy .booking-summary-value,
+.editor-preview-frame .booking-cart-summary .booking-cart-summary-copy .booking-summary-value {
+    grid-area: value !important;
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin-top: 0 !important;
+    text-align: left !important;
+    white-space: normal !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-copy .booking-summary-meta,
+.editor-preview-frame .booking-cart-summary .booking-cart-summary-copy .booking-summary-meta {
+    grid-area: meta !important;
+    display: block !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+}
+
+.booking-flow-public .booking-cart-summary .booking-cart-summary-copy:not(:has(.booking-summary-meta)) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+        "label"
+        "value" !important;
+}
+
+@media (max-width: 767px) {
+    .booking-flow-public .booking-cart-summary,
+    .editor-preview-frame.is-mobile-preview .booking-cart-summary {
+        width: min(100%, calc(100vw - 2.5rem)) !important;
+        max-width: none !important;
+    }
+
+    .booking-flow-public .booking-cart-step .booking-checkout-summary,
+    .editor-preview-frame.is-mobile-preview .booking-cart-step .booking-checkout-summary {
+        padding: 0.72rem !important;
+    }
+}
+
+.booking-flow-public .booking-cart-step .booking-cart-summary .booking-cart-summary-row,
+.editor-preview-frame.is-mobile-preview .booking-cart-step .booking-cart-summary .booking-cart-summary-row,
+.editor-preview-frame.is-desktop-preview .booking-cart-step .booking-cart-summary .booking-cart-summary-row {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.booking-flow-public .booking-cart-step .booking-cart-summary .booking-cart-summary-total,
+.editor-preview-frame.is-mobile-preview .booking-cart-step .booking-cart-summary .booking-cart-summary-total,
+.editor-preview-frame.is-desktop-preview .booking-cart-step .booking-cart-summary .booking-cart-summary-total {
+    display: inline-flex !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.32rem !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}

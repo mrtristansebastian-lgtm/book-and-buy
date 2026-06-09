@@ -111,7 +111,7 @@ export default function PublicBookingApp({ publicSlug }) {
   const handleAddToHomeScreen = useCallback(async () => {
     const shareData = {
       title: 'Build A Booking',
-      text: 'Open Build A Booking from your home screen for the cleanest booking view.',
+      text: 'Open Build A Booking.',
       url: window.location.href
     };
     try {

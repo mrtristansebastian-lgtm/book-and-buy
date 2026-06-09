@@ -32,6 +32,7 @@ export function createWorkspacePersistenceActions({
   clearWorkspaceDirty,
   displayStaffList,
   isWorkspaceOwner,
+  markWorkspaceDirty,
   personalDisplayName,
   personalProfile,
   publishedSettingsSnapshotRef,
@@ -161,6 +162,8 @@ export function createWorkspacePersistenceActions({
   };
 
   const updatePersonalProfile = (updates = {}) => {
+    const changed = Object.entries(updates).some(([key, value]) => personalProfile?.[key] !== value);
+    if (changed) markWorkspaceDirty?.({ source: 'Profile' });
     const nextProfile = {
       ...personalProfile,
       ...updates,
@@ -247,6 +250,7 @@ export function createWorkspacePersistenceActions({
       }
 
       showToast(successMessage);
+      clearWorkspaceDirty();
       return true;
     } catch (error) {
       console.error(error);
@@ -256,7 +260,7 @@ export function createWorkspacePersistenceActions({
   };
 
   const saveProfileChanges = async () => {
-    await persistProfileChanges();
+    return persistProfileChanges();
   };
 
   return {

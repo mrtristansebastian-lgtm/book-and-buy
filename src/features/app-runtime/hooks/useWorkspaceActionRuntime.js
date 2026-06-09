@@ -233,15 +233,19 @@ export function useWorkspaceActionRuntime({
     }
     booking.setCommunications?.(normalized);
     if (!isFirebaseConfigured || !auth.user || workspace.isGuestWorkspace) {
+      settingsState.clearWorkspaceDirty?.({ source: 'Notifications' });
       showToast('Notification settings saved in demo mode.');
       return true;
     }
     try {
+      const settingsSaved = await settingsActions.publishSettings(settings, 'Notification settings saved.', { silent: true });
+      if (!settingsSaved) throw new Error('Workspace notification settings could not be saved.');
       await FirebaseSDK.setDoc(
         FirebaseSDK.doc(db, 'artifacts', appId, 'users', workspace.workspaceOwnerId, 'config', 'communications'),
         normalized,
         { merge: true }
       );
+      settingsState.clearWorkspaceDirty?.({ source: 'Notifications' });
       showToast('Notification settings saved.');
       return true;
     } catch (error) {

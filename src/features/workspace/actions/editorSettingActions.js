@@ -11,19 +11,22 @@ export function createEditorSettingActions({
   settings,
   showToast
 }) {
-  const handleSettingChange = (key, value) => {
-    markWorkspaceDirty();
+  const handleSettingChange = (key, value, meta = {}) => {
+    if (Object.is(settings?.[key], value)) return;
+    markWorkspaceDirty(meta);
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
   const applyEditorColorPatch = (patch) => {
-    markWorkspaceDirty();
+    const hasChanges = Object.entries(patch || {}).some(([key, value]) => !Object.is(settings?.[key], value));
+    if (!hasChanges) return;
+    markWorkspaceDirty({ source: 'Booking page' });
     setSettings(prev => ({ ...prev, ...patch }));
   };
 
   const resetEditorColors = () => {
     const defaults = createDefaultSettings();
-    markWorkspaceDirty();
+    markWorkspaceDirty({ source: 'Booking page' });
     setSettings(prev => ({
       ...prev,
       primaryColor: defaults.primaryColor,
@@ -69,7 +72,7 @@ export function createEditorSettingActions({
 
   const applyEditorStyleDirection = (directionId) => {
     const direction = getEditorStyleDirection(directionId);
-    markWorkspaceDirty();
+    markWorkspaceDirty({ source: 'Booking page' });
     setSettings(prev => ({
       ...prev,
       ...direction.settings,
@@ -89,7 +92,7 @@ export function createEditorSettingActions({
 
   const applyFontStylePreset = (preset) => {
     if (!preset) return;
-    markWorkspaceDirty();
+    markWorkspaceDirty({ source: 'Booking page' });
     setSettings(prev => ({
       ...prev,
       fontFamily: preset.fontFamily,
@@ -105,7 +108,8 @@ export function createEditorSettingActions({
   };
 
   const handleFeatureChange = (key, value) => {
-    markWorkspaceDirty();
+    if (Object.is(settings.features?.[key], value)) return;
+    markWorkspaceDirty({ source: 'Booking page' });
     setSettings(prev => {
       const nextFeatures = { ...prev.features, [key]: value };
       if (key === 'collectClientEmail' && value === false) {
@@ -116,7 +120,7 @@ export function createEditorSettingActions({
   };
 
   const toggleFaqFeature = () => {
-    markWorkspaceDirty();
+    markWorkspaceDirty({ source: 'Booking page' });
     setSettings(prev => {
       const enabled = !prev.features?.faqEnabled;
       const existingFaqs = Array.isArray(prev.features?.faqs) ? prev.features.faqs : [];

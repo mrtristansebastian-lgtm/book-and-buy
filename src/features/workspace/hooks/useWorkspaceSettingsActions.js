@@ -42,6 +42,7 @@ export function useWorkspaceSettingsActions({
     clearWorkspaceDirty,
     displayStaffList,
     isWorkspaceOwner,
+    markWorkspaceDirty,
     personalDisplayName,
     personalProfile,
     publishedSettingsSnapshotRef,
