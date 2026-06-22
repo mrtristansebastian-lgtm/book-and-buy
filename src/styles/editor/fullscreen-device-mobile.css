@@ -17,10 +17,10 @@
                 top: auto !important;
                 left: 50% !important;
                 right: auto !important;
-                bottom: 0.75rem !important;
+                bottom: 0.6rem !important;
                 width: min(30rem, calc(100% - 1rem)) !important;
                 min-width: 0 !important;
-                max-height: min(42vh, 24rem) !important;
+                max-height: min(46vh, 26rem) !important;
                 border-radius: 18px !important;
                 transform: translate(-50%, 0) scale(1) !important;
             }
@@ -49,7 +49,7 @@
             }
 
             .editor-fullscreen-workspace.editor-preview-device-mobile .editor-panel-scroll {
-                max-height: calc(min(42vh, 24rem) - 3.65rem) !important;
+                max-height: calc(min(46vh, 26rem) - 3.65rem) !important;
                 padding: 0.5rem 0.58rem 0.72rem !important;
             }
 

@@ -8,11 +8,7 @@ export function useDesignerFontLoader({
 }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const shouldLoadDesignerFonts = publicSlug || (
-      activeTab === 'editor' &&
-      ['typography', 'style'].includes(editorTab) &&
-      !isMobileEditorRuntime
-    );
+    const shouldLoadDesignerFonts = Boolean(publicSlug || activeTab === 'editor');
     if (shouldLoadDesignerFonts) {
       window.__loadBuildABookingFonts?.();
       window.dispatchEvent(new Event('build-a-booking:load-fonts'));

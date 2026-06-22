@@ -17,13 +17,13 @@ export const BookingSelectionStep = ({
   settings,
   showServiceStep
 }) => (
-  <div className={`${previewStepMotionClass} min-h-full flex flex-col p-6 md:p-12 relative z-10 ${isPreview ? 'booking-flow-preview-shell' : 'booking-flow-public-shell'}`}>
+  <div className={`${previewStepMotionClass} min-h-full flex flex-col p-5 md:p-10 relative z-10 ${isPreview ? 'booking-flow-preview-shell' : 'booking-flow-public-shell'}`}>
     {heroContent}
     <div className="booking-selection-stack flex-1">
       <div className={`booking-selection-workspace ${showServiceStep ? 'has-service-step' : 'is-date-time-only'}`}>
         {children}
       </div>
-      <div className="booking-selection-action pt-2 pb-8 mt-auto text-center" style={{ order: actionOrder }}>
+      <div className="booking-selection-action pt-1.5 pb-6 mt-auto text-center" style={{ order: actionOrder }}>
         <button
           type="button"
           data-testid="booking-add-to-cart"

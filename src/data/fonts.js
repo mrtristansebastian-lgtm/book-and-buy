@@ -1,6 +1,7 @@
 // --- Modern typography library ---
         export const FONT_OPTIONS = [
             { id: 'inter', name: 'Inter', category: 'Sans', family: '"Inter", sans-serif' },
+            { id: 'archivo-black', name: 'Archivo Black', category: 'Display Sans', family: '"Archivo Black", sans-serif' },
             { id: 'plus-jakarta', name: 'Jakarta', category: 'Sans', family: '"Plus Jakarta Sans", sans-serif' },
             { id: 'figtree', name: 'Figtree', category: 'Sans', family: '"Figtree", sans-serif' },
             { id: 'public-sans', name: 'Public Sans', category: 'Sans', family: '"Public Sans", sans-serif' },
@@ -24,6 +25,10 @@
             { id: 'syne', name: 'Syne', category: 'Display Sans', family: '"Syne", sans-serif' },
             { id: 'oswald', name: 'Oswald', category: 'Display Sans', family: '"Oswald", sans-serif' },
             { id: 'unbounded', name: 'Unbounded', category: 'Display Sans', family: '"Unbounded", sans-serif' },
+            { id: 'fraunces', name: 'Fraunces', category: 'Serif', family: '"Fraunces", serif' },
+            { id: 'playfair-display', name: 'Playfair Display', category: 'Serif', family: '"Playfair Display", serif' },
+            { id: 'bodoni-moda', name: 'Bodoni Moda', category: 'Serif', family: '"Bodoni Moda", serif' },
+            { id: 'merriweather', name: 'Merriweather', category: 'Serif', family: '"Merriweather", serif' },
             { id: 'newsreader', name: 'Newsreader', category: 'Serif', family: '"Newsreader", serif' },
             { id: 'marcellus', name: 'Marcellus', category: 'Serif', family: '"Marcellus", serif' },
             { id: 'spectral', name: 'Spectral', category: 'Serif', family: '"Spectral", serif' },

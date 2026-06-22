@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, ChevronLeft, Copy, Pencil, Pipette, RefreshCw } from 'lucide-react';
+import { Check, ChevronLeft, Copy, Pencil, Pipette, RefreshCw, X } from 'lucide-react';
 
 import {
   getColorInputValue,
@@ -33,6 +33,7 @@ export function ColourRoom({
       setCopiedControlId('');
     }
   };
+
   const applyTypedColorCode = (control, rawValue, fallback) => {
     const typed = String(rawValue || '').trim();
     if (!typed) return;
@@ -42,11 +43,13 @@ export function ColourRoom({
       setCodeDraft(cssColor);
     }
   };
+
   const openColorEditor = (control) => {
     const colorValue = normalizeCssColor(control.value, control.fallback || '#050505');
     setEditingControl(control);
     setCodeDraft(colorValue);
   };
+
   const closeColorEditor = () => {
     setEditingControl(null);
     setCodeDraft('');
@@ -152,7 +155,7 @@ export function ColourRoom({
                   <small>{editingControl.note}</small>
                 </div>
                 <button type="button" className="editor-color-spectrum-close" onClick={closeColorEditor} aria-label="Close colour editor">
-                  ×
+                  <X size={14} strokeWidth={2.5} aria-hidden="true" />
                 </button>
               </div>
               <label className="editor-color-spectrum-picker">
@@ -217,12 +220,14 @@ export function ColourRoom({
           </button>
         )}
       </div>
-      {!onUseBookingColors && <div className="cinema-gradient-mode is-single" role="group" aria-label="Native gradient">
-        <button type="button" onClick={() => onNativeAccentChange(!nativeAccent)} className={`editor-native-gradient-toggle ${nativeAccent ? 'is-on' : ''}`} aria-pressed={nativeAccent}>
-          <span>Native gradient</span>
-          <i aria-hidden="true" />
-        </button>
-      </div>}
+      {!onUseBookingColors && (
+        <div className="cinema-gradient-mode is-single" role="group" aria-label="Native gradient">
+          <button type="button" onClick={() => onNativeAccentChange(!nativeAccent)} className={`editor-native-gradient-toggle ${nativeAccent ? 'is-on' : ''}`} aria-pressed={nativeAccent}>
+            <span>Native gradient</span>
+            <i aria-hidden="true" />
+          </button>
+        </div>
+      )}
       <div className="cinema-control-title is-compact">
         <span>Element colour board</span>
         <small>Choose a category to edit its colours.</small>

@@ -1,4 +1,5 @@
 import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react';
+import { CalendarDays } from 'lucide-react';
 import '../styles/booking-runtime.css';
 import { getFontFamily } from '../data/fonts';
 import { withColorAlpha } from '../utils/theme';
@@ -358,7 +359,42 @@ export const BookingFlow = memo(({ settings, onComplete, isPreview = false, prev
                 return <BookingPageLoader isPreview={isPreview} settings={settings} />;
             }
 
-            if (!activeDate) return <div className="h-full w-full flex items-center justify-center font-bold text-xl opacity-20">No Availability</div>;
+            if (!activeDate) {
+                return (
+                    <div
+                        className={`w-full h-full min-h-full flex items-center justify-center px-4 py-10 ${accentGradientActive ? 'native-booking-theme' : ''} ${styleDirectionClass} ${isPreview ? 'booking-flow-preview' : 'booking-flow-public'}`}
+                        style={{ ...dynamicStyles, backgroundColor: activePageBackground, overscrollBehaviorX: 'none' }}
+                    >
+                        <div
+                            className="w-full max-w-lg rounded-3xl border px-6 py-7 text-center shadow-[0_28px_80px_-56px_rgba(15,23,42,0.42)]"
+                            style={{
+                                backgroundColor: settings.pageSurfaceColor || '#ffffff',
+                                borderColor: withColorAlpha(settings.headingColor || '#000000', 8, '#000000')
+                            }}
+                        >
+                            <div
+                                className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border"
+                                style={{
+                                    backgroundColor: withColorAlpha(settings.primaryColor || settings.headingColor || '#000000', 5, '#ffffff'),
+                                    borderColor: withColorAlpha(settings.primaryColor || settings.headingColor || '#000000', 14, '#000000'),
+                                    color: settings.primaryColor || settings.headingColor || '#050505'
+                                }}
+                            >
+                                <CalendarDays size={20} />
+                            </div>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] opacity-35" style={{ color: settings.bodyColor }}>
+                                Booking Page
+                            </p>
+                            <h1 className="mt-2 text-3xl font-black tracking-tight" style={{ color: settings.headingColor }}>
+                                No booking dates open
+                            </h1>
+                            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed" style={{ color: settings.bodyColor }}>
+                                There are no available dates right now. The business can reopen the schedule or publish new availability soon.
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
 
             const selectedStaffForSummary = selectedAvailabilityStaff || null;
             const heroContent = (
@@ -501,7 +537,7 @@ export const BookingFlow = memo(({ settings, onComplete, isPreview = false, prev
             );
 
             const footerContent = (
-                <div className="pt-10 text-center" data-preview-section="action">
+                <div className="pt-8 md:pt-10 text-center" data-preview-section="action">
                     <BookingVenueGallery
                         headingLetterSpacing={headingLetterSpacing}
                         inspectClass={inspectClass}

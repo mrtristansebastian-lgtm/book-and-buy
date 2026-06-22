@@ -68,7 +68,7 @@
         .editor-color-category-board {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.68rem;
+            gap: 0.58rem;
         }
 
         .editor-color-category-tile {
@@ -78,10 +78,11 @@
             --editor-category-color: #050505;
             min-width: 0;
             display: grid;
-            gap: 0.62rem;
-            padding: 0.72rem;
+            gap: 0.54rem;
+            min-height: 4.8rem;
+            padding: 0.66rem;
             border: 1px solid rgba(15, 23, 42, 0.075);
-            border-radius: 14px;
+            border-radius: 13px;
             background: rgba(255,255,255,0.78);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.94);
             transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
@@ -132,8 +133,8 @@
         }
 
         .editor-color-category-preview i {
-            width: 1.22rem;
-            height: 1.22rem;
+            width: 1.08rem;
+            height: 1.08rem;
             display: block;
             border-radius: 999px;
             border: 2px solid #fff;
@@ -146,7 +147,7 @@
 
         .editor-color-category-controls {
             display: grid;
-            gap: 0.58rem;
+            gap: 0.52rem;
         }
 
         .editor-color-category-detail {
@@ -223,11 +224,11 @@
             display: grid;
             grid-template-columns: auto minmax(0, 1fr) auto;
             align-items: center;
-            gap: 0.72rem;
-            min-height: 4.15rem;
-            padding: 0.66rem;
+            gap: 0.66rem;
+            min-height: 4rem;
+            padding: 0.62rem;
             border: 1px solid rgba(15, 23, 42, 0.055);
-            border-radius: 15px;
+            border-radius: 13px;
             background: rgba(255,255,255,0.86);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.94);
             transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
@@ -292,6 +293,16 @@
             letter-spacing: 0;
         }
 
+        .editor-color-tile-options {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 0.28rem;
+            min-width: 0;
+            padding: 0.1rem 0.12rem;
+        }
+
         .editor-color-spectrum-overlay {
             position: fixed;
             inset: 0;
@@ -306,12 +317,12 @@
         .editor-color-spectrum-popover {
             --editor-spectrum-color: #050505;
             width: 100%;
-            max-width: 22rem;
+            max-width: 22.5rem;
             display: grid;
             gap: 0.72rem;
-            padding: 0.82rem;
+            padding: 0.76rem;
             border: 1px solid color-mix(in srgb, var(--editor-spectrum-color) 24%, rgba(15, 23, 42, 0.08));
-            border-radius: 20px;
+            border-radius: 18px;
             background: rgba(255,255,255,0.96);
             box-shadow: 0 26px 80px -48px rgba(15, 23, 42, 0.58), inset 0 1px 0 rgba(255,255,255,0.94);
         }
@@ -346,8 +357,8 @@
         }
 
         .editor-color-spectrum-close {
-            width: 2rem;
-            height: 2rem;
+            width: 1.9rem;
+            height: 1.9rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -374,7 +385,7 @@
 
         .editor-color-spectrum-picker input {
             width: 100%;
-            height: 5.6rem;
+            height: 5rem;
             padding: 0;
             overflow: hidden;
             border: 1px solid rgba(15, 23, 42, 0.08);

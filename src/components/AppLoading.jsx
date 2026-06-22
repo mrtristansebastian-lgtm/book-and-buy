@@ -10,7 +10,12 @@ export const BrandLoader = ({ label = 'Loading workspace', variant = 'dark' }) =
 );
 
 export const LazySectionFallback = ({ label = 'Loading workspace', variant = 'dark' }) => (
-  <div className="min-h-[320px] w-full bg-white flex items-center justify-center text-center">
-    <BrandLoader label={label} variant={variant} />
+  <div className="min-h-[320px] w-full flex items-center justify-center px-4 py-8 text-center">
+    <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white px-6 py-7 shadow-[0_28px_80px_-56px_rgba(15,23,42,0.42)]">
+      <BrandLoader label={label} variant={variant} />
+      <p className={`mt-4 text-sm leading-relaxed ${variant === 'light' ? 'text-white/55' : 'text-neutral-500'}`}>
+        Preparing the next view.
+      </p>
+    </div>
   </div>
 );

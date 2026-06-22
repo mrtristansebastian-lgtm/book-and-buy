@@ -1,5 +1,6 @@
 import { getPaymentOptionDisplay, isHostedPaymentOption } from '../utils/checkoutUtils';
 import { getActionButtonStyle } from '../utils/bookingFlowUtils';
+import { getFontFamily } from '../../../data/fonts';
 import { withColorAlpha } from '../../../utils/theme';
 
 export const BookingCheckoutStep = ({
@@ -23,15 +24,15 @@ export const BookingCheckoutStep = ({
   settings,
   submitError
 }) => (
-  <div className={`booking-checkout-step ${isPreview ? 'booking-flow-preview-shell' : 'booking-flow-public-shell'} ${isPreview ? '' : 'animate-in fade-in slide-in-from-bottom-20 duration-700'}`} style={{ backgroundColor: settings.backgroundColor, color: settings.bodyColor }}>
+  <div className={`booking-checkout-step ${isPreview ? 'booking-flow-preview-shell' : 'booking-flow-public-shell'} ${isPreview ? '' : 'animate-in fade-in slide-in-from-bottom-20 duration-700'}`} style={{ backgroundColor: settings.backgroundColor, color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
     <div className="booking-checkout-container">
       <main className="booking-checkout-panel" style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', borderColor: settings.pageBorderColor || '#0000001A' }}>
         <button type="button" onClick={onBack} className="booking-funnel-back">
           <span aria-hidden="true">&lt;</span> {settings.checkoutBackLabel || 'Back to cart'}
         </button>
-        <p className="booking-checkout-eyebrow" style={{ color: settings.bodyColor }}>{settings.checkoutEyebrow || 'Checkout'}</p>
-        <h2 className="booking-checkout-title" style={{ color: settings.headingColor }}>{settings.checkoutTitle || 'Fill in your details.'}</h2>
-        <div className="booking-checkout-copy" style={{ color: settings.bodyColor }}>
+        <p className="booking-checkout-eyebrow" style={{ color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>{settings.checkoutEyebrow || 'Checkout'}</p>
+        <h2 className="booking-checkout-title" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily) }}>{settings.checkoutTitle || 'Fill in your details.'}</h2>
+        <div className="booking-checkout-copy" style={{ color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
           {settings.checkoutCopy || 'Request the booking first. If payment is needed, the next step will take care of it cleanly.'}
         </div>
         <div className="booking-checkout-form">

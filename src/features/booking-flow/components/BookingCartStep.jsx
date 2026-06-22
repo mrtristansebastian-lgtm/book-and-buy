@@ -1,4 +1,5 @@
 import { BookingCheckoutSummary } from './BookingCheckoutSummary';
+import { getFontFamily } from '../../../data/fonts';
 import { getActionButtonStyle } from '../utils/bookingFlowUtils';
 
 export const BookingCartStep = ({
@@ -33,9 +34,9 @@ export const BookingCartStep = ({
       </button>
       <div className="booking-cart-grid grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
         <section className="booking-cart-hero rounded-3xl border p-5 md:p-7" style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', borderColor: settings.pageBorderColor || '#0000001A' }}>
-          <p className="booking-cart-eyebrow text-[10px] font-black uppercase tracking-[0.34em]" style={{ color: `${settings.bodyColor || '#666666'}8A` }}>{cartEyebrow}</p>
-          <h2 className="mt-2 text-4xl font-black tracking-tight md:text-5xl" style={{ color: settings.headingColor }}>{cartTitle}</h2>
-          <p className="mt-4 max-w-xl text-sm font-semibold leading-relaxed" style={{ color: settings.bodyColor }}>
+          <p className="booking-cart-eyebrow text-[10px] font-black uppercase tracking-[0.34em]" style={{ color: `${settings.bodyColor || '#666666'}8A`, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>{cartEyebrow}</p>
+          <h2 className="mt-2 text-4xl font-black tracking-tight md:text-5xl" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily) }}>{cartTitle}</h2>
+          <p className="mt-4 max-w-xl text-sm font-semibold leading-relaxed" style={{ color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
             {cartCopy}
           </p>
         </section>

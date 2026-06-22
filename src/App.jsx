@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { BrandLoader } from './components/AppLoading';
+import { LazySectionFallback } from './components/AppLoading';
 import { getPublicBookingSlug } from './utils/publicBookingRoute';
 
 const OwnerWorkspaceApp = lazy(() => import('./features/app-runtime/OwnerWorkspaceApp'));
@@ -25,7 +25,7 @@ export default function App() {
   const publicSlug = usePublicRouteSlug();
 
   return (
-    <Suspense fallback={<div className="h-screen bg-white flex items-center justify-center"><BrandLoader label={publicSlug ? 'Loading booking page' : 'Loading workspace'} /></div>}>
+    <Suspense fallback={<LazySectionFallback label={publicSlug ? 'Loading booking page' : 'Loading workspace'} />}>
       {publicSlug ? <PublicBookingApp publicSlug={publicSlug} /> : <OwnerWorkspaceApp />}
     </Suspense>
   );

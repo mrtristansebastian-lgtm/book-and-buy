@@ -242,7 +242,8 @@
         .booking-hero-title {
             flex: 0 1 auto;
             margin-bottom: 0 !important;
-            max-width: min(9.5ch, 100%);
+            width: max-content;
+            max-width: 100%;
         }
 
         .booking-hero-subtitle {

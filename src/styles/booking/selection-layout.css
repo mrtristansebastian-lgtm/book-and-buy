@@ -1,7 +1,7 @@
         .booking-selection-stack {
             display: flex;
             flex-direction: column;
-            gap: clamp(2.8rem, 6vw, 4rem);
+            gap: clamp(1.9rem, 4vw, 3rem);
             flex: 1;
             min-width: 0;
         }
@@ -9,7 +9,7 @@
         .booking-selection-workspace {
             display: flex;
             flex-direction: column;
-            gap: 4rem;
+            gap: clamp(1.8rem, 3.5vw, 2.8rem);
             min-width: 0;
         }
 
@@ -28,36 +28,36 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                row-gap: clamp(2.4rem, 4vw, 3.4rem);
+                row-gap: clamp(1.9rem, 3.2vw, 2.7rem);
             }
 
             .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="services"],
             .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="services"] {
-                width: min(100%, 50rem);
+                width: min(100%, 48rem);
                 margin-inline: auto;
             }
 
             .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="staff"],
             .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="staff"] {
-                width: min(100%, 44rem);
+                width: min(100%, 40rem);
                 margin-inline: auto;
             }
 
             .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="calendar"],
             .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="calendar"] {
-                width: min(100%, 34rem);
+                width: min(100%, 32rem);
                 margin-inline: auto;
             }
 
             .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="time"],
             .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="time"] {
-                width: min(100%, 34rem);
+                width: min(100%, 32rem);
                 margin-inline: auto;
             }
 
             .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="faq"],
             .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="faq"] {
-                width: min(100%, 44rem);
+                width: min(100%, 40rem);
                 margin-inline: auto;
             }
 
@@ -85,7 +85,7 @@
 
             .booking-flow-public .booking-selection-action,
             .editor-preview-frame.is-desktop-preview .booking-selection-action {
-                width: min(100%, 42rem);
+                width: min(100%, 40rem);
                 margin-inline: auto;
             }
         }
@@ -408,9 +408,9 @@
     display: grid !important;
     width: 100% !important;
     min-height: 0 !important;
-    grid-template-columns: 1.45rem minmax(0, 1fr) !important;
+    grid-template-columns: 1.7rem minmax(0, 1fr) !important;
     align-items: center !important;
-    gap: 0.56rem !important;
+    gap: 0.48rem !important;
     padding: 0.62rem 0.72rem !important;
     background: #ffffff !important;
     background-color: #ffffff !important;
@@ -420,11 +420,13 @@
 
 .booking-flow-public .booking-cart-summary .booking-cart-summary-icon,
 .editor-preview-frame .booking-cart-summary .booking-cart-summary-icon {
-    width: 1.45rem !important;
-    height: 1.45rem !important;
-    border: 1px solid rgba(15, 23, 42, 0.08) !important;
-    background: #ffffff !important;
+    width: 1.7rem !important;
+    height: 1.7rem !important;
+    border: 0 !important;
+    background: rgba(15, 23, 42, 0.03) !important;
     color: #050505 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
 }
 
 .booking-summary-glyph {
@@ -576,4 +578,18 @@
     background: #ffffff !important;
     background-color: #ffffff !important;
     background-image: none !important;
+}
+
+.booking-flow-public.native-booking-theme .booking-calendar-look > button.booking-gradient-date[aria-pressed="true"],
+.editor-preview-frame .native-booking-theme .booking-calendar-look > button.booking-gradient-date[aria-pressed="true"] {
+    color: #050505 !important;
+    border-color: transparent !important;
+    background-color: #eaffdf !important;
+    background-image:
+        linear-gradient(180deg, rgba(255,255,255,0.48), rgba(255,255,255,0.16)),
+        var(--native-booking-accent-gradient) !important;
+    background-size: 100% 100%, 420% 420% !important;
+    background-position: 0 0, var(--native-accent-x) 50% !important;
+    background-blend-mode: soft-light, normal !important;
+    box-shadow: 0 22px 50px -34px var(--native-accent-button-glow) !important;
 }

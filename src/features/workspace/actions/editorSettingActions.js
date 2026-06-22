@@ -101,6 +101,12 @@ export function createEditorSettingActions({
       buttonFontFamily: preset.buttonFontFamily,
       slotFontFamily: preset.slotFontFamily,
       dateFontFamily: preset.dateFontFamily,
+      brandNameFontFamily: preset.brandNameFontFamily,
+      brandNameSize: preset.brandNameSize,
+      taglineFontFamily: preset.taglineFontFamily,
+      taglineSize: preset.taglineSize,
+      welcomeFontFamily: preset.welcomeFontFamily,
+      welcomeSize: preset.welcomeSize,
       headingLetterSpacing: preset.headingLetterSpacing,
       subtextLetterSpacing: preset.subtextLetterSpacing
     }));

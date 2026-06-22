@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, LayoutList, X } from 'lucide-react';
 import { getFontFamily } from '../../../data/fonts';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import { withColorAlpha } from '../../../utils/theme';
@@ -33,8 +33,6 @@ export const BookingServicesSection = ({
 }) => {
     const categoryDropdownId = useId();
     const [galleryState, setGalleryState] = useState(null);
-
-    if (activeServices.length === 0 && !isPreview) return null;
 
     const serviceTextColor = settings.serviceTextColor || settings.headingColor || '#050505';
     const serviceBodyColor = settings.serviceBodyColor || serviceTextColor;
@@ -186,7 +184,7 @@ export const BookingServicesSection = ({
                             </div>
                             {isActive && (
                                 <span className="booking-service-selected-mark" style={{ color: settings.primaryColor, borderColor: `${settings.primaryColor || '#000'}40`, backgroundColor: `${settings.primaryColor || '#000'}0F` }}>
-                                    <span aria-hidden="true">✓</span>
+                                    <Check size={12} strokeWidth={3} aria-hidden="true" />
                                 </span>
                             )}
                         </div>
@@ -302,7 +300,7 @@ export const BookingServicesSection = ({
                                 }}
                             >
                                 <span>{category}</span>
-                                {isActive && <span aria-hidden="true">✓</span>}
+                                {isActive && <Check size={12} strokeWidth={3} aria-hidden="true" />}
                             </button>
                         );
                     })}
@@ -312,6 +310,50 @@ export const BookingServicesSection = ({
     };
 
     const categoryControl = serviceDropdownEnabled ? renderCategoryDropdown() : renderCategoryRail();
+
+    if (activeServices.length === 0 && !isPreview) {
+        return (
+            <section data-preview-section="services" className="pt-2" style={{ order: 1 }}>
+                <div className={`flex flex-col ${pageItems} ${pageTextClass} mb-6 px-1 ${inspectClass}`} onClick={() => previewInspectEnabled && onInspect('services')}>
+                    <h4 className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
+                        Choose your service
+                    </h4>
+                </div>
+                <div
+                    className="mx-auto w-full max-w-[34rem] rounded-2xl border px-5 py-5 md:px-6 md:py-6"
+                    style={{
+                        backgroundColor: settings.pageSurfaceColor || '#ffffff',
+                        borderColor: withColorAlpha(settings.headingColor || '#000000', 8, '#000000'),
+                        boxShadow: '0 18px 44px -40px rgba(15, 23, 42, 0.32)'
+                    }}
+                >
+                    <div className="flex items-start gap-4">
+                        <span
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border"
+                            style={{
+                                backgroundColor: withColorAlpha(settings.primaryColor || '#000000', 5, '#ffffff'),
+                                borderColor: withColorAlpha(settings.primaryColor || settings.headingColor || '#000000', 14, '#000000'),
+                                color: settings.primaryColor || settings.headingColor || '#050505'
+                            }}
+                        >
+                            <LayoutList size={18} />
+                        </span>
+                        <div className="min-w-0">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.35em] opacity-35" style={{ color: settings.bodyColor }}>
+                                Services
+                            </p>
+                            <h5 className="mt-1 text-lg md:text-xl font-black tracking-tight" style={{ color: serviceTextColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily) }}>
+                                No services published yet
+                            </h5>
+                            <p className="mt-2 text-sm leading-relaxed" style={{ color: serviceBodyColor }}>
+                                This page can still collect a general request while the business finishes setting up services.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section data-preview-section="services" className="pt-2" style={{ order: 1 }}>
@@ -344,7 +386,7 @@ export const BookingServicesSection = ({
                                 <span>{galleryIndex + 1} of {galleryImages.length}</span>
                             </div>
                             <button type="button" onClick={() => setGalleryState(null)} aria-label="Close">
-                                <span aria-hidden="true">×</span>
+                                <X size={16} strokeWidth={2.5} aria-hidden="true" />
                             </button>
                         </div>
                         <div className="booking-service-gallery-image">

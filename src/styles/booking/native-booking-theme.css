@@ -21,6 +21,21 @@
             box-shadow: 0 22px 50px -34px var(--native-accent-button-glow) !important;
         }
 
+        .native-booking-theme .booking-gradient-date,
+        .booking-flow-public.native-booking-theme .booking-gradient-date,
+        .editor-preview-frame .native-booking-theme .booking-gradient-date {
+            color: #050505 !important;
+            border-color: transparent !important;
+            background-color: #eaffdf !important;
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.48), rgba(255,255,255,0.16)),
+                var(--native-booking-accent-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            background-blend-mode: soft-light, normal !important;
+            box-shadow: 0 22px 50px -34px var(--native-accent-button-glow) !important;
+        }
+
         .native-booking-theme .booking-gradient-chip {
             color: #050505 !important;
             border: 1px solid transparent !important;

@@ -104,7 +104,7 @@ export const BookingDateSection = ({
                     <ChevronLeft size={16} />
                 </button>
                 <div className={`booking-calendar-look booking-calendar-focus-tile booking-calendar-${calendarDisplayStyle} ${isPreview ? 'cursor-pointer' : ''}`} onClick={() => previewInspectEnabled && onInspect('calendar')}>
-                    <button aria-pressed="true" onClick={() => setSelectedDateIdx(selectedDateIdx)} className="appearance-none outline-none focus:outline-none flex flex-col items-center justify-center gap-1.5 text-center transition-all duration-500 relative shadow-xl z-10" style={getDateSlotStyle({ isActive: true, settings, dateStyle })}>
+                    <button aria-pressed="true" onClick={() => setSelectedDateIdx(selectedDateIdx)} className={`appearance-none outline-none focus:outline-none flex flex-col items-center justify-center gap-1.5 text-center transition-all duration-500 relative shadow-xl z-10 ${nativeAccentFillClass ? 'booking-gradient-date' : ''}`} style={getDateSlotStyle({ isActive: true, settings, dateStyle })}>
                         <span className="block w-full text-center text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] transition-all">{activeDate.dayName}</span>
                         <span className="block w-full text-center text-3xl md:text-4xl font-bold tracking-tighter transition-all">{activeDate.dayNum}</span>
                         {dateStyle === 'minimal' && <div className={`absolute -bottom-3 w-10 h-[2px] rounded-full ${nativeAccentFillClass}`} style={{ backgroundColor: settings.primaryColor }} />}

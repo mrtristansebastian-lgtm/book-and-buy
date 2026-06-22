@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { AlertCircle, Home, RefreshCw } from 'lucide-react';
 
 import { AppErrorBoundary } from '../../../components/AppErrorBoundary';
 import { BrandLoader, LazySectionFallback } from '../../../components/AppLoading';
@@ -22,27 +23,52 @@ export function PublicBookingPage({
 }) {
   if (loading) {
     return (
-      <div className="h-screen bg-white flex items-center justify-center">
-        <BrandLoader label="Loading booking page" />
+      <div className="min-h-screen flex items-center justify-center px-4 py-10" style={{ backgroundColor: '#f6f7f9' }}>
+        <div className="w-full max-w-md rounded-3xl border border-neutral-200 bg-white px-6 py-7 text-center shadow-[0_28px_80px_-56px_rgba(15,23,42,0.42)]">
+          <div className="mx-auto mb-5 flex justify-center">
+            <BuildABookingBrand className="w-48 max-w-full" variant="dark" />
+          </div>
+          <BrandLoader label="Loading booking page" variant="dark" />
+          <p className="mx-auto mt-4 max-w-xs text-sm leading-relaxed text-neutral-500">
+            Preparing the public booking experience.
+          </p>
+        </div>
       </div>
     );
   }
 
   if (error || !workspace) {
     return (
-      <div className="min-h-screen bg-[#050505] text-white flex items-center justify-center p-6">
-        <div className="max-w-md text-center">
-          <div className="inline-flex mx-auto mb-8">
-            <BuildABookingBrand className="w-56 max-w-full" variant="light" />
+      <div className="min-h-screen flex items-center justify-center px-4 py-10" style={{ backgroundColor: '#f6f7f9' }}>
+        <div className="w-full max-w-lg rounded-3xl border border-neutral-200 bg-white px-6 py-7 shadow-[0_28px_80px_-56px_rgba(15,23,42,0.42)]">
+          <div className="mx-auto mb-5 flex justify-center">
+            <BuildABookingBrand className="w-52 max-w-full" variant="dark" />
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.45em] text-white/40 mb-4">Booking Page</p>
-          <h1 className="text-4xl font-bold tracking-tight mb-4">Page unavailable</h1>
-          <p className="text-white/55 leading-relaxed">{error || 'This booking page is not available yet.'}</p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <button onClick={onRetry} className="h-12 px-6 rounded-full bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-100 transition-colors">
+          <div className="flex items-start gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-left">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-neutral-200 bg-white text-neutral-900">
+              <AlertCircle size={18} />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-neutral-400">Booking Page</p>
+              <h1 className="mt-1 text-3xl font-black tracking-tight text-neutral-950">Page unavailable</h1>
+              <p className="mt-3 text-sm leading-relaxed text-neutral-500">{error || 'This booking page is not available yet.'}</p>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={onRetry}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-neutral-200 bg-white px-6 text-[10px] font-bold uppercase tracking-widest text-neutral-950 transition-colors hover:bg-neutral-50"
+            >
+              <RefreshCw size={14} />
               Try Again
             </button>
-            <button onClick={onHome} className="h-12 px-6 rounded-full border border-white/15 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-colors">
+            <button
+              type="button"
+              onClick={onHome}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-neutral-200 bg-neutral-950 px-6 text-[10px] font-bold uppercase tracking-widest text-white transition-colors hover:bg-neutral-800"
+            >
+              <Home size={14} />
               Build A Booking
             </button>
           </div>
