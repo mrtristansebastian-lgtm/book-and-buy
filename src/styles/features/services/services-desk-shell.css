@@ -112,6 +112,77 @@ html body .native-ui .service-duration-picker {
   align-content: start;
 }
 
+html body .native-ui .service-duration-choice-panel {
+  display: grid;
+  gap: 0.58rem;
+}
+
+html body .native-ui .service-duration-free-choice {
+  min-width: 0;
+  min-height: 4.2rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.68rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.72rem;
+  background: #ffffff;
+  color: #050505;
+  padding: 0.72rem 0.82rem;
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+html body .native-ui .service-duration-free-choice:hover {
+  transform: translateY(-1px);
+  border-color: #cbd5e1;
+}
+
+html body .native-ui .service-duration-free-choice > svg {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.45rem;
+  border-radius: 0.72rem;
+  background: #f2f4f7;
+  color: #050505;
+}
+
+html body .native-ui .service-duration-free-choice span,
+html body .native-ui .service-duration-free-choice strong,
+html body .native-ui .service-duration-free-choice small {
+  display: block;
+  min-width: 0;
+}
+
+html body .native-ui .service-duration-free-choice strong {
+  font-size: 0.86rem;
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+html body .native-ui .service-duration-free-choice small {
+  margin-top: 0.18rem;
+  color: #667085;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.28;
+}
+
+html body .native-ui .service-duration-free-choice.is-active {
+  border-color: #050505;
+  background: #050505;
+  color: #ffffff;
+}
+
+html body .native-ui .service-duration-free-choice.is-active > svg {
+  background: #ffffff;
+  color: #050505;
+}
+
+html body .native-ui .service-duration-free-choice.is-active small {
+  color: rgba(255, 255, 255, 0.72);
+}
+
 html body .native-ui .service-duration-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -121,7 +192,7 @@ html body .native-ui .service-duration-grid {
 html body .native-ui .service-duration-grid button {
   min-height: 3rem;
   border: 1px solid #e5e7eb;
-  border-radius: 1rem;
+  border-radius: 0.58rem;
   background: #f8fafc;
   color: #4b5563;
   padding: 0 0.65rem;
@@ -353,7 +424,6 @@ html body .native-ui .service-preview-category {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
-
 @media (max-width: 640px) {
   html body .native-ui .service-modal {
     align-items: flex-end;
@@ -363,5 +433,850 @@ html body .native-ui .service-preview-category {
   html body .native-ui .service-modal-panel {
     max-height: calc(100dvh - 0.5rem);
     border-radius: 1.35rem 1.35rem 0 0 !important;
+  }
+}
+
+html body .native-ui .service-wizard-panel {
+  color: #050505;
+}
+
+html body .native-ui .service-wizard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+  background: #ffffff;
+}
+
+html body .native-ui .service-wizard-header p {
+  margin: 0;
+  color: #98a2b3;
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-wizard-header h2 {
+  margin: 0.32rem 0 0;
+  color: #050505;
+  font-size: clamp(1.55rem, 2.4vw, 2.35rem);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+html body .native-ui .service-wizard-header span {
+  display: block;
+  max-width: 42rem;
+  margin-top: 0.52rem;
+  color: #667085;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+html body .native-ui .service-wizard-close {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #050505;
+}
+
+html body .native-ui .service-wizard-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.36fr) minmax(0, 1fr);
+  overflow: hidden;
+}
+
+html body .native-ui .service-wizard-sidebar {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 1rem;
+  border-right: 1px solid rgba(15, 23, 42, 0.07);
+  background: #fafafa;
+  overflow-y: auto;
+}
+
+html body .native-ui .service-step-list {
+  display: grid;
+  gap: 0.42rem;
+}
+
+html body .native-ui .service-step-list button {
+  min-width: 0;
+  min-height: 2.55rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.58rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 0.82rem;
+  background: #ffffff;
+  color: #667085;
+  padding: 0.42rem 0.58rem;
+  text-align: left;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+html body .native-ui .service-step-list button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #050505;
+}
+
+html body .native-ui .service-step-list button span {
+  width: 1.42rem;
+  height: 1.42rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #f2f4f7;
+  color: #667085;
+  font-size: 0.62rem;
+  font-weight: 950;
+}
+
+html body .native-ui .service-step-list button strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .service-step-list button.is-active {
+  border-color: #050505;
+  background: #050505;
+  color: #ffffff;
+}
+
+html body .native-ui .service-step-list button.is-active span {
+  background: #ffffff;
+  color: #050505;
+}
+
+html body .native-ui .service-step-list button.is-complete:not(.is-active) span {
+  background: #dcfce7;
+  color: #047857;
+}
+
+html body .native-ui .service-wizard-main {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 1.2rem 1.2rem 1.85rem;
+  overflow-y: auto;
+}
+
+html body .native-ui .service-wizard-step-head {
+  display: grid;
+  gap: 0.28rem;
+  max-width: 48rem;
+}
+
+html body .native-ui .service-wizard-step-head span {
+  color: #98a2b3;
+  font-size: 0.6rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-wizard-step-head h3 {
+  color: #050505;
+  font-size: clamp(1.35rem, 2.1vw, 2rem);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+
+html body .native-ui .service-wizard-step-head p {
+  max-width: 40rem;
+  color: #667085;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.38;
+}
+
+html body .native-ui .service-wizard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+html body .native-ui .service-wizard-field,
+html body .native-ui .service-media-panel,
+html body .native-ui .service-adaptive-note {
+  min-width: 0;
+}
+
+html body .native-ui .service-wizard-field,
+html body .native-ui .service-media-panel {
+  display: grid;
+  align-content: start;
+  gap: 0.48rem;
+}
+
+html body .native-ui .service-wizard-field.is-wide,
+html body .native-ui .service-media-panel.is-wide,
+html body .native-ui .is-wide {
+  grid-column: 1 / -1;
+}
+
+html body .native-ui .service-wizard-field > span,
+html body .native-ui .service-media-panel > div:first-child span {
+  color: #8a8f98;
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-wizard-field input,
+html body .native-ui .service-wizard-field textarea,
+html body .native-ui .service-wizard-field select {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid #d9dde4;
+  border-radius: 0.58rem;
+  background: #fff;
+  color: #050505;
+  padding: 0 0.92rem;
+  font-size: 0.88rem;
+  font-weight: 760;
+  line-height: 1.3;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+html body .native-ui .service-wizard-panel .service-wizard-field input,
+html body .native-ui .service-wizard-panel .service-wizard-field textarea,
+html body .native-ui .service-wizard-panel .service-wizard-field select {
+  border-radius: 8px !important;
+}
+
+html body .native-ui .service-wizard-panel .service-wizard-field textarea {
+  border-radius: 8px !important;
+}
+
+html body .native-ui .service-wizard-panel .service-live-toggle,
+html body .native-ui .service-wizard-panel .service-segment-grid button,
+html body .native-ui .service-wizard-panel .service-duration-grid button,
+html body .native-ui .service-wizard-panel .service-duration-free-choice,
+html body .native-ui .service-wizard-panel .service-staff-grid button,
+html body .native-ui .service-wizard-panel .service-location-grid button,
+html body .native-ui .service-wizard-panel .service-wizard-toggle,
+html body .native-ui .service-wizard-panel .service-media-panel,
+html body .native-ui .service-wizard-panel .service-adaptive-note {
+  border-radius: 8px !important;
+}
+
+html body .native-ui .service-wizard-field select {
+  appearance: none;
+  padding-right: 2.45rem;
+  background:
+    linear-gradient(45deg, transparent 50%, #667085 50%) calc(100% - 1.18rem) 50% / 0.36rem 0.36rem no-repeat,
+    linear-gradient(135deg, #667085 50%, transparent 50%) calc(100% - 0.94rem) 50% / 0.36rem 0.36rem no-repeat,
+    #ffffff;
+  cursor: pointer;
+}
+
+html body .native-ui .service-wizard-field textarea {
+  min-height: 6.4rem;
+  padding: 0.88rem 0.92rem;
+  border-radius: 0.58rem;
+  resize: vertical;
+}
+
+html body .native-ui .service-wizard-field input:focus,
+html body .native-ui .service-wizard-field textarea:focus,
+html body .native-ui .service-wizard-field select:focus {
+  border-color: #050505;
+  box-shadow: 0 0 0 4px rgba(5, 5, 5, 0.06);
+}
+
+html body .native-ui .service-select-with-custom {
+  display: grid;
+  gap: 0.48rem;
+}
+
+
+html body .native-ui .service-live-toggle,
+html body .native-ui .service-segment-grid button {
+  min-height: 3rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.58rem;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-live-toggle.is-live,
+html body .native-ui .service-segment-grid button.is-active {
+  border-color: #050505;
+  background: #050505;
+  color: #ffffff;
+}
+
+html body .native-ui .service-segment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+html body .native-ui .service-money-row {
+  display: grid;
+  grid-template-columns: 4.4rem minmax(0, 1fr);
+  gap: 0.45rem;
+}
+
+html body .native-ui .service-media-panel {
+  padding: 0.86rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.72rem;
+  background: #fafafa;
+}
+
+
+html body .native-ui .service-media-panel > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+html body .native-ui .service-media-panel > div:first-child strong {
+  color: #050505;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+html body .native-ui .service-media-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  margin: 0.72rem 0 0;
+  color: #667085;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+html body .native-ui .service-media-hint svg {
+  flex: 0 0 auto;
+  color: #475569;
+}
+
+html body .native-ui .service-booking-card-preview {
+  display: grid;
+  justify-items: center;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+html body .native-ui .service-booking-card-preview .booking-services-grid {
+  width: min(100%, 25.5rem);
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  justify-content: center !important;
+  margin: 0 auto;
+  gap: 0 !important;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-option {
+  width: 100%;
+  min-height: 19.4rem;
+  display: grid !important;
+  align-content: stretch;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-radius: 1.18rem !important;
+  padding: 0.88rem 0.88rem 0.86rem !important;
+  background: #ffffff !important;
+  color: #050505;
+  cursor: default;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.86),
+    0 18px 42px -38px rgba(15, 23, 42, 0.38) !important;
+  transform: none !important;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-shell {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(5.2rem, 1fr) auto !important;
+  gap: 0.7rem !important;
+  height: 100%;
+  width: 100%;
+  align-items: stretch !important;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-image {
+  position: relative;
+  width: 100% !important;
+  height: clamp(6.15rem, 14.25vw, 7.8rem) !important;
+  justify-self: center;
+  border: 0 !important;
+  border-radius: 0.96rem !important;
+  background: #f1f5f9 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 18px 34px -32px rgba(15, 23, 42, 0.5) !important;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-copy {
+  display: grid !important;
+  align-content: start;
+  justify-items: center;
+  gap: 0.66rem;
+  width: 100%;
+  text-align: center !important;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-title-line,
+html body .native-ui .service-booking-card-preview .booking-service-title-line > div {
+  width: 100%;
+  display: grid !important;
+  justify-items: center;
+  text-align: center !important;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-title-line h5 {
+  display: inline-grid !important;
+  justify-items: center;
+  gap: 0.54rem;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto !important;
+  color: #050505 !important;
+  font-size: clamp(0.98rem, 1.55vw, 1.16rem) !important;
+  font-weight: 930;
+  letter-spacing: 0;
+  line-height: 1.08 !important;
+  text-align: center !important;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-title-line h5::after {
+  content: "";
+  display: block;
+  width: min(4.3rem, 72%);
+  min-width: 2.8rem;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.22), transparent);
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-eyebrow {
+  margin-bottom: 0.28rem;
+  color: #667085 !important;
+  font-size: 0.48rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-align: center !important;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-description {
+  display: -webkit-box;
+  margin: 0 !important;
+  color: #667085 !important;
+  font-size: 0.82rem !important;
+  font-weight: 720;
+  line-height: 1.3 !important;
+  text-align: center !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-facts {
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-self: end;
+  gap: 0;
+  margin-top: 0 !important;
+  padding-top: 0.72rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+  text-align: center;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-meta-item {
+  display: grid;
+  justify-items: center;
+  gap: 0.16rem;
+  padding: 0 0.44rem;
+  border: 0;
+  background: transparent;
+  color: #050505 !important;
+  box-shadow: none;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-meta-item + .booking-service-meta-item {
+  border-left: 1px solid rgba(15, 23, 42, 0.075);
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-meta-label {
+  color: rgba(71, 85, 105, 0.72) !important;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-booking-card-preview .booking-service-meta-item strong {
+  color: #050505;
+  font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+  font-weight: 950;
+}
+
+html body .native-ui .service-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5rem, 6.15rem));
+  gap: 0.48rem;
+}
+
+html body .native-ui .service-media-thumb,
+html body .native-ui .service-media-add {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 0.58rem;
+  background: #eef1f5;
+}
+
+html body .native-ui .service-media-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+html body .native-ui .service-media-thumb button {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 1.62rem;
+  height: 1.62rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #050505;
+  color: #ffffff;
+}
+
+html body .native-ui .service-media-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(15, 23, 42, 0.18);
+  color: #667085;
+  cursor: pointer;
+}
+
+html body .native-ui .service-media-add input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+html body .native-ui .service-adaptive-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.72rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.72rem;
+  background: #f8fafc;
+}
+
+html body .native-ui .service-adaptive-note > svg {
+  margin-top: 0.1rem;
+}
+
+html body .native-ui .service-adaptive-note strong,
+html body .native-ui .service-adaptive-note span {
+  display: block;
+}
+
+html body .native-ui .service-adaptive-note strong {
+  color: #050505;
+  font-size: 0.95rem;
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+html body .native-ui .service-adaptive-note span {
+  margin-top: 0.18rem;
+  color: #667085;
+  font-size: 0.78rem;
+  font-weight: 680;
+  line-height: 1.32;
+}
+
+html body .native-ui .service-staff-grid,
+html body .native-ui .service-location-grid,
+html body .native-ui .service-rule-list {
+  display: grid;
+  gap: 0.62rem;
+}
+
+html body .native-ui .service-staff-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+html body .native-ui .service-staff-grid button,
+html body .native-ui .service-location-grid button {
+  min-width: 0;
+  min-height: 4.2rem;
+  display: grid;
+  gap: 0.32rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.72rem;
+  background: #ffffff;
+  padding: 0.72rem;
+  text-align: left;
+}
+
+html body .native-ui .service-staff-grid button span {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+html body .native-ui .service-staff-grid button strong,
+html body .native-ui .service-staff-grid button small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .service-staff-grid button strong {
+  color: #050505;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+html body .native-ui .service-staff-grid button small {
+  color: #98a2b3;
+  font-size: 0.62rem;
+  font-weight: 850;
+}
+
+html body .native-ui .service-staff-grid button.is-active,
+html body .native-ui .service-location-grid button.is-active {
+  border-color: #050505;
+  box-shadow: inset 0 0 0 1px #050505;
+}
+
+html body .native-ui .service-location-grid button.is-active {
+  background: #050505;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+html body .native-ui .service-location-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+html body .native-ui .service-location-grid button {
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  color: #050505;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+html body .native-ui .service-rule-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html body .native-ui .service-wizard-toggle {
+  min-width: 0;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.58rem;
+  background: #ffffff;
+  color: #050505;
+  padding: 0 0.72rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+html body .native-ui .service-wizard-toggle i {
+  width: 2rem;
+  height: 1.08rem;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+html body .native-ui .service-wizard-toggle i::after {
+  content: "";
+  width: 0.76rem;
+  height: 0.76rem;
+  margin-left: 0.16rem;
+  border-radius: 999px;
+  background: #ffffff;
+  transition: transform 160ms ease;
+}
+
+html body .native-ui .service-wizard-toggle.is-on {
+  border-color: #050505;
+  background: #050505;
+  color: #ffffff;
+}
+
+html body .native-ui .service-wizard-toggle.is-on i {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+html body .native-ui .service-wizard-toggle.is-on i::after {
+  transform: translateX(0.88rem);
+}
+
+html body .native-ui .service-wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+  background: #ffffff;
+}
+
+html body .native-ui .service-wizard-actions {
+  display: flex;
+  gap: 0.65rem;
+}
+
+html body .native-ui .service-wizard-remove,
+html body .native-ui .service-wizard-secondary,
+html body .native-ui .service-wizard-primary {
+  min-height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  border-radius: 999px;
+  padding: 0 1.28rem;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-wizard-remove {
+  border: 1px solid #fee2e2;
+  background: #fff1f2;
+  color: #e05252;
+}
+
+html body .native-ui .service-wizard-remove:disabled,
+html body .native-ui .service-wizard-primary:disabled {
+  opacity: 0.42;
+}
+
+html body .native-ui .service-wizard-secondary {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #ffffff;
+  color: #050505;
+}
+
+html body .native-ui .service-wizard-primary {
+  border: 1px solid #050505;
+  background: #050505;
+  color: #ffffff;
+}
+
+@media (max-width: 980px) {
+  html body .native-ui .service-wizard-shell {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  html body .native-ui .service-wizard-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+    overflow: visible;
+  }
+
+  html body .native-ui .service-step-list {
+    grid-template-columns: repeat(8, minmax(5rem, 1fr));
+    overflow-x: auto;
+    padding-bottom: 0.12rem;
+  }
+
+}
+
+@media (max-width: 640px) {
+  html body .native-ui .service-wizard-header {
+    padding: 1rem;
+  }
+
+  html body .native-ui .service-wizard-sidebar,
+  html body .native-ui .service-wizard-main,
+  html body .native-ui .service-wizard-footer {
+    padding: 0.9rem;
+  }
+
+  html body .native-ui .service-wizard-grid,
+  html body .native-ui .service-staff-grid,
+  html body .native-ui .service-location-grid,
+  html body .native-ui .service-rule-list {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .service-media-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  html body .native-ui .service-wizard-footer,
+  html body .native-ui .service-wizard-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  html body .native-ui .service-wizard-remove,
+  html body .native-ui .service-wizard-secondary,
+  html body .native-ui .service-wizard-primary {
+    width: 100%;
   }
 }

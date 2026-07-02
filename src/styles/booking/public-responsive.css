@@ -715,6 +715,7 @@
     .booking-flow-public:is(.booking-style-native-precision, .booking-style-command-flow) .booking-hero-title {
         margin-left: auto !important;
         margin-right: auto !important;
+        line-height: 1.06 !important;
     }
 
     .booking-flow-public:is(.booking-style-native-precision, .booking-style-command-flow) [data-preview-section] {
@@ -933,6 +934,7 @@
         background: var(--booking-calendar-tile-bg) !important;
         border-color: color-mix(in srgb, var(--booking-calendar-tile-text) 24%, transparent) !important;
         color: var(--booking-calendar-tile-text) !important;
+        min-height: 7.75rem !important;
     }
 
     .booking-flow-public:is(.booking-style-native-precision, .booking-style-command-flow) .booking-calendar-look > button[aria-pressed="true"],

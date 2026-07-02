@@ -7,6 +7,10 @@ import { getServiceCardStyle } from '../utils/bookingFlowUtils';
 
 const getServiceCategory = (service) => service.category?.trim() || '';
 
+const getServiceCardVariant = (service = {}) => {
+    return 'appointment';
+};
+
 export const BookingServicesSection = ({
     activeServices,
     headingLetterSpacing,
@@ -107,10 +111,11 @@ export const BookingServicesSection = ({
         const isPreviewPlaceholder = Boolean(service.isPreviewPlaceholder);
         const isActive = options.isActive ?? (selectedService?.id === service.id);
         const price = formatServicePrice(service);
-        const duration = formatServiceDuration(service.duration);
+        const duration = service.durationMode === 'schedule' ? '' : formatServiceDuration(service.duration);
         const hasServiceImage = Boolean(service.imageUrls?.[0]);
         const imageCount = Array.isArray(service.imageUrls) ? service.imageUrls.filter(Boolean).length : 0;
         const showServiceImageSlot = hasServiceImage || isPreview;
+        const cardVariant = getServiceCardVariant(service);
         const openGallery = (event, index = 0) => {
             if (!imageCount) return;
             event.stopPropagation();
@@ -132,7 +137,8 @@ export const BookingServicesSection = ({
                 }}
                 data-testid="booking-service-option"
                 data-service-id={service.id}
-                className={`booking-service-option appearance-none outline-none focus:outline-none text-left rounded-2xl border p-4 md:p-5 transition-all booking-service-border-${serviceBorderStyle} ${showServiceImageSlot ? 'has-service-image' : 'is-text-only-service'} ${!hasServiceImage && isPreview ? 'has-placeholder-image' : ''} ${isPreviewPlaceholder ? 'is-preview-empty' : ''} ${isActive ? `is-selected scale-[1.01] shadow-xl ${nativeAccentBorderClass}` : 'hover:-translate-y-0.5'}`}
+                data-card-variant={cardVariant}
+                className={`booking-service-option appearance-none outline-none focus:outline-none text-left rounded-2xl border p-4 md:p-5 transition-all booking-service-border-${serviceBorderStyle} booking-service-variant-${cardVariant} ${showServiceImageSlot ? 'has-service-image' : 'is-text-only-service'} ${!hasServiceImage && isPreview ? 'has-placeholder-image' : ''} ${isPreviewPlaceholder ? 'is-preview-empty' : ''} ${isActive ? `is-selected scale-[1.01] shadow-xl ${nativeAccentBorderClass}` : 'hover:-translate-y-0.5'}`}
                 style={getServiceCardStyle({ isActive, settings, nativeAccent, serviceBorderStyle })}
             >
                 <div className="booking-service-shell flex items-start gap-4">

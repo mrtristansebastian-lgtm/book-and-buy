@@ -30,7 +30,6 @@ export const ServicesStudio = ({
   const [staffFilter, setStaffFilter] = useState('all');
   const [selectedId, setSelectedId] = useState('');
   const [draft, setDraft] = useState(() => blankService());
-  const [galleryInput, setGalleryInput] = useState('');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
 
   const categoryOptions = useMemo(() => getCategoryOptions(services), [services]);
@@ -58,7 +57,6 @@ export const ServicesStudio = ({
     });
     setSelectedId(nextService.id);
     setDraft(nextService);
-    setGalleryInput('');
     setIsServiceModalOpen(true);
   };
 
@@ -66,13 +64,11 @@ export const ServicesStudio = ({
     const normalized = normalizeService(service);
     setSelectedId(normalized.id);
     setDraft(normalized);
-    setGalleryInput('');
     setIsServiceModalOpen(true);
   };
 
   const closeServiceModal = () => {
     setIsServiceModalOpen(false);
-    setGalleryInput('');
   };
 
   const saveDraft = async () => {
@@ -81,8 +77,11 @@ export const ServicesStudio = ({
       showToast?.('Give this service a name first.');
       return;
     }
-    if (!normalizeServiceDurationValue(cleaned.duration)) {
-      showToast?.('Choose a real service duration.');
+    const bookingType = cleaned.bookingType || cleaned.serviceType || 'appointment';
+    const durationOptionalTypes = new Set(['event', 'venue-room', 'vehicle', 'equipment', 'membership']);
+    const usesScheduleDuration = cleaned.durationMode === 'schedule';
+    if (!durationOptionalTypes.has(bookingType) && !usesScheduleDuration && !normalizeServiceDurationValue(cleaned.duration)) {
+      showToast?.('Choose a service duration or select no fixed duration.');
       return;
     }
     const exists = services.some(service => service.id === cleaned.id);
@@ -118,13 +117,6 @@ export const ServicesStudio = ({
           : [...current, staffId]
       };
     });
-  };
-
-  const addGalleryUrl = () => {
-    const url = galleryInput.trim();
-    if (!url) return;
-    setDraft(prev => ({ ...prev, imageUrls: [...(prev.imageUrls || []), url] }));
-    setGalleryInput('');
   };
 
   const handleGalleryUpload = (event) => {
@@ -198,8 +190,6 @@ export const ServicesStudio = ({
         draft={draft}
         selectedServiceExists={selectedServiceExists}
         staffOptions={staffOptions}
-        galleryInput={galleryInput}
-        onGalleryInputChange={setGalleryInput}
         canManageWorkspace={canManageWorkspace}
         onClose={closeServiceModal}
         onRemove={removeDraft}
@@ -208,7 +198,6 @@ export const ServicesStudio = ({
         onToggleStaff={toggleStaff}
         onGalleryUpload={handleGalleryUpload}
         onRemoveGalleryImage={removeGalleryImage}
-        onAddGalleryUrl={addGalleryUrl}
       />
     </div>
   );

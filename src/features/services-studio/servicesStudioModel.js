@@ -12,6 +12,10 @@ export const blankService = (initialValues = {}) => normalizeService({
   staffIds: [],
   imageUrls: [],
   active: true,
+  bookingType: 'appointment',
+  serviceType: 'appointment',
+  durationMode: 'fixed',
+  locationType: 'business',
   ...initialValues
 });
 

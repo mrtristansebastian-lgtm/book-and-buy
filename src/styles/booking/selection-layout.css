@@ -593,3 +593,51 @@
     background-blend-mode: soft-light, normal !important;
     box-shadow: 0 22px 50px -34px var(--native-accent-button-glow) !important;
 }
+
+/* Final mobile editor preview guard: the phone frame should preview the booking
+   page composition, not be dominated by editor upload placeholders. */
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-page-hero,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-page-hero {
+    gap: 0.78rem !important;
+    margin-bottom: 1.45rem !important;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-hero-media,
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-preview-media-drop.booking-hero-media,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-hero-media,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-preview-media-drop.booking-hero-media {
+    height: min(var(--hero-media-height, 220px), 5.1rem) !important;
+    min-height: 4.8rem !important;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-hero-copy,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-hero-copy {
+    gap: 0.62rem !important;
+    padding-top: 0.35rem !important;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-hero-logo-top,
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-preview-media-drop.is-logo,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-hero-logo-top,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-preview-media-drop.is-logo {
+    width: min(var(--booking-logo-size, 104px), 3.45rem) !important;
+    height: min(var(--booking-logo-size, 104px), 3.45rem) !important;
+    max-width: 3.45rem !important;
+    max-height: 3.45rem !important;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-hero-title,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-hero-title {
+    font-size: clamp(1.85rem, 9vw, 2.45rem) !important;
+    line-height: 0.96 !important;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-service-meta-item.is-duration,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-service-meta-item.is-duration {
+    min-width: 3.85rem !important;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-success-title,
+.editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-success-title {
+    line-height: 1.04 !important;
+}

@@ -1,6 +1,9 @@
 export const createServiceId = () => `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+const normalizeBookingType = () => 'appointment';
+
 export const normalizeService = (service = {}, index = 0) => ({
+  ...service,
   id: service.id || createServiceId(),
   name: service.name || `Service ${index + 1}`,
   category: service.category || '',
@@ -13,7 +16,9 @@ export const normalizeService = (service = {}, index = 0) => ({
   staffIds: Array.isArray(service.staffIds) ? service.staffIds : [],
   imageUrls: Array.isArray(service.imageUrls) ? service.imageUrls : [],
   templateId: service.templateId || '',
-  bookingNote: service.bookingNote || ''
+  bookingNote: service.bookingNote || '',
+  bookingType: normalizeBookingType(service.bookingType || service.serviceType || 'appointment'),
+  serviceType: normalizeBookingType(service.serviceType || service.bookingType || 'appointment')
 });
 
 export const normalizeServiceList = (services = []) => (
