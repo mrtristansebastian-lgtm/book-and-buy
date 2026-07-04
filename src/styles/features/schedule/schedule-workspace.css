@@ -1072,6 +1072,610 @@ html body .native-ui .schedule-service-period-row button {
   color: #b91c1c;
 }
 
+html body .native-ui .schedule-settings-wizard-modal {
+  width: min(64rem, calc(100vw - 2rem));
+  height: min(44rem, calc(100dvh - 1.25rem));
+  max-height: calc(100dvh - 1.25rem);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+html body .native-ui .schedule-settings-wizard-header {
+  min-height: 5.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #eef2f7;
+  padding: 1.05rem 1.2rem;
+}
+
+html body .native-ui .schedule-settings-wizard-header p,
+html body .native-ui .schedule-settings-wizard-title span {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-settings-wizard-header h3,
+html body .native-ui .schedule-settings-wizard-title h3 {
+  margin: 0.22rem 0 0;
+  color: #111827;
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-settings-wizard-header small,
+html body .native-ui .schedule-settings-wizard-title p,
+html body .native-ui .schedule-settings-card-head small {
+  display: block;
+  margin: 0.3rem 0 0;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 760;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+html body .native-ui .schedule-settings-wizard-shell {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  overflow: hidden;
+}
+
+html body .native-ui .schedule-settings-step-list {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  border-right: 1px solid #eef2f7;
+  background: #fbfcfd;
+  padding: 0.95rem;
+}
+
+html body .native-ui .schedule-settings-step-list button {
+  min-height: 3rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  padding: 0.48rem 0.56rem;
+  text-align: left;
+}
+
+html body .native-ui .schedule-settings-step-list button > span,
+html body .native-ui .schedule-settings-card-head > span,
+html body .native-ui .schedule-settings-review-card > span {
+  width: 1.85rem;
+  height: 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+html body .native-ui .schedule-settings-step-list strong {
+  overflow: hidden;
+  color: currentColor;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-settings-step-list button.is-active {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .schedule-settings-step-list button.is-complete:not(.is-active) {
+  border-color: #e5e7eb;
+  background: #fff;
+  color: #111827;
+}
+
+html body .native-ui .schedule-settings-wizard-main {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+  padding: 1.15rem;
+  scrollbar-gutter: stable;
+}
+
+html body .native-ui .schedule-settings-wizard-title {
+  margin-bottom: 1rem;
+}
+
+html body .native-ui .schedule-settings-wizard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 0.75rem;
+}
+
+html body .native-ui .schedule-settings-card,
+html body .native-ui .schedule-settings-review-card,
+html body .native-ui .schedule-settings-note {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+html body .native-ui .schedule-settings-card,
+html body .native-ui .schedule-settings-review-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.95rem;
+}
+
+html body .native-ui .schedule-settings-card.is-wide,
+html body .native-ui .schedule-settings-note.is-wide,
+html body .native-ui .schedule-settings-actions.is-wide {
+  grid-column: 1 / -1;
+}
+
+html body .native-ui .schedule-settings-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+html body .native-ui .schedule-settings-card-head div {
+  min-width: 0;
+}
+
+html body .native-ui .schedule-settings-card-head strong,
+html body .native-ui .schedule-settings-review-card strong {
+  display: block;
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.15;
+}
+
+html body .native-ui .schedule-time-slots-card {
+  gap: 0.9rem;
+  background: linear-gradient(180deg, #fff 0%, #fbfcfd 100%);
+}
+
+html body .native-ui .schedule-time-slots-board {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.82rem;
+}
+
+html body .native-ui .schedule-time-slots-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+}
+
+html body .native-ui .schedule-time-slots-summary > span {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+html body .native-ui .schedule-time-slots-summary div {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+html body .native-ui .schedule-time-slots-summary strong {
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+html body .native-ui .schedule-time-slots-summary small {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+html body .native-ui .schedule-time-slots-card .schedule-slot-bubble-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.2rem, 1fr));
+  gap: 0.5rem;
+}
+
+html body .native-ui .schedule-time-slots-card .schedule-slot-bubble {
+  min-height: 2.75rem;
+  justify-content: space-between;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 0.32rem 0.38rem 0.32rem 0.72rem;
+}
+
+html body .native-ui .schedule-time-slots-card .schedule-slot-bubble span {
+  min-width: 0;
+  font-size: 0.82rem;
+}
+
+html body .native-ui .schedule-time-slots-card .schedule-slot-bubble:not(.is-add) button {
+  width: 1.82rem;
+  height: 1.82rem;
+}
+
+html body .native-ui .schedule-time-slots-card .schedule-slot-bubble.is-add {
+  width: auto;
+  min-width: 0;
+  gap: 0.45rem;
+  justify-content: center;
+  background: #111827;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0 0.78rem;
+}
+
+html body .native-ui .schedule-time-slots-card .schedule-slot-bubble.is-add > span {
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-time-slots-card .schedule-slot-bubble.is-add svg {
+  color: #fff;
+}
+
+html body .native-ui .schedule-settings-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f8fafc;
+  color: #475569;
+  padding: 0.72rem 0.82rem;
+  font-size: 0.74rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+html body .native-ui .schedule-settings-option-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+html body .native-ui .schedule-settings-option-list button {
+  min-height: 3.45rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.12rem 0.65rem;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  padding: 0.7rem;
+  text-align: left;
+}
+
+html body .native-ui .schedule-settings-option-list button > span,
+html body .native-ui .schedule-check-row > span {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  grid-row: span 2;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+}
+
+html body .native-ui .schedule-settings-option-list button strong {
+  color: currentColor;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+html body .native-ui .schedule-settings-option-list button small {
+  color: currentColor;
+  font-size: 0.7rem;
+  font-weight: 730;
+  opacity: 0.62;
+}
+
+html body .native-ui .schedule-settings-option-list button.is-active {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .schedule-template-form {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 0.65rem;
+}
+
+html body .native-ui .schedule-template-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+html body .native-ui .schedule-template-row {
+  min-height: 4.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 0.72rem;
+}
+
+html body .native-ui .schedule-template-row > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: 0.16rem;
+}
+
+html body .native-ui .schedule-template-row strong {
+  overflow: hidden;
+  color: #111827;
+  font-size: 0.84rem;
+  font-weight: 950;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-template-row small,
+html body .native-ui .schedule-template-row span {
+  overflow: hidden;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 760;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+html body .native-ui .schedule-template-row span {
+  color: #94a3b8;
+  font-size: 0.66rem;
+  font-weight: 820;
+}
+
+html body .native-ui .schedule-template-row > div:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+html body .native-ui .schedule-template-row button {
+  min-height: 2.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.36rem;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  color: #111827;
+  padding: 0 0.72rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-template-row button.is-primary {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .schedule-template-row button.is-danger {
+  width: 2.3rem;
+  padding: 0;
+  border-color: #fee2e2;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+html body .native-ui .schedule-rules-grid {
+  align-items: start;
+  grid-auto-rows: max-content;
+}
+
+html body .native-ui .schedule-rules-grid .schedule-settings-card {
+  align-self: start;
+}
+
+html body .native-ui .schedule-rules-field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+html body .native-ui .schedule-settings-option-list.is-payment {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+html body .native-ui .schedule-settings-option-list.is-schedule-mode {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html body .native-ui .schedule-first-come-panel {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 0.82rem;
+}
+
+html body .native-ui .schedule-rule-toggle-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+html body .native-ui .schedule-rule-toggle {
+  min-height: 3.55rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.1rem 0.62rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  padding: 0.68rem;
+  text-align: left;
+}
+
+html body .native-ui .schedule-rule-toggle > span {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  grid-row: span 2;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  color: #fff;
+}
+
+html body .native-ui .schedule-rule-toggle strong {
+  color: currentColor;
+  font-size: 0.8rem;
+  font-weight: 920;
+  line-height: 1.15;
+}
+
+html body .native-ui .schedule-rule-toggle small {
+  color: currentColor;
+  font-size: 0.68rem;
+  font-weight: 730;
+  line-height: 1.3;
+  opacity: 0.62;
+}
+
+html body .native-ui .schedule-rule-toggle.is-active {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .schedule-rule-toggle.is-active > span {
+  border-color: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+html body .native-ui .schedule-settings-field {
+  display: grid;
+  gap: 0.38rem;
+}
+
+html body .native-ui .schedule-settings-field > span,
+html body .native-ui .schedule-service-period-range span,
+html body .native-ui .schedule-custom-range span {
+  color: #8b95a5;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-settings-field select,
+html body .native-ui .schedule-settings-field input,
+html body .native-ui .schedule-service-period-range input {
+  width: 100%;
+  min-height: 2.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  padding: 0 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 820;
+  outline: none;
+}
+
+html body .native-ui .schedule-settings-review-card {
+  min-height: 8rem;
+  align-content: start;
+}
+
+html body .native-ui .schedule-settings-review-card small {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+html body .native-ui .schedule-settings-wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid #eef2f7;
+  background: #fff;
+  padding: 0.9rem 1.2rem;
+}
+
+html body .native-ui .schedule-settings-wizard-footer button {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #fff;
+  color: #111827;
+  padding: 0 1.05rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-settings-wizard-footer button.is-primary {
+  min-width: 9rem;
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
 html body .native-ui .schedule-slot-backdrop {
   position: fixed;
   z-index: 1300;
@@ -1361,6 +1965,59 @@ html body .native-ui .schedule-slot-actions button svg {
     width: auto;
     max-height: calc(100vh - 2rem);
     overflow: auto;
+  }
+
+  html body .native-ui .schedule-settings-wizard-modal {
+    width: 100%;
+    min-height: 0;
+    max-height: calc(100dvh - 2rem);
+    overflow: hidden;
+  }
+
+  html body .native-ui .schedule-settings-wizard-header {
+    min-height: auto;
+    padding: 0.95rem;
+  }
+
+  html body .native-ui .schedule-settings-wizard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .schedule-settings-step-list {
+    display: flex;
+    gap: 0.45rem;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid #eef2f7;
+    padding: 0.65rem 0.75rem;
+  }
+
+  html body .native-ui .schedule-settings-step-list button {
+    min-width: 7.5rem;
+  }
+
+  html body .native-ui .schedule-settings-wizard-main {
+    padding: 0.95rem;
+  }
+
+  html body .native-ui .schedule-settings-wizard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .schedule-template-form,
+  html body .native-ui .schedule-template-row,
+  html body .native-ui .schedule-rules-field-grid,
+  html body .native-ui .schedule-settings-option-list.is-payment,
+  html body .native-ui .schedule-settings-option-list.is-schedule-mode {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .schedule-template-row > div:last-child {
+    justify-content: flex-start;
+  }
+
+  html body .native-ui .schedule-settings-wizard-footer {
+    padding: 0.75rem 0.95rem;
   }
 
   html body .native-ui .schedule-slot-backdrop {

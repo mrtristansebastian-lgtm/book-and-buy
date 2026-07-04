@@ -87,13 +87,20 @@ export const buildPreviewCalendarDates = () => {
   return dates;
 };
 
-export const getAvailableTimesForDate = ({ activeDate, schedule = {}, availableTimes = [] }) => {
+export const getAvailableTimesForDate = ({ activeDate, availabilityRules = {}, schedule = {}, availableTimes = [] }) => {
   if (!activeDate) return [];
+  if (availabilityRules.scheduleMode === 'first_come') {
+    return [];
+  }
   const dayConfig = schedule?.[activeDate.localDateStr];
   return dayConfig && Array.isArray(dayConfig.times)
     ? dayConfig.times
     : (Array.isArray(availableTimes) ? availableTimes : []);
 };
+
+export const getScheduleMode = (availabilityRules = {}) => (
+  availabilityRules.scheduleMode === 'first_come' ? 'first_come' : 'time_slots'
+);
 
 export const getStaffAssignmentMode = (availabilityRules = {}) => (
   ['auto', 'client', 'later'].includes(availabilityRules.staffAssignmentMode)

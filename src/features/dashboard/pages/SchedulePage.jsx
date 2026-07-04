@@ -3,7 +3,7 @@ import { AppErrorBoundary } from '../../../components/AppErrorBoundary';
 import { LazySectionFallback } from '../../../components/AppLoading';
 
 const BusinessCalendar = lazy(() => (
-  import('../../../components/BusinessCalendar').then((module) => ({ default: module.BusinessCalendar }))
+  import('../../../components/BusinessCalendar.jsx?schedule-fcfs-v2').then((module) => ({ default: module.BusinessCalendar }))
 ));
 
 export const SchedulePage = ({

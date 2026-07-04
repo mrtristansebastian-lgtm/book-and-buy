@@ -4,7 +4,6 @@ import {
   ColourRoom,
   FaqRoom,
   FunnelTextRoom,
-  ServicesRoom,
   StyleDirectionRoom,
   TypographyRoom
 } from '../rooms';
@@ -46,8 +45,10 @@ export function EditorRoomRenderer({
   if (activeScene.id === 'style') {
     return (
       <StyleDirectionRoom
+        settings={settings}
         value={settings.interfaceStyleDirection || 'native-precision'}
         onApply={actions.applyStyleDirection}
+        onSettingChange={actions.onSettingChange}
       />
     );
   }
@@ -78,15 +79,6 @@ export function EditorRoomRenderer({
       <TypographyRoom
         settings={settings}
         onApplyPreset={actions.applyFontStylePreset}
-      />
-    );
-  }
-
-  if (activeScene.id === 'services') {
-    return (
-      <ServicesRoom
-        settings={settings}
-        onSettingChange={actions.onSettingChange}
       />
     );
   }

@@ -38,9 +38,10 @@ export function useBookingFlowCalendar({ settings, isPreview }) {
   ), [calendarDateLimit, displayDates, selectedDateIdx]);
   const availableTimesForActiveDate = useMemo(() => getAvailableTimesForDate({
     activeDate,
+    availabilityRules: settings.availabilityRules,
     schedule: settings.schedule,
     availableTimes: settings.availableTimes
-  }), [activeDate, settings.schedule, settings.availableTimes]);
+  }), [activeDate, settings.availabilityRules, settings.schedule, settings.availableTimes]);
 
   return {
     activeDate,

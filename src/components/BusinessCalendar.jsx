@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScheduleSettingsModal } from '../features/schedule/components/ScheduleSettingsModal';
+import { ScheduleSettingsModal } from '../features/schedule/components/ScheduleSettingsModal.jsx?schedule-fcfs-v2';
 import { ScheduleSlotEditorModal } from '../features/schedule/components/ScheduleSlotEditorModal';
 import { ScheduleTimeline } from '../features/schedule/components/ScheduleTimeline';
 import { ScheduleTopBar } from '../features/schedule/components/ScheduleTopBar';
@@ -84,17 +84,18 @@ export const BusinessCalendar = ({
         onChangeApplyScope={setApplyScope}
         onClose={() => schedule.setSettingsModalOpen(false)}
         onDeleteSlot={schedule.actions.deleteDefaultSlot}
-        onDeleteServiceAvailabilityPeriod={schedule.actions.deleteServiceAvailabilityPeriod}
+        onDeleteScheduleTemplate={schedule.actions.deleteScheduleTemplate}
         onEditSlot={schedule.actions.startEditingDefaultSlot}
-        onSaveServiceAvailabilityPeriod={schedule.actions.upsertServiceAvailabilityPeriod}
+        onApplyScheduleTemplate={schedule.actions.applyScheduleTemplate}
+        onSaveScheduleTemplate={schedule.actions.saveScheduleTemplate}
+        onSelectDate={schedule.actions.selectDate}
         onUpdateAvailabilityRules={schedule.actions.updateAvailabilityRules}
         onSaveAvailabilitySettings={onSave}
         onSaveDefaults={schedule.actions.saveGeneratedDefaultSlots}
         onToggleWaitlist={schedule.actions.toggleWaitlist}
+        scheduleTemplates={schedule.scheduleTemplates}
         selectedDate={schedule.selectedDate}
         selectedCalendarName={schedule.selectedCalendar?.name || 'Business Overview'}
-        serviceAvailabilityPeriods={schedule.serviceAvailabilityPeriods}
-        services={settings.services || []}
         waitlistEnabled={schedule.waitlistEnabled}
       />
 

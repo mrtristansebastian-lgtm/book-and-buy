@@ -21,27 +21,35 @@ import {
   groupBookingsByTime,
 } from '../utils/scheduleWorkspaceModel';
 
-const normalizeServiceAvailabilityPeriods = (periods = []) => (
-  (Array.isArray(periods) ? periods : [])
-    .map((period, index) => {
-      const startDate = String(period?.startDate || '').trim();
-      const endDate = String(period?.endDate || startDate).trim();
-      const serviceIds = Array.isArray(period?.serviceIds)
-        ? period.serviceIds.map(id => String(id || '').trim()).filter(Boolean)
-        : [];
-      if (!startDate || !endDate || !serviceIds.length) return null;
+const normalizeScheduleTemplates = (templates = []) => (
+  (Array.isArray(templates) ? templates : [])
+    .map((template, index) => {
+      const name = String(template?.name || '').trim();
+      const defaultTimes = sortSlotValues(Array.isArray(template?.defaultTimes) ? template.defaultTimes : []);
+      if (!name || !defaultTimes.length) return null;
+      const rules = template?.availabilityRules || {};
       return {
-        id: String(period?.id || `service-period-${index + 1}`).trim(),
-        name: String(period?.name || 'Service period').trim(),
-        startDate: startDate <= endDate ? startDate : endDate,
-        endDate: endDate >= startDate ? endDate : startDate,
-        serviceIds: Array.from(new Set(serviceIds)),
-        active: period?.active !== false,
-        updatedAt: Number(period?.updatedAt) || 0
+        id: String(template?.id || `schedule-template-${index + 1}`).trim(),
+        name,
+        description: String(template?.description || '').trim(),
+        defaultTimes,
+        waitlistEnabled: template?.waitlistEnabled !== false,
+        availabilityRules: {
+          enabled: rules.enabled !== false,
+          scheduleMode: ['time_slots', 'first_come'].includes(rules.scheduleMode) ? rules.scheduleMode : 'time_slots',
+          staffAssignmentMode: ['auto', 'client', 'later'].includes(rules.staffAssignmentMode) ? rules.staffAssignmentMode : 'auto',
+          holdMode: ['pending_confirmed', 'pending_only', 'confirmed_only'].includes(rules.holdMode) ? rules.holdMode : 'pending_confirmed',
+          bookingNotice: String(rules.bookingNotice || '').trim(),
+          maxAdvanceBooking: String(rules.maxAdvanceBooking || '').trim(),
+          cancellationWindow: String(rules.cancellationWindow || '').trim(),
+          reschedulingAllowed: rules.reschedulingAllowed !== false,
+          repeatBookingsAllowed: Boolean(rules.repeatBookingsAllowed)
+        },
+        updatedAt: Number(template?.updatedAt) || 0
       };
     })
     .filter(Boolean)
-    .sort((left, right) => left.startDate.localeCompare(right.startDate) || left.name.localeCompare(right.name))
+    .sort((left, right) => (right.updatedAt || 0) - (left.updatedAt || 0) || left.name.localeCompare(right.name))
 );
 
 export const useScheduleWorkspace = ({
@@ -69,17 +77,24 @@ export const useScheduleWorkspace = ({
   const canEditSelectedCalendar = workspaceRole !== 'staff' || selectedCalendarId === activeStaffId;
   const availabilityRules = {
     enabled: settings.availabilityRules?.enabled !== false,
+    scheduleMode: ['time_slots', 'first_come'].includes(settings.availabilityRules?.scheduleMode)
+      ? settings.availabilityRules.scheduleMode
+      : 'time_slots',
     staffAssignmentMode: ['auto', 'client', 'later'].includes(settings.availabilityRules?.staffAssignmentMode)
       ? settings.availabilityRules.staffAssignmentMode
       : 'auto',
     holdMode: ['pending_confirmed', 'pending_only', 'confirmed_only'].includes(settings.availabilityRules?.holdMode)
       ? settings.availabilityRules.holdMode
       : 'pending_confirmed',
-    fallbackDurationMinutes: Number(settings.availabilityRules?.fallbackDurationMinutes) || 60
+    bookingNotice: String(settings.availabilityRules?.bookingNotice || '').trim(),
+    maxAdvanceBooking: String(settings.availabilityRules?.maxAdvanceBooking || '').trim(),
+    cancellationWindow: String(settings.availabilityRules?.cancellationWindow || '').trim(),
+    reschedulingAllowed: settings.availabilityRules?.reschedulingAllowed !== false,
+    repeatBookingsAllowed: Boolean(settings.availabilityRules?.repeatBookingsAllowed)
   };
-  const serviceAvailabilityPeriods = useMemo(
-    () => normalizeServiceAvailabilityPeriods(settings.serviceAvailabilityPeriods || []),
-    [settings.serviceAvailabilityPeriods]
+  const scheduleTemplates = useMemo(
+    () => normalizeScheduleTemplates(settings.scheduleTemplates || []),
+    [settings.scheduleTemplates]
   );
 
   useEffect(() => {
@@ -349,68 +364,97 @@ export const useScheduleWorkspace = ({
         ...prev,
         availabilityRules: {
           enabled: prev.availabilityRules?.enabled !== false,
+          scheduleMode: 'time_slots',
           staffAssignmentMode: 'auto',
           holdMode: 'pending_confirmed',
-          fallbackDurationMinutes: 60,
+          bookingNotice: '',
+          maxAdvanceBooking: '',
+          cancellationWindow: '',
+          reschedulingAllowed: true,
+          repeatBookingsAllowed: false,
           ...(prev.availabilityRules || {}),
           enabled: true,
           ...patch
         }
       }));
     },
-    upsertServiceAvailabilityPeriod: (period = {}) => {
-      if (!guardCalendarEdit('workspace')) return false;
-      const startDate = String(period.startDate || '').trim();
-      const endDate = String(period.endDate || startDate).trim();
-      const serviceIds = Array.from(new Set((Array.isArray(period.serviceIds) ? period.serviceIds : [])
-        .map(id => String(id || '').trim())
-        .filter(Boolean)));
-      if (!startDate || !endDate) {
-        showToast?.('Choose a start and end date for this service period.');
+    saveScheduleTemplate: (template = {}) => {
+      if (!guardCalendarEdit(selectedCalendarId)) return false;
+      const name = String(template.name || '').trim();
+      if (!name) {
+        showToast?.('Name this schedule template first.');
         return false;
       }
-      if (endDate < startDate) {
-        showToast?.('Service period end date must be after the start date.');
-        return false;
-      }
-      if (!serviceIds.length) {
-        showToast?.('Choose at least one service for this period.');
-        return false;
-      }
-      const nextPeriod = {
-        id: period.id || `service-period-${Date.now()}`,
-        name: String(period.name || 'Service period').trim(),
-        startDate,
-        endDate,
-        serviceIds,
-        active: true,
+      const nextTemplate = {
+        id: template.id || `schedule-template-${Date.now()}`,
+        name,
+        description: String(template.description || `${defaultSlots.length} slots for ${selectedCalendar?.name || 'this calendar'}`).trim(),
+        defaultTimes: defaultSlots,
+        waitlistEnabled: settings.features?.waitlist !== false,
+        availabilityRules,
         updatedAt: Date.now()
       };
       onSettingsDirty?.();
-      setSettings(prev => {
-        const current = normalizeServiceAvailabilityPeriods(prev.serviceAvailabilityPeriods || []);
-        return {
-          ...prev,
-          serviceAvailabilityPeriods: [
-            nextPeriod,
-            ...current.filter(item => item.id !== nextPeriod.id)
-          ]
-        };
-      });
-      showToast?.('Service availability period saved.');
+      setSettings(prev => ({
+        ...prev,
+        scheduleTemplates: [
+          nextTemplate,
+          ...normalizeScheduleTemplates(prev.scheduleTemplates || []).filter(item => item.id !== nextTemplate.id)
+        ]
+      }));
+      showToast?.('Schedule template saved.');
       return true;
     },
-    deleteServiceAvailabilityPeriod: (periodId) => {
-      if (!guardCalendarEdit('workspace')) return false;
-      const id = String(periodId || '').trim();
+    applyScheduleTemplate: (templateId) => {
+      if (!guardCalendarEdit(selectedCalendarId)) return false;
+      const template = scheduleTemplates.find(item => item.id === templateId);
+      if (!template) {
+        showToast?.('Schedule template not found.');
+        return false;
+      }
+      onSettingsDirty?.();
+      setSettings(prev => {
+        const sortedTimes = sortSlotValues(template.defaultTimes || []);
+        const nextSettings = {
+          ...prev,
+          features: {
+            ...(prev.features || {}),
+            waitlist: template.waitlistEnabled !== false
+          },
+          availabilityRules: {
+            enabled: true,
+            ...template.availabilityRules
+          }
+        };
+        if (selectedCalendarId === 'workspace') {
+          return { ...nextSettings, availableTimes: sortedTimes };
+        }
+        const previousCalendar = prev.staffCalendars?.[selectedCalendarId] || {};
+        return {
+          ...nextSettings,
+          staffCalendars: {
+            ...(prev.staffCalendars || {}),
+            [selectedCalendarId]: {
+              ...previousCalendar,
+              staffId: selectedCalendarId,
+              availableTimes: sortedTimes,
+              updatedAt: Date.now()
+            }
+          }
+        };
+      });
+      showToast?.(`Applied ${template.name}.`);
+      return true;
+    },
+    deleteScheduleTemplate: (templateId) => {
+      const id = String(templateId || '').trim();
       if (!id) return false;
       onSettingsDirty?.();
       setSettings(prev => ({
         ...prev,
-        serviceAvailabilityPeriods: normalizeServiceAvailabilityPeriods(prev.serviceAvailabilityPeriods || [])
-          .filter(period => period.id !== id)
+        scheduleTemplates: normalizeScheduleTemplates(prev.scheduleTemplates || []).filter(template => template.id !== id)
       }));
-      showToast?.('Service availability period removed.');
+      showToast?.('Schedule template deleted.');
       return true;
     }
   };
@@ -436,7 +480,7 @@ export const useScheduleWorkspace = ({
     selectedCalendarId,
     selectedDate,
     selectedDayTitle,
-    serviceAvailabilityPeriods,
+    scheduleTemplates,
     setSettingsModalOpen,
     setSlotEditor,
     settingsModalOpen,

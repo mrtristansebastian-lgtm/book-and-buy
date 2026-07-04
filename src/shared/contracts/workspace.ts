@@ -17,9 +17,14 @@ export interface WorkspaceFeatureFlags {
 
 export interface AvailabilityRules {
   enabled?: boolean;
+  scheduleMode?: "time_slots" | "first_come";
   staffAssignmentMode?: "auto" | "client" | "later";
-  holdMode?: "pending_confirmed" | "confirmed";
-  fallbackDurationMinutes?: number;
+  holdMode?: "pending_confirmed" | "pending_only" | "confirmed_only" | "confirmed";
+  bookingNotice?: string;
+  maxAdvanceBooking?: string;
+  cancellationWindow?: string;
+  reschedulingAllowed?: boolean;
+  repeatBookingsAllowed?: boolean;
 }
 
 export interface WorkspaceService {

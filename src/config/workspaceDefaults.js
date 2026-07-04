@@ -106,7 +106,17 @@ export const createDefaultSettings = () => ({
   availableTimes: ['09:00', '10:30', '12:00', '14:30', '16:00', '17:30'],
   schedule: {},
   staffCalendars: {},
-  availabilityRules: { enabled: true, staffAssignmentMode: 'auto', holdMode: 'pending_confirmed', fallbackDurationMinutes: 60 },
+  availabilityRules: {
+    enabled: true,
+    scheduleMode: 'time_slots',
+    staffAssignmentMode: 'auto',
+    holdMode: 'pending_confirmed',
+    bookingNotice: '',
+    maxAdvanceBooking: '',
+    cancellationWindow: '',
+    reschedulingAllowed: true,
+    repeatBookingsAllowed: false
+  },
   reminders: { enabled: true, client24h: true, client2h: true },
   googleCalendar: { mode: 'manual-sync', connectedEmail: '', connectedAt: 0, lastSyncedAt: 0, lastSyncCount: 0 },
   features: { birthday: true, waitlist: true, socialProof: true, loadingScreen: true, firstAvailable: true, collectClientName: true, collectClientPhone: true, collectClientEmail: true, collectClientNotes: false, emailUpdates: true, faqEnabled: true, socialLinks: false, location: '', faqs: defaultFaqItems.map(item => ({ ...item })) },

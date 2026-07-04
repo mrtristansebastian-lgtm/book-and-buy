@@ -23,8 +23,10 @@ export function useBookingFlowAvailability({
     ? (serviceAvailability.staffOptions.length ? serviceAvailability.staffOptions : publicStaffOptions)
     : [];
   const selectedAvailabilityStaff = serviceStaffOptions.find(staff => staff.id === selectedStaffId) || null;
+  const firstComeMode = settings.availabilityRules?.scheduleMode === 'first_come';
   const serviceAwareAvailabilityEnabled = Boolean(
     !isPreview &&
+    !firstComeMode &&
     settings.availabilityRules?.enabled !== false &&
     settings.ownerId &&
     settings.slug &&

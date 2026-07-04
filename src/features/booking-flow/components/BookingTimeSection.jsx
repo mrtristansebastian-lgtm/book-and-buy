@@ -31,6 +31,7 @@ export const BookingTimeSection = ({
     const surfaceColor = settings.pageSurfaceColor || '#ffffff';
     const borderColor = withColorAlpha(settings.headingColor || '#000000', 8, '#000000');
     const accentColor = settings.primaryColor || settings.headingColor || '#050505';
+    const firstComeMode = settings.availabilityRules?.scheduleMode === 'first_come';
 
     const renderStateCard = ({ Icon, label, title, copy, tone = 'neutral', spin = false }) => (
         <div
@@ -73,7 +74,7 @@ export const BookingTimeSection = ({
         <section data-preview-section="time" style={{ order: sectionOrder ?? (showServiceStep ? 3 : 2) }}>
             <div className={`flex flex-col ${pageItems} ${pageTextClass} mb-6 px-1 ${inspectClass}`} data-preview-section="time" onClick={() => previewInspectEnabled && onInspect('time')}>
                 <h4 className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
-                    {isWaitlistMode ? 'Join the waitlist' : 'What time works?'}
+                    {isWaitlistMode ? 'Join the waitlist' : firstComeMode ? 'When do you plan to arrive?' : 'What time works?'}
                 </h4>
             </div>
 
@@ -86,6 +87,37 @@ export const BookingTimeSection = ({
                     tone: 'accent',
                     spin: true
                 })
+            ) : firstComeMode ? (
+                <div
+                    className={`mx-auto w-full max-w-[34rem] rounded-2xl border px-5 py-5 md:px-6 ${isPreview ? 'cursor-pointer' : ''}`}
+                    style={{
+                        backgroundColor: surfaceColor,
+                        borderColor,
+                        boxShadow: '0 18px 44px -40px rgba(15, 23, 42, 0.32)'
+                    }}
+                    onClick={() => previewInspectEnabled && onInspect('time')}
+                >
+                    <label className="block">
+                        <span className="block text-[10px] font-bold uppercase tracking-[0.28em] opacity-45" style={{ color: settings.bodyColor }}>
+                            Arrival time
+                        </span>
+                        <input
+                            type="time"
+                            value={/^\d{2}:\d{2}$/.test(selectedTime || '') ? selectedTime : ''}
+                            onChange={(event) => setSelectedTime(event.target.value)}
+                            className="mt-3 w-full appearance-none rounded-2xl border bg-white px-4 py-4 text-center text-2xl font-black outline-none transition focus:ring-2"
+                            style={{
+                                borderColor: withColorAlpha(settings.headingColor || '#000000', 10, '#000000'),
+                                color: settings.headingColor || '#050505',
+                                fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily),
+                                '--tw-ring-color': withColorAlpha(accentColor, 25, '#000000')
+                            }}
+                        />
+                    </label>
+                    <p className="mt-3 text-center text-sm font-semibold leading-relaxed" style={{ color: settings.bodyColor }}>
+                        Choose when you plan to arrive. This helps the business prepare, but it does not reserve an exact slot.
+                    </p>
+                </div>
             ) : displayTimesForActiveDate.length === 0 ? (
                 isWaitlistMode ? (
                     renderStateCard({
