@@ -5,6 +5,8 @@ import { AppErrorBoundary } from './components/AppErrorBoundary';
 import './styles.css';
 import './styles/extracted.css';
 import './styles/workspace-shell.css';
+import './styles/dashboard/mission-control-dashboard.css';
+import './styles/features/onboarding/business-onboarding.css';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -272,7 +272,7 @@ export function useWorkspaceActionRuntime({
     setBookingDeskPeriod: booking.runtime.setBookingDeskPeriod,
     setBookingFilter: booking.runtime.setBookingFilter,
     setBookingSearch: booking.runtime.setBookingSearch,
-    setShowOwnerManual: profile.setShowOwnerManual,
+    setShowBusinessOnboarding: profile.setShowBusinessOnboarding,
     settings,
     userEmail: auth.user?.email,
     workspaceNotifications: profile.workspaceNotifications,

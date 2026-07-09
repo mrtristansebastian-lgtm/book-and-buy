@@ -1,4 +1,5 @@
 import { useDashboardRouteConfig } from '../../dashboard';
+import { getOnboardingStatus } from '../../onboarding';
 
 export function useAppRouteHostConfig({
   actionRuntime,
@@ -16,6 +17,12 @@ export function useAppRouteHostConfig({
 }) {
   const usesPasswordProvider = Boolean(auth.user?.providerData?.some?.(provider => provider.providerId === 'password'));
   const requiresEmailVerification = Boolean(auth.user && usesPasswordProvider && !auth.user.emailVerified);
+  const onboardingStatus = getOnboardingStatus({
+    settings: settingsState.settings,
+    user: auth.user,
+    workspaceRole: workspace.workspaceRole,
+    forceOpen: dashboardUi.showBusinessOnboarding
+  });
 
   const dashboard = useDashboardRouteConfig({
     account: {
@@ -110,8 +117,7 @@ export function useAppRouteHostConfig({
       setActiveProfileSection: dashboardUi.setActiveProfileSection,
       setCommunications: actionRuntime.profile.setCommunications,
       setProfileSystemFilter: dashboardUi.setProfileSystemFilter,
-      setShowOwnerManual: dashboardUi.setShowOwnerManual,
-      showOwnerManual: dashboardUi.showOwnerManual,
+      setShowBusinessOnboarding: dashboardUi.setShowBusinessOnboarding,
       saveCommunications: actionRuntime.profile.saveCommunications,
       venuePhotos: actionRuntime.profile.venuePhotos
     },
@@ -201,6 +207,40 @@ export function useAppRouteHostConfig({
       onInstallApp: app.handleAddToHomeScreen,
       onRetry: publicBooking.reloadPublicWorkspace,
       workspace: publicBooking.publicWorkspace
+    },
+    onboarding: {
+      bookingPageUrl: editor.bookingPageUrl,
+      isGuestWorkspace: workspace.isGuestWorkspace,
+      settings: settingsState.settings,
+      shouldShow: onboardingStatus.shouldShow && route.view === 'dashboard' && !requiresEmailVerification,
+      user: auth.user,
+      onApply: async (patch) => {
+        const saved = await actionRuntime.settings.saveWorkspaceSettingsPatch(patch, 'Setup complete. Your booking workspace is ready.');
+        if (saved) dashboardUi.setShowBusinessOnboarding(true);
+        return saved;
+      },
+      onCopyBookingLink: () => actionRuntime.copyToClipboard(editor.bookingPageUrl),
+      onEditBookingPage: () => {
+        dashboardUi.setShowBusinessOnboarding(false);
+        route.applyWorkspaceRoute({ view: 'dashboard', activeTab: 'editor', editorTab: 'introduction' });
+      },
+      onFinishLater: async () => {
+        if (!workspace.isGuestWorkspace && auth.user) {
+          await actionRuntime.settings.saveWorkspaceSettingsPatch({
+            onboardingSkippedAt: Date.now(),
+            onboardingChecklist: {
+              ...(settingsState.settings.onboardingChecklist || {}),
+              skipped: true
+            }
+          }, 'Setup saved for later.');
+        }
+        dashboardUi.setShowBusinessOnboarding(false);
+        route.applyWorkspaceRoute({ view: 'dashboard', activeTab: 'overview', editorTab: route.editorTab });
+      },
+      onOpenDashboard: () => {
+        dashboardUi.setShowBusinessOnboarding(false);
+        route.applyWorkspaceRoute({ view: 'dashboard', activeTab: 'overview', editorTab: route.editorTab });
+      }
     },
     clientPortal: {
       isGuestPreview: clientPortal.clientGuestMode,

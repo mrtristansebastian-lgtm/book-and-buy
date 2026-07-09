@@ -87,8 +87,6 @@ export function useDashboardRouteConfig({
       setImageCropModal: media.setImageCropModal,
       setLegalPanel: overlays.setLegalPanel,
       setRunningLateDialog: booking.actions.setRunningLateDialog,
-      setShowOwnerManual: profile.setShowOwnerManual,
-      showOwnerManual: profile.showOwnerManual,
       submitRunningLateDialog: booking.actions.submitRunningLateDialog,
       toast: overlays.toast
     },

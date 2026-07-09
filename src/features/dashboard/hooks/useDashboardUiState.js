@@ -10,7 +10,7 @@ export function useDashboardUiState({ activeTab }) {
   const [selectedStaffFileId, setSelectedStaffFileId] = useState(null);
   const [teamPanelMode, setTeamPanelMode] = useState('roster');
   const [activeProfileSection, setActiveProfileSection] = useState('');
-  const [showOwnerManual, setShowOwnerManual] = useState(false);
+  const [showBusinessOnboarding, setShowBusinessOnboarding] = useState(false);
   const [editorLaunchPanel, setEditorLaunchPanel] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState(null);
   const [supportThreadFocus, setSupportThreadFocus] = useState(null);
@@ -39,12 +39,12 @@ export function useDashboardUiState({ activeTab }) {
     setMobileNavOpen,
     setProfileSystemFilter,
     setSelectedStaffFileId,
-    setShowOwnerManual,
+    setShowBusinessOnboarding,
     setSidebarCollapsed,
     setSupportThreadFocus,
     setTeamPanelMode,
     setThemeFilters,
-    showOwnerManual,
+    showBusinessOnboarding,
     sidebarCollapsed,
     supportThreadFocus,
     teamPanelMode,

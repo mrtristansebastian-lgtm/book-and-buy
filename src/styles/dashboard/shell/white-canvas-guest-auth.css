@@ -6,7 +6,6 @@ html body .native-ui.dashboard-light,
 html body .native-ui.dashboard-light .dashboard-main,
 html body .native-ui.dashboard-light .dashboard-main > div:not(.mobile-editor-shell),
 html body .native-ui .client-portal-shell,
-html body .native-ui .owner-manual-shell,
 html body .native-ui .support-chat-canvas,
 html body .native-ui .client-chat-canvas {
   background: #ffffff !important;

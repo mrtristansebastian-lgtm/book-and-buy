@@ -60,7 +60,7 @@ export function buildProfileRoute({
       },
       setKeepLoggedIn: auth.setKeepLoggedIn,
       setProfileSystemFilter: profile.setProfileSystemFilter,
-      setShowOwnerManual: profile.setShowOwnerManual,
+      setShowBusinessOnboarding: profile.setShowBusinessOnboarding,
       settings,
       showToast,
       toggleFaqFeature: settingsState.toggleFaqFeature,

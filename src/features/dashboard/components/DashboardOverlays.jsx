@@ -1,16 +1,8 @@
-import { lazy, Suspense } from 'react';
-
-import { LazySectionFallback } from '../../../components/AppLoading';
 import { ConfirmActionDialog, LegalDialog, NativeToast } from '../../../components/AppOverlays';
-import { AppErrorBoundary } from '../../../components/AppErrorBoundary';
 import { ImageCropModal } from '../../../components/ImageCropModal';
 import { BookingInfoDialog } from '../../bookings/components/BookingDialogs';
 import { RunningLateDialog } from '../../bookings/components/BookingDialogs';
 import { AccountDeleteDialog } from '../../profile/components/AccountDeleteDialog';
-
-const OwnerManual = lazy(() => (
-  import('../../../components/OwnerManual').then((module) => ({ default: module.OwnerManual }))
-));
 
 export function DashboardOverlays({
   accountDeleteOpen,
@@ -28,7 +20,6 @@ export function DashboardOverlays({
   imageCropSaving,
   legalPages,
   legalPanel,
-  navigateWorkspaceTab,
   runningLateDialog,
   safeStaffList,
   setAccountDeleteOpen,
@@ -38,8 +29,6 @@ export function DashboardOverlays({
   setImageCropModal,
   setLegalPanel,
   setRunningLateDialog,
-  setShowOwnerManual,
-  showOwnerManual,
   submitRunningLateDialog,
   toast
 }) {
@@ -98,19 +87,6 @@ export function DashboardOverlays({
         }}
         onSave={handleImageCropSave}
       />
-      {showOwnerManual && (
-        <Suspense fallback={<LazySectionFallback label="Loading manual" />}>
-          <AppErrorBoundary compact label="Owner Manual" resetKey="light">
-            <OwnerManual
-              onClose={() => setShowOwnerManual(false)}
-              onNavigate={(targetTab, targetEditorTab) => {
-                if (!navigateWorkspaceTab(targetTab, targetEditorTab)) return;
-                setShowOwnerManual(false);
-              }}
-            />
-          </AppErrorBoundary>
-        </Suspense>
-      )}
     </>
   );
 }

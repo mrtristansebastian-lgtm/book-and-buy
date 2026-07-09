@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Bell, Bookmark, CalendarCheck, CalendarDays, Check, ChevronLeft, ChevronRight, Clock, Info, ListChecks, Pencil, Plus, RotateCcw, Save, ShieldCheck, Trash2, Users, X } from 'lucide-react';
+import { Bell, Bookmark, CalendarCheck, CalendarDays, Check, ChevronLeft, ChevronRight, Clock, Info, ListChecks, Pencil, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
 import { getLocalDateStr } from '../../../utils/dates';
 
 const scheduleWizardSteps = [
   { id: 'defaults', label: 'Slots', title: 'Set up available time slots', helper: 'Choose the booking method and times clients can book from this schedule.' },
   { id: 'apply', label: 'Time period', title: 'Time period', helper: 'Choose the day or date range this schedule should apply to.' },
-  { id: 'rules', label: 'Rules', title: 'Booking rules', helper: 'Control notice, cancellation, waitlists, holds, and staff assignment.' },
+  { id: 'rules', label: 'Rules', title: 'Booking rules', helper: 'Control notice, cancellations, waitlists, and availability holds.' },
   { id: 'templates', label: 'Templates', title: 'Saved schedule templates', helper: 'Save reusable schedule setups and apply them when the business runs different hours.' },
   { id: 'review', label: 'Review', title: 'Review and save', helper: 'Confirm the setup before saving schedule settings.' }
 ];
@@ -88,26 +88,17 @@ export const ScheduleSettingsModal = ({
     scheduleMode: ['time_slots', 'first_come'].includes(availabilityRules.scheduleMode)
       ? availabilityRules.scheduleMode
       : 'time_slots',
-    staffAssignmentMode: ['auto', 'client', 'later'].includes(availabilityRules.staffAssignmentMode)
-      ? availabilityRules.staffAssignmentMode
-      : 'auto',
     holdMode: ['pending_confirmed', 'pending_only', 'confirmed_only'].includes(availabilityRules.holdMode)
       ? availabilityRules.holdMode
       : 'pending_confirmed',
     bookingNotice: String(availabilityRules.bookingNotice || '').trim(),
     maxAdvanceBooking: String(availabilityRules.maxAdvanceBooking || '').trim(),
     cancellationWindow: String(availabilityRules.cancellationWindow || '').trim(),
-    reschedulingAllowed: availabilityRules.reschedulingAllowed !== false,
-    repeatBookingsAllowed: Boolean(availabilityRules.repeatBookingsAllowed)
+    reschedulingAllowed: availabilityRules.reschedulingAllowed !== false
   };
   const currentStep = scheduleWizardSteps[stepIndex] || scheduleWizardSteps[0];
   const canGoBack = stepIndex > 0;
   const isLastStep = stepIndex === scheduleWizardSteps.length - 1;
-  const staffModeLabels = {
-    auto: 'Auto-assign',
-    client: 'Client chooses staff',
-    later: 'Assign later'
-  };
   const holdModeLabels = {
     pending_confirmed: 'Pending + confirmed',
     pending_only: 'Pending only',
@@ -324,7 +315,7 @@ export const ScheduleSettingsModal = ({
             <small>Push the default slots to a day, week, month, all future days, or a custom period.</small>
           </div>
         </div>
-        <div className="schedule-settings-option-list">
+        <div className="schedule-settings-option-list is-compact">
           {[
             { id: 'day', label: 'Selected day', copy: `Only ${formatRangeDate(selectedDate)}.` },
             { id: 'week', label: 'This week', copy: 'Apply to the visible business week.' },
@@ -404,12 +395,12 @@ export const ScheduleSettingsModal = ({
 
   const renderRulesStep = () => (
     <div className="schedule-settings-wizard-grid schedule-rules-grid">
-      <section className="schedule-settings-card is-wide">
+      <section className="schedule-settings-card schedule-rules-primary-card">
         <div className="schedule-settings-card-head">
           <span><Bell size={15} /></span>
           <div>
             <strong>Booking windows</strong>
-            <small>Decide how early, how late, and how far ahead clients can book.</small>
+            <small>Set when clients can book and which statuses hold a slot.</small>
           </div>
         </div>
         <div className="schedule-rules-field-grid">
@@ -440,27 +431,33 @@ export const ScheduleSettingsModal = ({
               {cancellationWindowOptions.map(option => <option key={option.value || 'none'} value={option.value}>{option.label}</option>)}
             </select>
           </label>
+          <label className="schedule-settings-field">
+            <span>Held by</span>
+            <select
+              value={normalizedAvailabilityRules.holdMode}
+              onChange={event => onUpdateAvailabilityRules?.({ holdMode: event.target.value })}
+            >
+              <option value="pending_confirmed">Pending + confirmed</option>
+              <option value="pending_only">Pending only</option>
+              <option value="confirmed_only">Confirmed only</option>
+            </select>
+          </label>
         </div>
       </section>
 
-      <section className="schedule-settings-card">
+      <section className="schedule-settings-card schedule-rules-client-card">
         <div className="schedule-settings-card-head">
           <span><RotateCcw size={15} /></span>
           <div>
-            <strong>Changes and repeats</strong>
-            <small>Control client changes after booking.</small>
+            <strong>Client controls</strong>
+            <small>Choose what clients can do when availability is tight.</small>
           </div>
         </div>
         <div className="schedule-rule-toggle-grid">
           {renderRuleToggle({
             keyName: 'reschedulingAllowed',
             label: 'Rescheduling allowed',
-            copy: 'Clients can move bookings inside your rules.'
-          })}
-          {renderRuleToggle({
-            keyName: 'repeatBookingsAllowed',
-            label: 'Repeat bookings',
-            copy: 'Clients can request recurring appointment patterns.'
+            copy: 'Clients can move bookings within rules.'
           })}
           <button
             type="button"
@@ -470,77 +467,8 @@ export const ScheduleSettingsModal = ({
           >
             <span>{waitlistEnabled && <Check size={13} />}</span>
             <strong>Waitlist when full</strong>
-            <small>Clients can join a waitlist when a day has no open times.</small>
+            <small>Clients can join when no times are open.</small>
           </button>
-        </div>
-      </section>
-
-      <section className="schedule-settings-card">
-        <div className="schedule-settings-card-head">
-          <span><ShieldCheck size={15} /></span>
-          <div>
-            <strong>Availability holds</strong>
-            <small>Choose which booking states reserve a time.</small>
-          </div>
-        </div>
-        <label className="schedule-settings-field">
-          <span>Held by</span>
-          <select
-            value={normalizedAvailabilityRules.holdMode}
-            onChange={event => onUpdateAvailabilityRules?.({ holdMode: event.target.value })}
-          >
-            <option value="pending_confirmed">Pending + confirmed</option>
-            <option value="pending_only">Pending only</option>
-            <option value="confirmed_only">Confirmed only</option>
-          </select>
-        </label>
-      </section>
-
-      <section className="schedule-settings-card is-wide">
-        <div className="schedule-settings-card-head">
-          <span><Users size={15} /></span>
-          <div>
-            <strong>Staff assignment</strong>
-            <small>Decide how clients and the team connect bookings to staff members.</small>
-          </div>
-        </div>
-        <div className="schedule-settings-choice-grid">
-          {[
-            {
-              id: 'auto',
-              label: 'Auto-assign',
-              copy: 'Clients pick a time. Staff is chosen quietly.',
-              info: 'Client picks service and time. Build A Booking finds an eligible available staff member and assigns them to the booking automatically.'
-            },
-            {
-              id: 'client',
-              label: 'Client chooses staff',
-              copy: 'Show public staff choices before times.',
-              info: 'Client picks a service, then chooses from staff who can provide that service. Calendar and times are filtered to that staff member.'
-            },
-            {
-              id: 'later',
-              label: 'Assign later',
-              copy: 'Hold availability, assign in Bookings.',
-              info: 'Client picks service and time. Build A Booking checks that someone can do it, but the booking stays unassigned until the business chooses staff in Bookings.'
-            }
-          ].map(option => (
-            <button
-              key={option.id}
-              type="button"
-              className={normalizedAvailabilityRules.staffAssignmentMode === option.id ? 'is-active' : ''}
-              onClick={() => onUpdateAvailabilityRules?.({ staffAssignmentMode: option.id })}
-            >
-              <strong>
-                {option.label}
-                <span className="schedule-choice-info" tabIndex="0" aria-label={option.info}>
-                  <Info size={12} />
-                  <span role="tooltip">{option.info}</span>
-                </span>
-              </strong>
-              <span>{option.copy}</span>
-            </button>
-          ))}
         </div>
       </section>
     </div>
@@ -559,8 +487,8 @@ export const ScheduleSettingsModal = ({
         <small>{applyScope === 'custom' ? `${formatRangeDate(rangePayload.startDate)} - ${formatRangeDate(rangePayload.endDate)}` : 'Default apply target'}</small>
       </section>
       <section className="schedule-settings-review-card">
-        <span><Users size={16} /></span>
-        <strong>{staffModeLabels[normalizedAvailabilityRules.staffAssignmentMode]}</strong>
+        <span><Bell size={16} /></span>
+        <strong>{holdModeLabels[normalizedAvailabilityRules.holdMode]} holds</strong>
         <small>{holdModeLabels[normalizedAvailabilityRules.holdMode]} holds · {normalizedAvailabilityRules.reschedulingAllowed ? 'Rescheduling allowed' : 'No client rescheduling'}</small>
       </section>
       <section className="schedule-settings-review-card">

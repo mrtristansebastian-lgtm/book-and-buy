@@ -222,7 +222,7 @@ export function useWorkspaceRuntimeState() {
       profileSystemFilter: dashboardUi.profileSystemFilter,
       setActiveProfileSection: dashboardUi.setActiveProfileSection,
       setCommunications: workspaceData.setCommunications,
-      setShowOwnerManual: dashboardUi.setShowOwnerManual,
+      setShowBusinessOnboarding: dashboardUi.setShowBusinessOnboarding,
       setSupportThreadFocus: dashboardUi.setSupportThreadFocus,
       workspaceNotifications: notifications.workspaceNotifications,
       workspaceSupportThreads: notifications.workspaceSupportThreads

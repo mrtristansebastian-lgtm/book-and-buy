@@ -18,7 +18,7 @@ export function useProfilePageRuntime({
   setBookingDeskPeriod,
   setBookingFilter,
   setBookingSearch,
-  setShowOwnerManual,
+  setShowBusinessOnboarding,
   settings,
   userEmail,
   workspaceNotifications,
@@ -74,7 +74,7 @@ export function useProfilePageRuntime({
   const profileSections = buildProfileSections({
     importedMigrationCounts,
     isGuestWorkspace,
-    onManualOpen: () => setShowOwnerManual(true),
+    onSetupOpen: () => setShowBusinessOnboarding(true),
     profileActivityPrimaryCount: profileActivity.primaryCount,
     settings,
     userEmail,

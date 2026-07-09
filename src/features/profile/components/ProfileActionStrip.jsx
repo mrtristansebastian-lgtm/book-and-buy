@@ -1,9 +1,9 @@
-import { ArrowRight, BookOpen, Check, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, Rocket, ShieldCheck } from 'lucide-react';
 
 export const ProfileActionStrip = ({
   isGuestWorkspace,
   onOpenOwnerAuth,
-  onOpenOwnerManual,
+  onOpenSetupAssistant,
   onSaveProfile
 }) => (
   <div className="dashboard-action-strip max-w-6xl mb-4 md:mb-6">
@@ -20,8 +20,8 @@ export const ProfileActionStrip = ({
           </>
         ) : (
           <>
-            <button onClick={onOpenOwnerManual} className="h-12 px-7 bg-white border border-neutral-200 text-black text-[10px] font-bold uppercase tracking-widest rounded-full shadow-xl shadow-black/5 hover:-translate-y-0.5 hover:border-black transition-all flex items-center justify-center gap-2">
-              <BookOpen size={14} /> Owner Manual
+            <button onClick={onOpenSetupAssistant} className="h-12 px-7 bg-white border border-neutral-200 text-black text-[10px] font-bold uppercase tracking-widest rounded-full shadow-xl shadow-black/5 hover:-translate-y-0.5 hover:border-black transition-all flex items-center justify-center gap-2">
+              <Rocket size={14} /> Setup Assistant
             </button>
             <button onClick={onSaveProfile} className="h-12 px-7 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-xl shadow-black/10 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
               <Check size={14} /> Save Profile

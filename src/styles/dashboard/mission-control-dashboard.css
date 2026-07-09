@@ -1,0 +1,491 @@
+/* Mission-control dashboard: action-first owner home screen. */
+html body .native-ui .dashboard-overview-page {
+  color: #111827;
+}
+
+html body .native-ui .dashboard-mission-shell {
+  width: min(100%, 88rem);
+  display: grid;
+  gap: 0.9rem;
+  margin: 0 auto;
+  padding: clamp(0.9rem, 2vw, 1.4rem) clamp(0.85rem, 2vw, 1.25rem) 7rem;
+}
+
+html body .native-ui .dashboard-mission-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fff;
+  padding: 1rem;
+}
+
+html body .native-ui .dashboard-mission-eyebrow,
+html body .native-ui .dashboard-card-head p,
+html body .native-ui .dashboard-section-title p,
+html body .native-ui .dashboard-status-card span {
+  margin: 0;
+  color: #8b95a5;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .dashboard-mission-header h1 {
+  margin: 0.26rem 0 0;
+  color: #111827;
+  font-size: clamp(1.8rem, 3.4vw, 3.25rem);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 0.94;
+}
+
+html body .native-ui .dashboard-mission-header p {
+  max-width: 43rem;
+  margin: 0.55rem 0 0;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+html body .native-ui .dashboard-mission-controls {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+}
+
+html body .native-ui .dashboard-mode-toggle,
+html body .native-ui .dashboard-mission-header .dashboard-period-tabs {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 0.18rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 0.2rem;
+}
+
+html body .native-ui .dashboard-mode-toggle button,
+html body .native-ui .dashboard-mission-header .dashboard-period-tab {
+  min-height: 2rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #64748b;
+  padding: 0 0.72rem;
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+html body .native-ui .dashboard-mode-toggle button.is-active,
+html body .native-ui .dashboard-mission-header .dashboard-period-tab.is-active {
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .dashboard-launch-layout,
+html body .native-ui .dashboard-live-layout {
+  display: grid;
+  gap: 0.8rem;
+}
+
+html body .native-ui .dashboard-launch-layout {
+  grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.65fr);
+}
+
+html body .native-ui .dashboard-launch-card,
+html body .native-ui .dashboard-action-card,
+html body .native-ui .dashboard-locked-card,
+html body .native-ui .dashboard-command-deck,
+html body .native-ui .dashboard-panel-card,
+html body .native-ui .dashboard-status-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+html body .native-ui .dashboard-launch-card,
+html body .native-ui .dashboard-command-deck,
+html body .native-ui .dashboard-panel-card {
+  display: grid;
+  gap: 0.72rem;
+  padding: 0.9rem;
+}
+
+html body .native-ui .dashboard-card-head,
+html body .native-ui .dashboard-section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.62rem;
+}
+
+html body .native-ui .dashboard-card-head > span,
+html body .native-ui .dashboard-section-title > span,
+html body .native-ui .dashboard-action-card > svg,
+html body .native-ui .dashboard-locked-card > svg {
+  width: 1.85rem;
+  height: 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #111827;
+  padding: 0.38rem;
+}
+
+html body .native-ui .dashboard-card-head h2,
+html body .native-ui .dashboard-section-title h2,
+html body .native-ui .dashboard-action-card h3 {
+  margin: 0.16rem 0 0;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+html body .native-ui .dashboard-launch-meter {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eef2f7;
+}
+
+html body .native-ui .dashboard-launch-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #111827;
+}
+
+html body .native-ui .dashboard-launch-steps {
+  display: grid;
+  gap: 0.42rem;
+}
+
+html body .native-ui .dashboard-launch-steps button,
+html body .native-ui .dashboard-command-item,
+html body .native-ui .dashboard-timeline-list button,
+html body .native-ui .dashboard-preview-row {
+  min-width: 0;
+  display: grid;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+html body .native-ui .dashboard-launch-steps button {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 0.55rem;
+  min-height: 3.05rem;
+  color: #111827;
+  padding: 0.5rem 0.62rem;
+  text-align: left;
+}
+
+html body .native-ui .dashboard-launch-steps button > span {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+}
+
+html body .native-ui .dashboard-launch-steps button.is-complete > span {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .dashboard-launch-steps strong,
+html body .native-ui .dashboard-command-item strong,
+html body .native-ui .dashboard-timeline-list strong,
+html body .native-ui .dashboard-preview-row strong,
+html body .native-ui .dashboard-locked-card strong {
+  overflow: hidden;
+  color: currentColor;
+  font-size: 0.82rem;
+  font-weight: 920;
+  line-height: 1.14;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .dashboard-launch-steps small,
+html body .native-ui .dashboard-command-item small,
+html body .native-ui .dashboard-timeline-list span,
+html body .native-ui .dashboard-timeline-list small,
+html body .native-ui .dashboard-preview-row span,
+html body .native-ui .dashboard-locked-card p,
+html body .native-ui .dashboard-action-card p {
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 760;
+  line-height: 1.25;
+}
+
+html body .native-ui .dashboard-setup-side {
+  display: grid;
+  gap: 0.8rem;
+}
+
+html body .native-ui .dashboard-action-card {
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  padding: 0.9rem;
+}
+
+html body .native-ui .dashboard-action-card.is-celebration {
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .dashboard-action-card.is-celebration h3,
+html body .native-ui .dashboard-action-card.is-celebration p {
+  color: #fff;
+}
+
+html body .native-ui .dashboard-action-card button,
+html body .native-ui .dashboard-panel-action,
+html body .native-ui .dashboard-command-item button,
+html body .native-ui .dashboard-preview-row button,
+html body .native-ui .dashboard-quick-grid button {
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.38rem;
+  border: 1px solid #111827;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  padding: 0 0.72rem;
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+html body .native-ui .dashboard-locked-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+html body .native-ui .dashboard-locked-card {
+  display: grid;
+  gap: 0.48rem;
+  padding: 0.82rem;
+  background: #fbfcfd;
+}
+
+html body .native-ui .dashboard-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+html body .native-ui .dashboard-status-card {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.78rem;
+}
+
+html body .native-ui .dashboard-status-card strong {
+  color: #111827;
+  font-size: 1.8rem;
+  font-weight: 950;
+  line-height: 0.95;
+}
+
+html body .native-ui .dashboard-status-card small {
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+html body .native-ui .dashboard-command-list,
+html body .native-ui .dashboard-timeline-list,
+html body .native-ui .dashboard-health-list,
+html body .native-ui .dashboard-money-grid,
+html body .native-ui .dashboard-quick-grid {
+  display: grid;
+  gap: 0.45rem;
+}
+
+html body .native-ui .dashboard-command-item {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  min-height: 3.35rem;
+  padding: 0.52rem;
+}
+
+html body .native-ui .dashboard-command-item > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+html body .native-ui .dashboard-command-item.is-urgent {
+  border-color: #111827;
+  box-shadow: inset 3px 0 0 #111827;
+}
+
+html body .native-ui .dashboard-command-rank {
+  width: 1.45rem;
+  height: 1.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #111827;
+  font-size: 0.64rem;
+  font-weight: 950;
+}
+
+html body .native-ui .dashboard-live-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+html body .native-ui .dashboard-panel-card:first-child {
+  grid-column: span 2;
+}
+
+html body .native-ui .dashboard-timeline-list button {
+  grid-template-columns: 4rem minmax(0, 1fr) minmax(0, 0.8fr) auto;
+  gap: 0.55rem;
+  min-height: 2.7rem;
+  padding: 0.48rem 0.58rem;
+  text-align: left;
+}
+
+html body .native-ui .dashboard-timeline-list time {
+  color: #111827;
+  font-size: 0.82rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+html body .native-ui .dashboard-timeline-list small {
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 0.28rem 0.48rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+html body .native-ui .dashboard-health-list p {
+  margin: 0;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fbfcfd;
+  color: #64748b;
+  padding: 0.58rem 0.62rem;
+  font-size: 0.72rem;
+  font-weight: 760;
+  line-height: 1.25;
+}
+
+html body .native-ui .dashboard-health-list strong {
+  color: #111827;
+}
+
+html body .native-ui .dashboard-preview-row {
+  grid-template-columns: minmax(0, 0.6fr) minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  min-height: 2.8rem;
+  padding: 0.48rem 0.56rem;
+}
+
+html body .native-ui .dashboard-money-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html body .native-ui .dashboard-money-grid span {
+  display: grid;
+  gap: 0.18rem;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fbfcfd;
+  color: #64748b;
+  padding: 0.58rem;
+  font-size: 0.66rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+html body .native-ui .dashboard-money-grid strong {
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 950;
+  text-transform: none;
+}
+
+html body .native-ui .dashboard-quick-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 980px) {
+  html body .native-ui .dashboard-mission-header,
+  html body .native-ui .dashboard-launch-layout,
+  html body .native-ui .dashboard-live-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .dashboard-mission-controls {
+    justify-items: stretch;
+  }
+
+  html body .native-ui .dashboard-status-grid,
+  html body .native-ui .dashboard-locked-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html body .native-ui .dashboard-panel-card:first-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  html body .native-ui .dashboard-mission-shell {
+    padding: 0.75rem 0.75rem 6rem;
+  }
+
+  html body .native-ui .dashboard-mission-header {
+    padding: 0.82rem;
+  }
+
+  html body .native-ui .dashboard-status-grid,
+  html body .native-ui .dashboard-locked-grid,
+  html body .native-ui .dashboard-money-grid,
+  html body .native-ui .dashboard-quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .dashboard-command-item,
+  html body .native-ui .dashboard-timeline-list button,
+  html body .native-ui .dashboard-preview-row {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  html body .native-ui .dashboard-command-item button,
+  html body .native-ui .dashboard-preview-row button {
+    width: 100%;
+  }
+}

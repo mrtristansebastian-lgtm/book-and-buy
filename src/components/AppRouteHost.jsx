@@ -4,6 +4,7 @@ import { LegalDialog } from './AppOverlays';
 import { AppLoginScreen, AuthActionPage, AuthDialog, EmailVerificationGate, shouldUseRedirectGoogleAuth } from '../features/auth';
 import { ClientPortalGate } from '../features/client-portal';
 import { DashboardRouteShell } from '../features/dashboard';
+import { BusinessOnboardingPage } from '../features/onboarding';
 import { legalPages } from '../config/appConfig';
 import {
   clientAuthPrefillStorageKey,
@@ -46,6 +47,7 @@ export function AppRouteHost({
   dashboard,
   db,
   landing,
+  onboarding,
   publicBooking,
   route
 }) {
@@ -169,6 +171,10 @@ export function AppRouteHost({
         onLegalPanel={landing.setLegalPanel}
       />
     );
+  }
+
+  if (onboarding?.shouldShow) {
+    return <BusinessOnboardingPage {...onboarding} />;
   }
 
   return (

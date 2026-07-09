@@ -1,9 +1,9 @@
-import { BellRing, BookOpen, Briefcase, FileText, Images, Settings2, ShieldCheck } from 'lucide-react';
+import { BellRing, Briefcase, FileText, Images, Rocket, Settings2, ShieldCheck } from 'lucide-react';
 
 export const buildProfileSections = ({
   importedMigrationCounts,
   isGuestWorkspace,
-  onManualOpen,
+  onSetupOpen,
   profileActivityPrimaryCount,
   settings,
   userEmail,
@@ -58,12 +58,12 @@ export const buildProfileSections = ({
     quick: ['Upload CSV', 'Choose fields', 'Delete uploads']
   },
   {
-    id: 'manual',
-    title: 'Owner Manual',
-    note: 'Feature guide and setup help',
-    icon: BookOpen,
-    meta: 'Guide',
-    quick: ['Setup guide', 'Feature map', 'Best practices'],
-    action: onManualOpen
+    id: 'setup',
+    title: 'Setup Assistant',
+    note: settings.onboardingCompletedAt ? 'Rerun the guided business setup' : 'Finish your first booking setup',
+    icon: Rocket,
+    meta: settings.onboardingCompletedAt ? 'Ready' : 'Start',
+    quick: ['Services', 'Schedule', 'Booking page'],
+    action: onSetupOpen
   }
 ];

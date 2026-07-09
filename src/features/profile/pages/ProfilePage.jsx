@@ -51,7 +51,7 @@ export const ProfilePage = ({
   setCommunications,
   setKeepLoggedIn,
   setProfileSystemFilter,
-  setShowOwnerManual,
+  setShowBusinessOnboarding,
   settings,
   showToast,
   updatePersonalProfile,
@@ -66,7 +66,7 @@ export const ProfilePage = ({
     <ProfileActionStrip
       isGuestWorkspace={isGuestWorkspace}
       onOpenOwnerAuth={openOwnerAuth}
-      onOpenOwnerManual={() => setShowOwnerManual(true)}
+      onOpenSetupAssistant={() => setShowBusinessOnboarding(true)}
       onSaveProfile={saveProfileChanges}
     />
 
