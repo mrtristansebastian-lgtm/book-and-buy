@@ -395,9 +395,13 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
   const availability = availabilityPresets[draft.availability] || availabilityPresets.weekdays;
   const brandName = String(draft.brandName || currentSettings.brandName || 'Your Business').trim();
   const accent = draft.accent || preset.accent;
+  const businessDescription = String(draft.businessDescription || currentSettings.businessDescription || draft.welcomeMessage || preset.welcome || '').trim();
   const selectedServices = Array.isArray(draft.services) && draft.services.length
     ? draft.services
     : preset.services;
+  const defaultSlots = Array.isArray(draft.defaultSlots) && draft.defaultSlots.length
+    ? draft.defaultSlots
+    : availability.availableTimes;
   const existingFeatures = currentSettings.features || {};
   const bookingRules = draft.rules || {};
 
@@ -405,7 +409,8 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
     brandName,
     slug: brandName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || currentSettings.slug || 'your-business',
     tagline: draft.tagline || preset.tagline,
-    welcomeMessage: draft.welcomeMessage || preset.welcome,
+    businessDescription,
+    welcomeMessage: businessDescription || draft.welcomeMessage || preset.welcome,
     businessEmail: draft.businessEmail || currentSettings.businessEmail || '',
     locationMode: draft.locationMode || currentSettings.locationMode || 'my_location',
     primaryColor: accent,
@@ -418,8 +423,8 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
       priceType: service.priceType || 'fixed',
       active: true
     }))),
-    availableTimes: availability.availableTimes,
-    schedule: availability.schedule,
+    availableTimes: defaultSlots,
+    schedule: Object.fromEntries(Object.keys(availability.schedule || {}).map(day => [day, defaultSlots])),
     availabilityRules: {
       ...(currentSettings.availabilityRules || {}),
       enabled: true,

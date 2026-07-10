@@ -20,7 +20,7 @@ export function OnboardingPreviewPanel({ draft, stepId }) {
           <div className="onboarding-preview-times">
             {availability.availableTimes.slice(0, 6).map(time => <span key={time}>{time}</span>)}
           </div>
-        ) : stepId === 'rules' || stepId === 'preview' ? (
+        ) : stepId === 'preview' ? (
           <div className="onboarding-preview-form">
             {['Name required', 'Email required', 'Phone optional', 'Notes optional'].map(field => (
               <span key={field}><FileText size={13} /> {field}</span>
