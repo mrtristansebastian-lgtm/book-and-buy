@@ -3,6 +3,9 @@ import { getFontFamily } from '../../../data/fonts';
 import { withColorAlpha } from '../../../utils/theme';
 import { getTimeSlotStyle } from '../utils/bookingFlowUtils';
 
+const ARRIVAL_HOURS = Array.from({ length: 17 }, (_, index) => String(index + 6).padStart(2, '0'));
+const ARRIVAL_MINUTES = ['00', '15', '30', '45'];
+
 export const BookingTimeSection = ({
     displayTimesForActiveDate,
     headingLetterSpacing,
@@ -32,6 +35,19 @@ export const BookingTimeSection = ({
     const borderColor = withColorAlpha(settings.headingColor || '#000000', 8, '#000000');
     const accentColor = settings.primaryColor || settings.headingColor || '#050505';
     const firstComeMode = settings.availabilityRules?.scheduleMode === 'first_come';
+    const selectedArrival = /^\d{2}:\d{2}$/.test(selectedTime || '') ? selectedTime : '';
+    const [selectedArrivalHour = '09', selectedArrivalMinute = '00'] = selectedArrival.split(':');
+    const arrivalAccentStyle = {
+        backgroundColor: withColorAlpha(accentColor, 9, '#ffffff'),
+        borderColor: withColorAlpha(accentColor, 28, '#000000'),
+        color: settings.headingColor || '#050505',
+        boxShadow: `0 14px 34px -28px ${withColorAlpha(accentColor, 80, '#000000')}`
+    };
+    const setArrivalPart = (part, value) => {
+        const hour = part === 'hour' ? value : selectedArrivalHour;
+        const minute = part === 'minute' ? value : selectedArrivalMinute;
+        setSelectedTime(`${hour}:${minute}`);
+    };
 
     const renderStateCard = ({ Icon, label, title, copy, tone = 'neutral', spin = false }) => (
         <div
@@ -89,7 +105,7 @@ export const BookingTimeSection = ({
                 })
             ) : firstComeMode ? (
                 <div
-                    className={`mx-auto w-full max-w-[34rem] rounded-2xl border px-5 py-5 md:px-6 ${isPreview ? 'cursor-pointer' : ''}`}
+                    className={`mx-auto w-full max-w-[36rem] rounded-[1.75rem] border px-5 py-5 md:px-6 md:py-6 ${isPreview ? 'cursor-pointer' : ''}`}
                     style={{
                         backgroundColor: surfaceColor,
                         borderColor,
@@ -97,26 +113,84 @@ export const BookingTimeSection = ({
                     }}
                     onClick={() => previewInspectEnabled && onInspect('time')}
                 >
-                    <label className="block">
-                        <span className="block text-[10px] font-bold uppercase tracking-[0.28em] opacity-45" style={{ color: settings.bodyColor }}>
-                            Arrival time
-                        </span>
-                        <input
-                            type="time"
-                            value={/^\d{2}:\d{2}$/.test(selectedTime || '') ? selectedTime : ''}
-                            onChange={(event) => setSelectedTime(event.target.value)}
-                            className="mt-3 w-full appearance-none rounded-2xl border bg-white px-4 py-4 text-center text-2xl font-black outline-none transition focus:ring-2"
+                    <div className="text-center">
+                        <p className="text-sm font-semibold leading-relaxed" style={{ color: settings.bodyColor }}>
+                            Choose when you plan to arrive. This helps the business prepare, but it does not reserve an exact slot.
+                        </p>
+                    </div>
+
+                    <div className="mt-5 flex justify-center">
+                        <span
+                            className="flex min-h-14 min-w-[8.5rem] items-center justify-center rounded-2xl border px-6 text-2xl font-black tabular-nums"
                             style={{
-                                borderColor: withColorAlpha(settings.headingColor || '#000000', 10, '#000000'),
+                                borderColor: withColorAlpha(accentColor, 18, '#000000'),
+                                backgroundColor: surfaceColor,
                                 color: settings.headingColor || '#050505',
                                 fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily),
-                                '--tw-ring-color': withColorAlpha(accentColor, 25, '#000000')
+                                boxShadow: `0 18px 34px -30px ${withColorAlpha(accentColor, 85, '#000000')}`
                             }}
-                        />
-                    </label>
-                    <p className="mt-3 text-center text-sm font-semibold leading-relaxed" style={{ color: settings.bodyColor }}>
-                        Choose when you plan to arrive. This helps the business prepare, but it does not reserve an exact slot.
-                    </p>
+                        >
+                            {selectedArrival || '--:--'}
+                        </span>
+                    </div>
+
+                    <div className="mt-5 grid items-start gap-4 md:grid-cols-[1fr_8.75rem]">
+                        <div>
+                            <p className="mb-2 text-center text-[10px] font-black uppercase tracking-[0.24em] opacity-45" style={{ color: settings.bodyColor }}>
+                                Hour
+                            </p>
+                            <div className="grid grid-cols-4 gap-2">
+                                {ARRIVAL_HOURS.map((hour) => {
+                                    const isActive = Boolean(selectedArrival) && selectedArrivalHour === hour;
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={hour}
+                                            onClick={() => setArrivalPart('hour', hour)}
+                                            className="appearance-none rounded-xl border px-2 py-2.5 text-sm font-black tabular-nums transition hover:-translate-y-0.5 focus:outline-none focus:ring-2"
+                                            style={isActive ? arrivalAccentStyle : {
+                                                backgroundColor: '#ffffff',
+                                                borderColor: withColorAlpha(settings.headingColor || '#000000', 10, '#000000'),
+                                                color: settings.headingColor || '#050505',
+                                                '--tw-ring-color': withColorAlpha(accentColor, 25, '#000000')
+                                            }}
+                                            aria-pressed={isActive}
+                                        >
+                                            {hour}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div>
+                            <p className="mb-2 text-center text-[10px] font-black uppercase tracking-[0.24em] opacity-45" style={{ color: settings.bodyColor }}>
+                                Minute
+                            </p>
+                            <div className="grid grid-cols-2 content-start justify-center gap-2">
+                                {ARRIVAL_MINUTES.map((minute) => {
+                                    const isActive = Boolean(selectedArrival) && selectedArrivalMinute === minute;
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={minute}
+                                            onClick={() => setArrivalPart('minute', minute)}
+                                            className="appearance-none rounded-xl border px-2 py-2.5 text-sm font-black tabular-nums transition hover:-translate-y-0.5 focus:outline-none focus:ring-2"
+                                            style={isActive ? arrivalAccentStyle : {
+                                                backgroundColor: '#ffffff',
+                                                borderColor: withColorAlpha(settings.headingColor || '#000000', 10, '#000000'),
+                                                color: settings.headingColor || '#050505',
+                                                '--tw-ring-color': withColorAlpha(accentColor, 25, '#000000')
+                                            }}
+                                            aria-pressed={isActive}
+                                        >
+                                            :{minute}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             ) : displayTimesForActiveDate.length === 0 ? (
                 isWaitlistMode ? (

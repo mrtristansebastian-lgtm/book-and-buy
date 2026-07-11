@@ -4,6 +4,7 @@ html body .native-ui.business-onboarding-page {
   --onboarding-line: #e5e7eb;
   --onboarding-gradient: var(--native-accent-button-gradient);
   --onboarding-gradient-position: var(--native-accent-x, 0%) 50%;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -31,31 +32,25 @@ html body .native-ui.business-onboarding-page {
   box-shadow: 0 18px 60px rgba(15, 23, 42, 0.06);
 }
 
-.onboarding-topbar > strong {
-  font-size: 0.92rem;
-  font-weight: 950;
-  letter-spacing: -0.02em;
-}
-
-.onboarding-topbar div {
+.onboarding-topbar-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.onboarding-topbar span,
-.onboarding-topbar b {
+.onboarding-topbar-actions span,
+.onboarding-topbar-actions b {
   font-size: 0.7rem;
   font-weight: 950;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.onboarding-topbar span {
+.onboarding-topbar-actions span {
   color: #98a2b3;
 }
 
-.onboarding-topbar b {
+.onboarding-topbar-actions b {
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
   background:
@@ -66,7 +61,7 @@ html body .native-ui.business-onboarding-page {
   color: #101828;
 }
 
-.onboarding-topbar button {
+.onboarding-topbar-actions button {
   border: 1px solid var(--onboarding-line);
   border-radius: 999px;
   min-height: 2.55rem;
@@ -168,7 +163,7 @@ html body .native-ui.business-onboarding-page.is-complete {
 .onboarding-progress-path li button {
   width: 100%;
   border: 0;
-  border-radius: 1.25rem;
+  border-radius: 0.85rem;
   padding: 0.75rem;
   display: grid;
   grid-template-columns: 2.5rem minmax(0, 1fr);
@@ -184,7 +179,7 @@ html body .native-ui.business-onboarding-page.is-complete {
 .onboarding-progress-path li button > span {
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 50%;
+  border-radius: 0.65rem;
   display: grid;
   place-items: center;
   background: #eef2f6;
@@ -653,29 +648,111 @@ html body .native-ui.business-onboarding-page .onboarding-type-panel {
   margin-bottom: 0.35rem;
 }
 
-.onboarding-type-search {
-  min-height: 4rem;
-  border: 1px solid transparent;
-  border-radius: 1.3rem;
-  padding: 0.45rem 0.65rem;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
+.onboarding-commerce-step,
+.onboarding-industry-step {
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 1.25rem;
+  padding: 0.78rem;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow:
+    0 18px 48px -42px rgba(15, 23, 42, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+}
+
+.onboarding-commerce-step > div:first-child,
+.onboarding-industry-step-head > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.onboarding-commerce-step span,
+.onboarding-industry-step span {
+  color: #98a2b3;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  text-transform: none;
+}
+
+.onboarding-commerce-step strong,
+.onboarding-industry-step strong {
+  color: #101828;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.onboarding-commerce-step p,
+.onboarding-industry-step p {
+  margin: 0;
+  color: #667085;
+  font-size: 0.76rem;
+  font-weight: 760;
+  line-height: 1.3;
+}
+
+.onboarding-commerce-grid {
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.onboarding-commerce-grid button {
+  min-height: 8.5rem;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 1rem;
+  padding: 0.72rem;
+  display: grid;
+  align-content: start;
+  gap: 0.42rem;
+  background: #ffffff;
+  color: #101828;
+  text-align: left;
+}
+
+.onboarding-commerce-grid button .onboarding-choice-icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.85rem;
+}
+
+.onboarding-commerce-grid button strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.onboarding-commerce-grid button small {
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 740;
+  line-height: 1.28;
+}
+
+.onboarding-commerce-grid button em {
+  width: max-content;
+  border-radius: 999px;
+  padding: 0.32rem 0.5rem;
+  background: rgba(248, 250, 252, 0.92);
+  color: #667085;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.onboarding-commerce-grid button.is-active {
+  border-color: transparent;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.84)) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.72)) padding-box,
     var(--onboarding-gradient) border-box;
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--onboarding-gradient-position);
-  box-shadow:
-    0 18px 48px -40px rgba(15, 23, 42, 0.48),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
-.onboarding-type-search .onboarding-choice-icon {
-  width: 2.65rem;
-  height: 2.65rem;
-  border-radius: 0.95rem;
-  flex: 0 0 auto;
+.onboarding-commerce-grid button.is-active .onboarding-choice-icon,
+.onboarding-commerce-grid button.is-active em {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
     var(--onboarding-gradient);
@@ -684,24 +761,113 @@ html body .native-ui.business-onboarding-page .onboarding-type-panel {
   color: #101828;
 }
 
-.onboarding-type-search input {
-  width: 100%;
-  min-width: 0;
-  border: 0;
-  border-radius: 0.45rem !important;
-  outline: 0;
-  background: transparent;
-  color: #101828;
-  font-size: clamp(1rem, 1.5vw, 1.16rem);
-  font-weight: 820;
+.onboarding-industry-step {
+  margin-top: 0.75rem;
 }
 
-.onboarding-type-search input::placeholder {
-  color: #98a2b3;
+.onboarding-industry-step-head {
+  display: grid;
+  gap: 0.25rem;
+  align-items: start;
+}
+
+.onboarding-industry-select {
+  width: 100%;
+  min-height: 4.35rem;
+  margin-top: 0;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 1.05rem;
+  padding: 0.62rem 0.72rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.76));
+  color: #101828;
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.onboarding-industry-select:hover {
+  border-color: rgba(16, 24, 40, 0.14);
+  background: #ffffff;
+}
+
+.onboarding-industry-select.is-open {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.7)) padding-box,
+    var(--onboarding-gradient) border-box;
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+}
+
+.onboarding-industry-select .onboarding-choice-icon {
+  width: 2.85rem;
+  height: 2.85rem;
+  font-size: 1.62rem;
+  line-height: 1;
+}
+
+.onboarding-industry-select > svg {
+  color: #667085;
+  transition: transform 180ms ease;
+}
+
+.onboarding-industry-select.is-open > svg {
+  transform: rotate(180deg);
+}
+
+.onboarding-industry-select small,
+.onboarding-industry-select em {
+  display: block;
+  color: #667085;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+}
+
+.onboarding-industry-select strong {
+  display: block;
+  margin-top: 0.12rem;
+  color: #101828;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.onboarding-industry-menu {
+  margin-top: 0.58rem;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 1.05rem;
+  padding: 0.48rem;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 52px -44px rgba(15, 23, 42, 0.56);
+}
+
+.onboarding-industry-filter {
+  display: block;
+  margin-bottom: 0.45rem;
+}
+
+.onboarding-industry-filter input {
+  width: 100%;
+  min-height: 2.8rem;
+  border: 1px solid var(--onboarding-line);
+  border-radius: 0.85rem;
+  padding: 0 0.9rem;
+  background: #ffffff;
+  color: #101828;
+  font-size: 0.86rem;
+  font-weight: 850;
+  outline: none;
 }
 
 .onboarding-type-list {
-  margin-top: 1rem;
+  margin-top: 0;
   padding: 0.42rem;
   display: grid;
   gap: 0.25rem;
@@ -733,14 +899,17 @@ html body .native-ui.business-onboarding-page .onboarding-type-panel {
 }
 
 .onboarding-type-list button .onboarding-choice-icon {
-  width: 2.55rem;
-  height: 2.55rem;
+  width: 2.85rem;
+  height: 2.85rem;
   border-radius: 0.92rem;
+  font-size: 1.62rem;
+  line-height: 1;
 }
 
 .onboarding-type-list button strong {
   display: block;
-  font-size: 1rem;
+  font-size: 0.98rem;
+  font-weight: 800;
   line-height: 1.15;
 }
 
@@ -749,7 +918,7 @@ html body .native-ui.business-onboarding-page .onboarding-type-panel {
   margin-top: 0.15rem;
   color: #667085;
   font-size: 0.72rem;
-  font-weight: 750;
+  font-weight: 650;
 }
 
 .onboarding-type-list button em {
@@ -761,11 +930,11 @@ html body .native-ui.business-onboarding-page .onboarding-type-panel {
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--onboarding-gradient-position);
   color: #101828;
-  font-size: 0.64rem;
+  font-size: 0.68rem;
   font-style: normal;
-  font-weight: 950;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .onboarding-type-list button.is-active {
@@ -911,6 +1080,198 @@ html body .native-ui.business-onboarding-page .onboarding-form-card textarea {
   border-radius: 0.45rem !important;
 }
 
+.onboarding-business-photo-panel,
+.onboarding-business-location-panel {
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 0.9rem;
+  padding: 0.78rem;
+  display: grid;
+  gap: 0.72rem;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+}
+
+.onboarding-business-photo-panel > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.onboarding-business-photo-panel > div:first-child span,
+.onboarding-business-photo-panel > div:first-child strong {
+  display: block;
+}
+
+.onboarding-business-photo-panel > div:first-child span {
+  color: #667085;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.onboarding-business-photo-panel > div:first-child strong {
+  color: #101828;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.onboarding-business-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  gap: 0.55rem;
+}
+
+.onboarding-business-photo-thumb,
+.onboarding-business-photo-add {
+  min-height: 5rem;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  border-radius: 0.72rem;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.onboarding-business-photo-thumb {
+  position: relative;
+}
+
+.onboarding-business-photo-thumb img {
+  width: 100%;
+  height: 100%;
+  min-height: 5rem;
+  display: block;
+  object-fit: cover;
+}
+
+.onboarding-business-photo-thumb button {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  border: 1px solid rgba(16, 24, 40, 0.12);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  color: #101828;
+}
+
+.onboarding-business-photo-add {
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #667085;
+  font-size: 1.7rem;
+  font-weight: 500;
+}
+
+.onboarding-business-photo-add:hover {
+  border-color: rgba(16, 24, 40, 0.2);
+  background: #f8fafc;
+  color: #101828;
+}
+
+.onboarding-business-photo-add input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.onboarding-business-photo-panel p {
+  margin: 0;
+  color: #667085;
+  font-size: 0.74rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.onboarding-business-location-panel {
+  gap: 0.6rem;
+}
+
+.onboarding-business-location-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.onboarding-business-location-head .onboarding-choice-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.72rem;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
+    var(--onboarding-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+}
+
+.onboarding-business-location-head span:not(.onboarding-choice-icon),
+.onboarding-business-location-head strong {
+  display: block;
+}
+
+.onboarding-business-location-head span:not(.onboarding-choice-icon) {
+  color: #667085;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.onboarding-business-location-head strong {
+  margin-top: 0.1rem;
+  color: #101828;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.onboarding-business-location-input {
+  width: 100%;
+  min-height: 3.1rem;
+  border: 1px solid var(--onboarding-line);
+  border-radius: 0.72rem;
+  padding: 0 2.4rem 0 0.9rem;
+  background: #ffffff;
+  color: #101828;
+  font-size: 0.95rem;
+  font-weight: 750;
+  outline: none;
+}
+
+.onboarding-business-location-input:focus {
+  outline: 3px solid rgba(117, 92, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.onboarding-business-location-panel .bookify-place-input-wrap {
+  display: block;
+  position: relative;
+}
+
+.onboarding-business-location-panel .bookify-place-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.55rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  color: #667085;
+  transform: translateY(-50%);
+}
+
+.onboarding-business-location-panel p {
+  margin: 0;
+  color: #667085;
+  font-size: 0.74rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
 .onboarding-form-card input:focus,
 .onboarding-form-card textarea:focus,
 .onboarding-form-card select:focus,
@@ -955,7 +1316,6 @@ html body .native-ui.business-onboarding-page .onboarding-form-card textarea {
   margin: 0 auto;
 }
 
-.onboarding-service-wizard-panel .service-wizard-step-head,
 .onboarding-schedule-setup .schedule-settings-wizard-title {
   margin-bottom: 1.15rem;
 }
@@ -970,31 +1330,6 @@ html body .native-ui.business-onboarding-page .onboarding-form-card textarea {
 html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-wizard-field input,
 html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-wizard-field textarea {
   border-radius: 0.45rem !important;
-}
-
-html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-media-panel {
-  border-color: transparent !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.82)) padding-box,
-    var(--onboarding-gradient) border-box !important;
-  background-size: 100% 100%, 420% 420% !important;
-  background-position: 0 0, var(--onboarding-gradient-position) !important;
-  box-shadow: 0 16px 42px -36px rgba(15, 23, 42, 0.42);
-}
-
-html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-media-thumb,
-html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-media-add {
-  background: #ffffff !important;
-}
-
-html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-media-add {
-  border: 1px solid transparent !important;
-  background:
-    linear-gradient(#ffffff, #ffffff) padding-box,
-    var(--onboarding-gradient) border-box !important;
-  background-size: 100% 100%, 420% 420% !important;
-  background-position: 0 0, var(--onboarding-gradient-position) !important;
-  color: #101828 !important;
 }
 
 html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-step-list button.is-active,
@@ -1025,8 +1360,6 @@ html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .
   color: #101828 !important;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-duration-grid button.is-active,
-html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-duration-free-choice.is-active,
 html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-staff-grid button.is-active {
   border-color: transparent !important;
   background:
@@ -1053,10 +1386,18 @@ html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .
   background: transparent;
 }
 
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-wizard-header {
+  display: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-wizard-title {
+  display: none;
+}
+
 html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-wizard-modal {
   width: 100%;
   height: 100%;
-  min-height: min(62vh, 44rem);
+  min-height: min(56vh, 40rem);
   max-height: none;
   border: 0;
   border-radius: 0;
@@ -1250,6 +1591,210 @@ html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--onboarding-gradient-position);
   color: #101828;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+  width: min(100%, 56rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card {
+  min-height: 8rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.95rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0.85rem;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card.is-ready {
+  border-color: #e5e7eb;
+  background: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card.is-next {
+  background: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card > span {
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #b42318;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card > span.is-done {
+  background: #ffffff;
+  color: #111827;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card p {
+  margin: 0 0 0.42rem;
+  color: #94a3b8;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card strong {
+  display: block;
+  color: #111827;
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.15;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card small,
+html body .native-ui.business-onboarding-page .onboarding-summary-card em {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card em {
+  width: auto;
+  max-width: none;
+  margin-top: 0.42rem;
+  padding: 0;
+  background: transparent;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.7rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card > div {
+  min-width: 0;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card p {
+  margin-bottom: 0.24rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card small {
+  margin-top: 0.45rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-summary-card > span.is-done {
+  background: #f8fafc;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-option-list.is-schedule-mode {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-option-list.is-schedule-mode button {
+  min-height: 4rem;
+  border-radius: 10px;
+  padding: 0.72rem;
+  background: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-option-list.is-schedule-mode button.is-active {
+  border-color: #111827 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.04) !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-option-list.is-schedule-mode button.is-active > span {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-board {
+  border-color: #e5e7eb;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-summary {
+  padding: 0.78rem 0.9rem;
+  border-bottom: 1px solid #eef2f7;
+  background: #fbfcfd;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-summary > span {
+  width: 2.05rem;
+  height: 2.05rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble-grid {
+  grid-template-columns: repeat(auto-fit, minmax(6.8rem, 1fr));
+  gap: 0.45rem;
+  padding: 0.78rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble {
+  min-height: 2.35rem;
+  border-color: #e5e7eb;
+  border-radius: 10px;
+  padding: 0.25rem 0.28rem 0.25rem 0.62rem;
+  background: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble span {
+  font-size: 0.84rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble:not(.is-add) button {
+  width: 1.55rem;
+  height: 1.55rem;
+  color: #64748b;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble.is-add {
+  min-height: 2.35rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  gap: 0.38rem;
+  background: #f8fafc;
+  color: #111827;
+  padding: 0 0.7rem;
+  box-shadow: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble.is-add:hover {
+  border-color: #111827;
+  background: #ffffff;
+  color: #111827;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble.is-add > span {
+  color: #111827;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble.is-add svg {
+  color: #111827;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-note {
+  border-radius: 10px;
 }
 
 .onboarding-launch-list div {
@@ -1578,7 +2123,7 @@ html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .
   }
 
   .onboarding-type-list {
-    max-height: none;
+    max-height: min(42vh, 18rem);
   }
 
   .onboarding-type-list button {
@@ -1618,7 +2163,7 @@ html body .native-ui.business-onboarding-page {
   height: 100dvh;
   min-height: 0;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   align-content: start;
   gap: clamp(0.48rem, 1.1vw, 0.8rem);
   padding: clamp(0.58rem, 1.45vw, 0.95rem);
@@ -1640,9 +2185,12 @@ html body .native-ui.business-onboarding-page .onboarding-stage {
 
 html body .native-ui.business-onboarding-page .onboarding-topbar {
   grid-column: auto;
-  min-height: 3.2rem;
-  border-radius: 1.15rem;
-  padding: 0.48rem 0.58rem 0.48rem 0.95rem;
+  min-height: auto;
+  border-radius: 1.05rem;
+  padding: 0.58rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
   background: rgba(255, 255, 255, 0.74);
   backdrop-filter: blur(24px) saturate(1.12);
   -webkit-backdrop-filter: blur(24px) saturate(1.12);
@@ -1651,17 +2199,37 @@ html body .native-ui.business-onboarding-page .onboarding-topbar {
     inset 0 1px 0 rgba(255, 255, 255, 0.86);
 }
 
+html body .native-ui.business-onboarding-page .onboarding-topbar-main {
+  min-height: 2.55rem;
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-brand-logo {
+  width: min(12.25rem, 42vw);
+  height: auto;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.55rem;
+}
+
 html body .native-ui.business-onboarding-page .onboarding-progress-path {
+  width: 100%;
   display: block;
-  padding: 0.24rem;
-  border: 1px solid rgba(16, 24, 40, 0.07);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow:
-    0 18px 52px -44px rgba(15, 23, 42, 0.48),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  justify-self: stretch;
+  padding: 0.34rem;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 0.82rem;
+  background: rgba(248, 250, 252, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 html body .native-ui.business-onboarding-page .onboarding-mascot-card {
@@ -1670,7 +2238,7 @@ html body .native-ui.business-onboarding-page .onboarding-mascot-card {
 
 html body .native-ui.business-onboarding-page .onboarding-progress-path ol {
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.24rem;
+  gap: 0.42rem;
 }
 
 html body .native-ui.business-onboarding-page .onboarding-progress-path li {
@@ -1679,35 +2247,43 @@ html body .native-ui.business-onboarding-page .onboarding-progress-path li {
 }
 
 html body .native-ui.business-onboarding-page .onboarding-progress-path li button {
-  min-height: 2.32rem;
-  border-radius: 999px;
-  padding: 0.3rem 0.56rem;
+  min-height: 2.8rem;
+  border: 1px solid transparent;
+  border-radius: 0.78rem;
+  padding: 0.48rem 0.72rem;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.45rem;
+  gap: 0.58rem;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 html body .native-ui.business-onboarding-page .onboarding-progress-path li button > span {
-  width: 1.52rem;
-  height: 1.52rem;
-  font-size: 0.58rem;
+  width: 1.78rem;
+  height: 1.78rem;
+  border: 1px solid rgba(16, 24, 40, 0.06);
+  border-radius: 0.48rem;
+  font-size: 0.66rem;
+  font-weight: 850;
 }
 
 html body .native-ui.business-onboarding-page .onboarding-progress-path li strong {
-  font-size: 0.69rem;
+  font-size: 0.8rem;
   line-height: 1;
 }
 
 html body .native-ui.business-onboarding-page .onboarding-progress-path li small {
-  margin-top: 0.08rem;
+  margin-top: 0.16rem;
   overflow: hidden;
   color: currentColor;
-  font-size: 0.59rem;
+  font-size: 0.66rem;
   opacity: 0.62;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 html body .native-ui.business-onboarding-page .onboarding-progress-path li button:hover {
+  border-color: rgba(16, 24, 40, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   transform: translateY(-1px);
 }
 
@@ -1715,11 +2291,25 @@ html body .native-ui.business-onboarding-page .onboarding-progress-path li.is-ac
   transform: none;
 }
 
+html body .native-ui.business-onboarding-page .onboarding-progress-path li.is-active button {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.52), rgba(255,255,255,0.18)),
+    var(--onboarding-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 14px 34px -30px var(--native-accent-glow);
+}
+
 html body .native-ui.business-onboarding-page .onboarding-stage {
   height: 100%;
   min-height: 0;
   max-height: calc(100dvh - 5.9rem);
   border-radius: clamp(1.6rem, 3vw, 2.6rem);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   background: rgba(255, 255, 255, 0.84);
   box-shadow:
     0 30px 90px -62px rgba(15, 23, 42, 0.58),
@@ -1768,82 +2358,528 @@ html body .native-ui.business-onboarding-page .onboarding-stage-header small {
 html body .native-ui.business-onboarding-page .onboarding-step-card {
   min-height: 0;
   padding: clamp(0.9rem, 2.4vw, 1.75rem);
+  padding-bottom: clamp(1.45rem, 3vw, 2.4rem);
   align-items: start;
+  justify-items: center;
+  overflow-y: auto;
   scroll-behavior: smooth;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-shell {
-  width: min(100%, 46rem);
-  min-height: 100%;
-  margin: 0 auto;
-  display: grid;
-  align-content: center;
-  gap: 1rem;
+html body .native-ui.business-onboarding-page .onboarding-start-fields,
+html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel,
+html body .native-ui.business-onboarding-page .onboarding-schedule-panel,
+html body .native-ui.business-onboarding-page .onboarding-schedule-setup,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+  width: min(100%, 66rem);
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-shell .service-wizard-step-head {
+html body .native-ui.business-onboarding-page .onboarding-start-fields {
+  width: min(100%, 46rem);
+  margin: 0 auto;
+  display: grid;
+  align-content: start;
   justify-items: center;
-  max-width: none;
+  gap: 0.9rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+  width: min(100%, 56rem);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel,
+html body .native-ui.business-onboarding-page .onboarding-schedule-panel {
+  align-content: start;
+  gap: 0.9rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-schedule-panel {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-section-head {
+  width: min(100%, 56rem);
+  margin: 0 auto 0.55rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
   text-align: center;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-shell .service-wizard-step-head h3 {
-  max-width: 14ch;
-  margin: 0 auto;
-  font-size: clamp(1.85rem, 4vw, 3.25rem);
-  letter-spacing: -0.06em;
-  line-height: 0.94;
+html body .native-ui.business-onboarding-page .onboarding-section-head > span {
+  color: #98a2b3;
+  font-size: 0.67rem;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-shell .service-wizard-step-head p {
-  max-width: 30rem;
-  margin: 0.4rem auto 0;
+html body .native-ui.business-onboarding-page .onboarding-section-head h3 {
+  max-width: none;
+  margin: 0;
+  font-size: clamp(1.45rem, 2.45vw, 2.15rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-card {
+html body .native-ui.business-onboarding-page .onboarding-section-head p {
+  max-width: 44rem;
+  margin: 0;
+  color: #667085;
+  font-size: 0.8rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-start-fields .onboarding-form-card {
+  width: 100%;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  align-items: stretch;
+  padding-bottom: 1.35rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-wizard-field,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-panel {
+  min-height: auto;
   border: 1px solid rgba(16, 24, 40, 0.08);
-  border-radius: 1.35rem;
-  padding: clamp(1rem, 2.6vw, 1.6rem);
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow:
-    0 24px 70px -58px rgba(15, 23, 42, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 1.05rem;
+  padding: 0.78rem;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 18px 48px -42px rgba(15, 23, 42, 0.46);
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-card .service-wizard-field {
-  min-height: 8.7rem;
-  justify-content: center;
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-main-field,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-category-field,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-field,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-field,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-description-field,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-photos-field,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-save-panel {
+  grid-column: 1 / -1;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-card .service-live-toggle {
-  min-height: 4rem;
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid input,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid select,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid textarea {
+  min-height: 2.8rem;
+  width: 100%;
+  border: 1px solid var(--onboarding-line);
+  border-radius: 0.78rem;
+  padding: 0 0.86rem;
+  background: #ffffff;
+  color: #101828;
+  font-size: 0.92rem;
+  font-weight: 850;
+  outline: none;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.65rem;
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid textarea {
+  min-height: 6.6rem;
+  padding: 0.82rem 0.86rem;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-actions button {
-  min-height: 2.9rem;
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.38rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid button {
+  min-height: 4.2rem;
+  border: 1px solid var(--onboarding-line);
+  border-radius: 0.78rem;
+  padding: 0.54rem;
+  display: grid;
+  grid-template-columns: 1.1rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.08rem 0.35rem;
+  background: #ffffff;
+  color: #101828;
+  text-align: left;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid button > span {
+  grid-row: 1 / span 2;
+  width: 1.08rem;
+  height: 1.08rem;
+  border: 1px solid rgba(16, 24, 40, 0.18);
+  border-radius: 0.34rem;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  justify-self: center;
+  background: #ffffff;
+  color: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid button strong {
+  color: #101828;
+  font-size: 0.78rem;
+  font-weight: 850;
+  line-height: 1.08;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid button small {
+  grid-column: 2;
+  color: #667085;
+  font-size: 0.6rem;
+  font-weight: 720;
+  line-height: 1.18;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid button.is-active {
+  border-color: #111827;
+  background: #fbfcfd;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.04);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid button.is-active > span {
+  border-color: #111827;
+  background: #111827;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-money-row {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-money-row input:disabled {
+  background: #f8fafc;
+  color: #98a2b3;
+  cursor: not-allowed;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-field > small {
+  color: #667085;
+  font-size: 0.66rem;
+  font-weight: 780;
+  line-height: 1.25;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid {
+  gap: 0.38rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button {
+  min-height: 2.35rem;
+  border-radius: 0.78rem;
+  padding: 0 0.68rem;
+  font-size: 0.68rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-duration-choice-panel {
+  display: grid;
+  gap: 0.55rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-custom-duration {
+  display: grid;
+  gap: 0.35rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-custom-duration span {
+  color: #667085;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button.is-active {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
+    var(--onboarding-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+  color: #101828;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button {
+  min-height: 4.2rem;
+  border: 1px solid var(--onboarding-line);
+  padding: 0.62rem;
+  display: grid;
+  grid-template-columns: 1.2rem minmax(0, 1fr);
+  align-content: center;
+  align-items: center;
+  gap: 0.1rem 0.38rem;
+  background: #ffffff;
+  color: #101828;
+  text-align: left;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button > span {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid rgba(16, 24, 40, 0.14);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button strong,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button small {
+  display: block;
+  min-width: 0;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button strong {
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button small {
+  grid-column: 2;
+  color: #667085;
+  font-size: 0.58rem;
+  font-weight: 780;
+  line-height: 1.15;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-no-duration {
+  min-height: 2.5rem;
+  border: 1px solid var(--onboarding-line);
+  border-radius: 0.78rem;
+  padding: 0.42rem 0.62rem;
+  display: grid;
+  grid-template-columns: 1.45rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-no-duration input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-no-duration > span,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button > span {
+  width: 1.18rem;
+  height: 1.18rem;
+  border: 1px solid rgba(16, 24, 40, 0.18);
+  border-radius: 0.36rem;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  color: #111827;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-no-duration strong {
+  color: #111827;
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-no-duration.is-active,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button.is-active {
+  border-color: #111827;
+  background: #fbfcfd;
+  color: #101828;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.04);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-duration-choice-panel select:disabled {
+  background: #f8fafc;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-no-duration.is-active > span,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button.is-active > span {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button {
+  min-height: 4.65rem;
+  grid-template-columns: 1.45rem minmax(0, 1fr);
+  padding: 0.72rem;
+  align-items: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button > span {
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button strong {
+  font-size: 0.88rem;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button small {
+  font-size: 0.68rem;
+  font-weight: 720;
+  line-height: 1.22;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+  gap: 0.55rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-thumb,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-add {
+  min-height: 4.5rem;
+  border: 1px solid rgba(16, 24, 40, 0.1);
+  border-radius: 0.85rem;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-thumb {
+  position: relative;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-thumb img {
+  width: 100%;
+  height: 100%;
+  min-height: 4.5rem;
+  display: block;
+  object-fit: cover;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-thumb button {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid rgba(16, 24, 40, 0.12);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  color: #101828;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-add {
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #667085;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-add:hover {
+  border-color: rgba(16, 24, 40, 0.22);
+  background: #f8fafc;
+  color: #101828;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-add input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-save-panel {
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 1.05rem;
+  padding: 0.78rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.62rem;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 48px -42px rgba(15, 23, 42, 0.46);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-save-panel.is-saved {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.62)) padding-box,
+    var(--onboarding-gradient) border-box;
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+}
+
+html body .native-ui.business-onboarding-page .service-save-panel span,
+html body .native-ui.business-onboarding-page .service-save-panel strong {
+  display: block;
+}
+
+html body .native-ui.business-onboarding-page .service-save-panel span {
+  color: #98a2b3;
+  font-size: 0.64rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+html body .native-ui.business-onboarding-page .service-save-panel strong {
+  margin-top: 0.18rem;
+  color: #101828;
+  font-size: 0.94rem;
+  line-height: 1.18;
+}
+
+html body .native-ui.business-onboarding-page .service-save-panel p {
+  margin: 0.26rem 0 0;
+  color: #667085;
+  font-size: 0.74rem;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+html body .native-ui.business-onboarding-page .service-save-button,
+html body .native-ui.business-onboarding-page .service-create-another-button {
+  min-height: 2.55rem;
   border: 1px solid var(--onboarding-line);
   border-radius: 999px;
   padding: 0 1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.38rem;
   background: #ffffff;
   color: #101828;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 950;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-actions button.is-primary {
-  border-color: transparent;
+html body .native-ui.business-onboarding-page .service-save-button {
+  min-width: 9.5rem;
+}
+
+html body .native-ui.business-onboarding-page .service-save-button,
+html body .native-ui.business-onboarding-page .service-create-another-button {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
     var(--onboarding-gradient);
@@ -1851,19 +2887,25 @@ html body .native-ui.business-onboarding-page .onboarding-service-question-actio
   background-position: 0 0, var(--onboarding-gradient-position);
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-question-actions button:disabled {
-  opacity: 0.45;
+html body .native-ui.business-onboarding-page .service-create-another-button {
+  animation: onboardingSavedActionIn 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-service-final-question {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+@keyframes onboardingSavedActionIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-html body .native-ui.business-onboarding-page .onboarding-start-fields,
-html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel,
-html body .native-ui.business-onboarding-page .onboarding-schedule-setup,
-html body .native-ui.business-onboarding-page .onboarding-publish-summary {
-  width: min(100%, 66rem);
+@media (min-width: 900px) {
+  html body .native-ui.business-onboarding-page .onboarding-section-head p {
+    white-space: nowrap;
+  }
 }
 
 html body .native-ui.business-onboarding-page .onboarding-business-step {
@@ -1891,27 +2933,6 @@ html body .native-ui.business-onboarding-page .onboarding-type-panel-head .onboa
   border-radius: 1.05rem;
 }
 
-html body .native-ui.business-onboarding-page .onboarding-type-search {
-  margin-bottom: 0.72rem;
-  border: 1px solid rgba(20, 167, 255, 0.2);
-  border-radius: 1.05rem;
-  padding: 0.38rem;
-  background:
-    linear-gradient(#ffffff, #ffffff) padding-box,
-    var(--onboarding-gradient) border-box;
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--onboarding-gradient-position);
-  box-shadow: 0 18px 54px -48px rgba(15, 23, 42, 0.55);
-}
-
-html body .native-ui.business-onboarding-page .onboarding-type-search .onboarding-choice-icon {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
-    var(--onboarding-gradient);
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--onboarding-gradient-position);
-}
-
 html body .native-ui.business-onboarding-page .onboarding-type-list {
   max-height: min(47dvh, 26rem);
   border-radius: 1.15rem;
@@ -1932,6 +2953,27 @@ html body .native-ui.business-onboarding-page .onboarding-type-list button stron
 
 html body .native-ui.business-onboarding-page .onboarding-type-list button small {
   font-size: 0.67rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-industry-step span,
+html body .native-ui.business-onboarding-page .onboarding-industry-select small,
+html body .native-ui.business-onboarding-page .onboarding-industry-select em,
+html body .native-ui.business-onboarding-page .onboarding-type-list button em {
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-industry-select strong,
+html body .native-ui.business-onboarding-page .onboarding-type-list button strong {
+  font-family: inherit;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-type-list button small {
+  font-weight: 650;
+  letter-spacing: 0;
 }
 
 html body .native-ui.business-onboarding-page .onboarding-stage-footer {
@@ -1975,14 +3017,8 @@ html body .native-ui.business-onboarding-page .onboarding-stage-footer .is-later
   html body .native-ui.business-onboarding-page .onboarding-question:nth-child(7) { animation-delay: 540ms; }
   html body .native-ui.business-onboarding-page .onboarding-question:nth-child(8) { animation-delay: 620ms; }
 
-  html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-wizard-step-head.onboarding-question {
+  html body .native-ui.business-onboarding-page .onboarding-section-head.onboarding-question {
     animation-delay: 40ms;
-  }
-
-  html body .native-ui.business-onboarding-page .onboarding-service-question-card {
-    opacity: 0;
-    transform: translateY(12px) scale(0.985);
-    animation: onboardingQuestionIn 460ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel .service-wizard-grid > .onboarding-question:nth-child(1) { animation-delay: 140ms; }
@@ -2025,9 +3061,10 @@ html body .native-ui.business-onboarding-page .onboarding-stage-footer .is-later
 
 @media (max-width: 760px) {
   html body .native-ui.business-onboarding-page {
+    height: 100dvh;
     grid-template-rows: auto auto minmax(0, 1fr);
-    gap: 0.5rem;
-    padding: 0.52rem;
+    gap: 0.42rem;
+    padding: 0.45rem;
     background:
       radial-gradient(circle at top, rgba(185, 227, 255, 0.32), transparent 24rem),
       #f8fafc;
@@ -2035,31 +3072,83 @@ html body .native-ui.business-onboarding-page .onboarding-stage-footer .is-later
 
   html body .native-ui.business-onboarding-page .onboarding-topbar {
     margin: 0;
-    grid-template-columns: 1fr auto;
-    border-radius: 1rem;
+    min-height: auto;
+    border-radius: 0.95rem;
+    padding: 0.42rem;
+    gap: 0.38rem;
   }
 
-  html body .native-ui.business-onboarding-page .onboarding-topbar div {
-    grid-column: 1 / -1;
-    grid-row: 2;
+  html body .native-ui.business-onboarding-page .onboarding-topbar-main {
+    min-height: auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.45rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-brand-logo {
+    width: min(9.4rem, 44vw);
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-topbar-actions {
     flex-wrap: wrap;
+    justify-content: end;
+    gap: 0.35rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-topbar-actions span,
+  html body .native-ui.business-onboarding-page .onboarding-topbar-actions b,
+  html body .native-ui.business-onboarding-page .onboarding-topbar-actions button {
+    font-size: 0.56rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-topbar-actions span {
+    display: none;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-topbar-actions b,
+  html body .native-ui.business-onboarding-page .onboarding-topbar-actions button {
+    min-height: 1.7rem;
+    padding: 0 0.5rem;
+    white-space: nowrap;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-progress-path {
-    position: sticky;
-    top: 0.55rem;
+    position: static;
+    top: auto;
     z-index: 5;
-    padding: 0.3rem;
+    padding: 0.28rem;
+    border-radius: 0.9rem;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-progress-path li {
-    min-width: 9.4rem;
+    min-width: 8.65rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-progress-path li button {
+    min-height: 2.55rem;
+    padding: 0.36rem 0.56rem;
+    border-radius: 0.68rem;
+    gap: 0.36rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-progress-path li button > span {
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 0.42rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-progress-path li strong {
+    font-size: 0.7rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-progress-path li small {
+    display: none;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-stage {
     min-height: 0;
-    max-height: calc(100dvh - 8rem);
-    border-radius: 1.35rem;
+    max-height: calc(100dvh - 8.2rem);
+    border-radius: 1.1rem;
+    overflow: hidden;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-stage-header {
@@ -2076,24 +3165,66 @@ html body .native-ui.business-onboarding-page .onboarding-stage-footer .is-later
   }
 
   html body .native-ui.business-onboarding-page .onboarding-stage-footer {
+    display: grid;
+    grid-template-columns: minmax(4.6rem, 0.72fr) minmax(0, 1.8fr);
     align-items: stretch;
-    gap: 0.65rem;
-    padding: 0.8rem;
+    gap: 0.45rem;
+    padding: 0.52rem;
+    min-height: 3.55rem;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-stage-footer > div {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+    gap: 0.45rem;
     width: 100%;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-stage-footer > button,
   html body .native-ui.business-onboarding-page .onboarding-stage-footer > div > button {
     width: 100%;
+    min-height: 2.45rem;
+    padding: 0 0.5rem;
+    font-size: 0.58rem;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-type-panel {
     padding: 0;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-commerce-step,
+  html body .native-ui.business-onboarding-page .onboarding-industry-step {
+    padding: 0.62rem;
+    border-radius: 1rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-commerce-grid {
+    grid-template-columns: 1fr;
+    gap: 0.42rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-commerce-grid button {
+    min-height: 0;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.32rem 0.55rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-commerce-grid button small {
+    grid-column: 2 / -1;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-commerce-grid button em {
+    align-self: center;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-industry-step-head {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-industry-filter input {
+    min-height: 2.45rem;
   }
 
   html body .native-ui.business-onboarding-page .onboarding-type-panel-head {
@@ -2104,12 +3235,656 @@ html body .native-ui.business-onboarding-page .onboarding-stage-footer .is-later
     min-width: 0;
   }
 
-  html body .native-ui.business-onboarding-page .onboarding-service-question-actions {
-    display: grid;
+  html body .native-ui.business-onboarding-page .onboarding-step-card {
+    padding: 0.58rem;
+    overflow-y: auto;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel,
+  html body .native-ui.business-onboarding-page .onboarding-schedule-panel {
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-start-fields {
+    width: 100%;
+    gap: 0.65rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-section-head {
+    width: 100%;
+    margin-bottom: 0.15rem;
+    justify-items: start;
+    text-align: left;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-section-head h3 {
+    max-width: none;
+    font-size: clamp(1.08rem, 6.15vw, 1.48rem);
+    line-height: 0.98;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-section-head p {
+    font-size: 0.66rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-schedule-panel {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid {
+    grid-template-columns: 1fr;
+    gap: 0.42rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-main-field,
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-description-field,
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-field,
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-photos-field {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-wizard-field,
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-media-panel {
+    border-radius: 0.92rem;
+    padding: 0.55rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-price-mode-grid button {
+    min-height: 3.75rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-save-panel {
+    grid-template-columns: 1fr;
+    border-radius: 0.92rem;
+    padding: 0.62rem;
+  }
+
+  html body .native-ui.business-onboarding-page .service-save-button,
+  html body .native-ui.business-onboarding-page .service-create-another-button {
+    width: 100%;
+    min-height: 2.32rem;
+    font-size: 0.6rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid input,
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid select,
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid textarea {
+    min-height: 2.38rem;
+    font-size: 0.82rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid textarea {
+    min-height: 4.8rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid {
     grid-template-columns: 1fr;
   }
 
-  html body .native-ui.business-onboarding-page .onboarding-service-final-question {
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button {
+    min-height: 2.05rem;
+    font-size: 0.6rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button {
+    min-height: 3.45rem;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    padding: 0.52rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-service-compact-grid .service-location-grid button small {
+    font-size: 0.56rem;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-option-list.is-schedule-mode,
+  html body .native-ui.business-onboarding-page .onboarding-publish-summary {
     grid-template-columns: 1fr;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-time-slots-card .schedule-slot-bubble-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Final launch alignment pass: keep every step centered on the same visual axis. */
+html body .native-ui.business-onboarding-page .onboarding-topbar,
+html body .native-ui.business-onboarding-page .onboarding-stage {
+  width: min(100%, 74rem);
+  margin-inline: auto;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-step-card {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-business-step,
+html body .native-ui.business-onboarding-page .onboarding-start-fields,
+html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel,
+html body .native-ui.business-onboarding-page .onboarding-schedule-panel,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+  justify-self: center;
+  margin-inline: auto;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-business-step,
+html body .native-ui.business-onboarding-page .onboarding-service-wizard-panel,
+html body .native-ui.business-onboarding-page .onboarding-schedule-panel {
+  width: min(100%, 64rem);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-stage-header,
+html body .native-ui.business-onboarding-page .onboarding-section-head,
+html body .native-ui.business-onboarding-page .service-wizard-step-head {
+  justify-items: center;
+  text-align: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-stage-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-stage-header > div {
+  justify-self: center;
+  text-align: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-stage-header small {
+  justify-self: end;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-type-panel,
+html body .native-ui.business-onboarding-page .onboarding-form-card,
+html body .native-ui.business-onboarding-page .onboarding-service-compact-grid,
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+  width: 100%;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-stage-footer {
+  grid-template-columns: auto minmax(0, auto);
+  justify-content: space-between;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-stage-footer > div {
+  justify-content: end;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-stage-footer button {
+  white-space: nowrap;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-step-card {
+  padding-bottom: clamp(5.25rem, 9vh, 7rem);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-type-panel {
+  display: grid;
+  justify-items: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-type-panel-head {
+  width: min(100%, 58rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-type-panel-head > div:first-child {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-type-panel-head h2 {
+  max-width: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-selected-type {
+  width: min(100%, 24rem);
+  justify-self: center;
+  justify-content: center;
+  text-align: left;
+  margin-top: 0.15rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-commerce-step,
+html body .native-ui.business-onboarding-page .onboarding-industry-step {
+  width: min(100%, 58rem);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-commerce-step > div:first-child,
+html body .native-ui.business-onboarding-page .onboarding-industry-step-head > div {
+  justify-items: center;
+  text-align: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-commerce-grid button {
+  justify-items: center;
+  text-align: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-commerce-grid button .onboarding-choice-icon,
+html body .native-ui.business-onboarding-page .onboarding-commerce-grid button em {
+  justify-self: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-industry-select {
+  grid-template-columns: auto minmax(0, max-content) auto;
+  justify-content: center;
+  text-align: left;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-full-schedule-editor .schedule-settings-wizard-main {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  html body .native-ui.business-onboarding-page .onboarding-stage-header {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-stage-header small {
+    justify-self: center;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-stage-footer {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-stage-footer > div {
+    justify-content: stretch;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-commerce-grid button {
+    justify-items: start;
+    text-align: left;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-commerce-grid button .onboarding-choice-icon,
+  html body .native-ui.business-onboarding-page .onboarding-commerce-grid button em {
+    justify-self: start;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-industry-select {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    justify-content: stretch;
+  }
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span {
+  justify-self: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card small,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card em {
+  max-width: 34rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+  width: min(100%, 68rem);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.85rem;
+  align-items: stretch;
+  align-content: start;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 18px;
+  padding: clamp(1rem, 2.2vw, 1.35rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(244, 194, 255, 0.28), transparent 34%),
+    radial-gradient(circle at 92% 10%, rgba(185, 245, 255, 0.34), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.78));
+  box-shadow: 0 24px 70px -54px rgba(15, 23, 42, 0.52);
+  overflow: hidden;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+  width: min(100%, 58rem);
+  gap: 0.65rem;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero {
+  border-radius: 14px;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow: 0 18px 54px -48px rgba(15, 23, 42, 0.45);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero span {
+  background: #f8fafc;
+  color: #344054;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero > strong {
+  width: 4.35rem;
+  height: 4.35rem;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.46), rgba(255,255,255,0.16)),
+    var(--onboarding-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card.is-ready {
+  min-height: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.86rem;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span.is-done {
+  border-color: #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span.is-done {
+  box-shadow: inset 0 0 0 999px rgba(179, 255, 197, 0.26);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card small,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card em {
+  display: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-review-list {
+  grid-column: 1 / -1;
+  margin: 0.78rem 0 0;
+  display: grid;
+  gap: 0;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-review-list div {
+  min-height: 1.95rem;
+  border-top: 1px solid #eef2f7;
+  padding: 0.42rem 0.56rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.18rem;
+  align-items: start;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-review-list div:first-child {
+  border-top: 0;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-review-list dt,
+html body .native-ui.business-onboarding-page .onboarding-review-list dd {
+  margin: 0;
+  min-width: 0;
+  text-align: left;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-review-list dt {
+  color: #101828;
+  font-size: 0.66rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-review-list dd {
+  color: #101828;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero span {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 0.34rem 0.58rem;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.44), rgba(255,255,255,0.14)),
+    var(--onboarding-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+  color: #101828;
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero h2 {
+  margin: 0.58rem 0 0;
+  color: #101828;
+  font-size: clamp(1.35rem, 3vw, 2.15rem);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero p {
+  max-width: 48rem;
+  margin: 0.56rem 0 0;
+  color: #667085;
+  font-size: 0.86rem;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-hero > strong {
+  width: 5rem;
+  height: 5rem;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: #ffffff;
+  color: #101828;
+  font-size: 1.35rem;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card {
+  min-height: 0;
+  border: 1px solid rgba(16, 24, 40, 0.08);
+  border-radius: 16px;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 2.15rem minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-items: start;
+  justify-items: stretch;
+  gap: 0.06rem 0.8rem;
+  background: rgba(255, 255, 255, 0.92);
+  text-align: left;
+  box-shadow: 0 18px 58px -50px rgba(15, 23, 42, 0.52);
+  height: auto;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > div {
+  display: contents;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card:first-child {
+  grid-column: span 2;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card:nth-child(2),
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card:nth-child(3) {
+  grid-column: span 2;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card:nth-child(4),
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card:nth-child(5) {
+  grid-column: span 3;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card.is-ready {
+  border-color: transparent;
+  background:
+    #ffffff padding-box,
+    var(--onboarding-gradient) border-box;
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--onboarding-gradient-position);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span {
+  width: 2.15rem;
+  height: 2.15rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  background: #ffffff;
+  color: #64748b;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span svg {
+  display: block;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span.is-done,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span.onboarding-status-badge.is-done {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card > span.onboarding-status-badge.is-warning {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card p {
+  grid-column: 2;
+  margin: 0;
+  color: #98a2b3;
+  font-size: 0.66rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card strong {
+  grid-column: 2;
+  margin-top: 0.16rem;
+  color: #101828;
+  font-size: 0.98rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.16;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card small:not(.onboarding-clean-meta) {
+  display: none;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card .onboarding-clean-meta,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card em {
+  display: block;
+  max-width: none;
+  margin-top: 0.42rem;
+  color: #667085;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 740;
+  line-height: 1.35;
+  text-align: left;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card em {
+  width: max-content;
+  max-width: 100%;
+  border-radius: 999px;
+  padding: 0.3rem 0.48rem;
+  background: #f8fafc;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card.is-ready,
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card.is-next {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 16px 42px -34px rgba(15, 23, 42, 0.5);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--onboarding-gradient);
+  background-size: 420% 420%;
+  background-position: var(--onboarding-gradient-position);
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card.is-next::before {
+  opacity: 0.45;
+}
+
+@media (max-width: 760px) {
+  html body .native-ui.business-onboarding-page .onboarding-publish-summary {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-publish-hero {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    border-radius: 16px;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-publish-hero > strong {
+    width: auto;
+    height: auto;
+    min-height: 2.8rem;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card {
+    min-height: auto;
   }
 }

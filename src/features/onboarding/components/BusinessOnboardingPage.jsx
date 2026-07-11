@@ -2,32 +2,20 @@ import { useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
-  Baby,
-  BriefcaseBusiness,
-  Building2,
-  Camera,
-  Car,
+  CalendarDays,
   Check,
-  DollarSign,
-  Dumbbell,
-  GraduationCap,
-  Home,
-  Hotel,
-  Image as ImageIcon,
-  Megaphone,
-  PawPrint,
-  PlayCircle,
-  Scissors,
-  Search,
-  Sparkles,
-  SprayCan,
-  Store,
-  Utensils,
-  Wrench,
+  CheckCircle2,
+  ChevronDown,
+  CircleAlert,
+  Download,
+  MapPin,
+  Package,
   X
 } from 'lucide-react';
 import { OnboardingCompleteCard } from './OnboardingCompleteCard';
 import { OnboardingProgressPath } from './OnboardingProgressPath';
+import { BuildABookingBrand } from '../../../components/BuildABookingBrand';
+import { GooglePlaceAutocompleteInput } from '../../maps/GooglePlaceAutocompleteInput';
 import { ScheduleSettingsModal } from '../../schedule/components/ScheduleSettingsModal';
 import { ScheduleSlotEditorModal } from '../../schedule/components/ScheduleSlotEditorModal';
 import { formatSlotEditorValue, getNextOpenTime, parseSlotValue, sortSlotValues, timeValueToMinutes } from '../../schedule/utils/businessCalendarUtils';
@@ -49,30 +37,30 @@ const steps = [
 ];
 
 const industryIcons = {
-  salon: <Scissors size={22} />,
-  fitness: <Dumbbell size={22} />,
-  rentals: <Store size={22} />,
-  classes: <GraduationCap size={22} />,
-  barber: <Scissors size={22} />,
-  spa: <Sparkles size={22} />,
-  nails: <Sparkles size={22} />,
-  tutor: <GraduationCap size={22} />,
-  childcare: <Baby size={22} />,
-  venue: <Building2 size={22} />,
-  photography: <Camera size={22} />,
-  musicstudio: <PlayCircle size={22} />,
-  events: <Megaphone size={22} />,
-  restaurant: <Utensils size={22} />,
-  accommodation: <Hotel size={22} />,
-  cleaning: <SprayCan size={22} />,
-  trades: <Wrench size={22} />,
-  automotive: <Car size={22} />,
-  petcare: <PawPrint size={22} />,
-  consulting: <BriefcaseBusiness size={22} />,
-  realestate: <Home size={22} />,
-  creative: <Sparkles size={22} />,
-  nonprofit: <Megaphone size={22} />,
-  custom: <Sparkles size={22} />
+  salon: '💇',
+  fitness: '🏋️',
+  rentals: '🛍️',
+  classes: '🎓',
+  barber: '💈',
+  spa: '🧖',
+  nails: '💅',
+  tutor: '📚',
+  childcare: '🧸',
+  venue: '🏛️',
+  photography: '📸',
+  musicstudio: '🎧',
+  events: '🎉',
+  restaurant: '🍽️',
+  accommodation: '🏨',
+  cleaning: '🧼',
+  trades: '🧰',
+  automotive: '🚗',
+  petcare: '🐾',
+  consulting: '💼',
+  realestate: '🏡',
+  creative: '🎨',
+  nonprofit: '📣',
+  custom: '✨'
 };
 
 const serviceDurationOptions = [
@@ -82,6 +70,34 @@ const serviceDurationOptions = [
   { label: '60 min', minutes: '60' },
   { label: '90 min', minutes: '90' },
   { label: '120 min', minutes: '120' }
+];
+
+const servicePriceTypeOptions = [
+  { id: 'fixed', label: 'Fixed', helper: 'One set price' },
+  { id: 'from', label: 'From', helper: 'Starts at this price' },
+  { id: 'hourly', label: 'Hourly', helper: 'Price per hour' },
+  { id: 'quote', label: 'Quote', helper: 'Confirm after request' }
+];
+
+const commerceTypeOptions = [
+  {
+    id: 'bookable_service',
+    label: 'Bookable service',
+    description: 'Appointments, sessions, rentals, classes, consultations, or time slots.',
+    icon: <CalendarDays size={22} />
+  },
+  {
+    id: 'physical_product',
+    label: 'Physical product',
+    description: 'Items clients buy, collect, receive, or add alongside a booking.',
+    icon: <Package size={22} />
+  },
+  {
+    id: 'digital_product',
+    label: 'Downloadable digital product',
+    description: 'Files, guides, templates, courses, or digital resources.',
+    icon: <Download size={22} />
+  }
 ];
 
 export function BusinessOnboardingPage({
@@ -100,18 +116,25 @@ export function BusinessOnboardingPage({
   const [saving, setSaving] = useState(false);
   const [applyScope, setApplyScope] = useState('always');
   const [scheduleSlotEditor, setScheduleSlotEditor] = useState(null);
-  const [serviceQuestionIndex, setServiceQuestionIndex] = useState(0);
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+  const [serviceSaved, setServiceSaved] = useState(false);
+  const [industryMenuOpen, setIndustryMenuOpen] = useState(false);
   const [draft, setDraft] = useState(() => ({
     industry: settings.serviceIndustry || 'salon',
     brandName: settings.brandName && settings.brandName !== 'Your Business' ? settings.brandName : '',
     tagline: settings.tagline || '',
     businessDescription: settings.businessDescription || settings.welcomeMessage || '',
     businessEmail: settings.businessEmail || user?.email || '',
+    venuePhotos: Array.isArray(settings.venuePhotos) ? settings.venuePhotos : [],
+    address: settings.address || '',
+    mapPlace: settings.mapPlace || null,
     accent: settings.primaryColor || '#16A34A',
+    commerceTypes: settings.commerceTypes || ['bookable_service'],
     availability: 'weekdays',
     locationMode: 'my_location',
     services: [],
     rules: {
+      scheduleMode: 'time_slots',
       bookingNotice: '24h',
       cancellationWindow: '24h',
       holdMode: 'pending_confirmed',
@@ -142,17 +165,22 @@ export function BusinessOnboardingPage({
   const stepId = steps[currentStep].id;
   const launchScore = complete ? 100 : Math.round(((currentStep + 1) / steps.length) * 100);
   const hasVisibleService = selectedServices.some(service => service?.name?.trim() && String(service.duration || '').trim());
-  const serviceQuestionCount = 7;
-  const isLastServiceQuestion = serviceQuestionIndex >= serviceQuestionCount - 1;
   const canContinue = useMemo(() => {
     if (stepId === 'welcome') return Boolean((draft.brandName || '').trim());
-    if (stepId === 'services') return hasVisibleService && isLastServiceQuestion;
+    if (stepId === 'services') return hasVisibleService;
     return true;
-  }, [draft.brandName, hasVisibleService, isLastServiceQuestion, stepId]);
+  }, [draft.brandName, hasVisibleService, stepId]);
 
   const updateDraft = (patch) => setDraft(prev => ({ ...prev, ...patch }));
   const updateRules = (patch) => setDraft(prev => ({ ...prev, rules: { ...prev.rules, ...patch } }));
   const updateDefaultSlots = (slots) => updateDraft({ defaultSlots: sortSlotValues(slots) });
+  const toggleCommerceType = (typeId) => {
+    const currentTypes = Array.isArray(draft.commerceTypes) ? draft.commerceTypes : [];
+    const nextTypes = currentTypes.includes(typeId)
+      ? currentTypes.filter(id => id !== typeId)
+      : [...currentTypes, typeId];
+    updateDraft({ commerceTypes: nextTypes.length ? nextTypes : [typeId] });
+  };
 
   const goNext = async () => {
     if (!canContinue || saving) return;
@@ -177,18 +205,25 @@ export function BusinessOnboardingPage({
     goNext();
   };
 
-  const chooseBusinessType = (id, option) => updateDraft({
-    industry: id,
-    accent: option.accent,
-    tagline: option.tagline,
-    services: option.services
-  });
+  const chooseBusinessType = (id, option) => {
+    setActiveServiceIndex(0);
+    setServiceSaved(false);
+    setBusinessTypeQuery('');
+    setIndustryMenuOpen(false);
+    updateDraft({
+      industry: id,
+      accent: option.accent,
+      tagline: option.tagline,
+      services: option.services
+    });
+  };
 
   const updateService = (index, patch) => {
     const sourceServices = selectedServices.length ? selectedServices : preset.services;
     const next = sourceServices.map((service, serviceIndex) => (
       serviceIndex === index ? { ...service, ...patch } : service
     ));
+    setServiceSaved(false);
     updateDraft({ services: next });
   };
 
@@ -219,39 +254,74 @@ export function BusinessOnboardingPage({
     });
   };
 
-  const primaryService = selectedServices[0] || preset.services[0] || {
+  const handleBusinessPhotoUpload = async (event) => {
+    const files = Array.from(event.target.files || []).filter(Boolean);
+    if (!files.length) return;
+    const imageUrls = (await Promise.all(files.map(readImageFileAsDataUrl))).filter(Boolean);
+    updateDraft({ venuePhotos: [...(draft.venuePhotos || []), ...imageUrls].slice(0, 8) });
+    event.target.value = '';
+  };
+
+  const removeBusinessPhoto = (imageIndex) => {
+    updateDraft({
+      venuePhotos: (draft.venuePhotos || []).filter((_, index) => index !== imageIndex)
+    });
+  };
+
+  const handleAddressChange = (value) => {
+    updateDraft({
+      address: value,
+      mapPlace: draft.mapPlace ? null : draft.mapPlace
+    });
+  };
+
+  const handlePlaceSelect = (mapPlace) => {
+    const readableAddress = mapPlace?.formattedAddress || mapPlace?.displayName || draft.address || '';
+    updateDraft({ address: readableAddress, mapPlace });
+  };
+
+  const handleLocationClear = () => updateDraft({ address: '', mapPlace: null });
+
+  const editingServiceIndex = Math.min(activeServiceIndex, Math.max(selectedServices.length - 1, 0));
+  const primaryService = selectedServices[editingServiceIndex] || preset.services[0] || {
     name: '',
     category: '',
     description: '',
     duration: '60',
-    price: ''
+    price: '',
+    priceType: 'fixed'
   };
-  const goNextServiceQuestion = () => setServiceQuestionIndex(index => Math.min(serviceQuestionCount - 1, index + 1));
-  const goBackServiceQuestion = () => setServiceQuestionIndex(index => Math.max(0, index - 1));
+  const primaryServiceDuration = String(primaryService.duration || '60');
+  const isNoFixedDuration = primaryService.durationMode === 'none';
+  const primaryServicePriceType = primaryService.priceType || 'fixed';
+  const isCustomDuration = !isNoFixedDuration && (
+    primaryService.durationMode === 'custom'
+    || !serviceDurationOptions.some(option => option.minutes === primaryServiceDuration)
+  );
+  const saveCurrentService = () => setServiceSaved(true);
+  const createAnotherService = () => {
+    const nextServices = [
+      ...selectedServices,
+      {
+        id: `launch-service-${Date.now()}`,
+        name: '',
+        category: preset.label,
+        description: '',
+        duration: '60',
+        durationMode: 'fixed',
+        currency: 'R',
+        price: '',
+        priceType: 'fixed',
+        active: true,
+        imageUrls: []
+      }
+    ];
+    updateDraft({ services: nextServices });
+    setActiveServiceIndex(nextServices.length - 1);
+    setServiceSaved(false);
+  };
   const selectedDate = new Date().toISOString().slice(0, 10);
-  const scheduleTemplates = useMemo(() => ([
-    {
-      id: 'launch-weekdays',
-      name: 'Weekday rhythm',
-      description: 'Starter weekday slots for launch.',
-      defaultTimes: availabilityPresets.weekdays.availableTimes,
-      waitlistEnabled: draft.rules.waitlist !== false
-    },
-    {
-      id: 'launch-evenings',
-      name: 'Afternoons & evenings',
-      description: 'Later slots for after-work bookings.',
-      defaultTimes: availabilityPresets.evenings.availableTimes,
-      waitlistEnabled: draft.rules.waitlist !== false
-    },
-    {
-      id: 'launch-weekends',
-      name: 'Weekend friendly',
-      description: 'Saturday and Sunday starter slots.',
-      defaultTimes: availabilityPresets.weekends.availableTimes,
-      waitlistEnabled: draft.rules.waitlist !== false
-    }
-  ]), [draft.rules.waitlist]);
+  const scheduleTemplates = useMemo(() => [], []);
 
   const startAddingDefaultSlot = () => setScheduleSlotEditor({
     originalTime: null,
@@ -300,9 +370,6 @@ export function BusinessOnboardingPage({
     const template = scheduleTemplates.find(item => item.id === templateId);
     if (!template) return;
     updateDefaultSlots(template.defaultTimes);
-    if (templateId === 'launch-evenings') updateDraft({ availability: 'evenings' });
-    if (templateId === 'launch-weekends') updateDraft({ availability: 'weekends' });
-    if (templateId === 'launch-weekdays') updateDraft({ availability: 'weekdays' });
   };
 
   const renderIdentityFields = () => (
@@ -317,11 +384,11 @@ export function BusinessOnboardingPage({
         />
       </label>
       <label className="onboarding-question">
-        <span>Tagline optional</span>
+        <span>Slogan optional</span>
         <input
           value={draft.tagline}
           onChange={(event) => updateDraft({ tagline: event.target.value })}
-          placeholder={preset.tagline}
+          placeholder={preset.tagline || 'Online bookings made simple'}
         />
       </label>
       <label className="onboarding-question">
@@ -341,6 +408,52 @@ export function BusinessOnboardingPage({
           rows={5}
         />
       </label>
+      <div className="onboarding-business-photo-panel onboarding-question">
+        <div>
+          <span>Business photos</span>
+          <strong>{draft.venuePhotos?.length ? `${draft.venuePhotos.length} photo${draft.venuePhotos.length === 1 ? '' : 's'} added` : 'Optional gallery'}</strong>
+        </div>
+        <div className="onboarding-business-photo-grid">
+          {(draft.venuePhotos || []).slice(0, 8).map((url, imageIndex) => (
+            <div key={`${url}-${imageIndex}`} className="onboarding-business-photo-thumb">
+              <img src={url} alt="" />
+              <button type="button" onClick={() => removeBusinessPhoto(imageIndex)} aria-label="Remove business photo">
+                <X size={13} />
+              </button>
+            </div>
+          ))}
+          <label className="onboarding-business-photo-add" aria-label="Upload business photos">
+            <span aria-hidden="true">+</span>
+            <input type="file" accept="image/*" multiple onChange={handleBusinessPhotoUpload} />
+          </label>
+        </div>
+        <p>Add your space, studio, work area, or business vibe. You can edit these later.</p>
+      </div>
+      <div className="onboarding-business-location-panel onboarding-question">
+        <div className="onboarding-business-location-head">
+          <span className="onboarding-choice-icon" aria-hidden="true"><MapPin size={18} /></span>
+          <div>
+            <span>Business location</span>
+            <strong>{draft.mapPlace?.placeId || draft.mapPlace?.lat != null ? 'Google place saved' : 'Address for clients'}</strong>
+          </div>
+        </div>
+        <GooglePlaceAutocompleteInput
+          value={draft.address || ''}
+          onValueChange={handleAddressChange}
+          onPlaceSelect={handlePlaceSelect}
+          onClear={handleLocationClear}
+          className="onboarding-business-location-input"
+          placeholder="Search your business address"
+        />
+        <p>{draft.mapPlace?.placeId || draft.mapPlace?.lat != null ? 'Exact map details will be used on the booking page.' : 'Clients will see this as your location. You can refine the map later.'}</p>
+      </div>
+    </div>
+  );
+
+  const renderSectionHeader = ({ title, description }) => (
+    <div className="onboarding-section-head onboarding-question">
+      <h3>{title}</h3>
+      <p>{description}</p>
     </div>
   );
 
@@ -348,6 +461,10 @@ export function BusinessOnboardingPage({
     if (stepId === 'welcome') {
       return (
         <div className="onboarding-start-fields">
+          {renderSectionHeader({
+            title: 'Name the business clients will book with.',
+            description: 'Add the basics once. We will use them on your public booking page.'
+          })}
           {renderIdentityFields()}
         </div>
       );
@@ -359,116 +476,215 @@ export function BusinessOnboardingPage({
           <section className="onboarding-type-panel" aria-label="Business type">
             <div className="onboarding-type-panel-head onboarding-question">
               <div>
-                <p className="onboarding-specific-label">Business type</p>
-                <h2>What kind of business are you launching?</h2>
-              </div>
-              <div className="onboarding-selected-type">
-                <span className="onboarding-choice-icon" aria-hidden="true">{industryIcons[draft.industry] || <Store size={22} />}</span>
-                <div>
-                  <p>Selected type</p>
-                  <strong>{preset.label}</strong>
-                  <small>{selectedServices.length} starter services suggested next.</small>
-                </div>
+                <h2>What do you sell?</h2>
+                <p>Choose what your business offers, then pick the closest industry so we can suggest the right setup.</p>
               </div>
             </div>
-            <label className="onboarding-type-search onboarding-question">
-              <span className="onboarding-choice-icon" aria-hidden="true"><Search size={20} /></span>
-              <span className="sr-only">Search business types</span>
-              <input
-                value={businessTypeQuery}
-                onChange={(event) => setBusinessTypeQuery(event.target.value)}
-                placeholder="Search salon, gym, tutor, rental, studio..."
-              />
-            </label>
-            <div className="onboarding-type-list onboarding-question" role="listbox" aria-label="Business types">
-              {visibleBusinessTypes.length ? (
-                visibleBusinessTypes.map(({ id, group, option }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={draft.industry === id ? 'is-active' : ''}
-                    aria-selected={draft.industry === id}
-                    role="option"
-                    onClick={() => chooseBusinessType(id, option)}
-                  >
-                    <span className="onboarding-choice-icon" aria-hidden="true">{industryIcons[id] || <Store size={22} />}</span>
-                    <span>
+            <section className="onboarding-commerce-step onboarding-question" aria-label="What this business sells">
+              <div className="onboarding-commerce-grid">
+                {commerceTypeOptions.map(option => {
+                  const selected = (draft.commerceTypes || []).includes(option.id);
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={selected ? 'is-active' : ''}
+                      onClick={() => toggleCommerceType(option.id)}
+                      aria-pressed={selected}
+                    >
+                      <span className="onboarding-choice-icon" aria-hidden="true">{option.icon}</span>
                       <strong>{option.label}</strong>
-                      <small>{group} - {option.goal}</small>
-                    </span>
-                    {draft.industry === id && <em>Selected</em>}
-                  </button>
-                ))
-              ) : (
-                <p className="onboarding-type-empty">No exact match yet. Choose "Something else" or try a broader word like class, rental, beauty, home, or creative.</p>
+                      <small>{option.description}</small>
+                      <em>{selected ? 'Selected' : 'Select'}</em>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+            <section className="onboarding-industry-step onboarding-question" aria-label="Choose industry">
+              <button
+                type="button"
+                className={`onboarding-industry-select ${industryMenuOpen ? 'is-open' : ''}`}
+                onClick={() => setIndustryMenuOpen(open => !open)}
+                aria-expanded={industryMenuOpen}
+                aria-controls="onboarding-industry-menu"
+              >
+                <span className="onboarding-choice-icon" aria-hidden="true">{industryIcons[draft.industry] || '✨'}</span>
+                <span>
+                  <small>Selected industry</small>
+                  <strong>{preset.label}</strong>
+                  <em>{selectedServices.length} starter services suggested</em>
+                </span>
+                <ChevronDown size={18} aria-hidden="true" />
+              </button>
+              {industryMenuOpen && (
+                <div id="onboarding-industry-menu" className="onboarding-industry-menu">
+                  <label className="onboarding-industry-filter">
+                    <span className="sr-only">Filter industries</span>
+                    <input
+                      autoFocus
+                      value={businessTypeQuery}
+                      onChange={(event) => setBusinessTypeQuery(event.target.value)}
+                      placeholder="Search salon, tutor, rental, studio..."
+                    />
+                  </label>
+                  <div className="onboarding-type-list" role="listbox" aria-label="Business types">
+                    {visibleBusinessTypes.length ? (
+                      visibleBusinessTypes.map(({ id, group, option }) => (
+                        <button
+                          key={id}
+                          type="button"
+                          className={draft.industry === id ? 'is-active' : ''}
+                          aria-selected={draft.industry === id}
+                          role="option"
+                          onClick={() => chooseBusinessType(id, option)}
+                        >
+                          <span className="onboarding-choice-icon" aria-hidden="true">{industryIcons[id] || '✨'}</span>
+                          <span>
+                            <strong>{option.label}</strong>
+                            <small>{group} - {option.goal}</small>
+                          </span>
+                          {draft.industry === id && <em>Selected</em>}
+                        </button>
+                      ))
+                    ) : (
+                      <p className="onboarding-type-empty">No exact match yet. Choose "Something else" or try a broader word like class, rental, beauty, home, or creative.</p>
+                    )}
+                  </div>
+                </div>
               )}
-            </div>
+            </section>
           </section>
         </div>
       );
     }
 
     if (stepId === 'services') {
-      const serviceQuestionMeta = [
-        ['Name', 'What should clients book?'],
-        ['Category', 'How should we group it?'],
-        ['Visibility', 'Should it be live?'],
-        ['Location', 'Where does it happen?'],
-        ['Description', 'What should clients know?'],
-        ['Photos', 'Show the service visually.'],
-        ['Price & duration', 'Finish the booking card.']
-      ];
-      const renderServiceQuestion = () => {
-        if (serviceQuestionIndex === 0) {
-          return (
-            <label className="service-wizard-field is-wide onboarding-question">
+      return (
+        <div className="onboarding-focus-page onboarding-service-wizard-panel">
+          {renderSectionHeader({
+            title: 'Set up the service clients will book.',
+            description: 'Keep this simple for launch. You can add more services and advanced settings later.'
+          })}
+          <div className="service-wizard-grid onboarding-service-compact-grid">
+            <label className="service-wizard-field service-main-field onboarding-question">
               <span>Service name</span>
               <input
                 autoFocus
                 value={primaryService.name}
-                onChange={(event) => updateService(0, { name: event.target.value })}
+                onChange={(event) => updateService(editingServiceIndex, { name: event.target.value })}
                 placeholder="Signature Appointment"
               />
             </label>
-          );
-        }
-        if (serviceQuestionIndex === 1) {
-          return (
-            <label className="service-wizard-field is-wide onboarding-question">
+            <label className="service-wizard-field service-category-field onboarding-question">
               <span>Category</span>
               <input
-                autoFocus
                 value={primaryService.category || preset.label}
-                onChange={(event) => updateService(0, { category: event.target.value })}
+                onChange={(event) => updateService(editingServiceIndex, { category: event.target.value })}
                 placeholder="Beauty, consulting, tutoring..."
               />
             </label>
-          );
-        }
-        if (serviceQuestionIndex === 2) {
-          return (
-            <label className="service-wizard-field is-wide onboarding-question">
-              <span>Visibility</span>
-              <button
-                type="button"
-                className={`service-live-toggle ${primaryService.active === false ? '' : 'is-live'}`}
-                onClick={() => updateService(0, { active: primaryService.active === false })}
-              >
-                {primaryService.active === false ? 'Hidden for now' : 'Live on booking page'}
-              </button>
-            </label>
-          );
-        }
-        if (serviceQuestionIndex === 3) {
-          return (
-            <div className="service-wizard-field is-wide onboarding-question">
+            <div className="service-wizard-field service-price-field onboarding-question">
+              <span>Price</span>
+              <div className="service-price-mode-grid" role="radiogroup" aria-label="Service pricing type">
+                {servicePriceTypeOptions.map(option => {
+                  const selected = primaryServicePriceType === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={selected ? 'is-active' : ''}
+                      onClick={() => updateService(editingServiceIndex, {
+                        priceType: option.id,
+                        price: option.id === 'quote' ? '' : primaryService.price
+                      })}
+                      aria-pressed={selected}
+                    >
+                      <span>{selected ? <Check size={13} /> : null}</span>
+                      <strong>{option.label}</strong>
+                      <small>{option.helper}</small>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="service-money-row">
+                <input
+                  value={primaryService.currency || 'R'}
+                  onChange={(event) => updateService(editingServiceIndex, { currency: event.target.value })}
+                  aria-label="Currency"
+                  disabled={primaryServicePriceType === 'quote'}
+                />
+                <input
+                  value={primaryService.price || ''}
+                  onChange={(event) => updateService(editingServiceIndex, { price: event.target.value })}
+                  placeholder={primaryServicePriceType === 'hourly' ? '450 per hour' : primaryServicePriceType === 'from' ? '450 starting price' : '450'}
+                  aria-label="Price"
+                  disabled={primaryServicePriceType === 'quote'}
+                />
+              </div>
+              <small>{primaryServicePriceType === 'quote' ? 'No amount needed. Clients will request this service and you can quote them after.' : 'Use numbers only here. The booking page will format it for clients.'}</small>
+            </div>
+            <div className="service-wizard-field service-duration-field onboarding-question">
+              <span>Duration</span>
+              <div className="service-duration-choice-panel">
+                <select
+                  aria-label="Service duration"
+                  value={primaryService.durationMode === 'none' ? '' : isCustomDuration ? 'custom' : primaryServiceDuration}
+                  disabled={primaryService.durationMode === 'none'}
+                  onChange={(event) => {
+                    if (event.target.value === 'custom') {
+                      updateService(editingServiceIndex, { durationMode: 'custom', duration: primaryServiceDuration || '60' });
+                      return;
+                    }
+                    updateService(editingServiceIndex, { duration: event.target.value, durationMode: 'fixed' });
+                  }}
+                >
+                  <option value="">No fixed duration</option>
+                  {serviceDurationOptions.map(option => (
+                    <option
+                      key={option.minutes}
+                      value={option.minutes}
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                  <option value="custom">Custom duration</option>
+                </select>
+                <label className={`service-no-duration ${primaryService.durationMode === 'none' ? 'is-active' : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={primaryService.durationMode === 'none'}
+                    onChange={(event) => updateService(editingServiceIndex, {
+                      durationMode: event.target.checked ? 'none' : 'fixed',
+                      duration: event.target.checked ? '' : (primaryServiceDuration || '60')
+                    })}
+                  />
+                  <span>{primaryService.durationMode === 'none' ? <Check size={13} /> : null}</span>
+                  <strong>No fixed duration</strong>
+                </label>
+                {isCustomDuration && (
+                  <label className="service-custom-duration">
+                    <span>Custom minutes</span>
+                    <input
+                      type="number"
+                      min="5"
+                      step="5"
+                      value={primaryServiceDuration}
+                      onChange={(event) => updateService(editingServiceIndex, { duration: event.target.value, durationMode: 'custom' })}
+                      placeholder="75"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+            <div className="service-wizard-field service-location-field onboarding-question">
               <span>Where is this service done?</span>
               <div className="service-location-grid">
                 {[
-                  ['online', 'Online'],
-                  ['my_location', 'At my location'],
-                  ['mobile', 'I travel to clients']
-                ].map(([id, label]) => (
+                  ['online', 'Online', 'Video or remote session'],
+                  ['my_location', 'At my location', 'Clients come to you'],
+                  ['mobile', 'I travel', 'You go to clients']
+                ].map(([id, label, helper]) => (
                   <button
                     key={id}
                     type="button"
@@ -476,119 +692,60 @@ export function BusinessOnboardingPage({
                     onClick={() => updateDraft({ locationMode: id })}
                     aria-pressed={draft.locationMode === id}
                   >
-                    <Check size={16} /> {label}
+                    <span>{draft.locationMode === id ? <Check size={15} /> : null}</span>
+                    <strong>{label}</strong>
+                    <small>{helper}</small>
                   </button>
                 ))}
               </div>
             </div>
-          );
-        }
-        if (serviceQuestionIndex === 4) {
-          return (
-            <label className="service-wizard-field is-wide onboarding-question">
+            <label className="service-wizard-field service-description-field onboarding-question">
               <span>Description</span>
               <textarea
-                autoFocus
                 value={primaryService.description || ''}
-                onChange={(event) => updateService(0, { description: event.target.value })}
+                onChange={(event) => updateService(editingServiceIndex, { description: event.target.value })}
                 placeholder="What is included, who it is for, and anything clients should know."
-                rows={5}
+                rows={4}
               />
             </label>
-          );
-        }
-        if (serviceQuestionIndex === 5) {
-          return (
-            <div className="service-media-panel is-wide onboarding-question">
+            <div className="service-media-panel service-photos-field onboarding-question">
               <div>
                 <span>Service photos</span>
-                <strong>{primaryService.imageUrls?.length ? `${primaryService.imageUrls.length} image${primaryService.imageUrls.length === 1 ? '' : 's'} added` : 'Add service images'}</strong>
+                <strong>{primaryService.imageUrls?.length ? `${primaryService.imageUrls.length} image${primaryService.imageUrls.length === 1 ? '' : 's'} added` : 'Optional photos'}</strong>
               </div>
               <div className="service-media-grid">
                 {(primaryService.imageUrls || []).slice(0, 8).map((url, imageIndex) => (
                   <div key={`${url}-${imageIndex}`} className="service-media-thumb">
                     <img src={url} alt="" />
-                    <button type="button" onClick={() => removeServiceImage(0, imageIndex)} aria-label="Remove service image">
+                    <button type="button" onClick={() => removeServiceImage(editingServiceIndex, imageIndex)} aria-label="Remove service image">
                       <X size={13} />
                     </button>
                   </div>
                 ))}
                 <label className="service-media-add" aria-label="Upload service images">
-                  <ImageIcon size={18} />
-                  <input type="file" accept="image/*" multiple onChange={(event) => handleServiceImageUpload(0, event)} />
+                  <span aria-hidden="true">+</span>
+                  <input type="file" accept="image/*" multiple onChange={(event) => handleServiceImageUpload(editingServiceIndex, event)} />
                 </label>
               </div>
               <p className="service-media-hint">
-                <ImageIcon size={13} />
-                <span>First photo becomes the service card image. You can polish the gallery later in Services.</span>
+                <span>First photo becomes the card image. This is optional for launch.</span>
               </p>
             </div>
-          );
-        }
-        return (
-          <div className="service-wizard-grid onboarding-service-final-question">
-            <label className="service-wizard-field onboarding-question">
-              <span>Price</span>
-              <div className="service-money-row">
-                <input
-                  value={primaryService.currency || 'R'}
-                  onChange={(event) => updateService(0, { currency: event.target.value })}
-                  aria-label="Currency"
-                />
-                <input
-                  value={primaryService.price || ''}
-                  onChange={(event) => updateService(0, { price: event.target.value })}
-                  placeholder="450"
-                  aria-label="Price"
-                />
-              </div>
-            </label>
-            <div className="service-wizard-field onboarding-question">
-              <span>Duration</span>
-              <div className="service-duration-choice-panel">
-                <div className="service-duration-grid" role="radiogroup" aria-label="Service duration">
-                  {serviceDurationOptions.map(option => (
-                    <button
-                      key={option.minutes}
-                      type="button"
-                      role="radio"
-                      aria-checked={String(primaryService.duration || '') === option.minutes}
-                      className={String(primaryService.duration || '') === option.minutes ? 'is-active' : ''}
-                      onClick={() => updateService(0, { duration: option.minutes, durationMode: 'fixed' })}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="service-adaptive-note is-wide onboarding-question">
-              <DollarSign size={16} />
+            <div className={`service-save-panel onboarding-question ${serviceSaved ? 'is-saved' : ''}`}>
               <div>
-                <strong>{primaryService.name || 'Name your service'}</strong>
-                <span>{primaryService.duration || 60} min{primaryService.price ? ` / R${primaryService.price}` : ' / price optional'}</span>
+                <span>{serviceSaved ? 'Service saved' : 'Ready to save'}</span>
+                <strong>{serviceSaved ? `${primaryService.name || 'Service'} is ready for launch.` : 'Save this service, then create another if you need one.'}</strong>
+                <p>You can always add more services later in the Services section.</p>
               </div>
-            </div>
-          </div>
-        );
-      };
-
-      return (
-        <div className="onboarding-focus-page onboarding-service-wizard-panel">
-          <div className="onboarding-service-question-shell">
-            <div className="service-wizard-step-head onboarding-question">
-              <span>Question {serviceQuestionIndex + 1} of {serviceQuestionCount}</span>
-              <h3>{serviceQuestionMeta[serviceQuestionIndex][1]}</h3>
-              <p>{serviceQuestionMeta[serviceQuestionIndex][0]} for {primaryService.name || 'your first service'}.</p>
-            </div>
-            <div className="onboarding-service-question-card" key={serviceQuestionIndex}>
-              {renderServiceQuestion()}
-            </div>
-            <div className="onboarding-service-question-actions">
-              <button type="button" onClick={goBackServiceQuestion} disabled={serviceQuestionIndex === 0}>Previous setting</button>
-              <button type="button" className="is-primary" onClick={goNextServiceQuestion} disabled={serviceQuestionIndex === serviceQuestionCount - 1}>
-                Next setting <ArrowRight size={15} />
+              <button type="button" className="service-save-button" onClick={saveCurrentService}>
+                {serviceSaved ? <Check size={15} /> : null}
+                {serviceSaved ? 'Saved' : 'Save this service'}
               </button>
+              {serviceSaved && (
+                <button type="button" className="service-create-another-button" onClick={createAnotherService}>
+                  Create another one
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -597,43 +754,50 @@ export function BusinessOnboardingPage({
 
     if (stepId === 'availability') {
       return (
-        <div className="onboarding-full-schedule-editor">
-          <ScheduleSettingsModal
+        <div className="onboarding-focus-page onboarding-schedule-panel">
+          {renderSectionHeader({
+            title: 'Set the times clients can book.',
+            description: 'Use the same schedule setup from the app, focused here for launch.'
+          })}
+          <div className="onboarding-full-schedule-editor">
+            <ScheduleSettingsModal
             applyScope={applyScope}
             availabilityRules={{
-              scheduleMode: 'time_slots',
+              scheduleMode: draft.rules.scheduleMode,
               holdMode: draft.rules.holdMode,
-              bookingNotice: draft.rules.bookingNotice,
-              cancellationWindow: draft.rules.cancellationWindow,
-              reschedulingAllowed: draft.rules.reschedulingAllowed
-            }}
+                bookingNotice: draft.rules.bookingNotice,
+                cancellationWindow: draft.rules.cancellationWindow,
+                reschedulingAllowed: draft.rules.reschedulingAllowed
+              }}
             defaultSlots={defaultSlots}
             isOpen
+            launchMode
             onAddSlot={startAddingDefaultSlot}
-            onApplyDefaults={() => {}}
-            onChangeApplyScope={setApplyScope}
-            onClose={() => setCurrentStep(4)}
-            onDeleteSlot={(slot) => updateDefaultSlots(defaultSlots.filter(time => time !== slot))}
-            onDeleteScheduleTemplate={() => {}}
-            onEditSlot={startEditingDefaultSlot}
-            onApplyScheduleTemplate={applyScheduleTemplate}
-            onSaveScheduleTemplate={() => {}}
-            onSelectDate={() => {}}
-            onUpdateAvailabilityRules={(patch) => updateRules(patch)}
-            onSaveAvailabilitySettings={() => setCurrentStep(4)}
-            onSaveDefaults={() => updateDefaultSlots(defaultSlots)}
-            onToggleWaitlist={() => updateRules({ waitlist: !draft.rules.waitlist })}
-            scheduleTemplates={scheduleTemplates}
-            selectedDate={selectedDate}
-            selectedCalendarName="Business Overview"
-            waitlistEnabled={draft.rules.waitlist !== false}
-          />
-          <ScheduleSlotEditorModal
-            deleteSlotFromEditor={deleteScheduleSlotFromEditor}
-            saveSlotEditor={saveScheduleSlotEditor}
-            setSlotEditor={setScheduleSlotEditor}
-            slotEditor={scheduleSlotEditor}
-          />
+              onApplyDefaults={() => {}}
+              onChangeApplyScope={setApplyScope}
+            onClose={() => setCurrentStep(2)}
+              onDeleteSlot={(slot) => updateDefaultSlots(defaultSlots.filter(time => time !== slot))}
+              onDeleteScheduleTemplate={() => {}}
+              onEditSlot={startEditingDefaultSlot}
+              onApplyScheduleTemplate={applyScheduleTemplate}
+              onSaveScheduleTemplate={() => {}}
+              onSelectDate={() => {}}
+              onUpdateAvailabilityRules={(patch) => updateRules(patch)}
+              onSaveAvailabilitySettings={() => setCurrentStep(4)}
+              onSaveDefaults={() => updateDefaultSlots(defaultSlots)}
+              onToggleWaitlist={() => updateRules({ waitlist: !draft.rules.waitlist })}
+              scheduleTemplates={scheduleTemplates}
+              selectedDate={selectedDate}
+              selectedCalendarName="Business Overview"
+              waitlistEnabled={draft.rules.waitlist !== false}
+            />
+            <ScheduleSlotEditorModal
+              deleteSlotFromEditor={deleteScheduleSlotFromEditor}
+              saveSlotEditor={saveScheduleSlotEditor}
+              setSlotEditor={setScheduleSlotEditor}
+              slotEditor={scheduleSlotEditor}
+            />
+          </div>
         </div>
       );
     }
@@ -645,66 +809,85 @@ export function BusinessOnboardingPage({
         title: 'Business identity',
         done: Boolean(draft.brandName),
         detail: draft.brandName || 'Business name still needed',
-        meta: [
-          preset.label,
-          draft.businessEmail || 'No email added',
-          draft.tagline || 'No tagline yet'
+        items: [
+          ['Business type', preset.label],
+          ['Business name', draft.brandName || 'Still needed'],
+          ['Email', draft.businessEmail || 'Not added'],
+          ['Slogan', draft.tagline || 'Not added']
         ]
       },
       {
         title: 'Services',
         done: hasVisibleService,
         detail: hasVisibleService ? `${serviceSummary.length} starter service${serviceSummary.length === 1 ? '' : 's'} ready` : 'Add one visible service with duration',
-        meta: serviceSummary.length
-          ? serviceSummary.map(service => `${service.name} - ${formatServiceDuration(service.duration) || 'duration missing'}${formatServicePrice(service) ? ` - ${formatServicePrice(service)}` : ''}`)
-          : ['No service ready yet'],
-        media: imageCount ? `${imageCount} uploaded service image${imageCount === 1 ? '' : 's'}` : 'No service images yet'
+        items: serviceSummary.length
+          ? [
+              ...serviceSummary.map(service => [
+                service.name,
+                `${formatServiceDuration(service.duration) || 'Duration missing'}${formatServicePrice(service) ? ` | ${formatServicePrice(service)}` : ''}`
+              ]),
+              ['Service photos', imageCount ? `${imageCount} uploaded` : 'None yet']
+            ]
+          : [['Service', 'No service ready yet']]
       },
       {
         title: 'Hours',
         done: defaultSlots.length > 0,
         detail: `${defaultSlots.length} bookable time${defaultSlots.length === 1 ? '' : 's'} set`,
-        meta: [
-          availabilityPresets[draft.availability]?.label || 'Custom schedule',
-          defaultSlots.slice(0, 6).join(', ') || 'No slots yet',
-          applyScope === 'always' ? 'Reusable default schedule' : 'Temporary schedule scope'
+        items: [
+          ['Bookable times', defaultSlots.slice(0, 6).join(', ') || 'No slots yet'],
+          ['Schedule scope', applyScope === 'always' ? 'Reusable default schedule' : 'Temporary schedule scope']
         ]
       },
       {
         title: 'Booking behavior',
         done: true,
         detail: draft.rules.holdMode === 'confirmed' ? 'Bookings reserve time immediately' : 'Requests can be reviewed first',
-        meta: [
-          `Notice: ${draft.rules.bookingNotice || 'none'}`,
-          `Cancellation: ${draft.rules.cancellationWindow || 'none'}`,
-          draft.rules.waitlist === false ? 'Waitlist off' : 'Waitlist on'
+        items: [
+          ['Request mode', draft.rules.holdMode === 'confirmed' ? 'Confirm automatically' : 'Review requests first'],
+          ['Minimum notice', draft.rules.bookingNotice || 'None'],
+          ['Cancellation window', draft.rules.cancellationWindow || 'None'],
+          ['Waitlist', draft.rules.waitlist === false ? 'Off' : 'On']
         ]
-      },
-      {
-        title: 'Client form',
-        done: true,
-        detail: 'Default form is ready',
-        meta: ['Name required', 'Email required', 'Phone optional', 'Notes optional']
       },
       {
         title: 'Recommended after publish',
         done: false,
         detail: 'Not required for launch',
-        meta: ['Payments', 'Notifications', 'Google Calendar', 'Team', 'Migration']
+        items: [
+          ['Next setup', 'Payments'],
+          ['Next setup', 'Notifications'],
+          ['Next setup', 'Google Calendar'],
+          ['Next setup', 'Team and migration']
+        ]
       }
     ];
+    publishCards.forEach(card => {
+      card.meta = [];
+    });
 
     return (
       <div className="onboarding-publish-summary">
         {publishCards.map(card => (
           <article key={card.title} className={`onboarding-summary-card onboarding-question ${card.done ? 'is-ready' : 'is-next'}`}>
-            <span className={card.done ? 'is-done' : ''}>{card.done ? <Check size={15} /> : '!'}</span>
+            <span className={`onboarding-status-badge ${card.done ? 'is-done' : 'is-warning'}`}>
+              {card.done ? <CheckCircle2 size={18} strokeWidth={2.2} /> : <CircleAlert size={18} strokeWidth={2.2} />}
+            </span>
             <div>
               <p>{card.title}</p>
               <strong>{card.detail}</strong>
-              <ul>
-                {card.meta.filter(Boolean).map(item => <li key={item}>{item}</li>)}
-              </ul>
+              <dl className="onboarding-review-list">
+                {(card.items || []).map(([label, value], index) => (
+                  <div key={`${card.title}-${label}-${index}`}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <small>
+                {card.meta.filter(Boolean).slice(0, 3).join(' · ')}
+                {card.meta.filter(Boolean).length > 3 ? ` · +${card.meta.filter(Boolean).length - 3} more` : ''}
+              </small>
               {card.media && <em>{card.media}</em>}
             </div>
           </article>
@@ -729,19 +912,21 @@ export function BusinessOnboardingPage({
   return (
     <main className="business-onboarding-page native-ui">
       <header className="onboarding-topbar">
-        <strong>Build A Booking</strong>
-        <div>
-          <span>Step {currentStep + 1} of {steps.length}</span>
-          <b>Launch Score {launchScore}%</b>
+        <div className="onboarding-topbar-main">
+          <BuildABookingBrand className="onboarding-brand-logo" />
+          <div className="onboarding-topbar-actions">
+            <span>Step {currentStep + 1} of {steps.length}</span>
+            <b>Launch Score {launchScore}%</b>
+            <button type="button" onClick={onFinishLater}>Save & exit</button>
+          </div>
         </div>
-        <button type="button" onClick={onFinishLater}>Save & exit</button>
+        <OnboardingProgressPath
+          currentStep={currentStep}
+          onStepSelect={(stepIndex) => setCurrentStep(stepIndex)}
+          steps={steps}
+          launchScore={launchScore}
+        />
       </header>
-      <OnboardingProgressPath
-        currentStep={currentStep}
-        onStepSelect={(stepIndex) => setCurrentStep(stepIndex)}
-        steps={steps}
-        launchScore={launchScore}
-      />
       <section className="onboarding-stage">
         <header className="onboarding-stage-header">
           <div>

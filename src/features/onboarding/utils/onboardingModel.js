@@ -333,7 +333,7 @@ export const getIndustryGroupForBusinessType = (businessType = 'custom') => (
 
 export const availabilityPresets = {
   weekdays: {
-    label: 'Weekday rhythm',
+    label: 'Default schedule',
     availableTimes: weekdaySlots,
     schedule: {
       monday: weekdaySlots,
@@ -344,7 +344,7 @@ export const availabilityPresets = {
     }
   },
   evenings: {
-    label: 'Afternoons & evenings',
+    label: 'Later hours',
     availableTimes: eveningSlots,
     schedule: {
       monday: eveningSlots,
@@ -354,7 +354,7 @@ export const availabilityPresets = {
     }
   },
   weekends: {
-    label: 'Weekend friendly',
+    label: 'Weekend hours',
     availableTimes: weekendSlots,
     schedule: {
       saturday: weekendSlots,
@@ -412,10 +412,18 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
     businessDescription,
     welcomeMessage: businessDescription || draft.welcomeMessage || preset.welcome,
     businessEmail: draft.businessEmail || currentSettings.businessEmail || '',
+    venuePhotos: Array.isArray(draft.venuePhotos) && draft.venuePhotos.length
+      ? draft.venuePhotos
+      : currentSettings.venuePhotos || [],
+    address: draft.address || currentSettings.address || '',
+    mapPlace: draft.mapPlace || currentSettings.mapPlace || null,
     locationMode: draft.locationMode || currentSettings.locationMode || 'my_location',
     primaryColor: accent,
     dateActiveBgColor: accent,
     serviceIndustry: industry,
+    commerceTypes: Array.isArray(draft.commerceTypes) && draft.commerceTypes.length
+      ? draft.commerceTypes
+      : currentSettings.commerceTypes || ['bookable_service'],
     services: normalizeServiceList(selectedServices.map((service, index) => ({
       ...service,
       id: service.id || `onboarding-service-${industry}-${index + 1}`,
@@ -428,7 +436,9 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
     availabilityRules: {
       ...(currentSettings.availabilityRules || {}),
       enabled: true,
-      scheduleMode: 'time_slots',
+      scheduleMode: ['time_slots', 'first_come'].includes(bookingRules.scheduleMode)
+        ? bookingRules.scheduleMode
+        : 'time_slots',
       holdMode: bookingRules.holdMode || 'pending_confirmed',
       bookingNotice: bookingRules.bookingNotice || '',
       maxAdvanceBooking: bookingRules.maxAdvanceBooking || '',

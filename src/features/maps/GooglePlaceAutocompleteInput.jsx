@@ -3,11 +3,17 @@ import { hasGoogleMapsApiKey, loadGoogleMapsPlaces, normalizeMapPlace } from './
 
 const placesDropdownSelector = '.pac-container';
 
-const showGooglePlacesDropdown = () => {
+const showGooglePlacesDropdown = (inputElement) => {
   if (typeof document === 'undefined') return;
   document.querySelectorAll(placesDropdownSelector).forEach((container) => {
     container.classList.remove('bookify-places-dismissed');
     container.style.removeProperty('display');
+    if (inputElement) {
+      const rect = inputElement.getBoundingClientRect();
+      container.style.width = `${rect.width}px`;
+      container.style.left = `${rect.left + window.scrollX}px`;
+      container.style.top = `${rect.bottom + window.scrollY}px`;
+    }
   });
 };
 
@@ -33,7 +39,12 @@ export const GooglePlaceAutocompleteInput = ({
   const inputRef = useRef(null);
   const listenerRef = useRef(null);
   const autocompleteRef = useRef(null);
+  const callbacksRef = useRef({ onPlaceSelect, onValueChange });
   const [autocompleteState, setAutocompleteState] = useState(hasGoogleMapsApiKey() ? 'loading' : 'manual');
+
+  useEffect(() => {
+    callbacksRef.current = { onPlaceSelect, onValueChange };
+  }, [onPlaceSelect, onValueChange]);
 
   useEffect(() => {
     if (!hasGoogleMapsApiKey() || !inputRef.current) return undefined;
@@ -54,8 +65,8 @@ export const GooglePlaceAutocompleteInput = ({
           const mapPlace = normalizeMapPlace(selectedPlace);
           const readableAddress = mapPlace?.formattedAddress || mapPlace?.displayName || inputRef.current?.value || '';
 
-          if (readableAddress) onValueChange(readableAddress);
-          if (mapPlace?.placeId || mapPlace?.lat || mapPlace?.lng) onPlaceSelect(mapPlace);
+          if (readableAddress) callbacksRef.current.onValueChange(readableAddress);
+          if (mapPlace?.placeId || mapPlace?.lat || mapPlace?.lng) callbacksRef.current.onPlaceSelect(mapPlace);
           window.setTimeout(() => dismissGooglePlacesDropdown(), 120);
           inputRef.current?.blur();
         });
@@ -73,7 +84,7 @@ export const GooglePlaceAutocompleteInput = ({
       autocompleteRef.current = null;
       dismissGooglePlacesDropdown({ remove: true });
     };
-  }, [onPlaceSelect, onValueChange]);
+  }, []);
 
   const handleClear = () => {
     onValueChange('');
@@ -89,10 +100,10 @@ export const GooglePlaceAutocompleteInput = ({
         type="text"
         value={value || ''}
         onChange={(event) => {
-          showGooglePlacesDropdown();
+          showGooglePlacesDropdown(inputRef.current);
           onValueChange(event.target.value);
         }}
-        onFocus={showGooglePlacesDropdown}
+        onFocus={() => showGooglePlacesDropdown(inputRef.current)}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault();

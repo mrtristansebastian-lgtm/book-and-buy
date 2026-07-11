@@ -62,6 +62,7 @@ export const ScheduleSettingsModal = ({
   onSaveAvailabilitySettings,
   onSaveDefaults,
   onToggleWaitlist,
+  launchMode = false,
   scheduleTemplates = [],
   selectedDate,
   selectedCalendarName,
@@ -366,16 +367,18 @@ export const ScheduleSettingsModal = ({
           </div>
         )}
       </section>
-      <div className="schedule-settings-actions is-wide">
-        <button type="button" className="is-primary" onClick={onSaveDefaults}>
-          <Save size={15} />
-          Save default slots
-        </button>
-        <button type="button" onClick={() => onApplyDefaults(applyScope, rangePayload)}>
-          <CalendarCheck size={15} />
-          Apply to {scopeLabels[applyScope] || 'schedule'}
-        </button>
-      </div>
+      {!launchMode && (
+        <div className="schedule-settings-actions is-wide">
+          <button type="button" className="is-primary" onClick={onSaveDefaults}>
+            <Save size={15} />
+            Save default slots
+          </button>
+          <button type="button" onClick={() => onApplyDefaults(applyScope, rangePayload)}>
+            <CalendarCheck size={15} />
+            Apply to {scopeLabels[applyScope] || 'schedule'}
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -496,16 +499,18 @@ export const ScheduleSettingsModal = ({
         <strong>{scheduleTemplates.length} saved templates</strong>
         <small>{scheduleTemplates.length ? 'Reusable schedules ready' : 'No templates saved yet'}</small>
       </section>
-      <div className="schedule-settings-actions is-wide">
-        <button type="button" className="is-primary" onClick={onSaveAvailabilitySettings}>
-          <Save size={15} />
-          Save schedule settings
-        </button>
-        <button type="button" onClick={() => onApplyDefaults(applyScope, rangePayload)}>
-          <CalendarCheck size={15} />
-          Apply defaults
-        </button>
-      </div>
+      {!launchMode && (
+        <div className="schedule-settings-actions is-wide">
+          <button type="button" className="is-primary" onClick={onSaveAvailabilitySettings}>
+            <Save size={15} />
+            Save schedule settings
+          </button>
+          <button type="button" onClick={() => onApplyDefaults(applyScope, rangePayload)}>
+            <CalendarCheck size={15} />
+            Apply defaults
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -558,13 +563,18 @@ export const ScheduleSettingsModal = ({
 
         <div className="schedule-settings-wizard-footer">
           <button type="button" onClick={canGoBack ? prevStep : onClose}>
-            {canGoBack ? <ChevronLeft size={15} /> : <X size={15} />}
-            {canGoBack ? 'Back' : 'Close'}
+            {canGoBack || launchMode ? <ChevronLeft size={15} /> : <X size={15} />}
+            {canGoBack || launchMode ? 'Back' : 'Close'}
           </button>
           {isLastStep ? (
             <button type="button" className="is-primary" onClick={onSaveAvailabilitySettings}>
-              <Save size={15} />
-              Save settings
+              {launchMode ? 'Continue to Publish' : (
+                <>
+                  <Save size={15} />
+                  Save settings
+                </>
+              )}
+              {launchMode && <ChevronRight size={15} />}
             </button>
           ) : (
             <button type="button" className="is-primary" onClick={nextStep}>
