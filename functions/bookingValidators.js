@@ -37,6 +37,7 @@ const validateOwnerBookingPayload = (incoming = {}, { serverTimestamp = () => Da
     clientName: requireString(incoming.clientName, 'Client name', 120),
     clientPhone: cleanString(incoming.clientPhone, 60),
     clientEmail: normalizeEmail(incoming.clientEmail),
+    clientCountry: cleanString(incoming.clientCountry, 120),
     clientBirthday: cleanString(incoming.clientBirthday, 80),
     clientNote: cleanString(incoming.clientNote, 1000),
     clientEmailOptIn: Boolean(incoming.clientEmailOptIn && incoming.clientEmail),

@@ -13,6 +13,7 @@ export const ClientDetailsForm = ({
       name: String(formData.get('name') || '').trim() || activeClient.name,
       phone: String(formData.get('phone') || '').trim(),
       email: String(formData.get('email') || '').trim(),
+      country: String(formData.get('country') || '').trim(),
       birthday: String(formData.get('birthday') || '').trim()
     });
     if (saved) showToast('Client details saved');
@@ -45,6 +46,10 @@ export const ClientDetailsForm = ({
         <label className="client-file-field">
           <span>Email</span>
           <input name="email" type="email" defaultValue={activeClient.email || ''} placeholder="Not added" disabled={isExampleClient} />
+        </label>
+        <label className="client-file-field">
+          <span>Country</span>
+          <input name="country" defaultValue={activeClient.country || ''} placeholder="Not added" disabled={isExampleClient} />
         </label>
         <label className="client-file-field">
           <span>Birthday</span>

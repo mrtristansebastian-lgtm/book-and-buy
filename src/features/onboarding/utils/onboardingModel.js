@@ -396,9 +396,29 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
   const brandName = String(draft.brandName || currentSettings.brandName || 'Your Business').trim();
   const accent = draft.accent || preset.accent;
   const businessDescription = String(draft.businessDescription || currentSettings.businessDescription || draft.welcomeMessage || preset.welcome || '').trim();
+  const personalProfileKey = draft.personalProfileKey || '';
+  const existingPersonalProfile = personalProfileKey
+    ? currentSettings.accountProfiles?.[personalProfileKey] || {}
+    : {};
+  const personalPhone = String(draft.personalPhoneNumber || '').trim()
+    ? [draft.personalPhoneDialCode, draft.personalPhoneNumber].filter(Boolean).join(' ')
+    : String(draft.personalPhone || existingPersonalProfile.mobile || existingPersonalProfile.phone || '').trim();
+  const personalProfile = personalProfileKey
+    ? {
+        ...existingPersonalProfile,
+        uid: draft.personalUid || existingPersonalProfile.uid || '',
+        firstName: String(draft.personalFirstName || existingPersonalProfile.firstName || '').trim(),
+        lastName: String(draft.personalLastName || existingPersonalProfile.lastName || '').trim(),
+        email: String(draft.personalEmail || existingPersonalProfile.email || '').trim(),
+        mobile: personalPhone,
+        phone: personalPhone,
+        country: String(draft.personalCountry || existingPersonalProfile.country || '').trim(),
+        updatedAt: Date.now()
+      }
+    : null;
   const selectedServices = Array.isArray(draft.services) && draft.services.length
     ? draft.services
-    : preset.services;
+    : (Array.isArray(currentSettings.services) ? currentSettings.services : []);
   const defaultSlots = Array.isArray(draft.defaultSlots) && draft.defaultSlots.length
     ? draft.defaultSlots
     : availability.availableTimes;
@@ -406,6 +426,12 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
   const bookingRules = draft.rules || {};
 
   return {
+    ...(personalProfileKey && personalProfile ? {
+      accountProfiles: {
+        ...(currentSettings.accountProfiles || {}),
+        [personalProfileKey]: personalProfile
+      }
+    } : {}),
     brandName,
     slug: brandName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || currentSettings.slug || 'your-business',
     tagline: draft.tagline || preset.tagline,

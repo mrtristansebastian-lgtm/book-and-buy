@@ -70,6 +70,7 @@ export default function PublicBookingApp({ publicSlug }) {
           clientName: bookingRecord.clientName,
           clientPhone: bookingRecord.clientPhone,
           clientEmail: bookingRecord.clientEmail,
+          clientCountry: bookingRecord.clientCountry,
           clientEmailOptIn: bookingRecord.clientEmailOptIn,
           clientBirthday: bookingRecord.clientBirthday,
           clientNote: bookingRecord.clientNote,

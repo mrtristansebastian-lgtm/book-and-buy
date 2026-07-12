@@ -15,6 +15,7 @@ const ownerBooking = (overrides = {}) => ({
   clientName: 'Launch Client',
   clientEmail: ' CLIENT@EXAMPLE.COM ',
   clientPhone: '+27 82 000 0000',
+  clientCountry: ' South Africa ',
   serviceId: 'svc_launch',
   serviceName: 'Launch Service',
   serviceDuration: '60 min',
@@ -36,6 +37,7 @@ test('owner booking payload normalizes launch-critical booking fields', () => {
 
   assert.equal(booking.clientName, 'Launch Client');
   assert.equal(booking.clientEmail, 'client@example.com');
+  assert.equal(booking.clientCountry, 'South Africa');
   assert.equal(booking.amountInCents, 12346);
   assert.equal(booking.currency, 'ZAR');
   assert.equal(booking.paymentGateway, 'cash');

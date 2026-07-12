@@ -7,6 +7,7 @@ const migrationColumnAliases = {
   lastName: ['last name', 'lastname', 'surname', 'family name'],
   email: ['email', 'email address', 'customer email', 'client email'],
   phone: ['phone', 'phone number', 'mobile', 'mobile number', 'contact number', 'client phone'],
+  country: ['country', 'country region', 'country/region', 'region', 'client country', 'customer country'],
   birthday: ['birthday', 'birth date', 'date of birth', 'dob'],
   notes: ['notes', 'client notes', 'memo', 'comments'],
   tags: ['tags', 'labels', 'segment'],
@@ -36,9 +37,9 @@ export const migrationGuideOptions = [
     description: 'Best for a clean list of clients or members with no appointment or payment history.',
     scopes: { clients: true, bookings: false, finance: false },
     requiredColumns: ['client name or first name', 'email or phone'],
-    recommendedColumns: ['birthday', 'notes', 'tags'],
-    csvColumns: ['client name', 'email', 'phone', 'notes', 'tags'],
-    sampleRow: ['Maya Chen', 'maya@example.com', '+65 8123 4567', 'Prefers mornings', 'VIP'],
+    recommendedColumns: ['country', 'birthday', 'notes', 'tags'],
+    csvColumns: ['client name', 'email', 'phone', 'country', 'notes', 'tags'],
+    sampleRow: ['Maya Chen', 'maya@example.com', '+65 8123 4567', 'Singapore', 'Prefers mornings', 'VIP'],
     outcome: 'Creates saved client profiles only. No bookings or finance rows are created.'
   },
   {
@@ -48,9 +49,9 @@ export const migrationGuideOptions = [
     description: 'Best for appointments, classes, consultations, or booking exports that include dates and times.',
     scopes: { clients: true, bookings: true, finance: false },
     requiredColumns: ['client name', 'booking date', 'service'],
-    recommendedColumns: ['booking time', 'booking status', 'staff', 'booking id'],
-    csvColumns: ['client name', 'email', 'service', 'booking date', 'booking time', 'booking status', 'staff'],
-    sampleRow: ['Maya Chen', 'maya@example.com', 'Jump Start Assessment', '2026-05-20', '09:00', 'confirmed', 'Ari'],
+    recommendedColumns: ['country', 'booking time', 'booking status', 'staff', 'booking id'],
+    csvColumns: ['client name', 'email', 'country', 'service', 'booking date', 'booking time', 'booking status', 'staff'],
+    sampleRow: ['Maya Chen', 'maya@example.com', 'Singapore', 'Jump Start Assessment', '2026-05-20', '09:00', 'confirmed', 'Ari'],
     outcome: 'Adds booking records and naturally builds the client directory from those bookings.'
   },
   {
@@ -72,9 +73,9 @@ export const migrationGuideOptions = [
     description: 'Best when one CSV contains clients, dated bookings, and payment details in the same rows.',
     scopes: { clients: true, bookings: true, finance: true },
     requiredColumns: ['client name', 'booking date or payment date', 'service or amount'],
-    recommendedColumns: ['email', 'phone', 'booking time', 'amount', 'payment status', 'payment reference'],
-    csvColumns: ['client name', 'email', 'phone', 'service', 'booking date', 'booking time', 'amount', 'currency', 'payment status', 'payment method'],
-    sampleRow: ['Maya Chen', 'maya@example.com', '+65 8123 4567', 'HIIT Class', '2026-05-20', '09:00', '35', 'USD', 'paid', 'stripe'],
+    recommendedColumns: ['email', 'phone', 'country', 'booking time', 'amount', 'payment status', 'payment reference'],
+    csvColumns: ['client name', 'email', 'phone', 'country', 'service', 'booking date', 'booking time', 'amount', 'currency', 'payment status', 'payment method'],
+    sampleRow: ['Maya Chen', 'maya@example.com', '+65 8123 4567', 'Singapore', 'HIIT Class', '2026-05-20', '09:00', '35', 'USD', 'paid', 'stripe'],
     outcome: 'Creates every supported record type, while skipping anything the CSV does not prove.'
   }
 ];
@@ -187,7 +188,7 @@ const hasCsvColumns = (parsedCsv, fields = []) => fields.some((field) => {
 });
 
 export const detectCsvScopes = (parsedCsv) => ({
-  clients: hasCsvColumns(parsedCsv, ['clientName', 'firstName', 'lastName', 'email', 'phone', 'birthday', 'notes', 'tags']),
+  clients: hasCsvColumns(parsedCsv, ['clientName', 'firstName', 'lastName', 'email', 'phone', 'country', 'birthday', 'notes', 'tags']),
   bookings: hasCsvColumns(parsedCsv, ['serviceName', 'bookingDate', 'bookingTime', 'bookingStatus', 'bookingId', 'staffName']),
   finance: hasCsvColumns(parsedCsv, ['amount', 'amountInCents', 'currency', 'paymentStatus', 'paymentMethod', 'paymentReference', 'paidAt'])
 });
@@ -298,6 +299,7 @@ const extractCsvClient = (row) => {
     name: name.trim(),
     email,
     phone,
+    country: pickCsvField(row, 'country').value,
     birthday: pickCsvField(row, 'birthday').value,
     notes: pickCsvField(row, 'notes').value,
     tags: pickCsvField(row, 'tags').value
@@ -349,6 +351,7 @@ export const buildCsvMigrationPayload = (parsedCsv, selectedScopes, displayCurre
         name: client.name || 'Imported Client',
         phone: client.phone || '',
         email: client.email || '',
+        country: client.country || '',
         birthday: client.birthday || '',
         notes: client.notes || '',
         avatar: '',
@@ -373,6 +376,7 @@ export const buildCsvMigrationPayload = (parsedCsv, selectedScopes, displayCurre
         clientName: client.name || 'Imported Client',
         clientPhone: client.phone || '',
         clientEmail: client.email || '',
+        clientCountry: client.country || '',
         clientBirthday: client.birthday || '',
         clientNote: client.notes || '',
         clientEmailOptIn: Boolean(client.email),

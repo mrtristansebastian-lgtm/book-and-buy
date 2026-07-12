@@ -16,6 +16,7 @@ export function buildPublicBookingPayload({
     name: collectClientName ? formData.name : 'Client',
     phone: collectClientPhone ? formData.phone : '',
     email: collectClientEmail ? formData.email : '',
+    country: formData.country || '',
     note: collectClientNotes ? formData.note : '',
     emailOptIn: Boolean(emailOptInEnabled && formData.emailOptIn),
     serviceId: selectedService?.id || '',

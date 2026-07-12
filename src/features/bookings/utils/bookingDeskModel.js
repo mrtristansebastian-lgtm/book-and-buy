@@ -144,6 +144,7 @@ const bookingMatchesSearch = ({ booking, normalizedSearch, safeStaffList }) => [
   booking.clientName,
   booking.clientPhone,
   booking.clientEmail,
+  booking.clientCountry,
   booking.clientBirthday,
   booking.clientNote,
   booking.date,

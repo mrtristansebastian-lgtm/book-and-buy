@@ -16,15 +16,17 @@ import {
 } from '../../../utils/workspaceRoute';
 import {
   createGoogleProvider,
-  hasGoogleIdentityClient,
   shouldUseRedirectGoogleAuth,
-  signInWithGoogleIdentity,
   signInWithNativeGoogle,
   signOutNativeGoogle
 } from '../utils/authGoogle';
 import { readableAuthError } from '../utils/authErrors';
 
 const normalizeEmail = (email = '') => email.trim().toLowerCase();
+const getCurrentAuthDomainLabel = () => {
+  if (typeof window === 'undefined') return 'this domain';
+  return window.location.hostname || window.location.origin || 'this domain';
+};
 
 export function useAuthActions({
   activeTab,
@@ -284,17 +286,6 @@ export function useAuthActions({
         await startGoogleRedirect(returnRoute);
         return;
       }
-      if (hasGoogleIdentityClient()) {
-        await applyAuthPersistence(keepLoggedIn);
-        await signInWithGoogleIdentity(auth);
-        setGuestMode(false);
-        setClientGuestMode(false);
-        safeLocalRemove(guestModeStorageKey);
-        setAuthPanelOpen(false);
-        applyWorkspaceRoute(returnRoute);
-        showToast('Signed in with Google');
-        return;
-      }
       clearAuthReturnState();
       clearGoogleAuthIntentUrl();
       safeSessionRemove(googleCalendarRedirectStorageKey);
@@ -323,7 +314,7 @@ export function useAuthActions({
       const message = error?.code === 'auth/operation-not-allowed'
         ? 'Google sign-in is not enabled yet. Enable Google under Firebase Authentication > Sign-in method.'
         : error?.code === 'auth/unauthorized-domain'
-          ? 'This domain is not allowed for Google sign-in. Add build-a-booking.web.app in Firebase Authentication authorized domains.'
+          ? `This domain is not allowed for Google sign-in. Add ${getCurrentAuthDomainLabel()} in Firebase Authentication authorized domains.`
           : error?.code === 'auth/invalid-api-key'
             ? 'This build has an invalid Firebase API key. Check the Firebase config and redeploy.'
             : error?.code === 'auth/popup-closed-by-user'

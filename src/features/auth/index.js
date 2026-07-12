@@ -8,7 +8,9 @@ export { useAuthSession } from './hooks/useAuthSession';
 export {
   createGoogleProvider,
   getGoogleAccessTokenFromResult,
+  getGoogleOAuthOriginSetupMessage,
   hasGoogleIdentityClient,
+  isGoogleOAuthOriginMismatchError,
   shouldUseRedirectGoogleAuth,
   signInWithGoogleIdentity,
   signInWithNativeGoogle

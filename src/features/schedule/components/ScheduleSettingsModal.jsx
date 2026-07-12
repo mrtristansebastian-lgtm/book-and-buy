@@ -446,32 +446,28 @@ export const ScheduleSettingsModal = ({
             </select>
           </label>
         </div>
-      </section>
-
-      <section className="schedule-settings-card schedule-rules-client-card">
-        <div className="schedule-settings-card-head">
-          <span><RotateCcw size={15} /></span>
-          <div>
-            <strong>Client controls</strong>
+        <div className="schedule-rules-client-inline">
+          <div className="schedule-rules-inline-label">
+            <span><RotateCcw size={14} /> Client controls</span>
             <small>Choose what clients can do when availability is tight.</small>
           </div>
-        </div>
-        <div className="schedule-rule-toggle-grid">
-          {renderRuleToggle({
-            keyName: 'reschedulingAllowed',
-            label: 'Rescheduling allowed',
-            copy: 'Clients can move bookings within rules.'
-          })}
-          <button
-            type="button"
-            className={`schedule-rule-toggle ${waitlistEnabled ? 'is-active' : ''}`}
-            onClick={onToggleWaitlist}
-            aria-pressed={waitlistEnabled}
-          >
-            <span>{waitlistEnabled && <Check size={13} />}</span>
-            <strong>Waitlist when full</strong>
-            <small>Clients can join when no times are open.</small>
-          </button>
+          <div className="schedule-rule-toggle-grid is-horizontal">
+            {renderRuleToggle({
+              keyName: 'reschedulingAllowed',
+              label: 'Rescheduling allowed',
+              copy: 'Clients can move bookings within rules.'
+            })}
+            <button
+              type="button"
+              className={`schedule-rule-toggle ${waitlistEnabled ? 'is-active' : ''}`}
+              onClick={onToggleWaitlist}
+              aria-pressed={waitlistEnabled}
+            >
+              <span>{waitlistEnabled && <Check size={13} />}</span>
+              <strong>Waitlist when full</strong>
+              <small>Clients can join when no times are open.</small>
+            </button>
+          </div>
         </div>
       </section>
     </div>

@@ -34,6 +34,10 @@ export const ClientAddPanel = ({
         <input name="clientEmail" type="email" placeholder="client@email.com" className="w-full h-12 bg-white border border-neutral-200 rounded-lg px-4 text-sm font-bold outline-none text-black focus:border-black transition-colors" />
       </div>
       <div>
+        <label className="text-[9px] font-bold uppercase tracking-[0.25em] text-neutral-400 block mb-2">Country</label>
+        <input name="clientCountry" type="text" placeholder="South Africa" autoComplete="country-name" className="w-full h-12 bg-white border border-neutral-200 rounded-lg px-4 text-sm font-bold outline-none text-black focus:border-black transition-colors" />
+      </div>
+      <div>
         <label className="text-[9px] font-bold uppercase tracking-[0.25em] text-neutral-400 block mb-2">Starting Label</label>
         <select name="clientLabel" className="w-full h-12 bg-white border border-neutral-200 rounded-lg px-4 text-sm font-bold outline-none text-black focus:border-black transition-colors">
           <option value="">No manual label</option>

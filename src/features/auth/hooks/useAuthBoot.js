@@ -123,6 +123,11 @@ export function useAuthBoot({
           lastName: savedProfile.lastName || accountData.lastName || '',
           email: savedProfile.email || accountData.email || user.email || '',
           mobile: savedProfile.mobile || accountData.mobile || accountData.phone || '',
+          country: savedProfile.country || accountData.country || '',
+          city: savedProfile.city || accountData.city || '',
+          timezone: savedProfile.timezone || accountData.timezone || '',
+          preferredContactMethod: savedProfile.preferredContactMethod || accountData.preferredContactMethod || '',
+          jobTitle: savedProfile.jobTitle || accountData.jobTitle || '',
           photoURL: savedProfile.photoURL || accountData.photoURL || user.photoURL || ''
         });
       })

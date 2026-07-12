@@ -49,6 +49,10 @@ export const ManualBookingSheet = ({
               <input name="clientEmail" type="email" placeholder="client@email.com" />
             </label>
             <label className="manual-booking-field">
+              <span>Country</span>
+              <input name="clientCountry" placeholder="South Africa" autoComplete="country-name" />
+            </label>
+            <label className="manual-booking-field">
               <span>Birthday</span>
               <input name="clientBirthday" placeholder="MM/DD or 9 December" />
             </label>

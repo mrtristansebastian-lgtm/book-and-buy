@@ -8,10 +8,17 @@ import {
 import {
   createGoogleProvider,
   getGoogleAccessTokenFromResult,
+  getGoogleOAuthOriginSetupMessage,
   hasGoogleIdentityClient,
+  isGoogleOAuthOriginMismatchError,
   signInWithGoogleIdentity,
   signInWithNativeGoogle
 } from '../../auth';
+
+const getCurrentAuthDomainLabel = () => {
+  if (typeof window === 'undefined') return 'this domain';
+  return window.location.hostname || window.location.origin || 'this domain';
+};
 
 export function useGoogleCalendarActions({
   applyAuthPersistence,
@@ -67,22 +74,20 @@ export function useGoogleCalendarActions({
 
       const provider = createGoogleProvider({ calendar: true });
       await applyAuthPersistence(keepLoggedIn);
-      if (hasGoogleIdentityClient()) {
-        const result = await signInWithGoogleIdentity(auth, { calendar: true });
-        const accessToken = result?.accessToken || '';
-        const connectedEmail = result.firebaseResult?.user?.email || user.email || '';
-        if (!accessToken) throw new Error('Google did not return Calendar permission yet.');
+
+      const persistGoogleCalendarConnection = async (accessToken, connectedEmail) => {
+        const connectedAt = Date.now();
         setGoogleCalendarAuth({
           accessToken,
           email: connectedEmail,
-          connectedAt: Date.now()
+          connectedAt
         });
         if (canManageWorkspace) {
           await saveWorkspaceSettingsPatch({
             googleCalendar: {
               ...(settings.googleCalendar || {}),
               connectedEmail,
-              connectedAt: Date.now(),
+              connectedAt,
               mode: 'manual-sync'
             }
           }, 'Google Calendar connected.');
@@ -90,39 +95,40 @@ export function useGoogleCalendarActions({
           showToast('Google Calendar connected for this session.');
         }
         return accessToken;
-      }
+      };
+
       try {
         const result = await FirebaseSDK.signInWithPopup(auth, provider);
         const accessToken = getGoogleAccessTokenFromResult(result);
-        if (!accessToken) throw new Error('Google did not return Calendar permission yet.');
-        setGoogleCalendarAuth({
-          accessToken,
-          email: result.user?.email || user.email || '',
-          connectedAt: Date.now()
-        });
-        if (canManageWorkspace) {
-          await saveWorkspaceSettingsPatch({
-            googleCalendar: {
-              ...(settings.googleCalendar || {}),
-              connectedEmail: result.user?.email || user.email || '',
-              connectedAt: Date.now(),
-              mode: 'manual-sync'
-            }
-          }, 'Google Calendar connected.');
-        } else {
-          showToast('Google Calendar connected for this session.');
+        if (!accessToken) {
+          const tokenError = new Error('Google did not return Calendar permission yet.');
+          tokenError.code = 'google/missing-access-token';
+          throw tokenError;
         }
-        return accessToken;
+        return await persistGoogleCalendarConnection(accessToken, result.user?.email || user.email || '');
       } catch (error) {
         if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request', 'auth/web-storage-unsupported'].includes(error?.code)) {
           await startGoogleRedirect(getCurrentAuthReturnRoute(), { calendar: true });
           return '';
         }
-        throw error;
+        if (['auth/operation-not-allowed', 'auth/unauthorized-domain', 'auth/invalid-api-key'].includes(error?.code) || !hasGoogleIdentityClient()) {
+          throw error;
+        }
       }
+
+      const result = await signInWithGoogleIdentity(auth, { calendar: true });
+      const accessToken = result?.accessToken || '';
+      const connectedEmail = result.firebaseResult?.user?.email || user.email || '';
+      if (!accessToken) throw new Error('Google did not return Calendar permission yet.');
+      return await persistGoogleCalendarConnection(accessToken, connectedEmail);
     } catch (error) {
       console.error(error);
-      showToast(error?.message || 'Google Calendar could not connect.');
+      const message = isGoogleOAuthOriginMismatchError(error)
+        ? getGoogleOAuthOriginSetupMessage()
+        : error?.code === 'auth/unauthorized-domain'
+          ? `Google Calendar needs ${getCurrentAuthDomainLabel()} added in Firebase Authentication authorized domains.`
+          : error?.message || 'Google Calendar could not connect.';
+      showToast(message);
       return '';
     }
   }, [

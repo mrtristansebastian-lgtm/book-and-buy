@@ -60,3 +60,1285 @@ html body .native-ui .profile-page .profile-command-meta {
     height: 2.35rem !important;
   }
 }
+
+html body .native-ui .profile-page .profile-section-account,
+html body .native-ui .profile-page .profile-section-business {
+  overflow: hidden;
+  border-radius: clamp(1.05rem, 1.7vw, 1.45rem);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 255, 255, 0.96), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(244, 245, 247, 0.98)),
+    #f5f5f7;
+  box-shadow:
+    0 28px 76px -64px rgba(15, 23, 42, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+}
+
+html body .native-ui .profile-page .profile-section-account {
+  padding: clamp(0.78rem, 1.7vw, 1.18rem);
+}
+
+.account-settings-shell,
+.business-studio-shell {
+  min-width: 0;
+}
+
+.account-settings-hero,
+.business-settings-hero {
+  display: grid;
+  gap: 0.82rem;
+  align-items: stretch;
+}
+
+.account-settings-hero {
+  grid-template-columns: auto minmax(0, 1fr);
+  border-radius: 1.12rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: rgba(255, 255, 255, 0.78);
+  padding: clamp(0.78rem, 1.8vw, 1.05rem);
+}
+
+.account-settings-avatar {
+  position: relative;
+  width: clamp(4.4rem, 8vw, 5.7rem);
+  height: clamp(4.4rem, 8vw, 5.7rem);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background:
+    linear-gradient(145deg, rgba(17, 18, 22, 0.84), rgba(47, 52, 59, 0.7)),
+    var(--native-accent-gradient);
+  background-position: 0 0, var(--native-accent-x) 50%;
+  color: #fff;
+  font-size: clamp(1.55rem, 4vw, 2.1rem);
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 18px 44px -34px rgba(15, 23, 42, 0.8);
+}
+
+.account-settings-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-settings-avatar > span {
+  position: absolute;
+  inset: auto 0.45rem 0.45rem auto;
+  width: 1.85rem;
+  height: 1.85rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #050505;
+  box-shadow: 0 9px 22px -14px rgba(15, 23, 42, 0.48);
+}
+
+.account-settings-hero-copy {
+  min-width: 0;
+  align-self: center;
+}
+
+.account-settings-hero-copy p,
+.account-settings-card-head p,
+.business-settings-hero-copy p,
+.business-panel-heading p,
+.business-studio-active-note span,
+.business-studio-summary-copy span,
+.business-studio-footer span,
+.account-settings-field-copy > span,
+.account-settings-meta-tile span,
+.business-settings-row-copy > span,
+.business-location-copy > span,
+.business-media-copy p,
+.business-gallery-head p,
+.business-location-note p {
+  margin: 0;
+  color: #8b929e;
+  font-size: 0.58rem;
+  font-weight: 950;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.account-settings-hero-copy h3,
+.business-settings-hero-copy h3 {
+  margin: 0.18rem 0 0;
+  color: #050505;
+  font-size: clamp(1.62rem, 3vw, 2.72rem);
+  font-weight: 930;
+  letter-spacing: -0.052em;
+  line-height: 0.96;
+}
+
+.account-settings-hero-copy > span,
+.business-settings-hero-copy > span,
+.business-panel-heading small,
+.business-media-copy small,
+.business-gallery-head small,
+.business-location-copy small,
+.business-location-note small,
+.account-settings-field-copy small {
+  color: #68717d;
+  font-size: 0.83rem;
+  font-weight: 640;
+  line-height: 1.35;
+}
+
+.account-settings-hero-copy > span,
+.business-settings-hero-copy > span {
+  display: block;
+  max-width: 44rem;
+  margin-top: 0.36rem;
+}
+
+.account-settings-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  margin-top: 0.72rem;
+}
+
+.account-settings-badges span,
+.account-settings-photo-actions label,
+.account-settings-photo-actions button,
+.business-primary-button,
+.business-secondary-button,
+.business-icon-button,
+.business-toggle-button,
+.business-referral-copy,
+.business-studio-footer button {
+  min-height: 2.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.account-settings-badges span {
+  min-height: 2.05rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: #fff;
+  padding: 0 0.72rem;
+  color: #373f4b;
+}
+
+.account-settings-photo-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.account-settings-photo-actions label,
+.account-settings-photo-actions button {
+  cursor: pointer;
+  background: #fff;
+  color: #050505;
+  padding: 0 0.92rem;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.account-settings-photo-actions button {
+  color: #ef4444;
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.22);
+}
+
+.account-guest-card {
+  margin-top: 0.82rem;
+}
+
+.account-settings-grid {
+  display: grid;
+  gap: 0.82rem;
+  margin-top: 0.82rem;
+}
+
+.account-settings-card,
+.business-settings-panel {
+  overflow: hidden;
+  border-radius: 1.08rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 18px 48px -42px rgba(15, 23, 42, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.business-settings-panel {
+  border: 0;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: none;
+}
+
+.business-identity-panel {
+  background: transparent;
+}
+
+.account-settings-card-head,
+.business-panel-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.72rem;
+  align-items: center;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 0.82rem;
+}
+
+.business-panel-heading {
+  border-bottom: 0;
+  padding: 0.2rem 0.08rem 0.58rem;
+}
+
+.account-settings-card-head > span,
+.business-panel-icon,
+.account-settings-field-icon,
+.business-settings-row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #050505;
+}
+
+.account-settings-card-head > span,
+.business-panel-icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.82rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 248, 250, 0.94)) padding-box,
+    var(--native-accent-button-gradient) border-box;
+  box-shadow:
+    0 14px 30px -26px var(--native-accent-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.business-panel-icon {
+  border: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12)),
+    var(--native-accent-button-gradient);
+  background-position: 0 0, var(--native-accent-x) 50%;
+  box-shadow: 0 14px 28px -24px var(--native-accent-glow);
+}
+
+.account-settings-card-head h4,
+.business-panel-heading h4 {
+  margin: 0.1rem 0 0;
+  color: #050505;
+  font-size: clamp(1.02rem, 1.8vw, 1.38rem);
+  font-weight: 920;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+}
+
+.account-settings-group,
+.business-settings-group,
+.business-identity-grid {
+  display: grid;
+  gap: 0.52rem;
+  padding: 0.65rem;
+  align-items: start;
+}
+
+.business-settings-group,
+.business-identity-grid {
+  gap: 0.62rem;
+  padding: 0;
+}
+
+.account-settings-field,
+.business-settings-row {
+  min-height: 3.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.68rem;
+  border-radius: 0.88rem;
+  border: 1px solid rgba(15, 23, 42, 0.075);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.58rem 0.68rem;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.account-settings-field:focus-within,
+.business-settings-row:focus-within {
+  border-color: rgba(5, 5, 5, 0.22);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(5, 5, 5, 0.04);
+}
+
+.account-settings-field-icon,
+.business-settings-row-icon {
+  width: 2.05rem;
+  height: 2.05rem;
+  border-radius: 0.72rem;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.account-settings-field-copy,
+.business-settings-row-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.account-settings-control,
+.business-settings-row-copy input,
+.business-location-field {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #050505;
+  font-size: 0.98rem;
+  font-weight: 780;
+  outline: none;
+}
+
+.account-settings-control::placeholder,
+.business-settings-row-copy input::placeholder,
+.business-location-field::placeholder {
+  color: #b6bdc7;
+}
+
+select.account-settings-control {
+  appearance: none;
+  cursor: pointer;
+}
+
+.account-settings-field-copy small {
+  display: block;
+  margin-top: 0.16rem;
+  font-size: 0.72rem;
+}
+
+.account-settings-meta-grid {
+  display: grid;
+  gap: 0.52rem;
+  padding: 0.65rem;
+}
+
+.account-settings-meta-tile {
+  min-width: 0;
+  border-radius: 0.88rem;
+  background: #f7f8fa;
+  padding: 0.74rem 0.82rem;
+}
+
+.account-settings-meta-tile strong {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #050505;
+  font-size: 0.86rem;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+html body .native-ui .profile-page .profile-section-business {
+  padding: clamp(0.78rem, 1.7vw, 1.18rem);
+  border: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(246, 247, 249, 0.74)),
+    #f7f8fa;
+  box-shadow: 0 24px 70px -62px rgba(15, 23, 42, 0.44);
+}
+
+.business-settings-hero {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.38rem;
+  align-items: center;
+  margin-bottom: 0.58rem;
+  border-radius: 0.98rem;
+  border: 0;
+  background: transparent;
+  padding: 0.12rem 0.08rem 0.2rem;
+}
+
+.business-settings-hero-copy h3 {
+  margin-top: 0.08rem;
+  font-size: clamp(1.18rem, 2.4vw, 1.62rem);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.business-settings-hero-copy > span {
+  max-width: 42rem;
+  margin-top: 0.22rem;
+  font-size: 0.76rem;
+  line-height: 1.28;
+}
+
+.business-studio-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.42rem;
+  align-items: center;
+  border-radius: 0.72rem;
+  border: 0;
+  background:
+    linear-gradient(145deg, rgba(17, 18, 22, 0.94), rgba(38, 45, 53, 0.88) 62%, rgba(5, 5, 5, 0.95)),
+    var(--native-accent-gradient);
+  background-position: 0 0, var(--native-accent-x) 50%;
+  min-height: 2.48rem;
+  padding: 0.3rem 0.42rem;
+  color: #fff;
+  box-shadow: 0 16px 36px -30px var(--native-accent-glow);
+}
+
+.business-studio-brandmark {
+  width: 1.72rem;
+  height: 1.72rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 0.52rem;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+.business-studio-brandmark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.business-studio-summary-copy {
+  min-width: 0;
+}
+
+.business-studio-summary-copy span {
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.business-studio-summary-copy strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 920;
+  letter-spacing: -0.035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-studio-meter {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.2rem;
+  margin-top: 0.24rem;
+}
+
+.business-studio-meter i {
+  height: 0.2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.business-studio-meter i.is-ready {
+  background: var(--native-accent-button-gradient);
+  background-position: var(--native-accent-x) 50%;
+  box-shadow: 0 0 18px var(--native-accent-glow);
+}
+
+.business-studio-shell {
+  display: grid;
+  gap: 0.82rem;
+}
+
+.business-studio-tabs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(12.5rem, 1fr);
+  gap: 0.58rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  border-radius: 1rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.business-studio-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.business-studio-tabs button {
+  min-width: 0;
+  min-height: 3.7rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icon label"
+    "icon detail";
+  gap: 0 0.58rem;
+  align-items: center;
+  border: 0;
+  border-radius: 0.82rem;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.66rem;
+  color: #050505;
+  text-align: left;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.055);
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.business-studio-tabs button span {
+  grid-area: icon;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.74rem;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.055);
+}
+
+.business-studio-tabs button strong {
+  grid-area: label;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.9rem;
+  font-weight: 920;
+  letter-spacing: -0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-studio-tabs button small {
+  grid-area: detail;
+  min-width: 0;
+  overflow: hidden;
+  color: #7b8490;
+  font-size: 0.68rem;
+  font-weight: 720;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-studio-tabs button.is-active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0.12)),
+    var(--native-accent-button-gradient);
+  background-position: 0 0, var(--native-accent-x) 50%;
+  color: #050505;
+  box-shadow: 0 16px 36px -28px var(--native-accent-glow);
+}
+
+.business-studio-tabs button.is-active span {
+  background: rgba(255, 255, 255, 0.68);
+  color: #050505;
+}
+
+.business-studio-tabs button.is-active small {
+  color: rgba(5, 5, 5, 0.56);
+}
+
+.business-studio-active-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem 0.68rem;
+  align-items: baseline;
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.68rem 0.82rem;
+}
+
+.business-studio-active-note strong {
+  color: #050505;
+  font-size: 0.86rem;
+  font-weight: 820;
+}
+
+.business-settings-stack {
+  display: grid;
+  gap: 0.82rem;
+  min-width: 0;
+}
+
+.business-panel-heading {
+  position: relative;
+}
+
+.business-panel-heading small {
+  display: block;
+  margin-top: 0.22rem;
+}
+
+.business-identity-fields,
+.business-contact-grid {
+  display: grid;
+  gap: 0.58rem;
+  min-width: 0;
+}
+
+.business-text-field {
+  display: grid;
+  gap: 0.38rem;
+  align-self: start;
+  width: 100%;
+  border-radius: 0.74rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.54rem 0.68rem;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.business-text-field:focus-within {
+  border-color: var(--native-accent-border);
+  box-shadow: 0 0 0 4px var(--native-accent-button-glow);
+}
+
+.business-text-field > span {
+  display: inline-flex;
+  gap: 0.34rem;
+  align-items: center;
+  color: #8b929e;
+  font-size: 0.58rem;
+  font-weight: 950;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.business-text-field input {
+  width: 100%;
+  min-width: 0;
+  height: 2.05rem;
+  border: 0;
+  background: transparent;
+  color: #050505;
+  font-size: 0.98rem;
+  font-weight: 680;
+  outline: none;
+}
+
+.business-text-field input::placeholder {
+  color: #b6bdc7;
+}
+
+.business-logo-card {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 0.94rem;
+  border: 0;
+  background: transparent;
+  padding: 0.12rem 0;
+}
+
+.business-logo-preview {
+  width: 4.3rem;
+  height: 4.3rem;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 0.94rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: #fff;
+  color: #b6bdc7;
+  font-size: 1.48rem;
+  font-weight: 950;
+}
+
+.business-logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.business-logo-actions,
+.business-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  align-items: center;
+}
+
+.business-primary-button {
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12)),
+    var(--native-accent-button-gradient);
+  background-position: 0 0, var(--native-accent-x) 50%;
+  color: #050505;
+  padding: 0 0.9rem;
+  box-shadow: 0 16px 34px -30px var(--native-accent-glow);
+}
+
+.business-primary-button:hover,
+.business-referral-copy:hover,
+.business-studio-footer button:hover {
+  transform: translateY(-1px);
+}
+
+.business-secondary-button,
+.business-toggle-button,
+.business-icon-button {
+  background: #fff;
+  color: #050505;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.business-secondary-button {
+  padding: 0 0.9rem;
+}
+
+.business-secondary-button.is-danger,
+.business-icon-button.is-danger {
+  color: #ef4444;
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+.business-icon-button {
+  width: 2.45rem;
+  padding: 0;
+}
+
+.business-media-card {
+  display: grid;
+  gap: 0.72rem;
+  border-radius: 0.94rem;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.72rem;
+}
+
+.business-media-card-grid,
+.business-location-card {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.business-media-preview {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.92rem;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+
+.business-media-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.32rem;
+  align-content: start;
+}
+
+.business-media-empty {
+  width: 100%;
+  height: 100%;
+  min-height: 8rem;
+  display: grid;
+  place-items: center;
+  color: #9ea6b1;
+  text-align: center;
+}
+
+.business-media-empty span span {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.business-media-copy p,
+.business-gallery-head p,
+.business-location-note p {
+  color: #050505;
+  font-size: 0.94rem;
+  letter-spacing: -0.015em;
+  text-transform: none;
+}
+
+.business-media-copy small,
+.business-gallery-head small,
+.business-location-note small {
+  display: block;
+  margin-top: 0.22rem;
+}
+
+.business-button-row {
+  margin-top: 0.42rem;
+}
+
+.business-gallery-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.business-location-card {
+  border-radius: 0.94rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: #fff;
+  padding: 0.72rem;
+  align-items: start;
+}
+
+.business-location-input,
+.business-location-note {
+  min-width: 0;
+}
+
+.business-location-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.62rem;
+  margin-bottom: 0.58rem;
+}
+
+.business-location-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.16rem;
+  padding-top: 0.08rem;
+}
+
+.business-location-copy small {
+  margin-top: 0;
+}
+
+.business-location-note strong {
+  display: inline-flex;
+  margin-top: 0.58rem;
+  border-radius: 999px;
+  background: #f0f2f5;
+  padding: 0.38rem 0.58rem;
+  color: #8e96a3;
+  font-size: 0.56rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.business-venue-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.52rem;
+}
+
+.business-venue-photo {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 0.82rem;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+
+.business-venue-remove {
+  position: absolute;
+  top: 0.42rem;
+  right: 0.42rem;
+  width: 1.95rem;
+  height: 1.95rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #ef4444;
+  box-shadow: 0 8px 18px -12px rgba(15, 23, 42, 0.45);
+}
+
+.business-empty-gallery {
+  min-height: 7.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.92rem;
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: #7b8490;
+  text-align: center;
+}
+
+.business-empty-gallery span {
+  display: grid;
+  justify-items: center;
+  gap: 0.42rem;
+}
+
+.business-empty-gallery svg {
+  color: #050505;
+}
+
+.business-empty-gallery strong {
+  color: #68717d;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.business-social-row {
+  display: grid;
+  gap: 0.5rem;
+  border-radius: 0.94rem;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.5rem;
+  transition: opacity 160ms ease;
+}
+
+.business-social-row.is-disabled {
+  opacity: 0.56;
+}
+
+.business-toggle-button {
+  justify-content: space-between;
+  padding: 0 0.38rem 0 0.82rem;
+}
+
+.business-master-toggle {
+  width: 100%;
+}
+
+.business-toggle {
+  position: relative;
+  width: 2.8rem;
+  height: 1.58rem;
+  border-radius: 999px;
+  background: #d9dde4;
+  transition: background 160ms ease;
+}
+
+.business-toggle span {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.22rem;
+  width: 1.18rem;
+  height: 1.18rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.18);
+  transition: transform 160ms ease;
+}
+
+.business-toggle.is-on {
+  background: var(--native-accent-button-gradient);
+  background-position: var(--native-accent-x) 50%;
+}
+
+.business-toggle.is-on span {
+  transform: translateX(1.18rem);
+}
+
+.business-referral-card {
+  display: grid;
+  gap: 0.72rem;
+  margin: 0.65rem;
+  border-radius: 1rem;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.12)),
+    var(--native-accent-button-gradient);
+  background-position: 0 0, var(--native-accent-x) 50%;
+  padding: 0.82rem;
+  color: #050505;
+}
+
+.business-referral-card > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.66rem;
+}
+
+.business-referral-card > div > span:first-child {
+  width: 2.45rem;
+  height: 2.45rem;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 0.82rem;
+  background: rgba(255, 255, 255, 0.62);
+  color: #050505;
+}
+
+.business-referral-card small {
+  display: block;
+  color: rgba(5, 5, 5, 0.48);
+  font-size: 0.58rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.business-referral-card strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: #050505;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-referral-copy {
+  background: #fff;
+  color: #050505;
+  padding: 0 0.92rem;
+}
+
+.business-studio-footer {
+  position: static;
+  z-index: 2;
+  display: grid;
+  gap: 0.62rem;
+  align-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.22rem 0 0;
+  box-shadow: none;
+}
+
+.business-studio-footer strong {
+  display: block;
+  color: #050505;
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.business-studio-footer button {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12)),
+    var(--native-accent-button-gradient);
+  background-position: 0 0, var(--native-accent-x) 50%;
+  color: #050505;
+  padding: 0 1rem;
+  box-shadow: 0 16px 34px -30px var(--native-accent-glow);
+}
+
+@media (min-width: 720px) {
+  .account-settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-settings-card-wide {
+    grid-column: span 2;
+  }
+
+  .account-settings-location-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .account-settings-photo-actions {
+    grid-column: auto;
+    align-self: center;
+    justify-content: flex-end;
+  }
+
+  .account-settings-hero {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .business-settings-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 16rem);
+  }
+
+  .business-panel-heading {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .business-style-room-button,
+  .business-master-toggle {
+    align-self: center;
+  }
+
+  .business-identity-grid {
+    grid-template-columns: minmax(18rem, 34rem) auto;
+    justify-content: start;
+    align-items: start;
+  }
+
+  .business-contact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .business-logo-card {
+    flex-direction: row;
+    justify-content: center;
+    text-align: left;
+  }
+
+  .business-logo-preview {
+    width: 3.85rem;
+    height: 3.85rem;
+  }
+
+  .business-logo-actions {
+    justify-content: center;
+  }
+
+  .business-media-card-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(12.5rem, 16rem);
+    align-items: start;
+  }
+
+  .business-media-copy {
+    padding-top: 0.2rem;
+  }
+
+  .business-location-card {
+    grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 17rem);
+    align-items: stretch;
+  }
+
+  .business-location-note {
+    display: grid;
+    align-content: center;
+    border-radius: 0.78rem;
+    background: rgba(247, 248, 250, 0.82);
+    padding: 0.64rem 0.72rem;
+  }
+
+  .business-gallery-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .business-venue-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .business-social-row {
+    grid-template-columns: minmax(0, 1fr) minmax(9.75rem, 11.25rem);
+    align-items: center;
+  }
+
+  .business-master-toggle {
+    width: auto;
+    min-width: 10rem;
+  }
+
+  .business-referral-card,
+  .business-studio-footer {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (min-width: 980px) {
+  .business-studio-shell {
+    grid-template-columns: minmax(13.5rem, 16rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .business-studio-tabs {
+    position: sticky;
+    top: 1rem;
+    grid-auto-flow: row;
+    grid-auto-columns: initial;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 719px) {
+  html body .native-ui .profile-page .profile-section-account,
+  html body .native-ui .profile-page .profile-section-business {
+    border-radius: 1.05rem;
+  }
+
+  html body .native-ui .profile-page .profile-section-account,
+  html body .native-ui .profile-page .profile-section-business {
+    padding: 0.68rem;
+  }
+
+  .account-settings-hero-copy h3 {
+    font-size: clamp(1.5rem, 8vw, 2.12rem);
+  }
+
+  .business-settings-hero {
+    padding: 0.48rem;
+  }
+
+  .business-settings-hero-copy h3 {
+    font-size: clamp(1.12rem, 6vw, 1.46rem);
+  }
+
+  .business-settings-hero-copy > span {
+    display: none;
+  }
+
+  .business-panel-heading {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .business-panel-heading .business-style-room-button,
+  .business-panel-heading .business-master-toggle {
+    grid-column: 1 / -1;
+  }
+
+  .business-logo-card {
+    align-items: stretch;
+  }
+
+  .business-logo-actions {
+    align-content: center;
+  }
+
+  .business-studio-tabs {
+    grid-auto-flow: initial;
+    grid-auto-columns: initial;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .business-studio-tabs button {
+    min-height: 3.18rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "icon"
+      "label";
+    justify-items: center;
+    gap: 0.24rem;
+    padding: 0.42rem 0.28rem;
+    text-align: center;
+  }
+
+  .business-studio-tabs button span {
+    width: 1.78rem;
+    height: 1.78rem;
+  }
+
+  .business-studio-tabs button strong {
+    width: 100%;
+    font-size: 0.62rem;
+    line-height: 1.05;
+    white-space: normal;
+  }
+
+  .business-studio-tabs button small {
+    display: none;
+  }
+}

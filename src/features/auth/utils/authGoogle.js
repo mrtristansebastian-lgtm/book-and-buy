@@ -3,6 +3,10 @@ import * as FirebaseSDK from '../../../services/firebase';
 import { GOOGLE_CALENDAR_EVENTS_SCOPE } from '../../../services/googleCalendar';
 
 const GOOGLE_IDENTITY_CLIENT_ID = (import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || '').trim();
+const GOOGLE_IDENTITY_ALLOWED_ORIGINS = (import.meta.env.VITE_GOOGLE_OAUTH_ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
 const FirebaseAuthentication = registerPlugin('FirebaseAuthentication');
 
 let googleIdentityPromise = null;
@@ -13,7 +17,26 @@ export const shouldUseRedirectGoogleAuth = () => {
   return false;
 };
 
-export const hasGoogleIdentityClient = () => Boolean(GOOGLE_IDENTITY_CLIENT_ID);
+const getCurrentGoogleOAuthOrigin = () => (typeof window !== 'undefined' ? window.location.origin : '');
+
+const isCurrentGoogleOAuthOriginAllowed = () => {
+  const origin = getCurrentGoogleOAuthOrigin();
+  return Boolean(origin && GOOGLE_IDENTITY_ALLOWED_ORIGINS.includes(origin));
+};
+
+export const hasGoogleIdentityClient = () => Boolean(GOOGLE_IDENTITY_CLIENT_ID && isCurrentGoogleOAuthOriginAllowed());
+
+export const getGoogleOAuthOriginSetupMessage = () => {
+  const origin = getCurrentGoogleOAuthOrigin();
+  const originHint = origin ? ` Add ${origin} to Authorized JavaScript origins for VITE_GOOGLE_OAUTH_CLIENT_ID.` : '';
+  return `Google OAuth is blocking this browser origin.${originHint} Also add it to VITE_GOOGLE_OAUTH_ALLOWED_ORIGINS, or leave VITE_GOOGLE_OAUTH_CLIENT_ID empty to use Firebase Google sign-in.`;
+};
+
+export const isGoogleOAuthOriginMismatchError = (error) => {
+  const code = `${error?.code || ''}`.toLowerCase();
+  const message = `${error?.message || ''} ${error?.details || ''}`.toLowerCase();
+  return code.includes('origin_mismatch') || message.includes('origin_mismatch') || message.includes('origin mismatch');
+};
 
 const loadGoogleIdentityClient = () => {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -21,6 +44,11 @@ const loadGoogleIdentityClient = () => {
   }
   if (!GOOGLE_IDENTITY_CLIENT_ID) {
     return Promise.reject(new Error('Missing VITE_GOOGLE_OAUTH_CLIENT_ID.'));
+  }
+  if (!isCurrentGoogleOAuthOriginAllowed()) {
+    const error = new Error(getGoogleOAuthOriginSetupMessage());
+    error.code = 'google/origin_mismatch';
+    return Promise.reject(error);
   }
   if (window.google?.accounts?.oauth2) return Promise.resolve(window.google);
   if (googleIdentityPromise) return googleIdentityPromise;
@@ -71,6 +99,17 @@ export const signInWithGoogleIdentity = async (authInstance, options = {}) => {
   if (options.calendar) scopes.push(GOOGLE_CALENDAR_EVENTS_SCOPE);
 
   const accessToken = await new Promise((resolve, reject) => {
+    let settled = false;
+    const resolveOnce = (value) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+    const rejectOnce = (error) => {
+      if (settled) return;
+      settled = true;
+      reject(error);
+    };
     const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_IDENTITY_CLIENT_ID,
       prompt: options.calendar ? 'consent select_account' : 'select_account',
@@ -79,16 +118,21 @@ export const signInWithGoogleIdentity = async (authInstance, options = {}) => {
         if (response.error) {
           const error = new Error(response.error_description || response.error);
           error.code = `google/${response.error}`;
-          reject(error);
+          rejectOnce(error);
           return;
         }
         if (!response.access_token) {
           const error = new Error('Google did not return an access token.');
           error.code = 'google/missing-access-token';
-          reject(error);
+          rejectOnce(error);
           return;
         }
-        resolve(response.access_token);
+        resolveOnce(response.access_token);
+      },
+      error_callback: (response = {}) => {
+        const error = new Error(response.message || response.type || 'Google sign-in could not open.');
+        error.code = response.type ? `google/${response.type}` : 'google/oauth-error';
+        rejectOnce(error);
       }
     });
     tokenClient.requestAccessToken();

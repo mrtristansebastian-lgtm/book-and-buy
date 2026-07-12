@@ -145,12 +145,13 @@ export function WorkspaceInbox({
     clientName: activeClientProfile?.name || activeThread?.clientName || '',
     clientPhone: activeClientProfile?.phone || linkedBooking?.clientPhone || '',
     clientEmail: activeClientProfile?.email || activeThread?.clientEmail || linkedBooking?.clientEmail || '',
+    clientCountry: activeClientProfile?.country || linkedBooking?.clientCountry || activeThread?.clientCountry || '',
     clientBirthday: activeClientProfile?.birthday || linkedBooking?.clientBirthday || '',
     clientNote: activeClientProfile?.notes || linkedBooking?.clientNote || activeThread?.lastMessage || '',
     serviceName: activeThread?.serviceName || linkedBooking?.serviceName || '',
     staffId: assignedStaff?.id || linkedBooking?.staffId || activeStaff?.id || '',
     threadId: activeThread?.id || ''
-  }), [activeClientProfile?.birthday, activeClientProfile?.email, activeClientProfile?.name, activeClientProfile?.notes, activeClientProfile?.phone, activeStaff?.id, activeThread?.clientEmail, activeThread?.clientName, activeThread?.id, activeThread?.lastMessage, activeThread?.serviceName, assignedStaff?.id, linkedBooking?.clientBirthday, linkedBooking?.clientEmail, linkedBooking?.clientNote, linkedBooking?.clientPhone, linkedBooking?.serviceName, linkedBooking?.staffId]);
+  }), [activeClientProfile?.birthday, activeClientProfile?.country, activeClientProfile?.email, activeClientProfile?.name, activeClientProfile?.notes, activeClientProfile?.phone, activeStaff?.id, activeThread?.clientCountry, activeThread?.clientEmail, activeThread?.clientName, activeThread?.id, activeThread?.lastMessage, activeThread?.serviceName, assignedStaff?.id, linkedBooking?.clientBirthday, linkedBooking?.clientCountry, linkedBooking?.clientEmail, linkedBooking?.clientNote, linkedBooking?.clientPhone, linkedBooking?.serviceName, linkedBooking?.staffId]);
   const submitQuickBooking = async (event) => {
     event.preventDefault();
     if (!onCreateManualBooking || quickBookingSaving) return;
@@ -162,6 +163,7 @@ export function WorkspaceInbox({
         clientName: formData.get('clientName'),
         clientPhone: formData.get('clientPhone'),
         clientEmail: formData.get('clientEmail'),
+        clientCountry: formData.get('clientCountry'),
         clientBirthday: formData.get('clientBirthday'),
         clientNote: formData.get('clientNote'),
         serviceId: formData.get('serviceId'),
@@ -901,6 +903,10 @@ export function WorkspaceInbox({
                 <strong>{activeThreadPrefill.clientEmail || 'Not saved'}</strong>
               </div>
               <div>
+                <span>Country</span>
+                <strong>{activeThreadPrefill.clientCountry || 'Not saved'}</strong>
+              </div>
+              <div>
                 <span>Notes</span>
                 <strong>{activeThreadPrefill.clientNote || activeThread.lastMessage || 'No notes yet'}</strong>
               </div>
@@ -934,6 +940,10 @@ export function WorkspaceInbox({
             <label className="support-quick-field">
               <span>Email</span>
               <input name="clientEmail" type="email" defaultValue={activeThreadPrefill.clientEmail} placeholder="client@email.com" />
+            </label>
+            <label className="support-quick-field">
+              <span>Country</span>
+              <input name="clientCountry" defaultValue={activeThreadPrefill.clientCountry} placeholder="South Africa" autoComplete="country-name" />
             </label>
             <label className="support-quick-field">
               <span>Date</span>

@@ -83,6 +83,7 @@ export function createClientPersistenceActions({
       name: updates.name ?? existingRecord?.name ?? bookingProfile?.name ?? 'Unnamed Client',
       phone: updates.phone ?? existingRecord?.phone ?? bookingProfile?.phone ?? '',
       email: updates.email ?? existingRecord?.email ?? bookingProfile?.email ?? '',
+      country: updates.country ?? existingRecord?.country ?? bookingProfile?.country ?? '',
       birthday: updates.birthday ?? existingRecord?.birthday ?? bookingProfile?.birthday ?? '',
       notes: updates.notes ?? existingRecord?.notes ?? bookingProfile?.notes ?? '',
       avatar: updates.avatar ?? existingRecord?.avatar ?? bookingProfile?.avatar ?? '',
@@ -129,6 +130,7 @@ export function createClientPersistenceActions({
     const name = form.clientName.value.trim();
     const phone = form.clientPhone.value.trim();
     const email = form.clientEmail.value.trim();
+    const country = form.clientCountry.value.trim();
     const birthday = form.clientBirthday.value.trim();
     const label = form.clientLabel.value;
     if (!name) return;
@@ -139,7 +141,7 @@ export function createClientPersistenceActions({
       ? Array.from(new Set([...(existingClient?.labels || []), label]))
       : (existingClient?.labels || []);
 
-    const saved = await upsertClientRecord(id, { name, phone, email, birthday, labels });
+    const saved = await upsertClientRecord(id, { name, phone, email, country, birthday, labels });
     if (saved) {
       setSelectedClientId(id);
       setClientMobileView('profile');

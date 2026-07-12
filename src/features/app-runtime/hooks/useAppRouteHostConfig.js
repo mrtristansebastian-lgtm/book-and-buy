@@ -211,6 +211,7 @@ export function useAppRouteHostConfig({
     onboarding: {
       bookingPageUrl: editor.bookingPageUrl,
       isGuestWorkspace: workspace.isGuestWorkspace,
+      personalProfile: workspace.personalProfile,
       settings: settingsState.settings,
       shouldShow: onboardingStatus.shouldShow && route.view === 'dashboard' && !requiresEmailVerification,
       user: auth.user,

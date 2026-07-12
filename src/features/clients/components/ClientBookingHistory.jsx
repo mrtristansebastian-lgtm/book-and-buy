@@ -33,7 +33,11 @@ export const ClientBookingHistory = ({
                 <p className="metric-value text-xl font-bold text-black">{booking.time}</p>
                 <span className={`px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest ${statusStyle}`}>{booking.status === 'waitlist' ? 'Standby' : booking.status}</span>
               </div>
-              <p className="text-sm text-neutral-500">{booking.date}{booking.clientBirthday ? ` / Bday: ${booking.clientBirthday}` : ''}</p>
+              <p className="text-sm text-neutral-500">
+                {booking.date}
+                {booking.clientCountry ? ` / ${booking.clientCountry}` : ''}
+                {booking.clientBirthday ? ` / Bday: ${booking.clientBirthday}` : ''}
+              </p>
               {serviceDetails?.name && (
                 <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-neutral-50 border border-neutral-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-neutral-500">
                   <Briefcase size={12} />

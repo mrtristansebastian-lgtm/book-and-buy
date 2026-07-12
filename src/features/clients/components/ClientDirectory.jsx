@@ -24,7 +24,7 @@ export const ClientDirectory = ({
             <input
               value={clientSearch}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Search name, phone, label"
+              placeholder="Search name, phone, country, label"
               aria-label="Search clients"
               className="client-search-input w-full h-11 md:h-12 bg-white border border-neutral-200 rounded-xl pl-11 pr-4 text-sm font-bold outline-none text-black focus:bg-white focus:border-black transition-colors"
             />
@@ -102,7 +102,9 @@ export const ClientDirectory = ({
                 <div className="flex items-start justify-between gap-3 mb-1">
                   <h4 className="text-base md:text-lg font-bold tracking-tight truncate">{client.name}</h4>
                 </div>
-                <p className={`text-xs md:text-sm truncate mb-2 md:mb-3 ${isActive ? 'text-white/55' : 'text-neutral-500'}`}>{client.isExample ? 'Preview only - not saved or counted' : client.phone || client.email || 'Manual profile'}</p>
+                <p className={`text-xs md:text-sm truncate mb-2 md:mb-3 ${isActive ? 'text-white/55' : 'text-neutral-500'}`}>
+                  {client.isExample ? 'Preview only - not saved or counted' : [client.phone || client.email, client.country].filter(Boolean).join(' / ') || 'Manual profile'}
+                </p>
                 <div className="flex flex-wrap gap-1.5 md:gap-2">
                   {allLabels.map(label => (
                     <span key={label} className={`px-2 py-1 rounded-md text-[7px] md:text-[8px] font-bold uppercase tracking-widest ${isActive ? 'bg-white/10 text-white' : label === 'Regular' || label === 'VIP' ? 'bg-[#39FF14] text-black' : 'bg-neutral-100 text-neutral-500'}`}>{label}</span>

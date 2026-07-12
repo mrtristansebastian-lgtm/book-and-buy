@@ -31,7 +31,14 @@ export const ClientProfileHeader = ({
             {isExampleClient && <span className="px-2.5 py-1 rounded-md bg-black text-white text-[9px] font-bold uppercase tracking-widest">Example Only</span>}
             {activeClient.autoLabels?.includes('Regular') && <span className="px-2.5 py-1 rounded-md bg-[#39FF14] text-black text-[9px] font-bold uppercase tracking-widest">Regular</span>}
           </div>
-          <p className="text-xs md:text-sm text-neutral-500 mb-3 md:mb-4">{isExampleClient ? 'Visual example only - not saved, synced, or counted in stats' : activeClient.bookingCount ? `${activeClient.bookingCount} booking${activeClient.bookingCount === 1 ? '' : 's'} on file` : 'Manual client profile'}</p>
+          <p className="text-xs md:text-sm text-neutral-500 mb-3 md:mb-4">
+            {isExampleClient
+              ? 'Visual example only - not saved, synced, or counted in stats'
+              : [
+                activeClient.bookingCount ? `${activeClient.bookingCount} booking${activeClient.bookingCount === 1 ? '' : 's'} on file` : 'Manual client profile',
+                activeClient.country
+              ].filter(Boolean).join(' / ')}
+          </p>
           <div className="flex flex-wrap gap-2">
             {allLabels.map(label => (
               <span key={label} className={`px-3 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-widest ${label === 'Regular' || label === 'VIP' ? 'bg-[#39FF14] text-black' : label === 'No-show Risk' ? 'bg-red-50 text-red-600' : 'bg-neutral-100 text-neutral-500'}`}>{label}</span>

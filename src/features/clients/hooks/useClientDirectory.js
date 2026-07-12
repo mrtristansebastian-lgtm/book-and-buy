@@ -20,6 +20,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
         name: booking.clientName || 'Unnamed Client',
         phone: booking.clientPhone || '',
         email: booking.clientEmail || '',
+        country: booking.clientCountry || '',
         birthday: booking.clientBirthday || '',
         notes: booking.clientNote || '',
         source: 'booking',
@@ -28,6 +29,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
       existing.name = existing.name || booking.clientName || 'Unnamed Client';
       existing.phone = existing.phone || booking.clientPhone || '';
       existing.email = existing.email || booking.clientEmail || '';
+      existing.country = existing.country || booking.clientCountry || '';
       existing.birthday = existing.birthday || booking.clientBirthday || '';
       existing.notes = existing.notes || booking.clientNote || '';
       existing.bookings.push(booking);
@@ -47,6 +49,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
       return {
         ...client,
         email: client.email || history[0]?.clientEmail || '',
+        country: client.country || history[0]?.clientCountry || '',
         birthday: client.birthday || history[0]?.clientBirthday || '',
         notes: client.notes || history.find(booking => booking.clientNote)?.clientNote || '',
         bookings: history,
@@ -70,6 +73,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
         name: record.name || bookingProfile?.name || 'Unnamed Client',
         phone: record.phone || bookingProfile?.phone || '',
         email: record.email || bookingProfile?.email || '',
+        country: record.country || bookingProfile?.country || '',
         birthday: record.birthday || bookingProfile?.birthday || '',
         notes: record.notes || bookingProfile?.notes || '',
         avatar: record.avatar || '',
@@ -105,6 +109,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
         client.name,
         client.phone,
         client.email,
+        client.country,
         ...(client.labels || []),
         ...(client.autoLabels || [])
       ].join(' ').toLowerCase().includes(query)

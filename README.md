@@ -33,6 +33,10 @@ VITE_APP_ID=build-a-booking-v2
 
 The Firebase boundary lives in `src/services/firebase.js`, so production wiring can happen there without touching the UI components.
 
+For Google sign-in, enable the Google provider in Firebase Authentication and add your local/production hostnames to Firebase Authentication -> Settings -> Authorized domains. Local Vite runs on `127.0.0.1` by default, so add `127.0.0.1` if Firebase rejects local sign-in.
+
+`VITE_GOOGLE_OAUTH_CLIENT_ID` is optional and only needed for the direct Google Identity Services token flow. If you set it, add every browser origin that runs the app under that OAuth client's Authorized JavaScript origins in Google Cloud, such as `http://127.0.0.1:5173`, `http://localhost:5173`, and your production origin. Put the same exact origins in `VITE_GOOGLE_OAUTH_ALLOWED_ORIGINS` as a comma-separated list. Leave `VITE_GOOGLE_OAUTH_CLIENT_ID` blank to use Firebase's Google popup/redirect flow.
+
 ### Firebase Services To Enable
 
 1. Authentication: enable Email/Password sign-in for business owners and Anonymous sign-in for public booking-page submissions.

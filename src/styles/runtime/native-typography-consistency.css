@@ -1,0 +1,175 @@
+html body .native-ui {
+  --native-heading-color: #101828;
+  --native-h1-size: clamp(2rem, 3.4vw, 3.2rem);
+  --native-h2-size: clamp(1.45rem, 2.15vw, 2.15rem);
+  --native-h3-size: clamp(1.1rem, 1.45vw, 1.35rem);
+  --native-h4-size: 1rem;
+  --native-h1-weight: 900;
+  --native-h2-weight: 820;
+  --native-h3-weight: 780;
+  --native-h4-weight: 740;
+  --native-heading-tracking: -0.018em;
+  --native-heading-line-height: 1.06;
+  --native-label-color: #101828;
+  --native-label-weight: 760;
+  --native-label-size: 0.78rem;
+  --native-subtext-color: #667085;
+  --native-subtext-weight: 720;
+  --native-subtext-tracking: 0;
+  --native-subtext-line-height: 1.28;
+  --native-body-color: #344054;
+  --native-body-weight: 620;
+  --native-body-line-height: 1.5;
+}
+
+html body .native-ui :where(
+  h1
+) {
+  color: var(--native-heading-color) !important;
+  font-family: inherit !important;
+  font-size: var(--native-h1-size) !important;
+  font-weight: var(--native-h1-weight) !important;
+  letter-spacing: var(--native-heading-tracking) !important;
+  line-height: var(--native-heading-line-height) !important;
+  text-transform: none !important;
+}
+
+html body .native-ui :where(
+  h2,
+  .dashboard-page-header h2,
+  .dashboard-lumia-greeting h2,
+  .service-wizard-header h2,
+  .schedule-settings-wizard-title h2,
+  .profile-section-shell h2,
+  .onboarding-type-panel h2,
+  .onboarding-section-header h2,
+  .editor-cinema-header h2
+) {
+  color: var(--native-heading-color) !important;
+  font-family: inherit !important;
+  font-size: var(--native-h2-size) !important;
+  font-weight: var(--native-h2-weight) !important;
+  letter-spacing: var(--native-heading-tracking) !important;
+  line-height: 1.08 !important;
+  text-transform: none !important;
+}
+
+html body .native-ui :where(
+  h3,
+  .dashboard-command-summary h3,
+  .service-wizard-step-head h3,
+  .schedule-settings-card-head strong,
+  .schedule-panel-title h3,
+  .profile-command-card h3,
+  .account-settings-card h3,
+  .business-profile-card h3,
+  .editor-cinema-hero-copy h3
+) {
+  color: var(--native-heading-color) !important;
+  font-family: inherit !important;
+  font-size: var(--native-h3-size) !important;
+  font-weight: var(--native-h3-weight) !important;
+  letter-spacing: var(--native-heading-tracking) !important;
+  line-height: 1.12 !important;
+  text-transform: none !important;
+}
+
+html body .native-ui :where(
+  h4
+) {
+  color: var(--native-heading-color) !important;
+  font-family: inherit !important;
+  font-size: var(--native-h4-size) !important;
+  font-weight: var(--native-h4-weight) !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.18 !important;
+  text-transform: none !important;
+}
+
+html body .native-ui :where(
+  p
+) {
+  color: var(--native-body-color) !important;
+  font-family: inherit !important;
+  font-weight: var(--native-body-weight) !important;
+  line-height: var(--native-body-line-height) !important;
+  text-transform: none !important;
+}
+
+html body .native-ui :where(
+  small,
+  .dashboard-page-header p,
+  .dashboard-lumia-greeting p,
+  .dashboard-command-summary p,
+  .service-wizard-header p,
+  .service-wizard-step-head p,
+  .schedule-settings-card-head small,
+  .schedule-settings-wizard-title p,
+  .profile-section-shell p,
+  .profile-command-card p,
+  .account-settings-card p,
+  .business-profile-card p,
+  .onboarding-type-panel p,
+  .onboarding-section-header p,
+  .onboarding-summary-card small,
+  .onboarding-summary-card em,
+  .editor-cinema-hero-copy p,
+  .cinema-control-title small
+) {
+  color: var(--native-subtext-color) !important;
+  font-family: inherit !important;
+  font-weight: var(--native-subtext-weight) !important;
+  letter-spacing: var(--native-subtext-tracking) !important;
+  line-height: var(--native-subtext-line-height) !important;
+  text-transform: none !important;
+}
+
+html body .native-ui :where(
+  label > span,
+  .service-wizard-field > span,
+  .schedule-settings-field > span,
+  .onboarding-step-kicker,
+  .business-profile-card label,
+  .account-settings-card label,
+  .profile-command-card label
+) {
+  color: var(--native-label-color) !important;
+  font-family: inherit !important;
+  font-size: var(--native-label-size) !important;
+  font-weight: var(--native-label-weight) !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.15 !important;
+}
+
+html body .native-ui :where(
+  button small,
+  button strong,
+  .onboarding-service-compact-grid .service-price-mode-grid button strong,
+  .onboarding-service-compact-grid .service-price-mode-grid button small,
+  .onboarding-service-compact-grid .service-location-grid button strong,
+  .onboarding-service-compact-grid .service-location-grid button small,
+  .onboarding-full-schedule-editor .schedule-settings-option-list.is-schedule-mode button strong,
+  .onboarding-full-schedule-editor .schedule-settings-option-list.is-schedule-mode button small
+) {
+  font-family: inherit !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card p {
+  color: var(--native-heading-color) !important;
+  font-family: inherit !important;
+  font-size: 0.92rem !important;
+  font-weight: var(--native-h4-weight) !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.12 !important;
+  text-transform: none !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboarding-summary-card strong {
+  color: var(--native-subtext-color) !important;
+  font-family: inherit !important;
+  font-size: 0.86rem !important;
+  font-weight: var(--native-subtext-weight) !important;
+  letter-spacing: 0 !important;
+  line-height: 1.35 !important;
+  text-transform: none !important;
+}

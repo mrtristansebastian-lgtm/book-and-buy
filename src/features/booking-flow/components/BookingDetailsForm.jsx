@@ -51,6 +51,10 @@ export const BookingDetailsForm = ({
                     <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={`booking-text-control w-full bg-transparent ${layout === 'checkout' ? 'text-base md:text-lg' : 'text-lg md:text-xl'} font-normal outline-none tracking-normal transition-all`} style={{ color: settings.bodyColor }} />
                 </div>
             )}
+            <div className="booking-text-field group relative">
+                <label className={`${layout === 'checkout' ? 'text-[8px] tracking-[0.28em] mb-2' : 'text-[9px] md:text-[10px] tracking-[0.5em] mb-3'} font-bold uppercase opacity-40 block group-focus-within:opacity-100 transition-opacity flex justify-between`} style={{ color: settings.bodyColor }}>Country / Region <span className="opacity-50 lowercase tracking-normal font-normal">Optional</span></label>
+                <input type="text" value={formData.country || ''} onChange={(e) => setFormData({ ...formData, country: e.target.value })} className={`booking-text-control w-full bg-transparent ${layout === 'checkout' ? 'text-base md:text-lg' : 'text-lg md:text-xl'} font-normal outline-none tracking-normal transition-all`} style={{ color: settings.bodyColor }} placeholder="South Africa" autoComplete="country-name" />
+            </div>
             {collectClientNotes && (
                 <div className={`booking-text-field group relative ${layout === 'checkout' ? 'md:col-span-2' : ''}`}>
                     <label className={`${layout === 'checkout' ? 'text-[8px] tracking-[0.28em] mb-2' : 'text-[9px] md:text-[10px] tracking-[0.5em] mb-3'} font-bold uppercase opacity-40 block group-focus-within:opacity-100 transition-opacity flex justify-between`} style={{ color: settings.bodyColor }}>Booking Note <span className="opacity-50 lowercase tracking-normal font-normal">Optional</span></label>

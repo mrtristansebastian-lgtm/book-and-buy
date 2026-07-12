@@ -4,6 +4,8 @@ import { defaultFaqItems } from './editorConfig';
 export const createDefaultSettings = () => ({
   slug: 'your-business',
   brandName: 'Your Business',
+  email: '',
+  phone: '',
   welcomeMessage: 'Reserve your session.',
   tagline: 'Online bookings',
   primaryColor: '#050505',

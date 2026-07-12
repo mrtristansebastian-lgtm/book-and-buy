@@ -7,6 +7,7 @@ import './styles/extracted.css';
 import './styles/workspace-shell.css';
 import './styles/dashboard/mission-control-dashboard.css';
 import './styles/features/onboarding/business-onboarding.css';
+import './styles/runtime/native-typography-consistency.css';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

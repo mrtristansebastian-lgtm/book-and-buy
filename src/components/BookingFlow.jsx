@@ -72,7 +72,7 @@ export const BookingFlow = memo(({ settings, onComplete, isPreview = false, prev
                 visibleDisplayDates
             } = useBookingFlowCalendar({ settings, isPreview });
             const [selectedStaffId, setSelectedStaffId] = useState('');
-            const [formData, setFormData] = useState({ name: '', phone: '', email: '', birthday: '', note: '', emailOptIn: false });
+            const [formData, setFormData] = useState({ name: '', phone: '', email: '', country: '', birthday: '', note: '', emailOptIn: false });
             const [selectedManualPayment, setSelectedManualPayment] = useState('');
             const [openFaq, setOpenFaq] = useState(null);
 

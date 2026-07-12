@@ -1,4 +1,71 @@
-import { Camera, Crop, Mail, Phone } from 'lucide-react';
+import { BadgeCheck, Briefcase, Clock3, Globe2, Mail, MapPin, Phone, Plus, ShieldCheck, UserRound } from 'lucide-react';
+
+const CONTACT_METHOD_OPTIONS = [
+  { value: '', label: 'No preference yet' },
+  { value: 'whatsapp', label: 'WhatsApp first' },
+  { value: 'phone', label: 'Phone call' },
+  { value: 'email', label: 'Email' },
+  { value: 'portal', label: 'Client portal / in-app' }
+];
+
+const detectedTimeZone = (() => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Africa/Johannesburg';
+  } catch {
+    return 'Africa/Johannesburg';
+  }
+})();
+
+const AccountSettingField = ({
+  autoComplete,
+  hint,
+  icon: Icon,
+  inputMode,
+  label,
+  onChange,
+  options,
+  placeholder,
+  type = 'text',
+  value
+}) => (
+  <label className="account-settings-field native-control-pill">
+    <span className="account-settings-field-icon">
+      <Icon size={15} />
+    </span>
+    <span className="account-settings-field-copy">
+      <span>{label}</span>
+      {options ? (
+        <select
+          value={value || ''}
+          onChange={(event) => onChange(event.target.value)}
+          className="account-settings-control"
+        >
+          {options.map(option => (
+            <option key={option.value || option.label} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={type}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          value={value || ''}
+          onChange={(event) => onChange(event.target.value)}
+          className="account-settings-control"
+          placeholder={placeholder}
+        />
+      )}
+      {hint && <small>{hint}</small>}
+    </span>
+  </label>
+);
+
+const AccountMetaTile = ({ label, value }) => (
+  <div className="account-settings-meta-tile">
+    <span>{label}</span>
+    <strong>{value}</strong>
+  </div>
+);
 
 export const ProfilePersonalSection = ({
   activeProfileSection,
@@ -12,15 +79,38 @@ export const ProfilePersonalSection = ({
   user,
   workspaceRole
 }) => (
-  <div className={`profile-section profile-section-account ${activeProfileSection === 'account' ? 'block' : 'hidden'} overflow-hidden bg-white rounded-lg border border-neutral-100 shadow-[0_25px_80px_-60px_rgba(0,0,0,0.75)]`}>
-    <div className="grid grid-cols-1 lg:grid-cols-12">
-      <div className="lg:col-span-5 bg-black text-white p-6 md:p-8 flex flex-col justify-between gap-10">
-        <div className="flex items-center gap-4">
-          <label className="relative w-16 h-16 rounded-lg bg-white text-black flex items-center justify-center overflow-hidden font-bold text-2xl shadow-xl cursor-pointer group shrink-0">
-            {personalProfile.photoURL ? <img src={personalProfile.photoURL} alt="Account avatar" className="w-full h-full object-cover" /> : (personalDisplayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || (isGuestWorkspace ? 'G' : 'A'))}
-            <span className="absolute inset-0 bg-black/55 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Camera size={16} />
-            </span>
+  <div className={`profile-section profile-section-account ${activeProfileSection === 'account' ? 'block' : 'hidden'}`}>
+    <div className="account-settings-shell">
+      <div className="account-settings-hero">
+        <label className="account-settings-avatar" aria-label="Upload account photo">
+          {personalProfile.photoURL ? (
+            <img src={personalProfile.photoURL} alt="Account avatar" />
+          ) : (
+            personalDisplayName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || (isGuestWorkspace ? 'G' : 'A')
+          )}
+          <span>
+            <Plus size={16} strokeWidth={3} />
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(event) => onPhotoUpload(event.target.files?.[0])}
+          />
+        </label>
+        <div className="account-settings-hero-copy">
+          <p>{isGuestWorkspace ? 'Guest workspace' : 'Personal Profile'}</p>
+          <h3>{personalDisplayName || (isGuestWorkspace ? 'Guest Workspace' : 'Workspace Owner')}</h3>
+          <span>This is the person behind the workspace: contact details, location context, and access identity.</span>
+          <div className="account-settings-badges">
+            <span><ShieldCheck size={13} /> {workspaceRole} access</span>
+            <span><Mail size={13} /> {personalProfile.email || 'No email yet'}</span>
+          </div>
+        </div>
+        <div className="account-settings-photo-actions">
+          <label>
+            <Plus size={14} strokeWidth={3} />
+            Change photo
             <input
               type="file"
               accept="image/*"
@@ -28,106 +118,149 @@ export const ProfilePersonalSection = ({
               onChange={(event) => onPhotoUpload(event.target.files?.[0])}
             />
           </label>
-          <div className="min-w-0">
-            <p className="text-[9px] font-bold uppercase tracking-[0.35em] text-white/35 mb-2">{isGuestWorkspace ? 'Browsing As' : 'Signed In As'}</p>
-            <p className="text-xl font-bold tracking-tight truncate">{personalDisplayName || (isGuestWorkspace ? 'Guest Workspace' : 'Admin User')}</p>
-            <p className="text-xs text-white/45 mt-1 truncate">{personalProfile.email || 'No contact email yet'}</p>
-          </div>
-        </div>
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#39FF14] mb-3">{workspaceRole} access</p>
-          <p className="text-sm leading-relaxed text-white/55">Your profile powers the business workspace, booking page identity, client communication, and staff access.</p>
+          {personalProfile.photoURL && (
+            <button type="button" onClick={onRemovePhoto}>Remove</button>
+          )}
         </div>
       </div>
-      <div className="lg:col-span-7 p-5 md:p-8">
-        {isGuestWorkspace && (
-          <div className="guest-profile-auth-card mb-5">
-            <div>
-              <span>Guest workspace</span>
-              <strong>Save this setup to a real account.</strong>
-              <p>Sign in or create an owner account to keep your page, services, and schedule beyond this local preview.</p>
-            </div>
-            <div>
-              <button type="button" onClick={() => onOpenOwnerAuth('signin')}>Sign In</button>
-              <button type="button" onClick={() => onOpenOwnerAuth('signup')}>Create Account</button>
-            </div>
-          </div>
-        )}
-        <div className="mb-5 flex items-start justify-between gap-4">
+
+      {isGuestWorkspace && (
+        <div className="guest-profile-auth-card account-guest-card">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-300 mb-2">Personal Profile</p>
-            <h3 className="text-2xl font-bold tracking-tight text-black">Your account details</h3>
-            <p className="text-sm text-neutral-500 mt-1">Separate from business details. This is the person behind the workspace.</p>
+            <span>Guest workspace</span>
+            <strong>Save this setup to a real account.</strong>
+            <p>Sign in or create an owner account to keep your page, services, and schedule beyond this local preview.</p>
           </div>
-          <div className="hidden sm:flex items-center gap-2 shrink-0">
-            <label className="h-10 px-4 rounded-full bg-neutral-50 border border-neutral-100 text-black text-[10px] font-bold uppercase tracking-widest inline-flex items-center gap-2 cursor-pointer hover:border-black transition-colors">
-              <Crop size={14} /> Photo
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(event) => onPhotoUpload(event.target.files?.[0])}
-              />
-            </label>
-            {personalProfile.photoURL && (
-              <button
-                type="button"
-                onClick={onRemovePhoto}
-                className="h-10 px-4 rounded-full bg-red-50 border border-red-100 text-red-600 text-[10px] font-bold uppercase tracking-widest"
-              >
-                Remove
-              </button>
-            )}
+          <div>
+            <button type="button" onClick={() => onOpenOwnerAuth('signin')}>Sign In</button>
+            <button type="button" onClick={() => onOpenOwnerAuth('signup')}>Create Account</button>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="native-control-pill rounded-lg bg-neutral-50 border border-neutral-100 p-4 transition-colors">
-            <span className="text-[9px] font-bold uppercase tracking-[0.28em] text-neutral-300 mb-2 block">First Name</span>
-            <input
-              value={personalProfile.firstName || ''}
-              onChange={(event) => updatePersonalProfile({ firstName: event.target.value })}
-              className="native-control-input w-full bg-transparent outline-none text-sm font-bold text-black"
+      )}
+
+      <div className="account-settings-grid">
+        <section className="account-settings-card">
+          <div className="account-settings-card-head">
+            <span><UserRound size={16} /></span>
+            <div>
+              <p>Identity</p>
+              <h4>Name and role</h4>
+            </div>
+          </div>
+          <div className="account-settings-group">
+            <AccountSettingField
+              icon={UserRound}
+              label="First name"
+              value={personalProfile.firstName}
+              onChange={(value) => updatePersonalProfile({ firstName: value })}
               placeholder="First name"
+              autoComplete="given-name"
             />
-          </label>
-          <label className="native-control-pill rounded-lg bg-neutral-50 border border-neutral-100 p-4 transition-colors">
-            <span className="text-[9px] font-bold uppercase tracking-[0.28em] text-neutral-300 mb-2 block">Surname</span>
-            <input
-              value={personalProfile.lastName || ''}
-              onChange={(event) => updatePersonalProfile({ lastName: event.target.value })}
-              className="native-control-input w-full bg-transparent outline-none text-sm font-bold text-black"
+            <AccountSettingField
+              icon={UserRound}
+              label="Surname"
+              value={personalProfile.lastName}
+              onChange={(value) => updatePersonalProfile({ lastName: value })}
               placeholder="Surname"
+              autoComplete="family-name"
             />
-          </label>
-          <label className="native-control-pill rounded-lg bg-neutral-50 border border-neutral-100 p-4 transition-colors">
-            <span className="text-[9px] font-bold uppercase tracking-[0.28em] text-neutral-300 mb-2 flex items-center gap-2"><Mail size={12} /> Contact Email</span>
-            <input
-              type="email"
-              value={personalProfile.email || ''}
-              onChange={(event) => updatePersonalProfile({ email: event.target.value })}
-              className="native-control-input w-full bg-transparent outline-none text-sm font-bold text-black"
+            <AccountSettingField
+              icon={Briefcase}
+              label="Role or title"
+              value={personalProfile.jobTitle}
+              onChange={(value) => updatePersonalProfile({ jobTitle: value })}
+              placeholder="Owner, stylist, manager..."
+              autoComplete="organization-title"
+            />
+          </div>
+        </section>
+
+        <section className="account-settings-card">
+          <div className="account-settings-card-head">
+            <span><Phone size={16} /></span>
+            <div>
+              <p>Contact</p>
+              <h4>How clients and staff reach you</h4>
+            </div>
+          </div>
+          <div className="account-settings-group">
+            <AccountSettingField
+              icon={Mail}
+              label="Contact email"
+              value={personalProfile.email}
+              onChange={(value) => updatePersonalProfile({ email: value })}
               placeholder="you@email.com"
+              type="email"
+              autoComplete="email"
             />
-          </label>
-          <label className="native-control-pill rounded-lg bg-neutral-50 border border-neutral-100 p-4 transition-colors">
-            <span className="text-[9px] font-bold uppercase tracking-[0.28em] text-neutral-300 mb-2 flex items-center gap-2"><Phone size={12} /> Mobile Number</span>
-            <input
-              type="tel"
-              value={personalProfile.mobile || ''}
-              onChange={(event) => updatePersonalProfile({ mobile: event.target.value })}
-              className="native-control-input w-full bg-transparent outline-none text-sm font-bold text-black"
+            <AccountSettingField
+              icon={Phone}
+              label="Mobile number"
+              value={personalProfile.mobile}
+              onChange={(value) => updatePersonalProfile({ mobile: value })}
               placeholder="+27 ..."
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
             />
-          </label>
-          <div className="rounded-lg bg-white border border-neutral-100 p-4">
-            <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-neutral-300 mb-2">Account ID</p>
-            <p className="text-sm font-bold text-black break-all">{user?.uid || (isGuestWorkspace ? 'LOCAL-GUEST' : 'BUILD-BOOKING-001')}</p>
+            <AccountSettingField
+              icon={BadgeCheck}
+              label="Preferred contact"
+              value={personalProfile.preferredContactMethod}
+              onChange={(value) => updatePersonalProfile({ preferredContactMethod: value })}
+              options={CONTACT_METHOD_OPTIONS}
+            />
           </div>
-          <div className="rounded-lg bg-white border border-neutral-100 p-4">
-            <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-neutral-300 mb-2">Workspace Role</p>
-            <p className="text-sm font-bold text-black capitalize">{workspaceRole}</p>
+        </section>
+
+        <section className="account-settings-card account-settings-card-wide">
+          <div className="account-settings-card-head">
+            <span><Globe2 size={16} /></span>
+            <div>
+              <p>Location</p>
+              <h4>Country, city, and timezone</h4>
+            </div>
           </div>
-        </div>
+          <div className="account-settings-group account-settings-location-grid">
+            <AccountSettingField
+              icon={Globe2}
+              label="Country / region"
+              value={personalProfile.country}
+              onChange={(value) => updatePersonalProfile({ country: value })}
+              placeholder="South Africa"
+              autoComplete="country-name"
+            />
+            <AccountSettingField
+              icon={MapPin}
+              label="City"
+              value={personalProfile.city}
+              onChange={(value) => updatePersonalProfile({ city: value })}
+              placeholder="Johannesburg"
+              autoComplete="address-level2"
+            />
+            <AccountSettingField
+              icon={Clock3}
+              label="Timezone"
+              value={personalProfile.timezone}
+              onChange={(value) => updatePersonalProfile({ timezone: value })}
+              placeholder={detectedTimeZone}
+            />
+          </div>
+        </section>
+
+        <aside className="account-settings-card account-settings-meta-card">
+          <div className="account-settings-card-head">
+            <span><ShieldCheck size={16} /></span>
+            <div>
+              <p>Workspace</p>
+              <h4>Access details</h4>
+            </div>
+          </div>
+          <div className="account-settings-meta-grid">
+            <AccountMetaTile label="Account ID" value={user?.uid || (isGuestWorkspace ? 'LOCAL-GUEST' : 'BUILD-BOOKING-001')} />
+            <AccountMetaTile label="Workspace Role" value={workspaceRole} />
+          </div>
+        </aside>
       </div>
     </div>
   </div>

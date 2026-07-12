@@ -29,12 +29,122 @@ import {
 } from '../utils/onboardingModel';
 
 const steps = [
-  { id: 'business', number: '01', title: 'Business Type', short: 'Pick your lane' },
-  { id: 'welcome', number: '02', title: 'Details', short: 'Name & contact' },
-  { id: 'services', number: '03', title: 'Services', short: 'Visible service' },
-  { id: 'availability', number: '04', title: 'Schedule', short: 'Bookable times' },
-  { id: 'preview', number: '05', title: 'Publish', short: 'Readiness check' }
+  { id: 'personal', number: '01', title: 'Personal Details', short: 'Your contact' },
+  { id: 'business', number: '02', title: 'Business Type', short: 'Pick your lane' },
+  { id: 'welcome', number: '03', title: 'Details', short: 'Name & contact' },
+  { id: 'services', number: '04', title: 'Services', short: 'Visible service' },
+  { id: 'availability', number: '05', title: 'Schedule', short: 'Bookable times' },
+  { id: 'preview', number: '06', title: 'Publish', short: 'Readiness check' }
 ];
+
+const normalizeEmail = (email = '') => String(email || '').trim().toLowerCase();
+
+const splitDisplayName = (displayName = '') => {
+  const parts = String(displayName || '').trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: parts[0] || '',
+    lastName: parts.slice(1).join(' ')
+  };
+};
+
+const stripeSupportedCountries = [
+  ['AU', 'Australia', '+61'],
+  ['AT', 'Austria', '+43'],
+  ['BE', 'Belgium', '+32'],
+  ['BR', 'Brazil', '+55'],
+  ['BG', 'Bulgaria', '+359'],
+  ['CA', 'Canada', '+1'],
+  ['CI', "Cote d'Ivoire", '+225'],
+  ['HR', 'Croatia', '+385'],
+  ['CY', 'Cyprus', '+357'],
+  ['CZ', 'Czech Republic', '+420'],
+  ['DK', 'Denmark', '+45'],
+  ['EE', 'Estonia', '+372'],
+  ['FI', 'Finland', '+358'],
+  ['FR', 'France', '+33'],
+  ['DE', 'Germany', '+49'],
+  ['GH', 'Ghana', '+233'],
+  ['GI', 'Gibraltar', '+350'],
+  ['GR', 'Greece', '+30'],
+  ['HK', 'Hong Kong', '+852'],
+  ['HU', 'Hungary', '+36'],
+  ['IN', 'India', '+91'],
+  ['ID', 'Indonesia', '+62'],
+  ['IE', 'Ireland', '+353'],
+  ['IT', 'Italy', '+39'],
+  ['JP', 'Japan', '+81'],
+  ['KE', 'Kenya', '+254'],
+  ['LV', 'Latvia', '+371'],
+  ['LI', 'Liechtenstein', '+423'],
+  ['LT', 'Lithuania', '+370'],
+  ['LU', 'Luxembourg', '+352'],
+  ['MY', 'Malaysia', '+60'],
+  ['MT', 'Malta', '+356'],
+  ['MX', 'Mexico', '+52'],
+  ['NL', 'Netherlands', '+31'],
+  ['NZ', 'New Zealand', '+64'],
+  ['NG', 'Nigeria', '+234'],
+  ['NO', 'Norway', '+47'],
+  ['PL', 'Poland', '+48'],
+  ['PT', 'Portugal', '+351'],
+  ['RO', 'Romania', '+40'],
+  ['SG', 'Singapore', '+65'],
+  ['SK', 'Slovakia', '+421'],
+  ['SI', 'Slovenia', '+386'],
+  ['ZA', 'South Africa', '+27'],
+  ['ES', 'Spain', '+34'],
+  ['SE', 'Sweden', '+46'],
+  ['CH', 'Switzerland', '+41'],
+  ['TH', 'Thailand', '+66'],
+  ['AE', 'United Arab Emirates', '+971'],
+  ['GB', 'United Kingdom', '+44'],
+  ['US', 'United States', '+1']
+].map(([code, name, dialCode]) => ({ code, name, dialCode }));
+
+const getCountryFlagUrl = (countryCode = 'ZA') => (
+  `https://flagcdn.com/w40/${String(countryCode || 'ZA').toLowerCase()}.png`
+);
+
+const FlagImage = ({ code, name }) => (
+  <img
+    src={getCountryFlagUrl(code)}
+    alt=""
+    aria-hidden="true"
+    loading="lazy"
+  />
+);
+
+const findCountryByCode = (countryCode = 'ZA') => (
+  stripeSupportedCountries.find(country => country.code === countryCode) || stripeSupportedCountries.find(country => country.code === 'ZA')
+);
+
+const findCountryByName = (countryName = '') => (
+  stripeSupportedCountries.find(country => country.name === countryName)
+);
+
+const parsePhoneParts = (rawPhone = '') => {
+  const phone = String(rawPhone || '').trim();
+  const matchedCountry = [...stripeSupportedCountries]
+    .sort((first, second) => second.dialCode.length - first.dialCode.length)
+    .find(country => phone.startsWith(country.dialCode));
+  if (!matchedCountry) {
+    const fallbackCountry = findCountryByCode('ZA');
+    return {
+      countryCode: fallbackCountry.code,
+      dialCode: fallbackCountry.dialCode,
+      number: phone
+    };
+  }
+  return {
+    countryCode: matchedCountry.code,
+    dialCode: matchedCountry.dialCode,
+    number: phone.slice(matchedCountry.dialCode.length).trim()
+  };
+};
+
+const combinePhoneParts = (dialCode = '', phoneNumber = '') => (
+  [dialCode, phoneNumber].filter(Boolean).join(' ').trim()
+);
 
 const industryIcons = {
   salon: '💇',
@@ -108,6 +218,7 @@ export function BusinessOnboardingPage({
   onEditBookingPage,
   onFinishLater,
   onOpenDashboard,
+  personalProfile,
   settings,
   user
 }) {
@@ -118,34 +229,53 @@ export function BusinessOnboardingPage({
   const [scheduleSlotEditor, setScheduleSlotEditor] = useState(null);
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [serviceSaved, setServiceSaved] = useState(false);
-  const [industryMenuOpen, setIndustryMenuOpen] = useState(false);
-  const [draft, setDraft] = useState(() => ({
-    industry: settings.serviceIndustry || 'salon',
-    brandName: settings.brandName && settings.brandName !== 'Your Business' ? settings.brandName : '',
-    tagline: settings.tagline || '',
-    businessDescription: settings.businessDescription || settings.welcomeMessage || '',
-    businessEmail: settings.businessEmail || user?.email || '',
-    venuePhotos: Array.isArray(settings.venuePhotos) ? settings.venuePhotos : [],
-    address: settings.address || '',
-    mapPlace: settings.mapPlace || null,
-    accent: settings.primaryColor || '#16A34A',
-    commerceTypes: settings.commerceTypes || ['bookable_service'],
-    availability: 'weekdays',
-    locationMode: 'my_location',
-    services: [],
-    rules: {
-      scheduleMode: 'time_slots',
-      bookingNotice: '24h',
-      cancellationWindow: '24h',
-      holdMode: 'pending_confirmed',
-      waitlist: true,
-      reschedulingAllowed: true
-    }
-  }));
+  const [industryMenuOpen, setIndustryMenuOpen] = useState(true);
+  const [countryMenuOpen, setCountryMenuOpen] = useState(false);
+  const [countryQuery, setCountryQuery] = useState('');
+  const [phoneCodeMenuOpen, setPhoneCodeMenuOpen] = useState(false);
+  const [phoneCodeQuery, setPhoneCodeQuery] = useState('');
+  const [draft, setDraft] = useState(() => {
+    const initialPhone = personalProfile?.mobile || personalProfile?.phone || user?.phoneNumber || '';
+    const phoneParts = parsePhoneParts(initialPhone);
+    const initialCountry = personalProfile?.country || findCountryByCode(phoneParts.countryCode)?.name || '';
+    return {
+      personalProfileKey: user?.uid || normalizeEmail(user?.email || '') || (isGuestWorkspace ? 'guest-workspace' : 'local-account'),
+      personalUid: user?.uid || personalProfile?.uid || '',
+      personalFirstName: personalProfile?.firstName || splitDisplayName(user?.displayName).firstName,
+      personalLastName: personalProfile?.lastName || splitDisplayName(user?.displayName).lastName,
+      personalEmail: personalProfile?.email || user?.email || '',
+      personalPhoneCountryCode: phoneParts.countryCode,
+      personalPhoneDialCode: phoneParts.dialCode,
+      personalPhoneNumber: phoneParts.number,
+      personalPhone: combinePhoneParts(phoneParts.dialCode, phoneParts.number),
+      personalCountry: initialCountry,
+      industry: settings.serviceIndustry || 'salon',
+      brandName: settings.brandName && settings.brandName !== 'Your Business' ? settings.brandName : '',
+      tagline: settings.tagline || '',
+      businessDescription: settings.businessDescription || settings.welcomeMessage || '',
+      businessEmail: settings.businessEmail || user?.email || '',
+      venuePhotos: Array.isArray(settings.venuePhotos) ? settings.venuePhotos : [],
+      address: settings.address || '',
+      mapPlace: settings.mapPlace || null,
+      accent: settings.primaryColor || '#16A34A',
+      commerceTypes: settings.commerceTypes || ['bookable_service'],
+      availability: 'weekdays',
+      locationMode: 'my_location',
+      services: Array.isArray(settings.services) ? settings.services : [],
+      rules: {
+        scheduleMode: 'time_slots',
+        bookingNotice: '24h',
+        cancellationWindow: '24h',
+        holdMode: 'pending_confirmed',
+        waitlist: true,
+        reschedulingAllowed: true
+      }
+    };
+  });
   const [businessTypeQuery, setBusinessTypeQuery] = useState('');
 
   const preset = createIndustryPreset(draft.industry);
-  const selectedServices = draft.services.length ? draft.services : preset.services;
+  const selectedServices = Array.isArray(draft.services) ? draft.services : [];
   const selectedAvailability = availabilityPresets[draft.availability] || availabilityPresets.weekdays;
   const defaultSlots = sortSlotValues(draft.defaultSlots?.length ? draft.defaultSlots : selectedAvailability.availableTimes);
   const allBusinessTypes = useMemo(() => (
@@ -162,18 +292,82 @@ export function BusinessOnboardingPage({
       || group.toLowerCase().includes(query)
     ));
   }, [allBusinessTypes, businessTypeQuery]);
+  const visibleCountries = useMemo(() => {
+    const query = countryQuery.trim().toLowerCase();
+    const selectedName = String(draft.personalCountry || '').trim().toLowerCase();
+    const rankedCountries = [...stripeSupportedCountries].sort((first, second) => {
+      if (first.name.toLowerCase() === selectedName) return -1;
+      if (second.name.toLowerCase() === selectedName) return 1;
+      return first.name.localeCompare(second.name);
+    });
+    if (!query) return rankedCountries;
+    return rankedCountries.filter(country => (
+      country.name.toLowerCase().includes(query)
+      || country.code.toLowerCase().includes(query)
+    ));
+  }, [countryQuery, draft.personalCountry]);
+  const visiblePhoneCountries = useMemo(() => {
+    const query = phoneCodeQuery.trim().toLowerCase();
+    const selectedCode = String(draft.personalPhoneCountryCode || '').trim().toUpperCase();
+    const rankedCountries = [...stripeSupportedCountries].sort((first, second) => {
+      if (first.code === selectedCode) return -1;
+      if (second.code === selectedCode) return 1;
+      return first.name.localeCompare(second.name);
+    });
+    if (!query) return rankedCountries;
+    return rankedCountries.filter(country => (
+      country.name.toLowerCase().includes(query)
+      || country.code.toLowerCase().includes(query)
+      || country.dialCode.includes(query)
+    ));
+  }, [draft.personalPhoneCountryCode, phoneCodeQuery]);
+  const selectedCountry = findCountryByName(draft.personalCountry) || findCountryByCode('ZA');
+  const selectedPhoneCountry = findCountryByCode(draft.personalPhoneCountryCode || selectedCountry.code);
   const stepId = steps[currentStep].id;
   const launchScore = complete ? 100 : Math.round(((currentStep + 1) / steps.length) * 100);
   const hasVisibleService = selectedServices.some(service => service?.name?.trim() && String(service.duration || '').trim());
+  const hasPersonalDetails = Boolean(
+    (draft.personalFirstName || '').trim()
+    && (draft.personalLastName || '').trim()
+    && (draft.personalEmail || '').trim()
+    && (draft.personalPhoneNumber || '').trim()
+    && (draft.personalCountry || '').trim()
+  );
   const canContinue = useMemo(() => {
+    if (stepId === 'personal') return hasPersonalDetails;
     if (stepId === 'welcome') return Boolean((draft.brandName || '').trim());
     if (stepId === 'services') return hasVisibleService;
     return true;
-  }, [draft.brandName, hasVisibleService, stepId]);
+  }, [draft.brandName, hasPersonalDetails, hasVisibleService, stepId]);
 
   const updateDraft = (patch) => setDraft(prev => ({ ...prev, ...patch }));
   const updateRules = (patch) => setDraft(prev => ({ ...prev, rules: { ...prev.rules, ...patch } }));
   const updateDefaultSlots = (slots) => updateDraft({ defaultSlots: sortSlotValues(slots) });
+  const selectPersonalCountry = (country) => {
+    updateDraft({
+      personalCountry: country.name,
+      personalPhoneCountryCode: country.code,
+      personalPhoneDialCode: country.dialCode,
+      personalPhone: combinePhoneParts(country.dialCode, draft.personalPhoneNumber)
+    });
+    setCountryQuery('');
+    setCountryMenuOpen(false);
+  };
+  const selectPhoneCountry = (country) => {
+    updateDraft({
+      personalPhoneCountryCode: country.code,
+      personalPhoneDialCode: country.dialCode,
+      personalPhone: combinePhoneParts(country.dialCode, draft.personalPhoneNumber)
+    });
+    setPhoneCodeQuery('');
+    setPhoneCodeMenuOpen(false);
+  };
+  const updatePersonalPhoneNumber = (phoneNumber) => {
+    updateDraft({
+      personalPhoneNumber: phoneNumber,
+      personalPhone: combinePhoneParts(draft.personalPhoneDialCode, phoneNumber)
+    });
+  };
   const toggleCommerceType = (typeId) => {
     const currentTypes = Array.isArray(draft.commerceTypes) ? draft.commerceTypes : [];
     const nextTypes = currentTypes.includes(typeId)
@@ -209,17 +403,28 @@ export function BusinessOnboardingPage({
     setActiveServiceIndex(0);
     setServiceSaved(false);
     setBusinessTypeQuery('');
-    setIndustryMenuOpen(false);
     updateDraft({
       industry: id,
       accent: option.accent,
-      tagline: option.tagline,
-      services: option.services
+      tagline: option.tagline
     });
   };
 
   const updateService = (index, patch) => {
-    const sourceServices = selectedServices.length ? selectedServices : preset.services;
+    const fallbackService = {
+      id: `launch-service-${Date.now()}`,
+      name: '',
+      category: preset.label,
+      description: '',
+      duration: '60',
+      durationMode: 'fixed',
+      currency: 'R',
+      price: '',
+      priceType: 'fixed',
+      active: true,
+      imageUrls: []
+    };
+    const sourceServices = selectedServices.length ? selectedServices : [fallbackService];
     const next = sourceServices.map((service, serviceIndex) => (
       serviceIndex === index ? { ...service, ...patch } : service
     ));
@@ -283,13 +488,18 @@ export function BusinessOnboardingPage({
   const handleLocationClear = () => updateDraft({ address: '', mapPlace: null });
 
   const editingServiceIndex = Math.min(activeServiceIndex, Math.max(selectedServices.length - 1, 0));
-  const primaryService = selectedServices[editingServiceIndex] || preset.services[0] || {
+  const primaryService = selectedServices[editingServiceIndex] || {
+    id: 'launch-service-draft',
     name: '',
-    category: '',
+    category: preset.label,
     description: '',
     duration: '60',
+    durationMode: 'fixed',
+    currency: 'R',
     price: '',
-    priceType: 'fixed'
+    priceType: 'fixed',
+    active: true,
+    imageUrls: []
   };
   const primaryServiceDuration = String(primaryService.duration || '60');
   const isNoFixedDuration = primaryService.durationMode === 'none';
@@ -371,6 +581,166 @@ export function BusinessOnboardingPage({
     if (!template) return;
     updateDefaultSlots(template.defaultTimes);
   };
+
+  const renderPersonalFields = () => (
+    <div className="onboarding-form-card onboarding-personal-form-card">
+      <label className="onboarding-question">
+        <span>First name</span>
+        <input
+          autoFocus
+          value={draft.personalFirstName}
+          onChange={(event) => updateDraft({ personalFirstName: event.target.value })}
+          placeholder="Tristan"
+          autoComplete="given-name"
+        />
+      </label>
+      <label className="onboarding-question">
+        <span>Surname</span>
+        <input
+          value={draft.personalLastName}
+          onChange={(event) => updateDraft({ personalLastName: event.target.value })}
+          placeholder="Damon"
+          autoComplete="family-name"
+        />
+      </label>
+      <label className="onboarding-question">
+        <span>Email</span>
+        <input
+          type="email"
+          value={draft.personalEmail}
+          onChange={(event) => updateDraft({ personalEmail: event.target.value })}
+          placeholder="you@example.com"
+          autoComplete="email"
+        />
+      </label>
+      <label className="onboarding-question onboarding-personal-country-field">
+        <span>Country</span>
+        <div className={`onboarding-country-combobox ${countryMenuOpen ? 'is-open' : ''}`}>
+          <button
+            type="button"
+            className="onboarding-country-trigger"
+            onClick={() => {
+              setCountryMenuOpen(open => !open);
+              setCountryQuery('');
+            }}
+            aria-expanded={countryMenuOpen}
+            aria-controls="onboarding-country-list"
+          >
+            <span className="onboarding-flag" aria-hidden="true">
+              <FlagImage code={selectedCountry.code} name={selectedCountry.name} />
+            </span>
+            <strong>{draft.personalCountry || 'Choose country'}</strong>
+            <em>{draft.personalCountry ? 'Selected' : 'Stripe-supported list'}</em>
+            <ChevronDown size={18} aria-hidden="true" />
+          </button>
+          {countryMenuOpen && (
+            <div className="onboarding-country-menu" id="onboarding-country-list">
+              <input
+                value={countryQuery}
+                onChange={(event) => setCountryQuery(event.target.value)}
+                placeholder="Search country..."
+                autoComplete="off"
+                autoFocus
+              />
+              <div className="onboarding-country-options" role="listbox" aria-label="Countries Stripe supports">
+                {visibleCountries.length ? (
+                  visibleCountries.map(country => {
+                    const selected = draft.personalCountry === country.name;
+                    return (
+                      <button
+                        key={country.code}
+                        type="button"
+                        className={selected ? 'is-active' : ''}
+                        onClick={() => selectPersonalCountry(country)}
+                        role="option"
+                        aria-selected={selected}
+                      >
+                        <span className="onboarding-flag" aria-hidden="true">
+                          <FlagImage code={country.code} name={country.name} />
+                        </span>
+                        <strong>{country.name}</strong>
+                        <small>{country.code}</small>
+                        {selected && <em>Selected</em>}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p>No country found in the supported list.</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </label>
+      <label className={`onboarding-question onboarding-phone-field ${phoneCodeMenuOpen ? 'is-phone-code-open' : ''}`}>
+        <span>Phone number</span>
+        <div className="onboarding-phone-number-control">
+          <div className={`onboarding-phone-code-combobox ${phoneCodeMenuOpen ? 'is-open' : ''}`}>
+            <button
+              type="button"
+              className="onboarding-phone-code-trigger"
+              onClick={() => {
+                setPhoneCodeMenuOpen(open => !open);
+                setPhoneCodeQuery('');
+              }}
+              aria-expanded={phoneCodeMenuOpen}
+              aria-controls="onboarding-phone-code-list"
+            >
+              <span className="onboarding-flag" aria-hidden="true">
+                <FlagImage code={selectedPhoneCountry.code} name={selectedPhoneCountry.name} />
+              </span>
+              <strong>{selectedPhoneCountry.dialCode}</strong>
+              <ChevronDown size={15} aria-hidden="true" />
+            </button>
+            {phoneCodeMenuOpen && (
+              <div className="onboarding-country-menu onboarding-phone-code-menu" id="onboarding-phone-code-list">
+                <input
+                  value={phoneCodeQuery}
+                  onChange={(event) => setPhoneCodeQuery(event.target.value)}
+                  placeholder="Search code or country..."
+                  autoComplete="off"
+                  autoFocus
+                />
+                <div className="onboarding-country-options onboarding-phone-code-options" role="listbox" aria-label="Phone country codes">
+                  {visiblePhoneCountries.length ? (
+                    visiblePhoneCountries.map(country => {
+                      const selected = draft.personalPhoneCountryCode === country.code;
+                      return (
+                        <button
+                          key={country.code}
+                          type="button"
+                          className={selected ? 'is-active' : ''}
+                          onClick={() => selectPhoneCountry(country)}
+                          role="option"
+                          aria-selected={selected}
+                        >
+                          <span className="onboarding-flag" aria-hidden="true">
+                            <FlagImage code={country.code} name={country.name} />
+                          </span>
+                          <strong>{country.name}</strong>
+                          <small>{country.dialCode}</small>
+                          {selected && <em>Selected</em>}
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <p>No phone code found.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <input
+            type="tel"
+            value={draft.personalPhoneNumber}
+            onChange={(event) => updatePersonalPhoneNumber(event.target.value)}
+            placeholder="72 000 0000"
+            autoComplete="tel-national"
+          />
+        </div>
+      </label>
+    </div>
+  );
 
   const renderIdentityFields = () => (
     <div className="onboarding-form-card">
@@ -458,6 +828,18 @@ export function BusinessOnboardingPage({
   );
 
   const renderStep = () => {
+    if (stepId === 'personal') {
+      return (
+        <div className="onboarding-start-fields onboarding-personal-step">
+          {renderSectionHeader({
+            title: 'Tell us who owns this workspace.',
+            description: 'These details keep your account, support, and team records clean before we set up the business.'
+          })}
+          {renderPersonalFields()}
+        </div>
+      );
+    }
+
     if (stepId === 'welcome') {
       return (
         <div className="onboarding-start-fields">
@@ -477,7 +859,7 @@ export function BusinessOnboardingPage({
             <div className="onboarding-type-panel-head onboarding-question">
               <div>
                 <h2>What do you sell?</h2>
-                <p>Choose what your business offers, then pick the closest industry so we can suggest the right setup.</p>
+                <p>Choose what your business offers, then pick the closest industry so we can shape the setup around your work.</p>
               </div>
             </div>
             <section className="onboarding-commerce-step onboarding-question" aria-label="What this business sells">
@@ -502,6 +884,11 @@ export function BusinessOnboardingPage({
               </div>
             </section>
             <section className="onboarding-industry-step onboarding-question" aria-label="Choose industry">
+              <div className="onboarding-industry-tile-head">
+                <span>Industry</span>
+                <strong>{preset.label}</strong>
+                <small>Pick the closest match. Services are created by you in the next step.</small>
+              </div>
               <button
                 type="button"
                 className={`onboarding-industry-select ${industryMenuOpen ? 'is-open' : ''}`}
@@ -513,7 +900,7 @@ export function BusinessOnboardingPage({
                 <span>
                   <small>Selected industry</small>
                   <strong>{preset.label}</strong>
-                  <em>{selectedServices.length} starter services suggested</em>
+                  <em>Services are created by you</em>
                 </span>
                 <ChevronDown size={18} aria-hidden="true" />
               </button>
@@ -522,7 +909,6 @@ export function BusinessOnboardingPage({
                   <label className="onboarding-industry-filter">
                     <span className="sr-only">Filter industries</span>
                     <input
-                      autoFocus
                       value={businessTypeQuery}
                       onChange={(event) => setBusinessTypeQuery(event.target.value)}
                       placeholder="Search salon, tutor, rental, studio..."
@@ -542,7 +928,6 @@ export function BusinessOnboardingPage({
                           <span className="onboarding-choice-icon" aria-hidden="true">{industryIcons[id] || '✨'}</span>
                           <span>
                             <strong>{option.label}</strong>
-                            <small>{group} - {option.goal}</small>
                           </span>
                           {draft.industry === id && <em>Selected</em>}
                         </button>
@@ -775,7 +1160,7 @@ export function BusinessOnboardingPage({
             onAddSlot={startAddingDefaultSlot}
               onApplyDefaults={() => {}}
               onChangeApplyScope={setApplyScope}
-            onClose={() => setCurrentStep(2)}
+            onClose={() => setCurrentStep(steps.findIndex(step => step.id === 'services'))}
               onDeleteSlot={(slot) => updateDefaultSlots(defaultSlots.filter(time => time !== slot))}
               onDeleteScheduleTemplate={() => {}}
               onEditSlot={startEditingDefaultSlot}
@@ -783,7 +1168,7 @@ export function BusinessOnboardingPage({
               onSaveScheduleTemplate={() => {}}
               onSelectDate={() => {}}
               onUpdateAvailabilityRules={(patch) => updateRules(patch)}
-              onSaveAvailabilitySettings={() => setCurrentStep(4)}
+              onSaveAvailabilitySettings={() => setCurrentStep(steps.findIndex(step => step.id === 'preview'))}
               onSaveDefaults={() => updateDefaultSlots(defaultSlots)}
               onToggleWaitlist={() => updateRules({ waitlist: !draft.rules.waitlist })}
               scheduleTemplates={scheduleTemplates}
@@ -806,6 +1191,17 @@ export function BusinessOnboardingPage({
     const imageCount = selectedServices.reduce((total, service) => total + (Array.isArray(service.imageUrls) ? service.imageUrls.length : 0), 0);
     const publishCards = [
       {
+        title: 'Personal details',
+        done: hasPersonalDetails,
+        detail: hasPersonalDetails ? 'Owner contact ready' : 'Add owner contact details',
+        items: [
+          ['Name', [draft.personalFirstName, draft.personalLastName].filter(Boolean).join(' ') || 'Not added'],
+          ['Email', draft.personalEmail || 'Not added'],
+          ['Phone', draft.personalPhoneNumber ? combinePhoneParts(draft.personalPhoneDialCode, draft.personalPhoneNumber) : 'Not added'],
+          ['Country', draft.personalCountry || 'Not added']
+        ]
+      },
+      {
         title: 'Business identity',
         done: Boolean(draft.brandName),
         detail: draft.brandName || 'Business name still needed',
@@ -819,7 +1215,7 @@ export function BusinessOnboardingPage({
       {
         title: 'Services',
         done: hasVisibleService,
-        detail: hasVisibleService ? `${serviceSummary.length} starter service${serviceSummary.length === 1 ? '' : 's'} ready` : 'Add one visible service with duration',
+        detail: hasVisibleService ? `${serviceSummary.length} service${serviceSummary.length === 1 ? '' : 's'} ready` : 'Add one visible service with duration',
         items: serviceSummary.length
           ? [
               ...serviceSummary.map(service => [

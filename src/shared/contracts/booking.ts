@@ -29,6 +29,7 @@ export interface BookingClientSnapshot {
   clientName: string;
   clientPhone?: string;
   clientEmail?: string;
+  clientCountry?: string;
   clientBirthday?: string;
   clientNote?: string;
   clientEmailOptIn?: boolean;

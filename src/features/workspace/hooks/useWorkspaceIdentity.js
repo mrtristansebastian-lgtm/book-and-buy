@@ -51,6 +51,11 @@ export function useWorkspaceIdentity({
     lastName: storedAccountProfile.lastName ?? fallbackAccountName.lastName,
     email: storedAccountProfile.email ?? user?.email ?? '',
     mobile: storedAccountProfile.mobile ?? storedAccountProfile.phone ?? '',
+    country: storedAccountProfile.country ?? '',
+    city: storedAccountProfile.city ?? '',
+    timezone: storedAccountProfile.timezone ?? '',
+    preferredContactMethod: storedAccountProfile.preferredContactMethod ?? '',
+    jobTitle: storedAccountProfile.jobTitle ?? '',
     photoURL: storedAccountProfile.photoURL ?? user?.photoURL ?? '',
     updatedAt: storedAccountProfile.updatedAt || 0
   }), [
@@ -63,6 +68,11 @@ export function useWorkspaceIdentity({
     storedAccountProfile.lastName,
     storedAccountProfile.mobile,
     storedAccountProfile.phone,
+    storedAccountProfile.country,
+    storedAccountProfile.city,
+    storedAccountProfile.timezone,
+    storedAccountProfile.preferredContactMethod,
+    storedAccountProfile.jobTitle,
     storedAccountProfile.photoURL,
     storedAccountProfile.updatedAt,
     user?.email,

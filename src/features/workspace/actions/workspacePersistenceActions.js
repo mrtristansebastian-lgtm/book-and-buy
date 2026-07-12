@@ -223,6 +223,11 @@ export function createWorkspacePersistenceActions({
           lastName: profileToSave.lastName || '',
           mobile: profileToSave.mobile || '',
           phone: profileToSave.mobile || '',
+          country: profileToSave.country || '',
+          city: profileToSave.city || '',
+          timezone: profileToSave.timezone || '',
+          preferredContactMethod: profileToSave.preferredContactMethod || '',
+          jobTitle: profileToSave.jobTitle || '',
           photoURL: profileToSave.photoURL || '',
           personalProfile: {
             ...profileToSave,
