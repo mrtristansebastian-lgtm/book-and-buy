@@ -24,6 +24,8 @@ export const BookingFaqSection = ({
 
     const isPreviewEmpty = isPreview && faqItems.length === 0;
     const faqItemsForDisplay = faqItems.length > 0 ? faqItems : (isPreviewEmpty ? previewFaqItems : []);
+    const serviceDescriptionColor = settings.serviceBodyColor || settings.serviceTextColor || settings.headingColor || '#050505';
+    const serviceDescriptionFont = getFontFamily(settings.bodyFontFamily || settings.fontFamily);
 
     return (
         <section
@@ -34,12 +36,16 @@ export const BookingFaqSection = ({
         >
             <div className={`booking-faq-heading mx-auto flex flex-col items-center text-center ${pageTextClass} mb-6 px-1`}>
                 <h4 className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
-                    Questions before booking
+                    {settings.faqHeading || 'Questions before booking'}
                 </h4>
+                <p className="booking-section-subtext" style={{ color: serviceDescriptionColor, fontFamily: serviceDescriptionFont }}>
+                    {settings.faqSubtext || 'Helpful answers before you confirm.'}
+                </p>
             </div>
             <div className={`space-y-3 ${isPreviewEmpty ? 'booking-faq-preview-empty' : ''}`}>
                 {faqItemsForDisplay.map((faq, index) => {
-                    const isOpen = isPreviewEmpty ? index === 0 : openFaq === index;
+                    const isAlwaysOpen = faqDisplayStyle === 'cards' || faqDisplayStyle === 'split';
+                    const isOpen = isAlwaysOpen || (isPreviewEmpty ? index === 0 : openFaq === index);
                     return (
                         <button
                             key={`${faq.q}-${index}`}
@@ -49,17 +55,18 @@ export const BookingFaqSection = ({
                             aria-expanded={isOpen}
                             onClick={(event) => {
                                 event.stopPropagation();
-                                if (isPreviewEmpty) return;
+                                if (isPreviewEmpty || isAlwaysOpen) return;
                                 setOpenFaq(openFaq === index ? null : index);
                             }}
                         >
                             <span className="booking-faq-row">
+                                {(faqDisplayStyle === 'numbered' || faqDisplayStyle === 'split') && <span className="booking-faq-visible-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
                                 <span className="booking-faq-question" style={{ color: settings.faqTextColor || settings.headingColor, fontFamily: getFontFamily(settings.faqFontFamily || settings.headingFontFamily || settings.fontFamily) }}>{faq.q}</span>
-                                <span className="booking-faq-icon" aria-hidden="true">
+                                {!isAlwaysOpen && <span className="booking-faq-icon" aria-hidden="true">
                                     {isOpen ? <ChevronUp size={16} style={{ color: settings.faqAnswerColor || settings.bodyColor }} /> : <ChevronDown size={16} style={{ color: settings.faqAnswerColor || settings.bodyColor }} />}
-                                </span>
+                                </span>}
                             </span>
-                            {isOpen && <span className="booking-faq-answer" style={{ color: settings.faqAnswerColor || settings.bodyColor, fontFamily: getFontFamily(settings.faqFontFamily || settings.bodyFontFamily || settings.fontFamily) }}>{faq.a}</span>}
+                            {isOpen && <span className="booking-faq-answer" style={{ color: serviceDescriptionColor, fontFamily: serviceDescriptionFont }}>{faq.a}</span>}
                         </button>
                     );
                 })}

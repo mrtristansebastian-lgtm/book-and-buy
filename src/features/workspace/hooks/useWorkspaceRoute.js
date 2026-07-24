@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getInitialWorkspaceRoute,
   getPublicBookingSlug,
+  getWorkspaceRouteHash,
   getWorkspaceRouteFromUrl,
   normalizeEditorTabId,
   normalizeWorkspaceRoute,
@@ -11,16 +12,6 @@ import {
 
 const dashboardFallbackRoute = { view: 'dashboard', activeTab: 'overview', editorTab: 'introduction' };
 const clientFallbackRoute = { view: 'client', activeTab: 'overview', editorTab: 'introduction' };
-
-const getHashForWorkspaceRoute = (route = {}) => (
-  route.view === 'dashboard'
-    ? `#/dashboard/${route.activeTab || 'overview'}`
-    : route.view === 'client'
-      ? '#/client'
-      : route.view === 'authAction'
-        ? '#/auth/action'
-        : ''
-);
 
 export function useWorkspaceRoute({ confirmLeavingUnsavedChanges, loading }) {
   const [initialWorkspaceRoute] = useState(getInitialWorkspaceRoute);
@@ -69,7 +60,7 @@ export function useWorkspaceRoute({ confirmLeavingUnsavedChanges, loading }) {
   const restoreCurrentWorkspaceHash = useCallback(() => {
     if (typeof window === 'undefined') return;
     const currentRoute = normalizeWorkspaceRoute({ view, activeTab, editorTab }, dashboardFallbackRoute);
-    const nextHash = getHashForWorkspaceRoute(currentRoute);
+    const nextHash = getWorkspaceRouteHash(currentRoute);
     window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}${nextHash}`);
   }, [activeTab, editorTab, view]);
 
@@ -117,13 +108,9 @@ export function useWorkspaceRoute({ confirmLeavingUnsavedChanges, loading }) {
     if (publicSlug || loading) return;
     const route = saveWorkspaceRoute({ view, activeTab, editorTab });
     if (typeof window === 'undefined' || window.location.search.includes('auth=google')) return;
-    const nextHash = route.view === 'dashboard'
-      ? `#/dashboard/${route.activeTab}`
-      : route.view === 'client'
-        ? '#/client'
-        : route.view === 'authAction'
-          ? (window.location.hash || '#/auth/action')
-          : '';
+    const nextHash = route.view === 'authAction'
+      ? (window.location.hash || '#/auth/action')
+      : getWorkspaceRouteHash(route);
     if (window.location.hash !== nextHash) {
       window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}${nextHash}`);
     }

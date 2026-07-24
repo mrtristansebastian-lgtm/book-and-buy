@@ -52,8 +52,26 @@ const BookingCheckoutStep = lazy(loadBookingCheckoutStep);
 const BookingPaymentStep = lazy(loadBookingPaymentStep);
 const BookingSuccessState = lazy(loadBookingSuccessState);
 
+const nativeTypographySettings = {
+    fontFamily: 'figtree',
+    headingFontFamily: 'plus-jakarta',
+    bodyFontFamily: 'figtree',
+    buttonFontFamily: 'inter',
+    slotFontFamily: 'plus-jakarta',
+    dateFontFamily: 'plus-jakarta',
+    brandNameFontFamily: 'plus-jakarta',
+    taglineFontFamily: 'figtree',
+    welcomeFontFamily: 'figtree',
+    headingLetterSpacing: 0,
+    subtextLetterSpacing: 0
+};
+
 // --- PUBLIC BOOKING ENGINE (WITH NEW EXTENSIONS & SPECIFIC FONTS) ---
-export const BookingFlow = memo(({ settings, onComplete, isPreview = false, previewStep = 'select', onInspect, onInstallApp, onSettingChange, onMediaUpload }) => {
+export const BookingFlow = memo(({ settings: incomingSettings, onComplete, isPreview = false, previewStep = 'select', onInspect, onInstallApp, onSettingChange, onMediaUpload }) => {
+            const settings = useMemo(() => ({
+                ...incomingSettings,
+                ...nativeTypographySettings
+            }), [incomingSettings]);
             const {
                 isInitialLoading,
                 setStep,
@@ -531,7 +549,7 @@ export const BookingFlow = memo(({ settings, onComplete, isPreview = false, prev
                     previewSocialLinks={previewSocialLinks}
                     settings={settings}
                     socialDisplayStyle={socialDisplayStyle}
-                    socialIconStyle={socialIconStyle}
+                    socialIconStyle="outline"
                     socialLinks={socialLinks}
                 />
             );
@@ -542,13 +560,13 @@ export const BookingFlow = memo(({ settings, onComplete, isPreview = false, prev
                         headingLetterSpacing={headingLetterSpacing}
                         inspectClass={inspectClass}
                         isPreview={isPreview}
-                        mapDisplayStyle={mapDisplayStyle}
+                        mapDisplayStyle="card"
                         onInspect={onInspect}
                         pageAlignment={pageAlignment}
                         previewInspectEnabled={previewInspectEnabled}
                         settings={settings}
                         subtextLetterSpacing={subtextLetterSpacing}
-                        venueGalleryStyle={venueGalleryStyle}
+                        venueGalleryStyle="mosaic"
                         venueMapEmbedSrc={venueMapEmbedSrc}
                         venueMapHref={venueMapHref}
                         venueMapLabel={venueMapLabel}

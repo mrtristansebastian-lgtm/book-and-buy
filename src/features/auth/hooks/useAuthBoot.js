@@ -22,6 +22,7 @@ import {
 import { getGoogleAccessTokenFromResult } from '../utils/authGoogle';
 
 const normalizeEmail = (email = '') => email.trim().toLowerCase();
+const AUTH_BOOT_TIMEOUT_MS = 6000;
 
 export function useAuthBoot({
   applyAuthPersistence,
@@ -138,6 +139,18 @@ export function useAuthBoot({
   }, [setAccountProfileOverride, user?.uid, user?.email, user?.photoURL]);
 
   useEffect(() => {
+    let unsubscribeAuth = null;
+    const authBootTimeout = window.setTimeout(() => {
+      setUser(auth?.currentUser || null);
+      setLoading(false);
+      setAuthBusy(false);
+    }, AUTH_BOOT_TIMEOUT_MS);
+
+    const finishInitialAuthLoad = () => {
+      window.clearTimeout(authBootTimeout);
+      setLoading(false);
+    };
+
     const initAuth = async () => {
       try {
         if (isFirebaseConfigured) {
@@ -202,7 +215,7 @@ export function useAuthBoot({
           }
           if (!publicSlug && initialAuthToken) await FirebaseSDK.signInWithCustomToken(auth, initialAuthToken);
         } else {
-          setLoading(false);
+          finishInitialAuthLoad();
         }
       } catch (err) {
         const message = err?.code === 'auth/configuration-not-found'
@@ -210,15 +223,15 @@ export function useAuthBoot({
           : 'Firebase sign-in could not start. Check your Firebase Auth setup and try again.';
         setAuthError(message);
         if (publicSlug) setPublicError(message);
-        setLoading(false);
+        finishInitialAuthLoad();
         setPublicLoading(false);
       }
     };
     initAuth();
     if (isFirebaseConfigured) {
-      return FirebaseSDK.onAuthStateChanged(auth, (signedInUser) => {
+      unsubscribeAuth = FirebaseSDK.onAuthStateChanged(auth, (signedInUser) => {
         setUser(signedInUser);
-        setLoading(false);
+        finishInitialAuthLoad();
         setAuthBusy(false);
         if (!signedInUser) {
           setWorkspaceAccess([]);
@@ -248,7 +261,10 @@ export function useAuthBoot({
         }
       });
     }
-    return undefined;
+    return () => {
+      window.clearTimeout(authBootTimeout);
+      unsubscribeAuth?.();
+    };
   }, [publicSlug]);
 
   useEffect(() => {

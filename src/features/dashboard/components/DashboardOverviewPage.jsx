@@ -1,111 +1,388 @@
 import { useMemo, useState } from 'react';
 import {
   ArrowRight,
-  Bell,
   Calendar,
-  Check,
+  CheckCircle2,
   ChevronRight,
-  Circle,
-  ClipboardCheck,
-  Clock,
-  CreditCard,
+  CircleAlert,
   ExternalLink,
-  Link,
-  MessageCircle,
   Plus,
   Rocket,
   Send,
-  Sparkles,
-  UserPlus,
-  Users
+  TrendingUp,
+  UserPlus
 } from 'lucide-react';
+import { getLocalDateStr } from '../../../utils/dates.js';
+import { dateToMs, formatMoney, getBookingAmountInCents } from '../../finance/utils/financeMetrics.js';
 
 const navigateTo = (tab, editorTab) => {
   if (typeof window === 'undefined') return;
-  window.location.hash = editorTab ? `#/dashboard/${tab}/${editorTab}` : `#/dashboard/${tab}`;
+  const publicTab = { business: 'schedule', communications: 'support', staff: 'team' }[tab] || tab;
+  window.location.hash = editorTab ? `#/dashboard/${publicTab}/${editorTab}` : `#/dashboard/${publicTab}`;
 };
 
 const periodOptions = ['Today', 'Week', 'Month'];
+const incompleteBusinessNames = new Set(['', 'your business', 'still needed', 'business name']);
+const inactiveBookingStatuses = new Set(['declined', 'cancelled', 'canceled']);
+const pendingRescheduleStatuses = new Set(['pending', 'requested', 'countered', 'offered']);
 
-const launchSteps = [
-  { label: 'Business name added', complete: true, action: 'Open profile', tab: 'profile' },
-  { label: 'First service added', complete: true, action: 'Manage services', tab: 'services' },
-  { label: 'Add your working hours', complete: false, action: 'Add working hours', tab: 'business' },
-  { label: 'Choose booking page style', complete: false, action: 'Choose page style', tab: 'editor', editorTab: 'style' },
-  { label: 'Test your booking flow', complete: false, action: 'Preview page', tab: 'editor' },
-  { label: 'Publish your page', complete: false, action: 'Publish page', tab: 'editor' }
-];
+const asArray = (value) => Array.isArray(value) ? value : [];
 
-const commandDeck = [
+const normalizeText = (value) => String(value || '').trim();
+
+const isRealBusinessName = (value) => !incompleteBusinessNames.has(normalizeText(value).toLowerCase());
+
+const formatNumber = (value) => new Intl.NumberFormat('en-ZA').format(Math.max(0, Number(value) || 0));
+
+const toMinutes = (time = '') => {
+  const match = String(time || '').match(/^(\d{1,2}):(\d{2})/);
+  return match ? (Number(match[1]) * 60) + Number(match[2]) : 9999;
+};
+
+const formatAgendaDate = (dateKey = '') => {
+  const parsed = new Date(`${dateKey}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toLocaleDateString('en-ZA', { month: 'short', day: 'numeric' });
+};
+
+const resolveBookingDateKey = (booking = {}, todayKey) => {
+  if (booking.dateKey) return String(booking.dateKey);
+  const rawDate = normalizeText(booking.date);
+  if (!rawDate) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) return rawDate;
+  if (/^today$/i.test(rawDate)) return todayKey;
+  const parsed = new Date(rawDate);
+  return Number.isNaN(parsed.getTime()) ? '' : getLocalDateStr(parsed);
+};
+
+const getPeriodRange = (period, today) => {
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const end = new Date(start);
+  if (period === 'Week') end.setDate(start.getDate() + 6);
+  else if (period === 'Month') end.setMonth(start.getMonth() + 1, 0);
+  return {
+    startKey: getLocalDateStr(start),
+    endKey: getLocalDateStr(end)
+  };
+};
+
+const isActiveBooking = (booking = {}) => {
+  const status = normalizeText(booking.status).toLowerCase();
+  return !inactiveBookingStatuses.has(status);
+};
+
+const getClientKey = (record = {}) => (
+  normalizeText(record.clientEmail || record.email).toLowerCase() ||
+  normalizeText(record.clientPhone || record.phone).toLowerCase() ||
+  normalizeText(record.clientName || record.name).toLowerCase()
+);
+
+const getServiceName = (booking = {}) => (
+  normalizeText(booking.serviceName) ||
+  normalizeText(booking.serviceTitle) ||
+  normalizeText(booking.service) ||
+  'Booking'
+);
+
+const getClientName = (booking = {}) => normalizeText(booking.clientName) || 'Client';
+
+const hasPendingReschedule = (booking = {}) => {
+  const candidates = [
+    booking.rescheduleStatus,
+    booking.reschedule?.status,
+    booking.latestReschedule?.status,
+    booking.changeRequestStatus
+  ].map(value => normalizeText(value).toLowerCase());
+  return candidates.some(value => pendingRescheduleStatuses.has(value));
+};
+
+const isCreatedToday = (record = {}, todayKey) => {
+  const createdMs = dateToMs(record.createdAtMs || record.createdAt || record.importedAt);
+  if (!createdMs) return false;
+  return getLocalDateStr(new Date(createdMs)) === todayKey;
+};
+
+const buildUniqueServiceList = (workspaceServices = [], settingsServices = []) => {
+  const services = new Map();
+  [...asArray(workspaceServices), ...asArray(settingsServices)].forEach((service, index) => {
+    if (!service || service.deleted || service.archived || service.visible === false) return;
+    services.set(service.id || service.name || `service-${index}`, service);
+  });
+  return Array.from(services.values());
+};
+
+const hasPersonalDetails = (personalProfile = {}) => Boolean(
+  normalizeText(personalProfile.firstName) &&
+  normalizeText(personalProfile.lastName) &&
+  normalizeText(personalProfile.email) &&
+  normalizeText(personalProfile.mobile || personalProfile.phone) &&
+  normalizeText(personalProfile.country)
+);
+
+const formatServiceDuration = (service = {}) => {
+  const value = normalizeText(service.duration || service.serviceDuration || service.minutes);
+  if (!value) return 'Duration missing';
+  if (/min|hour|hr/i.test(value)) return value;
+  return `${value} min`;
+};
+
+const formatServicePrice = (service = {}) => (
+  normalizeText(service.price || service.servicePrice || service.total || service.displayPrice) || 'Price not set'
+);
+
+const buildLaunchSteps = ({ settings = {}, personalProfile = {}, serviceList = [], bookings = [] }) => ([
   {
-    icon: ClipboardCheck,
-    title: 'Approve booking requests',
-    detail: '2 clients are waiting for a decision.',
-    action: 'Review requests',
-    tab: 'bookings',
-    tone: 'is-urgent'
+    label: 'Owner details ready',
+    complete: hasPersonalDetails(personalProfile),
+    action: 'Add personal details',
+    tab: 'profile'
   },
   {
-    icon: Calendar,
-    title: 'Add slots for next week',
-    detail: 'Your page has no availability after Sunday.',
-    action: 'Add slots',
+    label: 'Business identity added',
+    complete: isRealBusinessName(settings.brandName) && Boolean(normalizeText(settings.businessEmail || settings.email || settings.phone)),
+    action: 'Open profile',
+    tab: 'profile'
+  },
+  {
+    label: 'Service available to book',
+    complete: serviceList.length > 0,
+    action: 'Manage services',
+    tab: 'services'
+  },
+  {
+    label: 'Booking times configured',
+    complete: asArray(settings.availableTimes).length > 0 || Object.keys(settings.schedule || {}).length > 0,
+    action: 'Add working hours',
     tab: 'business'
   },
   {
-    icon: MessageCircle,
-    title: 'Reply to client message',
-    detail: 'Mia asked about moving tomorrow\'s booking.',
-    action: 'Open inbox',
-    tab: 'communications'
+    label: 'Booking page styled',
+    complete: Boolean(settings.logo || settings.bannerImage || asArray(settings.venuePhotos).length),
+    action: 'Choose page style',
+    tab: 'editor',
+    editorTab: 'style'
   },
   {
-    icon: CreditCard,
-    title: 'Review unpaid booking',
-    detail: 'One confirmed booking still needs payment.',
-    action: 'View finance',
-    tab: 'finance'
+    label: 'Flow tested or published',
+    complete: Boolean(settings.publishedAt || bookings.length),
+    action: 'Preview page',
+    tab: 'editor'
   }
-];
+]);
 
-const todayBookings = [
-  { time: '09:00', service: 'Haircut', client: 'Sarah M.', state: 'Confirmed' },
-  { time: '11:30', service: 'Consultation', client: 'John K.', state: 'Pending payment' },
-  { time: '14:00', service: 'Deep Clean', client: 'Mpho D.', state: 'Request' },
-  { time: '16:00', service: 'Beard Trim', client: 'Liam S.', state: 'Waitlist' }
-];
+const buildSetupAssistantCards = ({ settings = {}, personalProfile = {}, serviceList = [], launchSteps = [] }) => {
+  const firstServices = serviceList.slice(0, 3);
+  const bookableTimes = asArray(settings.availableTimes);
+  const cards = [
+    {
+      title: 'Personal details',
+      done: hasPersonalDetails(personalProfile),
+      detail: hasPersonalDetails(personalProfile) ? 'Owner contact ready' : 'Add owner contact details',
+      tab: 'profile',
+      items: [
+        ['Name', [personalProfile.firstName, personalProfile.lastName].filter(Boolean).join(' ') || 'Not added'],
+        ['Email', normalizeText(personalProfile.email) || 'Not added'],
+        ['Phone', normalizeText(personalProfile.mobile || personalProfile.phone) || 'Not added'],
+        ['Country', normalizeText(personalProfile.country) || 'Not added']
+      ]
+    },
+    {
+      title: 'Business identity',
+      done: isRealBusinessName(settings.brandName),
+      detail: isRealBusinessName(settings.brandName) ? settings.brandName : 'Business name still needed',
+      tab: 'profile',
+      items: [
+        ['Business type', normalizeText(settings.serviceIndustry) || 'Not selected'],
+        ['Business name', isRealBusinessName(settings.brandName) ? settings.brandName : 'Still needed'],
+        ['Email', normalizeText(settings.businessEmail || settings.email) || 'Not added'],
+        ['Phone', normalizeText(settings.businessPhone || settings.phone) || 'Not added']
+      ]
+    },
+    {
+      title: 'Services',
+      done: serviceList.length > 0,
+      detail: serviceList.length ? `${serviceList.length} visible service${serviceList.length === 1 ? '' : 's'} ready` : 'Add one visible service with duration',
+      tab: 'services',
+      items: firstServices.length
+        ? firstServices.map(service => [
+            normalizeText(service.name || service.title) || 'Service',
+            `${formatServiceDuration(service)} / ${formatServicePrice(service)}`
+          ])
+        : [['Service', 'No service ready yet']]
+    },
+    {
+      title: 'Hours',
+      done: bookableTimes.length > 0 || Object.keys(settings.schedule || {}).length > 0,
+      detail: `${bookableTimes.length} bookable time${bookableTimes.length === 1 ? '' : 's'} set`,
+      tab: 'business',
+      items: [
+        ['Bookable times', bookableTimes.slice(0, 6).join(', ') || 'No slots yet'],
+        ['Schedule scope', Object.keys(settings.schedule || {}).length ? 'Custom schedule days added' : 'Reusable default schedule']
+      ]
+    },
+    {
+      title: 'Booking behavior',
+      done: true,
+      detail: settings.availabilityRules?.holdMode === 'confirmed' ? 'Bookings reserve time immediately' : 'Requests can be reviewed first',
+      tab: 'business',
+      items: [
+        ['Request mode', settings.availabilityRules?.holdMode === 'confirmed' ? 'Confirm automatically' : 'Review requests first'],
+        ['Minimum notice', settings.availabilityRules?.bookingNotice || 'None'],
+        ['Cancellation window', settings.availabilityRules?.cancellationWindow || 'None'],
+        ['Waitlist', settings.features?.waitlist === false ? 'Off' : 'On']
+      ]
+    },
+    {
+      title: 'Recommended after publish',
+      done: false,
+      detail: 'Not required for launch',
+      tab: 'editor',
+      items: [
+        ['Next setup', 'Payments'],
+        ['Next setup', 'Notifications'],
+        ['Next setup', 'Google Calendar'],
+        ['Next setup', 'Team and migration']
+      ]
+    }
+  ];
+  return cards.map((card, index) => ({
+    ...card,
+    step: String(index + 1).padStart(2, '0'),
+    active: !card.done && launchSteps.find(step => !step.complete)?.label?.toLowerCase().includes(card.title.split(' ')[0].toLowerCase())
+  }));
+};
 
-const setupLockedCards = [
-  { title: 'Clients', copy: 'Your client list will start filling up once people book.', icon: Users },
-  { title: 'Finance', copy: 'Payments and revenue will appear after bookings are confirmed.', icon: CreditCard },
-  { title: 'Support Inbox', copy: 'Client questions and reschedules will land here.', icon: MessageCircle }
-];
+const buildDashboardModel = ({
+  bookings,
+  clients,
+  currency,
+  period,
+  today = new Date()
+}) => {
+  const todayKey = getLocalDateStr(today);
+  const { startKey, endKey } = getPeriodRange(period, today);
+  const normalizedBookings = asArray(bookings)
+    .map(booking => ({ ...booking, dateKeyResolved: resolveBookingDateKey(booking, todayKey) }))
+    .filter(isActiveBooking);
+  const periodBookings = normalizedBookings.filter(booking => (
+    booking.dateKeyResolved &&
+    booking.dateKeyResolved >= startKey &&
+    booking.dateKeyResolved <= endKey
+  )).sort((a, b) => (
+    String(a.dateKeyResolved || '9999-12-31').localeCompare(String(b.dateKeyResolved || '9999-12-31')) ||
+    toMinutes(a.time) - toMinutes(b.time)
+  ));
+  const todayBookings = normalizedBookings
+    .filter(booking => booking.dateKeyResolved === todayKey)
+    .sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
+  const pendingReschedules = normalizedBookings.filter(hasPendingReschedule);
+  const periodExpectedCents = periodBookings.reduce((sum, booking) => sum + getBookingAmountInCents(booking), 0);
+  const clientLookup = new Map(asArray(clients).map(client => [getClientKey(client), client]));
+  const returningTodayKeys = new Set();
 
-const statusItems = [
-  { label: 'Bookings', value: '3', detail: 'today' },
-  { label: 'Requests', value: '2', detail: 'pending' },
-  { label: 'Messages', value: '1', detail: 'unread' },
-  { label: 'Revenue', value: 'R850', detail: 'expected' }
-];
+  todayBookings.forEach(booking => {
+    const key = getClientKey(booking);
+    const profile = clientLookup.get(key);
+    const hadPreviousBooking = normalizedBookings.some(other => (
+      other !== booking &&
+      getClientKey(other) === key &&
+      other.dateKeyResolved &&
+      other.dateKeyResolved < todayKey
+    ));
+    const profileSaysReturning = Number(profile?.bookingCount || 0) > 1 ||
+      asArray(profile?.autoLabels).some(label => ['Returning', 'Regular'].includes(label)) ||
+      asArray(profile?.labels).some(label => ['Returning', 'Regular', 'VIP'].includes(label));
+    if (key && (hadPreviousBooking || profileSaysReturning)) returningTodayKeys.add(key);
+  });
 
-export const DashboardOverviewPage = ({ greeting, name }) => {
+  return {
+    todayKey,
+    todayBookings,
+    agendaBookings: period === 'Today' ? todayBookings : periodBookings,
+    periodBookings,
+    pendingReschedules: pendingReschedules.length,
+    periodExpectedCents,
+    clientStats: {
+      newClients: asArray(clients).filter(client => isCreatedToday(client, todayKey)).length,
+      returningToday: returningTodayKeys.size,
+      reschedulesPending: pendingReschedules.length,
+      total: asArray(clients).length
+    }
+  };
+};
+
+const EmptyState = ({ icon: Icon, title, copy, action, onClick }) => (
+  <div className="dashboard-live-empty-state">
+    <Icon size={18} />
+    <strong>{title}</strong>
+    <p>{copy}</p>
+    {action && (
+      <button type="button" onClick={onClick}>
+        {action} <ArrowRight size={13} />
+      </button>
+    )}
+  </div>
+);
+
+export const DashboardOverviewPage = ({
+  greeting,
+  name,
+  settings = {},
+  personalProfile = {},
+  visibleBookings = [],
+  clientDirectory = [],
+  clientMetrics = {},
+  workspaceServices = [],
+  isGuestWorkspace = false,
+  exampleMode = false,
+  onExampleModeChange
+}) => {
   const [period, setPeriod] = useState('Today');
-  const [mode, setMode] = useState('setup');
+  const [mode, setMode] = useState('live');
+  const currency = settings.currency || 'ZAR';
+  const serviceList = useMemo(
+    () => buildUniqueServiceList(workspaceServices, settings.services),
+    [workspaceServices, settings.services]
+  );
+  const launchSteps = useMemo(
+    () => buildLaunchSteps({ settings, personalProfile, serviceList, bookings: visibleBookings }),
+    [settings, personalProfile, serviceList, visibleBookings]
+  );
+  const setupAssistantCards = useMemo(
+    () => buildSetupAssistantCards({ settings, personalProfile, serviceList, launchSteps }),
+    [settings, personalProfile, serviceList, launchSteps]
+  );
   const launchPercent = useMemo(() => {
     const completed = launchSteps.filter(step => step.complete).length;
-    return Math.round((completed / launchSteps.length) * 100);
-  }, []);
+    return Math.round((completed / Math.max(launchSteps.length, 1)) * 100);
+  }, [launchSteps]);
+  const nextLaunchStep = launchSteps.find(step => !step.complete) || launchSteps[launchSteps.length - 1];
+  const dashboard = useMemo(
+    () => buildDashboardModel({
+      bookings: visibleBookings,
+      clients: clientDirectory,
+      currency,
+      period
+    }),
+    [clientDirectory, currency, period, visibleBookings]
+  );
 
   const isSetupMode = mode === 'setup';
+  const clientSignals = [
+    { label: 'New clients', value: dashboard.clientStats.newClients, tone: 'is-soft-green' },
+    { label: 'Returning today', value: dashboard.clientStats.returningToday, tone: 'is-soft-blue' },
+    { label: 'Reschedules pending', value: dashboard.clientStats.reschedulesPending, tone: 'is-soft-pink' },
+    { label: 'Total', value: clientMetrics.total ?? dashboard.clientStats.total, tone: 'is-soft-neutral' }
+  ];
 
   return (
     <div className="dashboard-overview-page flex-1 overflow-y-auto bg-white">
       <div className="dashboard-mission-shell">
-        <header className="dashboard-mission-header">
+        <header className={`dashboard-mission-header ${isSetupMode ? 'is-setup-mode' : 'is-live-mode'}`}>
           <div>
             <span className="dashboard-mission-eyebrow">Mission control</span>
             <h1>{greeting}, {name}</h1>
-            <p>{isSetupMode ? 'Finish the few pieces that make your booking system ready to share.' : 'Here is what needs attention today and where to handle it.'}</p>
+            <p>{isSetupMode ? 'Finish the essentials, then launch with a booking page that feels ready.' : 'A live view of real bookings, clients, payments, and decisions that need you.'}</p>
           </div>
 
           <div className="dashboard-mission-controls">
@@ -124,230 +401,172 @@ export const DashboardOverviewPage = ({ greeting, name }) => {
                 </button>
               ))}
             </div>
-            <div className="dashboard-period-tabs" aria-label="Dashboard period">
-              {periodOptions.map(option => (
-                <button
-                  key={option}
-                  type="button"
-                  className={`dashboard-period-tab ${period === option ? 'is-active' : ''}`}
-                  onClick={() => setPeriod(option)}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </div>
-        </header>
-
-        {isSetupMode ? (
-          <main className="dashboard-launch-layout">
-            <section className="dashboard-launch-card">
-              <div className="dashboard-card-head">
-                <span><Rocket size={17} /></span>
-                <div>
-                  <p>Launch path</p>
-                  <h2>Your booking system is {launchPercent}% ready</h2>
-                </div>
-              </div>
-              <div className="dashboard-launch-meter" aria-label={`Launch readiness ${launchPercent}%`}>
-                <span style={{ width: `${launchPercent}%` }} />
-              </div>
-              <div className="dashboard-launch-steps">
-                {launchSteps.map(step => (
+            {isGuestWorkspace && (
+              <button type="button" role="switch" aria-checked={exampleMode} className={`dashboard-example-toggle ${exampleMode ? 'is-active' : ''}`} onClick={onExampleModeChange}>
+                <span aria-hidden="true" /> Example studio
+              </button>
+            )}
+            {!isSetupMode && (
+              <div className="dashboard-period-tabs" aria-label="Dashboard period">
+                {periodOptions.map(option => (
                   <button
+                    key={option}
                     type="button"
-                    key={step.label}
-                    onClick={() => navigateTo(step.tab, step.editorTab)}
-                    className={step.complete ? 'is-complete' : ''}
+                    className={`dashboard-period-tab ${period === option ? 'is-active' : ''}`}
+                    onClick={() => setPeriod(option)}
                   >
-                    <span>{step.complete ? <Check size={13} /> : <Circle size={10} />}</span>
-                    <strong>{step.label}</strong>
-                    <small>{step.action}</small>
-                    <ChevronRight size={15} />
+                    {option}
                   </button>
                 ))}
               </div>
+            )}
+          </div>
+        </header>
+
+        {exampleMode && (
+          <div className="dashboard-example-readonly" role="status"><span>Read-only example</span> Kinetic House Cape Town. Explore every screen and filter without changing the sample data.</div>
+        )}
+
+        {isSetupMode ? (
+          <main className="dashboard-launcher-assistant">
+            <section className="dashboard-launcher-topbar">
+              <div>
+                <p><Rocket size={14} /> Setup assistant</p>
+                <h2>Launch essentials</h2>
+                <span>Same assistant logic as the launcher: finish the required setup, then polish payments, calendar, team, and automation after publish.</span>
+              </div>
+              <aside className="dashboard-launcher-score-card">
+                <small>Launch Score</small>
+                <strong>{launchPercent}%</strong>
+                <em>{nextLaunchStep.complete ? 'Ready to keep testing and sharing.' : `Next: ${nextLaunchStep.label.toLowerCase()}.`}</em>
+              </aside>
             </section>
 
-            <aside className="dashboard-setup-side">
-              <section className="dashboard-action-card is-celebration">
-                <Sparkles size={18} />
-                <h3>Next best step</h3>
-                <p>Add working hours so clients know when they can book.</p>
-                <button type="button" onClick={() => navigateTo('business')}>
-                  Add working hours <ArrowRight size={14} />
-                </button>
-              </section>
-              <section className="dashboard-action-card">
-                <ExternalLink size={18} />
-                <h3>Test the client flow</h3>
-                <p>Preview the page before sharing it with real clients.</p>
-                <button type="button" onClick={() => navigateTo('editor')}>
-                  Preview page <ArrowRight size={14} />
-                </button>
-              </section>
-            </aside>
-
-            <section className="dashboard-locked-grid">
-              {setupLockedCards.map(card => {
-                const Icon = card.icon;
-                return (
-                  <article key={card.title} className="dashboard-locked-card">
-                    <Icon size={18} />
-                    <strong>{card.title}</strong>
-                    <p>{card.copy}</p>
-                  </article>
-                );
-              })}
+            <section className="dashboard-launcher-progress" aria-label={`Launch score ${launchPercent}%`}>
+              <span style={{ width: `${launchPercent}%` }} />
             </section>
-          </main>
-        ) : (
-          <main className="dashboard-live-layout">
-            <section className="dashboard-status-grid">
-              {statusItems.map(item => (
-                <article key={item.label} className="dashboard-status-card">
-                  <span>{item.label}</span>
-                  <strong>{item.value}</strong>
-                  <small>{item.detail}</small>
-                </article>
+
+            <section className="dashboard-launcher-summary" aria-label="Setup assistant review">
+              {setupAssistantCards.map(card => (
+                <button
+                  type="button"
+                  key={card.title}
+                  className={`dashboard-launcher-card ${card.done ? 'is-ready' : 'is-next'}`}
+                  onClick={() => navigateTo(card.tab)}
+                >
+                  <span className={`dashboard-launcher-status ${card.done ? 'is-done' : 'is-warning'}`}>
+                    {card.done ? <CheckCircle2 size={18} strokeWidth={2.2} /> : <CircleAlert size={18} strokeWidth={2.2} />}
+                  </span>
+                  <div>
+                    <p>{card.title}</p>
+                    <strong>{card.detail}</strong>
+                    <dl>
+                      {card.items.map(([label, value], index) => (
+                        <div key={`${card.title}-${label}-${index}`}>
+                          <dt>{label}</dt>
+                          <dd>{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                  <ChevronRight size={16} />
+                </button>
               ))}
             </section>
 
-            <section className="dashboard-command-deck">
-              <div className="dashboard-section-title">
-                <span><Bell size={15} /></span>
-                <div>
-                  <p>Command deck</p>
-                  <h2>What needs attention now</h2>
+            <footer className="dashboard-launcher-footer">
+              <button type="button" onClick={() => navigateTo('editor')}>I&apos;ll do this later</button>
+              <button type="button" onClick={() => navigateTo(nextLaunchStep.tab, nextLaunchStep.editorTab)}>
+                {nextLaunchStep.action} <ArrowRight size={15} />
+              </button>
+            </footer>
+          </main>
+        ) : (
+          <main className="dashboard-live-pro">
+            <section className="dashboard-live-workspace is-agenda-only">
+              <article className="dashboard-live-agenda">
+                <div className="dashboard-live-section-head">
+                  <div>
+                    <p>{period}</p>
+                    <h2>Booking agenda</h2>
+                  </div>
+                  <button type="button" onClick={() => navigateTo('bookings')}>All bookings</button>
                 </div>
-              </div>
-              <div className="dashboard-command-list">
-                {commandDeck.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <article key={item.title} className={`dashboard-command-item ${item.tone || ''}`}>
-                      <span className="dashboard-command-rank">{index + 1}</span>
-                      <Icon size={17} />
-                      <div>
-                        <strong>{item.title}</strong>
-                        <small>{item.detail}</small>
-                      </div>
-                      <button type="button" onClick={() => navigateTo(item.tab)}>{item.action}</button>
-                    </article>
-                  );
-                })}
-              </div>
+                {dashboard.agendaBookings.length ? (
+                  <div className="dashboard-live-timeline">
+                    {dashboard.agendaBookings.slice(0, 6).map((booking, index) => (
+                      <button key={booking.id || `${booking.time}-${getClientName(booking)}-${index}`} type="button" onClick={() => navigateTo('bookings')} className={index === 0 ? 'is-next' : ''}>
+                        <time>{period === 'Today' ? (booking.time || 'Any time') : `${formatAgendaDate(booking.dateKeyResolved)} ${booking.time || ''}`}</time>
+                        <span className="dashboard-live-time-dot" />
+                        <div>
+                          <strong>{getServiceName(booking)}</strong>
+                          <small>{getClientName(booking)}</small>
+                        </div>
+                        <em>{normalizeText(booking.status) || 'Booking'}</em>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={Calendar}
+                    title={`No bookings ${period.toLowerCase()}`}
+                    copy="This stays quiet until clients create real bookings or you add one manually."
+                    action="Open bookings"
+                    onClick={() => navigateTo('bookings')}
+                  />
+                )}
+              </article>
             </section>
 
-            <section className="dashboard-live-grid">
-              <article className="dashboard-panel-card">
-                <div className="dashboard-section-title">
-                  <span><Clock size={15} /></span>
+            <section className="dashboard-live-bottom-grid">
+              <article className="dashboard-live-mini-panel">
+                <div className="dashboard-live-section-head">
                   <div>
-                    <p>Today</p>
-                    <h2>Bookings timeline</h2>
+                    <p>Clients</p>
+                    <h2>Client movement</h2>
                   </div>
+                  <UserPlus size={17} />
                 </div>
-                <div className="dashboard-timeline-list">
-                  {todayBookings.map(booking => (
-                    <button key={`${booking.time}-${booking.client}`} type="button" onClick={() => navigateTo('bookings')}>
-                      <time>{booking.time}</time>
-                      <strong>{booking.service}</strong>
-                      <span>{booking.client}</span>
-                      <small>{booking.state}</small>
+                <div className="dashboard-live-client-grid">
+                  {clientSignals.map(signal => (
+                    <button key={signal.label} type="button" onClick={() => navigateTo('clients')} className={signal.tone}>
+                      <strong>{formatNumber(signal.value)}</strong>
+                      <span>{signal.label}</span>
                     </button>
                   ))}
                 </div>
               </article>
 
-              <article className="dashboard-panel-card">
-                <div className="dashboard-section-title">
-                  <span><Calendar size={15} /></span>
+              <article className="dashboard-live-mini-panel">
+                <div className="dashboard-live-section-head">
                   <div>
-                    <p>Schedule health</p>
-                    <h2>Availability check</h2>
+                    <p>Revenue</p>
+                    <h2>Money {period.toLowerCase()}</h2>
                   </div>
+                  <TrendingUp size={17} />
                 </div>
-                <div className="dashboard-health-list">
-                  <p><strong>Today:</strong> Open, 4 available slots</p>
-                  <p><strong>Next week:</strong> No slots added yet</p>
-                  <p><strong>Calendar:</strong> Ready to sync</p>
-                </div>
-                <button type="button" className="dashboard-panel-action" onClick={() => navigateTo('business')}>
-                  Open schedule <ArrowRight size={14} />
-                </button>
-              </article>
-
-              <article className="dashboard-panel-card">
-                <div className="dashboard-section-title">
-                  <span><MessageCircle size={15} /></span>
+                <div className="dashboard-live-money">
                   <div>
-                    <p>Inbox preview</p>
-                    <h2>Client messages</h2>
+                    <span>Expected from real bookings</span>
+                    <strong>{formatMoney(dashboard.periodExpectedCents, currency)}</strong>
                   </div>
-                </div>
-                <div className="dashboard-preview-row">
-                  <strong>Mia R.</strong>
-                  <span>Can I move this to Friday?</span>
-                  <button type="button" onClick={() => navigateTo('communications')}>Reply</button>
-                </div>
-                <div className="dashboard-preview-row">
-                  <strong>Daniel K.</strong>
-                  <span>Do you offer home visits?</span>
-                  <button type="button" onClick={() => navigateTo('communications')}>Reply</button>
+                  <button type="button" onClick={() => navigateTo('finance')}>View finance <ArrowRight size={13} /></button>
                 </div>
               </article>
 
-              <article className="dashboard-panel-card">
-                <div className="dashboard-section-title">
-                  <span><CreditCard size={15} /></span>
+              <article className="dashboard-live-mini-panel dashboard-live-quick-panel">
+                <div className="dashboard-live-section-head">
                   <div>
-                    <p>Finance</p>
-                    <h2>Revenue snapshot</h2>
-                  </div>
-                </div>
-                <div className="dashboard-money-grid">
-                  <span>Today expected <strong>R850</strong></span>
-                  <span>Week confirmed <strong>R4,300</strong></span>
-                  <span>Unpaid <strong>R300</strong></span>
-                  <span>Deposits <strong>R600</strong></span>
-                </div>
-                <button type="button" className="dashboard-panel-action" onClick={() => navigateTo('finance')}>
-                  View finance <ArrowRight size={14} />
-                </button>
-              </article>
-
-              <article className="dashboard-panel-card">
-                <div className="dashboard-section-title">
-                  <span><UserPlus size={15} /></span>
-                  <div>
-                    <p>Client activity</p>
-                    <h2>CRM signals</h2>
-                  </div>
-                </div>
-                <div className="dashboard-health-list">
-                  <p>2 new clients this week</p>
-                  <p>1 returning client today</p>
-                  <p>3 clients have not booked again in 60 days</p>
-                </div>
-                <button type="button" className="dashboard-panel-action" onClick={() => navigateTo('clients')}>
-                  Open clients <ArrowRight size={14} />
-                </button>
-              </article>
-
-              <article className="dashboard-panel-card dashboard-share-card">
-                <div className="dashboard-section-title">
-                  <span><Link size={15} /></span>
-                  <div>
-                    <p>Quick actions</p>
+                    <p>Quick create</p>
                     <h2>Move faster</h2>
                   </div>
+                  <Plus size={17} />
                 </div>
-                <div className="dashboard-quick-grid">
-                  <button type="button" onClick={() => navigateTo('bookings')}><Plus size={14} /> Manual booking</button>
-                  <button type="button" onClick={() => navigateTo('business')}><Calendar size={14} /> Add slot</button>
-                  <button type="button" onClick={() => navigateTo('editor')}><ExternalLink size={14} /> Preview page</button>
-                  <button type="button" onClick={() => navigateTo('communications')}><Send size={14} /> Open inbox</button>
+                <div className="dashboard-live-quick-actions">
+                  <button type="button" onClick={() => navigateTo('bookings')}><Plus size={14} /> Booking</button>
+                  <button type="button" onClick={() => navigateTo('business')}><Calendar size={14} /> Slot</button>
+                  <button type="button" onClick={() => navigateTo('editor')}><ExternalLink size={14} /> Preview</button>
+                  <button type="button" onClick={() => navigateTo('communications')}><Send size={14} /> Inbox</button>
                 </div>
               </article>
             </section>

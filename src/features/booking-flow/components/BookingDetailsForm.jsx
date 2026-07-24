@@ -27,7 +27,7 @@ export const BookingDetailsForm = ({
             {layout !== 'checkout' && (
                 <h3 className="text-[9px] tracking-[0.4em] mb-2 font-bold uppercase opacity-40" style={{ color: settings.bodyColor }} contentEditable={previewInspectEnabled} suppressContentEditableWarning onBlur={(event) => isPreview && onSettingChange?.('detailsHeading', event.currentTarget.textContent.replace(/^\d+\s*\/\/\s*/i, '').trim())}>{detailsStepNumber} // {settings.detailsHeading || "Your Details"}</h3>
             )}
-            <h4 className={`${layout === 'checkout' ? 'sr-only' : 'text-xl md:text-2xl'} font-bold tracking-tight`} style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
+            <h4 className={`${layout === 'checkout' ? 'sr-only' : 'booking-section-heading text-xl md:text-2xl'} font-bold tracking-tight`} style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
                 {isWaitlistMode ? 'Join Standby' : (settings.detailsSubHeading || "Secure Your Slot")}
             </h4>
         </div>

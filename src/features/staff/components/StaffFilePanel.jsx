@@ -1,4 +1,4 @@
-import { Trash2, Users, X } from 'lucide-react';
+import { CalendarDays, KeyRound, Trash2, UserPlus, Users, X } from 'lucide-react';
 import { StaffAvatar } from './StaffAvatar';
 
 export const StaffFilePanel = ({
@@ -11,10 +11,18 @@ export const StaffFilePanel = ({
 }) => {
   if (!selectedStaffFile || !staffFile) {
     return (
-      <div className="team-empty-state saas-card p-8 md:p-10 text-center">
-        <div className="w-14 h-14 rounded-full bg-neutral-100 flex items-center justify-center mx-auto mb-4 text-neutral-400"><Users size={22} /></div>
-        <h3 className="text-xl font-bold tracking-tight text-black">Choose a teammate</h3>
-        <p className="text-sm text-neutral-500 mt-2">Open a staff file from the row above, or tap the plus icon to invite someone.</p>
+      <div className="team-empty-state saas-card">
+        <div className="launch-empty-state">
+          <div className="launch-empty-icon native-gradient-icon"><Users size={23} /></div>
+          <p className="launch-empty-eyebrow">Team setup</p>
+          <h3>Choose a teammate</h3>
+          <p className="launch-empty-copy">Open a staff file to review role, access, assigned bookings, and calendar ownership. Use add when you are ready to invite another person.</p>
+          <div className="launch-empty-steps" aria-label="Team file details">
+            <span><UserPlus size={14} /> Invite by email</span>
+            <span><CalendarDays size={14} /> Assign slots</span>
+            <span><KeyRound size={14} /> Control access</span>
+          </div>
+        </div>
       </div>
     );
   }

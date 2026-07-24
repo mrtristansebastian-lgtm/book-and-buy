@@ -63,6 +63,7 @@ export const ScheduleSettingsModal = ({
   onSaveDefaults,
   onToggleWaitlist,
   launchMode = false,
+  launcherSkin = false,
   scheduleTemplates = [],
   selectedDate,
   selectedCalendarName,
@@ -519,7 +520,7 @@ export const ScheduleSettingsModal = ({
   };
 
   return (
-    <div className="schedule-settings-backdrop">
+    <div className={`schedule-settings-backdrop ${launchMode || launcherSkin ? 'schedule-settings-launcher-skin' : ''}`}>
       <div className="schedule-settings-modal schedule-settings-wizard-modal" role="dialog" aria-modal="true" aria-label="Schedule settings">
         <div className="schedule-settings-wizard-header">
           <div>

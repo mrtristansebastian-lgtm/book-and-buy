@@ -1,4 +1,4 @@
-import { ChevronDown, Layers, Plus, Search } from 'lucide-react';
+import { CalendarCheck, ChevronDown, Layers, MessageCircle, Plus, Search, Sparkles } from 'lucide-react';
 import { bookingPaymentFilterOptions, bookingSortOptions } from '../../../config/appConfig';
 import { BookingRecordRow } from './BookingRecordRow';
 
@@ -141,10 +141,30 @@ export const BookingDesk = ({
 
     <div className="booking-record-list divide-y divide-neutral-100">
       {bookingRows.length === 0 ? (
-        <div className="p-12 md:p-20 text-center">
-          <div className="w-14 h-14 rounded-lg bg-neutral-100 flex items-center justify-center mx-auto mb-5 text-neutral-400"><Layers size={22} /></div>
-          <h3 className="text-xl font-bold tracking-tight text-black mb-2">{bookingDesk.searchActive ? 'No matching bookings' : 'No bookings here'}</h3>
-          <p className="text-sm text-neutral-500">{bookingDesk.searchActive ? 'Try a different client name, phone, email, or note.' : 'Try another category or wait for new booking requests.'}</p>
+        <div className="launch-empty-state booking-empty-state">
+          <div className="launch-empty-icon native-gradient-icon"><CalendarCheck size={23} /></div>
+          <p className="launch-empty-eyebrow">{bookingDesk.searchActive ? 'Search result' : 'Booking command center'}</p>
+          <h3>{bookingDesk.searchActive ? 'No matching bookings' : 'Ready for your first booking'}</h3>
+          <p className="launch-empty-copy">
+            {bookingDesk.searchActive
+              ? 'Try a different client name, phone, email, or note. Your filters stay ready while you search.'
+              : 'Client requests, confirmations, waitlist entries, payments, and booking history will all land here once the page is live.'}
+          </p>
+          {!bookingDesk.searchActive && (
+            <div className="launch-empty-steps" aria-label="Booking desk setup steps">
+              <span><Sparkles size={14} /> Share booking page</span>
+              <span><MessageCircle size={14} /> Review client request</span>
+              <span><Layers size={14} /> Confirm or move slot</span>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={onOpenManualBooking}
+            data-testid="booking-empty-manual-booking"
+            className="launch-empty-primary"
+          >
+            <Plus size={15} /> {bookingDesk.searchActive ? 'Add booking instead' : 'Create test booking'}
+          </button>
         </div>
       ) : bookingRows.map(booking => (
         <BookingRecordRow

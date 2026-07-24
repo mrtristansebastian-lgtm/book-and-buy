@@ -79,6 +79,7 @@ export const BusinessCalendar = ({
         availabilityRules={schedule.availabilityRules}
         defaultSlots={schedule.defaultSlots}
         isOpen={schedule.settingsModalOpen}
+        launcherSkin
         onAddSlot={schedule.actions.startAddingDefaultSlot}
         onApplyDefaults={schedule.actions.applyDefaultSlotsForScope}
         onChangeApplyScope={setApplyScope}

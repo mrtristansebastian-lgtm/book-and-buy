@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   createDefaultCommunications,
   createDefaultSettings,
-  createGuestDemoWorkspace
+  createGuestDemoWorkspace,
+  createFitnessStudioExample
 } from '../../../config/appConfig';
 import { isFirebaseConfigured } from '../../../services/firebase';
 import { normalizeHexColor } from '../../../utils/theme';
@@ -14,6 +15,7 @@ export const asArray = (value) => (Array.isArray(value) ? value : []);
 
 export function useWorkspaceData({
   isGuestWorkspace,
+  isExampleMode = false,
   loading,
   publishedSettingsSnapshotRef,
   settingsRef,
@@ -32,29 +34,33 @@ export function useWorkspaceData({
   };
 
   const initialGuestWorkspace = getInitialGuestWorkspace();
-  const [settings, setSettings] = useState(() => initialGuestWorkspace?.settings || createDefaultSettings());
-  const [bookings, setBookings] = useState(() => asArray(initialGuestWorkspace?.bookings));
-  const [financeImports, setFinanceImports] = useState(() => asArray(initialGuestWorkspace?.financeImports));
-  const [financePaymentAttempts, setFinancePaymentAttempts] = useState([]);
-  const [bookingsReady, setBookingsReady] = useState(() => Boolean(initialGuestWorkspace) || !isFirebaseConfigured);
-  const [staffList, setStaffList] = useState(() => {
+  const [settings, setSettingsState] = useState(() => initialGuestWorkspace?.settings || createDefaultSettings());
+  const [bookings, setBookingsState] = useState(() => asArray(initialGuestWorkspace?.bookings));
+  const [financeImports, setFinanceImportsState] = useState(() => asArray(initialGuestWorkspace?.financeImports));
+  const [financePaymentAttempts, setFinancePaymentAttemptsState] = useState([]);
+  const [bookingsReady, setBookingsReadyState] = useState(() => Boolean(initialGuestWorkspace) || !isFirebaseConfigured);
+  const [staffList, setStaffListState] = useState(() => {
     const initialStaff = asArray(initialGuestWorkspace?.staffList);
     return initialStaff.length ? initialStaff : DEFAULT_STAFF;
   });
-  const [clientRecords, setClientRecords] = useState(() => asArray(initialGuestWorkspace?.clientRecords));
-  const [accountProfileOverride, setAccountProfileOverride] = useState(() => (
+  const [clientRecords, setClientRecordsState] = useState(() => asArray(initialGuestWorkspace?.clientRecords));
+  const [accountProfileOverride, setAccountProfileOverrideState] = useState(() => (
     initialGuestWorkspace?.settings?.accountProfiles?.['guest-workspace'] || {}
   ));
-  const [communications, setCommunications] = useState(() => (
+  const [communications, setCommunicationsState] = useState(() => (
     initialGuestWorkspace?.communications || createDefaultCommunications()
   ));
+  const [exampleSupportThreads, setExampleSupportThreads] = useState([]);
+  const [exampleNotifications, setExampleNotifications] = useState([]);
+  const [exampleGatewayStates, setExampleGatewayStates] = useState({});
+  const [exampleManifest, setExampleManifest] = useState(null);
 
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings, settingsRef]);
 
   useEffect(() => {
-    setSettings(prev => {
+    setSettingsState(prev => {
       if (!prev.nativeAccent || normalizeHexColor(prev.primaryColor, '#000000') !== '#39FF14') return prev;
       return {
         ...prev,
@@ -79,15 +85,19 @@ export function useWorkspaceData({
     if (guestDemoSeededRef.current) return;
 
     const demoWorkspace = initialGuestWorkspaceRef.current || createGuestDemoWorkspace();
-    setSettings(demoWorkspace.settings);
-    setBookings(asArray(demoWorkspace.bookings));
-    setFinanceImports(asArray(demoWorkspace.financeImports));
-    setFinancePaymentAttempts([]);
-    setBookingsReady(true);
-    setStaffList(asArray(demoWorkspace.staffList).length ? asArray(demoWorkspace.staffList) : DEFAULT_STAFF);
-    setClientRecords(asArray(demoWorkspace.clientRecords));
-    setCommunications(demoWorkspace.communications);
-    setAccountProfileOverride(demoWorkspace.settings.accountProfiles?.['guest-workspace'] || {});
+    setSettingsState(demoWorkspace.settings);
+    setBookingsState(asArray(demoWorkspace.bookings));
+    setFinanceImportsState(asArray(demoWorkspace.financeImports));
+    setFinancePaymentAttemptsState([]);
+    setBookingsReadyState(true);
+    setStaffListState(asArray(demoWorkspace.staffList).length ? asArray(demoWorkspace.staffList) : DEFAULT_STAFF);
+    setClientRecordsState(asArray(demoWorkspace.clientRecords));
+    setCommunicationsState(demoWorkspace.communications);
+    setAccountProfileOverrideState(demoWorkspace.settings.accountProfiles?.['guest-workspace'] || {});
+    setExampleSupportThreads([]);
+    setExampleNotifications([]);
+    setExampleGatewayStates({});
+    setExampleManifest(null);
     guestDemoSeededRef.current = true;
   }, [isGuestWorkspace, loading]);
 
@@ -98,26 +108,79 @@ export function useWorkspaceData({
   const resetWorkspaceData = useCallback(() => {
     publishedSettingsSnapshotRef.current = null;
     guestDemoSeededRef.current = false;
-    setSettings(createDefaultSettings());
-    setCommunications(createDefaultCommunications());
-    setBookings([]);
-    setFinanceImports([]);
-    setFinancePaymentAttempts([]);
-    setBookingsReady(true);
-    setClientRecords([]);
-    setStaffList(DEFAULT_STAFF);
-    setAccountProfileOverride({});
+    setSettingsState(createDefaultSettings());
+    setCommunicationsState(createDefaultCommunications());
+    setBookingsState([]);
+    setFinanceImportsState([]);
+    setFinancePaymentAttemptsState([]);
+    setBookingsReadyState(true);
+    setClientRecordsState([]);
+    setStaffListState(DEFAULT_STAFF);
+    setAccountProfileOverrideState({});
+    setExampleSupportThreads([]);
+    setExampleNotifications([]);
+    setExampleGatewayStates({});
+    setExampleManifest(null);
   }, [publishedSettingsSnapshotRef]);
 
+  const loadFitnessStudioExample = useCallback((anchorDate) => {
+    const example = createFitnessStudioExample({ anchorDate });
+    setSettingsState(example.settings);
+    setBookingsState(example.bookings);
+    setFinanceImportsState(example.financeImports);
+    setFinancePaymentAttemptsState([]);
+    setBookingsReadyState(true);
+    setStaffListState(example.staffList);
+    setClientRecordsState(example.clientRecords);
+    setCommunicationsState(example.communications);
+    setAccountProfileOverrideState({ firstName: 'Amara', surname: 'Jacobs', email: 'amara@kinetichouse.example', country: 'South Africa' });
+    setExampleSupportThreads(example.supportThreads);
+    setExampleNotifications(example.notifications);
+    setExampleGatewayStates(example.gatewayStates);
+    setExampleManifest(example.manifest);
+    return example;
+  }, []);
+
+  const restoreBlankGuestWorkspace = useCallback(() => {
+    const demoWorkspace = createGuestDemoWorkspace();
+    setSettingsState(demoWorkspace.settings);
+    setBookingsState([]);
+    setFinanceImportsState([]);
+    setFinancePaymentAttemptsState([]);
+    setBookingsReadyState(true);
+    setStaffListState(demoWorkspace.staffList);
+    setClientRecordsState([]);
+    setCommunicationsState(demoWorkspace.communications);
+    setAccountProfileOverrideState({});
+    setExampleSupportThreads([]);
+    setExampleNotifications([]);
+    setExampleGatewayStates({});
+    setExampleManifest(null);
+  }, []);
+
   const setBookingsAndCache = useCallback((updater) => {
-    setBookings(prev => {
+    if (isExampleMode) return;
+    setBookingsState(prev => {
       const nextBookings = typeof updater === 'function' ? updater(prev) : updater;
       if (workspaceOwnerId && Array.isArray(nextBookings)) {
         writeBookingsCache(workspaceOwnerId, nextBookings);
       }
       return nextBookings;
     });
-  }, [workspaceOwnerId]);
+  }, [isExampleMode, workspaceOwnerId]);
+
+  const guardSetter = useCallback((setter) => (updater) => {
+    if (!isExampleMode) setter(updater);
+  }, [isExampleMode]);
+  const setSettings = useMemo(() => guardSetter(setSettingsState), [guardSetter]);
+  const setBookings = useMemo(() => guardSetter(setBookingsState), [guardSetter]);
+  const setFinanceImports = useMemo(() => guardSetter(setFinanceImportsState), [guardSetter]);
+  const setFinancePaymentAttempts = useMemo(() => guardSetter(setFinancePaymentAttemptsState), [guardSetter]);
+  const setBookingsReady = useMemo(() => guardSetter(setBookingsReadyState), [guardSetter]);
+  const setStaffList = useMemo(() => guardSetter(setStaffListState), [guardSetter]);
+  const setClientRecords = useMemo(() => guardSetter(setClientRecordsState), [guardSetter]);
+  const setAccountProfileOverride = useMemo(() => guardSetter(setAccountProfileOverrideState), [guardSetter]);
+  const setCommunications = useMemo(() => guardSetter(setCommunicationsState), [guardSetter]);
 
   const safeStaffList = useMemo(() => asArray(staffList), [staffList]);
   const safeClientRecords = useMemo(() => asArray(clientRecords), [clientRecords]);
@@ -130,8 +193,14 @@ export function useWorkspaceData({
     bookingsReady,
     clientRecords,
     communications,
+    exampleGatewayStates,
+    exampleManifest,
+    exampleNotifications,
+    exampleSupportThreads,
     financeImports,
     financePaymentAttempts,
+    loadFitnessStudioExample,
+    restoreBlankGuestWorkspace,
     resetGuestWorkspaceSeed,
     resetWorkspaceData,
     safeClientRecords,

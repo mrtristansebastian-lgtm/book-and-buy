@@ -10,6 +10,8 @@ export const SupportInboxPage = ({
   appId,
   bookings,
   clientDirectory,
+  exampleMode,
+  exampleThreads,
   db,
   focusTarget,
   isGuestWorkspace,
@@ -32,6 +34,8 @@ export const SupportInboxPage = ({
             user={user}
             workspaceOwnerId={workspaceOwnerId}
             isGuestWorkspace={isGuestWorkspace}
+            exampleMode={exampleMode}
+            exampleThreads={exampleThreads}
             bookings={bookings}
             clientDirectory={clientDirectory}
             staffList={staffList}

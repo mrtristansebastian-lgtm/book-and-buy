@@ -11,6 +11,8 @@ export const FinancePage = ({
   bookings,
   canManageWorkspace,
   financeImports,
+  exampleMode,
+  exampleGatewayStates,
   isGuestWorkspace,
   onMarkBookingPaid,
   showToast,
@@ -23,6 +25,8 @@ export const FinancePage = ({
           appId={appId}
           businessId={workspaceOwnerId}
           isGuestWorkspace={isGuestWorkspace}
+          exampleMode={exampleMode}
+          exampleGatewayStates={exampleGatewayStates}
           canManageWorkspace={canManageWorkspace}
           showToast={showToast}
           bookings={bookings}

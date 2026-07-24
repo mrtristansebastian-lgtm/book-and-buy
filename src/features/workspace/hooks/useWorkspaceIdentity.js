@@ -4,6 +4,7 @@ const normalizeEmail = (email = '') => email.trim().toLowerCase();
 
 export function useWorkspaceIdentity({
   accountProfileOverride,
+  isExampleMode = false,
   isGuestWorkspace,
   safeStaffList,
   settings,
@@ -20,7 +21,7 @@ export function useWorkspaceIdentity({
     ? (workspaceOwnerId === user.uid ? 'owner' : activeWorkspaceGrant?.role || 'staff')
     : (isGuestWorkspace ? 'guest' : 'demo');
   const isWorkspaceOwner = Boolean(user && workspaceOwnerId === user.uid);
-  const canManageWorkspace = isGuestWorkspace || workspaceRole === 'owner' || workspaceRole === 'admin';
+  const canManageWorkspace = !isExampleMode && (isGuestWorkspace || workspaceRole === 'owner' || workspaceRole === 'admin');
   const canManageTeam = canManageWorkspace;
   const workspaceChoices = useMemo(() => {
     if (!user) return [];

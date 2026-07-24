@@ -41,15 +41,12 @@ export const BookingVenueGallery = ({
                     className={`booking-venue-gallery booking-venue-${venueGalleryStyle} mt-8 ${inspectClass}`}
                     data-preview-section="venue-gallery"
                     onClick={inspectVenue}
-                    style={venueSurfaceStyle}
+                    style={{ color: venueTextColor }}
                 >
                     <div className={`booking-venue-gallery-header booking-venue-gallery-header-${pageAlignment}`}>
                         <div className="booking-venue-gallery-copy">
-                            <span className="booking-venue-gallery-kicker" style={{ color: venueBodyColor }}>
-                                <Images size={13} /> Venue gallery
-                            </span>
                             <h4
-                                className="booking-venue-gallery-title"
+                                className="booking-venue-gallery-title booking-section-heading"
                                 style={{
                                     color: venueTextColor,
                                     fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily),
@@ -113,7 +110,7 @@ export const BookingVenueGallery = ({
             )}
             {shouldShowMap && (
                 <section
-                    className={`booking-map-section mt-5 ${inspectClass}`}
+                    className={`booking-map-section booking-map-section-${mapDisplayStyle} mt-5 ${inspectClass}`}
                     data-preview-section="venue-map"
                     onClick={inspectVenue}
                 >

@@ -116,7 +116,7 @@ export function createBookingSubmissionActions({
     if (!isFirebaseConfigured || !user) {
       setBookingsAndCache(prev => [{ id: `manual-${bookingRecord.timestamp}`, ...bookingRecord }, ...prev]);
       setManualBookingOpen(false);
-      setBookingFilter('upcoming');
+      setBookingFilter('all');
       form.reset();
       setManualBookingServiceId(workspaceServices[0]?.id || 'custom');
       showToast('Manual booking added.');
@@ -131,7 +131,7 @@ export function createBookingSubmissionActions({
       });
       if (saved === false) return;
       setManualBookingOpen(false);
-      setBookingFilter('upcoming');
+      setBookingFilter('all');
       form.reset();
       setManualBookingServiceId(workspaceServices[0]?.id || 'custom');
       showToast('Manual booking added.');
@@ -155,7 +155,7 @@ export function createBookingSubmissionActions({
 
     if (!isFirebaseConfigured || !user) {
       setBookingsAndCache(prev => [{ id: `manual-chat-${bookingRecord.timestamp}`, ...bookingRecord }, ...prev]);
-      setBookingFilter('upcoming');
+      setBookingFilter('all');
       showToast('Booking added from chat.');
       return true;
     }
@@ -167,7 +167,7 @@ export function createBookingSubmissionActions({
         priority: 'normal'
       });
       if (saved === false) return false;
-      setBookingFilter('upcoming');
+      setBookingFilter('all');
       showToast('Booking added from chat.');
       return true;
     } catch (error) {

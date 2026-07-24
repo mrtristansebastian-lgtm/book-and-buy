@@ -76,6 +76,7 @@
 @import './editor/fullscreen-intro-form.css';
 @import './editor/fullscreen-device-mobile.css';
 @import './editor/fullscreen-portrait-runtime.css';
+@import './editor/room-assistant-redesign.css';
 @import './dashboard/overview-shell-cleanup.css';
 @import './features/support/support-identity.css';
 @import './features/profile/profile-actions-status.css';
@@ -101,3 +102,6 @@
 @import './dashboard/overview-tabs-filters.css';
 @import './dashboard/overview-period-tabs.css';
 @import './dashboard/overview-feed-pager.css';
+@import './booking/cart-summary-polish.css';
+@import './booking/venue-gallery-flush.css';
+@import './booking/typography-polish.css';

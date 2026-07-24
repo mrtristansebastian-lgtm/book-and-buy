@@ -1,0 +1,268 @@
+html body .native-ui {
+  --launch-ink: #101828;
+  --launch-muted: #667085;
+  --launch-soft: rgba(15, 23, 42, 0.065);
+  --launch-panel: rgba(255, 255, 255, 0.92);
+}
+
+html body .native-ui .launch-empty-state {
+  position: relative;
+  display: flex;
+  min-height: 18rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding: clamp(1.5rem, 4vw, 4rem);
+  text-align: center;
+  overflow: hidden;
+}
+
+html body .native-ui .launch-empty-state::before {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  pointer-events: none;
+  border-radius: 1.6rem;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(57, 255, 20, 0.12), transparent 26%),
+    radial-gradient(circle at 72% 12%, rgba(20, 167, 255, 0.11), transparent 28%),
+    radial-gradient(circle at 58% 84%, rgba(255, 79, 216, 0.095), transparent 30%);
+  opacity: 0.85;
+}
+
+html body .native-ui .launch-empty-state > * {
+  position: relative;
+  z-index: 1;
+}
+
+html body .native-ui .launch-empty-icon {
+  width: 3.9rem;
+  height: 3.9rem;
+  border-radius: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #050505;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 28px 60px -44px var(--native-accent-glow, rgba(57, 255, 20, 0.4));
+}
+
+html body .native-ui .launch-empty-eyebrow {
+  margin: 0;
+  color: #98a2b3 !important;
+  font-size: 0.62rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.14em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+}
+
+html body .native-ui .launch-empty-state h3 {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--launch-ink) !important;
+  font-size: clamp(1.45rem, 2.2vw, 2.2rem) !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.06 !important;
+}
+
+html body .native-ui .launch-empty-copy {
+  margin: 0;
+  max-width: 38rem;
+  color: var(--launch-muted) !important;
+  font-size: 0.95rem !important;
+  font-weight: 650 !important;
+  line-height: 1.45 !important;
+}
+
+html body .native-ui .launch-empty-steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+  max-width: 46rem;
+}
+
+html body .native-ui .launch-empty-steps span {
+  min-height: 2.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--launch-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--launch-ink);
+  font-size: 0.76rem;
+  font-weight: 760;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+html body .native-ui .launch-empty-primary {
+  min-height: 2.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+  padding: 0.85rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #050505;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 50%) 50%;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 24px 54px -38px var(--native-accent-glow, rgba(57, 255, 20, 0.45));
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+html body .native-ui .launch-empty-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 30px 68px -42px var(--native-accent-glow, rgba(57, 255, 20, 0.5));
+}
+
+html body .native-ui .support-empty-rail {
+  min-height: 18rem;
+  padding: 1.25rem;
+}
+
+html body .native-ui .support-empty-rail .launch-empty-state::before,
+html body .native-ui .support-empty-main::before {
+  inset: 0.25rem;
+}
+
+html body .native-ui .support-empty-main {
+  width: min(100%, 34rem);
+  min-height: 25rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 1.6rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+html body .native-ui .finance-empty-state,
+html body .native-ui .booking-empty-state,
+html body .native-ui .service-empty-state,
+html body .native-ui .client-empty-state {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 252, 252, 0.96));
+}
+
+html body .native-ui .team-empty-state {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+html body .native-ui .team-readiness-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+html body .native-ui .team-readiness-strip span {
+  min-height: 2.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid var(--launch-soft);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--launch-ink);
+  font-size: 0.78rem;
+  font-weight: 780;
+}
+
+html body .native-ui .profile-page-heading {
+  width: min(100%, 72rem);
+  margin-bottom: 1.15rem;
+}
+
+html body .native-ui .profile-page-heading p {
+  margin: 0 0 0.45rem;
+  color: #98a2b3 !important;
+  font-size: 0.66rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+html body .native-ui .profile-page-heading h1 {
+  margin: 0;
+  color: var(--launch-ink) !important;
+  font-size: clamp(2.15rem, 3vw, 3.45rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 0.98 !important;
+}
+
+html body .native-ui .profile-page-heading span {
+  display: block;
+  max-width: 48rem;
+  margin-top: 0.75rem;
+  color: var(--launch-muted);
+  font-size: 0.98rem;
+  font-weight: 680;
+  line-height: 1.42;
+}
+
+html body .native-ui .dashboard-action-card {
+  overflow: hidden;
+}
+
+html body .native-ui .dashboard-action-card.is-celebration {
+  background:
+    linear-gradient(135deg, rgba(223, 255, 128, 0.82), rgba(188, 255, 213, 0.74), rgba(183, 244, 255, 0.74), rgba(255, 209, 244, 0.64)) !important;
+  border-color: rgba(15, 23, 42, 0.06) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 28px 80px -52px rgba(57, 255, 20, 0.55) !important;
+}
+
+html body .native-ui .lazy-section-card {
+  border-color: transparent !important;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-accent-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4)) border-box;
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 50%) 50%;
+}
+
+@media (max-width: 767px) {
+  html body .native-ui .launch-empty-state {
+    min-height: 15rem;
+    padding: 1.35rem;
+  }
+
+  html body .native-ui .launch-empty-steps {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .launch-empty-primary {
+    width: 100%;
+  }
+
+  html body .native-ui .team-readiness-strip {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .profile-page-heading {
+    margin-bottom: 0.85rem;
+  }
+}

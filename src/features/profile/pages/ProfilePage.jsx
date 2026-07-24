@@ -63,6 +63,18 @@ export const ProfilePage = ({
   onOpenStyleRoom
 }) => (
   <div className="profile-page flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 lg:p-12 relative bg-white">
+    <header className="profile-page-heading">
+      <div>
+        <p>Workspace settings</p>
+        <h1>Profile settings</h1>
+        <span>
+          {activeProfileSectionMeta?.title
+            ? `${activeProfileSectionMeta.title} - ${activeProfileSectionMeta.note || 'Manage the details clients and your team rely on.'}`
+            : 'Manage account, business, notifications, billing, migration, and launch setup in one clean place.'}
+        </span>
+      </div>
+    </header>
+
     <ProfileActionStrip
       isGuestWorkspace={isGuestWorkspace}
       onOpenOwnerAuth={openOwnerAuth}

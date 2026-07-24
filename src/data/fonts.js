@@ -27,6 +27,7 @@
             { id: 'unbounded', name: 'Unbounded', category: 'Display Sans', family: '"Unbounded", sans-serif' },
             { id: 'fraunces', name: 'Fraunces', category: 'Serif', family: '"Fraunces", serif' },
             { id: 'playfair-display', name: 'Playfair Display', category: 'Serif', family: '"Playfair Display", serif' },
+            { id: 'prata', name: 'Prata', category: 'Serif', family: '"Prata", serif' },
             { id: 'bodoni-moda', name: 'Bodoni Moda', category: 'Serif', family: '"Bodoni Moda", serif' },
             { id: 'merriweather', name: 'Merriweather', category: 'Serif', family: '"Merriweather", serif' },
             { id: 'newsreader', name: 'Newsreader', category: 'Serif', family: '"Newsreader", serif' },

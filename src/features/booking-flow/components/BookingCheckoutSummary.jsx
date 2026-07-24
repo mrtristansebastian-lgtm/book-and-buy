@@ -47,10 +47,10 @@ export const BookingCheckoutSummary = ({
   const timeText = isWaitlistMode ? 'Join waitlist' : selectedTime;
 
   return (
-    <aside className={`booking-checkout-summary ${isCartSummary ? 'booking-cart-summary' : ''} rounded-2xl border p-4 md:p-5`} style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', borderColor: settings.pageBorderColor || '#0000001A', fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
+    <aside data-summary-layout={isCartSummary ? 'table' : undefined} className={`booking-checkout-summary ${isCartSummary ? 'booking-cart-summary' : ''} rounded-2xl border p-4 md:p-5`} style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', borderColor: settings.pageBorderColor || '#0000001A', fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
       <div className="booking-summary-head mb-4 flex items-start justify-between gap-4">
         <div className="booking-summary-title">
-          <p className="text-[9px] font-black uppercase tracking-[0.32em]" style={{ color: withColorAlpha(settings.bodyColor || '#666666', 50, '#666666'), fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>{isCartSummary ? 'Booking summary' : 'Checkout summary'}</p>
+          <h3 className="booking-summary-heading" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily) }}>{isCartSummary ? 'Booking summary' : 'Checkout summary'}</h3>
           {!isCartSummary && <h3 className="mt-1 text-2xl font-black tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily) }}>{selectedService?.name || settings.brandName || 'Booking'}</h3>}
         </div>
         {!isCartSummary && (

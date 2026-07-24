@@ -82,12 +82,14 @@ export const BookingDateSection = ({
     const dateHeading = !savedDateLabel || /^which day are you looking to book\s*\?$/i.test(savedDateLabel)
         ? 'Pick your booking date'
         : savedDateLabel;
-
     return (
         <section data-preview-section="calendar" style={{ order: sectionOrder ?? (showServiceStep ? 2 : 1) }}>
             <div className={`booking-date-section-head booking-date-focus-head mb-2 px-1 md:mb-3 ${inspectClass}`} onClick={() => previewInspectEnabled && onInspect('calendar')}>
                 <div className={`booking-date-copy mx-auto flex flex-col items-center text-center ${pageTextClass}`}>
                     <h3 className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }} contentEditable={previewInspectEnabled} suppressContentEditableWarning onBlur={(event) => isPreview && onSettingChange?.('dateLabel', event.currentTarget.textContent.trim())}>{dateHeading}</h3>
+                    <p className="booking-section-subtext" style={{ color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
+                        {settings.dateSubtext || 'Choose an available day for your booking.'}
+                    </p>
                     <div className="booking-date-title-row booking-date-focus-title flex flex-wrap items-center justify-center gap-2">
                         <h4 className="text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
                             <span>{activeDayName}, {activeDate.month} {activeDate.dayNum}</span> <span className="font-light italic opacity-40">{activeDate.year}</span>

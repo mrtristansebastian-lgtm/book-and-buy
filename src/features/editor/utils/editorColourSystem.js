@@ -123,12 +123,13 @@ export const buildEditorColourFineTuneGroups = ({ settings, applyColorPatch, pre
     id: 'services',
     title: 'Services',
     controls: [
-      { id: 'service-bg', label: 'Service surface', note: 'Service tiles and dropdown fill.', value: settings.serviceBgColor, fallback: '#ffffff', onApply: (color) => applyColorPatch({ serviceBgColor: color }) },
-      { id: 'service-line', label: 'Service line', note: 'Service tile and dropdown border.', value: settings.serviceBorderColor, fallback: '#000000', onApply: (color) => applyColorPatch({ serviceBorderColor: color }) },
-      { id: 'service-title', label: 'Service text', note: 'Service names and key labels.', value: settings.serviceTextColor || settings.bodyColor, fallback: '#050505', onApply: (color) => applyColorPatch({ serviceTextColor: color }) },
-      { id: 'service-copy', label: 'Service copy', note: 'Service descriptions and helper text.', value: settings.serviceBodyColor || settings.bodyColor, fallback: '#666666', onApply: (color) => applyColorPatch({ serviceBodyColor: color }) },
-      { id: 'service-active', label: 'Selected service', note: 'Chosen service surface.', value: settings.serviceActiveBgColor, fallback: settings.primaryColor || '#050505', onApply: (color) => applyColorPatch({ serviceActiveBgColor: color }) },
-      { id: 'service-active-line', label: 'Selected service line', note: 'Chosen service border colour.', value: settings.serviceActiveBorderColor, fallback: settings.primaryColor || '#050505', onApply: (color) => applyColorPatch({ serviceActiveBorderColor: color }) }
+      { id: 'service-bg', label: 'Service card colour', note: 'Background of every service card.', value: settings.serviceBgColor, fallback: '#ffffff', onApply: (color) => applyColorPatch({ serviceBgColor: color, serviceActiveBgColor: color }) },
+      { id: 'service-title', label: 'Service name colour', note: 'Service names and category labels.', value: settings.serviceTextColor || settings.headingColor, fallback: '#050505', onApply: (color) => applyColorPatch({ serviceTextColor: color }) },
+      { id: 'service-copy', label: 'Description text colour', note: 'Descriptions shown beneath service names.', value: settings.serviceBodyColor || settings.bodyColor, fallback: '#666666', onApply: (color) => applyColorPatch({ serviceBodyColor: color }) },
+      { id: 'service-meta', label: 'Price & duration colour', note: 'Price, duration, and their labels.', value: settings.serviceMetaColor || settings.serviceTextColor || settings.bodyColor, fallback: '#050505', onApply: (color) => applyColorPatch({ serviceMetaColor: color }) },
+      ...(!settings.nativeAccent ? [
+        { id: 'service-active-line', label: 'Selected service border colour', note: 'Border around the chosen service.', value: settings.serviceActiveBorderColor, fallback: settings.primaryColor || '#050505', onApply: (color) => applyColorPatch({ serviceActiveBorderColor: color }) }
+      ] : [])
     ]
   },
   {

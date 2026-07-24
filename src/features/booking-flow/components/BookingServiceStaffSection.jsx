@@ -30,7 +30,7 @@ export const BookingServiceStaffSection = ({
             <div className={`flex flex-col ${pageItems} ${pageTextClass} mb-6 px-1`}>
                 <h3 className="text-[9px] font-bold uppercase tracking-[0.4em] mb-2 opacity-40" style={{ color: settings.bodyColor }}>{staffStepNumber} // Available Staff</h3>
                 <h4
-                    className="text-xl md:text-2xl font-bold tracking-tight"
+                    className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight"
                     style={{
                         color: settings.headingColor,
                         fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily),

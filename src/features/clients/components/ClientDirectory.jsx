@@ -1,4 +1,4 @@
-import { Check, FileText, MessageCircle, Plus, Search, Users } from 'lucide-react';
+import { Check, FileText, MessageCircle, Plus, Search, Tag, Upload, Users } from 'lucide-react';
 
 export const ClientDirectory = ({
   activeClient,
@@ -67,10 +67,25 @@ export const ClientDirectory = ({
     </div>
     <div className="max-h-[58vh] md:max-h-[640px] overflow-y-auto divide-y divide-neutral-100">
       {displayClients.length === 0 ? (
-        <div className="p-12 text-center">
-          <div className="w-14 h-14 rounded-lg bg-neutral-100 flex items-center justify-center mx-auto mb-5 text-neutral-400"><Users size={22} /></div>
-          <h3 className="text-lg font-bold tracking-tight text-black mb-2">No clients found</h3>
-          <p className="text-sm text-neutral-500">Try another search or add someone manually.</p>
+        <div className="launch-empty-state client-empty-state">
+          <div className="launch-empty-icon native-gradient-icon"><Users size={23} /></div>
+          <p className="launch-empty-eyebrow">{clientSearch ? 'Search result' : 'Client book'}</p>
+          <h3>{clientSearch ? 'No clients match that search' : 'Your client list is ready'}</h3>
+          <p className="launch-empty-copy">
+            {clientSearch
+              ? 'Try another name, phone, country, email, or label.'
+              : 'Saved bookings will build client profiles automatically, including contact details, country, booking history, labels, notes, and support threads.'}
+          </p>
+          {!clientSearch && (
+            <div className="launch-empty-steps" aria-label="Client setup options">
+              <span><Plus size={14} /> Add manually</span>
+              <span><Upload size={14} /> Import later</span>
+              <span><Tag size={14} /> Label regulars</span>
+            </div>
+          )}
+          <button type="button" onClick={onAddClient} className="launch-empty-primary">
+            <Plus size={15} /> Add client
+          </button>
         </div>
       ) : displayClients.map(client => {
         const allLabels = Array.from(new Set([...(client.autoLabels || []), ...(client.labels || [])])).slice(0, 3);

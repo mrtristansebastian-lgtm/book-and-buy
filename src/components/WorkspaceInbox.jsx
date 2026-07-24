@@ -18,6 +18,8 @@ export function WorkspaceInbox({
   user,
   workspaceOwnerId,
   isGuestWorkspace = false,
+  exampleMode = false,
+  exampleThreads = [],
   bookings,
   clientDirectory = [],
   staffList = [],
@@ -47,7 +49,7 @@ export function WorkspaceInbox({
   const [quickBookingOpen, setQuickBookingOpen] = useState(false);
   const [quickBookingSaving, setQuickBookingSaving] = useState(false);
 
-  const threadSource = threads;
+  const threadSource = exampleMode ? exampleThreads : threads;
   const clientProfileByEmail = useMemo(() => {
     const profiles = new Map();
     clientDirectory.forEach(client => {
@@ -71,6 +73,10 @@ export function WorkspaceInbox({
   );
 
   useEffect(() => {
+    if (exampleMode) {
+      setThreadsReady(true);
+      return undefined;
+    }
     if (isGuestWorkspace) {
       setThreadsReady(true);
       return undefined;
@@ -116,12 +122,12 @@ export function WorkspaceInbox({
       setThreadsReady(true);
     });
     return () => unsub();
-  }, [appId, db, isGuestWorkspace, workspaceOwnerId]);
+  }, [appId, db, exampleMode, isGuestWorkspace, workspaceOwnerId]);
 
   useEffect(() => {
-    if (!isGuestWorkspace || !threadSource.length) return;
+    if ((!isGuestWorkspace && !exampleMode) || !threadSource.length) return;
     setActiveThreadId(current => (current && threadSource.some(thread => thread.id === current)) ? current : threadSource[0].id);
-  }, [isGuestWorkspace, threadSource]);
+  }, [exampleMode, isGuestWorkspace, threadSource]);
 
   const activeThread = useMemo(
     () => threadSource.find(thread => thread.id === activeThreadId) || threadSource[0] || null,
@@ -131,7 +137,7 @@ export function WorkspaceInbox({
     () => bookings.find(booking => booking.id === activeThread?.bookingId) || null,
     [activeThread?.bookingId, bookings]
   );
-  const visibleMessages = [...olderMessages, ...messages];
+  const visibleMessages = exampleMode ? (activeThread?.messages || []) : [...olderMessages, ...messages];
   const activeStaff = useMemo(() => {
     const emailKey = notificationEmailKey(user?.email || '');
     return staffList.find(staff => notificationEmailKey(staff.email || '') === emailKey || staff.uid === user?.uid) || staffList[0] || null;
@@ -668,10 +674,16 @@ export function WorkspaceInbox({
                 </button>
               );
             }) : (
-              <div className="p-8 text-center">
-                <div className="w-14 h-14 rounded-lg bg-white border border-neutral-100 flex items-center justify-center mx-auto mb-4 text-neutral-300"><Users size={22}/></div>
-                <h3 className="font-bold text-black mb-2">{threadsReady ? (threads.length ? 'No matching threads' : 'No client threads yet') : 'Loading client threads'}</h3>
-                <p className="text-sm text-neutral-500">{threadsReady ? (threads.length ? 'Try another name, email, or message keyword.' : 'New bookings with an email address will open a client support thread here automatically.') : 'Your live inbox is syncing.'}</p>
+              <div className="launch-empty-state support-empty-rail">
+                <div className="launch-empty-icon native-gradient-icon"><Users size={21}/></div>
+                <p className="launch-empty-eyebrow">{threadsReady ? 'Support threads' : 'Syncing inbox'}</p>
+                <h3>{threadsReady ? (threads.length ? 'No matching threads' : 'No client threads yet') : 'Loading client threads'}</h3>
+                <p className="launch-empty-copy">{threadsReady ? (threads.length ? 'Try another name, email, or message keyword.' : 'New bookings with an email address will open a client support thread here automatically.') : 'Your live inbox is syncing.'}</p>
+                {threadsReady && !threads.length && (
+                  <button type="button" className="launch-empty-primary" onClick={() => setActiveTab?.('bookings')}>
+                    <Plus size={14} /> Create test booking
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -843,11 +855,20 @@ export function WorkspaceInbox({
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center p-10 text-center">
-              <div>
-                <div className="w-16 h-16 rounded-lg bg-neutral-50 border border-neutral-100 flex items-center justify-center mx-auto mb-5 text-neutral-300"><MessageCircle size={24}/></div>
-                <h3 className="text-2xl font-bold tracking-tight text-black mb-3">Client chat is ready</h3>
-                <p className="text-sm text-neutral-500 max-w-sm">When a client books with an email address, their portal and your workspace thread connect here automatically.</p>
+            <div className="flex-1 flex items-center justify-center p-5 md:p-10 text-center">
+              <div className="launch-empty-state support-empty-main">
+                <div className="launch-empty-icon native-gradient-icon"><MessageCircle size={24}/></div>
+                <p className="launch-empty-eyebrow">Connected client chat</p>
+                <h3>Client chat is ready</h3>
+                <p className="launch-empty-copy">When a client books with an email address, their portal and your workspace thread connect here automatically with booking context, contact details, and reschedule actions.</p>
+                <div className="launch-empty-steps" aria-label="Support inbox workflow">
+                  <span><Calendar size={14} /> Booking arrives</span>
+                  <span><Bell size={14} /> Owner gets notified</span>
+                  <span><SendHorizontal size={14} /> Reply from here</span>
+                </div>
+                <button type="button" className="launch-empty-primary" onClick={() => setActiveTab?.('bookings')}>
+                  Open booking desk
+                </button>
               </div>
             </div>
           )}

@@ -26,8 +26,8 @@ html body .native-ui :where(
   h1
 ) {
   color: var(--native-heading-color) !important;
-  font-family: inherit !important;
-  font-size: var(--native-h1-size) !important;
+  font-family: inherit;
+  font-size: var(--native-h1-size);
   font-weight: var(--native-h1-weight) !important;
   letter-spacing: var(--native-heading-tracking) !important;
   line-height: var(--native-heading-line-height) !important;
@@ -46,7 +46,7 @@ html body .native-ui :where(
   .editor-cinema-header h2
 ) {
   color: var(--native-heading-color) !important;
-  font-family: inherit !important;
+  font-family: inherit;
   font-size: var(--native-h2-size) !important;
   font-weight: var(--native-h2-weight) !important;
   letter-spacing: var(--native-heading-tracking) !important;
@@ -66,7 +66,7 @@ html body .native-ui :where(
   .editor-cinema-hero-copy h3
 ) {
   color: var(--native-heading-color) !important;
-  font-family: inherit !important;
+  font-family: inherit;
   font-size: var(--native-h3-size) !important;
   font-weight: var(--native-h3-weight) !important;
   letter-spacing: var(--native-heading-tracking) !important;
@@ -78,7 +78,7 @@ html body .native-ui :where(
   h4
 ) {
   color: var(--native-heading-color) !important;
-  font-family: inherit !important;
+  font-family: inherit;
   font-size: var(--native-h4-size) !important;
   font-weight: var(--native-h4-weight) !important;
   letter-spacing: -0.01em !important;
@@ -90,7 +90,7 @@ html body .native-ui :where(
   p
 ) {
   color: var(--native-body-color) !important;
-  font-family: inherit !important;
+  font-family: inherit;
   font-weight: var(--native-body-weight) !important;
   line-height: var(--native-body-line-height) !important;
   text-transform: none !important;

@@ -45,7 +45,7 @@ export function BookingSelectionSections({
         previewInspectEnabled={previewInspectEnabled}
         selectedService={services.selectedService}
         selectedServiceCategory={services.selectedServiceCategory}
-        serviceBorderStyle={services.serviceBorderStyle}
+        serviceBorderStyle="solid"
         serviceCardsForDisplay={services.serviceCardsForDisplay}
         serviceCategories={services.serviceCategories}
         serviceDisplayStyle={services.serviceDisplayStyle}
@@ -75,9 +75,9 @@ export function BookingSelectionSections({
       <BookingDateSection
         activeDate={date.activeDate}
         availableDates={date.displayDates}
-        calendarDisplayStyle={date.calendarDisplayStyle}
+        calendarDisplayStyle="studio"
         dateStepNumber={date.dateStepNumber}
-        dateStyle={date.dateStyle}
+        dateStyle="solid"
         displayDates={date.visibleDisplayDates}
         headingLetterSpacing={headingLetterSpacing}
         inspectClass={inspectClass}
@@ -117,17 +117,17 @@ export function BookingSelectionSections({
         setSelectedTime={time.setSelectedTime}
         settings={settings}
         showServiceStep={showServiceStep}
-        timeDisplayStyle={time.timeDisplayStyle}
-        timeSlotStyle={time.timeSlotStyle}
+        timeDisplayStyle="pill"
+        timeSlotStyle="solid"
         timeStepNumber={time.timeStepNumber}
         unavailableReason={time.unavailableReason}
       />
 
       <BookingFaqSection
-        faqDisplayStyle={faq.faqDisplayStyle}
+        faqDisplayStyle="accordion"
         faqItems={faq.faqItems}
         faqStepNumber={faq.faqStepNumber}
-        faqStyle={faq.faqStyle}
+        faqStyle="minimal"
         headingLetterSpacing={headingLetterSpacing}
         inspectClass={inspectClass}
         isPreview={isPreview}

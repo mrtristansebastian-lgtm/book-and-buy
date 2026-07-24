@@ -2,6 +2,7 @@ import {
   defaultEditorTab,
   editorTabAliases,
   editorTabIds,
+  getWorkspaceTabPublicSegment,
   workspaceTabAliases,
   workspaceTabIds
 } from '../config/appConfig';
@@ -116,10 +117,24 @@ export const normalizeWorkspaceRoute = (route = {}, fallback = {}) => {
   };
 };
 
+export const getWorkspaceRouteHash = (route = {}) => {
+  const normalized = normalizeWorkspaceRoute(route, { view: 'dashboard', activeTab: 'overview', editorTab: defaultEditorTab });
+  if (normalized.view === 'dashboard') {
+    const tabSegment = getWorkspaceTabPublicSegment(normalized.activeTab || 'overview');
+    const editorSegment = normalized.activeTab === 'editor' && normalized.editorTab && normalized.editorTab !== defaultEditorTab
+      ? `/${normalized.editorTab}`
+      : '';
+    return `#/dashboard/${tabSegment}${editorSegment}`;
+  }
+  if (normalized.view === 'client') return '#/client';
+  if (normalized.view === 'authAction') return '#/auth/action';
+  return '';
+};
+
 export const getWorkspaceRouteFromUrl = () => {
   if (typeof window === 'undefined') return null;
   const url = new URL(window.location.href);
-  const dashboardHashMatch = url.hash.match(/^#\/dashboard(?:\/([a-z-]+))?/i);
+  const dashboardHashMatch = url.hash.match(/^#\/dashboard(?:\/([a-z-]+))?(?:\/([a-z-]+))?/i);
   const clientHashMatch = url.hash.match(/^#\/client(?:\/portal)?/i);
   const authActionHashMatch = url.hash.match(/^#\/auth\/action/i);
   const returnTarget = url.searchParams.get('return');
@@ -146,7 +161,7 @@ export const getWorkspaceRouteFromUrl = () => {
     return normalizeWorkspaceRoute({
       view: 'dashboard',
       activeTab: dashboardHashMatch[1],
-      editorTab: editorTabParam || url.searchParams.get('editor')
+      editorTab: dashboardHashMatch[2] || editorTabParam || url.searchParams.get('editor')
     }, { view: 'dashboard', activeTab: 'overview', editorTab: defaultEditorTab });
   }
 

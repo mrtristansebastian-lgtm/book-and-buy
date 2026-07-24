@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { useAuthSession } from '../../auth';
 import { useBookingPageRuntime } from '../../bookings';
@@ -17,7 +17,8 @@ import {
   createWorkspacePageLoaders
 } from '../../workspace';
 import { appId, db, isFirebaseConfigured } from '../../../services/firebase';
-import { safeLocalRemove } from '../../../utils/workspaceRoute';
+import { safeLocalRemove, safeLocalSet } from '../../../utils/workspaceRoute';
+import { exampleModeStorageKey, guestPublicPreviewStorageKey } from '../../../utils/publicBookingRoute';
 import { useAppRuntimeEffects } from './useAppRuntimeEffects';
 import { useClientErrorReporting } from './useClientErrorReporting';
 import { useDesignerFontLoader } from './useDesignerFontLoader';
@@ -33,6 +34,7 @@ export function useWorkspaceRuntimeState() {
   const dirtyState = useWorkspaceDirtyState();
   const route = useWorkspaceRoute({ confirmLeavingUnsavedChanges: dirtyState.confirmLeavingUnsavedChanges, loading });
   const [guestMode, setGuestMode] = useState(() => route.startsInGuestWorkspace);
+  const [exampleMode, setExampleMode] = useState(() => route.startsInGuestWorkspace && typeof window !== 'undefined' && window.localStorage?.getItem(exampleModeStorageKey) === 'true');
   const [clientGuestMode, setClientGuestMode] = useState(false);
   const dashboardUi = useDashboardUiState({ activeTab: route.activeTab });
   const editorRuntime = useEditorRuntime({
@@ -58,14 +60,21 @@ export function useWorkspaceRuntimeState() {
   const isGuestWorkspace = Boolean((guestMode || isDashboardGuestPreview) && !authSession.user && !route.publicSlug && !authSession.authRedirectPending);
   const workspaceData = useWorkspaceData({
     isGuestWorkspace,
+    isExampleMode: exampleMode,
     loading,
     publishedSettingsSnapshotRef,
     settingsRef,
     startsInGuestWorkspace: route.startsInGuestWorkspace,
     workspaceOwnerId
   });
+  const {
+    exampleManifest,
+    loadFitnessStudioExample,
+    restoreBlankGuestWorkspace
+  } = workspaceData;
   const workspaceIdentity = useWorkspaceIdentity({
     accountProfileOverride: workspaceData.accountProfileOverride,
+    isExampleMode: exampleMode,
     isGuestWorkspace,
     safeStaffList: workspaceData.safeStaffList,
     settings: workspaceData.settings,
@@ -80,6 +89,9 @@ export function useWorkspaceRuntimeState() {
   const notifications = useWorkspaceNotifications({
     clientDirectory: clientDirectory.clientDirectory,
     isGuestWorkspace,
+    exampleMode,
+    exampleNotifications: workspaceData.exampleNotifications,
+    exampleSupportThreads: workspaceData.exampleSupportThreads,
     navigateWorkspaceTab: route.navigateWorkspaceTab,
     publicSlug: route.publicSlug,
     setEditorTab: route.setEditorTab,
@@ -89,6 +101,42 @@ export function useWorkspaceRuntimeState() {
   });
   const detectedBrandSignal = useDetectedBrandSignal(workspaceData.settings.logo);
   const bookingPage = useBookingPageLauncher(workspaceData.settings);
+
+  const enableExampleMode = useCallback(() => {
+    if (!isGuestWorkspace || authSession.user) return;
+    const example = loadFitnessStudioExample(new Date());
+    const publicSettings = { ...example.settings };
+    delete publicSettings.accountProfiles;
+    delete publicSettings.googleCalendar;
+    const publicStaff = example.staffList.map(({ id, name, role, title, color, avatar, photoURL }) => ({
+      id, name, role, title, color, avatar, photoURL
+    }));
+    safeLocalSet(exampleModeStorageKey, 'true');
+    safeLocalSet(guestPublicPreviewStorageKey, JSON.stringify({ version: 1, slug: example.settings.slug, settings: publicSettings, staff: publicStaff }));
+    startTransition(() => setExampleMode(true));
+    showToast('Kinetic House example studio is on. Changes are read-only.');
+  }, [authSession.user, isGuestWorkspace, loadFitnessStudioExample, showToast]);
+
+  const disableExampleMode = useCallback(() => {
+    restoreBlankGuestWorkspace();
+    safeLocalRemove(exampleModeStorageKey);
+    safeLocalRemove(guestPublicPreviewStorageKey);
+    startTransition(() => setExampleMode(false));
+    showToast('Returned to your blank guest workspace.');
+  }, [restoreBlankGuestWorkspace, showToast]);
+
+  useEffect(() => {
+    if (!isGuestWorkspace || !exampleMode || loading || exampleManifest) return;
+    loadFitnessStudioExample(new Date());
+  }, [exampleManifest, exampleMode, isGuestWorkspace, loadFitnessStudioExample, loading]);
+
+  useEffect(() => {
+    if (!authSession.user) return;
+    if (!exampleMode) return;
+    safeLocalRemove(exampleModeStorageKey);
+    safeLocalRemove(guestPublicPreviewStorageKey);
+    startTransition(() => setExampleMode(false));
+  }, [authSession.user?.uid, exampleMode]);
 
   const resetWorkspaceRuntimeState = () => {
     workspaceData.resetWorkspaceData();
@@ -256,6 +304,12 @@ export function useWorkspaceRuntimeState() {
     },
     workspace: {
       ...workspaceIdentity,
+      exampleMode,
+      exampleGatewayStates: workspaceData.exampleGatewayStates,
+      exampleManifest: workspaceData.exampleManifest,
+      exampleSupportThreads: workspaceData.exampleSupportThreads,
+      enableExampleMode,
+      disableExampleMode,
       isGuestWorkspace,
       resetGuestWorkspaceSeed: workspaceData.resetGuestWorkspaceSeed,
       resetWorkspaceRuntimeState,

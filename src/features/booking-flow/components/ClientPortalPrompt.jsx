@@ -1,5 +1,5 @@
+import { ArrowUpRight, Download } from 'lucide-react';
 import { clientAuthPrefillStorageKey, safeSessionSet } from '../../../utils/clientPortalRoute';
-import { withColorAlpha } from '../../../utils/theme';
 
 export const ClientPortalPrompt = ({
   formData,
@@ -32,15 +32,16 @@ export const ClientPortalPrompt = ({
   };
 
   return (
-    <div className="booking-portal-prompt mb-8 w-full max-w-lg rounded-2xl border p-4" style={{ borderColor: withColorAlpha(settings.primaryColor || settings.headingColor || '#000000', 13, '#000000'), backgroundColor: withColorAlpha(settings.primaryColor || settings.headingColor || '#000000', 4, '#000000') }}>
+    <div className="booking-portal-prompt mb-8 w-full max-w-lg rounded-2xl p-4">
       <div className="booking-portal-head flex items-start gap-3">
         <span className="booking-portal-icon mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', color: settings.buttonTextColor || '#000000' }}>
           <img src={settings.logo || '/build-a-booking-official-mark.jpg'} alt="" aria-hidden="true" />
         </span>
         <div className="booking-portal-copy min-w-0">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.24em]" style={{ color: settings.headingColor }}>Track this booking</p>
-          <p className="mt-1 text-xs leading-relaxed opacity-60" style={{ color: settings.bodyColor }}>
-            Create or sign in with the same email used for this booking so the portal links it automatically.
+          <p className="booking-portal-eyebrow">Your booking companion</p>
+          <h3 className="booking-portal-title" style={{ color: settings.headingColor }}>Track this booking</h3>
+          <p className="booking-portal-description" style={{ color: settings.bodyColor }}>
+            Keep updates, messages, and booking details together. Use the same email and we will link it automatically.
           </p>
         </div>
       </div>
@@ -49,20 +50,20 @@ export const ClientPortalPrompt = ({
           <button
             type="button"
             onClick={openClientPortal}
-            className="h-10 rounded-full border text-[9px] font-bold uppercase tracking-widest transition-all hover:-translate-y-0.5"
-            style={{ borderColor: withColorAlpha(settings.headingColor || '#000000', 13, '#000000'), color: settings.headingColor, backgroundColor: settings.backgroundColor || '#ffffff' }}
+            className="booking-portal-action booking-portal-action-secondary"
           >
-            Client portal
+            <span>Client portal</span>
+            <ArrowUpRight size={15} aria-hidden="true" />
           </button>
         )}
         {showInstallButton && (
           <button
             type="button"
             onClick={() => { if (!isPreview) onInstallApp?.(); }}
-            className="h-10 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all hover:-translate-y-0.5"
-            style={{ backgroundColor: settings.primaryColor || settings.headingColor || '#000000', color: settings.buttonTextColor || '#000000' }}
+            className="booking-portal-action booking-portal-action-primary"
           >
-            Add app
+            <Download size={15} aria-hidden="true" />
+            <span>Add app</span>
           </button>
         )}
       </div>

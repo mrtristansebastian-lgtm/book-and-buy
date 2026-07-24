@@ -12,6 +12,17 @@ export const workspaceTabAliases = {
   payments: 'finance'
 };
 
+export const workspaceTabPublicSegments = {
+  business: 'schedule',
+  communications: 'support',
+  staff: 'team'
+};
+
+export const getWorkspaceTabPublicSegment = (tab = 'overview') => {
+  const canonicalTab = workspaceTabAliases[tab] || tab || 'overview';
+  return workspaceTabPublicSegments[canonicalTab] || canonicalTab;
+};
+
 export const editorTabIds = ['introduction', 'colours', 'typography', 'style', 'form'];
 
 export const editorTabAliases = {

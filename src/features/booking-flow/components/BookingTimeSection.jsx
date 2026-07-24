@@ -35,6 +35,11 @@ export const BookingTimeSection = ({
     const borderColor = withColorAlpha(settings.headingColor || '#000000', 8, '#000000');
     const accentColor = settings.primaryColor || settings.headingColor || '#050505';
     const firstComeMode = settings.availabilityRules?.scheduleMode === 'first_come';
+    const savedTimeLabel = String(settings.timeLabel || '').trim();
+    const hasCustomTimeLabel = savedTimeLabel && !/^lets see what time works\??$/i.test(savedTimeLabel) && !/^what time works\??$/i.test(savedTimeLabel);
+    const timeHeading = hasCustomTimeLabel
+        ? savedTimeLabel
+        : isWaitlistMode ? 'Join the waitlist' : firstComeMode ? 'When do you plan to arrive?' : 'What time works?';
     const selectedArrival = /^\d{2}:\d{2}$/.test(selectedTime || '') ? selectedTime : '';
     const [selectedArrivalHour = '09', selectedArrivalMinute = '00'] = selectedArrival.split(':');
     const arrivalAccentStyle = {
@@ -90,8 +95,11 @@ export const BookingTimeSection = ({
         <section data-preview-section="time" style={{ order: sectionOrder ?? (showServiceStep ? 3 : 2) }}>
             <div className={`flex flex-col ${pageItems} ${pageTextClass} mb-6 px-1 ${inspectClass}`} data-preview-section="time" onClick={() => previewInspectEnabled && onInspect('time')}>
                 <h4 className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
-                    {isWaitlistMode ? 'Join the waitlist' : firstComeMode ? 'When do you plan to arrive?' : 'What time works?'}
+                    {timeHeading}
                 </h4>
+                <p className="booking-section-subtext" style={{ color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
+                    {settings.timeSubtext || 'Choose the time that suits you best.'}
+                </p>
             </div>
 
             {isLoadingAvailability ? (
@@ -228,8 +236,10 @@ export const BookingTimeSection = ({
                                 className={`appearance-none outline-none focus:outline-none group relative transition-all duration-300 flex items-center justify-center w-full ${isPreviewTimePlaceholder ? 'is-preview-empty' : ''} ${timeSlotStyle !== 'minimal' ? 'py-2 md:py-2.5' : 'py-2'} ${timeSlotStyle !== 'minimal' && isActive ? 'z-10' : ''} ${nativeTimeClass}`}
                                 style={getTimeSlotStyle({ isActive, settings, timeSlotStyle })}
                             >
-                                <div className="flex items-center justify-center relative w-full">
+                                <div className="booking-time-slot-content flex items-center justify-center relative w-full">
+                                    {timeDisplayStyle === 'blocks' && <span className="booking-time-slot-status"><i /> Open</span>}
                                     <span className={`text-[13px] md:text-sm font-bold tracking-normal transition-all duration-300 ${isActive && timeSlotStyle === 'minimal' ? '-translate-y-1 scale-105' : ''}`} style={{ fontFeatureSettings: '"tnum" on, "lnum" on' }}>{time}</span>
+                                    {timeDisplayStyle === 'luxury' && <span className="booking-time-slot-arrow" aria-hidden="true">&#8594;</span>}
                                     {timeSlotStyle === 'minimal' && isActive && <div className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full shadow-lg ${nativeAccentFillClass}`} style={{ backgroundColor: settings.primaryColor }} />}
                                 </div>
                             </button>

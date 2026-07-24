@@ -32,7 +32,7 @@ export function DashboardMainRoutes({
   return (
     <div className={`dashboard-main relative z-10 flex-1 flex overflow-hidden md:pb-0 ${activeTab === 'editor' && mobileNavCollapsed ? 'mobile-nav-space-collapsed' : ''}`}>
       {activeTab === 'overview' && (
-        <DashboardOverviewPage greeting={overview.greeting} name={overview.name} />
+        <DashboardOverviewPage greeting={overview.greeting} name={overview.name} {...overview.props} />
       )}
 
       {activeTab === 'profile' && (

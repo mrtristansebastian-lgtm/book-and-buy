@@ -2,8 +2,10 @@ import {
   ArrowUpRight,
   ChevronDown,
   Download,
+  PlugZap,
   Search,
-  Settings
+  Settings,
+  WalletCards
 } from 'lucide-react';
 import { GatewayLogo, gatewayById, gatewayCards } from '../config/gatewayConfig';
 import { formatDateTime, formatMoney } from '../utils/financeMetrics';
@@ -157,7 +159,24 @@ export const FinanceDesk = ({
         </details>
       </div>
       <div className="finance-desk-list divide-y divide-neutral-100">
-        {rows.map((row) => {
+        {rows.length === 0 ? (
+          <div className="launch-empty-state finance-empty-state">
+            <div className="launch-empty-icon native-gradient-icon"><WalletCards size={23} /></div>
+            <p className="launch-empty-eyebrow">Finance desk</p>
+            <h3>No payment records yet</h3>
+            <p className="launch-empty-copy">
+              Paid bookings, invoices, manual EFTs, cash payments, refunds, and gateway references will appear here after clients start checking out.
+            </p>
+            <div className="launch-empty-steps" aria-label="Finance setup steps">
+              <span><PlugZap size={14} /> Connect gateway</span>
+              <span><ArrowUpRight size={14} /> Mark manual payments</span>
+              <span><Download size={14} /> Export when ready</span>
+            </div>
+            <button type="button" onClick={onOpenGatewayModal} className="launch-empty-primary">
+              <Settings size={15} /> Set up payments
+            </button>
+          </div>
+        ) : rows.map((row) => {
           const gateway = gatewayById[row.gatewayType] || gatewayCards[0];
           return (
             <div key={row.id} className="finance-desk-row p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-4">

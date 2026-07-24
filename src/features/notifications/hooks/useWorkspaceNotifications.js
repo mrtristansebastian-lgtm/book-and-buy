@@ -33,6 +33,9 @@ const parseBirthday = (birthday = '') => {
 
 export function useWorkspaceNotifications({
   clientDirectory,
+  exampleMode = false,
+  exampleNotifications = [],
+  exampleSupportThreads = [],
   isGuestWorkspace,
   navigateWorkspaceTab,
   publicSlug,
@@ -48,6 +51,7 @@ export function useWorkspaceNotifications({
   const ownerNotificationsReadyRef = useRef(false);
 
   const createOwnerNotification = useCallback(async (payload, options = {}) => {
+    if (exampleMode) return false;
     const ownerId = payload?.ownerId || workspaceOwnerId;
     if (!isFirebaseConfigured || !db || !ownerId) return false;
     const notification = {
@@ -70,9 +74,10 @@ export function useWorkspaceNotifications({
       console.error('Owner notification write failed', error);
       return false;
     }
-  }, [workspaceOwnerId]);
+  }, [exampleMode, workspaceOwnerId]);
 
   const createClientNotification = useCallback(async (email, payload, options = {}) => {
+    if (exampleMode) return false;
     const emailKey = notificationEmailKey(email || payload?.clientEmail);
     if (!isFirebaseConfigured || !db || !emailKey) return false;
     const notification = {
@@ -96,7 +101,7 @@ export function useWorkspaceNotifications({
       console.error('Client notification write failed', error);
       return false;
     }
-  }, [workspaceOwnerId]);
+  }, [exampleMode, workspaceOwnerId]);
 
   const requestOwnerBrowserNotifications = useCallback(async () => {
     const permission = await requestBrowserNotificationPermission();
@@ -115,15 +120,17 @@ export function useWorkspaceNotifications({
   }, [showToast]);
 
   const markOwnerNotificationRead = useCallback(async (notificationId) => {
+    if (exampleMode) return;
     if (!notificationId || !isFirebaseConfigured || !db || !workspaceOwnerId) return;
     setOwnerNotifications(prev => prev.map(item => item.id === notificationId ? { ...item, read: true } : item));
     await FirebaseSDK.updateDoc(
       FirebaseSDK.doc(db, 'artifacts', appId, 'users', workspaceOwnerId, 'notifications', notificationId),
       { read: true, readAt: FirebaseSDK.serverTimestamp() }
     ).catch(error => console.error('Notification read update failed', error));
-  }, [workspaceOwnerId]);
+  }, [exampleMode, workspaceOwnerId]);
 
   const markAllOwnerNotificationsRead = useCallback(async () => {
+    if (exampleMode) return;
     const unread = ownerNotifications.filter(item => !item.read);
     if (!unread.length || !isFirebaseConfigured || !db || !workspaceOwnerId) return;
     setOwnerNotifications(prev => prev.map(item => ({ ...item, read: true })));
@@ -131,7 +138,7 @@ export function useWorkspaceNotifications({
       FirebaseSDK.doc(db, 'artifacts', appId, 'users', workspaceOwnerId, 'notifications', notification.id),
       { read: true, readAt: FirebaseSDK.serverTimestamp() }
     ).catch(error => console.error('Notification read update failed', error))));
-  }, [ownerNotifications, workspaceOwnerId]);
+  }, [exampleMode, ownerNotifications, workspaceOwnerId]);
 
   const openOwnerNotification = useCallback((notification) => {
     if (notification?.tab) navigateWorkspaceTab(notification.tab, notification.editorTab);
@@ -157,6 +164,11 @@ export function useWorkspaceNotifications({
   }, []);
 
   useEffect(() => {
+    if (exampleMode) {
+      setOwnerNotifications(exampleNotifications);
+      setWorkspaceClientThreads(exampleSupportThreads);
+      return undefined;
+    }
     if (!isFirebaseConfigured || !db || !user || !workspaceOwnerId || publicSlug) {
       setOwnerNotifications([]);
       ownerNotificationSeenRef.current = new Set();
@@ -192,9 +204,10 @@ export function useWorkspaceNotifications({
       ownerNotificationsReadyRef.current = true;
     }, (error) => console.error('Owner notifications sync failed', error));
     return () => unsubscribe();
-  }, [user?.uid, workspaceOwnerId, publicSlug]);
+  }, [exampleMode, exampleNotifications, exampleSupportThreads, user?.uid, workspaceOwnerId, publicSlug]);
 
   useEffect(() => {
+    if (exampleMode) return undefined;
     if (!isFirebaseConfigured || !db || !user || !workspaceOwnerId || publicSlug || isGuestWorkspace) {
       setWorkspaceClientThreads([]);
       return undefined;
@@ -233,7 +246,7 @@ export function useWorkspaceNotifications({
       setWorkspaceClientThreads(nextThreads);
     }, (error) => console.error('Workspace client threads sync failed', error));
     return () => unsubscribe();
-  }, [user?.uid, workspaceOwnerId, publicSlug, isGuestWorkspace]);
+  }, [exampleMode, user?.uid, workspaceOwnerId, publicSlug, isGuestWorkspace]);
 
   useEffect(() => {
     if (!isFirebaseConfigured || !db || !user || !workspaceOwnerId || !clientDirectory.length) return;

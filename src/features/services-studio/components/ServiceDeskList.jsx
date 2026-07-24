@@ -1,4 +1,4 @@
-import { Briefcase, Edit3, Plus } from 'lucide-react';
+import { Briefcase, CheckCircle2, Edit3, ImagePlus, Plus, SlidersHorizontal } from 'lucide-react';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 
 export function ServiceDeskList({
@@ -13,19 +13,29 @@ export function ServiceDeskList({
   return (
     <div className="service-desk-list divide-y divide-neutral-100">
       {filteredServices.length === 0 ? (
-        <div className="p-8 md:p-10 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-neutral-100 inline-flex items-center justify-center mb-4">
-            <Briefcase size={22} />
+        <div className="launch-empty-state service-empty-state">
+          <div className="launch-empty-icon native-gradient-icon">
+            <Briefcase size={23} />
           </div>
-          <h3 className="text-xl font-black text-black">{services.length ? 'No matching services' : 'No services yet'}</h3>
-          <p className="text-sm text-neutral-500 mt-2 max-w-md mx-auto">
-            {services.length ? 'Try another search, category, staff member, or status.' : 'Create your first service so the booking page has something clients can choose.'}
+          <p className="launch-empty-eyebrow">{services.length ? 'Filtered services' : 'Service catalog'}</p>
+          <h3>{services.length ? 'No matching services' : 'Build your first service'}</h3>
+          <p className="launch-empty-copy">
+            {services.length
+              ? 'Adjust the search, category, staff member, or visibility filter to bring services back into view.'
+              : 'Each business builds its own services from scratch. Add the name, price, duration, photos, location, staff, and booking rules exactly how you sell it.'}
           </p>
+          {!services.length && (
+            <div className="launch-empty-steps" aria-label="Service setup steps">
+              <span><SlidersHorizontal size={14} /> Set price and duration</span>
+              <span><ImagePlus size={14} /> Add photos</span>
+              <span><CheckCircle2 size={14} /> Publish when ready</span>
+            </div>
+          )}
           <button
             type="button"
             onClick={onCreateService}
             disabled={!canManageWorkspace}
-            className="mt-5 h-11 px-5 rounded-xl bg-black text-white text-[10px] font-black uppercase tracking-[0.16em] inline-flex items-center justify-center gap-2 disabled:opacity-50"
+            className="launch-empty-primary disabled:opacity-50"
           >
             <Plus size={14} /> Create Service
           </button>

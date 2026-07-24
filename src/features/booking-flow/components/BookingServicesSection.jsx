@@ -40,6 +40,7 @@ export const BookingServicesSection = ({
 
     const serviceTextColor = settings.serviceTextColor || settings.headingColor || '#050505';
     const serviceBodyColor = settings.serviceBodyColor || serviceTextColor;
+    const serviceMetaColor = settings.serviceMetaColor || serviceTextColor;
     const serviceBgColor = settings.serviceBgColor && settings.serviceBgColor !== 'transparent'
         ? settings.serviceBgColor
         : '#FFFFFF';
@@ -85,13 +86,13 @@ export const BookingServicesSection = ({
                 {price && (
                     <span className="booking-service-meta-item is-price" style={priceColor ? { color: priceColor } : undefined}>
                         <span className="booking-service-meta-label">Price</span>
-                        <strong>{price}</strong>
+                        <span className="booking-service-meta-value">{price}</span>
                     </span>
                 )}
                 {duration && (
                     <span className="booking-service-meta-item is-duration" style={mutedColor ? { color: mutedColor } : undefined}>
                         <span className="booking-service-meta-label">Duration</span>
-                        <strong>{duration}</strong>
+                        <span className="booking-service-meta-value">{duration}</span>
                     </span>
                 )}
             </div>
@@ -209,7 +210,7 @@ export const BookingServicesSection = ({
                             </p>
                         )}
                     </div>
-                    {renderServiceMeta({ duration, price, className: 'booking-service-side booking-service-facts', priceColor: serviceTextColor, mutedColor: serviceBodyColor })}
+                    {renderServiceMeta({ duration, price, className: 'booking-service-side booking-service-facts', priceColor: serviceMetaColor, mutedColor: serviceMetaColor })}
                 </div>
             </button>
         );
@@ -322,8 +323,11 @@ export const BookingServicesSection = ({
             <section data-preview-section="services" className="pt-2" style={{ order: 1 }}>
                 <div className={`flex flex-col ${pageItems} ${pageTextClass} mb-6 px-1 ${inspectClass}`} onClick={() => previewInspectEnabled && onInspect('services')}>
                     <h4 className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
-                        Choose your service
+                        {settings.serviceHeading || 'Choose your service'}
                     </h4>
+                    <p className="booking-section-subtext" style={{ color: serviceBodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
+                        {settings.serviceSubtext || 'Select the option that works best for you.'}
+                    </p>
                 </div>
                 <div
                     className="mx-auto w-full max-w-[34rem] rounded-2xl border px-5 py-5 md:px-6 md:py-6"
@@ -365,8 +369,11 @@ export const BookingServicesSection = ({
         <section data-preview-section="services" className="pt-2" style={{ order: 1 }}>
             <div className={`flex flex-col ${pageItems} ${pageTextClass} mb-6 px-1 ${inspectClass}`} onClick={() => previewInspectEnabled && onInspect('services')}>
                 <h4 className="booking-section-heading text-xl md:text-2xl font-bold tracking-tight" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
-                    Choose your service
+                    {settings.serviceHeading || 'Choose your service'}
                 </h4>
+                <p className="booking-section-subtext" style={{ color: serviceBodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
+                    {settings.serviceSubtext || 'Select the option that works best for you.'}
+                </p>
             </div>
             <div className={`booking-services-wrap booking-services-wrap-${serviceDisplayStyle} ${hasCategoryChoices ? 'has-category-control' : 'has-single-category'}`} onClick={() => previewInspectEnabled && onInspect('services')}>
                 {categoryControl}

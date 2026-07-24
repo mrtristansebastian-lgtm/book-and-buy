@@ -5,11 +5,12 @@ import {
   buildPublicBookingIdempotencyKey,
   createBookingRecordFromFlow
 } from '../bookings/utils/bookingActionHelpers';
+import { exampleModeStorageKey, guestModeStorageKey, safeLocalGet } from '../../utils/publicBookingRoute';
 
 export default function PublicBookingApp({ publicSlug }) {
   const emptySettingsRef = useRef({});
   const publicWorkspace = usePublicBookingWorkspace({
-    guestMode: false,
+    guestMode: safeLocalGet(guestModeStorageKey) === 'true' || safeLocalGet(exampleModeStorageKey) === 'true',
     publicSlug,
     settings: {},
     settingsRef: emptySettingsRef,
@@ -21,6 +22,9 @@ export default function PublicBookingApp({ publicSlug }) {
   }, []);
 
   const handlePublicBookingComplete = useCallback(async (formData, date, time, status, dateKey) => {
+    if (publicWorkspace.publicWorkspace?.isExamplePreview) {
+      return { simulated: true, reference: `KH-${Date.now().toString(36).toUpperCase()}` };
+    }
     if (!publicWorkspace.publicWorkspace?.ownerId) {
       showToast('Booking page is missing an owner.');
       return false;

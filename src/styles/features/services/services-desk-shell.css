@@ -500,6 +500,73 @@ html body .native-ui .service-wizard-shell {
   overflow: hidden;
 }
 
+/* Native gradient selection language shared with Schedule settings. */
+html body .native-ui .service-native-gradient-skin {
+  --service-native-gradient: var(--native-accent-button-gradient, linear-gradient(115deg, #cbffb8, #f1ff9a, #c9ffbf, #b7fff0, #b9e3ff, #d2cbff, #ffd4f2));
+  --service-native-gradient-position: 50% 50%;
+}
+
+html body .native-ui .service-native-gradient-skin :is(
+  .service-step-list button.is-active,
+  .service-wizard-primary,
+  .service-live-toggle.is-live
+) {
+  border-color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    var(--service-native-gradient) !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--service-native-gradient-position) !important;
+  color: #101828 !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .service-native-gradient-skin :is(
+  .service-step-list button.is-active span,
+  .service-step-list button.is-complete:not(.is-active) span
+) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    var(--service-native-gradient) !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--service-native-gradient-position) !important;
+  color: #101828 !important;
+}
+
+html body .native-ui .service-native-gradient-skin :is(
+  .service-segment-grid button.is-active,
+  .service-duration-grid button.is-active,
+  .service-duration-free-choice.is-active,
+  .service-staff-grid button.is-active,
+  .service-location-grid button.is-active,
+  .service-wizard-toggle.is-on
+) {
+  border-color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.5)) padding-box,
+    var(--service-native-gradient) border-box !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--service-native-gradient-position) !important;
+  color: #101828 !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .service-native-gradient-skin .service-duration-free-choice.is-active > svg {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html body .native-ui .service-native-gradient-skin .service-duration-free-choice.is-active small,
+html body .native-ui .service-native-gradient-skin .service-location-grid button.is-active small,
+html body .native-ui .service-native-gradient-skin .service-staff-grid button.is-active small {
+  color: #667085 !important;
+}
+
+html body .native-ui .service-native-gradient-skin .service-wizard-primary:disabled {
+  filter: saturate(0.45);
+  opacity: 0.48;
+}
+
 html body .native-ui .service-wizard-sidebar {
   display: grid;
   align-content: start;

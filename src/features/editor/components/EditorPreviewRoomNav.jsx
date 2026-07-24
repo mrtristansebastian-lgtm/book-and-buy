@@ -46,7 +46,7 @@ export function EditorPreviewRoomNav({
             title={scene.title}
           >
             <SceneIcon size={13} />
-            <span>{scene.title}</span>
+            <span>{scene.navLabel || scene.title}</span>
           </button>
         );
       })}

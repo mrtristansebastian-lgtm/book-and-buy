@@ -532,7 +532,7 @@ export function ServiceFileModal({
   };
 
   return (
-    <div className="service-modal fixed inset-0 z-[150] bg-black/45 backdrop-blur-sm p-3 md:p-6 flex items-end md:items-center justify-center">
+    <div className="service-modal service-native-gradient-skin fixed inset-0 z-[150] bg-black/45 backdrop-blur-sm p-3 md:p-6 flex items-end md:items-center justify-center">
       <div className="service-modal-panel service-wizard-panel w-full max-w-6xl max-h-[92vh] rounded-[1.75rem] bg-white border border-white/80 shadow-2xl shadow-black/25 overflow-hidden flex flex-col">
         <div className="service-wizard-header">
           <div className="min-w-0">

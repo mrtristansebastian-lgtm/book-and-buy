@@ -1,4 +1,6 @@
 export const guestModeStorageKey = 'build-a-booking-guest-mode';
+export const exampleModeStorageKey = 'build-a-booking-example-mode-v1';
+export const guestPublicPreviewStorageKey = 'build-a-booking-guest-public-preview-v1';
 
 export const safeLocalGet = (key) => {
   try {

@@ -1,3 +1,4 @@
+import { getFontFamily } from '../../../data/fonts';
 import { getSocialLinkStyle } from '../utils/bookingFlowUtils';
 
 const getPlatformKey = (key = '', label = '') => {
@@ -71,8 +72,17 @@ export const BookingSocialLinks = ({
     const isPreviewEmpty = socialLinks.length === 0;
 
     return (
-        <div className={`booking-social-links booking-social-${socialDisplayStyle} booking-social-placement-footer ${isPreviewEmpty ? 'booking-social-preview-empty' : ''} mt-8 flex flex-wrap items-center justify-center gap-3 ${inspectClass}`} data-preview-section="social" onClick={() => previewInspectEnabled && onInspect('social')}>
-            {linksForDisplay.map(link => {
+        <section className={`booking-social-section mt-8 ${inspectClass}`} data-preview-section="social" onClick={() => previewInspectEnabled && onInspect('social')}>
+            <div className="booking-social-heading text-center">
+                <h4 className="booking-section-heading" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily) }}>
+                    {settings.socialHeading || 'Stay connected'}
+                </h4>
+                <p className="booking-section-subtext" style={{ color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>
+                    {settings.socialSubtext || 'Find us online and keep in touch.'}
+                </p>
+            </div>
+            <div className={`booking-social-links booking-social-${socialDisplayStyle} booking-social-placement-footer ${isPreviewEmpty ? 'booking-social-preview-empty' : ''} flex flex-wrap items-center justify-center gap-3`}>
+              {linksForDisplay.map(link => {
                 const platform = getPlatformKey(link.key, link.label);
                 return (
                     <a
@@ -91,7 +101,8 @@ export const BookingSocialLinks = ({
                         <span>{link.label}</span>
                     </a>
                 );
-            })}
-        </div>
+              })}
+            </div>
+        </section>
     );
 };

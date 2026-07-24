@@ -92,7 +92,22 @@ export function useDashboardRouteConfig({
     },
     navigation,
     routes: {
-      overview: { greeting: dashboardGreeting, name: workspace.dashboardGreetingName },
+      overview: {
+        greeting: dashboardGreeting,
+        name: workspace.dashboardGreetingName,
+        props: {
+          bookingPageUrl: editor.bookingPageUrl,
+          clientDirectory: clients.directory,
+          clientMetrics: clients.metrics,
+          personalProfile: workspace.personalProfile,
+          isGuestWorkspace: workspace.isGuestWorkspace,
+          exampleMode: workspace.exampleMode,
+          onExampleModeChange: workspace.exampleMode ? workspace.disableExampleMode : workspace.enableExampleMode,
+          settings,
+          visibleBookings: booking.visibleBookings,
+          workspaceServices: services.workspaceServices
+        }
+      },
       profile: buildProfileRoute({
         account,
         app,
@@ -136,6 +151,8 @@ export function useDashboardRouteConfig({
           user: auth.user,
           workspaceOwnerId: workspace.workspaceOwnerId,
           isGuestWorkspace: workspace.isGuestWorkspace,
+          exampleMode: workspace.exampleMode,
+          exampleThreads: workspace.exampleMode ? workspace.exampleSupportThreads : [],
           bookings: booking.visibleBookings,
           clientDirectory: clients.directory,
           staffList: staff.displayStaffList,
@@ -170,6 +187,8 @@ export function useDashboardRouteConfig({
           appId: app.appId,
           workspaceOwnerId: workspace.workspaceOwnerId,
           isGuestWorkspace: workspace.isGuestWorkspace,
+          exampleMode: workspace.exampleMode,
+          exampleGatewayStates: workspace.exampleGatewayStates,
           canManageWorkspace: workspace.canManageWorkspace,
           showToast,
           bookings: finance.bookings,

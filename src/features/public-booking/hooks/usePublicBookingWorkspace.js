@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import * as FirebaseSDK from '../../../services/firebase';
 import { appId, db, functions, httpsCallable, isFirebaseConfigured } from '../../../services/firebase';
 import { buildBookingSlug } from '../../../utils/slugs';
-import { guestModeStorageKey, safeLocalGet } from '../../../utils/publicBookingRoute';
+import { exampleModeStorageKey, guestModeStorageKey, guestPublicPreviewStorageKey, safeLocalGet } from '../../../utils/publicBookingRoute';
 
 const stripPublicDraftFields = (settings = {}) => {
   const {
@@ -47,13 +47,18 @@ export function usePublicBookingWorkspace({
   useEffect(() => {
     if (!publicSlug) return;
     const localGuestSettings = settingsRef.current || settings;
+    let exampleSnapshot = null;
+    try { exampleSnapshot = JSON.parse(safeLocalGet(guestPublicPreviewStorageKey) || 'null'); } catch { exampleSnapshot = null; }
+    const snapshotSettings = exampleSnapshot?.version === 1 && exampleSnapshot?.slug === publicSlug ? exampleSnapshot.settings : null;
     const localGuestSlug = buildBookingSlug(localGuestSettings.slug || localGuestSettings.brandName || localGuestSettings.businessName || 'studio');
-    const isGuestPublicPreview = !user && (guestMode || safeLocalGet(guestModeStorageKey) === 'true');
-    const guestSettingsForSlug = localGuestSlug === publicSlug
-      ? localGuestSettings
-      : publicSlug === 'your-business'
-        ? { slug: publicSlug, brandName: 'Your Business' }
-        : null;
+    const isGuestPublicPreview = !user && (guestMode || safeLocalGet(guestModeStorageKey) === 'true' || safeLocalGet(exampleModeStorageKey) === 'true');
+    const guestSettingsForSlug = snapshotSettings || (
+      localGuestSlug === publicSlug
+        ? localGuestSettings
+        : publicSlug === 'your-business'
+          ? { slug: publicSlug, brandName: 'Your Business' }
+          : null
+    );
     if (isGuestPublicPreview && guestSettingsForSlug) {
       const publishableGuestSettings = stripPublicDraftFields(guestSettingsForSlug);
       setPublicError('');
@@ -61,7 +66,8 @@ export function usePublicBookingWorkspace({
         ...publishableGuestSettings,
         slug: publicSlug,
         workspaceName: publishableGuestSettings.brandName || publishableGuestSettings.businessName || 'Build A Booking Workspace',
-        ownerId: ''
+        ownerId: '',
+        isExamplePreview: Boolean(snapshotSettings)
       });
       setPublicLoading(false);
       return;

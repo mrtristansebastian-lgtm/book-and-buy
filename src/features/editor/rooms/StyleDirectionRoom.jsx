@@ -16,7 +16,7 @@ const serviceLayouts = [
   }
 ];
 
-export function StyleDirectionRoom({ settings, value, onApply, onSettingChange }) {
+export function StyleDirectionRoom({ settings, value, onApply, onSettingChange, showServiceLayout = true }) {
   const activeDirection = getEditorStyleDirection(value);
   const savedServiceStyle = String(settings?.serviceDisplayStyle || '').trim().toLowerCase();
   const activeServiceLayout = ['rail', 'tiles'].includes(savedServiceStyle) || (!savedServiceStyle && settings?.serviceDropdownEnabled === false)
@@ -66,34 +66,38 @@ export function StyleDirectionRoom({ settings, value, onApply, onSettingChange }
           );
         })}
       </div>
-      <div className="cinema-control-title is-compact">
-        <span>Service browsing</span>
-        <small>Choose how clients browse and select appointment services.</small>
-      </div>
-      <div className="style-direction-grid services-layout-grid">
-        {serviceLayouts.map((layout) => {
-          const Icon = layout.icon;
-          const isActive = activeServiceLayout === layout.id;
-          return (
-            <button
-              key={layout.id}
-              type="button"
-              onClick={() => applyServiceLayout(layout.id)}
-              className={isActive ? 'is-active' : ''}
-              aria-pressed={isActive}
-            >
-              <i className={`services-layout-preview services-layout-preview-${layout.id}`} aria-hidden="true">
-                <Icon size={18} />
-                <b />
-                <b />
-                <b />
-              </i>
-              <strong>{layout.title}</strong>
-              <small>{layout.copy}</small>
-            </button>
-          );
-        })}
-      </div>
+      {showServiceLayout ? (
+        <>
+          <div className="cinema-control-title is-compact">
+            <span>Service browsing</span>
+            <small>Choose how clients browse and select appointment services.</small>
+          </div>
+          <div className="style-direction-grid services-layout-grid">
+            {serviceLayouts.map((layout) => {
+              const Icon = layout.icon;
+              const isActive = activeServiceLayout === layout.id;
+              return (
+                <button
+                  key={layout.id}
+                  type="button"
+                  onClick={() => applyServiceLayout(layout.id)}
+                  className={isActive ? 'is-active' : ''}
+                  aria-pressed={isActive}
+                >
+                  <i className={`services-layout-preview services-layout-preview-${layout.id}`} aria-hidden="true">
+                    <Icon size={18} />
+                    <b />
+                    <b />
+                    <b />
+                  </i>
+                  <strong>{layout.title}</strong>
+                  <small>{layout.copy}</small>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

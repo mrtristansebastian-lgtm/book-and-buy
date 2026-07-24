@@ -122,12 +122,12 @@
                 background: rgba(255,255,255,0.9) !important;
             }
             .editor-preview-room-nav.is-desktop button {
-                width: 2rem !important;
-                min-width: 2rem !important;
+                width: 100% !important;
+                min-width: 0 !important;
                 height: 2rem !important;
-                padding: 0 !important;
+                padding: 0 0.42rem !important;
             }
             .editor-preview-room-nav.is-desktop button span {
-                display: none !important;
+                display: block !important;
             }
         }

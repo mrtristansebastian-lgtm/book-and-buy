@@ -5,8 +5,7 @@ const funnelRoomFields = {
     ['input', 'brandName', 'Booking page name', 'Welcome to your business', true],
     ['input', 'tagline', 'Text above heading', 'Private bookings / by appointment'],
     ['textarea', 'welcomeMessage', 'Subtext under heading', 'Choose a time that works for you.'],
-    ['input', 'bookingCtaLabel', 'Button text', 'Add booking to cart'],
-    ['input', 'dateLabel', 'Date heading', 'Pick your booking date']
+    ['input', 'bookingCtaLabel', 'Button text', 'Add booking to cart']
   ],
   cart: [
     ['input', 'cartBackLabel', 'Back link', 'Edit selection'],
@@ -45,6 +44,20 @@ const getDefaultTextPatch = (fields) => fields.reduce((patch, [, key, , defaultV
   patch[key] = defaultValue;
   return patch;
 }, {});
+const getFieldGroup = (key, hero) => {
+  if (hero || /title|heading|brandName|welcomeMessage|copy|tagline/i.test(key)) return 'Main text';
+  if (/button|cta|submit|request|newRequest/i.test(key)) return 'Actions';
+  return 'Labels';
+};
+
+const groupFields = (fields) => fields.reduce((groups, field) => {
+  const [, key, , , hero] = field;
+  const groupName = getFieldGroup(key, hero);
+  const group = groups.find(item => item.name === groupName);
+  if (group) group.fields.push(field);
+  else groups.push({ name: groupName, fields: [field] });
+  return groups;
+}, []);
 
 export function FunnelTextRoom({
   onSettingChange,
@@ -52,6 +65,7 @@ export function FunnelTextRoom({
   settings
 }) {
   const fields = funnelRoomFields[page] || funnelRoomFields.introduction;
+  const fieldGroups = groupFields(fields);
   const resetDefaultText = () => {
     const defaults = getDefaultTextPatch(fields);
     Object.entries(defaults).forEach(([key, value]) => onSettingChange(key, value));
@@ -67,22 +81,34 @@ export function FunnelTextRoom({
 
   return (
     <div className={`cinema-intro-editor cinema-${page}-room`}>
-      <button type="button" className="cinema-reset-default-text" onClick={resetDefaultText}>
-        Reset default text
-      </button>
-      <div className="cinema-intro-fields">
-        {fields.map(([type, key, label, placeholder, hero]) => (
-          <label key={key} className={`cinema-text-card ${hero ? 'is-hero' : ''} ${type === 'textarea' ? 'cinema-subtext-card' : ''}`}>
-            <span>{label}</span>
-            {type === 'textarea' ? (
-              <textarea rows={1} value={getFieldValue(settings, key)} onChange={(event) => onSettingChange(key, event.target.value)} placeholder={placeholder} />
-            ) : (
-              <input value={getFieldValue(settings, key)} onChange={(event) => onSettingChange(key, event.target.value)} placeholder={placeholder} />
-            )}
-          </label>
-        ))}
+      <div className="editor-room-compact-toolbar">
+        <span>Section copy</span>
+        <button type="button" className="cinema-reset-default-text" onClick={resetDefaultText}>
+          Reset defaults
+        </button>
       </div>
 
+      <div className="editor-room-field-groups">
+        {fieldGroups.map(group => (
+          <section key={group.name} className="editor-room-field-group">
+            <div className="cinema-control-title is-compact">
+              <span>{group.name}</span>
+            </div>
+            <div className="cinema-intro-fields">
+              {group.fields.map(([type, key, label, placeholder, hero]) => (
+                <label key={key} className={`cinema-text-card ${hero ? 'is-hero' : ''} ${type === 'textarea' ? 'cinema-subtext-card' : ''}`}>
+                  <span>{label}</span>
+                  {type === 'textarea' ? (
+                    <textarea rows={1} value={getFieldValue(settings, key)} onChange={(event) => onSettingChange(key, event.target.value)} placeholder={placeholder} />
+                  ) : (
+                    <input value={getFieldValue(settings, key)} onChange={(event) => onSettingChange(key, event.target.value)} placeholder={placeholder} />
+                  )}
+                </label>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

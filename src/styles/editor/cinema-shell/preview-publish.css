@@ -67,8 +67,8 @@
         }
 
         .editor-preview-room-nav button {
-            width: 2.25rem !important;
-            min-width: 2.25rem !important;
+            width: 100% !important;
+            min-width: 0 !important;
             height: 2.25rem !important;
             min-height: 2.25rem !important;
             flex: 0 0 auto;

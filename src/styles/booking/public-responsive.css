@@ -1061,10 +1061,8 @@
         color: var(--booking-faq-text) !important;
     }
 
-    .booking-flow-public:is(.booking-style-native-precision, .booking-style-command-flow) .booking-venue-gallery,
     .booking-flow-public:is(.booking-style-native-precision, .booking-style-command-flow) .booking-map-embed,
     .booking-flow-public:is(.booking-style-native-precision, .booking-style-command-flow) .booking-map-link,
-    .editor-preview-frame :is(.booking-style-native-precision, .booking-style-command-flow) .booking-venue-gallery,
     .editor-preview-frame :is(.booking-style-native-precision, .booking-style-command-flow) .booking-map-embed,
     .editor-preview-frame :is(.booking-style-native-precision, .booking-style-command-flow) .booking-map-link {
         background: var(--booking-venue-bg) !important;
@@ -1088,7 +1086,16 @@
         margin: 0 auto;
         padding-bottom: 0.62rem;
         text-align: center;
-        line-height: 1.06;
+        font-size: clamp(1.4rem, 2vw, 1.75rem) !important;
+        font-weight: 800 !important;
+        line-height: 1.06 !important;
+    }
+
+    .booking-flow-public .booking-venue-gallery-title,
+    .editor-preview-frame .booking-venue-gallery-title {
+        font-size: clamp(1.4rem, 2vw, 1.75rem) !important;
+        font-weight: 800 !important;
+        line-height: 1.06 !important;
     }
 
     .booking-flow-public .booking-section-heading::after,
@@ -1326,7 +1333,7 @@
     .editor-preview-frame .booking-style-native-precision [data-preview-section="services"] .booking-services-tiles > .booking-service-option,
     .editor-preview-frame .booking-style-command-flow [data-preview-section="services"] .booking-services-tiles > .booking-service-option {
         border-color: rgba(15, 23, 42, 0.08) !important;
-        background-color: #ffffff !important;
+        background-color: var(--booking-service-bg, #ffffff) !important;
         background-image: none !important;
         background-origin: padding-box !important;
         background-clip: border-box !important;
@@ -1353,7 +1360,7 @@
         border-color: transparent !important;
         background-color: transparent !important;
         background-image:
-            linear-gradient(#ffffff, #ffffff),
+            linear-gradient(var(--booking-service-bg, #ffffff), var(--booking-service-bg, #ffffff)),
             var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) !important;
         background-origin: border-box !important;
         background-clip: padding-box, border-box !important;

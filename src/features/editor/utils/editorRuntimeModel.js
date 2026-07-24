@@ -16,6 +16,6 @@ export const getPreviewStepForEditorRoom = (roomId) => {
   if (roomId === 'cart') return 'cart';
   if (roomId === 'checkout' || roomId === 'client-form') return 'details';
   if (roomId === 'success') return 'success';
-  if (['introduction', 'faq', 'typography', 'style'].includes(roomId)) return 'select';
+  if (['introduction', 'services', 'calendar', 'time-slots', 'faq', 'venue', 'social', 'style'].includes(roomId)) return 'select';
   return '';
 };

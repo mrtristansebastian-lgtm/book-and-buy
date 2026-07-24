@@ -10,6 +10,211 @@ html body .native-ui .schedule-workspace-shell {
   padding: 0 0 8rem;
 }
 
+/* Shared launcher treatment for the production schedule wizard. */
+html body .native-ui .schedule-settings-launcher-skin {
+  --schedule-launcher-gradient: var(--native-accent-button-gradient, linear-gradient(115deg, #cbffb8, #f1ff9a, #c9ffbf, #b7fff0, #b9e3ff, #d2cbff, #ffd4f2));
+  --schedule-launcher-position: 50% 50%;
+}
+
+html body .native-ui .schedule-settings-launcher-skin :is(
+  .schedule-settings-step-list button.is-active,
+  .schedule-settings-wizard-footer button.is-primary,
+  .schedule-slot-segmented button.is-active,
+  .schedule-slot-actions button.is-primary
+) {
+  border-color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    var(--schedule-launcher-gradient) !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--schedule-launcher-position) !important;
+  color: #101828 !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .schedule-settings-launcher-skin :is(
+  .schedule-settings-step-list button.is-active span,
+  .schedule-settings-step-list button.is-complete:not(.is-active) span,
+  .schedule-rule-toggle.is-active > span
+) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    var(--schedule-launcher-gradient) !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--schedule-launcher-position) !important;
+  color: #101828 !important;
+}
+
+html body .native-ui .schedule-settings-launcher-skin :is(
+  .schedule-settings-option-list button.is-active,
+  .schedule-rule-toggle.is-active,
+  .schedule-slot-duration button.is-active
+) {
+  border-color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.5)) padding-box,
+    var(--schedule-launcher-gradient) border-box !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--schedule-launcher-position) !important;
+  color: #101828 !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-settings-option-list.is-schedule-mode {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-settings-card-head > span {
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 0;
+  background: transparent;
+  color: #101828;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-settings-card-head > span svg {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-settings-card-head small {
+  color: #101828;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-settings-option-list.is-schedule-mode button {
+  min-height: 4.2rem;
+  grid-template-columns: 1.2rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.12rem;
+  padding: 0.62rem;
+  background: #ffffff;
+  text-align: left;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-settings-option-list.is-schedule-mode button > span {
+  grid-row: 1 / span 2;
+  width: 1.18rem;
+  height: 1.18rem;
+  border: 1px solid rgba(16, 24, 40, 0.18);
+  border-radius: 0.36rem;
+  background: #ffffff;
+  color: #ffffff;
+  justify-self: center;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-settings-option-list.is-schedule-mode button strong {
+  justify-self: stretch;
+  color: #101828;
+  font-size: 0.88rem;
+  font-weight: 850;
+  line-height: 1.1;
+  text-align: center;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-settings-option-list.is-schedule-mode button small {
+  grid-column: 2;
+  justify-self: stretch;
+  max-width: 19rem;
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 720;
+  line-height: 1.22;
+  text-align: center;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-settings-option-list.is-schedule-mode button.is-active > span {
+  border-color: #111827 !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-board {
+  overflow: hidden;
+  border-color: #e5e7eb;
+  border-radius: 12px;
+  padding: 0;
+  background: #ffffff;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-summary {
+  padding: 0.78rem 0.9rem;
+  border-bottom: 1px solid #eef2f7;
+  background: #fbfcfd;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-summary > span {
+  width: 2.05rem;
+  height: 2.05rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble-grid {
+  grid-template-columns: repeat(auto-fit, minmax(6.8rem, 1fr));
+  gap: 0.45rem;
+  padding: 0.78rem;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble {
+  min-height: 2.35rem;
+  border-color: #e5e7eb;
+  border-radius: 10px;
+  padding: 0.25rem 0.28rem 0.25rem 0.62rem;
+  background: #ffffff;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble span {
+  font-size: 0.84rem;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble:not(.is-add) button {
+  width: 1.55rem;
+  height: 1.55rem;
+  color: #64748b;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble.is-add {
+  min-height: 2.35rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  gap: 0.38rem;
+  padding: 0 0.7rem;
+  background: #f8fafc;
+  color: #111827;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble.is-add:hover {
+  border-color: #111827;
+  background: #ffffff;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble.is-add > span {
+  color: #111827;
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html body .native-ui .schedule-settings-launcher-skin .schedule-settings-note {
+  border-radius: 10px;
+}
+
+@media (max-width: 760px) {
+  html body .native-ui .schedule-settings-launcher-skin .schedule-settings-option-list.is-schedule-mode {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .schedule-settings-launcher-skin .schedule-time-slots-card .schedule-slot-bubble-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 html body .native-ui .schedule-top-bar,
 html body .native-ui .schedule-workspace-grid,
 html body .native-ui .schedule-date-picker-modal,

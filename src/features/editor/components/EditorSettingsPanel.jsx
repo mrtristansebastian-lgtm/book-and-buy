@@ -1,7 +1,5 @@
 import { ChevronLeft, ChevronRight, RefreshCw, X } from 'lucide-react';
 
-const FLUSH_PANEL_SCENES = new Set(['colours', 'introduction', 'cart', 'checkout', 'success', 'client-form']);
-
 export const EditorSettingsPanel = ({
   children,
   editorCollapsed,
@@ -17,7 +15,7 @@ export const EditorSettingsPanel = ({
   const activeIndex = Math.max(0, scenes.findIndex(scene => scene.id === activeSceneId));
   const activeScene = scenes[activeIndex] || scenes[0];
   const ActiveSceneIcon = activeScene.icon;
-  const isFlushPanelScene = FLUSH_PANEL_SCENES.has(activeScene.id);
+  const activeSettings = activeScene.settings || [];
   const goScene = (sceneId) => {
     openEditorRoom(sceneId);
   };
@@ -30,7 +28,7 @@ export const EditorSettingsPanel = ({
         <>
           <header className="editor-panel-header editor-cinema-header flex-shrink-0">
             <div>
-              <p className="editor-modal-kicker">Editing room</p>
+              <p className="editor-modal-kicker">Page editor</p>
               <h2>{activeScene?.title || 'Editor'}</h2>
             </div>
             <button type="button" onClick={onCloseSettings} className="editor-modal-close-button" aria-label="Close editor settings" title="Close editor settings">
@@ -49,29 +47,26 @@ export const EditorSettingsPanel = ({
               </div>
             </div>
             <div className="editor-cinema-studio animate-in fade-in duration-700">
-              <section className="editor-cinema-hero">
-                <div className="editor-cinema-hero-copy">
-                  <span>Live design</span>
-                  <h3>Customize your page.</h3>
-                  <p>Pick a room, tune it, preview it.</p>
-                </div>
-              </section>
-
               <section className={`editor-cinema-stage editor-cinema-scene-${activeScene.id}`}>
                 <div className="editor-cinema-stage-head">
                   <div>
-                    <span><ActiveSceneIcon size={16} /> Scene {activeScene.number}</span>
+                    <span><ActiveSceneIcon size={16} /> {activeScene.category || 'Room'} room</span>
                     <h3>{activeScene.title}</h3>
                     <p>{activeScene.prompt}</p>
+                    {activeSettings.length > 0 && (
+                      <div className="editor-room-setting-tags" aria-label={`${activeScene.title} setting groups`}>
+                        {activeSettings.map(tag => <em key={tag}>{tag}</em>)}
+                      </div>
+                    )}
                   </div>
                   <div className="editor-cinema-nav-buttons">
                     <button type="button" onClick={goPrev} disabled={activeIndex === 0}><ChevronLeft size={15} /> Back</button>
-                    <button type="button" onClick={goNext} disabled={activeIndex === scenes.length - 1}>Next layer <ChevronRight size={15} /></button>
+                    <button type="button" onClick={goNext} disabled={activeIndex === scenes.length - 1}>Next room <ChevronRight size={15} /></button>
                   </div>
                 </div>
 
                 <div className="editor-cinema-stage-body">
-                  <div className={`editor-cinema-control-panel ${isFlushPanelScene ? 'editor-cinema-control-panel-flush' : ''}`}>
+                  <div className="editor-cinema-control-panel editor-cinema-control-panel-flush">
                     {children({ activeScene })}
                   </div>
                 </div>

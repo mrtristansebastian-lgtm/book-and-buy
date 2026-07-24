@@ -218,18 +218,28 @@
             transform: scale(0.98);
         }
 
-        .editor-preview-room-nav.is-desktop button {
-            width: 2.5rem;
-            min-width: 2.5rem;
-            padding: 0;
+        .editor-preview-room-nav.is-desktop,
+        .editor-preview-room-nav.is-phone {
+            width: 8.35rem;
+            align-items: stretch;
         }
 
-        .editor-preview-room-nav.is-desktop button span {
-            display: none;
+        .editor-preview-room-nav.is-desktop button,
+        .editor-preview-room-nav.is-phone button {
+            width: 100%;
+            min-width: 0;
+            display: grid;
+            grid-template-columns: 1.7rem minmax(0, 1fr);
+            justify-content: start;
+            padding: 0 0.48rem;
+            text-align: left;
         }
 
+        .editor-preview-room-nav.is-desktop button span,
         .editor-preview-room-nav.is-phone button span {
-            display: none;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .editor-preview-room-nav button:hover {

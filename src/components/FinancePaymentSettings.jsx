@@ -36,6 +36,8 @@ export const FinancePaymentSettings = ({
   appId,
   businessId,
   isGuestWorkspace = false,
+  exampleMode = false,
+  exampleGatewayStates = {},
   canManageWorkspace,
   showToast,
   bookings = [],
@@ -57,6 +59,10 @@ export const FinancePaymentSettings = ({
   const [displayCurrency, setDisplayCurrency] = useState('ZAR');
 
   useEffect(() => {
+    if (exampleMode) {
+      setSaved(exampleGatewayStates);
+      return undefined;
+    }
     if (!isFirebaseConfigured || !db || !appId || !businessId) return undefined;
     const settingsRef = FirebaseSDK.collection(db, 'artifacts', appId, 'users', businessId, 'payment_settings');
     return FirebaseSDK.onSnapshot(settingsRef, (snapshot) => {
@@ -78,9 +84,10 @@ export const FinancePaymentSettings = ({
     }, (error) => {
       console.error('Finance gateway settings listener failed', error);
     });
-  }, [appId, businessId]);
+  }, [appId, businessId, exampleGatewayStates, exampleMode]);
 
   useEffect(() => {
+    if (exampleMode) return undefined;
     if (!isFirebaseConfigured || !db || !appId || !businessId) return undefined;
     const userRef = FirebaseSDK.doc(db, 'artifacts', appId, 'users', businessId);
     const summaryRef = FirebaseSDK.doc(db, 'artifacts', appId, 'users', businessId, 'finance', 'summary');
@@ -103,7 +110,7 @@ export const FinancePaymentSettings = ({
       unsubSummary();
       unsubAttempts();
     };
-  }, [appId, businessId]);
+  }, [appId, businessId, exampleMode]);
 
   const selectedGateway = gatewayById[selectedGatewayId] || gatewayCards[0];
   const selectedDraft = drafts[selectedGateway.id] || emptyDrafts[selectedGateway.id];
@@ -193,6 +200,10 @@ export const FinancePaymentSettings = ({
   };
 
   const saveGateway = async (gateway) => {
+    if (exampleMode) {
+      showToast?.('Gateway settings are read-only in the example studio.');
+      return;
+    }
     if (!canManageWorkspace) {
       showToast?.('Only owners and admins can manage finance settings.');
       return;

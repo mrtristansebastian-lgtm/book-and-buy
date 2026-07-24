@@ -1,0 +1,13 @@
+html body .booking-flow-public .booking-venue-gallery,
+html body .editor-preview-frame .booking-venue-gallery {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+html body .booking-flow-public .booking-venue-photo,
+html body .editor-preview-frame .booking-venue-photo {
+    border: 0 !important;
+    box-shadow: none !important;
+}

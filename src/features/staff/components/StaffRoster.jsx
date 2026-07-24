@@ -1,4 +1,4 @@
-import { Check, Plus } from 'lucide-react';
+import { CalendarDays, Check, KeyRound, Plus, UsersRound } from 'lucide-react';
 import { StaffAvatar } from './StaffAvatar';
 
 const getStaffRoleLabel = (staff = {}) => (
@@ -17,7 +17,7 @@ export const StaffRoster = ({
     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 mb-6">
       <div>
         <h3 className="text-xl md:text-2xl font-bold tracking-tight text-black">Team Roster</h3>
-        <p className="text-sm text-neutral-500">Floating profiles for staff files, assignment checks, and calendar ownership.</p>
+        <p className="text-sm text-neutral-500">Manage who can take bookings, own calendar slots, and access the workspace.</p>
       </div>
       <div className="team-roster-actions">
         <span className="team-roster-active-count inline-flex w-fit text-[10px] font-bold uppercase tracking-widest text-neutral-500 bg-neutral-100 px-3 py-1.5 rounded-md">{displayStaffList.length} Active</span>
@@ -53,6 +53,11 @@ export const StaffRoster = ({
           </button>
         );
       })}
+    </div>
+    <div className="team-readiness-strip" aria-label="Team readiness">
+      <span><UsersRound size={14} /> Staff profiles</span>
+      <span><CalendarDays size={14} /> Calendar ownership</span>
+      <span><KeyRound size={14} /> Access roles</span>
     </div>
   </section>
 );
