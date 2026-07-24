@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Kinetic House coaching space</title><desc id="desc">Coaching space with equipment wall illustration.</desc>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#202a34"/><stop offset="1" stop-color="#c78962"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#bg)"/><path d="M120 650h960M200 210h800v440H200z" fill="none" stroke="#f7f0e5" stroke-width="18"/><circle cx="340" cy="330" r="58" fill="#f7f0e5"/><circle cx="510" cy="330" r="58" fill="#f7f0e5"/><circle cx="680" cy="330" r="58" fill="#f7f0e5"/><path d="M320 485h580M420 430v160M800 430v160" stroke="#f7f0e5" stroke-width="22" stroke-linecap="round"/><text x="72" y="92" fill="#f7f0e5" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6">KINETIC HOUSE / COACHING</text>
+</svg>

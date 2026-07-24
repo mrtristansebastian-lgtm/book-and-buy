@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Kinetic House training floor</title><desc id="desc">Open studio floor with training lanes.</desc>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f4efe5"/><stop offset="1" stop-color="#c0d0c5"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#bg)"/><path d="M0 610 600 380l600 230v190H0z" fill="#b69770"/><path d="M100 620 600 440l500 180M260 680 600 540l340 140M410 740l190-78 190 78" fill="none" stroke="#f4efe5" stroke-width="12" opacity=".8"/><rect x="110" y="150" width="980" height="260" rx="16" fill="#8da79c" opacity=".65"/><path d="M180 210h220v150H180zM490 210h220v150H490zM800 210h220v150H800z" fill="#f4efe5" opacity=".42"/><text x="72" y="92" fill="#17201d" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6">KINETIC HOUSE / FLOOR</text>
+</svg>

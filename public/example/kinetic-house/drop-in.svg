@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Cape Town Drop-in</title><desc id="desc">Editorial Cape Town training graphic for Kinetic House.</desc>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#116b72"/><stop offset="1" stop-color="#ffd06b"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#bg)"/><path d="M0 590c210-90 340-70 520-10 210 70 390 70 680-50v270H0z" fill="#f4efe5" opacity=".22"/><path d="M160 550h880M280 550l80-240 100 240M610 550l100-280 120 280M900 550l60-190 80 190" fill="none" stroke="#fffdf7" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/><text x="72" y="112" fill="#fffdf7" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6">KINETIC HOUSE / CAPE TOWN</text>
+</svg>
