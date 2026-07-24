@@ -102,20 +102,30 @@ export function useWorkspaceRuntimeState() {
   const detectedBrandSignal = useDetectedBrandSignal(workspaceData.settings.logo);
   const bookingPage = useBookingPageLauncher(workspaceData.settings);
 
-  const enableExampleMode = useCallback(() => {
-    if (!isGuestWorkspace || authSession.user) return;
-    const example = loadFitnessStudioExample(new Date());
+  const writeExamplePublicSnapshot = useCallback((example) => {
+    if (!example?.settings) return;
     const publicSettings = { ...example.settings };
     delete publicSettings.accountProfiles;
     delete publicSettings.googleCalendar;
     const publicStaff = example.staffList.map(({ id, name, role, title, color, avatar, photoURL }) => ({
       id, name, role, title, color, avatar, photoURL
     }));
+    safeLocalSet(guestPublicPreviewStorageKey, JSON.stringify({
+      version: 2,
+      slug: example.settings.slug,
+      settings: publicSettings,
+      staff: publicStaff
+    }));
+  }, []);
+
+  const enableExampleMode = useCallback(() => {
+    if (!isGuestWorkspace || authSession.user) return;
+    const example = loadFitnessStudioExample(new Date());
     safeLocalSet(exampleModeStorageKey, 'true');
-    safeLocalSet(guestPublicPreviewStorageKey, JSON.stringify({ version: 1, slug: example.settings.slug, settings: publicSettings, staff: publicStaff }));
+    writeExamplePublicSnapshot(example);
     startTransition(() => setExampleMode(true));
     showToast('Kinetic House example studio is on. Changes are read-only.');
-  }, [authSession.user, isGuestWorkspace, loadFitnessStudioExample, showToast]);
+  }, [authSession.user, isGuestWorkspace, loadFitnessStudioExample, showToast, writeExamplePublicSnapshot]);
 
   const disableExampleMode = useCallback(() => {
     restoreBlankGuestWorkspace();
@@ -127,8 +137,9 @@ export function useWorkspaceRuntimeState() {
 
   useEffect(() => {
     if (!isGuestWorkspace || !exampleMode || loading || exampleManifest) return;
-    loadFitnessStudioExample(new Date());
-  }, [exampleManifest, exampleMode, isGuestWorkspace, loadFitnessStudioExample, loading]);
+    const example = loadFitnessStudioExample(new Date());
+    writeExamplePublicSnapshot(example);
+  }, [exampleManifest, exampleMode, isGuestWorkspace, loadFitnessStudioExample, loading, writeExamplePublicSnapshot]);
 
   useEffect(() => {
     if (!authSession.user) return;
