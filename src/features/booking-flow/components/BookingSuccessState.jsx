@@ -1,3 +1,4 @@
+import { CheckCircle2 } from 'lucide-react';
 import { ClientPortalPrompt } from './ClientPortalPrompt';
 import { getPaymentOptionDisplay, isHostedPaymentOption } from '../utils/checkoutUtils';
 import { getFontFamily } from '../../../data/fonts';
@@ -40,7 +41,9 @@ export const BookingSuccessState = ({
         <main className="booking-success-panel flex w-full max-w-3xl flex-col items-center rounded-3xl border p-5 text-center md:p-7" style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', borderColor: settings.pageBorderColor || withColorAlpha(settings.headingColor || '#000000', 7, '#000000') }}>
             <div className={`booking-success-hero flex w-full max-w-xl flex-col items-center gap-4 text-center ${inspectClass}`} onClick={() => previewInspectEnabled && onInspect('buttons')}>
                 <div className="min-w-0">
-                    <p className="booking-success-kicker text-[10px] font-black uppercase tracking-[0.34em] opacity-35" style={{ color: settings.bodyColor, fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily) }}>{settings.successStatusLabel || 'Booking Status'}</p>
+                    <span className="booking-success-checkmark" role="img" aria-label={isWaitlistMode ? 'Waitlist request sent' : 'Booking request sent'}>
+                        <CheckCircle2 size={24} strokeWidth={2.35} aria-hidden="true" />
+                    </span>
                     <h2 className="booking-success-title mt-2 text-4xl md:text-5xl font-black tracking-tight leading-none" style={{ color: settings.headingColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily), ...(headingLetterSpacing ? { letterSpacing: headingLetterSpacing } : {}) }}>
                         {isWaitlistMode ? "You're on the list." : successHeading}
                     </h2>

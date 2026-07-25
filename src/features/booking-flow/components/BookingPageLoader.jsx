@@ -1,3 +1,4 @@
+import { BuildABookingMark } from '../../../components/BuildABookingBrand';
 import { getFontFamily } from '../../../data/fonts';
 import { withColorAlpha } from '../../../utils/theme';
 
@@ -5,12 +6,15 @@ export const BookingPageLoader = ({ isPreview, settings }) => {
     const loadingMotionClass = isPreview ? '' : 'transition-opacity duration-1000';
     const surfaceColor = settings.pageSurfaceColor || '#ffffff';
     const borderColor = withColorAlpha(settings.headingColor || '#000000', 8, '#000000');
+    const showAppMark = Boolean(isPreview);
 
     return (
         <div className={`booking-page-loader absolute inset-0 z-50 flex items-center justify-center px-4 ${loadingMotionClass}`} style={{ backgroundColor: settings.backgroundColor || '#ffffff' }}>
             <div className="w-full max-w-sm rounded-3xl border px-6 py-7 text-center shadow-[0_28px_80px_-56px_rgba(15,23,42,0.42)]" style={{ backgroundColor: surfaceColor, borderColor }}>
                 <div className="brand-loader-orbit mx-auto mb-5">
-                    {settings.logo ? (
+                    {showAppMark ? (
+                        <BuildABookingMark className="w-9 h-9" variant="dark" />
+                    ) : settings.logo ? (
                         <img
                             src={settings.logo}
                             alt={`${settings.brandName || 'Business'} logo`}

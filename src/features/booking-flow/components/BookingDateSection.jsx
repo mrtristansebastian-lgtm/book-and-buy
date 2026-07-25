@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pencil, X } from 'lucide-react';
 import { getFontFamily } from '../../../data/fonts';
 import { getLocalDateStr } from '../../../utils/dates';
-import { withColorAlpha } from '../../../utils/theme';
 import { getDateSlotStyle } from '../utils/bookingFlowUtils';
 
 export const BookingDateSection = ({
@@ -102,7 +101,7 @@ export const BookingDateSection = ({
             </div>
 
             <div className="booking-calendar-focus-row">
-                <button type="button" disabled={!canStepBack} onClick={() => setSelectedDateIdx(Math.max(0, selectedDateIdx - 1))} className="booking-calendar-focus-arrow appearance-none outline-none focus:outline-none flex items-center justify-center transition-all border" style={{ borderColor: withColorAlpha(settings.headingColor || '#000', 19, '#000000'), color: settings.headingColor }}>
+                <button type="button" disabled={!canStepBack} onClick={() => setSelectedDateIdx(Math.max(0, selectedDateIdx - 1))} className="booking-calendar-focus-arrow appearance-none outline-none focus:outline-none flex items-center justify-center transition-all border" style={{ color: settings.headingColor }}>
                     <ChevronLeft size={16} />
                 </button>
                 <div className={`booking-calendar-look booking-calendar-focus-tile booking-calendar-${calendarDisplayStyle} ${isPreview ? 'cursor-pointer' : ''}`} onClick={() => previewInspectEnabled && onInspect('calendar')}>
@@ -112,7 +111,7 @@ export const BookingDateSection = ({
                         {dateStyle === 'minimal' && <div className={`absolute -bottom-3 w-10 h-[2px] rounded-full ${nativeAccentFillClass}`} style={{ backgroundColor: settings.primaryColor }} />}
                     </button>
                 </div>
-                <button type="button" disabled={!canStepForward} onClick={() => setSelectedDateIdx(Math.min(datePool.length - 1, selectedDateIdx + 1))} className="booking-calendar-focus-arrow appearance-none outline-none focus:outline-none flex items-center justify-center transition-all border" style={{ borderColor: withColorAlpha(settings.headingColor || '#000', 19, '#000000'), color: settings.headingColor }}>
+                <button type="button" disabled={!canStepForward} onClick={() => setSelectedDateIdx(Math.min(datePool.length - 1, selectedDateIdx + 1))} className="booking-calendar-focus-arrow appearance-none outline-none focus:outline-none flex items-center justify-center transition-all border" style={{ color: settings.headingColor }}>
                     <ChevronRight size={16} />
                 </button>
             </div>

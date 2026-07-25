@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const guestModeKey = 'build-a-booking-guest-mode';
 const exampleModeKey = 'build-a-booking-example-mode-v2';
+const exampleModeDisabledKey = 'build-a-booking-example-mode-disabled-v1';
 const publicPreviewKey = 'build-a-booking-guest-public-preview-v2';
 
 const expectPortraitsToDecode = async (page, locator) => {
@@ -22,14 +23,15 @@ const expectPortraitsToDecode = async (page, locator) => {
 };
 
 const seedBlankGuest = async page => {
-  await page.addInitScript(({ guestKey, exampleKey }) => {
+  await page.addInitScript(({ guestKey, exampleKey, exampleDisabledKey }) => {
     if (window.sessionStorage.getItem('workspace-example-test-seeded') === 'true') return;
     window.localStorage.clear();
     window.sessionStorage.clear();
     window.localStorage.setItem(guestKey, 'true');
     window.localStorage.removeItem(exampleKey);
+    window.localStorage.removeItem(exampleDisabledKey);
     window.sessionStorage.setItem('workspace-example-test-seeded', 'true');
-  }, { guestKey: guestModeKey, exampleKey: exampleModeKey });
+  }, { guestKey: guestModeKey, exampleKey: exampleModeKey, exampleDisabledKey: exampleModeDisabledKey });
 };
 
 test('compact example data stays coherent across dashboard sections and public preview', async ({ page }) => {
@@ -39,8 +41,6 @@ test('compact example data stays coherent across dashboard sections and public p
 
   const toggle = page.getByRole('switch', { name: 'Example data' });
   await expect(toggle).toBeVisible({ timeout: 60_000 });
-  await expect(toggle).toHaveAttribute('aria-checked', 'false');
-  await toggle.click();
   await expect(toggle).toHaveAttribute('aria-checked', 'true');
   await expect(page.getByText('Read-only example')).toBeVisible();
   await expect.poll(() => page.evaluate(key => window.localStorage.getItem(key), exampleModeKey)).toBe('true');
@@ -117,6 +117,7 @@ test('compact example data stays coherent across dashboard sections and public p
   await activeToggle.click();
   await expect(activeToggle).toHaveAttribute('aria-checked', 'false');
   await expect.poll(() => page.evaluate(key => window.localStorage.getItem(key), exampleModeKey)).toBeNull();
+  await expect.poll(() => page.evaluate(key => window.localStorage.getItem(key), exampleModeDisabledKey)).toBe('true');
   await page.goto('/#/dashboard/clients', { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('Aisha Naidoo')).toHaveCount(0);
 });

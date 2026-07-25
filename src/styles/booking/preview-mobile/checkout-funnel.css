@@ -1421,6 +1421,30 @@
             margin-right: auto !important;
         }
 
+        .booking-flow-public .booking-success-checkmark,
+        .editor-preview-frame .booking-success-checkmark {
+            width: 3.15rem !important;
+            height: 3.15rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 auto 0.3rem !important;
+            border: 1px solid rgba(22, 163, 74, 0.18) !important;
+            border-radius: 999px !important;
+            background:
+                radial-gradient(circle at 35% 20%, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0) 44%),
+                #ecfdf3 !important;
+            color: #047857 !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.92),
+                0 16px 34px -28px rgba(4, 120, 87, 0.58) !important;
+        }
+
+        .booking-flow-public .booking-success-checkmark svg,
+        .editor-preview-frame .booking-success-checkmark svg {
+            display: block !important;
+        }
+
         .booking-flow-public .booking-success-copy,
         .editor-preview-frame .booking-success-copy {
             margin-left: auto !important;
@@ -1561,12 +1585,16 @@
             margin-right: auto !important;
             margin-bottom: 0 !important;
             border: 0 !important;
-            background: var(--native-accent-button-gradient, linear-gradient(115deg, #cbffb8, #f1ff9a, #b7fff0, #b9e3ff, #d2cbff, #ffd4f2)) !important;
-            background-size: 220% 220% !important;
-            background-position: 48% 50% !important;
+            background-color: #eefcff !important;
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.58), rgba(255,255,255,0.2)),
+                var(--native-accent-button-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x, 50%) 50% !important;
+            background-blend-mode: soft-light, normal !important;
             border-radius: 1.35rem !important;
             padding: clamp(1rem, 2vw, 1.25rem) !important;
-            box-shadow: 0 22px 54px -40px rgba(15, 23, 42, 0.48) !important;
+            box-shadow: 0 22px 54px -40px var(--native-accent-glow, rgba(15, 23, 42, 0.48)) !important;
             text-align: left !important;
         }
 
@@ -1679,6 +1707,7 @@
         .editor-preview-frame .booking-portal-action-primary {
             border: 1px solid #0b0d12 !important;
             background: #0b0d12 !important;
+            background-image: none !important;
             color: #ffffff !important;
             box-shadow: 0 16px 32px -22px rgba(15, 23, 42, 0.9) !important;
         }

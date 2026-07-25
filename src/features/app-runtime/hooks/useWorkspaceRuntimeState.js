@@ -17,8 +17,9 @@ import {
   createWorkspacePageLoaders
 } from '../../workspace';
 import { appId, db, isFirebaseConfigured } from '../../../services/firebase';
-import { safeLocalRemove, safeLocalSet } from '../../../utils/workspaceRoute';
+import { safeLocalGet, safeLocalRemove, safeLocalSet } from '../../../utils/workspaceRoute';
 import {
+  exampleModeDisabledStorageKey,
   exampleModeStorageKey,
   guestPublicPreviewStorageKey,
   guestPublicPreviewStorageVersion,
@@ -33,6 +34,11 @@ import { useToastMessage } from './useToastMessage';
 
 const noop = () => {};
 
+const shouldStartInExampleMode = (startsInGuestWorkspace) => {
+  if (!startsInGuestWorkspace || typeof window === 'undefined') return false;
+  return safeLocalGet(exampleModeStorageKey) === 'true' || safeLocalGet(exampleModeDisabledStorageKey) !== 'true';
+};
+
 export function useWorkspaceRuntimeState() {
   const isNativeAppRuntime = Capacitor?.isNativePlatform?.() || false;
   const [loading, setLoading] = useState(true);
@@ -40,7 +46,7 @@ export function useWorkspaceRuntimeState() {
   const dirtyState = useWorkspaceDirtyState();
   const route = useWorkspaceRoute({ confirmLeavingUnsavedChanges: dirtyState.confirmLeavingUnsavedChanges, loading });
   const [guestMode, setGuestMode] = useState(() => route.startsInGuestWorkspace);
-  const [exampleMode, setExampleMode] = useState(() => route.startsInGuestWorkspace && typeof window !== 'undefined' && window.localStorage?.getItem(exampleModeStorageKey) === 'true');
+  const [exampleMode, setExampleMode] = useState(() => shouldStartInExampleMode(route.startsInGuestWorkspace));
   const [clientGuestMode, setClientGuestMode] = useState(false);
   const dashboardUi = useDashboardUiState({ activeTab: route.activeTab });
   const editorRuntime = useEditorRuntime({
@@ -129,6 +135,7 @@ export function useWorkspaceRuntimeState() {
   const enableExampleMode = useCallback(() => {
     if (!isGuestWorkspace || authSession.user) return;
     const example = loadWorkspaceExample(new Date());
+    safeLocalRemove(exampleModeDisabledStorageKey);
     safeLocalSet(exampleModeStorageKey, 'true');
     writeExamplePublicSnapshot(example);
     startTransition(() => setExampleMode(true));
@@ -136,12 +143,19 @@ export function useWorkspaceRuntimeState() {
   }, [authSession.user, isGuestWorkspace, loadWorkspaceExample, showToast, writeExamplePublicSnapshot]);
 
   const disableExampleMode = useCallback(() => {
+    safeLocalSet(exampleModeDisabledStorageKey, 'true');
     safeLocalRemove(exampleModeStorageKey);
     safeLocalRemove(guestPublicPreviewStorageKey);
     setExampleMode(false);
     restoreBlankGuestWorkspace();
     showToast('Returned to your blank guest workspace.');
   }, [restoreBlankGuestWorkspace, showToast]);
+
+  useEffect(() => {
+    if (!isGuestWorkspace || authSession.user || !exampleMode) return;
+    safeLocalRemove(exampleModeDisabledStorageKey);
+    safeLocalSet(exampleModeStorageKey, 'true');
+  }, [authSession.user, exampleMode, isGuestWorkspace]);
 
   useEffect(() => {
     if (!isGuestWorkspace || !exampleMode || loading || exampleManifest) return;
@@ -151,6 +165,7 @@ export function useWorkspaceRuntimeState() {
 
   useEffect(() => {
     if (!authSession.user) return;
+    safeLocalRemove(exampleModeDisabledStorageKey);
     if (!exampleMode) return;
     safeLocalRemove(exampleModeStorageKey);
     safeLocalRemove(guestPublicPreviewStorageKey);

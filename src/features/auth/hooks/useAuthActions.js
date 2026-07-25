@@ -15,6 +15,10 @@ import {
   writeGoogleAuthIntentUrl
 } from '../../../utils/workspaceRoute';
 import {
+  exampleModeDisabledStorageKey,
+  exampleModeStorageKey
+} from '../../../utils/publicBookingRoute';
+import {
   createGoogleProvider,
   shouldUseRedirectGoogleAuth,
   signInWithNativeGoogle,
@@ -208,6 +212,8 @@ export function useAuthActions({
     setGuestMode(true);
     setClientGuestMode(false);
     safeLocalSet(guestModeStorageKey, 'true');
+    safeLocalRemove(exampleModeDisabledStorageKey);
+    safeLocalSet(exampleModeStorageKey, 'true');
     setAuthPanelOpen(false);
     setAuthError('');
     applyWorkspaceRoute({ view: 'dashboard', activeTab: view === 'dashboard' ? activeTab : 'overview', editorTab });

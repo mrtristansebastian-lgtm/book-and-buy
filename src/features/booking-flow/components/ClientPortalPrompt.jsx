@@ -1,6 +1,8 @@
 import { ArrowUpRight, Download } from 'lucide-react';
 import { clientAuthPrefillStorageKey, safeSessionSet } from '../../../utils/clientPortalRoute';
 
+const buildABookingMark = '/build-a-booking-official-mark.jpg';
+
 export const ClientPortalPrompt = ({
   formData,
   isPreview,
@@ -35,7 +37,7 @@ export const ClientPortalPrompt = ({
     <div className="booking-portal-prompt mb-8 w-full max-w-lg rounded-2xl p-4">
       <div className="booking-portal-head flex items-start gap-3">
         <span className="booking-portal-icon mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: settings.pageSurfaceColor || '#ffffff', color: settings.buttonTextColor || '#000000' }}>
-          <img src={settings.logo || '/build-a-booking-official-mark.jpg'} alt="" aria-hidden="true" />
+          <img src={buildABookingMark} alt="" aria-hidden="true" />
         </span>
         <div className="booking-portal-copy min-w-0">
           <p className="booking-portal-eyebrow">Your booking companion</p>
