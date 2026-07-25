@@ -2,7 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import * as FirebaseSDK from '../../../services/firebase';
 import { appId, db, functions, httpsCallable, isFirebaseConfigured } from '../../../services/firebase';
 import { buildBookingSlug } from '../../../utils/slugs';
-import { exampleModeStorageKey, guestModeStorageKey, guestPublicPreviewStorageKey, safeLocalGet } from '../../../utils/publicBookingRoute';
+import {
+  exampleModeStorageKey,
+  guestModeStorageKey,
+  guestPublicPreviewStorageKey,
+  guestPublicPreviewStorageVersion,
+  safeLocalGet
+} from '../../../utils/publicBookingRoute';
 
 const stripPublicDraftFields = (settings = {}) => {
   const {
@@ -49,7 +55,7 @@ export function usePublicBookingWorkspace({
     const localGuestSettings = settingsRef.current || settings;
     let exampleSnapshot = null;
     try { exampleSnapshot = JSON.parse(safeLocalGet(guestPublicPreviewStorageKey) || 'null'); } catch { exampleSnapshot = null; }
-    const snapshotSettings = exampleSnapshot?.version === 3 && exampleSnapshot?.slug === publicSlug
+    const snapshotSettings = exampleSnapshot?.version === guestPublicPreviewStorageVersion && exampleSnapshot?.slug === publicSlug
       ? { ...exampleSnapshot.settings, publicStaff: exampleSnapshot.staff || [] }
       : null;
     const localGuestSlug = buildBookingSlug(localGuestSettings.slug || localGuestSettings.brandName || localGuestSettings.businessName || 'studio');

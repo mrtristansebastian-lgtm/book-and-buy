@@ -267,8 +267,8 @@ function buildSettings() {
   return {
     ...settings,
     slug: WORKSPACE_EXAMPLE_SLUG,
-    brandName: 'Flame and Flour',
-    businessName: 'Flame and Flour',
+    brandName: 'Flame & Flour',
+    businessName: 'Flame & Flour',
     businessType: 'classes',
     serviceIndustry: 'classes',
     email: 'hello@flourandflame.example',
@@ -280,6 +280,13 @@ function buildSettings() {
     serviceDisplayStyle: 'rail',
     serviceDropdownEnabled: false,
     logo: '/example/flour-and-flame/flame-and-flour-logo-clean.webp',
+    logoDisplay: {
+      ...(settings.logoDisplay || {}),
+      visible: true,
+      alignment: 'left',
+      size: 176,
+      placement: 'badge'
+    },
     bannerImage: '/example/flour-and-flame/hero.webp',
     venuePhotos: [
       '/example/flour-and-flame/venue/teaching-kitchen.webp',
@@ -289,7 +296,7 @@ function buildSettings() {
       '/example/flour-and-flame/venue/tasting-room.webp',
       '/example/flour-and-flame/venue/entrance.webp'
     ],
-    venueTitle: 'Inside Flame and Flour',
+    venueTitle: 'Inside Flame & Flour',
     venueIntro: 'A warm, fully equipped teaching kitchen designed for learning, cooking, and sharing the table.',
     address: 'Woodstock, Cape Town, South Africa',
     mapPlace: null,
@@ -489,7 +496,7 @@ function buildThreads(bookings, staffList, clients) {
       clientAvatar: client.avatar,
       clientPhotoURL: client.avatar,
       serviceName: booking.serviceName,
-      workspaceName: 'Flame and Flour',
+      workspaceName: 'Flame & Flour',
       staffId: staff.id,
       staffName: staff.name,
       staffPhotoURL: staff.photoURL,

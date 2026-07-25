@@ -390,13 +390,8 @@ export function BusinessOnboardingPage({
   };
 
   const goBack = () => setCurrentStep(step => Math.max(0, step - 1));
-  const skipCurrentStep = () => {
-    if (saving) return;
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(step => step + 1);
-      return;
-    }
-    goNext();
+  const finishLater = () => {
+    if (!saving) onFinishLater?.();
   };
 
   const chooseBusinessType = (id, option) => {
@@ -1146,25 +1141,26 @@ export function BusinessOnboardingPage({
           })}
           <div className="onboarding-full-schedule-editor">
             <ScheduleSettingsModal
-            applyScope={applyScope}
-            availabilityRules={{
-              scheduleMode: draft.rules.scheduleMode,
-              holdMode: draft.rules.holdMode,
+              applyScope={applyScope}
+              availabilityRules={{
+                scheduleMode: draft.rules.scheduleMode,
+                holdMode: draft.rules.holdMode,
                 bookingNotice: draft.rules.bookingNotice,
                 cancellationWindow: draft.rules.cancellationWindow,
                 reschedulingAllowed: draft.rules.reschedulingAllowed
               }}
-            defaultSlots={defaultSlots}
-            isOpen
-            launchMode
-            onAddSlot={startAddingDefaultSlot}
+              defaultSlots={defaultSlots}
+              isOpen
+              launchMode
+              onAddSlot={startAddingDefaultSlot}
               onApplyDefaults={() => {}}
               onChangeApplyScope={setApplyScope}
-            onClose={() => setCurrentStep(steps.findIndex(step => step.id === 'services'))}
+              onClose={() => setCurrentStep(steps.findIndex(step => step.id === 'services'))}
               onDeleteSlot={(slot) => updateDefaultSlots(defaultSlots.filter(time => time !== slot))}
               onDeleteScheduleTemplate={() => {}}
               onEditSlot={startEditingDefaultSlot}
               onApplyScheduleTemplate={applyScheduleTemplate}
+              onFinishLater={finishLater}
               onSaveScheduleTemplate={() => {}}
               onSelectDate={() => {}}
               onUpdateAvailabilityRules={(patch) => updateRules(patch)}
@@ -1341,7 +1337,7 @@ export function BusinessOnboardingPage({
               <ArrowLeft size={16} /> Back
             </button>
             <div>
-              <button type="button" className="is-later" onClick={skipCurrentStep} disabled={saving}>
+              <button type="button" className="is-later" onClick={finishLater} disabled={saving}>
                 I&apos;ll do this later
               </button>
               <button type="button" className="is-primary" onClick={goNext} disabled={!canContinue || saving}>

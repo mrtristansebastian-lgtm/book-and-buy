@@ -22,7 +22,7 @@ export const editorRoomScenes = [
     navLabel: 'Page',
     category: 'Global',
     prompt: 'Set the overall visual direction for this booking experience.',
-    settings: ['Direction']
+    settings: ['Direction', 'Logo']
   },
   {
     id: 'introduction',

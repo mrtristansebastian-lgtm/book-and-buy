@@ -1735,6 +1735,94 @@ html body .native-ui .dashboard-launcher-footer button:last-child {
   background-position: 0 0, var(--native-accent-x, 50%) 50%;
 }
 
+/* Temporary live dashboard holding state while the real command view is designed. */
+html body .native-ui .dashboard-coming-soon-shell {
+  min-height: 31rem;
+  display: grid;
+  place-items: center;
+}
+
+html body .native-ui .dashboard-coming-soon-card {
+  width: min(100%, 46rem);
+  min-height: 24rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 8px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.72rem;
+  padding: 2.5rem 1.5rem;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  background:
+    linear-gradient(135deg, rgba(223, 255, 128, 0.2), rgba(255, 255, 255, 0.72) 30%, rgba(183, 244, 255, 0.18) 66%, rgba(255, 209, 244, 0.18)),
+    #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 32px 90px -74px rgba(15, 23, 42, 0.62);
+}
+
+html body .native-ui .dashboard-coming-soon-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.24rem;
+  background: var(--native-accent-button-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4));
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 50%) 50%;
+}
+
+html body .native-ui .dashboard-coming-soon-orbit {
+  width: 4.5rem;
+  height: 4.5rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.14)),
+    var(--native-accent-button-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 50%) 50%;
+  color: #101828;
+}
+
+html body .native-ui .dashboard-coming-soon-card p {
+  margin: 0;
+  color: #667085 !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+html body .native-ui .dashboard-coming-soon-card h2 {
+  max-width: 40rem;
+  margin: 0;
+  color: #101828 !important;
+  font-size: 3.8rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  line-height: 0.96 !important;
+}
+
+html body .native-ui .dashboard-coming-soon-card strong {
+  max-width: 34rem;
+  color: #344054;
+  font-size: 1.05rem;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+html body .native-ui .dashboard-coming-soon-card small {
+  max-width: 30rem;
+  color: #667085;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
 @media (max-width: 1180px) {
   html body .native-ui .dashboard-live-bottom-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1826,6 +1914,19 @@ html body .native-ui .dashboard-launcher-footer button:last-child {
 
   html body .native-ui .dashboard-launcher-footer {
     flex-direction: column;
+  }
+
+  html body .native-ui .dashboard-coming-soon-shell {
+    min-height: 25rem;
+  }
+
+  html body .native-ui .dashboard-coming-soon-card {
+    min-height: 21rem;
+    padding: 2rem 1rem;
+  }
+
+  html body .native-ui .dashboard-coming-soon-card h2 {
+    font-size: 2.7rem !important;
   }
 
   html body .native-ui .dashboard-setup-roadmap button {

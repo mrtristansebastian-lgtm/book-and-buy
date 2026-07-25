@@ -160,7 +160,7 @@ export const getLogoDisplay = ({ nativePrecisionHeroLayout, settings }) => {
     visible: display.visible !== false,
     alignment,
     placement: ['title', 'top', 'badge'].includes(display.placement) ? display.placement : 'title',
-    size: Number.isFinite(size) ? Math.min(176, Math.max(48, size)) : 96
+    size: Number.isFinite(size) ? Math.min(220, Math.max(48, size)) : 96
   };
 };
 

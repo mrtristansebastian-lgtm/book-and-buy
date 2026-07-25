@@ -121,7 +121,7 @@ export const BookingFlow = memo(({ settings: incomingSettings, onComplete, isPre
             const isCommandFlow = styleDirection === 'command-flow';
             const nativePrecisionHeroLayout = ['native-precision', 'command-flow'].includes(styleDirection)
                 ? {
-                    logoDisplay: { alignment: 'left', size: 104, placement: 'badge' },
+                    logoDisplay: { alignment: 'left', placement: 'badge' },
                     bannerDisplay: { height: 112, placement: 'top', opacity: 100 },
                     serviceBorderStyle: 'solid'
                 }

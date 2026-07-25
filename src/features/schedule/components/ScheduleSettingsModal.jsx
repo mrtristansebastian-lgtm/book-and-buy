@@ -59,6 +59,7 @@ export const ScheduleSettingsModal = ({
   onSaveScheduleTemplate,
   onSelectDate,
   onUpdateAvailabilityRules,
+  onFinishLater,
   onSaveAvailabilitySettings,
   onSaveDefaults,
   onToggleWaitlist,
@@ -563,6 +564,11 @@ export const ScheduleSettingsModal = ({
             {canGoBack || launchMode ? <ChevronLeft size={15} /> : <X size={15} />}
             {canGoBack || launchMode ? 'Back' : 'Close'}
           </button>
+          {launchMode && onFinishLater && (
+            <button type="button" className="is-later" onClick={onFinishLater}>
+              I&apos;ll do this later
+            </button>
+          )}
           {isLastStep ? (
             <button type="button" className="is-primary" onClick={onSaveAvailabilitySettings}>
               {launchMode ? 'Continue to Publish' : (

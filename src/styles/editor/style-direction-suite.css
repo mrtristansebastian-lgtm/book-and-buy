@@ -94,6 +94,25 @@
             line-height: 1.02;
         }
 
+        .style-logo-control {
+            display: grid;
+            gap: 0.52rem;
+            padding-bottom: 0.18rem;
+        }
+
+        .style-logo-size-row {
+            margin: 0;
+        }
+
+        .style-logo-size-row input[type="range"] {
+            cursor: pointer;
+        }
+
+        .style-logo-size-row input[type="range"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
         .services-layout-grid > button {
             min-height: 10.4rem;
             align-items: stretch;

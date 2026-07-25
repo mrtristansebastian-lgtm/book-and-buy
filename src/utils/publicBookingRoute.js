@@ -1,6 +1,7 @@
 export const guestModeStorageKey = 'build-a-booking-guest-mode';
 export const exampleModeStorageKey = 'build-a-booking-example-mode-v2';
 export const guestPublicPreviewStorageKey = 'build-a-booking-guest-public-preview-v2';
+export const guestPublicPreviewStorageVersion = 4;
 export const legacyExampleModeStorageKey = 'build-a-booking-example-mode-v1';
 export const legacyGuestPublicPreviewStorageKey = 'build-a-booking-guest-public-preview-v1';
 

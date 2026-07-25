@@ -116,9 +116,10 @@ export function useWorkspaceIdentity({
     )) || (isWorkspaceOwner ? displayStaffList.find(staff => staff.id === 'owner') : null) || displayStaffList[0] || null;
   }, [activeWorkspaceGrant?.staffId, displayStaffList, isWorkspaceOwner, user]);
   const dashboardGreetingName = useMemo(() => {
+    if (isGuestWorkspace) return 'Guest';
     const source = personalDisplayName || activeStaffProfile?.name || user?.displayName || user?.email?.split('@')[0] || settings.brandName || 'Builder';
     return String(source).trim().split(/\s+/)[0] || 'Builder';
-  }, [activeStaffProfile?.name, personalDisplayName, settings.brandName, user?.displayName, user?.email]);
+  }, [activeStaffProfile?.name, isGuestWorkspace, personalDisplayName, settings.brandName, user?.displayName, user?.email]);
 
   return {
     accountProfileKey,

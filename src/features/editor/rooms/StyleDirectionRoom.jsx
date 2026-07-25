@@ -1,6 +1,10 @@
 import { Grid2X2, ListCollapse } from 'lucide-react';
 import { editorStyleDirections, getEditorStyleDirection } from '../../../config/appConfig';
 
+const LOGO_SIZE_MIN = 64;
+const LOGO_SIZE_MAX = 220;
+const LOGO_SIZE_FALLBACK = 104;
+
 const serviceLayouts = [
   {
     id: 'dropdown',
@@ -16,12 +20,21 @@ const serviceLayouts = [
   }
 ];
 
+const clampLogoSize = (value) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return LOGO_SIZE_FALLBACK;
+  return Math.min(LOGO_SIZE_MAX, Math.max(LOGO_SIZE_MIN, parsed));
+};
+
 export function StyleDirectionRoom({ settings, value, onApply, onSettingChange, showServiceLayout = true }) {
   const activeDirection = getEditorStyleDirection(value);
   const savedServiceStyle = String(settings?.serviceDisplayStyle || '').trim().toLowerCase();
   const activeServiceLayout = ['rail', 'tiles'].includes(savedServiceStyle) || (!savedServiceStyle && settings?.serviceDropdownEnabled === false)
     ? 'rail'
     : 'dropdown';
+  const logoDisplay = settings?.logoDisplay || {};
+  const logoSize = clampLogoSize(logoDisplay.size);
+  const logoSizeProgress = ((logoSize - LOGO_SIZE_MIN) / (LOGO_SIZE_MAX - LOGO_SIZE_MIN)) * 100;
 
   const applyServiceLayout = (layoutId) => {
     if (!onSettingChange) return;
@@ -32,6 +45,15 @@ export function StyleDirectionRoom({ settings, value, onApply, onSettingChange, 
     }
     onSettingChange('serviceDropdownEnabled', true);
     onSettingChange('serviceDisplayStyle', 'dropdown');
+  };
+
+  const handleLogoSizeChange = (event) => {
+    if (!onSettingChange) return;
+    onSettingChange('logoDisplay', {
+      ...logoDisplay,
+      visible: logoDisplay.visible !== false,
+      size: clampLogoSize(event.target.value)
+    });
   };
 
   return (
@@ -65,6 +87,27 @@ export function StyleDirectionRoom({ settings, value, onApply, onSettingChange, 
             </button>
           );
         })}
+      </div>
+      <div className="style-logo-control">
+        <div className="cinema-control-title is-compact">
+          <span>Logo size</span>
+          <small>Resize the logo mark in the booking page header.</small>
+        </div>
+        <label className="cinema-range-row style-logo-size-row">
+          <span>Header logo</span>
+          <b>{logoSize}px</b>
+          <input
+            type="range"
+            min={LOGO_SIZE_MIN}
+            max={LOGO_SIZE_MAX}
+            step="4"
+            value={logoSize}
+            disabled={!onSettingChange}
+            aria-label="Booking page logo size"
+            style={{ '--range-progress': `${logoSizeProgress}%` }}
+            onChange={handleLogoSizeChange}
+          />
+        </label>
       </div>
       {showServiceLayout ? (
         <>

@@ -2018,6 +2018,18 @@ html body .native-ui .schedule-settings-wizard-footer button.is-primary {
   color: #fff;
 }
 
+html body .native-ui .schedule-settings-wizard-footer button.is-later {
+  border-color: transparent;
+  background: transparent;
+  color: #667085;
+}
+
+html body .native-ui .schedule-settings-wizard-footer button.is-later:hover {
+  border-color: rgba(16, 24, 40, 0.08);
+  background: rgba(16, 24, 40, 0.04);
+  color: #101828;
+}
+
 html body .native-ui .schedule-slot-backdrop {
   position: fixed;
   z-index: 1300;

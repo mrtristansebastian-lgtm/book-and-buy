@@ -21,6 +21,7 @@ import { safeLocalRemove, safeLocalSet } from '../../../utils/workspaceRoute';
 import {
   exampleModeStorageKey,
   guestPublicPreviewStorageKey,
+  guestPublicPreviewStorageVersion,
   legacyExampleModeStorageKey,
   legacyGuestPublicPreviewStorageKey
 } from '../../../utils/publicBookingRoute';
@@ -118,7 +119,7 @@ export function useWorkspaceRuntimeState() {
       id, name, role, title, color, avatar, photoURL
     }));
     safeLocalSet(guestPublicPreviewStorageKey, JSON.stringify({
-      version: 3,
+      version: guestPublicPreviewStorageVersion,
       slug: example.settings.slug,
       settings: publicSettings,
       staff: publicStaff

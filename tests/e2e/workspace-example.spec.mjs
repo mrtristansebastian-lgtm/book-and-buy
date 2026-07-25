@@ -48,7 +48,7 @@ test('compact example data stays coherent across dashboard sections and public p
   await expect(page.getByRole('switch', { name: 'Example data' })).toHaveAttribute('aria-checked', 'true');
 
   await page.goto('/#/dashboard/editor', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('Flame and Flour').first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText('Flame & Flour').first()).toBeVisible({ timeout: 60_000 });
   const editorBusinessImages = page.locator('img[src*="/example/flour-and-flame/"]');
   await expect(editorBusinessImages).toHaveCount(13);
   await expectPortraitsToDecode(page, editorBusinessImages);
@@ -103,7 +103,7 @@ test('compact example data stays coherent across dashboard sections and public p
   expect(publicSnapshot.staff.every(staff => staff.photoURL.includes('/example/your-business/people/staff/'))).toBe(true);
 
   await page.goto('/#/book/your-business', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByText('Flame and Flour').first()).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText('Flame & Flour').first()).toBeVisible({ timeout: 60_000 });
   await expect(page.getByRole('heading', { name: 'Pasta From Scratch', exact: true })).toBeVisible();
   const publicBusinessImages = page.locator('img[src*="/example/flour-and-flame/"]');
   await expect(publicBusinessImages).toHaveCount(13);

@@ -84,7 +84,7 @@ try {
     businessAssetHashes.push(createHash('sha256').update(contents).digest('hex'));
   }
 
-  assert.equal(example.settings.brandName, 'Flame and Flour');
+  assert.equal(example.settings.brandName, 'Flame & Flour');
   assert.equal(example.settings.businessType, 'classes');
   assert.equal(example.settings.serviceIndustry, 'classes');
   assert.equal(example.settings.locationMode, 'my_location');
@@ -92,6 +92,7 @@ try {
   assert.equal(example.settings.serviceDropdownEnabled, false);
   assert.equal(example.settings.slug, 'your-business');
   assert.equal(example.settings.logo, '/example/flour-and-flame/flame-and-flour-logo-clean.webp');
+  assert.equal(example.settings.logoDisplay.size, 176);
   assert.equal(example.settings.bannerImage, '/example/flour-and-flame/hero.webp');
   assert.equal(example.settings.venuePhotos.length, 6);
   assert.equal(example.settings.address, 'Woodstock, Cape Town, South Africa');

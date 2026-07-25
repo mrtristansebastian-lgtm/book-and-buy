@@ -1,7 +1,10 @@
 import {
   ArrowRight,
   Eye,
-  MessagesSquare
+  LogIn,
+  MessagesSquare,
+  Sparkles,
+  UserPlus
 } from 'lucide-react';
 import { BuildABookingMark } from '../../../components/BuildABookingBrand';
 
@@ -41,31 +44,30 @@ export function AppLoginScreen({
           <span className="app-login-mark-wrap">
             <BuildABookingMark className="app-login-mark" variant="dark" />
           </span>
-          <p className="app-login-kicker">Build A Booking</p>
-          <h1 id="app-login-title">Welcome back.</h1>
+          <p className="app-login-kicker"><Sparkles size={14} /> Build A Booking</p>
+          <h1 id="app-login-title">Welcome to Build A Booking.</h1>
           <p className="app-login-body">
-            Sign in to manage your booking workspace.
+            Sign in, create your workspace, or take the demo for a spin.
           </p>
 
-          <div className="app-login-actions">
+          <div className="app-login-actions" aria-label="Workspace actions">
             <button type="button" onClick={signedIn ? onOpenWorkspace : onOwnerSignIn} className="app-login-primary">
+              <LogIn size={16} />
               {signedIn ? 'Open Workspace' : 'Sign In'}
               <ArrowRight size={16} />
             </button>
             {!signedIn && (
               <button type="button" onClick={onOwnerSignup} className="app-login-secondary">
+                <UserPlus size={16} />
                 Create Account
               </button>
             )}
-          </div>
-
-          <div className="app-login-secondary-actions" aria-label="Preview options">
-            <button type="button" onClick={onGuestDashboard}>
-              <Eye size={15} />
-              Browse Demo
+            <button type="button" onClick={onGuestDashboard} className="app-login-demo">
+              <Eye size={16} />
+              View Demo As Guest
             </button>
-            <button type="button" onClick={onClientLogin}>
-              <MessagesSquare size={15} />
+            <button type="button" onClick={onClientLogin} className="app-login-client">
+              <MessagesSquare size={16} />
               Client Portal
             </button>
           </div>
