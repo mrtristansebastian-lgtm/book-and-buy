@@ -111,7 +111,7 @@ export const ClientDirectory = ({
                 className={`w-11 h-11 md:w-14 md:h-14 rounded-lg overflow-hidden flex items-center justify-center font-bold text-base md:text-xl shrink-0 ${isActive ? 'bg-white text-black' : 'bg-neutral-100 text-black'}`}
                 aria-label={`Open ${client.name} file`}
               >
-                {client.avatar ? <img src={client.avatar} className="w-full h-full object-cover" /> : (client.name || '?').charAt(0)}
+                {client.avatar ? <img src={client.avatar} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : (client.name || '?').charAt(0)}
               </button>
               <button type="button" onClick={openClientFile} className="min-w-0 flex-1 text-left">
                 <div className="flex items-start justify-between gap-3 mb-1">

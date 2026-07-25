@@ -18,7 +18,12 @@ import {
 } from '../../workspace';
 import { appId, db, isFirebaseConfigured } from '../../../services/firebase';
 import { safeLocalRemove, safeLocalSet } from '../../../utils/workspaceRoute';
-import { exampleModeStorageKey, guestPublicPreviewStorageKey } from '../../../utils/publicBookingRoute';
+import {
+  exampleModeStorageKey,
+  guestPublicPreviewStorageKey,
+  legacyExampleModeStorageKey,
+  legacyGuestPublicPreviewStorageKey
+} from '../../../utils/publicBookingRoute';
 import { useAppRuntimeEffects } from './useAppRuntimeEffects';
 import { useClientErrorReporting } from './useClientErrorReporting';
 import { useDesignerFontLoader } from './useDesignerFontLoader';
@@ -48,6 +53,8 @@ export function useWorkspaceRuntimeState() {
 
   useEffect(() => {
     safeLocalRemove('build-a-booking-dashboard-theme');
+    safeLocalRemove(legacyExampleModeStorageKey);
+    safeLocalRemove(legacyGuestPublicPreviewStorageKey);
   }, []);
 
   useAppRuntimeEffects({ isNativeAppRuntime });
@@ -69,7 +76,7 @@ export function useWorkspaceRuntimeState() {
   });
   const {
     exampleManifest,
-    loadFitnessStudioExample,
+    loadWorkspaceExample,
     restoreBlankGuestWorkspace
   } = workspaceData;
   const workspaceIdentity = useWorkspaceIdentity({
@@ -111,7 +118,7 @@ export function useWorkspaceRuntimeState() {
       id, name, role, title, color, avatar, photoURL
     }));
     safeLocalSet(guestPublicPreviewStorageKey, JSON.stringify({
-      version: 2,
+      version: 3,
       slug: example.settings.slug,
       settings: publicSettings,
       staff: publicStaff
@@ -120,26 +127,26 @@ export function useWorkspaceRuntimeState() {
 
   const enableExampleMode = useCallback(() => {
     if (!isGuestWorkspace || authSession.user) return;
-    const example = loadFitnessStudioExample(new Date());
+    const example = loadWorkspaceExample(new Date());
     safeLocalSet(exampleModeStorageKey, 'true');
     writeExamplePublicSnapshot(example);
     startTransition(() => setExampleMode(true));
-    showToast('Kinetic House example studio is on. Changes are read-only.');
-  }, [authSession.user, isGuestWorkspace, loadFitnessStudioExample, showToast, writeExamplePublicSnapshot]);
+    showToast('Example data is on. Changes are read-only.');
+  }, [authSession.user, isGuestWorkspace, loadWorkspaceExample, showToast, writeExamplePublicSnapshot]);
 
   const disableExampleMode = useCallback(() => {
-    restoreBlankGuestWorkspace();
     safeLocalRemove(exampleModeStorageKey);
     safeLocalRemove(guestPublicPreviewStorageKey);
-    startTransition(() => setExampleMode(false));
+    setExampleMode(false);
+    restoreBlankGuestWorkspace();
     showToast('Returned to your blank guest workspace.');
   }, [restoreBlankGuestWorkspace, showToast]);
 
   useEffect(() => {
     if (!isGuestWorkspace || !exampleMode || loading || exampleManifest) return;
-    const example = loadFitnessStudioExample(new Date());
+    const example = loadWorkspaceExample(new Date());
     writeExamplePublicSnapshot(example);
-  }, [exampleManifest, exampleMode, isGuestWorkspace, loadFitnessStudioExample, loading, writeExamplePublicSnapshot]);
+  }, [exampleManifest, exampleMode, isGuestWorkspace, loadWorkspaceExample, loading, writeExamplePublicSnapshot]);
 
   useEffect(() => {
     if (!authSession.user) return;

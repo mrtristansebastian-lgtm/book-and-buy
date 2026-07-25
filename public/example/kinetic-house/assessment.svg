@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
-  <title id="title">Movement Screen</title><desc id="desc">Editorial movement assessment graphic for Kinetic House.</desc>
-  <defs><linearGradient id="bg" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#f3ede0"/><stop offset="1" stop-color="#b7c8ff"/></linearGradient></defs>
-  <rect width="1200" height="800" fill="url(#bg)"/><path d="M260 180v440M260 620h640M420 180v440M580 180v440M740 180v440M900 180v440" stroke="#18243f" stroke-width="6" opacity=".4"/><path d="M450 560c-40-135 25-250 120-250s160 115 120 250M570 310v-95M530 220h80" fill="none" stroke="#18243f" stroke-width="25" stroke-linecap="round"/><text x="72" y="112" fill="#18243f" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6">KINETIC HOUSE / ASSESSMENT</text>
-</svg>

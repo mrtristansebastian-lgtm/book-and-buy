@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
-  <title id="title">Reformer Flow</title><desc id="desc">Editorial reformer Pilates graphic for Kinetic House.</desc>
-  <defs><linearGradient id="bg" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#f3d8c2"/><stop offset="1" stop-color="#a1d8cd"/></linearGradient></defs>
-  <rect width="1200" height="800" fill="url(#bg)"/><path d="M160 610h760M280 555l520-120" stroke="#17201d" stroke-width="26" stroke-linecap="round"/><circle cx="855" cy="430" r="78" fill="#17201d"/><path d="M790 510c-85 44-120 108-130 180M850 510c10 90 70 130 148 170M780 565 620 680" fill="none" stroke="#17201d" stroke-width="24" stroke-linecap="round"/><text x="72" y="112" fill="#17201d" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6">KINETIC HOUSE / REFORMER</text>
-</svg>

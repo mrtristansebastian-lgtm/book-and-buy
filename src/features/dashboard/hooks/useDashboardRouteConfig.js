@@ -135,12 +135,17 @@ export function useDashboardRouteConfig({
           showToast,
           bookings: booking.visibleBookings,
           clientDirectory: clients.directory,
+          exampleMode: workspace.exampleMode,
           staffList: staff.displayStaffList,
+          services: services.workspaceServices,
           activeStaffId: staff.activeStaffProfile?.id || 'owner',
           workspaceRole: workspace.workspaceRole,
           workspaceOwnerId: workspace.workspaceOwnerId,
           onSettingsDirty: markWorkspaceDirty,
+          onCreateManualBooking: booking.actions.createManualBookingFromChat,
           onConnectGoogleCalendar: calendar.connectGoogleCalendar,
+          onOpenBookingChat: booking.actions.openBookingChat,
+          onUpdateBooking: booking.actions.updateBooking,
           onSyncGoogleCalendar: calendar.syncGoogleCalendarBookings
         }
       },

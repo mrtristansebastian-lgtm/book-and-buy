@@ -5,8 +5,8 @@ html body .native-ui .schedule-page {
 }
 
 html body .native-ui .schedule-workspace-shell {
-  width: min(100%, 92rem);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 0 0 8rem;
 }
 
@@ -2428,5 +2428,239 @@ html body .native-ui .schedule-slot-actions button svg {
 
   html body .native-ui .schedule-slot-duration > div:last-child {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 701px) {
+  html body .native-ui .schedule-page {
+    padding: 0 !important;
+  }
+
+  html body .native-ui .schedule-top-bar {
+    margin-bottom: 0;
+    border-width: 0 0 1px;
+    border-radius: 0;
+  }
+
+  html body .native-ui .schedule-calendar-workspace {
+    border-width: 0 0 1px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  html body .native-ui .schedule-calendar-toolbar {
+    border-radius: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  html body .native-ui .dashboard-main > div.schedule-page:not(.mobile-editor-shell) {
+    padding: 0 0 0 4.85rem !important;
+  }
+}
+
+/* Compact booking groups keep busy days scannable without hiding detail. */
+html body .native-ui .schedule-timeline-row {
+  min-height: 4.8rem;
+  grid-template-columns: 4.65rem minmax(0, 1fr) auto auto;
+  align-items: start;
+  padding: 0.7rem 0.75rem;
+}
+
+html body .native-ui .schedule-timeline-row time {
+  margin-top: 0.1rem;
+}
+
+html body .native-ui .schedule-timeline-main {
+  align-self: stretch;
+  min-width: 0;
+}
+
+html body .native-ui .schedule-slot-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+html body .native-ui .schedule-slot-heading strong {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+html body .native-ui .schedule-slot-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  padding: 0.15rem 0;
+  font-size: 0.62rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-slot-expand svg {
+  transition: transform 160ms ease;
+}
+
+html body .native-ui .schedule-timeline-row.is-expanded .schedule-slot-expand svg {
+  transform: rotate(180deg);
+}
+
+html body .native-ui .schedule-slot-expand:hover {
+  color: #111827;
+}
+
+html body .native-ui .schedule-timeline-main > small {
+  display: block;
+  margin-top: 0.28rem;
+}
+
+html body .native-ui .schedule-slot-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid #e8edf2;
+}
+
+html body .native-ui .schedule-slot-detail {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #e8edf2;
+  border-radius: 0.65rem;
+  background: #ffffff;
+  padding: 0.45rem 0.5rem;
+}
+
+html body .native-ui .schedule-slot-detail-service-image {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dce5ed;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #f3f6f9;
+  color: #334155;
+  font-size: 0.62rem;
+  font-weight: 850;
+}
+
+html body .native-ui .schedule-slot-detail-service-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+html body .native-ui .schedule-slot-detail-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+html body .native-ui .schedule-slot-detail-copy strong,
+html body .native-ui .schedule-slot-detail-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-slot-detail-copy strong {
+  color: #172033;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+html body .native-ui .schedule-slot-detail-copy small {
+  color: #748197;
+  font-size: 0.6rem;
+  font-weight: 650;
+}
+
+html body .native-ui .schedule-slot-detail-staff {
+  min-width: 0;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #64748b;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+html body .native-ui .schedule-slot-detail-staff-avatar {
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid #dce5ed;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #334155;
+  font-size: 0.58rem;
+  font-weight: 850;
+}
+
+html body .native-ui .schedule-slot-detail-staff-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+@media (max-width: 700px) {
+  html body .native-ui .schedule-timeline-row {
+    grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+  }
+
+  html body .native-ui .schedule-timeline-row .schedule-row-action {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  html body .native-ui .schedule-timeline-row .schedule-slot-state {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 0.65rem;
+  }
+
+  html body .native-ui .schedule-slot-details {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .schedule-slot-detail-staff {
+    max-width: 4.25rem;
+  }
+}
+
+@media (max-width: 440px) {
+  html body .native-ui .schedule-timeline-row {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    gap: 0.65rem;
+  }
+
+  html body .native-ui .schedule-timeline-row .schedule-row-action {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  html body .native-ui .schedule-timeline-row .schedule-slot-state {
+    grid-column: 2;
+    grid-row: 2;
   }
 }

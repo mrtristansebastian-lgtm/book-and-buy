@@ -3,7 +3,7 @@ import {
   createDefaultCommunications,
   createDefaultSettings,
   createGuestDemoWorkspace,
-  createFitnessStudioExample
+  createWorkspaceExample
 } from '../../../config/appConfig';
 import { isFirebaseConfigured } from '../../../services/firebase';
 import { normalizeHexColor } from '../../../utils/theme';
@@ -123,8 +123,8 @@ export function useWorkspaceData({
     setExampleManifest(null);
   }, [publishedSettingsSnapshotRef]);
 
-  const loadFitnessStudioExample = useCallback((anchorDate) => {
-    const example = createFitnessStudioExample({ anchorDate });
+  const loadWorkspaceExample = useCallback((anchorDate) => {
+    const example = createWorkspaceExample({ anchorDate });
     setSettingsState(example.settings);
     setBookingsState(example.bookings);
     setFinanceImportsState(example.financeImports);
@@ -133,7 +133,13 @@ export function useWorkspaceData({
     setStaffListState(example.staffList);
     setClientRecordsState(example.clientRecords);
     setCommunicationsState(example.communications);
-    setAccountProfileOverrideState({ firstName: 'Amara', surname: 'Jacobs', email: 'amara@kinetichouse.example', country: 'South Africa' });
+    setAccountProfileOverrideState({
+      firstName: 'Jordan',
+      surname: 'Lee',
+      email: 'jordan.lee@yourbusiness.example',
+      country: 'South Africa',
+      photoURL: '/example/your-business/people/staff/jordan-lee.webp'
+    });
     setExampleSupportThreads(example.supportThreads);
     setExampleNotifications(example.notifications);
     setExampleGatewayStates(example.gatewayStates);
@@ -199,7 +205,7 @@ export function useWorkspaceData({
     exampleSupportThreads,
     financeImports,
     financePaymentAttempts,
-    loadFitnessStudioExample,
+    loadWorkspaceExample,
     restoreBlankGuestWorkspace,
     resetGuestWorkspaceSeed,
     resetWorkspaceData,

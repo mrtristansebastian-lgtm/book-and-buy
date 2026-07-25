@@ -126,13 +126,15 @@
             display: inline-grid !important;
             justify-items: center;
             gap: 0.54rem;
-            width: max-content;
+            width: 100%;
             max-width: 100%;
             margin: 0 auto !important;
             font-size: clamp(0.98rem, 1.55vw, 1.16rem) !important;
             line-height: 1.08 !important;
             font-weight: 930;
             letter-spacing: 0;
+            overflow-wrap: anywhere;
+            white-space: normal;
             text-align: center !important;
             color: var(--booking-service-text, #050505) !important;
         }

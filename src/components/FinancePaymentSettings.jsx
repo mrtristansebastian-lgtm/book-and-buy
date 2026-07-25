@@ -201,7 +201,7 @@ export const FinancePaymentSettings = ({
 
   const saveGateway = async (gateway) => {
     if (exampleMode) {
-      showToast?.('Gateway settings are read-only in the example studio.');
+      showToast?.('Gateway settings are read-only while example data is on.');
       return;
     }
     if (!canManageWorkspace) {

@@ -403,7 +403,7 @@ export const DashboardOverviewPage = ({
             </div>
             {isGuestWorkspace && (
               <button type="button" role="switch" aria-checked={exampleMode} className={`dashboard-example-toggle ${exampleMode ? 'is-active' : ''}`} onClick={onExampleModeChange}>
-                <span aria-hidden="true" /> Example studio
+                <span aria-hidden="true" /> Example data
               </button>
             )}
             {!isSetupMode && (
@@ -424,7 +424,7 @@ export const DashboardOverviewPage = ({
         </header>
 
         {exampleMode && (
-          <div className="dashboard-example-readonly" role="status"><span>Read-only example</span> Kinetic House Cape Town. Explore every screen and filter without changing the sample data.</div>
+          <div className="dashboard-example-readonly" role="status"><span>Read-only example</span> Explore a small set of realistic sample bookings without changing your workspace.</div>
         )}
 
         {isSetupMode ? (

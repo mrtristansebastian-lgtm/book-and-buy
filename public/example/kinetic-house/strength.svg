@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
-  <title id="title">Strength Lab</title><desc id="desc">Editorial strength training graphic for Kinetic House.</desc>
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17201d"/><stop offset="1" stop-color="#b8ff6b"/></linearGradient></defs>
-  <rect width="1200" height="800" fill="url(#bg)"/><circle cx="930" cy="170" r="260" fill="#f8f4ec" opacity=".12"/><path d="M260 600h680M380 520h440M470 390h260" stroke="#fffdf7" stroke-width="42" stroke-linecap="round"/><path d="M320 310v370M880 310v370" stroke="#fffdf7" stroke-width="24"/><text x="72" y="112" fill="#fffdf7" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6">KINETIC HOUSE / STRENGTH</text>
-</svg>

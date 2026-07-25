@@ -79,7 +79,7 @@ export const BookingRecordRow = ({
         <div className="booking-record-client 2xl:col-span-5 flex items-center gap-4 min-w-0">
           <div className="booking-record-avatar-wrap relative shrink-0">
             <div className={`w-14 h-14 rounded-lg flex items-center justify-center font-bold text-xl uppercase overflow-hidden ${clientAvatar ? 'bg-neutral-100 text-black' : 'booking-avatar-placeholder'}`}>
-              {clientAvatar ? <img src={clientAvatar} alt="" className="w-full h-full object-cover" /> : booking.clientName.charAt(0)}
+              {clientAvatar ? <img src={clientAvatar} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : booking.clientName.charAt(0)}
             </div>
             {booking.noShowHistory && <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-sm" title="No-show history" />}
           </div>

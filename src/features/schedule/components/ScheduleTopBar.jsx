@@ -19,6 +19,7 @@ export const ScheduleTopBar = ({
   onConnectGoogleCalendar,
   onSave,
   onSyncGoogleCalendar,
+  readOnly = false,
   selectedCalendarId
 }) => {
   const connected = Boolean(googleCalendarState.connected);
@@ -36,15 +37,20 @@ export const ScheduleTopBar = ({
         </div>
       </div>
       <div className="schedule-top-actions">
-        <button type="button" onClick={() => onConnectGoogleCalendar?.()}>
+        <button type="button" onClick={() => onConnectGoogleCalendar?.()} disabled={readOnly} title={readOnly ? 'Example data is read only' : undefined}>
           <GoogleCalendarIcon size={15} />
           {label}
         </button>
-        <button type="button" onClick={() => onSyncGoogleCalendar?.(selectedCalendarId)} disabled={googleCalendarState.syncing}>
+        <button
+          type="button"
+          onClick={() => onSyncGoogleCalendar?.(selectedCalendarId)}
+          disabled={readOnly || googleCalendarState.syncing}
+          title={readOnly ? 'Example data is read only' : undefined}
+        >
           <RefreshCw size={15} className={googleCalendarState.syncing ? 'animate-spin' : ''} />
           {googleCalendarState.syncing ? 'Syncing' : `Sync ${googleSyncCount}`}
         </button>
-        <button type="button" className="is-primary" onClick={onSave}>
+        <button type="button" className="is-primary" onClick={onSave} disabled={readOnly} title={readOnly ? 'Example data is read only' : undefined}>
           <Check size={15} />
           Save
         </button>

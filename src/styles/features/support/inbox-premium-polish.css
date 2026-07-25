@@ -1,0 +1,352 @@
+/* Neutral support surfaces with high-contrast conversation states. */
+html body .native-ui .support-desk-shell .support-thread-list,
+html body .native-ui .support-desk-shell .support-chat-canvas {
+    background: #f8fafc !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row,
+html body .native-ui .support-inbox-pro .support-thread-row {
+    width: calc(100% - 1rem) !important;
+    margin: 0.25rem 0.5rem !important;
+    padding: 1rem !important;
+    border: 1px solid #e7ebf0 !important;
+    border-radius: 0.9rem !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+    color: #172033 !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row:hover,
+html body .native-ui .support-inbox-pro .support-thread-row:hover {
+    background: #f8fafc !important;
+    border-color: #d7dee8 !important;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06) !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row.is-active,
+html body .native-ui .support-inbox-pro .support-thread-row.is-active {
+    border-color: #172033 !important;
+    box-shadow: inset 3px 0 0 #172033, 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-client-name,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-client-name {
+    color: #172033 !important;
+    font-size: 0.9rem !important;
+    letter-spacing: -0.01em;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-service,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-service {
+    color: #697589 !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-preview,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-preview {
+    margin-top: 0.75rem !important;
+    color: #465268 !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    line-height: 1.45 !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-preview-divider,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-preview-divider {
+    margin-top: 0.75rem !important;
+    background: #edf0f4 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-bubble,
+html body .native-ui .support-inbox-pro .support-message-bubble {
+    max-width: min(42rem, 82%) !important;
+    padding: 0.9rem 1.05rem !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.045) !important;
+    font-size: 0.9rem !important;
+    line-height: 1.5 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-owner,
+html body .native-ui .support-inbox-pro .support-message-owner {
+    background: #f3f6f9 !important;
+    border: 1px solid #d9e1e9 !important;
+    border-bottom-right-radius: 0.35rem !important;
+    color: #172033 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-client,
+html body .native-ui .support-inbox-pro .support-message-client {
+    background: #ffffff !important;
+    border: 1px solid #e2e7ed !important;
+    border-bottom-left-radius: 0.35rem !important;
+    color: #172033 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-system,
+html body .native-ui .support-inbox-pro .support-message-system {
+    background: #f1f5f9 !important;
+    border: 1px dashed #cbd5e1 !important;
+    color: #526176 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-author,
+html body .native-ui .support-inbox-pro .support-message-author,
+html body .native-ui .support-desk-shell .support-message-copy,
+html body .native-ui .support-inbox-pro .support-message-copy {
+    opacity: 1 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-client .support-message-copy,
+html body .native-ui .support-inbox-pro .support-message-client .support-message-copy {
+    color: #253149 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-owner .support-message-copy,
+html body .native-ui .support-inbox-pro .support-message-owner .support-message-copy {
+    color: #253149 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal,
+html body .native-ui .support-inbox-pro .support-message-proposal {
+    border-radius: 0.8rem !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-owner,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-owner {
+    background: #ffffff !important;
+    border-color: #d9e1e9 !important;
+    color: #172033 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-client,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client {
+    background: #f8fafc !important;
+    border-color: #dfe5ec !important;
+    color: #172033 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal-title,
+html body .native-ui .support-inbox-pro .support-message-proposal-title,
+html body .native-ui .support-desk-shell .support-message-proposal-status,
+html body .native-ui .support-inbox-pro .support-message-proposal-status {
+    opacity: 1 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-title,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-title,
+html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-label,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-label,
+html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-status,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-status {
+    color: #6b778a !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-tile,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-tile {
+    background: #f3f6f9 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-value,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-value {
+    color: #172033 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-title,
+html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-label,
+html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-status,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-title,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-label,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-status {
+    color: #6b778a !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-tile,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-tile {
+    background: #ffffff !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-value,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-value {
+    color: #172033 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal-secondary,
+html body .native-ui .support-inbox-pro .support-message-proposal-secondary {
+    border-color: #cbd5e1 !important;
+    background: transparent !important;
+    color: #253149 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-secondary,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-secondary {
+    border-color: #cbd5e1 !important;
+    color: #253149 !important;
+}
+
+@media (max-width: 767px) {
+    html body .native-ui .support-desk-shell .support-thread-row,
+    html body .native-ui .support-inbox-pro .support-thread-row {
+        width: calc(100% - 0.75rem) !important;
+        margin-inline: 0.375rem !important;
+        padding: 0.85rem !important;
+    }
+
+    html body .native-ui .support-desk-shell .support-message-bubble,
+    html body .native-ui .support-inbox-pro .support-message-bubble {
+        max-width: 91% !important;
+    }
+}
+
+/* Thread rail hierarchy: identity, metadata, then the latest message. */
+html body .native-ui .support-desk-shell .support-thread-row,
+html body .native-ui .support-inbox-pro .support-thread-row {
+    min-height: 8.35rem !important;
+    padding: 0.9rem 0.95rem !important;
+    border-color: #e5eaf0 !important;
+    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.025) !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row::before,
+html body .native-ui .support-inbox-pro .support-thread-row::before {
+    content: none !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row.is-active,
+html body .native-ui .support-inbox-pro .support-thread-row.is-active {
+    position: relative !important;
+    border-color: #dce4eb !important;
+    background: #ffffff !important;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.07) !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row.is-active::before,
+html body .native-ui .support-inbox-pro .support-thread-row.is-active::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0.7rem auto 0.7rem 0 !important;
+    width: 0.2rem !important;
+    border-radius: 999px !important;
+    background: var(--native-accent-gradient) !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row > div:first-child,
+html body .native-ui .support-inbox-pro .support-thread-row > div:first-child {
+    align-items: center !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .booking-avatar-placeholder,
+html body .native-ui .support-inbox-pro .support-thread-row .booking-avatar-placeholder,
+html body .native-ui .support-desk-shell .support-thread-row > div:first-child > div:first-child > div:first-child,
+html body .native-ui .support-inbox-pro .support-thread-row > div:first-child > div:first-child > div:first-child {
+    width: 2.55rem !important;
+    height: 2.55rem !important;
+    border-radius: 0.85rem !important;
+    background: #f5f7f9 !important;
+    border: 1px solid #e1e7ed !important;
+    color: #172033 !important;
+    box-shadow: none !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row > div:first-child > div:first-child,
+html body .native-ui .support-inbox-pro .support-thread-row > div:first-child > div:first-child {
+    width: auto !important;
+    height: auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-meta-icons,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-meta-icons {
+    gap: 0.3rem !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-icon-chip,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-icon-chip {
+    width: 1.65rem !important;
+    height: 1.65rem !important;
+    background: #f8fafc !important;
+    border-color: #e1e7ed !important;
+    color: #526176 !important;
+    box-shadow: none !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-icon-chip.reschedule,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-icon-chip.reschedule {
+    background: #fffaf0 !important;
+    border-color: #f4dfb7 !important;
+    color: #a16b16 !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-unread-count,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-unread-count {
+    min-width: 1.65rem !important;
+    height: 1.65rem !important;
+    background: #172033 !important;
+    border-color: #172033 !important;
+    box-shadow: none !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-service,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-service {
+    margin-top: 0.2rem !important;
+    color: #718096 !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.01em !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-preview-box,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-preview-box {
+    margin-top: 0.78rem !important;
+    padding: 0.62rem 0.7rem !important;
+    border: 1px solid #edf0f3 !important;
+    border-radius: 0.7rem !important;
+    background: #f8fafc !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-preview,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-preview {
+    margin: 0 !important;
+    color: #526176 !important;
+    font-size: 0.74rem !important;
+    line-height: 1.4 !important;
+    font-weight: 550 !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row.is-active .support-thread-preview-box,
+html body .native-ui .support-inbox-pro .support-thread-row.is-active .support-thread-preview-box {
+    background: #fbfdfb !important;
+    border-color: #e4ece5 !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row:hover .support-thread-preview-box,
+html body .native-ui .support-inbox-pro .support-thread-row:hover .support-thread-preview-box {
+    border-color: #dfe6ed !important;
+    background: #ffffff !important;
+}
+
+html body .native-ui .support-desk-shell .support-chat-composer textarea,
+html body .native-ui .support-inbox-pro .support-chat-composer textarea {
+    border-radius: 0.7rem !important;
+}
+
+html body .native-ui .support-desk-shell .support-thread-row .support-thread-preview-divider,
+html body .native-ui .support-inbox-pro .support-thread-row .support-thread-preview-divider {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    html body .native-ui .support-desk-shell .support-thread-row,
+    html body .native-ui .support-inbox-pro .support-thread-row {
+        min-height: 7.8rem !important;
+        padding: 0.82rem !important;
+    }
+
+    html body .native-ui .support-desk-shell .support-thread-row .support-thread-preview-box,
+    html body .native-ui .support-inbox-pro .support-thread-row .support-thread-preview-box {
+        margin-top: 0.65rem !important;
+    }
+}

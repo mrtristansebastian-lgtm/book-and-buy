@@ -11,3 +11,7 @@ _local_backups/
 Build a Booking MVP APP/
 .agents/
 legacy/
+test-results/
+tmp/
+public/example/flour-and-flame/flame-and-flour-logo.webp
+public/example/flour-and-flame/flame-and-flour-logo-white.webp

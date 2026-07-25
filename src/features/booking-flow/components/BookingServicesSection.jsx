@@ -1,5 +1,5 @@
-import { useId, useState } from 'react';
-import { Check, ChevronDown, LayoutList, X } from 'lucide-react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, LayoutList, X } from 'lucide-react';
 import { getFontFamily } from '../../../data/fonts';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import { withColorAlpha } from '../../../utils/theme';
@@ -37,6 +37,12 @@ export const BookingServicesSection = ({
 }) => {
     const categoryDropdownId = useId();
     const [galleryState, setGalleryState] = useState(null);
+    const serviceCarouselRef = useRef(null);
+    const [serviceCarouselState, setServiceCarouselState] = useState({
+        hasOverflow: false,
+        canGoPrevious: false,
+        canGoNext: false
+    });
 
     const serviceTextColor = settings.serviceTextColor || settings.headingColor || '#050505';
     const serviceBodyColor = settings.serviceBodyColor || serviceTextColor;
@@ -67,6 +73,59 @@ export const BookingServicesSection = ({
         ? Math.min(galleryState?.index || 0, galleryImages.length - 1)
         : 0;
     const galleryImage = galleryImages[galleryIndex];
+
+    useEffect(() => {
+        const viewport = serviceCarouselRef.current;
+        if (!viewport) return undefined;
+
+        viewport.scrollTo({ left: 0 });
+
+        const updateCarouselState = () => {
+            const hasOverflow = serviceCards.length > 1 && viewport.scrollWidth > viewport.clientWidth + 4;
+            const canGoPrevious = hasOverflow && viewport.scrollLeft > 4;
+            const canGoNext = hasOverflow && viewport.scrollLeft + viewport.clientWidth < viewport.scrollWidth - 4;
+
+            setServiceCarouselState(previous => {
+                if (
+                    previous.hasOverflow === hasOverflow &&
+                    previous.canGoPrevious === canGoPrevious &&
+                    previous.canGoNext === canGoNext
+                ) {
+                    return previous;
+                }
+                return { hasOverflow, canGoPrevious, canGoNext };
+            });
+        };
+
+        const frame = window.requestAnimationFrame(updateCarouselState);
+        const resizeObserver = typeof ResizeObserver === 'undefined'
+            ? null
+            : new ResizeObserver(updateCarouselState);
+
+        resizeObserver?.observe(viewport);
+        viewport.addEventListener('scroll', updateCarouselState, { passive: true });
+
+        return () => {
+            window.cancelAnimationFrame(frame);
+            resizeObserver?.disconnect();
+            viewport.removeEventListener('scroll', updateCarouselState);
+        };
+    }, [selectedServiceCategory, serviceCards.length]);
+
+    const moveServiceCarousel = (direction) => {
+        const viewport = serviceCarouselRef.current;
+        if (!viewport) return;
+
+        const firstCard = viewport.querySelector('.booking-service-option');
+        const styles = window.getComputedStyle(viewport);
+        const gap = Number.parseFloat(styles.columnGap || styles.gap || '0') || 0;
+        const cardWidth = firstCard?.getBoundingClientRect().width || viewport.clientWidth * 0.78;
+
+        viewport.scrollBy({
+            left: direction * (cardWidth + gap),
+            behavior: 'smooth'
+        });
+    };
 
     const selectCategory = (category) => {
         setSelectedServiceCategory(category);
@@ -377,9 +436,56 @@ export const BookingServicesSection = ({
             </div>
             <div className={`booking-services-wrap booking-services-wrap-${serviceDisplayStyle} ${hasCategoryChoices ? 'has-category-control' : 'has-single-category'}`} onClick={() => previewInspectEnabled && onInspect('services')}>
                 {categoryControl}
-                <div className={`booking-services-grid booking-services-rail booking-services-tiles ${serviceDropdownEnabled ? 'booking-services-dropdown-cards' : ''} ${activeServices.length === 0 && isPreview ? 'booking-services-preview-empty' : ''} grid grid-cols-1 md:grid-cols-2 gap-3`}>
-                    {serviceCards.map((service, index) => renderServiceButton(service, { isActive: activeServices.length === 0 && index === 0 }))}
+                <div
+                    className={`booking-services-carousel ${serviceCarouselState.hasOverflow ? 'has-overflow' : ''} ${serviceCarouselState.canGoPrevious ? 'can-go-previous' : ''} ${serviceCarouselState.canGoNext ? 'can-go-next' : ''}`}
+                    style={{ '--booking-carousel-fade': settings.backgroundColor || '#ffffff' }}
+                >
+                    {serviceCarouselState.hasOverflow && (
+                        <button
+                            type="button"
+                            className="booking-services-carousel-arrow is-previous"
+                            aria-label="Previous services"
+                            disabled={!serviceCarouselState.canGoPrevious}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                moveServiceCarousel(-1);
+                            }}
+                        >
+                            <ChevronLeft size={17} strokeWidth={2.4} aria-hidden="true" />
+                        </button>
+                    )}
+                    <div
+                        ref={serviceCarouselRef}
+                        className={`booking-services-grid booking-services-carousel-viewport booking-services-rail booking-services-tiles ${serviceDropdownEnabled ? 'booking-services-dropdown-cards' : ''} ${activeServices.length === 0 && isPreview ? 'booking-services-preview-empty' : ''} grid grid-cols-1 md:grid-cols-2 gap-3`}
+                    >
+                        {serviceCards.map((service, index) => renderServiceButton(
+                            service,
+                            activeServices.length === 0 ? { isActive: index === 0 } : {}
+                        ))}
+                    </div>
+                    {serviceCarouselState.hasOverflow && (
+                        <button
+                            type="button"
+                            className="booking-services-carousel-arrow is-next"
+                            aria-label="Next services"
+                            disabled={!serviceCarouselState.canGoNext}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                moveServiceCarousel(1);
+                            }}
+                        >
+                            <ChevronRight size={17} strokeWidth={2.4} aria-hidden="true" />
+                        </button>
+                    )}
                 </div>
+                {serviceCarouselState.hasOverflow && (
+                    <div className="booking-services-carousel-controls">
+                        <p className="booking-services-carousel-guide" aria-live="polite">
+                            <span className="is-touch-guide">Swipe left or right to explore services</span>
+                            <span className="is-pointer-guide">Use the arrows to explore services</span>
+                        </p>
+                    </div>
+                )}
             </div>
             {galleryImage && (
                 <div

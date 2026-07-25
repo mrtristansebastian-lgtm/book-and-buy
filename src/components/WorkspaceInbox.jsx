@@ -645,16 +645,16 @@ export function WorkspaceInbox({
                     setActiveThreadId(thread.id);
                     setMobileChatOpen(true);
                   }}
-                  className={`support-thread-row w-full text-left p-3.5 md:p-5 border-b border-neutral-100 transition-colors relative overflow-hidden ${active ? 'is-active bg-white text-black shadow-sm' : 'bg-transparent hover:bg-white text-black'}`}
+                  className={`support-thread-row w-full text-left p-3.5 md:p-5 border-b border-neutral-100 transition-colors relative overflow-hidden ${active ? 'is-active' : ''}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold overflow-hidden ${threadAvatar ? 'bg-white border border-neutral-100 text-black' : 'booking-avatar-placeholder'}`}>
-                        {threadAvatar ? <img src={threadAvatar} alt="" className="w-full h-full object-cover" /> : (thread.clientName || 'C').charAt(0).toUpperCase()}
+                        {threadAvatar ? <img src={threadAvatar} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : (thread.clientName || 'C').charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold truncate text-black">{thread.clientName || 'Client'}</p>
-                        <p className="text-xs mt-1 truncate text-neutral-500">{thread.serviceName || thread.clientEmail || thread.workspaceName || 'Client thread'}</p>
+                        <p className="support-thread-client-name font-bold truncate">{thread.clientName || 'Client'}</p>
+                        <p className="support-thread-service text-xs mt-1 truncate">{thread.serviceName || thread.clientEmail || thread.workspaceName || 'Client thread'}</p>
                       </div>
                     </div>
                     <div className="support-thread-meta-icons flex items-center gap-1.5 shrink-0">
@@ -669,8 +669,9 @@ export function WorkspaceInbox({
                       {Number(thread.ownerUnread || 0) > 0 && <span className="support-thread-unread-count min-w-6 h-6 rounded-full text-[10px] font-bold flex items-center justify-center">{thread.ownerUnread}</span>}
                     </div>
                   </div>
-                  <div className="support-thread-preview-divider" aria-hidden="true" />
-                  <p className="text-sm mt-3 line-clamp-2 text-neutral-500">{thread.lastMessage || 'No messages yet.'}</p>
+                  <div className="support-thread-preview-box">
+                    <p className="support-thread-preview text-sm line-clamp-2">{thread.lastMessage || 'No messages yet.'}</p>
+                  </div>
                 </button>
               );
             }) : (
@@ -793,22 +794,21 @@ export function WorkspaceInbox({
                   const messageTone = mine ? 'support-message-owner' : message.senderRole === 'system' ? 'support-message-system' : 'support-message-client';
                   return (
                     <div key={message.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`support-message-bubble ${messageTone} max-w-[82%] rounded-2xl px-4 py-3 shadow-sm ${mine ? 'bg-[#111214] text-white rounded-br-md' : message.senderRole === 'system' ? 'bg-white border border-neutral-100 text-neutral-500' : 'bg-white text-black border border-neutral-100 rounded-bl-md'}`}>
-                        <p className="text-[9px] font-bold uppercase tracking-widest opacity-45 mb-1">{message.senderRole === 'system' ? 'System' : message.senderName || message.senderRole}</p>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                      <div className={`support-message-bubble ${messageTone} max-w-[82%] rounded-2xl px-4 py-3 shadow-sm`}>
+                        <p className="support-message-copy text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
                         {proposal && (
-                          <div className={`mt-3 rounded-xl border p-3 ${mine ? 'bg-white/10 border-white/15 text-white' : 'bg-white border-neutral-200 text-black'}`}>
-                            <p className="text-[8px] font-bold uppercase tracking-[0.16em] opacity-50 mb-2">
+                          <div className={`support-message-proposal mt-3 rounded-xl border p-3 ${mine ? 'is-owner' : 'is-client'}`}>
+                            <p className="support-message-proposal-title text-[8px] font-bold uppercase tracking-[0.16em] mb-2">
                               {proposal.status === 'accepted' ? 'Reschedule accepted' : proposal.status === 'declined' ? 'Reschedule declined' : proposal.source === 'counter' ? 'Counter offer' : 'Reschedule request'}
                             </p>
                             <div className="grid grid-cols-2 gap-2 mb-3">
-                              <div className={`rounded-lg px-3 py-2 ${mine ? 'bg-white/10' : 'bg-neutral-50'}`}>
-                                <p className="text-[8px] font-bold uppercase tracking-widest opacity-45">Date</p>
-                                <p className="text-xs font-bold mt-1">{proposal.date || 'To confirm'}</p>
+                              <div className="support-message-proposal-tile rounded-lg px-3 py-2">
+                                <p className="support-message-proposal-label text-[8px] font-bold uppercase tracking-widest">Date</p>
+                                <p className="support-message-proposal-value text-xs font-bold mt-1">{proposal.date || 'To confirm'}</p>
                               </div>
-                              <div className={`rounded-lg px-3 py-2 ${mine ? 'bg-white/10' : 'bg-neutral-50'}`}>
-                                <p className="text-[8px] font-bold uppercase tracking-widest opacity-45">Time</p>
-                                <p className="text-xs font-bold mt-1">{proposal.time || 'To confirm'}</p>
+                              <div className="support-message-proposal-tile rounded-lg px-3 py-2">
+                                <p className="support-message-proposal-label text-[8px] font-bold uppercase tracking-widest">Time</p>
+                                <p className="support-message-proposal-value text-xs font-bold mt-1">{proposal.time || 'To confirm'}</p>
                               </div>
                             </div>
                             {ownerCanRespond ? (
@@ -816,19 +816,19 @@ export function WorkspaceInbox({
                                 <button type="button" onClick={() => acceptRescheduleProposal(proposal)} className="h-9 rounded-lg native-gradient-button text-black text-[8px] font-bold uppercase tracking-widest">
                                   Accept
                                 </button>
-                                <button type="button" onClick={() => offerReschedule(proposal)} className={`h-9 rounded-lg border text-[8px] font-bold uppercase tracking-widest ${mine ? 'border-white/20 bg-white/10 text-white' : 'border-neutral-200 bg-white text-black'}`}>
+                                <button type="button" onClick={() => offerReschedule(proposal)} className="support-message-proposal-secondary h-9 rounded-lg border text-[8px] font-bold uppercase tracking-widest">
                                   Counter
                                 </button>
-                                <button type="button" onClick={() => declineRescheduleProposal(proposal)} className={`h-9 rounded-lg border text-[8px] font-bold uppercase tracking-widest ${mine ? 'border-white/20 bg-white/10 text-white' : 'border-neutral-200 bg-white text-black'}`}>
+                                <button type="button" onClick={() => declineRescheduleProposal(proposal)} className="support-message-proposal-secondary h-9 rounded-lg border text-[8px] font-bold uppercase tracking-widest">
                                   Decline
                                 </button>
                               </div>
                             ) : pendingProposal ? (
-                              <p className="text-[10px] font-bold uppercase tracking-widest opacity-45">
+                              <p className="support-message-proposal-status text-[10px] font-bold uppercase tracking-widest">
                                 {proposal.requestedBy === 'owner' ? 'Waiting for client response' : 'Waiting for your response'}
                               </p>
                             ) : (
-                              <p className="text-[10px] font-bold uppercase tracking-widest opacity-45">{proposal.status || 'Closed'}</p>
+                              <p className="support-message-proposal-status text-[10px] font-bold uppercase tracking-widest">{proposal.status || 'Closed'}</p>
                             )}
                           </div>
                         )}

@@ -49,7 +49,9 @@ export function usePublicBookingWorkspace({
     const localGuestSettings = settingsRef.current || settings;
     let exampleSnapshot = null;
     try { exampleSnapshot = JSON.parse(safeLocalGet(guestPublicPreviewStorageKey) || 'null'); } catch { exampleSnapshot = null; }
-    const snapshotSettings = exampleSnapshot?.version === 1 && exampleSnapshot?.slug === publicSlug ? exampleSnapshot.settings : null;
+    const snapshotSettings = exampleSnapshot?.version === 3 && exampleSnapshot?.slug === publicSlug
+      ? { ...exampleSnapshot.settings, publicStaff: exampleSnapshot.staff || [] }
+      : null;
     const localGuestSlug = buildBookingSlug(localGuestSettings.slug || localGuestSettings.brandName || localGuestSettings.businessName || 'studio');
     const isGuestPublicPreview = !user && (guestMode || safeLocalGet(guestModeStorageKey) === 'true' || safeLocalGet(exampleModeStorageKey) === 'true');
     const guestSettingsForSlug = snapshotSettings || (

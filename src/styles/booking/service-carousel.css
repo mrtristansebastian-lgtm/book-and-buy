@@ -1,0 +1,243 @@
+.booking-services-wrap:has(.booking-services-carousel) {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    min-width: 0;
+}
+
+@media (min-width: 1024px) {
+    .booking-flow-public .booking-selection-workspace.has-service-step > [data-preview-section="services"],
+    .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step > [data-preview-section="services"] {
+        width: min(100%, 68rem) !important;
+    }
+}
+
+.booking-services-carousel {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr) 2.4rem;
+    align-items: center;
+    column-gap: 0.48rem;
+    margin-inline: auto;
+}
+
+.booking-services-carousel-viewport {
+    display: flex !important;
+    grid-template-columns: none !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: clamp(0.8rem, 1.6vw, 1rem) !important;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-column: 2;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: 0.3rem clamp(2.75rem, 4vw, 3.35rem) 1rem !important;
+    scroll-padding-inline: clamp(2.75rem, 4vw, 3.35rem);
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+html body .booking-flow-public .booking-selection-workspace.has-service-step [data-preview-section="services"] .booking-services-carousel-viewport.booking-services-grid,
+html body .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step [data-preview-section="services"] .booking-services-carousel-viewport.booking-services-grid {
+    justify-content: flex-start !important;
+}
+
+.booking-services-carousel-viewport::-webkit-scrollbar {
+    display: none;
+}
+
+.booking-services-carousel-viewport > .booking-service-option {
+    flex: 0 0 clamp(14.6rem, 25vw, 16.2rem) !important;
+    width: clamp(14.6rem, 25vw, 16.2rem) !important;
+    min-width: clamp(14.6rem, 25vw, 16.2rem) !important;
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+}
+
+.booking-services-carousel::before,
+.booking-services-carousel::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: 0.3rem;
+    bottom: 1rem;
+    width: clamp(2.1rem, 3.5vw, 3rem);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 180ms ease;
+}
+
+.booking-services-carousel::before {
+    left: 2.88rem;
+    background: linear-gradient(90deg, var(--booking-carousel-fade, #ffffff), transparent);
+}
+
+.booking-services-carousel::after {
+    right: 2.88rem;
+    background: linear-gradient(270deg, var(--booking-carousel-fade, #ffffff), transparent);
+}
+
+.booking-services-carousel.can-go-previous::before,
+.booking-services-carousel.can-go-next::after {
+    opacity: 1;
+}
+
+.booking-services-carousel-arrow {
+    appearance: none;
+    position: static;
+    width: 2.4rem;
+    height: 2.4rem;
+    display: inline-flex;
+    flex: 0 0 2.4rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) border-box;
+    color: #0f172a;
+    box-shadow: 0 12px 28px -22px rgba(15, 23, 42, 0.62);
+    transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+}
+
+.booking-services-carousel-arrow.is-previous {
+    grid-column: 1;
+}
+
+.booking-services-carousel-arrow.is-next {
+    grid-column: 3;
+}
+
+.booking-services-carousel-arrow:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 20px 42px -25px rgba(15, 23, 42, 0.72);
+}
+
+.booking-services-carousel-arrow:focus-visible {
+    outline: 2px solid #0f172a;
+    outline-offset: 3px;
+}
+
+.booking-services-carousel-arrow:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.booking-services-carousel-controls {
+    width: fit-content;
+    max-width: calc(100% - 2rem);
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: -0.1rem auto 0;
+}
+
+.booking-services-carousel-guide {
+    width: auto;
+    max-width: 17rem;
+    margin: 0 !important;
+    color: var(--booking-service-body, #64748b) !important;
+    font-size: 0.68rem !important;
+    font-weight: 650 !important;
+    line-height: 1.35 !important;
+    letter-spacing: 0.01em;
+    text-align: center !important;
+}
+
+.booking-services-carousel-guide .is-touch-guide {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .booking-services-carousel {
+        display: block;
+        width: 100%;
+    }
+
+    .booking-services-carousel-viewport {
+        gap: 0.82rem !important;
+        padding: 0.25rem 2.85rem 0.8rem 1rem !important;
+        scroll-padding-inline: 1rem;
+    }
+
+    .booking-services-carousel-viewport > .booking-service-option {
+        flex-basis: min(82%, 16.5rem) !important;
+        width: min(82%, 16.5rem) !important;
+        min-width: min(82%, 16.5rem) !important;
+    }
+
+    .booking-services-carousel-arrow {
+        display: none;
+    }
+
+    .booking-services-carousel-controls {
+        min-height: 0;
+        margin-top: -0.12rem;
+    }
+
+    .booking-services-carousel::before {
+        left: 0;
+        width: 1rem;
+    }
+
+    .booking-services-carousel::after {
+        right: 0;
+        width: 2.85rem;
+    }
+
+    .booking-services-carousel-guide .is-touch-guide {
+        display: inline;
+    }
+
+    .booking-services-carousel-guide .is-pointer-guide {
+        display: none;
+    }
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel {
+    width: 100%;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel-viewport {
+    gap: 0.72rem !important;
+    padding: 0.25rem 2.6rem 0.75rem 0.8rem !important;
+    scroll-padding-inline: 0.8rem;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel-viewport > .booking-service-option {
+    flex: 0 0 min(82%, 15.8rem) !important;
+    width: min(82%, 15.8rem) !important;
+    min-width: min(82%, 15.8rem) !important;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel-arrow {
+    display: none;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel-guide .is-touch-guide {
+    display: inline;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel-guide .is-pointer-guide {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .booking-services-carousel-viewport {
+        scroll-behavior: auto;
+    }
+
+    .booking-services-carousel-arrow,
+    .booking-services-carousel::before,
+    .booking-services-carousel::after {
+        transition: none;
+    }
+}

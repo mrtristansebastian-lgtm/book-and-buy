@@ -1,0 +1,2336 @@
+/* Adaptive operations calendar: familiar scheduling patterns with restrained native accents. */
+html body .native-ui .schedule-calendar-workspace {
+  --calendar-border: #e4e8ee;
+  --calendar-border-soft: #edf0f4;
+  --calendar-ink: #111827;
+  --calendar-muted: #687386;
+  --calendar-soft: #f7f8fa;
+  overflow: visible;
+  border: 1px solid var(--calendar-border);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 18px 54px rgba(15, 23, 42, 0.06);
+}
+
+html body .native-ui .schedule-calendar-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  min-height: 4.5rem;
+  padding: 0.72rem 0.8rem;
+  border-bottom: 1px solid var(--calendar-border);
+  border-radius: 18px 18px 0 0;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(18px);
+}
+
+html body .native-ui .schedule-calendar-date-nav,
+html body .native-ui .schedule-calendar-toolbar-actions,
+html body .native-ui .schedule-calendar-arrows,
+html body .native-ui .schedule-calendar-view-switcher {
+  display: flex;
+  align-items: center;
+}
+
+html body .native-ui .schedule-calendar-date-nav {
+  min-width: 0;
+  gap: 0.55rem;
+}
+
+html body .native-ui .schedule-calendar-date-nav h2 {
+  overflow: hidden;
+  min-width: 12rem;
+  margin: 0 0 0 0.12rem;
+  color: var(--calendar-ink);
+  font-size: clamp(1rem, 1.25vw, 1.18rem);
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-calendar-today,
+html body .native-ui .schedule-calendar-arrows button,
+html body .native-ui .schedule-calendar-settings,
+html body .native-ui .schedule-calendar-filter-trigger,
+html body .native-ui .schedule-calendar-create {
+  min-height: 2.6rem;
+  border: 1px solid var(--calendar-border);
+  color: var(--calendar-ink);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-calendar-today {
+  min-width: 4rem;
+  border-radius: 10px;
+  background: #fff;
+}
+
+html body .native-ui .schedule-calendar-arrows {
+  overflow: hidden;
+  border: 1px solid var(--calendar-border);
+  border-radius: 10px;
+  background: #fff;
+}
+
+html body .native-ui .schedule-calendar-arrows button {
+  display: inline-flex;
+  width: 2.45rem;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+html body .native-ui .schedule-calendar-arrows button + button {
+  border-left: 1px solid var(--calendar-border);
+}
+
+html body .native-ui .schedule-calendar-toolbar-actions {
+  flex: 0 0 auto;
+  gap: 0.45rem;
+}
+
+html body .native-ui .schedule-calendar-view-switcher {
+  gap: 0.2rem;
+  padding: 0.24rem;
+  border: 1px solid var(--calendar-border);
+  border-radius: 11px;
+  background: #f5f6f8;
+}
+
+html body .native-ui .schedule-calendar-view-switcher button {
+  display: inline-flex;
+  min-height: 2.15rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0 0.72rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #667085;
+  font-size: 0.67rem;
+  font-weight: 820;
+}
+
+html body .native-ui .schedule-calendar-view-switcher button.is-active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  color: #101828;
+  box-shadow: 0 2px 9px rgba(15, 23, 42, 0.08);
+}
+
+html body .native-ui .schedule-calendar-filter-wrap {
+  position: relative;
+}
+
+html body .native-ui .schedule-calendar-filter-trigger {
+  display: inline-flex;
+  max-width: 10.5rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.7rem;
+  border-radius: 10px;
+  background: #fff;
+}
+
+html body .native-ui .schedule-calendar-filter-trigger span {
+  overflow: hidden;
+  color: var(--calendar-ink);
+  font-size: inherit;
+  font-weight: inherit;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-calendar-filter-trigger.is-active {
+  border-color: transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-gradient) border-box;
+}
+
+html body .native-ui .schedule-calendar-filter-popover {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  z-index: 50;
+  width: min(21rem, calc(100vw - 2rem));
+  padding: 0.72rem;
+  border: 1px solid var(--calendar-border);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.16);
+}
+
+html body .native-ui .schedule-calendar-filter-popover > p {
+  margin: 0 0 0.5rem;
+  color: #8a94a5;
+  font-size: 0.61rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-calendar-staff-options {
+  display: grid;
+  gap: 0.28rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  margin-bottom: 0.7rem;
+}
+
+html body .native-ui .schedule-calendar-staff-options button {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.58rem;
+  min-height: 3rem;
+  padding: 0.38rem 0.5rem;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--calendar-ink);
+  text-align: left;
+}
+
+html body .native-ui .schedule-calendar-staff-options button:hover,
+html body .native-ui .schedule-calendar-staff-options button.is-active {
+  background: #f5f7f9;
+}
+
+html body .native-ui .schedule-calendar-staff-options button.is-active {
+  box-shadow: inset 2px 0 0 #111827;
+}
+
+html body .native-ui .schedule-calendar-staff-options button > span:nth-child(2) {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+html body .native-ui .schedule-calendar-staff-options strong {
+  overflow: hidden;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-calendar-staff-options small {
+  color: var(--calendar-muted);
+  font-size: 0.64rem;
+  font-weight: 620;
+}
+
+html body .native-ui .schedule-calendar-filter-avatar {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--staff-color) 12%, #f3f4f6);
+  color: #111827;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+html body .native-ui .schedule-calendar-filter-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+html body .native-ui .schedule-calendar-filter-popover > label {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.58rem;
+}
+
+html body .native-ui .schedule-calendar-filter-popover > label > span,
+html body .native-ui .schedule-booking-field-grid label > span {
+  color: #475467;
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: none;
+}
+
+html body .native-ui .schedule-calendar-filter-popover select,
+html body .native-ui .schedule-booking-field-grid input,
+html body .native-ui .schedule-booking-field-grid select {
+  width: 100%;
+  min-height: 2.65rem;
+  border: 1px solid #d9dee6;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--calendar-ink);
+  font-size: 0.78rem;
+  font-weight: 650;
+  outline: 0;
+}
+
+html body .native-ui .schedule-calendar-filter-popover select {
+  padding: 0 0.65rem;
+}
+
+html body .native-ui .schedule-calendar-filter-popover select:focus,
+html body .native-ui .schedule-booking-field-grid :is(input, select):focus {
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+}
+
+html body .native-ui .schedule-calendar-settings {
+  display: inline-flex;
+  width: 2.6rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fff;
+}
+
+html body .native-ui .schedule-calendar-settings:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+html body .native-ui .schedule-calendar-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0 0.82rem;
+  border: 0;
+  border-radius: 10px;
+}
+
+html body .native-ui .schedule-calendar-create:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+  opacity: 0.48;
+}
+
+html body .native-ui .schedule-top-actions button[title*="read only"]:disabled {
+  cursor: not-allowed;
+}
+
+html body .native-ui .schedule-calendar-surface {
+  min-height: 39rem;
+  overflow: hidden;
+  border-radius: 0 0 18px 18px;
+  background: #fff;
+}
+
+/* Day and week grid */
+html body .native-ui .schedule-time-grid-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+html body .native-ui .schedule-time-grid {
+  width: 100%;
+  min-width: max(100%, calc(4.25rem + (var(--resource-count) * 9.5rem)));
+}
+
+html body .native-ui .schedule-time-grid-header,
+html body .native-ui .schedule-time-grid-body {
+  display: grid;
+  grid-template-columns: 4.25rem repeat(var(--resource-count), minmax(9.5rem, 1fr));
+}
+
+html body .native-ui .schedule-time-grid.is-resource-day {
+  min-width: calc(4.25rem + (var(--resource-count) * 13.5rem));
+}
+
+html body .native-ui .schedule-time-grid.is-resource-day :is(
+  .schedule-time-grid-header,
+  .schedule-time-grid-body
+) {
+  grid-template-columns: 4.25rem repeat(var(--resource-count), minmax(13.5rem, 1fr));
+}
+
+html body .native-ui .schedule-time-grid.is-focused-day :is(
+  .schedule-time-grid-header,
+  .schedule-time-grid-body
+) {
+  grid-template-columns: 4.25rem minmax(22rem, 1fr);
+}
+
+html body .native-ui .schedule-time-grid-header {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  min-height: 4rem;
+  border-bottom: 1px solid var(--calendar-border);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(14px);
+}
+
+html body .native-ui .schedule-time-grid-corner {
+  position: sticky;
+  left: 0;
+  z-index: 13;
+  border-right: 1px solid var(--calendar-border);
+  background: #fff;
+}
+
+html body .native-ui .schedule-time-grid-resource {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.48rem;
+  padding: 0.55rem;
+  border-right: 1px solid var(--calendar-border-soft);
+  color: var(--calendar-ink);
+}
+
+html body .native-ui .schedule-time-grid-resource.is-today {
+  background: #fbfcf7;
+  box-shadow: inset 0 -2px 0 #111827;
+}
+
+html body .native-ui .schedule-time-grid-resource > img {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+html body .native-ui .schedule-time-grid-resource > span {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
+  text-align: center;
+}
+
+html body .native-ui .schedule-time-grid-resource strong {
+  overflow: hidden;
+  font-size: 0.76rem;
+  font-weight: 820;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-time-grid-resource small {
+  color: var(--calendar-muted);
+  font-size: 0.63rem;
+  font-weight: 650;
+}
+
+html body .native-ui .schedule-time-grid-body {
+  position: relative;
+  align-items: start;
+}
+
+/* Business Day: staff scale vertically while time moves horizontally. */
+html body .native-ui .schedule-resource-day-scroll {
+  --resource-event-width: 7.5rem;
+  --resource-time-slot-width: 4.75rem;
+  --resource-staff-width: 10.5rem;
+  width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: #fff;
+}
+
+html body .native-ui .schedule-resource-day-grid {
+  min-width: calc(var(--resource-staff-width) + (var(--resource-slot-count) * var(--resource-time-slot-width)));
+}
+
+html body .native-ui .schedule-resource-day-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: var(--resource-staff-width) minmax(0, 1fr);
+  height: 3.45rem;
+  border-bottom: 1px solid var(--calendar-border);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(14px);
+}
+
+html body .native-ui .schedule-resource-day-corner {
+  position: sticky;
+  left: 0;
+  z-index: 23;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  border-right: 1px solid var(--calendar-border);
+  background: #fff;
+  color: #697386;
+  font-size: 0.62rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-resource-day-time-track {
+  display: grid;
+  grid-template-columns: repeat(var(--resource-slot-count), var(--resource-time-slot-width));
+}
+
+html body .native-ui .schedule-resource-day-time-track > span {
+  display: flex;
+  align-items: center;
+  padding-left: 0.55rem;
+  border-right: 1px solid var(--calendar-border-soft);
+  color: #647084;
+  font-size: 0.64rem;
+  font-weight: 760;
+}
+
+html body .native-ui .schedule-resource-day-time-track > span.is-half-hour {
+  border-right-color: var(--calendar-border);
+}
+
+html body .native-ui .schedule-resource-day-row {
+  display: grid;
+  grid-template-columns: var(--resource-staff-width) minmax(0, 1fr);
+  min-height: 4.9rem;
+  border-bottom: 1px solid var(--calendar-border);
+}
+
+html body .native-ui .schedule-resource-day-staff {
+  position: sticky;
+  left: 0;
+  z-index: 14;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.72rem 0.85rem;
+  border-right: 1px solid var(--calendar-border);
+  background: #fff;
+}
+
+html body .native-ui .schedule-resource-day-staff :is(img, span) {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f2f4f7;
+  color: #344054;
+  font-size: 0.68rem;
+  font-weight: 820;
+  object-fit: cover;
+}
+
+html body .native-ui .schedule-resource-day-staff strong {
+  overflow: hidden;
+  color: var(--calendar-ink);
+  font-size: 0.73rem;
+  font-weight: 820;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-resource-day-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--resource-slot-count), var(--resource-time-slot-width));
+  min-height: 4.9rem;
+  background: #fff;
+}
+
+html body .native-ui .schedule-resource-day-row.is-closed .schedule-resource-day-track {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      #fafbfc 0,
+      #fafbfc 8px,
+      #f5f6f8 8px,
+      #f5f6f8 9px
+    );
+}
+
+html body .native-ui .schedule-resource-day-cell {
+  width: var(--resource-time-slot-width);
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid var(--calendar-border-soft);
+  border-radius: 0;
+  background: transparent;
+}
+
+html body .native-ui .schedule-resource-day-cell:nth-child(even) {
+  border-right-color: var(--calendar-border);
+}
+
+html body .native-ui .schedule-resource-day-cell.is-available:not(:disabled):hover,
+html body .native-ui .schedule-resource-day-cell.is-available:not(:disabled):focus-visible {
+  z-index: 2;
+  background: rgba(203, 255, 184, 0.2);
+  outline: 2px solid #111827;
+  outline-offset: -2px;
+}
+
+html body .native-ui .schedule-resource-day-cell.is-unavailable {
+  background: rgba(247, 248, 250, 0.7);
+}
+
+html body .native-ui .schedule-resource-current-time {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ef4444;
+  pointer-events: none;
+}
+
+html body .native-ui .schedule-resource-current-time::before {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  content: '';
+}
+
+html body .native-ui .schedule-resource-day-event {
+  position: absolute;
+  z-index: 7;
+  top: 0.46rem;
+  display: flex;
+  height: 3.92rem;
+  min-width: 4.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.2rem;
+  overflow: hidden;
+  padding: 0.42rem 0.48rem 0.42rem 0.68rem;
+  border: 1px solid #dce2e9;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--calendar-ink);
+  text-align: left;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.07);
+}
+
+html body .native-ui .schedule-resource-day-event:hover,
+html body .native-ui .schedule-resource-day-event:focus-visible {
+  z-index: 9;
+  border-color: #aeb7c4;
+  outline: 0;
+  box-shadow: 0 9px 22px rgba(15, 23, 42, 0.13);
+}
+
+html body .native-ui .schedule-resource-day-event > strong {
+  overflow: hidden;
+  padding-right: 0.15rem;
+  color: var(--calendar-ink);
+  font-size: 0.7rem;
+  font-weight: 820;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-resource-day-event > span:last-child {
+  display: grid;
+  grid-template-columns: 1.12rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  color: #667085;
+  font-size: 0.55rem;
+  font-weight: 650;
+}
+
+html body .native-ui .schedule-resource-day-event > span:last-child > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-resource-day-event .schedule-calendar-event-media {
+  width: 1.12rem;
+  height: 1.12rem;
+  font-style: normal;
+}
+
+html body .native-ui .schedule-resource-day-event.is-pending .schedule-calendar-event-accent {
+  background: #e8a72c;
+}
+
+html body .native-ui .schedule-resource-day-event.is-waitlist .schedule-calendar-event-accent {
+  background: #9270d8;
+}
+
+html body .native-ui .schedule-resource-day-event.is-completed .schedule-calendar-event-accent {
+  background: #5a9a73;
+}
+
+html body .native-ui .schedule-time-axis {
+  position: sticky;
+  left: 0;
+  z-index: 9;
+  border-right: 1px solid var(--calendar-border);
+  background: #fff;
+}
+
+html body .native-ui .schedule-time-axis span {
+  position: absolute;
+  right: 0.7rem;
+  color: #8b95a5;
+  font-size: 0.61rem;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+html body .native-ui .schedule-time-grid-column {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--calendar-border-soft);
+  background:
+    linear-gradient(#fff, #fff) 0 0 / 100% 22px no-repeat,
+    repeating-linear-gradient(
+      to bottom,
+      #fff 0,
+      #fff 43px,
+      #f4f6f8 43px,
+      #f4f6f8 44px,
+      #fff 44px,
+      #fff 87px,
+      #e3e7ec 87px,
+      #e3e7ec 88px
+    ) 0 22px / 100% 88px repeat-y;
+}
+
+html body .native-ui .schedule-time-grid-column.is-closed {
+  background:
+    repeating-linear-gradient(135deg, rgba(148, 163, 184, 0.055) 0 6px, transparent 6px 12px),
+    #f7f8fa;
+}
+
+html body .native-ui .schedule-time-grid-cell {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+html body .native-ui .schedule-time-grid-cell.is-available:not(:disabled):hover,
+html body .native-ui .schedule-time-grid-cell.is-available:not(:disabled):focus-visible {
+  z-index: 2;
+  background: rgba(193, 255, 223, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.14);
+  outline: 0;
+}
+
+html body .native-ui .schedule-time-grid-cell.is-unavailable {
+  cursor: not-allowed;
+  background: rgba(148, 163, 184, 0.035);
+}
+
+html body .native-ui .schedule-current-time {
+  position: absolute;
+  z-index: 8;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #ef4444;
+  pointer-events: none;
+}
+
+html body .native-ui .schedule-current-time::before {
+  position: absolute;
+  top: -3px;
+  left: -1px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  content: '';
+}
+
+html body .native-ui .schedule-time-grid-hint {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  width: min(85%, 13rem);
+  padding: 0.42rem 0.55rem;
+  border: 1px dashed #d8dde5;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.84);
+  color: #8a94a5;
+  font-size: 0.59rem;
+  font-weight: 650;
+  line-height: 1.3;
+  text-align: center;
+  text-transform: none;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Appointment blocks */
+html body .native-ui .schedule-calendar-event {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+  gap: 0.16rem;
+  padding: 0.42rem 0.46rem 0.4rem 0.58rem;
+  border: 1px solid #dce2e9;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--calendar-ink);
+  text-align: left;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+}
+
+html body .native-ui .schedule-calendar-event:hover,
+html body .native-ui .schedule-calendar-event:focus-visible {
+  z-index: 8;
+  border-color: #aeb7c4;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
+  outline: 0;
+  transform: translateY(-1px);
+}
+
+html body .native-ui .schedule-calendar-event-accent {
+  position: absolute;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  left: 0.22rem;
+  width: 3px;
+  border-radius: 9px;
+  background: #4f75d8;
+}
+
+html body .native-ui .schedule-calendar-event.is-pending .schedule-calendar-event-accent {
+  background: #e8a72c;
+}
+
+html body .native-ui .schedule-calendar-event.is-waitlist .schedule-calendar-event-accent {
+  background: #9270d8;
+}
+
+html body .native-ui .schedule-calendar-event.is-completed .schedule-calendar-event-accent {
+  background: #5a9a73;
+}
+
+html body .native-ui .schedule-calendar-event.is-overflow-group {
+  background: #fbfcfd;
+}
+
+html body .native-ui .schedule-calendar-event-overflow-count {
+  position: absolute;
+  top: 0.42rem;
+  right: 0.42rem;
+  z-index: 2;
+  display: inline-flex;
+  min-height: 1.1rem;
+  align-items: center;
+  padding: 0 0.34rem;
+  border: 1px solid #d8dde5;
+  border-radius: 999px;
+  background: #f1f3f5;
+  color: #344054 !important;
+  font-size: 0.51rem !important;
+  font-weight: 820 !important;
+}
+
+html body .native-ui .schedule-calendar-event.is-overflow-group .schedule-calendar-event-title {
+  padding-right: 3.25rem;
+}
+
+html body .native-ui .schedule-calendar-event-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem;
+}
+
+html body .native-ui .schedule-calendar-event-head strong {
+  color: #344054;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+html body .native-ui .schedule-calendar-event-head > span {
+  overflow: hidden;
+  color: #7b8493;
+  font-size: 0.52rem;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-calendar-event-title {
+  overflow: hidden;
+  color: var(--calendar-ink);
+  font-size: 0.74rem;
+  font-weight: 820;
+  line-height: 1.12;
+  text-align: left;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-calendar-event-meta {
+  display: grid;
+  grid-template-columns: 1.15rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  margin-top: 0.1rem;
+  color: #667085;
+  font-size: 0.56rem;
+  font-weight: 650;
+  text-align: left;
+  text-transform: none;
+}
+
+html body .native-ui .schedule-calendar-event-meta > span:not(.schedule-calendar-event-media, .schedule-calendar-event-staff) {
+  overflow: hidden;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-calendar-event-media,
+html body .native-ui .schedule-calendar-event-staff {
+  display: inline-flex;
+  width: 1.15rem;
+  height: 1.15rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #f0f2f5;
+  color: #475467;
+  font-size: 0.52rem;
+  font-weight: 850;
+}
+
+html body .native-ui .schedule-calendar-event-staff {
+  border-radius: 50%;
+}
+
+html body .native-ui .schedule-calendar-event-meta img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+html body .native-ui .schedule-calendar-event.is-focused {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(10rem, 22rem);
+  grid-template-rows: 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.46rem 0.9rem 0.46rem 1rem;
+}
+
+html body .native-ui .schedule-calendar-event.is-focused .schedule-calendar-event-title {
+  grid-column: 1;
+  align-self: center;
+  font-size: 0.86rem;
+  line-height: 1.2;
+}
+
+html body .native-ui .schedule-calendar-event.is-focused .schedule-calendar-event-meta {
+  grid-column: 2;
+  width: 100%;
+  margin: 0;
+  font-size: 0.65rem;
+}
+
+html body .native-ui .schedule-calendar-event.is-focused :is(
+  .schedule-calendar-event-media,
+  .schedule-calendar-event-staff
+) {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+html body .native-ui .schedule-calendar-event.is-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.42rem 0.45rem 0.4rem 0.58rem;
+}
+
+html body .native-ui .schedule-calendar-event.is-compact .schedule-calendar-event-title {
+  font-size: 0.73rem;
+}
+
+html body .native-ui .schedule-calendar-event.is-compact .schedule-calendar-event-meta {
+  grid-template-columns: 1.12rem minmax(0, 1fr);
+  width: 100%;
+  margin: 0;
+  font-size: 0.57rem;
+}
+
+/* Week: staff rows with one calm booking summary per day. */
+html body .native-ui .schedule-week-matrix-scroll {
+  --week-staff-width: 10.5rem;
+  --week-day-width: 9rem;
+  width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: #fff;
+}
+
+html body .native-ui .schedule-week-matrix {
+  min-width: calc(var(--week-staff-width) + (var(--summary-column-count) * var(--week-day-width)));
+}
+
+html body .native-ui .schedule-week-matrix-header,
+html body .native-ui .schedule-week-matrix-row {
+  display: grid;
+  grid-template-columns: var(--week-staff-width) repeat(var(--summary-column-count), minmax(var(--week-day-width), 1fr));
+}
+
+html body .native-ui .schedule-week-matrix-scroll.is-month {
+  --week-day-width: 7.75rem;
+}
+
+html body .native-ui .schedule-week-matrix-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 3.2rem;
+  border-bottom: 1px solid var(--calendar-border);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(14px);
+}
+
+html body .native-ui .schedule-week-matrix-corner,
+html body .native-ui .schedule-week-matrix-staff {
+  position: sticky;
+  left: 0;
+  z-index: 14;
+  border-right: 1px solid var(--calendar-border);
+  background: #fff;
+}
+
+html body .native-ui .schedule-week-matrix-corner {
+  z-index: 23;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: #697386;
+  font-size: 0.62rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-week-matrix-header > div {
+  display: grid;
+  place-content: center;
+  gap: 0.1rem;
+  min-width: 0;
+  border-right: 1px solid var(--calendar-border-soft);
+  color: var(--calendar-ink);
+  text-align: center;
+}
+
+html body .native-ui .schedule-week-matrix-header > div.is-today {
+  background: #fff;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-week-matrix-header strong {
+  font-size: 0.72rem;
+  font-weight: 820;
+}
+
+html body .native-ui .schedule-week-matrix-header div > span {
+  display: inline-flex;
+  min-height: 1.35rem;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #596273;
+  font-size: 0.61rem;
+  font-weight: 680;
+}
+
+html body .native-ui .schedule-week-matrix-header div.is-current-or-future > span {
+  border: 0;
+  background: transparent;
+  color: #4b5563;
+}
+
+html body .native-ui .schedule-week-matrix-row {
+  min-height: 7.5rem;
+  border-bottom: 1px solid var(--calendar-border);
+}
+
+html body .native-ui .schedule-week-matrix-staff {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.8rem 0.85rem;
+}
+
+html body .native-ui .schedule-week-matrix-staff :is(img, span) {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f2f4f7;
+  color: #344054;
+  font-size: 0.68rem;
+  font-weight: 820;
+  object-fit: cover;
+}
+
+html body .native-ui .schedule-week-matrix-staff strong {
+  overflow: hidden;
+  color: var(--calendar-ink);
+  font-size: 0.73rem;
+  font-weight: 820;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-week-summary-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.28rem;
+  margin: 0.36rem;
+  padding: 0.72rem 0.68rem 0.56rem;
+  border: 1px solid #e3e7ec;
+  border-radius: 10px;
+  background: #fafbfc;
+  color: var(--calendar-ink);
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+}
+
+html body .native-ui .schedule-week-summary-card:hover,
+html body .native-ui .schedule-week-summary-card:focus-visible {
+  border-color: #b7c0cc;
+  outline: 0;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.08);
+}
+
+html body .native-ui .schedule-week-summary-card.has-bookings {
+  border-color: #d9e1dc;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.055);
+}
+
+html body .native-ui .schedule-week-summary-card.is-today {
+  border-color: #cbd5c6;
+}
+
+html body .native-ui .schedule-week-summary-card {
+  margin: 0;
+  padding: 0.78rem 0.82rem 0.64rem;
+  border: 0;
+  border-right: 1px solid var(--calendar-border-soft);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-week-summary-card.has-bookings {
+  border-color: var(--calendar-border-soft);
+  background: #fff;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-week-summary-card:hover {
+  z-index: auto;
+  border-color: var(--calendar-border-soft);
+  background: #fff;
+  outline: 0;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-week-summary-card:focus-visible {
+  z-index: 2;
+  border-color: var(--calendar-border-soft);
+  background: #fff;
+  outline: 2px solid #98a2b0;
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-week-summary-card.is-today {
+  background: #fff;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-week-summary-card:nth-last-child(-n + 2) {
+  background-color: #fff;
+}
+
+html body .native-ui .schedule-week-summary-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.38rem;
+}
+
+html body .native-ui .schedule-week-summary-count strong {
+  color: var(--calendar-ink);
+  font-size: 1.42rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-week-summary-count small {
+  color: #667085;
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+html body .native-ui .schedule-week-summary-empty {
+  display: flex;
+  min-height: 1.65rem;
+  align-items: center;
+  color: #98a2b3;
+  font-size: 0.59rem;
+  font-weight: 650;
+}
+
+html body .native-ui .schedule-week-summary-date {
+  position: absolute;
+  top: 0.68rem;
+  left: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.03rem;
+  color: #4b5563;
+  font-size: 0.76rem;
+  font-weight: 820;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-week-summary-date sup {
+  position: relative;
+  top: -0.18em;
+  font-size: 0.5rem;
+  font-weight: 800;
+}
+
+html body .native-ui .schedule-week-summary-card.is-today .schedule-week-summary-date {
+  color: #111827;
+  font-weight: 900;
+}
+
+html body .native-ui .schedule-summary-legend {
+  display: flex;
+  min-height: 2.65rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  padding: 0.48rem 0.75rem;
+  border-bottom: 1px solid var(--calendar-border);
+  background: #fff;
+}
+
+html body .native-ui .schedule-summary-legend > span {
+  display: inline-flex;
+  min-height: 1.55rem;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0 0.48rem;
+  border: 1px solid #e4e8ed;
+  border-radius: 999px;
+  background: #f5f6f8;
+  color: #667085;
+  font-size: 0.57rem;
+  font-weight: 760;
+}
+
+html body .native-ui .schedule-summary-legend > span.is-confirmed {
+  border-color: #c9e8d5;
+  background: #edf8f1;
+  color: #28764e;
+}
+
+html body .native-ui .schedule-summary-legend > span.is-pending {
+  border-color: #f1ddb2;
+  background: #fff7e8;
+  color: #946200;
+}
+
+html body .native-ui .schedule-summary-legend > span.is-waitlist {
+  border-color: #ddd2f2;
+  background: #f5f1fc;
+  color: #72549f;
+}
+
+html body .native-ui .schedule-summary-legend > span.is-reschedule {
+  border-color: #ceddf1;
+  background: #eef5fc;
+  color: #315f94;
+}
+
+html body .native-ui .schedule-summary-stats {
+  display: grid;
+  min-width: 0;
+  gap: 0.24rem;
+}
+
+html body .native-ui .schedule-week-summary-card .schedule-summary-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1.75rem;
+}
+
+html body .native-ui .schedule-month-summary-card .schedule-summary-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1.75rem;
+}
+
+html body .native-ui .schedule-summary-stats > span {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 1.4rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0 0.26rem;
+  border: 1px solid #e4e8ed;
+  border-radius: 6px;
+  background: #f5f6f8;
+  color: #98a2b3;
+}
+
+html body .native-ui .schedule-summary-stats > span strong {
+  color: inherit;
+  font-size: 0.58rem;
+  font-weight: 820;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-summary-stats > span.has-value.is-confirmed {
+  border-color: #c9e8d5;
+  background: #edf8f1;
+  color: #28764e;
+}
+
+html body .native-ui .schedule-summary-stats > span.has-value.is-pending {
+  border-color: #f1ddb2;
+  background: #fff7e8;
+  color: #946200;
+}
+
+html body .native-ui .schedule-summary-stats > span.has-value.is-waitlist {
+  border-color: #ddd2f2;
+  background: #f5f1fc;
+  color: #72549f;
+}
+
+html body .native-ui .schedule-summary-stats > span.has-value.is-reschedule {
+  border-color: #ceddf1;
+  background: #eef5fc;
+  color: #315f94;
+}
+
+html body .native-ui .schedule-week-summary-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.42rem;
+  border-top: 1px solid #edf0f3;
+  color: #667085;
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+html body .native-ui .schedule-week-summary-card:hover .schedule-week-summary-action,
+html body .native-ui .schedule-week-summary-card:focus-visible .schedule-week-summary-action {
+  color: #111827;
+}
+
+html body .native-ui .schedule-month-summary {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+html body .native-ui .schedule-month-summary-weekdays,
+html body .native-ui .schedule-month-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+html body .native-ui .schedule-month-summary-weekdays {
+  min-height: 3rem;
+  border-bottom: 1px solid var(--calendar-border);
+  background: #fbfcfd;
+}
+
+html body .native-ui .schedule-month-summary-weekdays span {
+  display: grid;
+  place-items: center;
+  border-right: 1px solid var(--calendar-border-soft);
+  color: #697386;
+  font-size: 0.62rem;
+  font-weight: 820;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-month-summary-weekdays span:nth-child(n + 6),
+html body .native-ui .schedule-month-summary-card:nth-child(7n + 6),
+html body .native-ui .schedule-month-summary-card:nth-child(7n) {
+  background-color: #fafbfc;
+}
+
+html body .native-ui .schedule-month-summary-grid {
+  grid-auto-rows: minmax(7.5rem, 1fr);
+}
+
+html body .native-ui .schedule-month-summary-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.5rem;
+  overflow: hidden;
+  padding: 0.78rem 0.82rem 0.64rem;
+  border: 0;
+  border-right: 1px solid var(--calendar-border-soft);
+  border-bottom: 1px solid var(--calendar-border);
+  border-radius: 0;
+  background: #fff;
+  color: var(--calendar-ink);
+  text-align: left;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+
+html body .native-ui .schedule-month-summary-card:hover {
+  z-index: auto;
+  background: #fff;
+  outline: 0;
+}
+
+html body .native-ui .schedule-month-summary-card:focus-visible {
+  z-index: 2;
+  background: #fff;
+  outline: 2px solid #98a2b0;
+  outline-offset: -2px;
+}
+
+html body .native-ui .schedule-month-summary-card.has-bookings {
+  background: #fff;
+  color: #111827;
+}
+
+html body .native-ui .schedule-month-summary-card.is-outside {
+  background: #fafbfc;
+  color: #9aa2af;
+}
+
+html body .native-ui .schedule-month-summary-card.is-today {
+  background: #fff;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-month-summary-date {
+  position: absolute;
+  top: 0.68rem;
+  right: auto;
+  left: 0.72rem;
+  display: inline-flex;
+  width: auto;
+  min-width: 0;
+  height: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.03rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #4b5563;
+  font-size: 0.76rem;
+  font-weight: 820;
+}
+
+html body .native-ui .schedule-month-summary-card.is-current-or-future .schedule-month-summary-date {
+  border: 0;
+  background: transparent;
+  color: #4b5563;
+}
+
+html body .native-ui .schedule-month-summary-card.is-today .schedule-month-summary-date {
+  background: transparent;
+  color: #111827;
+  font-weight: 900;
+}
+
+html body .native-ui .schedule-month-summary-card.is-outside .schedule-month-summary-date {
+  border: 0;
+  background: transparent;
+  color: #98a2b3;
+}
+
+html body .native-ui .schedule-month-summary-date sup {
+  position: relative;
+  top: -0.18em;
+  font-size: 0.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-month-summary-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.38rem;
+  margin-top: 1.35rem;
+}
+
+html body .native-ui .schedule-month-summary-count strong {
+  color: inherit;
+  font-size: 1.58rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-month-summary-count small {
+  color: #667085;
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+html body .native-ui .schedule-month-summary-empty {
+  display: flex;
+  min-height: 1.6rem;
+  align-items: center;
+  margin-top: 1.35rem;
+  color: #98a2b3;
+  font-size: 0.61rem;
+  font-weight: 650;
+}
+
+html body .native-ui .schedule-month-summary-card.is-outside .schedule-month-summary-count small {
+  color: #98a2b3;
+}
+
+html body .native-ui .schedule-month-summary-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.42rem;
+  border-top: 1px solid #edf0f3;
+  color: #667085;
+  font-size: 0.58rem;
+  font-weight: 800;
+  transition: color 150ms ease;
+}
+
+html body .native-ui .schedule-month-summary-card:hover .schedule-month-summary-action,
+html body .native-ui .schedule-month-summary-card:focus-visible .schedule-month-summary-action {
+  color: #111827;
+}
+
+html body .native-ui .schedule-month-summary-card.is-outside .schedule-month-summary-action {
+  color: #8a94a3;
+}
+
+/* Month */
+html body .native-ui .schedule-month-view {
+  overflow-x: auto;
+}
+
+html body .native-ui .schedule-month-weekdays,
+html body .native-ui .schedule-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(7.5rem, 1fr));
+  min-width: 54rem;
+}
+
+html body .native-ui .schedule-month-weekdays {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  border-bottom: 1px solid var(--calendar-border);
+  background: #fff;
+}
+
+html body .native-ui .schedule-month-weekdays span {
+  padding: 0.7rem 0.8rem;
+  border-right: 1px solid var(--calendar-border-soft);
+  color: #7b8493;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-month-grid > button {
+  position: relative;
+  display: flex;
+  min-height: 9rem;
+  flex-direction: column;
+  gap: 0.42rem;
+  padding: 0.72rem;
+  border: 0;
+  border-right: 1px solid var(--calendar-border-soft);
+  border-bottom: 1px solid var(--calendar-border-soft);
+  border-radius: 0;
+  background: #fff;
+  color: var(--calendar-ink);
+  text-align: left;
+}
+
+html body .native-ui .schedule-month-grid > button:hover,
+html body .native-ui .schedule-month-grid > button:focus-visible {
+  z-index: 2;
+  background: #fafbfc;
+  box-shadow: inset 0 0 0 2px #111827;
+  outline: 0;
+}
+
+html body .native-ui .schedule-month-grid > button.is-outside {
+  background: #fafbfc;
+  color: #a0a8b5;
+}
+
+html body .native-ui .schedule-month-grid > button.is-closed {
+  background:
+    repeating-linear-gradient(135deg, rgba(148, 163, 184, 0.045) 0 6px, transparent 6px 12px),
+    #f8f9fa;
+}
+
+html body .native-ui .schedule-month-day-number {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0.58rem;
+  right: 0.58rem;
+  border-radius: 50%;
+  color: inherit;
+  font-size: 0.72rem;
+  font-weight: 820;
+}
+
+html body .native-ui .schedule-month-grid > button.is-today .schedule-month-day-number {
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .schedule-month-count {
+  align-self: flex-start;
+  margin: 0 2.25rem 0.2rem 0;
+  padding: 0.24rem 0.42rem;
+  border: 1px solid #e1e5ea;
+  border-radius: 999px;
+  background: #f7f8fa;
+  color: #344054;
+  font-size: 0.59rem;
+  font-weight: 780;
+  text-transform: none;
+}
+
+html body .native-ui .schedule-month-events {
+  display: grid;
+  gap: 0.27rem;
+  min-width: 0;
+}
+
+html body .native-ui .schedule-month-events > span {
+  display: grid;
+  grid-template-columns: 5px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.36rem;
+  overflow: hidden;
+  padding: 0.28rem 0.34rem;
+  border-radius: 6px;
+  background: #f7f8fa;
+  color: #344054;
+  font-size: 0.61rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-month-events i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4f75d8;
+}
+
+html body .native-ui .schedule-month-events i.is-pending {
+  background: #e8a72c;
+}
+
+html body .native-ui .schedule-month-events i.is-waitlist {
+  background: #9270d8;
+}
+
+html body .native-ui .schedule-month-events i.is-completed {
+  background: #5a9a73;
+}
+
+html body .native-ui .schedule-month-events strong,
+html body .native-ui .schedule-month-pending {
+  color: #667085;
+  font-size: 0.56rem;
+  font-weight: 750;
+}
+
+html body .native-ui .schedule-month-pending {
+  margin-top: auto;
+  justify-self: start;
+  padding: 0.22rem 0.4rem;
+  border-radius: 999px;
+  background: #fff6dc;
+  color: #9a6800;
+}
+
+/* Existing rich agenda embedded as List view. */
+html body .native-ui .schedule-timeline.is-embedded {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html body .native-ui .schedule-timeline.is-embedded .schedule-timeline-list {
+  padding: 0.8rem;
+}
+
+/* Booking details and creation drawer */
+html body .native-ui .schedule-booking-drawer-backdrop {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(3px);
+}
+
+html body .native-ui .schedule-booking-drawer {
+  width: min(29rem, 100%);
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  border-left: 1px solid #dfe4ea;
+  background: #fff;
+  box-shadow: -24px 0 70px rgba(15, 23, 42, 0.14);
+  animation: schedule-drawer-in 180ms ease-out both;
+}
+
+@keyframes schedule-drawer-in {
+  from { opacity: 0; transform: translateX(1.5rem); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+html body .native-ui .schedule-booking-drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.2rem 0 1rem;
+  border-bottom: 1px solid var(--calendar-border);
+}
+
+html body .native-ui .schedule-booking-drawer-head p,
+html body .native-ui .schedule-booking-attendees > p {
+  margin: 0 0 0.25rem;
+  color: #7b8493;
+  font-size: 0.62rem;
+  font-weight: 820;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-booking-drawer-head h3 {
+  margin: 0;
+  color: var(--calendar-ink);
+  font-size: 1.3rem;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+
+html body .native-ui .schedule-booking-drawer-head button {
+  display: inline-flex;
+  width: 2.45rem;
+  height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--calendar-border);
+  border-radius: 50%;
+  background: #fff;
+  color: #475467;
+}
+
+html body .native-ui .schedule-booking-attendees {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--calendar-border);
+}
+
+html body .native-ui .schedule-booking-attendees > div {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 0.15rem;
+}
+
+html body .native-ui .schedule-booking-attendees button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.38rem;
+  min-height: 2.35rem;
+  padding: 0 0.58rem 0 0.32rem;
+  border: 1px solid var(--calendar-border);
+  border-radius: 999px;
+  background: #fff;
+  color: #475467;
+  font-size: 0.66rem;
+  font-weight: 750;
+}
+
+html body .native-ui .schedule-booking-attendees button.is-active {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+html body .native-ui .schedule-booking-attendees button > span {
+  display: inline-flex;
+  width: 1.7rem;
+  height: 1.7rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f0f2f5;
+  color: #344054;
+  font-size: 0.62rem;
+}
+
+html body .native-ui .schedule-booking-drawer form {
+  padding-top: 0.9rem;
+}
+
+html body .native-ui .schedule-booking-readonly {
+  margin-bottom: 0.8rem;
+  padding: 0.72rem 0.8rem;
+  border: 1px solid #dce2e8;
+  border-radius: 10px;
+  background: #f7f8fa;
+  color: #475467;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+html body .native-ui .schedule-booking-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+html body .native-ui .schedule-booking-field-grid label {
+  display: grid;
+  gap: 0.34rem;
+}
+
+html body .native-ui .schedule-booking-field-grid label.is-wide {
+  grid-column: 1 / -1;
+}
+
+html body .native-ui .schedule-booking-field-grid input,
+html body .native-ui .schedule-booking-field-grid select {
+  padding: 0 0.68rem;
+}
+
+html body .native-ui .schedule-booking-field-grid :is(input, select):disabled {
+  background: #f5f6f8;
+  color: #667085;
+}
+
+html body .native-ui .schedule-booking-conflict {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  padding: 0.7rem;
+  border: 1px solid #f2d49a;
+  border-radius: 10px;
+  background: #fffaf0;
+  color: #7a4f00;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+html body .native-ui .schedule-booking-context {
+  display: grid;
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--calendar-border);
+}
+
+html body .native-ui .schedule-booking-context > span {
+  display: grid;
+  grid-template-columns: 5.2rem minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--calendar-border-soft);
+  color: #475467;
+  font-size: 0.7rem;
+  font-weight: 620;
+  text-transform: none;
+}
+
+html body .native-ui .schedule-booking-context strong {
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+html body .native-ui .schedule-booking-drawer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+}
+
+html body .native-ui .schedule-booking-chat,
+html body .native-ui .schedule-booking-save {
+  display: inline-flex;
+  min-height: 2.7rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.38rem;
+  padding: 0 0.85rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+html body .native-ui .schedule-booking-chat {
+  border: 1px solid var(--calendar-border);
+  background: #fff;
+  color: var(--calendar-ink);
+}
+
+html body .native-ui .schedule-booking-save {
+  border: 0;
+}
+
+html body .native-ui .schedule-booking-save:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+  opacity: 0.45;
+}
+
+html body .native-ui .schedule-calendar-skeleton {
+  overflow: hidden;
+  min-height: 39rem;
+  border: 1px solid #e4e8ee;
+  border-radius: 18px;
+  background: #fff;
+}
+
+html body .native-ui .schedule-calendar-skeleton-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 4.5rem;
+  padding: 0.8rem;
+  border-bottom: 1px solid #e4e8ee;
+}
+
+html body .native-ui .schedule-calendar-skeleton-toolbar span,
+html body .native-ui .schedule-calendar-skeleton-days span {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f1f3f5 25%, #f8f9fa 50%, #f1f3f5 75%);
+  background-size: 200% 100%;
+  animation: schedule-skeleton-shimmer 1.3s linear infinite;
+}
+
+html body .native-ui .schedule-calendar-skeleton-toolbar span {
+  width: 6rem;
+  height: 2.5rem;
+}
+
+html body .native-ui .schedule-calendar-skeleton-toolbar span:nth-child(2) {
+  width: 14rem;
+}
+
+html body .native-ui .schedule-calendar-skeleton-toolbar span:last-child {
+  width: 19rem;
+  margin-left: auto;
+}
+
+html body .native-ui .schedule-calendar-skeleton-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  min-height: 4rem;
+  padding: 0.75rem 4.25rem 0.75rem 5rem;
+  border-bottom: 1px solid #e4e8ee;
+}
+
+html body .native-ui .schedule-calendar-skeleton-days span {
+  width: 4.5rem;
+  height: 2rem;
+  justify-self: center;
+}
+
+html body .native-ui .schedule-calendar-skeleton-grid {
+  height: 34rem;
+  background:
+    repeating-linear-gradient(to right, transparent 0, transparent calc(14.285% - 1px), #edf0f4 calc(14.285% - 1px), #edf0f4 14.285%),
+    repeating-linear-gradient(to bottom, #fff 0, #fff 43px, #edf0f4 43px, #edf0f4 44px);
+}
+
+@keyframes schedule-skeleton-shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (hover: hover) {
+  html body .native-ui :is(
+    .schedule-calendar-today,
+    .schedule-calendar-arrows button,
+    .schedule-calendar-settings,
+    .schedule-calendar-filter-trigger
+  ):not(:disabled):hover {
+    border-color: #c5ccd6;
+    background: #f8f9fa;
+  }
+}
+
+@media (max-width: 1100px) {
+  html body .native-ui .schedule-calendar-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-height: 0;
+    padding: 0.58rem 0.65rem;
+  }
+
+  html body .native-ui .schedule-calendar-date-nav,
+  html body .native-ui .schedule-calendar-toolbar-actions {
+    width: 100%;
+  }
+
+  html body .native-ui .schedule-calendar-toolbar-actions {
+    overflow-x: auto;
+    padding-bottom: 0.08rem;
+  }
+
+  html body .native-ui :is(
+    .schedule-calendar-today,
+    .schedule-calendar-filter-trigger,
+    .schedule-calendar-settings,
+    .schedule-calendar-create
+  ) {
+    min-height: 2.4rem;
+  }
+
+  html body .native-ui .schedule-calendar-arrows button {
+    width: 2.3rem;
+    min-height: 2.3rem;
+  }
+
+  html body .native-ui .schedule-calendar-filter-wrap {
+    margin-left: auto;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1100px) {
+  html body .native-ui .schedule-time-grid.is-week {
+    min-width: 100%;
+  }
+
+  html body .native-ui .schedule-time-grid.is-week :is(
+    .schedule-time-grid-header,
+    .schedule-time-grid-body
+  ) {
+    grid-template-columns: 4.25rem repeat(var(--resource-count), minmax(6.75rem, 1fr));
+  }
+
+  html body .native-ui .schedule-time-grid.is-week .schedule-calendar-event-overflow-word {
+    display: none;
+  }
+
+  html body .native-ui .schedule-time-grid.is-week .schedule-calendar-event-meta {
+    grid-template-columns: 1.05rem minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  html body .native-ui .schedule-page {
+    padding: 0.75rem 0.65rem 6.5rem !important;
+  }
+
+  html body .native-ui .schedule-workspace-shell {
+    padding-bottom: 3rem;
+  }
+
+  html body .native-ui .schedule-calendar-workspace {
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.055);
+  }
+
+  html body .native-ui .schedule-calendar-toolbar {
+    position: relative;
+    gap: 0.55rem;
+    padding: 0.65rem;
+    border-radius: 14px 14px 0 0;
+  }
+
+  html body .native-ui .schedule-calendar-date-nav {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+
+  html body .native-ui .schedule-calendar-date-nav h2 {
+    min-width: 0;
+    font-size: 0.95rem;
+    text-align: right;
+  }
+
+  html body .native-ui .schedule-calendar-today,
+  html body .native-ui .schedule-calendar-arrows button,
+  html body .native-ui .schedule-calendar-settings,
+  html body .native-ui .schedule-calendar-filter-trigger,
+  html body .native-ui .schedule-calendar-create {
+    min-height: 2.75rem;
+  }
+
+  html body .native-ui .schedule-calendar-arrows button {
+    width: 2.75rem;
+  }
+
+  html body .native-ui .schedule-calendar-toolbar-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    overflow: visible;
+  }
+
+  html body .native-ui .schedule-calendar-view-switcher {
+    width: max-content;
+  }
+
+  html body .native-ui .schedule-calendar-view-switcher button {
+    min-height: 2.35rem;
+    padding: 0 0.8rem;
+  }
+
+  html body .native-ui .schedule-calendar-view-switcher button[data-view="week"],
+  html body .native-ui .schedule-calendar-view-switcher button[data-view="month"] {
+    display: none;
+  }
+
+  html body .native-ui .schedule-calendar-filter-wrap {
+    position: static;
+    margin-left: 0;
+  }
+
+  html body .native-ui .schedule-calendar-filter-trigger {
+    width: 2.75rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  html body .native-ui .schedule-calendar-filter-trigger span,
+  html body .native-ui .schedule-calendar-filter-trigger svg:last-child {
+    display: none;
+  }
+
+  html body .native-ui .schedule-calendar-filter-popover {
+    position: fixed;
+    z-index: 150;
+    top: auto;
+    right: 0.5rem;
+    bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    left: 0.5rem;
+    width: auto;
+    max-height: min(76vh, 38rem);
+    overflow-y: auto;
+    border-radius: 18px;
+    box-shadow: 0 -18px 65px rgba(15, 23, 42, 0.22);
+  }
+
+  html body .native-ui .schedule-calendar-settings {
+    width: 2.75rem;
+  }
+
+  html body .native-ui .schedule-calendar-create {
+    width: 2.75rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  html body .native-ui .schedule-calendar-create span {
+    display: none;
+  }
+
+  html body .native-ui .schedule-calendar-surface {
+    min-height: 34rem;
+    border-radius: 0 0 14px 14px;
+  }
+
+  html body .native-ui .schedule-calendar-skeleton-toolbar span:last-child {
+    display: none;
+  }
+
+  html body .native-ui .schedule-calendar-skeleton-days {
+    grid-template-columns: repeat(2, minmax(10rem, 1fr));
+    min-width: 28rem;
+  }
+
+  html body .native-ui .schedule-time-grid {
+    min-width: max(100%, calc(4.25rem + (var(--resource-count) * 12rem)));
+  }
+
+  html body .native-ui .schedule-time-grid-header,
+  html body .native-ui .schedule-time-grid-body {
+    grid-template-columns: 4.25rem repeat(var(--resource-count), minmax(12rem, 1fr));
+  }
+
+  html body .native-ui .schedule-time-grid.is-resource-day {
+    min-width: calc(4.25rem + (var(--resource-count) * 13.5rem));
+  }
+
+  html body .native-ui .schedule-time-grid.is-resource-day :is(
+    .schedule-time-grid-header,
+    .schedule-time-grid-body
+  ) {
+    grid-template-columns: 4.25rem repeat(var(--resource-count), minmax(13.5rem, 1fr));
+  }
+
+  html body .native-ui .schedule-time-grid.is-focused-day {
+    min-width: 100%;
+  }
+
+  html body .native-ui .schedule-time-grid.is-focused-day :is(
+    .schedule-time-grid-header,
+    .schedule-time-grid-body
+  ) {
+    grid-template-columns: 4.25rem minmax(18rem, 1fr);
+  }
+
+  html body .native-ui .schedule-calendar-event.is-focused {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.42rem 0.55rem 0.42rem 0.72rem;
+  }
+
+  html body .native-ui .schedule-calendar-event.is-focused .schedule-calendar-event-title {
+    font-size: 0.76rem;
+  }
+
+  html body .native-ui .schedule-calendar-event.is-focused .schedule-calendar-event-meta {
+    width: 100%;
+    font-size: 0.57rem;
+  }
+
+  html body .native-ui .schedule-month-weekdays,
+  html body .native-ui .schedule-month-grid {
+    min-width: 48rem;
+  }
+
+  html body .native-ui .schedule-booking-drawer-backdrop {
+    align-items: flex-end;
+  }
+
+  html body .native-ui .schedule-booking-drawer {
+    width: 100%;
+    height: min(92dvh, 52rem);
+    padding: 0.9rem;
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -24px 70px rgba(15, 23, 42, 0.18);
+    animation-name: schedule-drawer-up;
+  }
+
+  html body .native-ui .schedule-booking-field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .schedule-booking-field-grid label.is-wide {
+    grid-column: auto;
+  }
+
+  html body .native-ui .schedule-booking-field-grid input,
+  html body .native-ui .schedule-booking-field-grid select,
+  html body .native-ui .schedule-booking-chat,
+  html body .native-ui .schedule-booking-save {
+    min-height: 2.9rem;
+  }
+}
+
+@keyframes schedule-drawer-up {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body .native-ui .schedule-calendar-event,
+  html body .native-ui .schedule-booking-drawer,
+  html body .native-ui .schedule-calendar-skeleton-toolbar span,
+  html body .native-ui .schedule-calendar-skeleton-days span {
+    animation: none;
+    transition: none;
+  }
+}

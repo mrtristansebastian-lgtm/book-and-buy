@@ -1,20 +1,25 @@
 import { useState } from 'react';
 import { ScheduleSettingsModal } from '../features/schedule/components/ScheduleSettingsModal.jsx?schedule-fcfs-v2';
 import { ScheduleSlotEditorModal } from '../features/schedule/components/ScheduleSlotEditorModal';
+import { ScheduleCalendarWorkspace } from '../features/schedule/components/ScheduleCalendarWorkspace';
 import { ScheduleTimeline } from '../features/schedule/components/ScheduleTimeline';
 import { ScheduleTopBar } from '../features/schedule/components/ScheduleTopBar';
-import { StaffCalendarSwitcher } from '../features/schedule/components/StaffCalendarSwitcher';
 import { useScheduleWorkspace } from '../features/schedule/hooks/useScheduleWorkspace';
 
 export const BusinessCalendar = ({
   activeStaffId = 'owner',
   bookings = [],
   clientDirectory = [],
+  exampleMode = false,
   googleCalendarState = {},
+  onCreateManualBooking,
   onConnectGoogleCalendar,
+  onOpenBookingChat,
   onSave,
   onSettingsDirty,
   onSyncGoogleCalendar,
+  onUpdateBooking,
+  services = [],
   setSettings,
   settings,
   showToast,
@@ -42,36 +47,51 @@ export const BusinessCalendar = ({
         onConnectGoogleCalendar={onConnectGoogleCalendar}
         onSave={onSave}
         onSyncGoogleCalendar={onSyncGoogleCalendar}
+        readOnly={exampleMode}
         selectedCalendarId={schedule.selectedCalendarId}
       />
 
-      <section className="schedule-workspace-grid" data-tour="schedule-calendar">
-        <StaffCalendarSwitcher
+      <section data-tour="schedule-calendar">
+        <ScheduleCalendarWorkspace
+          allBookings={bookings}
           calendars={schedule.calendars}
-          getStaffInitials={schedule.getStaffInitials}
+          clientDirectory={clientDirectory}
+          exampleMode={exampleMode}
+          listView={(
+            <ScheduleTimeline
+              bookingsByTime={schedule.bookingsByTime}
+              canEdit={schedule.canEditSelectedCalendar && !exampleMode}
+              dayConfig={schedule.dayConfig}
+              embedded
+              isPastDay={schedule.isPastDay}
+              onAddSlot={schedule.actions.startAddingSlot}
+              onEditSlot={schedule.actions.startEditingSlot}
+              onMove={schedule.actions.moveDateWindow}
+              onOpenSettings={() => schedule.setSettingsModalOpen(true)}
+              onSelectDate={schedule.actions.selectDate}
+              onToggleAvailability={schedule.actions.toggleDateAvailability}
+              openSlotCount={schedule.openSlotCount}
+              selectedBookings={schedule.selectedBookings}
+              selectedDate={schedule.selectedDate}
+              selectedDayTitle={schedule.selectedDayTitle}
+              serviceCatalog={services.length ? services : settings?.services || []}
+              staffList={staffList}
+              todayStr={schedule.todayStr}
+            />
+          )}
+          onCreateBooking={onCreateManualBooking}
+          onOpenBookingChat={onOpenBookingChat}
+          onOpenSettings={() => schedule.setSettingsModalOpen(true)}
           onSelectCalendar={schedule.actions.selectCalendar}
+          onSelectDate={schedule.actions.selectDate}
+          onUpdateBooking={onUpdateBooking}
           selectedCalendarId={schedule.selectedCalendarId}
+          selectedDate={schedule.selectedDate}
+          services={services.length ? services : settings?.services || []}
+          settings={settings}
+          staffList={staffList}
+          todayStr={schedule.todayStr}
         />
-
-        <main className="schedule-main-column">
-          <ScheduleTimeline
-            bookingsByTime={schedule.bookingsByTime}
-            canEdit={schedule.canEditSelectedCalendar}
-            dayConfig={schedule.dayConfig}
-            isPastDay={schedule.isPastDay}
-            onAddSlot={schedule.actions.startAddingSlot}
-            onEditSlot={schedule.actions.startEditingSlot}
-            onMove={schedule.actions.moveDateWindow}
-            onOpenSettings={() => schedule.setSettingsModalOpen(true)}
-            onSelectDate={schedule.actions.selectDate}
-            onToggleAvailability={schedule.actions.toggleDateAvailability}
-            openSlotCount={schedule.openSlotCount}
-            selectedBookings={schedule.selectedBookings}
-            selectedDate={schedule.selectedDate}
-            selectedDayTitle={schedule.selectedDayTitle}
-            todayStr={schedule.todayStr}
-          />
-        </main>
       </section>
 
       <ScheduleSettingsModal

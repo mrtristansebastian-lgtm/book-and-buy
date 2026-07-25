@@ -4,4 +4,4 @@ export * from './editorConfig';
 export * from './legalConfig';
 export * from './routeConfig';
 export * from './workspaceDefaults';
-export * from './fitnessStudioExample';
+export * from './workspaceExample';

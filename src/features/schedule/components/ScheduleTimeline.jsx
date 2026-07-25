@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Clock3, Pencil, Plus, Settings2, X } from 'lucide-react';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Pencil, Plus, Settings2, X } from 'lucide-react';
 import { getLocalDateStr } from '../../../utils/dates';
 
 export const ScheduleTimeline = ({
   bookingsByTime,
   canEdit,
   dayConfig,
+  embedded = false,
   isPastDay,
   onAddSlot,
   onEditSlot,
@@ -17,9 +18,12 @@ export const ScheduleTimeline = ({
   selectedDate,
   selectedDayTitle,
   selectedBookings,
+  serviceCatalog = [],
+  staffList = [],
   todayStr
 }) => {
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [expandedSlots, setExpandedSlots] = useState(() => new Set());
   const [pickerMonth, setPickerMonth] = useState(() => new Date(`${selectedDate}T00:00:00`));
   const selectedDateObj = new Date(`${selectedDate}T00:00:00`);
   const pickerMonthLabel = pickerMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -41,9 +45,18 @@ export const ScheduleTimeline = ({
     setPickerOpen(false);
   };
 
+  const toggleSlot = (time) => {
+    setExpandedSlots(current => {
+      const next = new Set(current);
+      if (next.has(time)) next.delete(time);
+      else next.add(time);
+      return next;
+    });
+  };
+
   return (
-    <section className="schedule-timeline">
-      <div className="schedule-timeline-head">
+    <section className={`schedule-timeline ${embedded ? 'is-embedded' : ''}`}>
+      {!embedded ? <div className="schedule-timeline-head">
         <div className="schedule-timeline-title">
           <p>Today's Timeline</p>
           <div className="schedule-timeline-date-row">
@@ -82,18 +95,66 @@ export const ScheduleTimeline = ({
             <ChevronRight size={17} />
           </button>
         </div>
-      </div>
+      </div> : null}
 
       <div className="schedule-timeline-list">
         {dayConfig.times.length ? dayConfig.times.map(time => {
           const timeBookings = bookingsByTime[time] || [];
           const booked = timeBookings.length > 0;
+          const expanded = expandedSlots.has(time);
+          const serviceNames = [...new Set(timeBookings.map(booking => booking.serviceName || 'Service'))];
+          const serviceSummary = serviceNames.length > 2
+            ? `${serviceNames.slice(0, 2).join(' / ')} + ${serviceNames.length - 2} more`
+            : serviceNames.join(' / ');
           return (
-            <div key={time} className={`schedule-timeline-row ${booked ? 'is-booked' : ''}`}>
+            <div key={time} className={`schedule-timeline-row ${booked ? 'is-booked' : ''} ${expanded ? 'is-expanded' : ''}`}>
               <time>{time}</time>
               <div className="schedule-timeline-main">
-                <strong>{booked ? timeBookings.map(booking => booking.clientName || 'Client').join(', ') : 'Open booking window'}</strong>
-                <small>{booked ? timeBookings.map(booking => booking.serviceName || 'Service').join(' / ') : 'No booking assigned'}</small>
+                <div className="schedule-slot-heading">
+                  <strong>{booked ? (timeBookings.length > 1 ? `${timeBookings.length} bookings` : timeBookings[0].clientName || 'Client') : 'Open booking window'}</strong>
+                  {booked && (
+                    <button
+                      type="button"
+                      className="schedule-slot-expand"
+                      onClick={() => toggleSlot(time)}
+                      aria-expanded={expanded}
+                      aria-label={`${expanded ? 'Hide' : 'View'} bookings for ${time}`}
+                    >
+                      {expanded ? 'Hide details' : 'View details'}
+                      <ChevronDown size={13} />
+                    </button>
+                  )}
+                </div>
+                <small>{booked ? serviceSummary : 'No booking assigned'}</small>
+                {expanded && (
+                  <div className="schedule-slot-details" aria-label={`Bookings at ${time}`}>
+                    {timeBookings.map((booking, index) => {
+                      const service = serviceCatalog.find(item => item.id === booking.serviceId || item.name === booking.serviceName);
+                      const staffMember = staffList.find(item => item.id === booking.staffId);
+                      const staffName = booking.staffName || staffMember?.name || 'Unassigned';
+                      const staffFirstName = String(staffName).trim().split(/\s+/)[0] || 'Staff';
+                      const serviceImage = service?.imageUrls?.[0] || service?.imageUrl || service?.image || '';
+                      const staffPhoto = booking.staffPhotoURL || staffMember?.photoURL || '';
+                      return (
+                        <div key={booking.id || `${time}-${index}`} className="schedule-slot-detail">
+                          <span className="schedule-slot-detail-service-image">
+                            {serviceImage ? <img src={serviceImage} alt="" /> : <span>{(booking.serviceName || 'S').charAt(0).toUpperCase()}</span>}
+                          </span>
+                          <span className="schedule-slot-detail-copy">
+                            <strong>{booking.clientName || 'Client'}</strong>
+                            <small>{booking.serviceName || 'Service'}</small>
+                          </span>
+                          <span className="schedule-slot-detail-staff" title={`Assigned to ${staffName}`}>
+                            <span className="schedule-slot-detail-staff-avatar">
+                              {staffPhoto ? <img src={staffPhoto} alt="" /> : staffFirstName.charAt(0)}
+                            </span>
+                            <span>{staffFirstName}</span>
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
               <span className={`schedule-slot-state ${booked ? 'is-booked' : 'is-open'}`}>{booked ? `${timeBookings.length} booked` : 'Open'}</span>
               {!isPastDay && canEdit && (
@@ -112,7 +173,7 @@ export const ScheduleTimeline = ({
         )}
       </div>
 
-      {pickerOpen && (
+      {!embedded && pickerOpen && (
         <div className="schedule-date-picker-backdrop">
           <div className="schedule-date-picker-modal" role="dialog" aria-modal="true" aria-label="Select schedule day">
             <div className="schedule-panel-title">

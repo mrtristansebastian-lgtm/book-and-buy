@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
-  <title id="title">Boxing Conditioning</title><desc id="desc">Editorial boxing training graphic for Kinetic House.</desc>
-  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#541b2b"/><stop offset="1" stop-color="#ff765d"/></linearGradient></defs>
-  <rect width="1200" height="800" fill="url(#bg)"/><path d="M760 190v410M650 285h220M680 545h160" stroke="#fffdf7" stroke-width="20" stroke-linecap="round"/><circle cx="470" cy="320" r="90" fill="#fffdf7"/><path d="M470 410v170M470 465l-150 90M470 465l150 20M470 580l-120 95M470 580l130 80" fill="none" stroke="#fffdf7" stroke-width="28" stroke-linecap="round"/><text x="72" y="112" fill="#fffdf7" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="6">KINETIC HOUSE / BOXING</text>
-</svg>

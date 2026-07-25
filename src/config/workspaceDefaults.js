@@ -44,7 +44,7 @@ export const createDefaultSettings = () => ({
   actionButtonStyle: 'solid',
   calendarDisplayStyle: 'studio',
   timeDisplayStyle: 'pill',
-  serviceDisplayStyle: 'signature',
+  serviceDisplayStyle: 'rail',
   serviceDropdownEnabled: false,
   serviceBorderStyle: 'solid',
   serviceBgColor: '',
