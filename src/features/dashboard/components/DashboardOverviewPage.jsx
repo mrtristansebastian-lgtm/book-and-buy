@@ -18,10 +18,7 @@ const DashboardComingSoon = () => (
 
 export const DashboardOverviewPage = ({
   greeting,
-  name,
-  isGuestWorkspace = false,
-  exampleMode = false,
-  onExampleModeChange
+  name
 }) => {
   return (
     <div className="dashboard-overview-page flex-1 overflow-y-auto bg-white">
@@ -32,19 +29,7 @@ export const DashboardOverviewPage = ({
             <h1>{greeting}, {name}</h1>
             <p>The live dashboard is being shaped into a calmer, smarter workspace for your business.</p>
           </div>
-
-          <div className="dashboard-mission-controls">
-            {isGuestWorkspace && (
-              <button type="button" role="switch" aria-checked={exampleMode} className={`dashboard-example-toggle ${exampleMode ? 'is-active' : ''}`} onClick={() => onExampleModeChange?.()}>
-                <span aria-hidden="true" /> Example data
-              </button>
-            )}
-          </div>
         </header>
-
-        {exampleMode && (
-          <div className="dashboard-example-readonly" role="status"><span>Read-only example</span> Explore a small set of realistic sample bookings without changing your workspace.</div>
-        )}
 
         <DashboardComingSoon />
       </div>

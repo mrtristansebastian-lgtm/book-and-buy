@@ -21,6 +21,10 @@ html body .native-ui .dashboard-mission-header {
   padding: 1rem;
 }
 
+html body .native-ui .dashboard-mission-header.is-live-mode {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 html body .native-ui .dashboard-mission-eyebrow {
   margin: 0;
   color: #8b95a5;
@@ -53,79 +57,6 @@ html body .native-ui .dashboard-mission-controls {
   display: grid;
   gap: 0.5rem;
   justify-items: end;
-}
-
-html body .native-ui .dashboard-example-toggle {
-  min-height: 2.15rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.46rem;
-  border: 1px solid rgba(15, 23, 42, 0.09);
-  border-radius: 999px;
-  background: #fff;
-  color: #344054;
-  padding: 0 0.72rem;
-  font-size: 0.68rem;
-  font-weight: 850;
-}
-
-html body .native-ui .dashboard-example-toggle > span {
-  width: 1.22rem;
-  height: 0.72rem;
-  position: relative;
-  border-radius: 99px;
-  background: #d0d5dd;
-  transition: background 160ms ease;
-}
-
-html body .native-ui .dashboard-example-toggle > span::after {
-  content: "";
-  width: 0.48rem;
-  height: 0.48rem;
-  position: absolute;
-  top: 0.12rem;
-  left: 0.12rem;
-  border-radius: 50%;
-  background: #fff;
-  transition: transform 160ms ease;
-}
-
-html body .native-ui .dashboard-example-toggle.is-active {
-  border-color: transparent;
-  background: var(--native-accent-button-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4));
-  color: #101828;
-}
-
-html body .native-ui .dashboard-example-toggle.is-active > span {
-  background: #101828;
-}
-
-html body .native-ui .dashboard-example-toggle.is-active > span::after {
-  transform: translateX(0.5rem);
-}
-
-html body .native-ui .dashboard-example-readonly {
-  display: flex;
-  align-items: center;
-  gap: 0.48rem;
-  border: 1px solid rgba(15, 23, 42, 0.07);
-  border-radius: 0.85rem;
-  background: #f8fafc;
-  color: #475467;
-  padding: 0.62rem 0.78rem;
-  font-size: 0.76rem;
-  font-weight: 680;
-}
-
-html body .native-ui .dashboard-example-readonly span {
-  border-radius: 999px;
-  background: #101828;
-  color: #fff;
-  padding: 0.22rem 0.44rem;
-  font-size: 0.58rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 html body .native-ui .dashboard-coming-soon-shell {

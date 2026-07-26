@@ -18,7 +18,7 @@ import {
   createWorkspacePageLoaders
 } from '../../workspace';
 import { appId, db, isFirebaseConfigured } from '../../../services/firebase';
-import { safeLocalGet, safeLocalRemove, safeLocalSet } from '../../../utils/workspaceRoute';
+import { safeLocalRemove, safeLocalSet } from '../../../utils/workspaceRoute';
 import {
   exampleModeDisabledStorageKey,
   exampleModeStorageKey,
@@ -36,8 +36,8 @@ import { useToastMessage } from './useToastMessage';
 const noop = () => {};
 
 const shouldStartInExampleMode = (startsInGuestWorkspace) => {
-  if (!startsInGuestWorkspace || typeof window === 'undefined') return false;
-  return safeLocalGet(exampleModeStorageKey) === 'true' || safeLocalGet(exampleModeDisabledStorageKey) !== 'true';
+  if (typeof window === 'undefined') return false;
+  return Boolean(startsInGuestWorkspace);
 };
 
 export function useWorkspaceRuntimeState() {
@@ -60,6 +60,7 @@ export function useWorkspaceRuntimeState() {
   const { showToast, toast } = useToastMessage();
 
   useEffect(() => {
+    safeLocalRemove(exampleModeDisabledStorageKey);
     safeLocalRemove('build-a-booking-dashboard-theme');
     safeLocalRemove(legacyExampleModeStorageKey);
     safeLocalRemove(legacyGuestPublicPreviewStorageKey);
@@ -144,18 +145,24 @@ export function useWorkspaceRuntimeState() {
   }, [authSession.user, isGuestWorkspace, loadWorkspaceExample, showToast, writeExamplePublicSnapshot]);
 
   const disableExampleMode = useCallback(() => {
-    safeLocalSet(exampleModeDisabledStorageKey, 'true');
+    if (isGuestWorkspace && !authSession.user) {
+      safeLocalRemove(exampleModeDisabledStorageKey);
+      safeLocalSet(exampleModeStorageKey, 'true');
+      startTransition(() => setExampleMode(true));
+      return;
+    }
+    safeLocalRemove(exampleModeDisabledStorageKey);
     safeLocalRemove(exampleModeStorageKey);
     safeLocalRemove(guestPublicPreviewStorageKey);
     setExampleMode(false);
     restoreBlankGuestWorkspace();
-    showToast('Returned to your blank guest workspace.');
-  }, [restoreBlankGuestWorkspace, showToast]);
+  }, [authSession.user, isGuestWorkspace, restoreBlankGuestWorkspace]);
 
   useEffect(() => {
-    if (!isGuestWorkspace || authSession.user || !exampleMode) return;
+    if (!isGuestWorkspace || authSession.user) return;
     safeLocalRemove(exampleModeDisabledStorageKey);
     safeLocalSet(exampleModeStorageKey, 'true');
+    if (!exampleMode) startTransition(() => setExampleMode(true));
   }, [authSession.user, exampleMode, isGuestWorkspace]);
 
   useEffect(() => {

@@ -102,7 +102,6 @@ export function useDashboardRouteConfig({
           personalProfile: workspace.personalProfile,
           isGuestWorkspace: workspace.isGuestWorkspace,
           exampleMode: workspace.exampleMode,
-          onExampleModeChange: workspace.exampleMode ? workspace.disableExampleMode : workspace.enableExampleMode,
           settings,
           visibleBookings: booking.visibleBookings,
           workspaceServices: services.workspaceServices

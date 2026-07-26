@@ -1,4 +1,4 @@
-import { Mail, Phone, Plus, Scissors, Sparkles, Trash2 } from 'lucide-react';
+import { Mail, Phone, Plus, Scissors, Trash2 } from 'lucide-react';
 
 export const ProfileBusinessIdentitySection = ({
   onImageCrop,
@@ -9,18 +9,9 @@ export const ProfileBusinessIdentitySection = ({
 }) => {
   return (
     <section className="business-settings-panel business-identity-panel">
-      <div className="business-panel-heading">
-        <span className="business-panel-icon"><Sparkles size={16} /></span>
-        <div>
-          <p>Identity</p>
-          <h4>Name and logo</h4>
-          <small>The first thing clients recognize on your public booking page.</small>
-        </div>
-      </div>
-
       <div className="business-identity-grid">
         <div className="business-identity-fields">
-          <label className="business-text-field native-control-pill">
+          <label className="business-text-field business-name-field native-control-pill">
             <span>Business name</span>
             <input
               type="text"

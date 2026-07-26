@@ -129,13 +129,7 @@ export function useWorkspaceData({
     setStaffListState(example.staffList);
     setClientRecordsState(example.clientRecords);
     setCommunicationsState(example.communications);
-    setAccountProfileOverrideState({
-      firstName: 'Jordan',
-      surname: 'Lee',
-      email: 'jordan.lee@yourbusiness.example',
-      country: 'South Africa',
-      photoURL: '/example/your-business/people/staff/jordan-lee.webp'
-    });
+    setAccountProfileOverrideState({});
     setExampleSupportThreads(example.supportThreads);
     setExampleNotifications(example.notifications);
     setExampleGatewayStates(example.gatewayStates);

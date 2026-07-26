@@ -66,24 +66,17 @@ export const ProfileBusinessMediaSection = ({
 
   return (
   <section className="business-settings-panel business-media-panel">
-    <div className="business-panel-heading">
-      <span className="business-panel-icon"><Monitor size={16} /></span>
-      <div>
-        <p>Booking Page Media</p>
-        <h4>Photos, venue, and map</h4>
-        <small>Shape the visual confidence clients get before they book.</small>
-      </div>
-      <button
-        type="button"
-        onClick={onOpenStyleRoom}
-        className="business-secondary-button business-style-room-button"
-      >
-        <Wand2 size={13} />
-        Style room
-      </button>
-    </div>
-
     <div className="business-settings-group">
+      <div className="business-pane-actions">
+        <button
+          type="button"
+          onClick={onOpenStyleRoom}
+          className="business-secondary-button business-style-room-button"
+        >
+          <Wand2 size={13} />
+          Style room
+        </button>
+      </div>
       <article className="business-media-card business-banner-card">
         <div className="business-media-card-grid">
           <MediaPreview className="aspect-[16/5]">

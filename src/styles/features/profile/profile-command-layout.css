@@ -11,6 +11,39 @@ html body .native-ui .profile-page .profile-command-meta {
   display: none !important;
 }
 
+html body .native-ui .profile-page.has-active-profile-section {
+  padding-top: clamp(0.52rem, 1.05vw, 0.78rem) !important;
+}
+
+html body .native-ui .profile-page.has-active-profile-section .profile-page-heading {
+  display: none !important;
+}
+
+html body .native-ui .profile-page.has-active-profile-section .dashboard-action-strip {
+  display: none !important;
+}
+
+html body .native-ui .profile-page.has-active-profile-section .profile-mobile-hub {
+  margin-bottom: 0.5rem !important;
+}
+
+html body .native-ui .profile-page.has-active-profile-section .profile-mobile-hub > div:not(.profile-command-grid) {
+  min-height: 3.28rem !important;
+  padding: 0.46rem 0.58rem !important;
+  border-radius: 0.94rem !important;
+  box-shadow: 0 12px 30px -28px rgba(15, 23, 42, 0.38) !important;
+}
+
+html body .native-ui .profile-page.has-active-profile-section .profile-mobile-hub button[aria-label="Back to profile sections"] {
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  border-radius: 0.78rem !important;
+}
+
+html body .native-ui .profile-page.has-active-profile-section .profile-sections-stack {
+  --tw-space-y-reverse: 0 !important;
+}
+
 @media (min-width: 768px) {
   html body .native-ui .profile-page .dashboard-action-strip,
   html body .native-ui .profile-page .profile-mobile-hub {
@@ -149,7 +182,6 @@ html body .native-ui .profile-page .profile-section-account {
 .business-settings-hero-copy p,
 .business-panel-heading p,
 .business-studio-active-note span,
-.business-studio-summary-copy span,
 .business-studio-footer span,
 .account-settings-field-copy > span,
 .account-settings-meta-tile span,
@@ -362,7 +394,7 @@ html body .native-ui .profile-page .profile-section-account {
 
 .business-settings-group,
 .business-identity-grid {
-  gap: 0.62rem;
+  gap: 0.72rem;
   padding: 0;
 }
 
@@ -458,131 +490,70 @@ select.account-settings-control {
 }
 
 html body .native-ui .profile-page .profile-section-business {
-  padding: clamp(0.78rem, 1.7vw, 1.18rem);
+  padding: clamp(0.62rem, 1.25vw, 0.92rem);
   border: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(246, 247, 249, 0.74)),
-    #f7f8fa;
+  background: #f7f8fa;
   box-shadow: 0 24px 70px -62px rgba(15, 23, 42, 0.44);
 }
 
 .business-settings-hero {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.38rem;
-  align-items: center;
-  margin-bottom: 0.58rem;
-  border-radius: 0.98rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-bottom: 0.44rem;
+  border-radius: 0;
   border: 0;
   background: transparent;
-  padding: 0.12rem 0.08rem 0.2rem;
+  padding: 0 0.08rem;
 }
 
 .business-settings-hero-copy h3 {
-  margin-top: 0.08rem;
-  font-size: clamp(1.18rem, 2.4vw, 1.62rem);
+  margin-top: 0.04rem;
+  font-size: clamp(1.08rem, 1.65vw, 1.36rem);
   letter-spacing: -0.045em;
   line-height: 1.02;
 }
 
 .business-settings-hero-copy > span {
-  max-width: 42rem;
-  margin-top: 0.22rem;
-  font-size: 0.76rem;
-  line-height: 1.28;
-}
-
-.business-studio-summary {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.42rem;
-  align-items: center;
-  border-radius: 0.72rem;
-  border: 0;
-  background:
-    linear-gradient(145deg, rgba(17, 18, 22, 0.94), rgba(38, 45, 53, 0.88) 62%, rgba(5, 5, 5, 0.95)),
-    var(--native-accent-gradient);
-  background-position: 0 0, var(--native-accent-x) 50%;
-  min-height: 2.48rem;
-  padding: 0.3rem 0.42rem;
-  color: #fff;
-  box-shadow: 0 16px 36px -30px var(--native-accent-glow);
-}
-
-.business-studio-brandmark {
-  width: 1.72rem;
-  height: 1.72rem;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border-radius: 0.52rem;
-  background: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.78);
+  max-width: 34rem;
+  margin-top: 0.12rem;
   font-size: 0.72rem;
-  font-weight: 950;
-}
-
-.business-studio-brandmark img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.business-studio-summary-copy {
-  min-width: 0;
-}
-
-.business-studio-summary-copy span {
-  color: rgba(255, 255, 255, 0.52);
-}
-
-.business-studio-summary-copy strong {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  color: #fff;
-  font-size: 0.74rem;
-  font-weight: 920;
-  letter-spacing: -0.035em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.business-studio-meter {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.2rem;
-  margin-top: 0.24rem;
-}
-
-.business-studio-meter i {
-  height: 0.2rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-}
-
-.business-studio-meter i.is-ready {
-  background: var(--native-accent-button-gradient);
-  background-position: var(--native-accent-x) 50%;
-  box-shadow: 0 0 18px var(--native-accent-glow);
+  line-height: 1.25;
 }
 
 .business-studio-shell {
   display: grid;
-  gap: 0.82rem;
+  gap: 0.62rem;
 }
 
 .business-studio-tabs {
+  position: relative;
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(12.5rem, 1fr);
-  gap: 0.58rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.42rem, 1.2vw, 0.72rem);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
-  border-radius: 1rem;
-  border: 0;
-  background: transparent;
-  padding: 0;
+  border-radius: 0.98rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.44rem;
+  box-shadow:
+    0 16px 42px -38px rgba(15, 23, 42, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+}
+
+.business-studio-tabs::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 1.35rem;
+  right: clamp(2.2rem, 6vw, 4.4rem);
+  left: clamp(2.2rem, 6vw, 4.4rem);
+  height: 1px;
+  background: rgba(15, 23, 42, 0.08);
+  pointer-events: none;
 }
 
 .business-studio-tabs::-webkit-scrollbar {
@@ -590,73 +561,92 @@ html body .native-ui .profile-page .profile-section-business {
 }
 
 .business-studio-tabs button {
+  position: relative;
+  z-index: 1;
   min-width: 0;
-  min-height: 3.7rem;
+  min-height: 3.18rem;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "icon label"
-    "icon detail";
-  gap: 0 0.58rem;
-  align-items: center;
-  border: 0;
+    "icon"
+    "label";
+  gap: 0.26rem;
+  justify-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.075);
   border-radius: 0.82rem;
-  background: rgba(255, 255, 255, 0.72);
-  padding: 0.66rem;
+  background: rgba(255, 255, 255, 0.86);
+  padding: 0.38rem 0.58rem;
   color: #050505;
-  text-align: left;
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.055);
+  text-align: center;
+  box-shadow:
+    0 10px 28px -26px rgba(15, 23, 42, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94);
   transition:
     background 160ms ease,
+    border-color 160ms ease,
     box-shadow 160ms ease,
     transform 160ms ease;
 }
 
 .business-studio-tabs button span {
   grid-area: icon;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 1.72rem;
+  height: 1.72rem;
   display: grid;
   place-items: center;
-  border-radius: 0.74rem;
-  background: rgba(255, 255, 255, 0.76);
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.055);
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  color: #050505;
+  box-shadow:
+    0 10px 24px -20px rgba(15, 23, 42, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
 }
 
 .business-studio-tabs button strong {
   grid-area: label;
   min-width: 0;
   overflow: hidden;
-  font-size: 0.9rem;
-  font-weight: 920;
+  font-size: 0.78rem;
+  font-weight: 930;
   letter-spacing: -0.025em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .business-studio-tabs button small {
-  grid-area: detail;
-  min-width: 0;
-  overflow: hidden;
-  color: #7b8490;
-  font-size: 0.68rem;
-  font-weight: 720;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: none;
 }
 
 .business-studio-tabs button.is-active {
+  border-color: transparent;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(255, 255, 255, 0.12)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.16)),
     var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
   color: #050505;
-  box-shadow: 0 16px 36px -28px var(--native-accent-glow);
+  box-shadow: 0 18px 44px -34px var(--native-accent-glow);
+  transform: translateY(-1px);
+}
+
+.business-studio-tabs button.is-complete:not(.is-active) {
+  border-color: rgba(15, 23, 42, 0.08);
+  background: #fff;
 }
 
 .business-studio-tabs button.is-active span {
   background: rgba(255, 255, 255, 0.68);
   color: #050505;
+}
+
+.business-studio-tabs button.is-complete:not(.is-active) span {
+  border-color: transparent;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.16)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
 }
 
 .business-studio-tabs button.is-active small {
@@ -681,7 +671,7 @@ html body .native-ui .profile-page .profile-section-business {
 
 .business-settings-stack {
   display: grid;
-  gap: 0.82rem;
+  gap: 0.68rem;
   min-width: 0;
 }
 
@@ -694,10 +684,27 @@ html body .native-ui .profile-page .profile-section-business {
   margin-top: 0.22rem;
 }
 
+.business-pane-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.62rem;
+  min-height: 2.45rem;
+}
+
+.business-pane-actions > span {
+  min-width: 0;
+  margin-right: auto;
+  color: #68717d;
+  font-size: 0.78rem;
+  font-weight: 640;
+  line-height: 1.28;
+}
+
 .business-identity-fields,
 .business-contact-grid {
   display: grid;
-  gap: 0.58rem;
+  gap: 0.62rem;
   min-width: 0;
 }
 
@@ -747,14 +754,21 @@ html body .native-ui .profile-page .profile-section-business {
   color: #b6bdc7;
 }
 
+.business-name-field {
+  max-width: 22rem;
+}
+
 .business-logo-card {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.78rem;
   border-radius: 0.94rem;
-  border: 0;
-  background: transparent;
-  padding: 0.12rem 0;
+  border: 1px solid rgba(15, 23, 42, 0.065);
+  background: rgba(255, 255, 255, 0.84);
+  padding: 0.58rem;
+  box-shadow:
+    0 14px 34px -32px rgba(15, 23, 42, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94);
 }
 
 .business-logo-preview {
@@ -791,6 +805,7 @@ html body .native-ui .profile-page .profile-section-business {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12)),
     var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
   color: #050505;
   padding: 0 0.9rem;
@@ -828,10 +843,14 @@ html body .native-ui .profile-page .profile-section-business {
 
 .business-media-card {
   display: grid;
-  gap: 0.72rem;
-  border-radius: 0.94rem;
-  background: rgba(255, 255, 255, 0.62);
-  padding: 0.72rem;
+  gap: 0.78rem;
+  border-radius: 1.05rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 0.78rem;
+  box-shadow:
+    0 14px 38px -34px rgba(15, 23, 42, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94);
 }
 
 .business-media-card-grid,
@@ -901,8 +920,8 @@ html body .native-ui .profile-page .profile-section-business {
 
 .business-location-card {
   border-radius: 0.94rem;
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  background: #fff;
+  border: 0;
+  background: rgba(247, 248, 250, 0.84);
   padding: 0.72rem;
   align-items: start;
 }
@@ -1045,6 +1064,7 @@ html body .native-ui .profile-page .profile-section-business {
 
 .business-toggle.is-on {
   background: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
   background-position: var(--native-accent-x) 50%;
 }
 
@@ -1060,6 +1080,7 @@ html body .native-ui .profile-page .profile-section-business {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.12)),
     var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
   padding: 0.82rem;
   color: #050505;
@@ -1133,6 +1154,7 @@ html body .native-ui .profile-page .profile-section-business {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12)),
     var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
   color: #050505;
   padding: 0 1rem;
@@ -1162,10 +1184,6 @@ html body .native-ui .profile-page .profile-section-business {
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
-  .business-settings-hero {
-    grid-template-columns: minmax(0, 1fr) minmax(13rem, 16rem);
-  }
-
   .business-panel-heading {
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
@@ -1176,9 +1194,19 @@ html body .native-ui .profile-page .profile-section-business {
   }
 
   .business-identity-grid {
-    grid-template-columns: minmax(18rem, 34rem) auto;
-    justify-content: start;
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 15.5rem);
+    gap: 0.78rem;
+    align-items: stretch;
+  }
+
+  .business-identity-fields {
+    grid-template-columns: minmax(13rem, 19rem) minmax(0, 1fr);
     align-items: start;
+    gap: 0.72rem;
+  }
+
+  .business-name-field {
+    max-width: none;
   }
 
   .business-contact-grid {
@@ -1187,7 +1215,7 @@ html body .native-ui .profile-page .profile-section-business {
 
   .business-logo-card {
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: left;
   }
 
@@ -1197,12 +1225,12 @@ html body .native-ui .profile-page .profile-section-business {
   }
 
   .business-logo-actions {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .business-media-card-grid {
-    grid-template-columns: minmax(0, 1.5fr) minmax(12.5rem, 16rem);
-    align-items: start;
+    grid-template-columns: minmax(0, 1.65fr) minmax(13rem, 17rem);
+    align-items: stretch;
   }
 
   .business-media-copy {
@@ -1218,7 +1246,7 @@ html body .native-ui .profile-page .profile-section-business {
     display: grid;
     align-content: center;
     border-radius: 0.78rem;
-    background: rgba(247, 248, 250, 0.82);
+    background: rgba(255, 255, 255, 0.72);
     padding: 0.64rem 0.72rem;
   }
 
@@ -1250,15 +1278,17 @@ html body .native-ui .profile-page .profile-section-business {
 
 @media (min-width: 980px) {
   .business-studio-shell {
-    grid-template-columns: minmax(13.5rem, 16rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
 
   .business-studio-tabs {
     position: sticky;
-    top: 1rem;
-    grid-auto-flow: row;
+    top: 0.75rem;
+    z-index: 5;
+    grid-auto-flow: initial;
     grid-auto-columns: initial;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     overflow: visible;
   }
 }
@@ -1279,7 +1309,7 @@ html body .native-ui .profile-page .profile-section-business {
   }
 
   .business-settings-hero {
-    padding: 0.48rem;
+    padding: 0 0.08rem;
   }
 
   .business-settings-hero-copy h3 {
@@ -1312,16 +1342,17 @@ html body .native-ui .profile-page .profile-section-business {
     grid-auto-columns: initial;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     overflow: visible;
+    padding: 0.42rem;
   }
 
   .business-studio-tabs button {
-    min-height: 3.18rem;
+    min-height: 3.12rem;
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "icon"
       "label";
     justify-items: center;
-    gap: 0.24rem;
+    gap: 0.28rem;
     padding: 0.42rem 0.28rem;
     text-align: center;
   }

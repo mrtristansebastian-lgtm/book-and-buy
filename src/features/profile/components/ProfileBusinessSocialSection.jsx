@@ -1,4 +1,4 @@
-import { Globe, Instagram, Link2, Share2, Users, Zap } from 'lucide-react';
+import { Globe, Instagram, Share2, Users, Zap } from 'lucide-react';
 
 const SOCIAL_PLATFORMS = [
   { key: 'instagram', label: 'Instagram', placeholder: '@yourhandle', icon: Instagram },
@@ -63,25 +63,19 @@ export const ProfileBusinessSocialSection = ({
 
   return (
     <section className="business-settings-panel business-social-panel">
-      <div className="business-panel-heading">
-        <span className="business-panel-icon"><Link2 size={16} /></span>
-        <div>
-          <p>Public Links</p>
-          <h4>Socials and referral</h4>
-          <small>Choose exactly which filled links appear on the booking page.</small>
-        </div>
-        <button
-          type="button"
-          onClick={() => onSettingChange('features', { ...settings.features, socialLinks: !masterEnabled })}
-          className="business-toggle-button business-master-toggle"
-          aria-pressed={masterEnabled}
-        >
-          {masterEnabled ? 'Links on' : 'Links off'}
-          <Toggle active={masterEnabled} />
-        </button>
-      </div>
-
       <div className="business-settings-group">
+        <div className="business-pane-actions">
+          <span>Choose which public links clients can see.</span>
+          <button
+            type="button"
+            onClick={() => onSettingChange('features', { ...settings.features, socialLinks: !masterEnabled })}
+            className="business-toggle-button business-master-toggle"
+            aria-pressed={masterEnabled}
+          >
+            {masterEnabled ? 'Links on' : 'Links off'}
+            <Toggle active={masterEnabled} />
+          </button>
+        </div>
         {SOCIAL_PLATFORMS.map(platform => {
           const platformEnabled = socialPlatforms[platform.key] !== false;
           return (

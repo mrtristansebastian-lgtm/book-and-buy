@@ -16,7 +16,8 @@ import {
 } from '../../../utils/workspaceRoute';
 import {
   exampleModeDisabledStorageKey,
-  exampleModeStorageKey
+  exampleModeStorageKey,
+  guestPublicPreviewStorageKey
 } from '../../../utils/publicBookingRoute';
 import {
   createGoogleProvider,
@@ -27,6 +28,12 @@ import {
 import { readableAuthError } from '../utils/authErrors';
 
 const normalizeEmail = (email = '') => email.trim().toLowerCase();
+const clearGuestExampleStorage = () => {
+  safeLocalRemove(exampleModeDisabledStorageKey);
+  safeLocalRemove(exampleModeStorageKey);
+  safeLocalRemove(guestPublicPreviewStorageKey);
+};
+
 const getCurrentAuthDomainLabel = () => {
   if (typeof window === 'undefined') return 'this domain';
   return window.location.hostname || window.location.origin || 'this domain';
@@ -256,6 +263,7 @@ export function useAuthActions({
       setGuestMode(false);
       setClientGuestMode(false);
       safeLocalRemove(guestModeStorageKey);
+      clearGuestExampleStorage();
       setAuthPanelOpen(false);
       applyWorkspaceRoute(getAuthReturnRouteForPersona(authPersona));
       showToast(authMode === 'signup' ? 'Account created. Verify your email to continue.' : 'Signed in');
@@ -283,6 +291,7 @@ export function useAuthActions({
         setGuestMode(false);
         setClientGuestMode(false);
         safeLocalRemove(guestModeStorageKey);
+        clearGuestExampleStorage();
         setAuthPanelOpen(false);
         applyWorkspaceRoute(returnRoute);
         showToast('Signed in with Google');
@@ -302,6 +311,7 @@ export function useAuthActions({
       setGuestMode(false);
       setClientGuestMode(false);
       safeLocalRemove(guestModeStorageKey);
+      clearGuestExampleStorage();
       setAuthPanelOpen(false);
       applyWorkspaceRoute(returnRoute);
       showToast('Signed in with Google');
@@ -351,6 +361,7 @@ export function useAuthActions({
     setGuestMode(false);
     setClientGuestMode(false);
     safeLocalRemove(guestModeStorageKey);
+    clearGuestExampleStorage();
     setWorkspaceAccess([]);
     setActiveWorkspaceOwnerId('');
     safeLocalRemove('build-a-booking-active-workspace');
@@ -396,6 +407,7 @@ export function useAuthActions({
       setGuestMode(false);
       setClientGuestMode(false);
       safeLocalRemove(guestModeStorageKey);
+      clearGuestExampleStorage();
       setWorkspaceAccess([]);
       setActiveWorkspaceOwnerId('');
       clearWorkspaceDirty();

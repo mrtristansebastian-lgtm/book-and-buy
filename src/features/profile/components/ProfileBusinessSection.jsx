@@ -29,14 +29,11 @@ export const ProfileBusinessSection = ({
   const venuePhotoCount = Array.isArray(venuePhotos) ? venuePhotos.length : 0;
   const hasLocation = Boolean(settings.address || settings.mapPlace?.placeId || settings.mapPlace?.lat != null);
   const socialCount = Object.values(settings.socials || {}).filter(Boolean).length;
-  const essentials = [
-    { label: 'Name', ready: Boolean(settings.brandName), value: settings.brandName || 'Missing' },
-    { label: 'Logo', ready: Boolean(settings.logo), value: settings.logo ? 'Uploaded' : 'Optional' },
-    { label: 'Media', ready: Boolean(settings.bannerImage || venuePhotoCount), value: settings.bannerImage || venuePhotoCount ? `${venuePhotoCount + (settings.bannerImage ? 1 : 0)} ready` : 'Add photos' },
-    { label: 'Location', ready: hasLocation, value: hasLocation ? 'Set' : 'Not set' },
-    { label: 'Links', ready: Boolean(socialCount), value: socialCount ? `${socialCount} filled` : 'Optional' }
-  ];
-  const readyCount = essentials.filter(item => item.ready).length;
+  const paneReadiness = {
+    identity: Boolean(settings.brandName || settings.logo || settings.email || settings.phone),
+    media: Boolean(settings.bannerImage || venuePhotoCount || hasLocation),
+    links: Boolean(socialCount)
+  };
   return (
     <div data-tour="profile-business-info" className={`profile-section profile-section-business ${activeProfileSection === 'business' ? 'block' : 'hidden'}`}>
       <div className="business-settings-hero">
@@ -45,18 +42,6 @@ export const ProfileBusinessSection = ({
           <h3>Client-facing details</h3>
           <span>Move through one focused pane at a time. These are the details clients see before they decide to book.</span>
         </div>
-        <div className="business-studio-summary" aria-label="Business profile readiness">
-          <div className="business-studio-brandmark">
-            {settings.logo ? <img src={settings.logo} alt="" /> : (settings.brandName?.charAt(0) || 'B')}
-          </div>
-          <div className="business-studio-summary-copy">
-            <span>{readyCount} of {essentials.length} essentials ready</span>
-            <strong>{settings.brandName || 'Your Business'}</strong>
-            <div className="business-studio-meter">
-              {essentials.map(item => <i key={item.label} className={item.ready ? 'is-ready' : ''} />)}
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="business-studio-shell">
@@ -64,15 +49,16 @@ export const ProfileBusinessSection = ({
           {BUSINESS_PANES.map(item => {
             const Icon = item.icon;
             const active = item.id === activeBusinessPane;
+            const complete = paneReadiness[item.id];
             return (
               <button
                 key={item.id}
                 type="button"
-                className={active ? 'is-active' : ''}
+                className={`${active ? 'is-active' : ''} ${complete ? 'is-complete' : ''}`}
                 onClick={() => setActiveBusinessPane(item.id)}
                 aria-pressed={active}
               >
-                <span><Icon size={15} /></span>
+                <span>{complete && !active ? <Check size={14} strokeWidth={3} /> : <Icon size={15} />}</span>
                 <strong>{item.label}</strong>
                 <small>{item.detail}</small>
               </button>

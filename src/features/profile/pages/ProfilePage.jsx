@@ -56,7 +56,7 @@ export const ProfilePage = ({
   handleProfileActivityOpen,
   onOpenStyleRoom
 }) => (
-  <div className="profile-page flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 lg:p-12 relative bg-white">
+  <div className={`profile-page ${activeProfileSection ? 'has-active-profile-section' : ''} flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 lg:p-12 relative bg-white`}>
     <header className="profile-page-heading">
       <div>
         <p>Workspace settings</p>
@@ -83,7 +83,7 @@ export const ProfilePage = ({
       profileSections={profileSections}
     />
 
-    <div className="max-w-6xl space-y-8">
+    <div className="profile-sections-stack max-w-6xl space-y-8">
       <ProfilePersonalSection
         activeProfileSection={activeProfileSection}
         isGuestWorkspace={isGuestWorkspace}
