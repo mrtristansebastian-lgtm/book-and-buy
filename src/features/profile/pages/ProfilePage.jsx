@@ -4,7 +4,6 @@ import { ProfileActionStrip } from '../components/ProfileActionStrip';
 import { ProfileActivitySection } from '../components/ProfileActivitySection';
 import { ProfileBillingSection } from '../components/ProfileBillingSection';
 import { ProfileBusinessSection } from '../components/ProfileBusinessSection';
-import { ProfileMigrationSection } from '../components/ProfileMigrationSection';
 import { ProfileMobileHub } from '../components/ProfileMobileHub';
 import { ProfilePersonalSection } from '../components/ProfilePersonalSection';
 
@@ -16,17 +15,13 @@ export const ProfilePage = ({
   activeProfileSection,
   activeProfileSectionMeta,
   authBusy,
-  canManageWorkspace,
   communications,
   copyToClipboard,
-  handleClearCsvMigrationData,
-  handleCsvMigrationImport,
   handlePersonalProfilePhotoUpload,
   handleSettingChange,
   handleSettingImageUpload,
   handleSignOut,
   handleVenuePhotoUpload,
-  importedMigrationCounts,
   isGuestWorkspace,
   keepLoggedIn,
   onDeleteAccount,
@@ -57,7 +52,6 @@ export const ProfilePage = ({
   updatePersonalProfile,
   user,
   venuePhotos,
-  workspaceOwnerId,
   workspaceRole,
   handleProfileActivityOpen,
   onOpenStyleRoom
@@ -70,7 +64,7 @@ export const ProfilePage = ({
         <span>
           {activeProfileSectionMeta?.title
             ? `${activeProfileSectionMeta.title} - ${activeProfileSectionMeta.note || 'Manage the details clients and your team rely on.'}`
-            : 'Manage account, business, notifications, billing, migration, and launch setup in one clean place.'}
+            : 'Manage account, business, notifications, billing, and launch setup in one clean place.'}
         </span>
       </div>
     </header>
@@ -134,16 +128,6 @@ export const ProfilePage = ({
           />
         </Suspense>
       )}
-      <ProfileMigrationSection
-        activeProfileSection={activeProfileSection}
-        canManageWorkspace={canManageWorkspace}
-        displayCurrency={settings.currency || 'ZAR'}
-        importedMigrationCounts={importedMigrationCounts}
-        onClearMigrationData={handleClearCsvMigrationData}
-        onImportMigrationCsv={handleCsvMigrationImport}
-        showToast={showToast}
-        workspaceOwnerId={workspaceOwnerId}
-      />
       <ProfileBillingSection
         activeProfileSection={activeProfileSection}
         onBillingAction={openBillingAction}

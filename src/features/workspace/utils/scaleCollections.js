@@ -79,13 +79,6 @@ const normalizeMirrorRecord = (record = {}, id, collectionName) => {
     };
   }
 
-  if (collectionName === 'financeImports') {
-    return {
-      ...base,
-      importedAtMs: timestampMs(record.importedAt || record.updatedAtMs || record.createdAt, now)
-    };
-  }
-
   return base;
 };
 

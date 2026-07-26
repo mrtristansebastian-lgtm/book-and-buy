@@ -1,14 +1,10 @@
         .finance-metric-card,
         .finance-gateway-row,
-        .finance-migration-guide-card,
-        .finance-migration-scope,
         .finance-desk-row {
             transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
         }
 
         .finance-gateway-row:hover,
-        .finance-migration-guide-card:hover,
-        .finance-migration-scope:hover,
         .finance-desk-row:hover {
             transform: translateY(-1px);
             box-shadow: 0 20px 54px -44px rgba(15, 23, 42, 0.35);

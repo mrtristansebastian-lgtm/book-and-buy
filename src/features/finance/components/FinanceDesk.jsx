@@ -179,37 +179,37 @@ export const FinanceDesk = ({
         ) : rows.map((row) => {
           const gateway = gatewayById[row.gatewayType] || gatewayCards[0];
           return (
-            <div key={row.id} className="finance-desk-row p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-4">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <span className={`finance-gateway-mark w-11 h-11 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center justify-center text-black shrink-0 ${gateway.logo ? 'has-logo' : ''}`}>
+            <div key={row.id} className="finance-desk-row p-4 md:p-5">
+              <div className="finance-desk-row-main">
+                <span className={`finance-gateway-mark ${gateway.logo ? 'has-logo' : ''}`}>
                   <GatewayLogo gateway={gateway} />
                 </span>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-black text-black truncate">{row.customerName || 'Client'}</p>
+                <div className="finance-desk-row-copy">
+                  <div className="finance-desk-row-title-line">
+                    <p className="finance-desk-row-client">{row.customerName || 'Client'}</p>
                     {row.isExample && <span className="rounded-full bg-neutral-50 border border-neutral-100 px-2 py-1 text-[8px] font-bold uppercase tracking-widest text-neutral-400">Example</span>}
                     <StatusPill status={row.status} />
                   </div>
-                  <p className="mt-1 text-sm text-neutral-500 truncate">{row.description || 'Booking payment'} / {gateway.name}</p>
+                  <p className="finance-desk-row-description">{row.description || 'Booking payment'} / {gateway.name}</p>
                   {row.bookingId && (
-                    <p className="mt-1 text-[9px] font-bold uppercase tracking-widest text-neutral-300">Reference: {row.bookingId}</p>
+                    <p className="finance-desk-row-reference">Reference: {row.bookingId}</p>
                   )}
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:flex md:items-center gap-3 md:text-right">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">Amount</p>
-                  <p className="font-black text-black">{formatMoney(row.amountInCents, displayCurrency)}</p>
+              <div className="finance-desk-row-stats" aria-label="Payment details">
+                <div className="finance-desk-stat">
+                  <p className="finance-desk-stat-label">Amount</p>
+                  <p className="finance-desk-stat-value">{formatMoney(row.amountInCents, displayCurrency)}</p>
                 </div>
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">Updated</p>
-                  <p className="font-bold text-sm text-neutral-500">{formatDateTime(row.updatedAtMs)}</p>
+                <div className="finance-desk-stat">
+                  <p className="finance-desk-stat-label">Updated</p>
+                  <p className="finance-desk-stat-value is-date">{formatDateTime(row.updatedAtMs)}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => row.canMarkPaid ? onMarkBookingPaid?.(row.originalBooking) : null}
                   disabled={!row.canMarkPaid}
-                  className={`h-10 px-3 rounded-xl border text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 ${row.canMarkPaid ? 'native-gradient-button text-black border-transparent' : 'border-neutral-200 bg-white text-black opacity-60'}`}
+                  className={`finance-desk-row-action ${row.canMarkPaid ? 'is-payable' : 'is-view-only'}`}
                 >
                   {row.canMarkPaid ? 'Mark Paid' : 'View'} <ArrowUpRight size={13} />
                 </button>

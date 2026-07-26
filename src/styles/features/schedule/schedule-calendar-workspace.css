@@ -31,7 +31,8 @@ html body .native-ui .schedule-calendar-toolbar {
 html body .native-ui .schedule-calendar-date-nav,
 html body .native-ui .schedule-calendar-toolbar-actions,
 html body .native-ui .schedule-calendar-arrows,
-html body .native-ui .schedule-calendar-view-switcher {
+html body .native-ui .schedule-calendar-period-switcher,
+html body .native-ui .schedule-calendar-list-view {
   display: flex;
   align-items: center;
 }
@@ -57,6 +58,7 @@ html body .native-ui .schedule-calendar-date-nav h2 {
 html body .native-ui .schedule-calendar-today,
 html body .native-ui .schedule-calendar-arrows button,
 html body .native-ui .schedule-calendar-settings,
+html body .native-ui .schedule-calendar-list-view,
 html body .native-ui .schedule-calendar-filter-trigger,
 html body .native-ui .schedule-calendar-create {
   min-height: 2.6rem;
@@ -100,40 +102,32 @@ html body .native-ui .schedule-calendar-toolbar-actions {
   gap: 0.45rem;
 }
 
-html body .native-ui .schedule-calendar-view-switcher {
-  gap: 0.2rem;
-  padding: 0.24rem;
-  border: 1px solid var(--calendar-border);
-  border-radius: 11px;
-  background: #f5f6f8;
+html body .native-ui .schedule-calendar-period-switcher {
+  flex: 0 0 auto;
 }
 
-html body .native-ui .schedule-calendar-view-switcher button {
-  display: inline-flex;
-  min-height: 2.15rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  padding: 0 0.72rem;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #667085;
-  font-size: 0.67rem;
-  font-weight: 820;
-}
-
-html body .native-ui .schedule-calendar-view-switcher button.is-active {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
-    var(--native-accent-button-gradient);
-  background-size: 100% 100%, 420% 420%;
-  color: #101828;
-  box-shadow: 0 2px 9px rgba(15, 23, 42, 0.08);
+html body .native-ui .schedule-calendar-period-switcher .period-segmented-option {
+  min-width: 4.85rem;
 }
 
 html body .native-ui .schedule-calendar-filter-wrap {
   position: relative;
+}
+
+html body .native-ui .schedule-calendar-list-view {
+  justify-content: center;
+  gap: 0.38rem;
+  padding: 0 0.74rem;
+  border-radius: 10px;
+  background: #fff;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-calendar-list-view.is-active {
+  border-color: transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient) border-box;
 }
 
 html body .native-ui .schedule-calendar-filter-trigger {
@@ -2149,6 +2143,7 @@ html body .native-ui .schedule-calendar-skeleton-grid {
   html body .native-ui .schedule-calendar-today,
   html body .native-ui .schedule-calendar-arrows button,
   html body .native-ui .schedule-calendar-settings,
+  html body .native-ui .schedule-calendar-list-view,
   html body .native-ui .schedule-calendar-filter-trigger,
   html body .native-ui .schedule-calendar-create {
     min-height: 2.75rem;
@@ -2160,22 +2155,16 @@ html body .native-ui .schedule-calendar-skeleton-grid {
 
   html body .native-ui .schedule-calendar-toolbar-actions {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto auto auto;
     overflow: visible;
   }
 
-  html body .native-ui .schedule-calendar-view-switcher {
-    width: max-content;
+  html body .native-ui .schedule-calendar-period-switcher {
+    width: 100%;
   }
 
-  html body .native-ui .schedule-calendar-view-switcher button {
-    min-height: 2.35rem;
-    padding: 0 0.8rem;
-  }
-
-  html body .native-ui .schedule-calendar-view-switcher button[data-view="week"],
-  html body .native-ui .schedule-calendar-view-switcher button[data-view="month"] {
-    display: none;
+  html body .native-ui .schedule-calendar-period-switcher .period-segmented-option {
+    min-width: 4.4rem;
   }
 
   html body .native-ui .schedule-calendar-filter-wrap {
@@ -2191,6 +2180,15 @@ html body .native-ui .schedule-calendar-skeleton-grid {
 
   html body .native-ui .schedule-calendar-filter-trigger span,
   html body .native-ui .schedule-calendar-filter-trigger svg:last-child {
+    display: none;
+  }
+
+  html body .native-ui .schedule-calendar-list-view {
+    width: 2.75rem;
+    padding: 0;
+  }
+
+  html body .native-ui .schedule-calendar-list-view span {
     display: none;
   }
 

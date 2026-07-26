@@ -5,8 +5,7 @@ import { AppErrorBoundary } from './components/AppErrorBoundary';
 import './styles.css';
 import './styles/extracted.css';
 import './styles/workspace-shell.css';
-import './styles/dashboard/mission-control-dashboard.css';
-import './styles/features/onboarding/business-onboarding.css';
+import './styles/dashboard/dashboard-coming-soon.css';
 import './styles/runtime/native-typography-consistency.css';
 import './styles/runtime/launch-readiness-polish.css';
 

@@ -10,7 +10,6 @@ export const FinancePage = ({
   appId,
   bookings,
   canManageWorkspace,
-  financeImports,
   exampleMode,
   exampleGatewayStates,
   isGuestWorkspace,
@@ -30,7 +29,6 @@ export const FinancePage = ({
           canManageWorkspace={canManageWorkspace}
           showToast={showToast}
           bookings={bookings}
-          importedFinanceRecords={financeImports}
           onMarkBookingPaid={onMarkBookingPaid}
         />
       </AppErrorBoundary>

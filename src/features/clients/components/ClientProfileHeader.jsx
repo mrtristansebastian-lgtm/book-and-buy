@@ -34,10 +34,7 @@ export const ClientProfileHeader = ({
           <p className="text-xs md:text-sm text-neutral-500 mb-3 md:mb-4">
             {isExampleClient
               ? 'Visual example only - not saved, synced, or counted in stats'
-              : [
-                activeClient.bookingCount ? `${activeClient.bookingCount} booking${activeClient.bookingCount === 1 ? '' : 's'} on file` : 'Manual client profile',
-                activeClient.country
-              ].filter(Boolean).join(' / ')}
+              : activeClient.country || 'Manual client profile'}
           </p>
           <div className="flex flex-wrap gap-2">
             {allLabels.map(label => (
@@ -46,9 +43,21 @@ export const ClientProfileHeader = ({
           </div>
         </div>
       </div>
-      <button onClick={onOpenBookings} className="h-11 px-5 rounded-lg border border-neutral-200 bg-white text-[10px] font-bold uppercase tracking-widest text-neutral-600 hover:text-black hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2">
-        <History size={15} /> Open Bookings
-      </button>
+      <div className="client-profile-actions">
+        <button onClick={onOpenBookings} className="client-profile-bookings-action">
+          <History size={15} /> Open Bookings
+        </button>
+        <div className="client-profile-header-stats" aria-label="Client booking summary">
+          <span>
+            <strong>{activeClient.bookingCount || activeClient.bookings?.length || 0}</strong>
+            <small>Bookings</small>
+          </span>
+          <span>
+            <strong>{activeClient.lastBooking?.date || 'None'}</strong>
+            <small>{isExampleClient ? 'Example' : 'Last visit'}</small>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 );

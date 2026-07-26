@@ -1,15 +1,18 @@
-import { BookingsPage } from '../../bookings';
-import { ClientsPage } from '../../clients';
-import { EditorPage } from '../../editor';
-import { ProfilePage } from '../../profile';
-import { StaffPage } from '../../staff';
+import { lazy, Suspense } from 'react';
+import { LazySectionFallback } from '../../../components/AppLoading';
 import { mergeStateIfChanged } from '../../workspace';
 import { normalizeServiceList } from '../../../utils/services';
 import { DashboardOverviewPage } from './DashboardOverviewPage';
-import { FinancePage } from '../pages/FinancePage';
-import { SchedulePage } from '../pages/SchedulePage';
-import { ServicesPage } from '../pages/ServicesPage';
-import { SupportInboxPage } from '../pages/SupportInboxPage';
+
+const BookingsPage = lazy(() => import('../../bookings/pages/BookingsPage').then(module => ({ default: module.BookingsPage })));
+const ClientsPage = lazy(() => import('../../clients/pages/ClientsPage').then(module => ({ default: module.ClientsPage })));
+const EditorPage = lazy(() => import('../../editor/pages/EditorPage').then(module => ({ default: module.EditorPage })));
+const ProfilePage = lazy(() => import('../../profile/pages/ProfilePage').then(module => ({ default: module.ProfilePage })));
+const StaffPage = lazy(() => import('../../staff/pages/StaffPage').then(module => ({ default: module.StaffPage })));
+const FinancePage = lazy(() => import('../pages/FinancePage').then(module => ({ default: module.FinancePage })));
+const SchedulePage = lazy(() => import('../pages/SchedulePage').then(module => ({ default: module.SchedulePage })));
+const ServicesPage = lazy(() => import('../pages/ServicesPage').then(module => ({ default: module.ServicesPage })));
+const SupportInboxPage = lazy(() => import('../pages/SupportInboxPage').then(module => ({ default: module.SupportInboxPage })));
 
 export function DashboardMainRoutes({
   activeTab,
@@ -36,154 +39,172 @@ export function DashboardMainRoutes({
       )}
 
       {activeTab === 'profile' && (
-        <ProfilePage
-          {...profile.props}
-          onDeleteAccount={() => {
-            profile.setAccountDeleteText('');
-            profile.setAccountDeleteOpen(true);
-          }}
-          onOpenStyleRoom={() => {
-            profile.setActiveTab('editor');
-            profile.openEditorRoom('style');
-          }}
-        />
+        <Suspense fallback={<LazySectionFallback label="Loading profile" />}>
+          <ProfilePage
+            {...profile.props}
+            onDeleteAccount={() => {
+              profile.setAccountDeleteText('');
+              profile.setAccountDeleteOpen(true);
+            }}
+            onOpenStyleRoom={() => {
+              profile.setActiveTab('editor');
+              profile.openEditorRoom('style');
+            }}
+          />
+        </Suspense>
       )}
 
       {activeTab === 'business' && (
-        <SchedulePage
-          {...schedule.props}
-          googleCalendarState={{
-            connected: Boolean(schedule.googleCalendarAuth.accessToken),
-            email: schedule.googleCalendarAuth.email || schedule.settings.googleCalendar?.connectedEmail || '',
-            connectedAt: schedule.googleCalendarAuth.connectedAt || schedule.settings.googleCalendar?.connectedAt || 0,
-            lastSyncedAt: schedule.settings.googleCalendar?.lastSyncedAt || 0,
-            lastSyncCount: schedule.settings.googleCalendar?.lastSyncCount || 0,
-            syncing: schedule.googleCalendarSyncing
-          }}
-        />
+        <Suspense fallback={<LazySectionFallback label="Loading schedule" />}>
+          <SchedulePage
+            {...schedule.props}
+            googleCalendarState={{
+              connected: Boolean(schedule.googleCalendarAuth.accessToken),
+              email: schedule.googleCalendarAuth.email || schedule.settings.googleCalendar?.connectedEmail || '',
+              connectedAt: schedule.googleCalendarAuth.connectedAt || schedule.settings.googleCalendar?.connectedAt || 0,
+              lastSyncedAt: schedule.settings.googleCalendar?.lastSyncedAt || 0,
+              lastSyncCount: schedule.settings.googleCalendar?.lastSyncCount || 0,
+              syncing: schedule.googleCalendarSyncing
+            }}
+          />
+        </Suspense>
       )}
 
       {activeTab === 'communications' && (
-        <SupportInboxPage {...support.props} />
+        <Suspense fallback={<LazySectionFallback label="Loading inbox" />}>
+          <SupportInboxPage {...support.props} />
+        </Suspense>
       )}
 
       {activeTab === 'services' && (
-        <ServicesPage
-          {...services.props}
-          onChooseIndustry={(industryId) => {
-            services.handleSettingChange('serviceIndustry', industryId);
-            if (industryId) services.setThemeFilterValue('industry', industryId);
-          }}
-          onUpdateSettings={async (nextSettings, message) => {
-            const servicePatch = {
-              services: normalizeServiceList(nextSettings.services || []),
-              serviceIndustry: nextSettings.serviceIndustry || services.settings.serviceIndustry || ''
-            };
-            services.markWorkspaceDirty();
-            services.setSettings(prev => mergeStateIfChanged(prev, { ...prev, ...servicePatch }));
-            return services.saveWorkspaceSettingsPatch(servicePatch, message || 'Services saved.');
-          }}
-        />
+        <Suspense fallback={<LazySectionFallback label="Loading services" />}>
+          <ServicesPage
+            {...services.props}
+            onChooseIndustry={(industryId) => {
+              services.handleSettingChange('serviceIndustry', industryId);
+              if (industryId) services.setThemeFilterValue('industry', industryId);
+            }}
+            onUpdateSettings={async (nextSettings, message) => {
+              const servicePatch = {
+                services: normalizeServiceList(nextSettings.services || []),
+                serviceIndustry: nextSettings.serviceIndustry || services.settings.serviceIndustry || ''
+              };
+              services.markWorkspaceDirty();
+              services.setSettings(prev => mergeStateIfChanged(prev, { ...prev, ...servicePatch }));
+              return services.saveWorkspaceSettingsPatch(servicePatch, message || 'Services saved.');
+            }}
+          />
+        </Suspense>
       )}
 
       {activeTab === 'finance' && (
-        <FinancePage {...finance.props} />
+        <Suspense fallback={<LazySectionFallback label="Loading finance" />}>
+          <FinancePage {...finance.props} />
+        </Suspense>
       )}
 
       {activeTab === 'clients' && (
-        <ClientsPage {...clients.props} />
+        <Suspense fallback={<LazySectionFallback label="Loading clients" />}>
+          <ClientsPage {...clients.props} />
+        </Suspense>
       )}
 
       {activeTab === 'staff' && (
-        <StaffPage {...staff.props} />
+        <Suspense fallback={<LazySectionFallback label="Loading team" />}>
+          <StaffPage {...staff.props} />
+        </Suspense>
       )}
 
       {activeTab === 'editor' && (
-        <EditorPage
-          {...editor.props}
-          actions={{
-            ...editor.props.actions,
-            onDeviceChange: editor.runtime.handleDeviceChange,
-            openRoom: editor.runtime.openRoom
-          }}
-          editor={{
-            collapsed: editor.runtime.collapsed,
-            contentRef: editor.runtime.contentRef,
-            device: editor.runtime.device,
-            isPortraitMobileRuntime: editor.runtime.isPortraitMobileRuntime,
-            mobileNavCollapsed: editor.runtime.mobileNavCollapsed,
-            setCollapsed: editor.runtime.setCollapsed,
-            setMobileNavCollapsed: editor.runtime.setMobileNavCollapsed,
-            setStudioModal: editor.runtime.setStudioModal,
-            studioModal: editor.runtime.studioModal
-          }}
-          preview={{
-            containerRef: editor.runtime.containerRef,
-            endRoomNavDrag: editor.runtime.endRoomNavDrag,
-            frame: editor.runtime.frame,
-            frameClass: editor.runtime.frameClass,
-            isCompactViewport: editor.runtime.isCompactViewport,
-            key: editor.runtime.previewKey,
-            moveRoomNavDrag: editor.runtime.moveRoomNavDrag,
-            previewStep: editor.runtime.previewStep,
-            roomNavOffset: editor.runtime.roomNavOffset,
-            scale: editor.runtime.scale,
-            scrollRef: editor.runtime.previewScrollRef,
-            setKey: editor.runtime.setPreviewKey,
-            setPreviewStep: editor.runtime.setPreviewStep,
-            setRoomNavOffset: editor.runtime.setRoomNavOffset,
-            settings: editor.props.settings,
-            shouldMount: editor.runtime.shouldMountPreview,
-            showPortraitDesktopPrompt: editor.runtime.showPortraitDesktopPrompt,
-            startRoomNavDrag: editor.runtime.startRoomNavDrag
-          }}
-        />
+        <Suspense fallback={<LazySectionFallback label="Loading editor" />}>
+          <EditorPage
+            {...editor.props}
+            actions={{
+              ...editor.props.actions,
+              onDeviceChange: editor.runtime.handleDeviceChange,
+              openRoom: editor.runtime.openRoom
+            }}
+            editor={{
+              collapsed: editor.runtime.collapsed,
+              contentRef: editor.runtime.contentRef,
+              device: editor.runtime.device,
+              isPortraitMobileRuntime: editor.runtime.isPortraitMobileRuntime,
+              mobileNavCollapsed: editor.runtime.mobileNavCollapsed,
+              setCollapsed: editor.runtime.setCollapsed,
+              setMobileNavCollapsed: editor.runtime.setMobileNavCollapsed,
+              setStudioModal: editor.runtime.setStudioModal,
+              studioModal: editor.runtime.studioModal
+            }}
+            preview={{
+              containerRef: editor.runtime.containerRef,
+              endRoomNavDrag: editor.runtime.endRoomNavDrag,
+              frame: editor.runtime.frame,
+              frameClass: editor.runtime.frameClass,
+              isCompactViewport: editor.runtime.isCompactViewport,
+              key: editor.runtime.previewKey,
+              moveRoomNavDrag: editor.runtime.moveRoomNavDrag,
+              previewStep: editor.runtime.previewStep,
+              roomNavOffset: editor.runtime.roomNavOffset,
+              scale: editor.runtime.scale,
+              scrollRef: editor.runtime.previewScrollRef,
+              setKey: editor.runtime.setPreviewKey,
+              setPreviewStep: editor.runtime.setPreviewStep,
+              setRoomNavOffset: editor.runtime.setRoomNavOffset,
+              settings: editor.props.settings,
+              shouldMount: editor.runtime.shouldMountPreview,
+              showPortraitDesktopPrompt: editor.runtime.showPortraitDesktopPrompt,
+              startRoomNavDrag: editor.runtime.startRoomNavDrag
+            }}
+          />
+        </Suspense>
       )}
 
       {activeTab === 'bookings' && (
-        <BookingsPage
-          {...bookings.props}
-          bookingDeskState={{
-            bookingDesk: bookings.bookingRuntime.bookingDesk,
-            bookingDeskPeriod: bookings.bookingRuntime.bookingDeskPeriod,
-            bookingPaymentFilter: bookings.bookingRuntime.bookingPaymentFilter,
-            bookingRows: bookings.bookingRuntime.bookingRows,
-            bookingSearch: bookings.bookingRuntime.bookingSearch,
-            bookingSort: bookings.bookingRuntime.bookingSort,
-            onBookingDeskPeriodChange: bookings.bookingRuntime.setBookingDeskPeriod,
-            onBookingFilterChange: bookings.bookingRuntime.setBookingFilter,
-            onBookingPaymentFilterChange: bookings.bookingRuntime.setBookingPaymentFilter,
-            onBookingSearchChange: bookings.bookingRuntime.setBookingSearch,
-            onBookingSortChange: bookings.bookingRuntime.setBookingSort,
-            safeStaffList: bookings.safeStaffList
-          }}
-          manualBooking={{
-            activeStaffProfile: bookings.activeStaffProfile,
-            displayStaffList: bookings.displayStaffList,
-            isOpen: bookings.bookingRuntime.manualBookingOpen,
-            manualBookingServiceId: bookings.bookingRuntime.manualBookingServiceId,
-            onClose: () => bookings.bookingRuntime.setManualBookingOpen(false),
-            onManualBookingServiceIdChange: bookings.bookingRuntime.setManualBookingServiceId,
-            onOpen: () => {
-              bookings.bookingRuntime.setManualBookingServiceId(bookings.workspaceServices[0]?.id || 'custom');
-              bookings.bookingRuntime.setManualBookingOpen(true);
-            },
-            onSubmit: bookings.handleManualBookingSubmit,
-            selectedManualBookingService: bookings.bookingRuntime.selectedManualBookingService,
-            workspaceServices: bookings.workspaceServices
-          }}
-          rangeDialog={{
-            bookingCustomRange: bookings.bookingRuntime.bookingCustomRange,
-            isOpen: bookings.bookingRuntime.bookingRangeDialogOpen,
-            onClose: () => bookings.bookingRuntime.setBookingRangeDialogOpen(false),
-            onOpen: () => bookings.bookingRuntime.setBookingRangeDialogOpen(true),
-            onSave: () => {
-              bookings.bookingRuntime.setBookingDeskPeriod('custom');
-              bookings.bookingRuntime.setBookingRangeDialogOpen(false);
-            },
-            setBookingCustomRange: bookings.bookingRuntime.setBookingCustomRange
-          }}
-        />
+        <Suspense fallback={<LazySectionFallback label="Loading bookings" />}>
+          <BookingsPage
+            {...bookings.props}
+            bookingDeskState={{
+              bookingDesk: bookings.bookingRuntime.bookingDesk,
+              bookingDeskPeriod: bookings.bookingRuntime.bookingDeskPeriod,
+              bookingPaymentFilter: bookings.bookingRuntime.bookingPaymentFilter,
+              bookingRows: bookings.bookingRuntime.bookingRows,
+              bookingSearch: bookings.bookingRuntime.bookingSearch,
+              bookingSort: bookings.bookingRuntime.bookingSort,
+              onBookingDeskPeriodChange: bookings.bookingRuntime.setBookingDeskPeriod,
+              onBookingFilterChange: bookings.bookingRuntime.setBookingFilter,
+              onBookingPaymentFilterChange: bookings.bookingRuntime.setBookingPaymentFilter,
+              onBookingSearchChange: bookings.bookingRuntime.setBookingSearch,
+              onBookingSortChange: bookings.bookingRuntime.setBookingSort,
+              safeStaffList: bookings.safeStaffList
+            }}
+            manualBooking={{
+              activeStaffProfile: bookings.activeStaffProfile,
+              displayStaffList: bookings.displayStaffList,
+              isOpen: bookings.bookingRuntime.manualBookingOpen,
+              manualBookingServiceId: bookings.bookingRuntime.manualBookingServiceId,
+              onClose: () => bookings.bookingRuntime.setManualBookingOpen(false),
+              onManualBookingServiceIdChange: bookings.bookingRuntime.setManualBookingServiceId,
+              onOpen: () => {
+                bookings.bookingRuntime.setManualBookingServiceId(bookings.workspaceServices[0]?.id || 'custom');
+                bookings.bookingRuntime.setManualBookingOpen(true);
+              },
+              onSubmit: bookings.handleManualBookingSubmit,
+              selectedManualBookingService: bookings.bookingRuntime.selectedManualBookingService,
+              workspaceServices: bookings.workspaceServices
+            }}
+            rangeDialog={{
+              bookingCustomRange: bookings.bookingRuntime.bookingCustomRange,
+              isOpen: bookings.bookingRuntime.bookingRangeDialogOpen,
+              onClose: () => bookings.bookingRuntime.setBookingRangeDialogOpen(false),
+              onOpen: () => bookings.bookingRuntime.setBookingRangeDialogOpen(true),
+              onSave: () => {
+                bookings.bookingRuntime.setBookingDeskPeriod('custom');
+                bookings.bookingRuntime.setBookingRangeDialogOpen(false);
+              },
+              setBookingCustomRange: bookings.bookingRuntime.setBookingCustomRange
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

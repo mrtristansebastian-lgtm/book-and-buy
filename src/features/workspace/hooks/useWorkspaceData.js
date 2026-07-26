@@ -36,7 +36,6 @@ export function useWorkspaceData({
   const initialGuestWorkspace = getInitialGuestWorkspace();
   const [settings, setSettingsState] = useState(() => initialGuestWorkspace?.settings || createDefaultSettings());
   const [bookings, setBookingsState] = useState(() => asArray(initialGuestWorkspace?.bookings));
-  const [financeImports, setFinanceImportsState] = useState(() => asArray(initialGuestWorkspace?.financeImports));
   const [financePaymentAttempts, setFinancePaymentAttemptsState] = useState([]);
   const [bookingsReady, setBookingsReadyState] = useState(() => Boolean(initialGuestWorkspace) || !isFirebaseConfigured);
   const [staffList, setStaffListState] = useState(() => {
@@ -87,7 +86,6 @@ export function useWorkspaceData({
     const demoWorkspace = initialGuestWorkspaceRef.current || createGuestDemoWorkspace();
     setSettingsState(demoWorkspace.settings);
     setBookingsState(asArray(demoWorkspace.bookings));
-    setFinanceImportsState(asArray(demoWorkspace.financeImports));
     setFinancePaymentAttemptsState([]);
     setBookingsReadyState(true);
     setStaffListState(asArray(demoWorkspace.staffList).length ? asArray(demoWorkspace.staffList) : DEFAULT_STAFF);
@@ -111,7 +109,6 @@ export function useWorkspaceData({
     setSettingsState(createDefaultSettings());
     setCommunicationsState(createDefaultCommunications());
     setBookingsState([]);
-    setFinanceImportsState([]);
     setFinancePaymentAttemptsState([]);
     setBookingsReadyState(true);
     setClientRecordsState([]);
@@ -127,7 +124,6 @@ export function useWorkspaceData({
     const example = createWorkspaceExample({ anchorDate });
     setSettingsState(example.settings);
     setBookingsState(example.bookings);
-    setFinanceImportsState(example.financeImports);
     setFinancePaymentAttemptsState([]);
     setBookingsReadyState(true);
     setStaffListState(example.staffList);
@@ -151,7 +147,6 @@ export function useWorkspaceData({
     const demoWorkspace = createGuestDemoWorkspace();
     setSettingsState(demoWorkspace.settings);
     setBookingsState([]);
-    setFinanceImportsState([]);
     setFinancePaymentAttemptsState([]);
     setBookingsReadyState(true);
     setStaffListState(demoWorkspace.staffList);
@@ -180,7 +175,6 @@ export function useWorkspaceData({
   }, [isExampleMode]);
   const setSettings = useMemo(() => guardSetter(setSettingsState), [guardSetter]);
   const setBookings = useMemo(() => guardSetter(setBookingsState), [guardSetter]);
-  const setFinanceImports = useMemo(() => guardSetter(setFinanceImportsState), [guardSetter]);
   const setFinancePaymentAttempts = useMemo(() => guardSetter(setFinancePaymentAttemptsState), [guardSetter]);
   const setBookingsReady = useMemo(() => guardSetter(setBookingsReadyState), [guardSetter]);
   const setStaffList = useMemo(() => guardSetter(setStaffListState), [guardSetter]);
@@ -190,7 +184,6 @@ export function useWorkspaceData({
 
   const safeStaffList = useMemo(() => asArray(staffList), [staffList]);
   const safeClientRecords = useMemo(() => asArray(clientRecords), [clientRecords]);
-  const safeFinanceImports = useMemo(() => asArray(financeImports), [financeImports]);
   const visibleBookings = useMemo(() => asArray(bookings), [bookings]);
 
   return {
@@ -203,14 +196,12 @@ export function useWorkspaceData({
     exampleManifest,
     exampleNotifications,
     exampleSupportThreads,
-    financeImports,
     financePaymentAttempts,
     loadWorkspaceExample,
     restoreBlankGuestWorkspace,
     resetGuestWorkspaceSeed,
     resetWorkspaceData,
     safeClientRecords,
-    safeFinanceImports,
     safeStaffList,
     setAccountProfileOverride,
     setBookings,
@@ -218,7 +209,6 @@ export function useWorkspaceData({
     setBookingsReady,
     setClientRecords,
     setCommunications,
-    setFinanceImports,
     setFinancePaymentAttempts,
     setSettings,
     setStaffList,

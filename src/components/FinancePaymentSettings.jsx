@@ -10,6 +10,8 @@ import {
 import { FinanceDesk } from '../features/finance/components/FinanceDesk';
 import { FinanceTimelineChart } from '../features/finance/components/FinanceTimelineChart';
 import { GatewaySettingsModal } from '../features/finance/components/GatewaySettingsModal';
+import { BookingDateRangeDialog } from '../features/bookings/components/BookingDateRangeDialog';
+import { PeriodSegmentedControl } from './PeriodSegmentedControl';
 import {
   buildChartBuckets,
   currencyOptionByCode,
@@ -22,7 +24,6 @@ import {
   buildFinanceCsvRows,
   buildFinanceCsvText,
   buildFinanceStatItems,
-  buildImportedFinanceRows,
   buildManualBookingRows,
   calculateFinanceMetrics,
   filterRecordsByPeriod,
@@ -41,7 +42,6 @@ export const FinancePaymentSettings = ({
   canManageWorkspace,
   showToast,
   bookings = [],
-  importedFinanceRecords = [],
   onMarkBookingPaid
 }) => {
   const [saved, setSaved] = useState({});
@@ -52,6 +52,11 @@ export const FinancePaymentSettings = ({
   const [financeSummary, setFinanceSummary] = useState({});
   const [paymentAttempts, setPaymentAttempts] = useState([]);
   const [period, setPeriod] = useState('all');
+  const [customRangeOpen, setCustomRangeOpen] = useState(false);
+  const [financeCustomRange, setFinanceCustomRange] = useState(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return { from: today, to: today };
+  });
   const [deskView, setDeskView] = useState('transactions');
   const [search, setSearch] = useState('');
   const [deskStatusFilter, setDeskStatusFilter] = useState('all');
@@ -119,19 +124,15 @@ export const FinancePaymentSettings = ({
   const isManualGateway = manualGatewayIds.has(selectedGateway.id);
   const isCashGateway = selectedGateway.id === 'cash';
 
-  const periodRange = useMemo(() => getPeriodRange(period), [period]);
+  const periodRange = useMemo(() => getPeriodRange(period, financeCustomRange), [financeCustomRange, period]);
 
   const manualBookingRows = useMemo(() => (
     buildManualBookingRows({ bookings, isGuestWorkspace })
   ), [bookings, isGuestWorkspace]);
 
-  const importedFinanceRows = useMemo(() => (
-    buildImportedFinanceRows(importedFinanceRecords)
-  ), [importedFinanceRecords]);
-
   const financeRecords = useMemo(() => (
-    mergeFinanceRecords({ importedFinanceRows, manualBookingRows, paymentAttempts })
-  ), [importedFinanceRows, manualBookingRows, paymentAttempts]);
+    mergeFinanceRecords({ manualBookingRows, paymentAttempts })
+  ), [manualBookingRows, paymentAttempts]);
 
   const inferredCurrency = useMemo(() => (
     inferFinanceCurrency({ financeSummary, records: financeRecords })
@@ -302,23 +303,14 @@ export const FinancePaymentSettings = ({
                 ))}
               </select>
             </label>
-            <div className="finance-period-tabs schedule-scope-toggle grid grid-cols-4 rounded-lg bg-neutral-100 p-1 min-w-full sm:min-w-[440px]">
-              {[
-                ['day', 'Day'],
-                ['month', 'Monthly'],
-                ['year', 'Year'],
-                ['all', 'All time']
-              ].map(([item, label]) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setPeriod(item)}
-                  className={`finance-period-tab h-10 rounded-md text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all ${period === item ? 'is-active bg-[#39FF14] text-black shadow-lg shadow-[#39FF14]/20' : 'text-neutral-500 hover:text-black'}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <PeriodSegmentedControl
+              ariaLabel="Finance period"
+              className="finance-period-tabs"
+              onChange={setPeriod}
+              onCustomSelect={() => setCustomRangeOpen(true)}
+              testIdPrefix="finance-period"
+              value={period}
+            />
           </div>
         </div>
 
@@ -358,6 +350,19 @@ export const FinancePaymentSettings = ({
         onUpdateDraft={updateDraft}
         onSaveGateway={saveGateway}
       />
+
+      {customRangeOpen && (
+        <BookingDateRangeDialog
+          bookingCustomRange={financeCustomRange}
+          onClose={() => setCustomRangeOpen(false)}
+          onFromChange={(value) => setFinanceCustomRange(prev => ({
+            from: value,
+            to: prev.to && prev.to >= value ? prev.to : value
+          }))}
+          onSave={() => setCustomRangeOpen(false)}
+          onToChange={(value) => setFinanceCustomRange(prev => ({ ...prev, to: value }))}
+        />
+      )}
 
     </section>
   );

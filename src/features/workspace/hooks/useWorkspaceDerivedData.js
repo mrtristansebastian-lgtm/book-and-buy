@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 import { normalizeServiceList } from '../../../utils/services';
 
-export function useWorkspaceDerivedData({
-  safeClientRecords,
-  safeFinanceImports,
-  settings,
-  visibleBookings
-}) {
+export function useWorkspaceDerivedData({ settings }) {
   const workspaceServices = useMemo(
     () => normalizeServiceList(settings.services || []),
     [settings.services]
@@ -33,18 +28,8 @@ export function useWorkspaceDerivedData({
     return null;
   };
 
-  const importedMigrationCounts = useMemo(() => ({
-    clients: safeClientRecords.filter(client => client.importedViaCsv).length,
-    bookings: visibleBookings.filter(booking => booking.importedViaCsv).length,
-    financeRecords: (
-      safeFinanceImports.filter(record => record.importedViaCsv).length +
-      visibleBookings.filter(booking => booking.importedViaCsv && Number(booking.amountInCents || booking.amountPaidInCents || 0) > 0).length
-    )
-  }), [visibleBookings, safeClientRecords, safeFinanceImports]);
-
   return {
     getBookingService,
-    importedMigrationCounts,
     workspaceServices
   };
 }

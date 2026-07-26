@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { BrandLoader } from './AppLoading';
+import { lazy, Suspense, useEffect, useMemo, useRef } from 'react';
+import { BrandLoader, LazySectionFallback } from './AppLoading';
 import { LegalDialog } from './AppOverlays';
 import { AppLoginScreen, AuthActionPage, AuthDialog, EmailVerificationGate, shouldUseRedirectGoogleAuth } from '../features/auth';
 import { ClientPortalGate } from '../features/client-portal';
-import { DashboardRouteShell } from '../features/dashboard';
-import { BusinessOnboardingPage } from '../features/onboarding';
+import { DashboardRouteShell } from '../features/dashboard/components/DashboardRouteShell';
 import { legalPages } from '../config/appConfig';
 import {
   clientAuthPrefillStorageKey,
@@ -13,6 +12,8 @@ import {
 import { safeJsonParse } from '../utils/workspaceRoute';
 
 const CLIENT_PREFILL_MAX_AGE_MS = 30 * 60 * 1000;
+
+const BusinessOnboardingPage = lazy(() => import('../features/onboarding').then(module => ({ default: module.BusinessOnboardingPage })));
 
 const readClientAuthPrefill = () => {
   if (typeof window === 'undefined') return null;
@@ -174,7 +175,11 @@ export function AppRouteHost({
   }
 
   if (onboarding?.shouldShow) {
-    return <BusinessOnboardingPage {...onboarding} />;
+    return (
+      <Suspense fallback={<LazySectionFallback label="Loading setup assistant" />}>
+        <BusinessOnboardingPage {...onboarding} />
+      </Suspense>
+    );
   }
 
   return (

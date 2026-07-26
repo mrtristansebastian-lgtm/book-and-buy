@@ -85,6 +85,7 @@ export function createClientPersistenceActions({
       email: updates.email ?? existingRecord?.email ?? bookingProfile?.email ?? '',
       country: updates.country ?? existingRecord?.country ?? bookingProfile?.country ?? '',
       birthday: updates.birthday ?? existingRecord?.birthday ?? bookingProfile?.birthday ?? '',
+      preferredContact: updates.preferredContact ?? existingRecord?.preferredContact ?? bookingProfile?.preferredContact ?? '',
       notes: updates.notes ?? existingRecord?.notes ?? bookingProfile?.notes ?? '',
       avatar: updates.avatar ?? existingRecord?.avatar ?? bookingProfile?.avatar ?? '',
       labels: updates.labels ?? existingRecord?.labels ?? bookingProfile?.labels ?? [],

@@ -5,7 +5,6 @@ export function useProfilePageRuntime({
   activeProfileSection,
   displayStaffList,
   financePaymentAttempts,
-  importedMigrationCounts,
   isGuestWorkspace,
   markWorkspaceNotificationRead,
   navigateWorkspaceTab,
@@ -13,8 +12,6 @@ export function useProfilePageRuntime({
   openWorkspaceSupportThread,
   profileNotificationFilter,
   profileSystemFilter,
-  safeFinanceImports,
-  setActiveProfileSection,
   setBookingDeskPeriod,
   setBookingFilter,
   setBookingSearch,
@@ -28,9 +25,7 @@ export function useProfilePageRuntime({
 }) {
   const profileActivity = useProfileActivity({
     displayStaffList,
-    financeImports: safeFinanceImports,
     financePaymentAttempts,
-    importedMigrationCounts,
     notificationFilter: profileNotificationFilter,
     notifications: workspaceNotifications,
     services: workspaceServices,
@@ -60,7 +55,6 @@ export function useProfilePageRuntime({
       if (item.category === 'schedule') navigateWorkspaceTab('business');
       if (item.category === 'editor') navigateWorkspaceTab('editor');
       if (item.category === 'finance') navigateWorkspaceTab('finance');
-      if (item.category === 'migration') setActiveProfileSection('migration');
       return;
     }
     if (item.kind === 'booking') {
@@ -72,7 +66,6 @@ export function useProfilePageRuntime({
   };
 
   const profileSections = buildProfileSections({
-    importedMigrationCounts,
     isGuestWorkspace,
     onSetupOpen: () => setShowBusinessOnboarding(true),
     profileActivityPrimaryCount: profileActivity.primaryCount,

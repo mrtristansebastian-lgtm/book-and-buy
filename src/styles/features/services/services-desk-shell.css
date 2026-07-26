@@ -35,20 +35,186 @@ html body .native-ui .service-scope-panel {
 }
 
 html body .native-ui .service-desk-list {
+  display: grid;
+  gap: 1rem;
   margin-top: 0;
+  padding: 1rem clamp(1rem, 2vw, 1.35rem) 1.35rem;
   border-top: 0;
   background: #ffffff;
 }
 
-html body .native-ui .service-desk-row {
-  background: #ffffff;
-  border-radius: 0;
-  box-shadow: none;
+html body .native-ui .service-desk-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.6rem), 16.2rem));
+  justify-content: start;
+  align-items: start;
+  align-content: start;
+  gap: clamp(0.9rem, 1.7vw, 1.2rem);
 }
 
-html body .native-ui .service-desk-row:hover,
-html body .native-ui .service-desk-row-active {
-  background: #fafafa;
+html body .native-ui .service-desk-file-card {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 1.2rem;
+  background: transparent;
+  box-shadow: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+html body .native-ui .service-desk-file-card:hover,
+html body .native-ui .service-desk-file-card.is-active {
+  transform: translateY(-2px);
+}
+
+html body .native-ui .service-desk-file-card .booking-service-option {
+  width: 100%;
+  border-radius: 1.18rem 1.18rem 0.98rem 0.98rem !important;
+  cursor: pointer;
+}
+
+html body .native-ui .service-desk-file-card .booking-service-option:focus-visible,
+html body .native-ui .service-desk-card-action:focus-visible {
+  outline: 2px solid #050505;
+  outline-offset: 3px;
+}
+
+html body .native-ui .service-desk-booking-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(203, 255, 184, 0.24), transparent 3.5rem),
+    radial-gradient(circle at 80% 80%, rgba(255, 212, 242, 0.2), transparent 3.5rem),
+    #f5f6f8;
+  color: #101828;
+}
+
+html body .native-ui .service-desk-file-card .booking-service-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+html body .native-ui .service-desk-file-card .booking-service-meta-value {
+  color: #050505;
+  font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+  font-weight: 950;
+}
+
+html body .native-ui .service-desk-file-footer {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: -0.08rem;
+  padding: 0.58rem 0.62rem 0;
+}
+
+html body .native-ui .service-desk-file-team {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  overflow: hidden;
+}
+
+html body .native-ui .service-desk-card-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.42rem;
+  padding: 0 0.52rem;
+  border: 1px solid rgba(16, 185, 129, 0.16);
+  border-radius: 999px;
+  background: rgba(236, 253, 245, 0.94);
+  color: #047857;
+  font-size: 0.55rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+html body .native-ui .service-desk-card-status.is-hidden {
+  border-color: rgba(15, 23, 42, 0.075);
+  background: rgba(242, 244, 247, 0.94);
+  color: #667085;
+}
+
+html body .native-ui .service-desk-file-team > span:not(.service-desk-card-status) {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #7b8492;
+  font-size: 0.55rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .service-desk-card-action {
+  min-height: 2.84rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.92rem;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+  color: #050505;
+  font-size: 0.64rem;
+  font-weight: 950;
+  letter-spacing: 0.055em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  html body .native-ui .service-desk-list {
+    gap: 0.72rem;
+    padding: 0.72rem 0.82rem 1rem;
+  }
+
+  html body .native-ui .service-desk-card-grid {
+    grid-template-columns: 1fr;
+    gap: 0.78rem;
+  }
+
+  html body .native-ui .service-desk-file-card {
+    border-radius: 1.14rem;
+    padding: 0.48rem;
+  }
+
+  html body .native-ui .service-desk-file-footer {
+    align-items: stretch;
+  }
+
+  html body .native-ui .service-desk-card-action {
+    min-height: 2.62rem;
+    padding-inline: 0.82rem;
+  }
 }
 
 html body .native-ui .service-modal-panel {
@@ -1020,6 +1186,117 @@ html body .native-ui .service-booking-card-preview .booking-service-meta-item st
   color: #050505;
   font-size: clamp(0.92rem, 1.8vw, 1.05rem);
   font-weight: 950;
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview {
+  display: grid;
+  justify-items: stretch;
+  gap: 0;
+  padding: 0;
+  align-self: start;
+  height: auto;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1.18rem;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.86),
+    0 18px 42px -38px rgba(15, 23, 42, 0.38);
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview .booking-service-option {
+  min-height: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview .booking-service-shell {
+  grid-template-rows: auto auto auto !important;
+  gap: 0.78rem !important;
+  height: auto;
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview .booking-service-copy {
+  min-height: 8.2rem;
+  align-content: start;
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview .booking-service-facts {
+  align-self: start;
+  margin-top: 0 !important;
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview:hover,
+html body .native-ui .service-desk-file-card.service-booking-card-preview.is-active {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  background-image:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  background-size: auto, 420% 420% !important;
+  background-position: 0 0, var(--native-accent-x, 50%) 50% !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.92),
+    0 24px 56px -44px rgba(15, 23, 42, 0.48);
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview .booking-service-description {
+  display: block !important;
+  max-width: 100%;
+  min-height: 4.25rem;
+  overflow: visible !important;
+  color: #050505 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview .booking-service-title-line h5 {
+  width: 100%;
+  overflow-wrap: break-word;
+  white-space: normal;
+  text-wrap: balance;
+}
+
+html body .native-ui .service-desk-file-card .booking-service-meta-value {
+  color: #050505;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+html body .native-ui .service-desk-file-card.service-booking-card-preview .booking-service-meta-label {
+  color: #050505 !important;
+  font-size: 0.72rem !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.2 !important;
+}
+
+html body .native-ui .service-desk-file-card .service-desk-file-footer {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.58rem;
+  padding: 0.7rem 0.72rem 0.74rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+  background: #ffffff;
+}
+
+html body .native-ui .service-desk-file-card .service-desk-card-action {
+  min-height: 2.42rem;
+  border-radius: 999px;
 }
 
 html body .native-ui .service-media-grid {

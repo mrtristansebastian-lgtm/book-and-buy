@@ -1,4 +1,5 @@
-import { Check } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Cake, Check, Globe2, Mail, MessageCircle, PencilLine, Phone, UserRound, X } from 'lucide-react';
 
 export const ClientDetailsForm = ({
   activeClient,
@@ -6,63 +7,115 @@ export const ClientDetailsForm = ({
   onSaveDetails,
   showToast
 }) => {
+  const formRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    setIsEditing(false);
+  }, [activeClient.id]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (isExampleClient || !isEditing) return;
     const formData = new FormData(event.currentTarget);
     const saved = await onSaveDetails(activeClient.id, {
       name: String(formData.get('name') || '').trim() || activeClient.name,
       phone: String(formData.get('phone') || '').trim(),
       email: String(formData.get('email') || '').trim(),
       country: String(formData.get('country') || '').trim(),
-      birthday: String(formData.get('birthday') || '').trim()
+      birthday: String(formData.get('birthday') || '').trim(),
+      preferredContact: String(formData.get('preferredContact') || '').trim()
     });
-    if (saved) showToast('Client details saved');
+    if (saved) {
+      setIsEditing(false);
+      showToast('Client details saved');
+    }
+  };
+
+  const preferredContact = activeClient.preferredContact || 'Chat';
+  const fieldsDisabled = isExampleClient || !isEditing;
+
+  const cancelEditing = () => {
+    formRef.current?.reset();
+    setIsEditing(false);
   };
 
   return (
     <form
+      ref={formRef}
       key={`client-details-${activeClient.id}`}
       onSubmit={handleSubmit}
-      className="client-file-details rounded-2xl border border-neutral-100 bg-neutral-50/80 p-3 md:p-4"
+      className="client-file-card client-file-details"
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
-        <div>
-          <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">Client Details</p>
-          <p className="text-xs text-neutral-500 mt-1">Update contact info without leaving the file.</p>
+      <div className="client-file-section-head">
+        <div className="client-file-section-copy">
+          <p className="client-file-kicker">Client file</p>
+          <h3>Contact and preferences</h3>
+          <p>Keep the details your team needs before every booking, follow-up, and support chat.</p>
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 bg-white border border-neutral-100 px-3 py-1.5 rounded-full">
-          {isExampleClient ? 'Example only' : activeClient.lastBooking ? `Last ${activeClient.lastBooking.date}` : 'No visits yet'}
-        </span>
+        {!isEditing && (
+          <button
+            type="button"
+            disabled={isExampleClient}
+            className="client-file-edit-action"
+            onClick={() => setIsEditing(true)}
+          >
+            <PencilLine size={15} /> {isExampleClient ? 'Example only' : 'Edit file'}
+          </button>
+        )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+      <div className="client-file-grid">
         <label className="client-file-field">
-          <span>Name</span>
-          <input name="name" defaultValue={activeClient.name || ''} disabled={isExampleClient} />
+          <span><UserRound size={14} /> Name</span>
+          <input name="name" defaultValue={activeClient.name || ''} disabled={fieldsDisabled} />
         </label>
         <label className="client-file-field">
-          <span>Phone</span>
-          <input name="phone" type="tel" defaultValue={activeClient.phone || ''} placeholder="Not added" disabled={isExampleClient} />
+          <span><Phone size={14} /> Phone</span>
+          <input name="phone" type="tel" defaultValue={activeClient.phone || ''} placeholder="Not added" disabled={fieldsDisabled} />
         </label>
         <label className="client-file-field">
-          <span>Email</span>
-          <input name="email" type="email" defaultValue={activeClient.email || ''} placeholder="Not added" disabled={isExampleClient} />
+          <span><Mail size={14} /> Email</span>
+          <input name="email" type="email" defaultValue={activeClient.email || ''} placeholder="Not added" disabled={fieldsDisabled} />
         </label>
         <label className="client-file-field">
-          <span>Country</span>
-          <input name="country" defaultValue={activeClient.country || ''} placeholder="Not added" disabled={isExampleClient} />
+          <span><Globe2 size={14} /> Country</span>
+          <input name="country" defaultValue={activeClient.country || ''} placeholder="Not added" disabled={fieldsDisabled} />
         </label>
         <label className="client-file-field">
-          <span>Birthday</span>
-          <input name="birthday" defaultValue={activeClient.birthday || ''} placeholder="MM/DD" disabled={isExampleClient} />
+          <span><Cake size={14} /> Birthday</span>
+          <input name="birthday" defaultValue={activeClient.birthday || ''} placeholder="MM/DD" disabled={fieldsDisabled} />
+        </label>
+        <label className="client-file-field">
+          <span><MessageCircle size={14} /> Preferred contact</span>
+          <select name="preferredContact" defaultValue={preferredContact} disabled={fieldsDisabled}>
+            <option value="Chat">Chat</option>
+            <option value="Phone">Phone</option>
+            <option value="Email">Email</option>
+            <option value="WhatsApp">WhatsApp</option>
+          </select>
         </label>
       </div>
-      <button
-        type="submit"
-        disabled={isExampleClient}
-        className="mt-3 h-11 w-full md:w-auto px-5 rounded-xl bg-black text-white flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        <Check size={15} /> {isExampleClient ? 'Example Only' : 'Save Details'}
-      </button>
+
+      {isEditing && (
+        <div className="client-file-save-row">
+          <div className="client-file-edit-controls">
+            <button
+              type="button"
+              className="client-file-cancel-action"
+              onClick={cancelEditing}
+            >
+              <X size={15} /> Cancel edits
+            </button>
+            <button
+              type="submit"
+              className="client-file-primary-action"
+            >
+              <Check size={15} /> Save changes
+            </button>
+          </div>
+        </div>
+      )}
     </form>
   );
 };

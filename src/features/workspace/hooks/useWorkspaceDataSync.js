@@ -2,14 +2,13 @@ import { useEffect } from 'react';
 import { createDefaultCommunications, createDefaultSettings, normalizeCommunications } from '../../../config/appConfig';
 import * as FirebaseSDK from '../../../services/firebase';
 import { appId, db, isFirebaseConfigured } from '../../../services/firebase';
-import { createOwnerStaffProfile } from '../../staff';
+import { createOwnerStaffProfile } from '../../staff/utils/staffProfiles';
 import { readBookingsCache, writeBookingsCache } from '../../../utils/workspaceRoute';
 import { areJsonEqual, mergeStateIfChanged } from '../utils/workspaceState';
 import { asArray } from './useWorkspaceData';
 
 const DEFAULT_STAFF = [{ id: 'owner', name: 'Admin', color: '#39FF14' }];
 const COLLECTION_CLIENT_LIMIT = 500;
-const COLLECTION_FINANCE_IMPORT_LIMIT = 500;
 const COLLECTION_STAFF_LIMIT = 200;
 const COLLECTION_SERVICE_LIMIT = 300;
 const COLLECTION_CALENDAR_DAY_LIMIT = 900;
@@ -110,7 +109,6 @@ export function useWorkspaceDataSync({
   setBookingsReady,
   setClientRecords,
   setCommunications,
-  setFinanceImports,
   setFinancePaymentAttempts,
   setSettings,
   setStaffList,
@@ -150,7 +148,6 @@ export function useWorkspaceDataSync({
 
     let hasStaffCollection = false;
     let hasClientCollection = false;
-    let hasFinanceImportCollection = false;
     let calendarDefaultRows = [];
     let calendarDayRows = [];
 
@@ -254,29 +251,6 @@ export function useWorkspaceDataSync({
       }
     }, handleSyncError('Client'));
 
-    const financeImportsQuery = FirebaseSDK.query(
-      FirebaseSDK.collection(db, 'artifacts', appId, 'users', workspaceOwnerId, 'financeImports'),
-      FirebaseSDK.orderBy('updatedAtMs', 'desc'),
-      FirebaseSDK.limit(COLLECTION_FINANCE_IMPORT_LIMIT)
-    );
-    const unsubFinanceImportsCollection = FirebaseSDK.onSnapshot(financeImportsQuery, (snap) => {
-      hasFinanceImportCollection = !snap.empty;
-      if (!hasFinanceImportCollection) return;
-      const nextImports = sortByUpdatedDesc(snap.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() })));
-      setFinanceImports(prev => areJsonEqual(prev, nextImports) ? prev : nextImports);
-    }, handleSyncError('Finance import collection'));
-
-    const financeImportsRef = FirebaseSDK.doc(db, 'artifacts', appId, 'users', workspaceOwnerId, 'finance', 'imports');
-    const unsubFinanceImports = FirebaseSDK.onSnapshot(financeImportsRef, (docSnap) => {
-      if (hasFinanceImportCollection) return;
-      if (docSnap.exists()) {
-        const nextImports = asArray(docSnap.data().list);
-        setFinanceImports(prev => areJsonEqual(prev, nextImports) ? prev : nextImports);
-      } else {
-        setFinanceImports(prev => prev.length ? [] : prev);
-      }
-    }, handleSyncError('Finance import'));
-
     return () => {
       unsubSettings();
       unsubStaffCollection();
@@ -287,8 +261,6 @@ export function useWorkspaceDataSync({
       unsubCalendarDays();
       unsubClientsCollection();
       unsubClients();
-      unsubFinanceImportsCollection();
-      unsubFinanceImports();
     };
   }, [user, workspaceOwnerId, isWorkspaceOwner, publicSlug, personalDisplayName, personalProfile.email, personalProfile.mobile, personalProfile.photoURL]);
 

@@ -104,7 +104,7 @@ export const ClientDirectory = ({
             key={client.id}
             className={`client-directory-row w-full p-3 md:p-5 transition-all ${isActive ? 'is-active bg-black text-white' : 'hover:bg-neutral-50 text-black'}`}
           >
-            <div className="flex items-start gap-3 md:gap-4">
+            <div className="client-directory-row-shell flex items-start gap-3 md:gap-4">
               <button
                 type="button"
                 onClick={openClientFile}
@@ -132,18 +132,20 @@ export const ClientDirectory = ({
                   onClick={openClientFile}
                   aria-label={`Open ${client.name} file`}
                   title="Open file"
-                  className={`client-row-action ${isActive ? 'is-active' : ''}`}
+                  className={`client-row-action is-file ${isActive ? 'is-active' : ''}`}
                 >
                   <FileText size={15} />
+                  <span>Open file</span>
                 </button>
                 <button
                   type="button"
                   onClick={openClientChat}
                   aria-label={`Open ${client.name} chat`}
                   title="Open chat"
-                  className={`client-row-action ${isActive ? 'is-active' : ''}`}
+                  className={`client-row-action is-chat ${isActive ? 'is-active' : ''}`}
                 >
                   <MessageCircle size={15} />
+                  <span>Open chat</span>
                 </button>
               </div>
             </div>

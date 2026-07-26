@@ -4,7 +4,6 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   DollarSign,
-  FileText,
   Inbox,
   MessagesSquare,
   Palette,
@@ -23,7 +22,6 @@ const getActivityIcon = (item = {}) => {
   if (item.iconKind === 'team') return UsersRound;
   if (item.iconKind === 'schedule') return CalendarDays;
   if (item.iconKind === 'editor') return Palette;
-  if (item.iconKind === 'migration') return FileText;
   return Bell;
 };
 
@@ -61,7 +59,7 @@ export const ProfileActivitySection = ({
         </div>
       </div>
       <div className="profile-activity-summary">
-        <span><Settings2 size={14} /> Internal changes, team setup, services, schedule, editor, finance, and migration signals.</span>
+        <span><Settings2 size={14} /> Internal changes, team setup, services, schedule, editor, and finance signals.</span>
       </div>
       <div className="profile-activity-filter-tabs" aria-label="System activity filters">
         {profileSystemFilterOptions.map(option => {

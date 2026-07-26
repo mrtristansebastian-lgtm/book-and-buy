@@ -1,10 +1,11 @@
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { useAuthSession } from '../../auth';
-import { useBookingPageRuntime } from '../../bookings';
-import { useClientDirectory } from '../../clients';
-import { useDashboardUiState } from '../../dashboard';
-import { useDetectedBrandSignal, useEditorRuntime } from '../../editor';
+import { useBookingPageRuntime } from '../../bookings/hooks/useBookingPageRuntime';
+import { useClientDirectory } from '../../clients/hooks/useClientDirectory';
+import { useDashboardUiState } from '../../dashboard/hooks/useDashboardUiState';
+import { useDetectedBrandSignal } from '../../editor/hooks/useDetectedBrandSignal';
+import { useEditorRuntime } from '../../editor/hooks/useEditorRuntime';
 import { useWorkspaceNotifications } from '../../notifications';
 import { useBookingPageLauncher } from '../../public-booking/hooks/useBookingPageLauncher';
 import {
@@ -189,10 +190,7 @@ export function useWorkspaceRuntimeState() {
   useClientErrorReporting({ appId, db, isFirebaseConfigured, user: authSession.user, workspaceOwnerId });
 
   const workspaceDerivedData = useWorkspaceDerivedData({
-    safeClientRecords: workspaceData.safeClientRecords,
-    safeFinanceImports: workspaceData.safeFinanceImports,
-    settings: workspaceData.settings,
-    visibleBookings: workspaceData.visibleBookings
+    settings: workspaceData.settings
   });
 
   useWorkspaceDataSync({
@@ -207,7 +205,6 @@ export function useWorkspaceRuntimeState() {
     setBookingsReady: workspaceData.setBookingsReady,
     setClientRecords: workspaceData.setClientRecords,
     setCommunications: workspaceData.setCommunications,
-    setFinanceImports: workspaceData.setFinanceImports,
     setFinancePaymentAttempts: workspaceData.setFinancePaymentAttempts,
     setSettings: workspaceData.setSettings,
     setStaffList: workspaceData.setStaffList,
@@ -266,11 +263,8 @@ export function useWorkspaceRuntimeState() {
     clients: {
       ...clientDirectory,
       clientRecords: workspaceData.clientRecords,
-      importedMigrationCounts: workspaceDerivedData.importedMigrationCounts,
       safeClientRecords: workspaceData.safeClientRecords,
-      safeFinanceImports: workspaceData.safeFinanceImports,
-      setClientRecords: workspaceData.setClientRecords,
-      setFinanceImports: workspaceData.setFinanceImports
+      setClientRecords: workspaceData.setClientRecords
     },
     dashboardUi,
     data: {
@@ -278,9 +272,7 @@ export function useWorkspaceRuntimeState() {
       bookingRuntime,
       bookings: workspaceData.bookings,
       clientRecords: workspaceData.clientRecords,
-      financeImports: workspaceData.financeImports,
       getBookingService: workspaceDerivedData.getBookingService,
-      importedMigrationCounts: workspaceDerivedData.importedMigrationCounts,
       pageLoaders: workspacePageLoaders,
       visibleBookings: workspaceData.visibleBookings,
       workspaceServices: workspaceDerivedData.workspaceServices

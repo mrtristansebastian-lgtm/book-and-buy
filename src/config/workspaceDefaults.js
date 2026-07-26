@@ -149,7 +149,6 @@ export const createDefaultSettings = () => ({
 export const createGuestDemoWorkspace = () => ({
   settings: createDefaultSettings(),
   bookings: [],
-  financeImports: [],
   staffList: [{ id: 'owner', name: 'Admin', color: '#39FF14', role: 'owner', status: 'connected' }],
   clientRecords: [],
   communications: createDefaultCommunications()

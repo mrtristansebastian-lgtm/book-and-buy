@@ -77,6 +77,10 @@
             position: relative;
         }
 
+        .client-directory-row-shell {
+            min-width: 0;
+        }
+
         .client-directory-row:not(.is-active) {
             background: #ffffff;
         }
@@ -86,27 +90,55 @@
                 linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.92));
         }
 
+        .client-row-actions {
+            gap: 0.5rem !important;
+        }
+
         .client-row-action {
-            width: 2.55rem;
-            height: 2.55rem;
-            border-radius: 0.85rem;
+            min-width: 7.05rem;
+            height: 2.7rem;
+            border-radius: 0.9rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #667085;
-            background: rgba(248, 250, 252, 0.92);
-            border: 1px solid rgba(15, 23, 42, 0.06);
+            gap: 0.45rem;
+            color: #050505;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+            border: 1px solid transparent;
+            padding: 0 0.82rem;
+            font-size: 0.62rem;
+            font-weight: 900;
+            letter-spacing: 0.055em;
+            line-height: 1;
+            text-transform: uppercase;
+            white-space: nowrap;
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.86),
-                0 14px 30px -28px rgba(15, 23, 42, 0.48);
-            transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+                0 16px 34px -30px rgba(15, 23, 42, 0.54);
+            transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+        }
+
+        .client-row-action svg {
+            width: 0.9rem;
+            height: 0.9rem;
+            flex: 0 0 auto;
+        }
+
+        .client-row-action span {
+            display: inline-block;
         }
 
         .client-row-action:hover {
             transform: translateY(-1px);
             color: #050505;
-            border-color: rgba(15, 23, 42, 0.16);
-            background: #ffffff;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                0 22px 44px -32px rgba(15, 23, 42, 0.62);
         }
 
         .client-row-action.is-active {
@@ -116,12 +148,457 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.88);
         }
 
+        @media (max-width: 767px) {
+            .client-directory-row-shell {
+                flex-wrap: wrap;
+            }
+
+            .client-row-actions {
+                width: 100%;
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.5rem !important;
+                margin-left: calc(2.75rem + 0.75rem);
+            }
+
+            .client-row-action {
+                width: 100%;
+                min-width: 0;
+                height: 2.62rem;
+                padding-inline: 0.68rem;
+                font-size: 0.58rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .client-row-actions {
+                margin-left: 0;
+            }
+        }
+
         .client-booking-count {
             line-height: 1.4;
         }
 
+        .client-profile-panel {
+            min-width: 0;
+        }
+
+        .client-profile-actions {
+            display: grid;
+            justify-items: stretch;
+            gap: 0.72rem;
+            width: min(100%, 18rem);
+            flex: 0 0 auto;
+        }
+
+        .client-profile-bookings-action,
+        .client-file-edit-action,
+        .client-file-cancel-action {
+            min-height: 2.82rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            border: 1px solid transparent;
+            border-radius: 0.9rem;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+            color: #050505;
+            padding: 0 0.96rem;
+            font-size: 0.64rem;
+            font-weight: 900;
+            letter-spacing: 0.055em;
+            line-height: 1;
+            text-transform: uppercase;
+            white-space: nowrap;
+            box-shadow: 0 18px 38px -30px rgba(15, 23, 42, 0.5);
+            transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+
+        .client-profile-bookings-action:hover,
+        .client-file-edit-action:hover,
+        .client-file-cancel-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 44px -32px rgba(15, 23, 42, 0.62);
+        }
+
+        .client-profile-header-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.54rem;
+        }
+
+        .client-profile-header-stats span {
+            display: grid;
+            gap: 0.2rem;
+            min-width: 0;
+            padding: 0.7rem 0.76rem;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 0.95rem;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.92),
+                0 14px 32px -30px rgba(15, 23, 42, 0.5);
+        }
+
+        .client-profile-header-stats strong {
+            overflow: hidden;
+            color: #101828;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .client-profile-header-stats small {
+            color: #667085;
+            font-size: 0.58rem;
+            font-weight: 850;
+            letter-spacing: 0.055em;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .client-file-room-shell {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto minmax(0, 1fr);
+            min-height: clamp(30rem, calc(100dvh - 18rem), 42rem);
+            max-height: calc(100dvh - 16.4rem);
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 1.35rem;
+            background: #ffffff;
+            box-shadow:
+                0 24px 68px -56px rgba(15, 23, 42, 0.58),
+                inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        .client-file-room-nav {
+            display: grid;
+            align-content: start;
+            min-width: 0;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.58));
+            padding: 0.54rem 0.82rem 0.58rem;
+        }
+
+        .client-file-room-list {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.34rem;
+            padding: 0.04rem 0;
+        }
+
+        .client-file-room-list::before {
+            content: "";
+            position: absolute;
+            top: 1rem;
+            right: calc(12.5% + 0.18rem);
+            left: calc(12.5% + 0.18rem);
+            height: 1px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(15,23,42,0.03), rgba(15,23,42,0.15), rgba(15,23,42,0.03));
+            pointer-events: none;
+        }
+
+        .client-file-room-list button {
+            position: relative;
+            min-width: 0;
+            min-height: 3.2rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "icon"
+                "label";
+            align-items: center;
+            justify-items: center;
+            gap: 0.36rem;
+            border: 1px solid transparent;
+            border-radius: 0.82rem;
+            background: transparent;
+            color: #667085;
+            padding: 0.34rem 0.5rem 0.42rem;
+            text-align: center;
+            transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+        }
+
+        .client-file-room-list button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(15, 23, 42, 0.055);
+            background: rgba(255,255,255,0.82);
+            color: #050505;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.92),
+                0 14px 30px -28px rgba(15, 23, 42, 0.42);
+        }
+
+        .client-file-room-list button > span {
+            grid-area: icon;
+            position: relative;
+            z-index: 1;
+            width: 1.72rem;
+            height: 1.72rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 999px;
+            background: #ffffff;
+            color: #667085;
+            box-shadow:
+                0 0 0 0.18rem rgba(255,255,255,0.95),
+                inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        .client-file-room-list button > span svg {
+            width: 0.86rem;
+            height: 0.86rem;
+        }
+
+        .client-file-room-list button strong {
+            grid-area: label;
+            min-width: 0;
+            overflow: hidden;
+            color: inherit;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+            line-height: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .client-file-room-list button.is-active {
+            border-color: transparent;
+            background: var(--native-accent-button-gradient, linear-gradient(115deg, #cbffb8, #f1ff9a, #c9ffbf, #b7fff0, #b9e3ff, #d2cbff, #ffd4f2));
+            background-size: 420% 420%;
+            background-position: var(--native-accent-x, 50%) 50%;
+            color: #050505;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.72),
+                0 14px 32px -28px var(--native-accent-glow, rgba(20, 167, 255, 0.28));
+        }
+
+        .client-file-room-list button.is-active > span {
+            border-color: rgba(255,255,255,0.72);
+            background: #ffffff;
+            color: #050505;
+        }
+
+        .client-file-room-main {
+            min-width: 0;
+            display: grid;
+            align-content: start;
+            gap: 1rem;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #ffffff;
+        }
+
+        .client-file-room-main > .client-file-card,
+        .client-file-room-main > .client-file-stack > .client-file-card,
+        .client-file-room-main > .saas-card {
+            border-radius: 1.06rem;
+            box-shadow:
+                0 18px 44px -40px rgba(15, 23, 42, 0.5),
+                inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        @media (min-width: 768px) {
+            html body .native-ui .clients-page > .grid {
+                height: 100dvh;
+                min-height: 0;
+                align-items: stretch;
+            }
+
+            html body .native-ui .clients-page .client-profile-panel {
+                height: 100dvh;
+                min-height: 0;
+                overflow-x: hidden;
+                overflow-y: auto;
+                padding-right: clamp(1rem, 1.35vw, 1.45rem);
+                padding-bottom: 2rem;
+                scrollbar-gutter: stable;
+            }
+
+            html body .native-ui .clients-page .client-profile-panel::-webkit-scrollbar {
+                width: 0.58rem;
+            }
+
+            html body .native-ui .clients-page .client-profile-panel::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            html body .native-ui .clients-page .client-profile-panel::-webkit-scrollbar-thumb {
+                border: 0.18rem solid #ffffff;
+                border-radius: 999px;
+                background: rgba(15, 23, 42, 0.18);
+            }
+        }
+
+        .client-file-card {
+            position: relative;
+            overflow: visible;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 1.25rem;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.985), rgba(250, 250, 250, 0.965)) padding-box,
+                linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.025)) border-box;
+            color: #101828;
+            box-shadow:
+                0 22px 54px -46px rgba(15, 23, 42, 0.58),
+                inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        .client-file-primary-action,
+        .client-file-secondary-action {
+            min-height: 2.78rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            border-radius: 0.9rem;
+            padding: 0 0.96rem;
+            color: #050505;
+            font-size: 0.64rem;
+            font-weight: 900;
+            letter-spacing: 0.055em;
+            line-height: 1;
+            text-transform: uppercase;
+            white-space: nowrap;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+        }
+
+        .client-file-secondary-action {
+            border: 1px solid transparent;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+            box-shadow: 0 18px 38px -30px rgba(15, 23, 42, 0.5);
+        }
+
+        .client-file-secondary-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 44px -32px rgba(15, 23, 42, 0.62);
+        }
+
+        .client-file-primary-action {
+            border: 1px solid #050505;
+            background: #050505;
+            color: #ffffff;
+            box-shadow: 0 18px 40px -30px rgba(5, 5, 5, 0.45);
+        }
+
+        .client-file-primary-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 44px -32px rgba(5, 5, 5, 0.62);
+        }
+
+        .client-file-primary-action:disabled,
+        .client-file-secondary-action:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .client-file-details {
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
+            padding: 1rem;
+        }
+
+        .client-file-section-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .client-file-section-head.is-compact {
+            margin-bottom: 0.92rem;
+        }
+
+        .client-file-section-copy {
+            min-width: 0;
+        }
+
+        .client-file-kicker {
+            margin: 0 0 0.32rem;
+            color: #98a2b3;
+            font-size: 0.58rem;
+            font-weight: 900;
+            letter-spacing: 0.075em;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .client-file-section-copy h3 {
+            margin: 0;
+            color: #101828;
+            font-size: clamp(1.18rem, 1.6vw, 1.42rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.02;
+        }
+
+        .client-file-section-copy p:not(.client-file-kicker) {
+            max-width: 36rem;
+            margin: 0.34rem 0 0;
+            color: #344054;
+            font-size: 0.88rem;
+            font-weight: 620;
+            line-height: 1.38;
+        }
+
+        .client-file-stat-strip {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, auto));
+            gap: 0.5rem;
+        }
+
+        .client-file-stat-strip span {
+            min-width: 7.2rem;
+            display: grid;
+            gap: 0.16rem;
+            padding: 0.64rem 0.72rem;
+            border: 1px solid rgba(15, 23, 42, 0.065);
+            border-radius: 0.9rem;
+            background: rgba(255, 255, 255, 0.78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+
+        .client-file-stat-strip strong {
+            overflow: hidden;
+            color: #101828;
+            font-size: 0.94rem;
+            font-weight: 900;
+            letter-spacing: -0.025em;
+            line-height: 1.05;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .client-file-stat-strip small {
+            color: #98a2b3;
+            font-size: 0.55rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .client-file-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.74rem;
         }
 
         .client-file-field {
@@ -131,30 +608,48 @@
         }
 
         .client-file-field span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.36rem;
             font-size: 0.55rem;
             line-height: 1;
-            font-weight: 850;
-            letter-spacing: 0.18em;
+            font-weight: 900;
+            letter-spacing: 0.09em;
             text-transform: uppercase;
             color: #98a2b3;
         }
 
-        .client-file-field input {
+        .client-file-field span svg {
+            width: 0.82rem;
+            height: 0.82rem;
+            color: #667085;
+        }
+
+        .client-file-field input,
+        .client-file-field select {
             width: 100%;
-            height: 2.85rem;
-            border-radius: 0.9rem;
+            height: 3rem;
+            border-radius: 0.95rem;
             border: 1px solid rgba(15, 23, 42, 0.08);
             background: rgba(255,255,255,0.95);
             padding-inline: 0.95rem;
             color: #050505;
             font-size: 0.9rem;
-            font-weight: 750;
+            font-weight: 760;
             outline: none;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
             transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
         }
 
-        .client-file-field input:focus {
+        .client-file-field select {
+            appearance: none;
+            background:
+                linear-gradient(45deg, transparent 50%, #667085 50%) calc(100% - 1.1rem) 50% / 0.38rem 0.38rem no-repeat,
+                linear-gradient(135deg, #ffffff, #fbfbfb);
+        }
+
+        .client-file-field input:focus,
+        .client-file-field select:focus {
             border-color: transparent;
             background:
                 linear-gradient(#ffffff, #ffffff) padding-box,
@@ -164,10 +659,440 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
         }
 
-        .client-file-field input:disabled {
+        .client-file-field input:disabled,
+        .client-file-field select:disabled,
+        .client-notes-textarea:disabled {
+            color: #101828 !important;
+            background: rgba(255,255,255,0.86) !important;
+            opacity: 1 !important;
+            cursor: default;
+        }
+
+        .client-file-save-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.9rem;
+            margin-top: 0.9rem;
+            padding-top: 0.9rem;
+            border-top: 1px solid rgba(15, 23, 42, 0.065);
+        }
+
+        .client-file-save-row p {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.42rem;
+            margin: 0;
             color: #667085;
-            background: rgba(255,255,255,0.62);
+            font-size: 0.78rem;
+            font-weight: 680;
+            line-height: 1.35;
+        }
+
+        .client-file-edit-action {
+            flex: 0 0 auto;
+            min-width: 7.8rem;
+        }
+
+        .client-file-edit-action:disabled {
+            opacity: 0.48;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .client-file-edit-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.6rem;
+            flex: 0 0 auto;
+        }
+
+        .client-file-cancel-action {
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                linear-gradient(135deg, rgba(15, 23, 42, 0.14), rgba(15, 23, 42, 0.06)) border-box;
+        }
+
+        .client-file-stack {
+            display: grid;
+            gap: 0.9rem;
+        }
+
+        .client-file-side-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+            gap: 0.9rem;
+        }
+
+        .client-notes-card,
+        .client-label-card {
+            padding: 1rem;
+        }
+
+        .client-notes-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .client-notes-workspace {
+            display: grid;
+            gap: 0.74rem;
+        }
+
+        .client-note-editor-panel,
+        .client-saved-notes-panel {
+            min-width: 0;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 1rem;
+            background: rgba(255,255,255,0.86);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        .client-note-editor-panel {
+            padding: 0.9rem;
+        }
+
+        .client-file-soft-icon {
+            width: 2.45rem;
+            height: 2.45rem;
+            display: inline-flex;
+            flex: 0 0 2.45rem;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(15, 23, 42, 0.065);
+            border-radius: 0.86rem;
+            background: rgba(255, 255, 255, 0.82);
+            color: #667085;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+
+        .client-notes-textarea {
+            width: 100%;
+            min-height: 7.8rem;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 0.95rem;
+            background: rgba(255,255,255,0.95);
+            color: #101828;
+            padding: 0.95rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 560;
+            line-height: 1.48;
+            outline: none;
+            resize: vertical;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+            transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+        }
+
+        html body .native-ui .clients-page textarea.client-notes-textarea {
+            min-height: 7.8rem !important;
+            border-radius: 0.95rem !important;
+            background-color: rgba(255,255,255,0.95) !important;
+            background-image: none !important;
+            color: #101828 !important;
+            font-size: 0.9rem !important;
+            font-weight: 560 !important;
+            line-height: 1.48 !important;
+            padding: 0.95rem 1rem !important;
+            resize: vertical !important;
+        }
+
+        .client-notes-field {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .client-notes-field > span {
+            color: #101828;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.045em;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .client-notes-textarea::placeholder {
+            color: #98a2b3;
+            font-weight: 620;
+        }
+
+        .client-notes-textarea:focus {
+            border-color: transparent;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) border-box;
+            background-size: 100% 100%, 420% 420%;
+            background-position: 0 0, var(--native-accent-x, 50%) 50%;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.92);
+        }
+
+        html body .native-ui .clients-page textarea.client-notes-textarea:focus {
+            border-color: transparent !important;
+            border-radius: 0.95rem !important;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-booking-accent-gradient, linear-gradient(135deg, #b9e3ff, #d2cbff, #ffd4f2, #c9ffbf, #b7fff0)) border-box !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x, 50%) 50% !important;
+        }
+
+        .client-file-secondary-action {
+            width: 100%;
+            margin-top: 0.8rem;
+        }
+
+        .client-notes-save-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-top: 0.78rem;
+            padding-top: 0.78rem;
+            border-top: 1px solid rgba(15, 23, 42, 0.065);
+        }
+
+        .client-notes-save-row p {
+            margin: 0;
+            color: #667085;
+            font-size: 0.78rem;
+            font-weight: 680;
+            line-height: 1.35;
+        }
+
+        .client-notes-save-row .client-file-secondary-action {
+            width: auto;
+            min-width: 8.9rem;
+            margin-top: 0;
+        }
+
+        .client-saved-notes-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.74rem;
+            padding: 0.92rem;
+        }
+
+        .client-saved-notes-head {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 0.68rem;
+        }
+
+        .client-saved-notes-head h4 {
+            margin: 0;
+            color: #101828;
+            font-size: 0.98rem;
+            font-weight: 900;
+            letter-spacing: -0.025em;
+            line-height: 1.05;
+        }
+
+        .client-saved-notes-head > span:last-child {
+            min-height: 1.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(15, 23, 42, 0.065);
+            border-radius: 999px;
+            background: rgba(248, 250, 252, 0.9);
+            color: #667085;
+            padding: 0 0.64rem;
+            font-size: 0.56rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            line-height: 1;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .client-saved-notes-panel > p {
+            margin: 0;
+            border: 1px solid rgba(15, 23, 42, 0.055);
+            border-radius: 0.88rem;
+            background: rgba(248, 250, 252, 0.7);
+            color: #344054;
+            padding: 0.86rem;
+            font-size: 0.9rem;
+            font-weight: 580;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .client-saved-notes-panel.is-empty > p {
+            color: #667085;
+            background:
+                linear-gradient(#fbfbfb, #fbfbfb) padding-box,
+                linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.02)) border-box;
+        }
+
+        .client-label-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.52rem;
+        }
+
+        .client-label-button {
+            width: 100%;
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+            border: 1px solid rgba(15, 23, 42, 0.075);
+            border-radius: 0.95rem;
+            background: rgba(255,255,255,0.9);
+            color: #344054;
+            padding: 0 0.82rem 0 1rem;
+            font-size: 0.88rem;
+            font-weight: 820;
+            text-align: left;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+            transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+        }
+
+        .client-label-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(15, 23, 42, 0.16);
+            background: #ffffff;
+            color: #101828;
+        }
+
+        .client-label-button svg {
+            color: #98a2b3;
+        }
+
+        .client-label-button.is-active {
+            border-color: transparent;
+            background:
+                linear-gradient(#050505, #050505) padding-box,
+                var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+            color: #ffffff;
+            box-shadow: 0 18px 40px -30px rgba(5, 5, 5, 0.45);
+        }
+
+        .client-label-button.is-active svg {
+            color: #cbffb8;
+        }
+
+        .client-label-button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 767px) {
+            .client-profile-panel {
+                padding-bottom: 6.5rem;
+            }
+
+            .client-file-room-shell {
+                display: grid;
+                grid-template-columns: 1fr;
+                min-height: 0;
+                max-height: none;
+                overflow: visible;
+                border-radius: 1.1rem;
+            }
+
+            .client-file-room-nav {
+                border-right: 0;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+                padding: 0.58rem 0.66rem 0.62rem;
+                overflow: hidden;
+            }
+
+            .client-file-room-list {
+                display: flex;
+                gap: 0.45rem;
+                overflow-x: auto;
+                padding: 0;
+                scroll-snap-type: x proximity;
+            }
+
+            .client-file-room-list button {
+                min-width: 5.45rem;
+                min-height: 3.14rem;
+                scroll-snap-align: start;
+            }
+
+            .client-file-room-list::before {
+                right: 2.7rem;
+                left: 2.7rem;
+            }
+
+            .client-file-room-main {
+                overflow: visible;
+                padding: 0.82rem;
+            }
+
+            .client-file-card {
+                border-radius: 1.05rem;
+            }
+
+            .client-file-details,
+            .client-notes-card,
+            .client-label-card {
+                padding: 0.86rem;
+            }
+
+            .client-file-section-head,
+            .client-file-save-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .client-notes-save-row {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .client-file-stat-strip,
+            .client-file-grid,
+            .client-file-side-grid,
+            .client-file-stack,
+            .client-notes-workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .client-file-stat-strip span {
+                min-width: 0;
+            }
+
+            .client-file-save-row p {
+                align-items: flex-start;
+            }
+
+            .client-file-primary-action {
+                width: 100%;
+            }
+
+            .client-profile-actions {
+                width: 100%;
+            }
+
+            .client-profile-header-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .client-file-edit-action,
+            .client-file-edit-controls {
+                width: 100%;
+            }
+
+            .client-file-edit-controls {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .client-notes-save-row .client-file-secondary-action {
+                width: 100%;
+            }
+
+            .client-label-list {
+                grid-template-columns: 1fr;
+            }
         }
 
         .booking-record-row {

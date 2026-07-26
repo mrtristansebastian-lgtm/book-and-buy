@@ -29,9 +29,7 @@ const sortProfileLatest = (items, getTime = item => item?.time) => (
 
 export function useProfileActivity({
   displayStaffList,
-  financeImports,
   financePaymentAttempts,
-  importedMigrationCounts,
   notificationFilter,
   notifications,
   services,
@@ -142,27 +140,13 @@ export function useProfileActivity({
       category: 'finance',
       iconKind: 'payment',
       title: 'Finance desk aligned',
-      detail: `${financeImports.length + financePaymentAttempts.length} finance records and payment attempts available for review.`,
+      detail: `${financePaymentAttempts.length} payment attempts available for review.`,
       time: dateValueToMs(settings.financeUpdatedAt || settings.updatedAt) || Date.now() - 61 * 60 * 1000,
       label: 'Finance'
-    },
-    {
-      id: 'system-migration',
-      kind: 'system',
-      category: 'migration',
-      iconKind: 'migration',
-      title: 'Migration Studio available',
-      detail: `${importedMigrationCounts.clients + importedMigrationCounts.bookings + importedMigrationCounts.financeRecords} imported records can be reviewed or cleared.`,
-      time: Date.now() - 83 * 60 * 1000,
-      label: 'Migration'
     }
   ], item => item.time), [
     displayStaffList.length,
-    financeImports.length,
     financePaymentAttempts.length,
-    importedMigrationCounts.bookings,
-    importedMigrationCounts.clients,
-    importedMigrationCounts.financeRecords,
     services.length,
     settings
   ]);

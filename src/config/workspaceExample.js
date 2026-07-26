@@ -543,7 +543,6 @@ export function createWorkspaceExample({ anchorDate = new Date() } = {}) {
   return {
     settings,
     bookings,
-    financeImports: [],
     staffList,
     clientRecords,
     communications: createDefaultCommunications(),

@@ -9,7 +9,6 @@ import {
   getPaidAverageByUnit,
   manualGatewayIds
 } from './financeMetrics';
-import { normalizeCsvGateway, normalizeCsvPaymentStatus } from './financeRecordNormalizers';
 
 export const getFinanceCurrencyStorageKey = ({ businessId, isGuestWorkspace = false }) => (
   `build-a-booking-finance-currency-${String(businessId || (isGuestWorkspace ? 'guest' : 'local')).replace(/[^a-zA-Z0-9_-]/g, '-')}`
@@ -42,27 +41,8 @@ export const buildManualBookingRows = ({ bookings = [], isGuestWorkspace = false
     })
 );
 
-export const buildImportedFinanceRows = (importedFinanceRecords = []) => (
-  (importedFinanceRecords || [])
-    .filter((record) => record && !record.isExample)
-    .map((record) => ({
-      id: `csv-${record.id || record.providerReference || record.bookingId}`,
-      gatewayType: normalizeCsvGateway(record.gatewayType || record.paymentMethod || record.paymentGateway || 'cash'),
-      status: normalizeCsvPaymentStatus(record.status || record.paymentStatus, Number(record.amountInCents || 0)),
-      amountInCents: Number(record.amountInCents || 0),
-      currency: record.currency || 'ZAR',
-      customerName: record.customerName || record.clientName || 'Imported Client',
-      customerEmail: record.customerEmail || record.clientEmail || '',
-      description: record.description || 'Imported transaction',
-      bookingId: record.bookingId || record.providerReference || '',
-      providerReference: record.providerReference || '',
-      updatedAtMs: dateToMs(record.updatedAtMs || record.updatedAt || record.paidAt || record.createdAt) || Date.now(),
-      importedViaCsv: true
-    }))
-);
-
-export const mergeFinanceRecords = ({ importedFinanceRows = [], manualBookingRows = [], paymentAttempts = [] }) => (
-  [...manualBookingRows, ...paymentAttempts, ...importedFinanceRows]
+export const mergeFinanceRecords = ({ manualBookingRows = [], paymentAttempts = [] }) => (
+  [...manualBookingRows, ...paymentAttempts]
     .sort((a, b) => (b.updatedAtMs || 0) - (a.updatedAtMs || 0))
 );
 

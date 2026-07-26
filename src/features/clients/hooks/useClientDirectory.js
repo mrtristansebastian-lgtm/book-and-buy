@@ -22,6 +22,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
         email: booking.clientEmail || '',
         country: booking.clientCountry || '',
         birthday: booking.clientBirthday || '',
+        preferredContact: booking.clientPreferredContact || '',
         notes: booking.clientNote || '',
         source: 'booking',
         bookings: []
@@ -31,6 +32,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
       existing.email = existing.email || booking.clientEmail || '';
       existing.country = existing.country || booking.clientCountry || '';
       existing.birthday = existing.birthday || booking.clientBirthday || '';
+      existing.preferredContact = existing.preferredContact || booking.clientPreferredContact || '';
       existing.notes = existing.notes || booking.clientNote || '';
       existing.bookings.push(booking);
       clients.set(id, existing);
@@ -51,6 +53,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
         email: client.email || history[0]?.clientEmail || '',
         country: client.country || history[0]?.clientCountry || '',
         birthday: client.birthday || history[0]?.clientBirthday || '',
+        preferredContact: client.preferredContact || history[0]?.clientPreferredContact || '',
         notes: client.notes || history.find(booking => booking.clientNote)?.clientNote || '',
         bookings: history,
         bookingCount,
@@ -75,6 +78,7 @@ export function useClientDirectory({ safeClientRecords, visibleBookings }) {
         email: record.email || bookingProfile?.email || '',
         country: record.country || bookingProfile?.country || '',
         birthday: record.birthday || bookingProfile?.birthday || '',
+        preferredContact: record.preferredContact || bookingProfile?.preferredContact || '',
         notes: record.notes || bookingProfile?.notes || '',
         avatar: record.avatar || '',
         labels: record.labels || [],

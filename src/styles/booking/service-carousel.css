@@ -142,13 +142,13 @@ html body .editor-preview-frame.is-desktop-preview .booking-selection-workspace.
 
 .booking-services-carousel-guide {
     width: auto;
-    max-width: 17rem;
+    max-width: 24rem;
     margin: 0 !important;
     color: var(--booking-service-body, #64748b) !important;
-    font-size: 0.68rem !important;
-    font-weight: 650 !important;
-    line-height: 1.35 !important;
-    letter-spacing: 0.01em;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    letter-spacing: normal;
     text-align: center !important;
 }
 

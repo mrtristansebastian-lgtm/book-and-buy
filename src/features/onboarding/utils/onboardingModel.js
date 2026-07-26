@@ -498,8 +498,7 @@ export const buildOnboardingDefaults = (draft = {}, currentSettings = {}) => {
       paymentsRecommended: true,
       notificationsRecommended: true,
       googleCalendarRecommended: true,
-      teamRecommended: true,
-      migrationRecommended: true
+      teamRecommended: true
     },
     onboardingCompletedAt: Date.now(),
     onboardingSkippedAt: 0

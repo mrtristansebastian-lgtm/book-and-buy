@@ -1,11 +1,11 @@
 import { useBillingActions } from '../../account';
 import { useAuthActions, useAuthBoot } from '../../auth';
-import { useBookingActions } from '../../bookings';
-import { useClientRecordActions } from '../../clients';
+import { useBookingActions } from '../../bookings/hooks/useBookingActions';
+import { useClientRecordActions } from '../../clients/hooks/useClientRecordActions';
 import { useGoogleCalendarActions } from '../../integrations';
 import { useMediaCropUpload } from '../../media';
-import { useProfilePageRuntime } from '../../profile';
-import { useStaffActions } from '../../staff';
+import { useProfilePageRuntime } from '../../profile/hooks/useProfilePageRuntime';
+import { useStaffActions } from '../../staff/hooks/useStaffActions';
 import { useWorkspaceSettingsActions } from '../../workspace';
 import { normalizeCommunications } from '../../../config/appConfig';
 import * as FirebaseSDK from '../../../services/firebase';
@@ -179,24 +179,17 @@ export function useWorkspaceActionRuntime({
   });
 
   const clientActions = useClientRecordActions({
-    bookingPageSlug: publicBooking.bookingPageSlug,
     buildClientKey: clients.buildClientKey,
     canManageWorkspace: workspace.canManageWorkspace,
     clientDirectory: clients.clientDirectory,
-    clientRecords: clients.clientRecords,
     deleteStorageAsset: media.deleteStorageAsset,
     requestImageCropUpload: media.requestImageCropUpload,
     safeClientRecords: clients.safeClientRecords,
-    safeFinanceImports: clients.safeFinanceImports,
-    setBookingsAndCache: booking.setBookingsAndCache,
     setClientMobileView: clients.setClientMobileView,
     setClientRecords: clients.setClientRecords,
-    setFinanceImports: clients.setFinanceImports,
     setSelectedClientId: clients.setSelectedClientId,
-    settings,
     showToast,
     user: auth.user,
-    visibleBookings: booking.visibleBookings,
     workspaceOwnerId: workspace.workspaceOwnerId
   });
 
@@ -259,7 +252,6 @@ export function useWorkspaceActionRuntime({
     activeProfileSection: profile.activeProfileSection,
     displayStaffList: staff.displayStaffList,
     financePaymentAttempts: profile.financePaymentAttempts,
-    importedMigrationCounts: clients.importedMigrationCounts,
     isGuestWorkspace: workspace.isGuestWorkspace,
     markWorkspaceNotificationRead: profile.markWorkspaceNotificationRead,
     navigateWorkspaceTab: route.navigateWorkspaceTab,
@@ -267,7 +259,6 @@ export function useWorkspaceActionRuntime({
     openWorkspaceSupportThread: bookingActions.openWorkspaceSupportThread,
     profileNotificationFilter: profile.profileNotificationFilter,
     profileSystemFilter: profile.profileSystemFilter,
-    safeFinanceImports: clients.safeFinanceImports,
     setActiveProfileSection: profile.setActiveProfileSection,
     setBookingDeskPeriod: booking.runtime.setBookingDeskPeriod,
     setBookingFilter: booking.runtime.setBookingFilter,

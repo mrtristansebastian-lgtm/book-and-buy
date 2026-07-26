@@ -1,4 +1,4 @@
-import { Briefcase, CheckCircle2, Edit3, ImagePlus, Plus, SlidersHorizontal } from 'lucide-react';
+import { ArrowUpRight, Briefcase, CheckCircle2, ImagePlus, Plus, SlidersHorizontal, UsersRound } from 'lucide-react';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 
 export function ServiceDeskList({
@@ -11,7 +11,7 @@ export function ServiceDeskList({
   canManageWorkspace
 }) {
   return (
-    <div className="service-desk-list divide-y divide-neutral-100">
+    <div className="service-desk-list">
       {filteredServices.length === 0 ? (
         <div className="launch-empty-state service-empty-state">
           <div className="launch-empty-icon native-gradient-icon">
@@ -40,57 +40,72 @@ export function ServiceDeskList({
             <Plus size={14} /> Create Service
           </button>
         </div>
-      ) : filteredServices.map(service => {
-        const assignedStaff = staffOptions.filter(staff => service.staffIds.includes(staff.id));
-        return (
-          <button
-            key={service.id}
-            type="button"
-            onClick={() => onOpenService(service)}
-            className={`service-desk-row w-full text-left p-4 md:p-5 transition-colors bg-white text-black hover:bg-neutral-50 ${selectedId === service.id ? 'service-desk-row-active' : ''}`}
-          >
-            <div className="grid lg:grid-cols-[minmax(0,1.4fr),minmax(0,1fr),auto] gap-4 items-center">
-              <div className="flex items-start gap-4 min-w-0">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 border border-neutral-100 bg-neutral-50">
-                  {service.imageUrls?.[0] ? (
-                    <img src={service.imageUrls[0]} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Briefcase size={20} />
+      ) : (
+        <div className="service-desk-card-grid">
+          {filteredServices.map(service => {
+            const assignedStaff = staffOptions.filter(staff => (service.staffIds || []).includes(staff.id));
+            const duration = service.durationMode === 'schedule' ? '' : formatServiceDuration(service.duration);
+            const price = formatServicePrice(service);
+            const hasImage = Boolean(service.imageUrls?.[0]);
+
+            return (
+              <article key={service.id} className={`service-desk-file-card service-booking-card-preview ${selectedId === service.id ? 'is-active' : ''}`}>
+                <button
+                  type="button"
+                  onClick={() => onOpenService(service)}
+                  className={`booking-service-option appearance-none outline-none focus:outline-none rounded-2xl border transition-all booking-service-border-soft booking-service-variant-classic ${hasImage ? 'has-service-image' : 'has-service-image has-placeholder-image'}`}
+                  aria-label={`Open ${service.name || 'service'} service file`}
+                >
+                  <div className="booking-service-shell">
+                    <div className="booking-service-image">
+                      {hasImage ? (
+                        <img src={service.imageUrls[0]} alt="" loading="lazy" decoding="async" />
+                      ) : (
+                        <span className="service-desk-booking-placeholder" aria-hidden="true">
+                          <Briefcase size={24} />
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-black text-lg truncate">{service.name}</h3>
-                    <span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-[0.14em] ${service.active !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-neutral-100 text-neutral-500 border border-neutral-100'}`}>
+                    <div className="booking-service-copy booking-service-main">
+                      <div className="booking-service-title-line">
+                        <div>
+                          {service.category && <span className="booking-service-eyebrow">{service.category}</span>}
+                          <h5>{service.name}</h5>
+                        </div>
+                      </div>
+                      <p className="booking-service-description">{service.description || 'No description yet.'}</p>
+                    </div>
+                    <div className="booking-service-meta booking-service-side booking-service-facts" aria-label="Price and duration">
+                      <span className="booking-service-meta-item is-price">
+                        <span className="booking-service-meta-label">Price</span>
+                        <span className="booking-service-meta-value">{price || 'Quote'}</span>
+                      </span>
+                      {duration && (
+                        <span className="booking-service-meta-item is-duration">
+                          <span className="booking-service-meta-label">Duration</span>
+                          <span className="booking-service-meta-value">{duration}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+
+                <div className="service-desk-file-footer">
+                  <div className="service-desk-file-team">
+                    <span className={`service-desk-card-status ${service.active !== false ? 'is-live' : 'is-hidden'}`}>
                       {service.active !== false ? 'Live' : 'Hidden'}
                     </span>
+                    <span><UsersRound size={13} /> {assignedStaff.length > 0 ? `${assignedStaff.length} staff` : 'No staff'}</span>
                   </div>
-                  <p className="text-sm mt-1 line-clamp-2 text-neutral-500">{service.description || 'No description yet.'}</p>
+                  <button type="button" onClick={() => onOpenService(service)} className="service-desk-card-action">
+                    Open File <ArrowUpRight size={13} />
+                  </button>
                 </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {service.category && <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] bg-neutral-100 text-neutral-500">{service.category}</span>}
-                {formatServiceDuration(service.duration) && <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] bg-neutral-100 text-neutral-500">{formatServiceDuration(service.duration)}</span>}
-                {formatServicePrice(service) && <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] bg-neutral-100 text-neutral-500">{formatServicePrice(service)}</span>}
-                {assignedStaff.length > 0 ? (
-                  <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] bg-neutral-100 text-neutral-500">{assignedStaff.length} staff</span>
-                ) : (
-                  <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.14em] bg-amber-50 text-amber-700 border border-amber-100">No staff</span>
-                )}
-              </div>
-
-              <div className="justify-self-start lg:justify-self-end">
-                <span className="h-10 px-4 rounded-lg border border-neutral-200 bg-white text-black text-[10px] font-black uppercase tracking-[0.16em] inline-flex items-center justify-center gap-2">
-                  <Edit3 size={13} /> Open File
-                </span>
-              </div>
-            </div>
-          </button>
-        );
-      })}
+              </article>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import '../../../styles/features/onboarding/business-onboarding.css';
 import {
   ArrowLeft,
   ArrowRight,
@@ -1250,7 +1251,7 @@ export function BusinessOnboardingPage({
           ['Next setup', 'Payments'],
           ['Next setup', 'Notifications'],
           ['Next setup', 'Google Calendar'],
-          ['Next setup', 'Team and migration']
+          ['Next setup', 'Team setup']
         ]
       }
     ];
@@ -1324,7 +1325,7 @@ export function BusinessOnboardingPage({
           <div>
             <p>Launch Path</p>
             <h1>{steps[currentStep].title}</h1>
-            <span>{isGuestWorkspace ? 'Preview the setup flow in demo mode.' : 'Only the essentials required to publish. Styling, forms, payments, calendar, team, and migration can come after.'}</span>
+            <span>{isGuestWorkspace ? 'Preview the setup flow in demo mode.' : 'Only the essentials required to publish. Styling, forms, payments, calendar, and team setup can come after.'}</span>
           </div>
           <small>{launchScore}% ready</small>
         </header>

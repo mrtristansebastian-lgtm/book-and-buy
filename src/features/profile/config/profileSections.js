@@ -1,7 +1,6 @@
-import { BellRing, Briefcase, FileText, Images, Rocket, Settings2, ShieldCheck } from 'lucide-react';
+import { BellRing, Briefcase, Images, Rocket, Settings2, ShieldCheck } from 'lucide-react';
 
 export const buildProfileSections = ({
-  importedMigrationCounts,
   isGuestWorkspace,
   onSetupOpen,
   profileActivityPrimaryCount,
@@ -48,14 +47,6 @@ export const buildProfileSections = ({
     icon: BellRing,
     meta: 'Resend',
     quick: ['Auth emails', 'Booking emails', 'Reminders']
-  },
-  {
-    id: 'migration',
-    title: 'Migration Studio',
-    note: 'CSV import for clients, bookings, and finance history',
-    icon: FileText,
-    meta: `${importedMigrationCounts.clients + importedMigrationCounts.bookings + importedMigrationCounts.financeRecords} uploads`,
-    quick: ['Upload CSV', 'Choose fields', 'Delete uploads']
   },
   {
     id: 'setup',

@@ -1,5 +1,6 @@
 import { CalendarCheck, ChevronDown, Layers, MessageCircle, Plus, Search, Sparkles } from 'lucide-react';
 import { bookingPaymentFilterOptions, bookingSortOptions } from '../../../config/appConfig';
+import { PeriodSegmentedControl } from '../../../components/PeriodSegmentedControl';
 import { BookingRecordRow } from './BookingRecordRow';
 
 export const BookingDesk = ({
@@ -41,22 +42,14 @@ export const BookingDesk = ({
           >
             <Plus size={14} /> Booking
           </button>
-          <div className="booking-period-tabs schedule-scope-toggle flex bg-neutral-100 p-1 rounded-lg border border-neutral-200 w-full sm:w-fit">
-            {bookingDesk.periods.map(period => (
-              <button
-                key={period.id}
-                type="button"
-                data-testid={`booking-period-${period.id}`}
-                onClick={() => {
-                  onBookingDeskPeriodChange(period.id);
-                  if (period.id === 'custom') onOpenCustomRange();
-                }}
-                className={`booking-period-tab flex-1 sm:flex-none h-10 px-4 rounded-md text-[10px] font-bold uppercase transition-all ${bookingDeskPeriod === period.id ? 'is-active bg-[#39FF14] text-black shadow-lg shadow-[#39FF14]/20' : 'text-neutral-500 hover:text-black hover:bg-white'}`}
-              >
-                {period.label}
-              </button>
-            ))}
-          </div>
+          <PeriodSegmentedControl
+            ariaLabel="Booking period"
+            onChange={onBookingDeskPeriodChange}
+            onCustomSelect={onOpenCustomRange}
+            options={bookingDesk.periods}
+            testIdPrefix="booking-period"
+            value={bookingDeskPeriod}
+          />
         </div>
       </div>
 

@@ -46,6 +46,13 @@ const addMonths = (date, months) => {
   return next;
 };
 
+const parseDateKey = (value, fallback = new Date()) => {
+  if (!value) return startOfDay(fallback);
+  const [year, month, day] = String(value).split('-').map(Number);
+  if (!year || !month || !day) return startOfDay(fallback);
+  return new Date(year, month - 1, day);
+};
+
 export const dateToMs = (value) => {
   if (!value) return 0;
   if (typeof value === 'number') return value;
@@ -128,10 +135,21 @@ export const getBookingAmountInCents = (booking = {}) => {
   return parseAmountToCents(booking.total || booking.servicePrice || booking.price || booking.deposit || 0);
 };
 
-export const getPeriodRange = (period) => {
+export const getPeriodRange = (period, customRange = {}) => {
   const now = new Date();
   if (period === 'all') {
     return { start: new Date(2000, 0, 1), end: new Date(2100, 0, 1), label: 'All time' };
+  }
+  if (period === 'custom') {
+    const start = parseDateKey(customRange.from, now);
+    const rawEnd = parseDateKey(customRange.to || customRange.from, start);
+    const end = addDays(rawEnd < start ? start : rawEnd, 1);
+    const labelOptions = { day: '2-digit', month: 'short' };
+    return {
+      start,
+      end,
+      label: `${start.toLocaleDateString('en-ZA', labelOptions)} - ${new Date(end.getTime() - 1).toLocaleDateString('en-ZA', labelOptions)}`
+    };
   }
   if (period === 'day') {
     const start = startOfDay(now);

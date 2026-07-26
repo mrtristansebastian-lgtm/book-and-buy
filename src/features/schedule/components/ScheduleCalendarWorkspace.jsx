@@ -16,17 +16,18 @@ import {
   Users,
   X
 } from 'lucide-react';
+import { PeriodSegmentedControl } from '../../../components/PeriodSegmentedControl';
 import { getLocalDateStr } from '../../../utils/dates';
 import { getBookingDateKey, getSlotStartMinutes } from '../utils/businessCalendarUtils';
 import { getCalendarDayConfig } from '../utils/scheduleWorkspaceModel';
 
 const EMPTY_LIST = [];
-const VIEW_OPTIONS = [
+const PERIOD_VIEW_OPTIONS = [
   { id: 'day', label: 'Day' },
   { id: 'week', label: 'Week' },
-  { id: 'month', label: 'Month' },
-  { id: 'list', label: 'List', icon: List }
+  { id: 'month', label: 'Month' }
 ];
+const VIEW_OPTIONS = [...PERIOD_VIEW_OPTIONS, { id: 'list', label: 'List' }];
 const STATUS_OPTIONS = ['confirmed', 'pending', 'completed', 'waitlist'];
 const PREFERENCE_KEY = 'bookify:schedule-view:v1';
 const SLOT_MINUTES = 30;
@@ -240,24 +241,14 @@ function CalendarToolbar({
       </div>
 
       <div className="schedule-calendar-toolbar-actions">
-        <div className="schedule-calendar-view-switcher" aria-label="Calendar view">
-          {VIEW_OPTIONS.map(option => {
-            const Icon = option.icon;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                data-view={option.id}
-                className={view === option.id ? 'is-active' : ''}
-                onClick={() => onChangeView(option.id)}
-                aria-pressed={view === option.id}
-              >
-                {Icon ? <Icon size={13} /> : null}
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
+        <PeriodSegmentedControl
+          ariaLabel="Schedule period"
+          className="schedule-calendar-period-switcher"
+          onChange={onChangeView}
+          options={PERIOD_VIEW_OPTIONS}
+          testIdPrefix="schedule-period"
+          value={PERIOD_VIEW_OPTIONS.some(option => option.id === view) ? view : ''}
+        />
 
         <div className="schedule-calendar-filter-wrap">
           <button
@@ -311,6 +302,15 @@ function CalendarToolbar({
           ) : null}
         </div>
 
+        <button
+          type="button"
+          className={`schedule-calendar-list-view ${view === 'list' ? 'is-active' : ''}`}
+          onClick={() => onChangeView('list')}
+          aria-pressed={view === 'list'}
+        >
+          <List size={15} />
+          <span>List</span>
+        </button>
         <button
           type="button"
           className="schedule-calendar-settings"

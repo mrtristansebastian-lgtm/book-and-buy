@@ -197,7 +197,6 @@ export function useDashboardRouteConfig({
           canManageWorkspace: workspace.canManageWorkspace,
           showToast,
           bookings: finance.bookings,
-          financeImports: finance.financeImports,
           onMarkBookingPaid: booking.actions.markBookingPaid
         }
       },

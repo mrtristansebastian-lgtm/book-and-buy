@@ -1,0 +1,243 @@
+html body .native-ui .dashboard-overview-page {
+  color: #111827;
+}
+
+html body .native-ui .dashboard-mission-shell {
+  width: min(100%, 88rem);
+  display: grid;
+  gap: 0.9rem;
+  margin: 0 auto;
+  padding: clamp(0.9rem, 2vw, 1.4rem) clamp(0.85rem, 2vw, 1.25rem) 7rem;
+}
+
+html body .native-ui .dashboard-mission-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fff;
+  padding: 1rem;
+}
+
+html body .native-ui .dashboard-mission-eyebrow {
+  margin: 0;
+  color: #8b95a5;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .dashboard-mission-header h1 {
+  margin: 0.26rem 0 0;
+  color: #111827;
+  font-size: clamp(1.8rem, 3.4vw, 3.25rem);
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 0.94;
+}
+
+html body .native-ui .dashboard-mission-header p {
+  max-width: 43rem;
+  margin: 0.55rem 0 0;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+html body .native-ui .dashboard-mission-controls {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+}
+
+html body .native-ui .dashboard-example-toggle {
+  min-height: 2.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.46rem;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 999px;
+  background: #fff;
+  color: #344054;
+  padding: 0 0.72rem;
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+html body .native-ui .dashboard-example-toggle > span {
+  width: 1.22rem;
+  height: 0.72rem;
+  position: relative;
+  border-radius: 99px;
+  background: #d0d5dd;
+  transition: background 160ms ease;
+}
+
+html body .native-ui .dashboard-example-toggle > span::after {
+  content: "";
+  width: 0.48rem;
+  height: 0.48rem;
+  position: absolute;
+  top: 0.12rem;
+  left: 0.12rem;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 160ms ease;
+}
+
+html body .native-ui .dashboard-example-toggle.is-active {
+  border-color: transparent;
+  background: var(--native-accent-button-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4));
+  color: #101828;
+}
+
+html body .native-ui .dashboard-example-toggle.is-active > span {
+  background: #101828;
+}
+
+html body .native-ui .dashboard-example-toggle.is-active > span::after {
+  transform: translateX(0.5rem);
+}
+
+html body .native-ui .dashboard-example-readonly {
+  display: flex;
+  align-items: center;
+  gap: 0.48rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 0.85rem;
+  background: #f8fafc;
+  color: #475467;
+  padding: 0.62rem 0.78rem;
+  font-size: 0.76rem;
+  font-weight: 680;
+}
+
+html body .native-ui .dashboard-example-readonly span {
+  border-radius: 999px;
+  background: #101828;
+  color: #fff;
+  padding: 0.22rem 0.44rem;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .dashboard-coming-soon-shell {
+  min-height: 31rem;
+  display: grid;
+  place-items: center;
+}
+
+html body .native-ui .dashboard-coming-soon-card {
+  width: min(100%, 46rem);
+  min-height: 24rem;
+  display: grid;
+  position: relative;
+  align-content: center;
+  justify-items: center;
+  gap: 0.72rem;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(223, 255, 128, 0.2), rgba(255, 255, 255, 0.72) 30%, rgba(183, 244, 255, 0.18) 66%, rgba(255, 209, 244, 0.18)),
+    #ffffff;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 32px 90px -74px rgba(15, 23, 42, 0.62);
+}
+
+html body .native-ui .dashboard-coming-soon-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.24rem;
+  background: var(--native-accent-button-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4));
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 50%) 50%;
+}
+
+html body .native-ui .dashboard-coming-soon-orbit {
+  width: 4.5rem;
+  height: 4.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.14)),
+    var(--native-accent-button-gradient, linear-gradient(135deg, #dfff80, #bcffd5, #b7f4ff, #d8d2ff, #ffd1f4));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 50%) 50%;
+  color: #101828;
+}
+
+html body .native-ui .dashboard-coming-soon-card p {
+  margin: 0;
+  color: #667085 !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+html body .native-ui .dashboard-coming-soon-card h2 {
+  max-width: 40rem;
+  margin: 0;
+  color: #101828 !important;
+  font-size: 3.8rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  line-height: 0.96 !important;
+}
+
+html body .native-ui .dashboard-coming-soon-card strong {
+  max-width: 34rem;
+  color: #344054;
+  font-size: 1.05rem;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+html body .native-ui .dashboard-coming-soon-card small {
+  max-width: 30rem;
+  color: #667085;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  html body .native-ui .dashboard-mission-shell {
+    padding-inline: 0.75rem;
+  }
+
+  html body .native-ui .dashboard-mission-header {
+    grid-template-columns: 1fr;
+  }
+
+  html body .native-ui .dashboard-mission-controls {
+    justify-items: start;
+  }
+
+  html body .native-ui .dashboard-coming-soon-shell {
+    min-height: 25rem;
+  }
+
+  html body .native-ui .dashboard-coming-soon-card {
+    min-height: 21rem;
+    padding: 2rem 1rem;
+  }
+
+  html body .native-ui .dashboard-coming-soon-card h2 {
+    font-size: 2.7rem !important;
+  }
+}

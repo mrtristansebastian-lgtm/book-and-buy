@@ -1,5 +1,5 @@
-import { useDashboardRouteConfig } from '../../dashboard';
-import { getOnboardingStatus } from '../../onboarding';
+import { useDashboardRouteConfig } from '../../dashboard/hooks/useDashboardRouteConfig';
+import { getOnboardingStatus } from '../../onboarding/utils/onboardingModel';
 
 export function useAppRouteHostConfig({
   actionRuntime,
@@ -71,7 +71,6 @@ export function useAppRouteHostConfig({
       clientSearch: data.clientSearch,
       directory: data.clientDirectory,
       displayClients: data.displayClients,
-      importedMigrationCounts: data.importedMigrationCounts,
       metrics: data.clientMetrics,
       setClientDeskFilter: data.setClientDeskFilter,
       setClientMobileView: data.setClientMobileView,
@@ -91,8 +90,7 @@ export function useAppRouteHostConfig({
       setLaunchPanel: dashboardUi.setEditorLaunchPanel
     },
     finance: {
-      bookings: data.bookings,
-      financeImports: data.financeImports
+      bookings: data.bookings
     },
     media: actionRuntime.media,
     overlays: {
