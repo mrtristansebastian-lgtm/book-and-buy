@@ -199,10 +199,12 @@ html body .native-ui .service-desk-card-action {
 
   html body .native-ui .service-desk-card-grid {
     grid-template-columns: 1fr;
+    justify-items: center;
     gap: 0.78rem;
   }
 
   html body .native-ui .service-desk-file-card {
+    width: min(100%, 21.5rem);
     border-radius: 1.14rem;
     padding: 0.48rem;
   }

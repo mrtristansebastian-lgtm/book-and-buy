@@ -149,8 +149,14 @@
         }
 
         @media (max-width: 767px) {
+            .client-directory-row {
+                overflow: hidden;
+            }
+
             .client-directory-row-shell {
                 flex-wrap: wrap;
+                width: 100%;
+                min-width: 0;
             }
 
             .client-row-actions {
@@ -158,7 +164,7 @@
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 0.5rem !important;
-                margin-left: calc(2.75rem + 0.75rem);
+                margin-left: 0;
             }
 
             .client-row-action {
@@ -167,12 +173,6 @@
                 height: 2.62rem;
                 padding-inline: 0.68rem;
                 font-size: 0.58rem;
-            }
-        }
-
-        @media (max-width: 420px) {
-            .client-row-actions {
-                margin-left: 0;
             }
         }
 
