@@ -17,6 +17,7 @@ export {
   ClientFormRoom,
   ColourRoom,
   IntroductionRoom,
+  PublishRoom,
   StyleDirectionRoom,
   TypographyRoom
 } from './rooms';

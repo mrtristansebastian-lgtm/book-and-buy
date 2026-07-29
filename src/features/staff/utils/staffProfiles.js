@@ -13,6 +13,7 @@ export const createOwnerStaffProfile = (signedInUser, color = '#39FF14') => ({
   phone: signedInUser?.phoneNumber || '',
   photoURL: signedInUser?.photoURL || '',
   role: 'owner',
+  title: signedInUser?.jobTitle || signedInUser?.title || 'Owner',
   status: 'connected',
   color
 });

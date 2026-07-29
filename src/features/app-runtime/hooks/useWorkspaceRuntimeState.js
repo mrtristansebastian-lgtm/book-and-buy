@@ -74,6 +74,9 @@ export function useWorkspaceRuntimeState() {
   ), [workspaceOwnerId]);
   const isDashboardGuestPreview = route.view === 'dashboard' && !authSession.authRedirectPending;
   const isGuestWorkspace = Boolean((guestMode || isDashboardGuestPreview) && !authSession.user && !route.publicSlug && !authSession.authRedirectPending);
+  useEffect(() => {
+    dirtyState.setWorkspaceSessionOnly(isGuestWorkspace);
+  }, [dirtyState, isGuestWorkspace]);
   const workspaceData = useWorkspaceData({
     isGuestWorkspace,
     isExampleMode: exampleMode,

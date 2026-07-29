@@ -135,6 +135,7 @@ export function useDashboardRouteConfig({
           bookings: booking.visibleBookings,
           clientDirectory: clients.directory,
           exampleMode: workspace.exampleMode,
+          isGuestWorkspace: workspace.isGuestWorkspace,
           staffList: staff.displayStaffList,
           services: services.workspaceServices,
           activeStaffId: staff.activeStaffProfile?.id || 'owner',

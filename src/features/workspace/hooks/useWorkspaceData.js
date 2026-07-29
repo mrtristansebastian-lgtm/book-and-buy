@@ -9,7 +9,7 @@ import { isFirebaseConfigured } from '../../../services/firebase';
 import { normalizeHexColor } from '../../../utils/theme';
 import { writeBookingsCache } from '../../../utils/workspaceRoute';
 
-const DEFAULT_STAFF = [{ id: 'owner', name: 'Admin', color: '#39FF14' }];
+const DEFAULT_STAFF = [{ id: 'owner', name: 'Admin', title: 'Owner', color: '#39FF14' }];
 
 export const asArray = (value) => (Array.isArray(value) ? value : []);
 
@@ -53,6 +53,7 @@ export function useWorkspaceData({
   const [exampleNotifications, setExampleNotifications] = useState([]);
   const [exampleGatewayStates, setExampleGatewayStates] = useState({});
   const [exampleManifest, setExampleManifest] = useState(null);
+  const readOnlyExampleMode = isExampleMode && !isGuestWorkspace;
 
   useEffect(() => {
     settingsRef.current = settings;
@@ -154,7 +155,7 @@ export function useWorkspaceData({
   }, []);
 
   const setBookingsAndCache = useCallback((updater) => {
-    if (isExampleMode) return;
+    if (readOnlyExampleMode) return;
     setBookingsState(prev => {
       const nextBookings = typeof updater === 'function' ? updater(prev) : updater;
       if (workspaceOwnerId && Array.isArray(nextBookings)) {
@@ -162,11 +163,11 @@ export function useWorkspaceData({
       }
       return nextBookings;
     });
-  }, [isExampleMode, workspaceOwnerId]);
+  }, [readOnlyExampleMode, workspaceOwnerId]);
 
   const guardSetter = useCallback((setter) => (updater) => {
-    if (!isExampleMode) setter(updater);
-  }, [isExampleMode]);
+    if (!readOnlyExampleMode) setter(updater);
+  }, [readOnlyExampleMode]);
   const setSettings = useMemo(() => guardSetter(setSettingsState), [guardSetter]);
   const setBookings = useMemo(() => guardSetter(setBookingsState), [guardSetter]);
   const setFinancePaymentAttempts = useMemo(() => guardSetter(setFinancePaymentAttemptsState), [guardSetter]);

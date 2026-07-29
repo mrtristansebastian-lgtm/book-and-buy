@@ -3,6 +3,7 @@ export { ColourRoom } from './ColourRoom';
 export { FaqRoom } from './FaqRoom';
 export { FunnelTextRoom } from './FunnelTextRoom';
 export { IntroductionRoom } from './IntroductionRoom';
+export { PublishRoom } from './PublishRoom';
 export { SectionDesignRoom } from './SectionDesignRoom';
 export { StyleDirectionRoom } from './StyleDirectionRoom';
 export { TypographyRoom } from './TypographyRoom';

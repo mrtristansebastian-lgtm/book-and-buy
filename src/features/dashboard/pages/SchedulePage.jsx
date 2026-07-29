@@ -24,6 +24,7 @@ export const SchedulePage = ({
   clientDirectory,
   exampleMode,
   googleCalendarState,
+  isGuestWorkspace,
   onCreateManualBooking,
   onConnectGoogleCalendar,
   onOpenBookingChat,
@@ -50,6 +51,7 @@ export const SchedulePage = ({
           bookings={bookings}
           clientDirectory={clientDirectory}
           exampleMode={exampleMode}
+          isGuestWorkspace={isGuestWorkspace}
           staffList={staffList}
           services={services}
           activeStaffId={activeStaffId}

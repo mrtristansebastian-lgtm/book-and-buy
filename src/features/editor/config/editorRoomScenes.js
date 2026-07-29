@@ -8,6 +8,7 @@ import {
   HelpCircle,
   Images,
   MessageSquare,
+  Rocket,
   Share2,
   ShoppingBag,
   Sparkles
@@ -95,6 +96,16 @@ export const editorRoomScenes = [
     settings: ['Links', 'Layout', 'Colours']
   },
   {
+    id: 'publish',
+    number: '08',
+    icon: Rocket,
+    title: 'Publish Room',
+    navLabel: 'Publish',
+    category: 'Global',
+    prompt: 'Control the public link, live preview, templates, and publishing from one place.',
+    settings: ['Link', 'Preview', 'Publish']
+  },
+  {
     id: 'cart',
     number: '01',
     icon: ShoppingBag,
@@ -137,10 +148,10 @@ export const editorRoomScenes = [
 ];
 
 const previewStepRoomIds = {
-  select: ['style', 'introduction', 'services', 'calendar', 'time-slots', 'faq', 'venue', 'social'],
-  cart: ['style', 'cart'],
-  details: ['style', 'checkout', 'client-form'],
-  success: ['style', 'success']
+  select: ['style', 'introduction', 'services', 'calendar', 'time-slots', 'faq', 'venue', 'social', 'publish'],
+  cart: ['style', 'cart', 'publish'],
+  details: ['style', 'checkout', 'client-form', 'publish'],
+  success: ['style', 'success', 'publish']
 };
 
 export const previewStepPrimaryRoom = {

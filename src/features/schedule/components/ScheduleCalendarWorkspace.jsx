@@ -29,6 +29,13 @@ const PERIOD_VIEW_OPTIONS = [
 ];
 const VIEW_OPTIONS = [...PERIOD_VIEW_OPTIONS, { id: 'list', label: 'List' }];
 const STATUS_OPTIONS = ['confirmed', 'pending', 'completed', 'waitlist'];
+const STATUS_META = {
+  confirmed: { label: 'Confirmed', Icon: Check },
+  pending: { label: 'Pending', Icon: Hourglass },
+  waitlist: { label: 'Waitlist', Icon: Clock3 },
+  completed: { label: 'Completed', Icon: Check },
+  reschedule: { label: 'Reschedule', Icon: RefreshCw }
+};
 const PREFERENCE_KEY = 'bookify:schedule-view:v1';
 const SLOT_MINUTES = 30;
 const SLOT_HEIGHT = 44;
@@ -46,6 +53,7 @@ const startOfWeek = (date) => addDays(date, -((date.getDay() + 6) % 7));
 const firstName = (value = '') => String(value || '').trim().split(/\s+/)[0] || 'Staff';
 const formatDay = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 const formatMonthTitle = (date) => date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+const formatMinutesTime = (minutes) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 const getOrdinalSuffix = (day) => {
   const value = day % 100;
   if (value >= 11 && value <= 13) return 'th';
@@ -80,10 +88,12 @@ const getSummaryStats = (events = []) => events.reduce((stats, event) => {
   const bookingCount = event.bookings.length;
   if (event.status === 'confirmed') stats.confirmed += bookingCount;
   if (event.status === 'pending') stats.pending += bookingCount;
+  if (event.status === 'completed') stats.completed += bookingCount;
   if (event.status === 'waitlist') stats.waitlist += bookingCount;
   stats.reschedule += event.bookings.filter(hasPendingReschedule).length;
   return stats;
-}, { confirmed: 0, pending: 0, waitlist: 0, reschedule: 0 });
+}, { confirmed: 0, pending: 0, completed: 0, waitlist: 0, reschedule: 0 });
+const getStatusMeta = status => STATUS_META[status] || STATUS_META.confirmed;
 
 function readPreferences(contextKey, mobile) {
   const fallback = mobile ? 'day' : contextKey === 'workspace' ? 'week' : 'day';
@@ -209,6 +219,7 @@ function layoutOverlappingEvents(events) {
 }
 
 function CalendarToolbar({
+  calendarView,
   calendars,
   dateTitle,
   filtersOpen,
@@ -305,7 +316,7 @@ function CalendarToolbar({
         <button
           type="button"
           className={`schedule-calendar-list-view ${view === 'list' ? 'is-active' : ''}`}
-          onClick={() => onChangeView('list')}
+          onClick={() => onChangeView(view === 'list' ? calendarView : 'list')}
           aria-pressed={view === 'list'}
         >
           <List size={15} />
@@ -341,13 +352,8 @@ function CalendarEvent({ density, event, minMinutes, onOpen, slotHeight }) {
   const height = EVENT_HEIGHT;
   const width = 100 / event.columns;
   const left = event.column * width;
-  const statusLabel = event.status === 'waitlist'
-    ? 'Waitlist'
-    : event.status === 'pending'
-      ? 'Pending'
-      : event.status === 'completed'
-        ? 'Completed'
-        : 'Confirmed';
+  const statusLabel = getStatusMeta(event.status).label;
+  const timeRange = `${event.time} - ${formatMinutesTime(event.endMinutes)}`;
   return (
     <button
       type="button"
@@ -370,6 +376,7 @@ function CalendarEvent({ density, event, minMinutes, onOpen, slotHeight }) {
           +{event.overflowCount}<span className="schedule-calendar-event-overflow-word"> more</span>
         </span>
       ) : null}
+      <span className="schedule-calendar-event-time">{timeRange}</span>
       <span className="schedule-calendar-event-title">
         {event.isOverflowGroup ? event.clientName : event.bookings.length > 1 ? event.serviceName : event.clientName}
       </span>
@@ -385,13 +392,8 @@ function CalendarEvent({ density, event, minMinutes, onOpen, slotHeight }) {
 
 function ResourceDayEvent({ event, minMinutes, onOpen }) {
   const startSlots = (event.startMinutes - minMinutes) / SLOT_MINUTES;
-  const statusLabel = event.status === 'waitlist'
-    ? 'Waitlist'
-    : event.status === 'pending'
-      ? 'Pending'
-      : event.status === 'completed'
-        ? 'Completed'
-        : 'Confirmed';
+  const statusLabel = getStatusMeta(event.status).label;
+  const timeRange = `${event.time} - ${formatMinutesTime(event.endMinutes)}`;
   return (
     <button
       type="button"
@@ -410,6 +412,7 @@ function ResourceDayEvent({ event, minMinutes, onOpen }) {
       {event.isOverflowGroup ? (
         <span className="schedule-calendar-event-overflow-count">+{event.overflowCount}</span>
       ) : null}
+      <em>{timeRange}</em>
       <strong>{event.bookings.length > 1 ? event.serviceName : event.clientName}</strong>
       <span>
         <i className="schedule-calendar-event-media">
@@ -486,7 +489,10 @@ function ResourceDayGrid({
               <div key={resource.id} className={`schedule-resource-day-row ${resourceConfig.available ? '' : 'is-closed'}`}>
                 <div className="schedule-resource-day-staff">
                   {resource.photoURL ? <img src={resource.photoURL} alt="" /> : <span>{resource.label.charAt(0)}</span>}
-                  <strong>{resource.label}</strong>
+                  <span className="schedule-resource-day-staff-copy">
+                    <strong>{resource.label}</strong>
+                    {resource.subLabel ? <small>{resource.subLabel}</small> : null}
+                  </span>
                 </div>
                 <div className="schedule-resource-day-track">
                   {slots.map(slot => {
@@ -658,14 +664,15 @@ function TimeGrid({
 
 function SummaryStatusStats({ stats }) {
   const items = [
-    { id: 'confirmed', label: 'Confirmed', Icon: Check },
-    { id: 'pending', label: 'Pending', Icon: Hourglass },
-    { id: 'waitlist', label: 'Waitlist', Icon: Clock3 },
-    { id: 'reschedule', label: 'Reschedule', Icon: RefreshCw }
+    ['confirmed', STATUS_META.confirmed],
+    ['pending', STATUS_META.pending],
+    ['completed', STATUS_META.completed],
+    ['waitlist', STATUS_META.waitlist],
+    ['reschedule', STATUS_META.reschedule]
   ];
   return (
     <span className="schedule-summary-stats">
-      {items.map(({ id, label, Icon }) => (
+      {items.map(([id, { label, Icon }]) => (
         <span
           key={id}
           className={`is-${id} ${stats[id] ? 'has-value' : ''}`}
@@ -682,14 +689,15 @@ function SummaryStatusStats({ stats }) {
 
 function SummaryStatusLegend() {
   const items = [
-    { id: 'confirmed', label: 'Confirmed', Icon: Check },
-    { id: 'pending', label: 'Pending', Icon: Hourglass },
-    { id: 'waitlist', label: 'Waitlist', Icon: Clock3 },
-    { id: 'reschedule', label: 'Reschedule', Icon: RefreshCw }
+    ['confirmed', STATUS_META.confirmed],
+    ['pending', STATUS_META.pending],
+    ['completed', STATUS_META.completed],
+    ['waitlist', STATUS_META.waitlist],
+    ['reschedule', STATUS_META.reschedule]
   ];
   return (
     <div className="schedule-summary-legend" aria-label="Booking status legend">
-      {items.map(({ id, label, Icon }) => (
+      {items.map(([id, { label, Icon }]) => (
         <span key={id} className={`is-${id}`}>
           <Icon size={12} aria-hidden="true" />
           {label}
@@ -739,7 +747,7 @@ function ResourceSummaryMatrix({
                     type="button"
                     className={`schedule-week-summary-card ${hasActivity ? 'has-bookings' : ''} ${date.dateKey === todayStr ? 'is-today' : ''}`}
                     onClick={() => onOpenDay(date.dateKey, staff.staffId)}
-                    aria-label={`${staff.staffName}, ${formatDay(fromDateKey(date.dateKey))}, ${stats.confirmed} confirmed, ${stats.pending} pending, ${stats.waitlist} waitlist, ${stats.reschedule} reschedule. View more`}
+                    aria-label={`${staff.staffName}, ${formatDay(fromDateKey(date.dateKey))}, ${stats.confirmed} confirmed, ${stats.pending} pending, ${stats.completed} completed, ${stats.waitlist} waitlist, ${stats.reschedule} reschedule. View more`}
                   >
                     <span className="schedule-week-summary-date">
                       <span>{summaryDate.getDate()}</span>
@@ -781,7 +789,7 @@ function MonthView({ events, onOpenDay, selectedDate, todayStr }) {
               type="button"
               className={`schedule-month-summary-card ${date.getMonth() === selectedMonth ? '' : 'is-outside'} ${dateKey === todayStr ? 'is-today' : ''} ${dateKey >= todayStr ? 'is-current-or-future' : ''} ${hasActivity ? 'has-bookings' : ''}`}
               onClick={() => onOpenDay(dateKey)}
-              aria-label={`${formatDay(date)}, ${stats.confirmed} confirmed, ${stats.pending} pending, ${stats.waitlist} waitlist, ${stats.reschedule} reschedule. View more`}
+              aria-label={`${formatDay(date)}, ${stats.confirmed} confirmed, ${stats.pending} pending, ${stats.completed} completed, ${stats.waitlist} waitlist, ${stats.reschedule} reschedule. View more`}
             >
               <span className="schedule-month-summary-date">
                 <span>{date.getDate()}</span>
@@ -1057,6 +1065,10 @@ export function ScheduleCalendarWorkspace({
     typeof window !== 'undefined' && window.matchMedia('(max-width: 700px)').matches
   ));
   const [view, setView] = useState(() => readPreferences(selectedCalendarId, mobile).view);
+  const [lastCalendarView, setLastCalendarView] = useState(() => {
+    const savedView = readPreferences(selectedCalendarId, mobile).view;
+    return PERIOD_VIEW_OPTIONS.some(option => option.id === savedView) ? savedView : (mobile ? 'day' : 'week');
+  });
   const [selectedServiceId, setSelectedServiceId] = useState(() => readPreferences(selectedCalendarId, mobile).serviceId);
   const [selectedStatus, setSelectedStatus] = useState(() => readPreferences(selectedCalendarId, mobile).status);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -1073,6 +1085,7 @@ export function ScheduleCalendarWorkspace({
   useEffect(() => {
     const preference = readPreferences(selectedCalendarId, mobile);
     setView(preference.view);
+    setLastCalendarView(PERIOD_VIEW_OPTIONS.some(option => option.id === preference.view) ? preference.view : (mobile ? 'day' : 'week'));
     setSelectedServiceId(preference.serviceId);
     setSelectedStatus(preference.status);
   }, [mobile, selectedCalendarId]);
@@ -1140,7 +1153,10 @@ export function ScheduleCalendarWorkspace({
     setDrawer(null);
     window.setTimeout(() => triggerRef.current?.focus?.(), 0);
   };
-  const changeView = (nextView) => startTransition(() => setView(nextView));
+  const changeView = (nextView) => startTransition(() => {
+    if (PERIOD_VIEW_OPTIONS.some(option => option.id === nextView)) setLastCalendarView(nextView);
+    setView(nextView);
+  });
   const moveRange = direction => {
     const anchor = fromDateKey(selectedDate);
     const next = view === 'month'
@@ -1162,7 +1178,7 @@ export function ScheduleCalendarWorkspace({
       id: calendar.id,
       dateKey: selectedDate,
       label: calendar.shortName || firstName(calendar.name),
-      subLabel: '',
+      subLabel: calendar.role || '',
       photoURL: calendar.photoURL || '',
       staffId: calendar.id,
       staffName: calendar.name
@@ -1171,7 +1187,7 @@ export function ScheduleCalendarWorkspace({
       id: selectedCalendarId,
       dateKey: selectedDate,
       label: staffMap.get(selectedCalendarId)?.name || calendars.find(calendar => calendar.id === selectedCalendarId)?.name || 'Calendar',
-      subLabel: formatDay(fromDateKey(selectedDate)),
+      subLabel: staffMap.get(selectedCalendarId)?.title || staffMap.get(selectedCalendarId)?.workTitle || staffMap.get(selectedCalendarId)?.jobTitle || calendars.find(calendar => calendar.id === selectedCalendarId)?.role || formatDay(fromDateKey(selectedDate)),
       photoURL: staffMap.get(selectedCalendarId)?.photoURL || '',
       staffId: selectedCalendarId,
       staffName: staffMap.get(selectedCalendarId)?.name || ''
@@ -1187,6 +1203,7 @@ export function ScheduleCalendarWorkspace({
   return (
     <section className="schedule-calendar-workspace">
       <CalendarToolbar
+        calendarView={lastCalendarView}
         calendars={calendars}
         dateTitle={getDateTitle(view, selectedDate)}
         filtersOpen={filtersOpen}
@@ -1211,7 +1228,7 @@ export function ScheduleCalendarWorkspace({
       />
 
       <div className="schedule-calendar-surface">
-        {view === 'week' || view === 'month' ? <SummaryStatusLegend /> : null}
+        {view !== 'list' ? <SummaryStatusLegend /> : null}
         {view === 'month' ? (
           <MonthView
             events={events}

@@ -6,6 +6,17 @@ service firebase.storage {
       return request.auth != null;
     }
 
+    function isPasswordAccount() {
+      return signedIn() &&
+        request.auth.token.firebase != null &&
+        request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
+    function verifiedSignedIn() {
+      return signedIn() &&
+        (!isPasswordAccount() || request.auth.token.email_verified == true);
+    }
+
     function isOwner(userId) {
       return signedIn() && request.auth.uid == userId;
     }
@@ -21,6 +32,20 @@ service firebase.storage {
       return isOwner(userId) || hasStaffAccess(appId, userId);
     }
 
+    function isThreadParticipant(appId, threadData) {
+      return verifiedSignedIn() &&
+        threadData.ownerId is string &&
+        (
+          canManageWorkspaceAsset(appId, threadData.ownerId) ||
+          (request.auth.token.email != null && threadData.clientEmail == request.auth.token.email)
+        );
+    }
+
+    function canAccessThread(appId, threadId) {
+      return firestore.exists(/databases/(default)/documents/artifacts/$(appId)/clientThreads/$(threadId)) &&
+        isThreadParticipant(appId, firestore.get(/databases/(default)/documents/artifacts/$(appId)/clientThreads/$(threadId)).data);
+    }
+
     function isPublicWorkspaceFolder(folder) {
       return folder in ['brand', 'venue', 'services', 'account-avatars'];
     }
@@ -29,6 +54,27 @@ service firebase.storage {
       return request.resource != null &&
         request.resource.size < 6 * 1024 * 1024 &&
         request.resource.contentType.matches('image/.*');
+    }
+
+    function validChatUpload() {
+      return request.resource != null &&
+        request.resource.size <= 25 * 1024 * 1024 &&
+        request.resource.contentType.matches(
+          '(image/(png|jpeg|jpg|webp|gif|heic|heif))|' +
+          '(application/pdf)|' +
+          '(application/msword)|' +
+          '(application/vnd\\.openxmlformats-officedocument\\.wordprocessingml\\.document)|' +
+          '(application/vnd\\.ms-excel)|' +
+          '(application/vnd\\.openxmlformats-officedocument\\.spreadsheetml\\.sheet)|' +
+          '(text/(csv|plain))|' +
+          '(audio/(webm|mp4|mpeg|wav|ogg|x-m4a))'
+        );
+    }
+
+    match /artifacts/{appId}/clientThreads/{threadId}/attachments/{messageId}/{fileName} {
+      allow read: if canAccessThread(appId, threadId);
+      allow create: if canAccessThread(appId, threadId) && validChatUpload();
+      allow update, delete: if false;
     }
 
     match /artifacts/{appId}/users/{userId}/{folder}/{fileName} {

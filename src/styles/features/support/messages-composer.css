@@ -1,3 +1,5 @@
+@import './chat-attachments.css';
+
         .support-desk-shell .support-message-bubble,
         .client-chat-shell .client-message-bubble {
             border-radius: 1.18rem !important;

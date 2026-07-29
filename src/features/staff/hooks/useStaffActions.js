@@ -114,7 +114,7 @@ export function useStaffActions({
     }
   };
 
-  const createStaffMember = async ({ name, email, color, role }) => {
+  const createStaffMember = async ({ name, email, color, role, title }) => {
     const emailKey = normalizeEmail(email);
     if (!emailKey) return false;
     if (!canManageTeam && isFirebaseConfigured) {
@@ -140,6 +140,7 @@ export function useStaffActions({
       photoURL: detectedAccount?.photoURL || '',
       color,
       role,
+      title: title || '',
       status: detectedAccount ? 'connected' : 'access-ready',
       accessEnabled: true,
       updatedAt: Date.now()

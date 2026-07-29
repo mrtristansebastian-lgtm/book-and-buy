@@ -43,7 +43,7 @@ export const buildCalendars = (staffMembers) => [
     id: staff.id,
     name: getStaffDisplayName(staff),
     shortName: String(getStaffDisplayName(staff)).trim().split(/\s+/)[0] || 'Team',
-    role: staff.role === 'owner' ? 'Owner' : staff.role === 'admin' ? 'Admin' : 'Staff',
+    role: staff.title || staff.workTitle || staff.jobTitle || (staff.role === 'owner' ? 'Owner' : staff.role === 'admin' ? 'Admin' : 'Staff'),
     username: getStaffUsername(staff),
     color: staff.color || '#2563eb',
     photoURL: staff.photoURL || ''

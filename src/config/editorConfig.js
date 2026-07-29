@@ -1,8 +1,8 @@
 export const editorStyleDirections = [
   {
     id: 'native-precision',
-    label: 'Native Precision',
-    summary: 'The cleanest all-rounder: iOS-like controls, calm rhythm, and strong booking clarity.',
+    label: 'Rounded',
+    summary: 'Soft corners, pill actions, and a calmer booking page feel.',
     settings: {
       logoDisplay: { visible: true, alignment: 'left', size: 104, placement: 'badge' },
       bannerDisplay: { visible: true, height: 190, position: 'center', placement: 'top', opacity: 100 },
@@ -31,8 +31,8 @@ export const editorStyleDirections = [
   },
   {
     id: 'command-flow',
-    label: 'Command Flow',
-    summary: 'Fast and operational: compact decisions, high signal states, and a stronger app-like footer system.',
+    label: 'Square',
+    summary: 'Sharper corners, compact controls, and a more structured booking page feel.',
     settings: {
       logoDisplay: { visible: true, alignment: 'left', size: 104, placement: 'badge' },
       bannerDisplay: { visible: true, height: 190, position: 'center', placement: 'top', opacity: 100 },
@@ -49,7 +49,7 @@ export const editorStyleDirections = [
       timeSlotShadow: true,
       timeSlotGlow: true,
       actionButtonStyle: 'solid',
-      buttonStyle: 'pill',
+      buttonStyle: 'square',
       faqDisplayStyle: 'accordion',
       faqStyle: 'minimal',
       venueGalleryStyle: 'mosaic',

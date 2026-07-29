@@ -12,6 +12,7 @@ export const BusinessCalendar = ({
   clientDirectory = [],
   exampleMode = false,
   googleCalendarState = {},
+  isGuestWorkspace = false,
   onCreateManualBooking,
   onConnectGoogleCalendar,
   onOpenBookingChat,
@@ -27,6 +28,7 @@ export const BusinessCalendar = ({
   workspaceRole = 'owner'
 }) => {
   const [applyScope, setApplyScope] = useState('day');
+  const readOnly = exampleMode && !isGuestWorkspace;
   const schedule = useScheduleWorkspace({
     activeStaffId,
     bookings,
@@ -47,7 +49,7 @@ export const BusinessCalendar = ({
         onConnectGoogleCalendar={onConnectGoogleCalendar}
         onSave={onSave}
         onSyncGoogleCalendar={onSyncGoogleCalendar}
-        readOnly={exampleMode}
+        readOnly={readOnly}
         selectedCalendarId={schedule.selectedCalendarId}
       />
 
@@ -56,11 +58,11 @@ export const BusinessCalendar = ({
           allBookings={bookings}
           calendars={schedule.calendars}
           clientDirectory={clientDirectory}
-          exampleMode={exampleMode}
+          exampleMode={readOnly}
           listView={(
             <ScheduleTimeline
               bookingsByTime={schedule.bookingsByTime}
-              canEdit={schedule.canEditSelectedCalendar && !exampleMode}
+              canEdit={schedule.canEditSelectedCalendar && !readOnly}
               dayConfig={schedule.dayConfig}
               embedded
               isPastDay={schedule.isPastDay}

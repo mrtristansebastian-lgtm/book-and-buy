@@ -917,7 +917,6 @@
         .booking-style-command-flow .booking-flow-public-shell [data-preview-section="action"] > button {
             min-height: 3.35rem;
             box-shadow: none !important;
-            text-transform: uppercase;
         }
 
         .editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-time-blocks {
@@ -1022,6 +1021,5 @@
         .booking-style-command-flow.booking-checkout-step .booking-funnel-primary {
             border-color: var(--command-rule-strong) !important;
             background-image: none !important;
-            text-transform: uppercase;
         }
 

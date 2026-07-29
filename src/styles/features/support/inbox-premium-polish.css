@@ -199,6 +199,85 @@ html body .native-ui .support-inbox-pro .support-message-proposal.is-client .sup
     }
 }
 
+html body .native-ui .support-desk-shell .support-chat-canvas,
+html body .native-ui .support-inbox-pro .support-chat-canvas {
+    background-color: var(--support-chat-canvas, #f8fafc) !important;
+    background-image: var(--support-chat-wallpaper, linear-gradient(var(--support-chat-canvas, #f8fafc), var(--support-chat-canvas, #f8fafc))) !important;
+    background-size: var(--support-chat-wallpaper-size, auto) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-owner,
+html body .native-ui .support-inbox-pro .support-message-owner {
+    background: var(--support-chat-owner-bubble, #101114) !important;
+    border-color: color-mix(in srgb, var(--support-chat-owner-bubble, #101114) 72%, #ffffff) !important;
+    color: var(--support-chat-owner-text, #ffffff) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-owner .support-message-copy,
+html body .native-ui .support-inbox-pro .support-message-owner .support-message-copy,
+html body .native-ui .support-desk-shell .support-message-owner .chat-attachment-document-copy,
+html body .native-ui .support-inbox-pro .support-message-owner .chat-attachment-document-copy,
+html body .native-ui .support-desk-shell .support-message-owner .chat-attachment-document-copy strong,
+html body .native-ui .support-inbox-pro .support-message-owner .chat-attachment-document-copy strong,
+html body .native-ui .support-desk-shell .support-message-owner .chat-attachment-document-copy small,
+html body .native-ui .support-inbox-pro .support-message-owner .chat-attachment-document-copy small,
+html body .native-ui .support-desk-shell .support-message-owner .chat-attachment-voice-duration,
+html body .native-ui .support-inbox-pro .support-message-owner .chat-attachment-voice-duration {
+    color: var(--support-chat-owner-text, #ffffff) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-owner .chat-attachment-document-card,
+html body .native-ui .support-inbox-pro .support-message-owner .chat-attachment-document-card,
+html body .native-ui .support-desk-shell .support-message-owner .chat-attachment-voice-card,
+html body .native-ui .support-inbox-pro .support-message-owner .chat-attachment-voice-card {
+    background: color-mix(in srgb, var(--support-chat-owner-bubble, #101114) 72%, #ffffff) !important;
+    border-color: color-mix(in srgb, var(--support-chat-owner-bubble, #101114) 58%, #ffffff) !important;
+    color: var(--support-chat-owner-text, #ffffff) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-client,
+html body .native-ui .support-inbox-pro .support-message-client {
+    background: var(--support-chat-client-bubble, #ffffff) !important;
+    border-color: color-mix(in srgb, var(--support-chat-client-bubble, #ffffff) 76%, #172033) !important;
+    color: var(--support-chat-client-text, #172033) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-client .support-message-copy,
+html body .native-ui .support-inbox-pro .support-message-client .support-message-copy,
+html body .native-ui .support-desk-shell .support-message-client .chat-attachment-document-copy,
+html body .native-ui .support-inbox-pro .support-message-client .chat-attachment-document-copy,
+html body .native-ui .support-desk-shell .support-message-client .chat-attachment-document-copy strong,
+html body .native-ui .support-inbox-pro .support-message-client .chat-attachment-document-copy strong,
+html body .native-ui .support-desk-shell .support-message-client .chat-attachment-document-copy small,
+html body .native-ui .support-inbox-pro .support-message-client .chat-attachment-document-copy small,
+html body .native-ui .support-desk-shell .support-message-client .chat-attachment-voice-duration,
+html body .native-ui .support-inbox-pro .support-message-client .chat-attachment-voice-duration {
+    color: var(--support-chat-client-text, #172033) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-client .chat-attachment-document-card,
+html body .native-ui .support-inbox-pro .support-message-client .chat-attachment-document-card,
+html body .native-ui .support-desk-shell .support-message-client .chat-attachment-voice-card,
+html body .native-ui .support-inbox-pro .support-message-client .chat-attachment-voice-card {
+    background: color-mix(in srgb, var(--support-chat-client-bubble, #ffffff) 90%, #f8fafc) !important;
+    border-color: color-mix(in srgb, var(--support-chat-client-bubble, #ffffff) 70%, #172033) !important;
+    color: var(--support-chat-client-text, #172033) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-owner,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-owner {
+    background: color-mix(in srgb, var(--support-chat-owner-bubble, #101114) 10%, #ffffff) !important;
+    border-color: color-mix(in srgb, var(--support-chat-owner-bubble, #101114) 28%, #ffffff) !important;
+    color: var(--support-chat-owner-text, #ffffff) !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal.is-client,
+html body .native-ui .support-inbox-pro .support-message-proposal.is-client {
+    background: color-mix(in srgb, var(--support-chat-client-bubble, #ffffff) 86%, #f8fafc) !important;
+    border-color: color-mix(in srgb, var(--support-chat-client-bubble, #ffffff) 70%, #172033) !important;
+    color: var(--support-chat-client-text, #172033) !important;
+}
+
 /* Thread rail hierarchy: identity, metadata, then the latest message. */
 html body .native-ui .support-desk-shell .support-thread-row,
 html body .native-ui .support-inbox-pro .support-thread-row {

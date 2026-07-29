@@ -22,6 +22,241 @@
             min-width: 0;
         }
 
+        .booking-horizontal-timeline {
+            width: min(100%, 54rem);
+            margin-inline: auto;
+            display: grid;
+            grid-template-areas:
+                "stage"
+                "tabs"
+                "controls";
+            gap: clamp(0.72rem, 1.8vw, 1rem);
+            align-items: stretch;
+        }
+
+        .booking-horizontal-tabs {
+            grid-area: tabs;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(4.7rem, 1fr));
+            gap: 0.28rem;
+            min-width: 0;
+            padding: 0.16rem 0.2rem 0;
+        }
+
+        .booking-horizontal-tabs::before {
+            content: "";
+            position: absolute;
+            top: 1.36rem;
+            right: calc(8.333% + 1rem);
+            left: calc(8.333% + 1rem);
+            height: 1px;
+            background: rgba(15, 23, 42, 0.1);
+        }
+
+        .booking-horizontal-tabs button {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            justify-items: center;
+            gap: 0.32rem;
+            width: 100%;
+            min-height: 3.1rem;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: inherit;
+            text-align: center;
+            box-shadow: none;
+            cursor: pointer;
+            transition: transform 180ms ease;
+        }
+
+        .booking-horizontal-tabs button:hover,
+        .booking-horizontal-tabs button.is-active {
+            transform: translateY(-1px);
+        }
+
+        .booking-horizontal-tabs button i {
+            display: grid;
+            place-items: center;
+            width: 2.42rem;
+            height: 2.42rem;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            border-radius: 999px;
+            background: #ffffff;
+            color: rgba(15, 23, 42, 0.7);
+            font-style: normal;
+            font-weight: 900;
+            line-height: 1;
+            box-shadow: 0 0.72rem 1.55rem rgba(15, 23, 42, 0.07);
+            transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease;
+        }
+
+        .booking-horizontal-tabs button i svg {
+            display: block;
+            width: 1.06rem;
+            height: 1.06rem;
+            margin: auto;
+            stroke-width: 2.4;
+        }
+
+        .booking-horizontal-tabs button.is-active i,
+        .booking-horizontal-tabs button.is-complete i {
+            border-color: transparent;
+            background: var(--booking-timeline-icon-bg, var(--booking-timeline-button-bg, var(--booking-heading-color, #050505)));
+            color: var(--booking-timeline-icon-text, var(--booking-timeline-button-text, #ffffff));
+        }
+
+        .native-booking-theme .booking-horizontal-tabs button.is-active i,
+        .native-booking-theme .booking-horizontal-tabs button.is-complete i {
+            color: #050505 !important;
+            border-color: transparent !important;
+            background-color: #eaffdf !important;
+            background-image:
+                linear-gradient(180deg, rgba(255,255,255,0.48), rgba(255,255,255,0.16)),
+                var(--native-booking-accent-gradient) !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            box-shadow: 0 16px 36px -24px var(--native-accent-button-glow) !important;
+        }
+
+        .booking-horizontal-tabs button span {
+            display: grid;
+            min-width: 0;
+        }
+
+        .booking-horizontal-tabs button b {
+            display: block;
+            min-width: 0;
+            font-size: 0.66rem;
+            font-weight: 900;
+            line-height: 1;
+            text-align: center;
+        }
+
+        .booking-horizontal-tabs button small {
+            min-width: 0;
+            overflow: hidden;
+            color: var(--booking-body-color, #666666);
+            font-size: 0.58rem;
+            font-weight: 800;
+            line-height: 1.15;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .booking-horizontal-stage {
+            grid-area: stage;
+            min-width: 0;
+            overflow: hidden;
+            display: grid;
+            justify-items: center;
+        }
+
+        .booking-horizontal-track {
+            display: flex;
+            width: 100%;
+            transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
+        }
+
+        .booking-horizontal-panel {
+            display: grid;
+            justify-items: center;
+            min-width: 100%;
+            padding: 0.08rem;
+        }
+
+        .booking-horizontal-panel:not(.is-active) {
+            height: 0;
+            overflow: hidden;
+            visibility: hidden;
+        }
+
+        .booking-horizontal-panel > [data-preview-section] {
+            width: min(100%, 42rem);
+            margin: 0;
+            padding-top: 0;
+        }
+
+        .booking-horizontal-panel > [data-preview-section="services"] {
+            width: min(100%, 54rem);
+        }
+
+        .booking-horizontal-timeline [data-preview-section="services"] .booking-services-wrap {
+            width: 100%;
+            margin-inline: auto;
+        }
+
+        .booking-horizontal-timeline [data-preview-section="services"] .booking-services-carousel {
+            width: min(100%, 54rem);
+            grid-template-columns: 2.4rem minmax(0, 1fr) 2.4rem;
+            column-gap: 0.62rem;
+            justify-content: center;
+            margin-inline: auto;
+        }
+
+        .booking-horizontal-timeline [data-preview-section="services"] .booking-services-carousel-viewport {
+            margin-inline: auto;
+        }
+
+        @media (min-width: 641px) {
+            .booking-horizontal-timeline [data-preview-section="services"] .booking-services-carousel-viewport {
+                padding-inline: 0 !important;
+                scroll-padding-inline: 0;
+            }
+        }
+
+        .booking-horizontal-controls {
+            grid-area: controls;
+            display: flex;
+            justify-content: center;
+            gap: clamp(0.82rem, 2.2vw, 1.25rem);
+            min-width: 0;
+        }
+
+        .booking-horizontal-controls button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            min-width: 6.4rem;
+            min-height: 2.65rem;
+            padding: 0.72rem 1rem;
+            border: 1px solid rgba(15, 23, 42, 0.11);
+            border-radius: 999px;
+            background: var(--booking-timeline-button-bg, #050505);
+            color: var(--booking-timeline-button-text, #ffffff);
+            font-size: 0.78rem;
+            font-weight: 900;
+            box-shadow: 0 0.75rem 1.8rem rgba(15, 23, 42, 0.07);
+            cursor: pointer;
+            transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease;
+        }
+
+        .native-booking-theme .booking-horizontal-controls button:not(:disabled) {
+            color: #050505 !important;
+            border-color: transparent !important;
+            background:
+                linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--native-booking-accent-gradient) border-box !important;
+            background-size: auto, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            box-shadow: 0 16px 34px -28px var(--native-accent-button-glow) !important;
+        }
+
+        .booking-horizontal-controls button:not(:disabled):hover {
+            border-color: rgba(5, 5, 5, 0.36);
+            transform: translateY(-1px);
+        }
+
+        .booking-horizontal-controls button:disabled {
+            cursor: not-allowed;
+            opacity: 0.42;
+        }
+
         @media (min-width: 1024px) {
             .booking-flow-public .booking-selection-workspace.has-service-step,
             .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step {
@@ -90,6 +325,51 @@
             }
         }
 
+        @media (max-width: 768px) {
+            .booking-horizontal-timeline {
+                gap: 0.78rem;
+            }
+
+            .booking-horizontal-tabs {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.34rem 0.48rem;
+            }
+
+            .booking-horizontal-tabs::before {
+                top: 1.33rem;
+                right: 25%;
+                left: 25%;
+            }
+
+            .booking-horizontal-tabs button {
+                min-height: 3rem;
+            }
+
+            .booking-horizontal-tabs button i {
+                width: 2.28rem;
+                height: 2.28rem;
+            }
+
+            .booking-horizontal-tabs button i svg {
+                width: 1rem;
+                height: 1rem;
+            }
+
+            .booking-horizontal-tabs button b {
+                font-size: 0.64rem;
+            }
+
+            .booking-horizontal-tabs button small {
+                font-size: 0.62rem;
+            }
+
+            .booking-horizontal-controls button {
+                flex: 1;
+                min-width: 0;
+                min-height: 2.55rem;
+            }
+        }
+
         @media (min-width: 1180px) {
             .booking-flow-public .booking-selection-workspace.has-service-step,
             .editor-preview-frame.is-desktop-preview .booking-selection-workspace.has-service-step {
@@ -105,6 +385,12 @@
 .editor-preview-frame .booking-style-command-flow .booking-service-option.booking-gradient-border,
 .booking-flow-public.booking-style-command-flow .booking-category-dropdown-trigger,
 .editor-preview-frame .booking-style-command-flow .booking-category-dropdown-trigger,
+.booking-flow-public.booking-style-command-flow .booking-horizontal-tabs button,
+.editor-preview-frame .booking-style-command-flow .booking-horizontal-tabs button,
+.booking-flow-public.booking-style-command-flow .booking-horizontal-tabs button i,
+.editor-preview-frame .booking-style-command-flow .booking-horizontal-tabs button i,
+.booking-flow-public.booking-style-command-flow .booking-horizontal-controls button,
+.editor-preview-frame .booking-style-command-flow .booking-horizontal-controls button,
 .booking-flow-public.booking-style-command-flow .booking-calendar-look > button,
 .editor-preview-frame .booking-style-command-flow .booking-calendar-look > button,
 .booking-flow-public.booking-style-command-flow .booking-time-look > button,
@@ -153,6 +439,10 @@
 .editor-preview-frame .booking-style-command-flow .booking-service-option.booking-gradient-border,
 .booking-flow-public.booking-style-command-flow .booking-category-dropdown-trigger,
 .editor-preview-frame .booking-style-command-flow .booking-category-dropdown-trigger,
+.booking-flow-public.booking-style-command-flow .booking-horizontal-tabs button,
+.editor-preview-frame .booking-style-command-flow .booking-horizontal-tabs button,
+.booking-flow-public.booking-style-command-flow .booking-horizontal-controls button,
+.editor-preview-frame .booking-style-command-flow .booking-horizontal-controls button,
 .booking-flow-public.booking-style-command-flow .booking-time-look > button,
 .editor-preview-frame .booking-style-command-flow .booking-time-look > button,
 .booking-flow-public.booking-style-command-flow .booking-time-look button,
@@ -640,4 +930,62 @@
 .editor-preview-frame.is-mobile-preview .booking-style-native-precision .booking-success-title,
 .editor-preview-frame.is-mobile-preview .booking-style-command-flow .booking-success-title {
     line-height: 1.04 !important;
+}
+
+/* When the editor's native gradient is off, selected services/categories use
+   the explicit colours exposed in Page Colours instead of gradient fallbacks. */
+.booking-flow-public:not(.native-booking-theme) :is(.booking-services-rail, .booking-services-tiles) > .booking-service-option.is-selected,
+.booking-flow-preview:not(.native-booking-theme) :is(.booking-services-rail, .booking-services-tiles) > .booking-service-option.is-selected,
+.editor-preview-frame :is(.booking-flow-preview, .booking-flow-public):not(.native-booking-theme) :is(.booking-services-rail, .booking-services-tiles) > .booking-service-option.is-selected {
+    border-color: var(--booking-service-active-border, #050505) !important;
+    background: var(--booking-service-active-bg, #ffffff) !important;
+    background-color: var(--booking-service-active-bg, #ffffff) !important;
+    background-image: none !important;
+    background-origin: border-box !important;
+    background-clip: border-box !important;
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--booking-service-active-border, #050505) 18%, #ffffff),
+        0 24px 56px -44px color-mix(in srgb, var(--booking-service-active-border, #050505) 65%, transparent) !important;
+}
+
+.booking-flow-public:not(.native-booking-theme) .booking-service-category-rail button[aria-pressed="true"],
+.booking-flow-preview:not(.native-booking-theme) .booking-service-category-rail button[aria-pressed="true"],
+.editor-preview-frame :is(.booking-flow-preview, .booking-flow-public):not(.native-booking-theme) .booking-service-category-rail button[aria-pressed="true"] {
+    border-color: var(--booking-service-category-active, var(--booking-service-active-border, #050505)) !important;
+    background: var(--booking-service-category-active-bg, var(--booking-service-active-bg, #ffffff)) !important;
+    background-color: var(--booking-service-category-active-bg, var(--booking-service-active-bg, #ffffff)) !important;
+    background-image: none !important;
+    color: var(--booking-service-text, #050505) !important;
+    box-shadow: 0 18px 42px -34px color-mix(in srgb, var(--booking-service-category-active, #050505) 70%, transparent) !important;
+}
+
+.booking-flow-public:not(.native-booking-theme) .booking-category-dropdown-trigger,
+.booking-flow-preview:not(.native-booking-theme) .booking-category-dropdown-trigger,
+.editor-preview-frame :is(.booking-flow-preview, .booking-flow-public):not(.native-booking-theme) .booking-category-dropdown-trigger {
+    border-color: var(--booking-service-border, rgba(15, 23, 42, 0.08)) !important;
+    background: var(--booking-service-bg, #ffffff) !important;
+    background-color: var(--booking-service-bg, #ffffff) !important;
+    background-image: none !important;
+}
+
+.booking-flow-public:not(.native-booking-theme) .booking-category-dropdown-panel button.is-active,
+.booking-flow-preview:not(.native-booking-theme) .booking-category-dropdown-panel button.is-active,
+.editor-preview-frame :is(.booking-flow-preview, .booking-flow-public):not(.native-booking-theme) .booking-category-dropdown-panel button.is-active {
+    border-color: var(--booking-service-category-active, var(--booking-service-active-border, #050505)) !important;
+    background: var(--booking-service-category-active-bg, var(--booking-service-active-bg, #ffffff)) !important;
+    background-color: var(--booking-service-category-active-bg, var(--booking-service-active-bg, #ffffff)) !important;
+    background-image: none !important;
+    color: var(--booking-service-text, #050505) !important;
+}
+
+.booking-flow-public.native-booking-theme .booking-horizontal-controls button:not(:disabled),
+.editor-preview-frame .native-booking-theme .booking-horizontal-controls button:not(:disabled) {
+    color: #050505 !important;
+    border-color: transparent !important;
+    background:
+        linear-gradient(#ffffff, #ffffff) padding-box,
+        var(--native-booking-accent-gradient) border-box !important;
+    background-size: auto, 420% 420% !important;
+    background-position: 0 0, var(--native-accent-x) 50% !important;
+    box-shadow: 0 16px 34px -28px var(--native-accent-button-glow) !important;
 }

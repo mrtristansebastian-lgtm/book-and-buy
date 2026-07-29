@@ -91,6 +91,10 @@ export function DashboardMainRoutes({
               };
               services.markWorkspaceDirty();
               services.setSettings(prev => mergeStateIfChanged(prev, { ...prev, ...servicePatch }));
+              if (services.props.isGuestWorkspace) {
+                services.props.showToast?.(message || 'Services saved for this guest session.');
+                return true;
+              }
               return services.saveWorkspaceSettingsPatch(servicePatch, message || 'Services saved.');
             }}
           />

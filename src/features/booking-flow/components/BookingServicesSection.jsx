@@ -51,7 +51,10 @@ export const BookingServicesSection = ({
         ? settings.serviceBgColor
         : '#FFFFFF';
     const serviceBorderColor = settings.serviceBorderColor || withColorAlpha(settings.bodyColor || '#000', 9, '#000000');
-    const serviceActiveBgColor = settings.serviceActiveBgColor || withColorAlpha(settings.primaryColor || '#000', 7, '#000000');
+    const serviceCategoryActiveColor = settings.serviceCategoryActiveColor || settings.primaryColor || '#000000';
+    const serviceCategoryActiveBgColor = withColorAlpha(serviceCategoryActiveColor, 7, '#000000');
+    const serviceActiveBorderColor = settings.serviceActiveBorderColor || settings.serviceBorderColor || settings.primaryColor || '#000000';
+    const serviceActiveBgColor = settings.serviceActiveBgColor || withColorAlpha(serviceActiveBorderColor, 7, '#000000');
     const goToServicesStudio = () => {
         if (typeof window !== 'undefined') window.location.hash = '#/dashboard/services';
     };
@@ -213,7 +216,7 @@ export const BookingServicesSection = ({
                                 if (!hasServiceImage) return;
                                 if (event.key === 'Enter' || event.key === ' ') openGallery(event);
                             }}
-                            style={{ backgroundColor: isActive ? (settings.primaryColor || '#000') : serviceBgColor, color: isActive ? (settings.buttonTextColor || '#000') : serviceTextColor }}
+                            style={{ backgroundColor: isActive ? serviceActiveBorderColor : serviceBgColor, color: isActive ? (settings.buttonTextColor || '#000') : serviceTextColor }}
                         >
                             {hasServiceImage ? (
                                 <>
@@ -249,7 +252,7 @@ export const BookingServicesSection = ({
                                 <h5 className="text-base md:text-lg font-bold tracking-tight" style={{ color: serviceTextColor, fontFamily: getFontFamily(settings.headingFontFamily || settings.fontFamily) }}>{service.name}</h5>
                             </div>
                             {isActive && (
-                                <span className="booking-service-selected-mark" style={{ color: settings.primaryColor, borderColor: `${settings.primaryColor || '#000'}40`, backgroundColor: `${settings.primaryColor || '#000'}0F` }}>
+                                <span className="booking-service-selected-mark" style={{ color: serviceActiveBorderColor, borderColor: withColorAlpha(serviceActiveBorderColor, 26, '#000000'), backgroundColor: serviceActiveBgColor }}>
                                     <Check size={12} strokeWidth={3} aria-hidden="true" />
                                 </span>
                             )}
@@ -293,8 +296,8 @@ export const BookingServicesSection = ({
                             }}
                             style={{
                                 color: isActive ? serviceTextColor : settings.bodyColor,
-                                borderColor: isActive ? settings.primaryColor : serviceBorderColor,
-                                backgroundColor: isActive ? serviceActiveBgColor : serviceBgColor
+                                borderColor: isActive ? serviceCategoryActiveColor : serviceBorderColor,
+                                backgroundColor: isActive ? serviceCategoryActiveBgColor : serviceBgColor
                             }}
                         >
                             {category}
@@ -360,8 +363,8 @@ export const BookingServicesSection = ({
                                 }}
                                 style={{
                                     color: isActive ? serviceTextColor : settings.bodyColor,
-                                    borderColor: isActive ? settings.primaryColor : serviceBorderColor,
-                                    backgroundColor: isActive ? serviceActiveBgColor : 'transparent',
+                                    borderColor: isActive ? serviceCategoryActiveColor : serviceBorderColor,
+                                    backgroundColor: isActive ? serviceCategoryActiveBgColor : 'transparent',
                                     fontFamily: getFontFamily(settings.bodyFontFamily || settings.fontFamily)
                                 }}
                             >

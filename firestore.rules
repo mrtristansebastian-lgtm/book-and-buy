@@ -86,6 +86,50 @@ service cloud.firestore {
         isThreadParticipant(appId, get(/databases/$(database)/documents/artifacts/$(appId)/clientThreads/$(threadId)).data);
     }
 
+    function validChatAttachment(appId, threadId, attachment) {
+      return attachment is map &&
+        attachment.id is string &&
+        attachment.id.size() <= 80 &&
+        attachment.type in ['image', 'document', 'voice'] &&
+        attachment.mimeType is string &&
+        attachment.mimeType.size() <= 140 &&
+        attachment.name is string &&
+        attachment.name.size() <= 120 &&
+        attachment.size is number &&
+        attachment.size >= 0 &&
+        attachment.size <= 25 * 1024 * 1024 &&
+        attachment.url is string &&
+        attachment.url.size() <= 2048 &&
+        attachment.path is string &&
+        attachment.path.matches('artifacts/' + appId + '/clientThreads/' + threadId + '/attachments/[^/]+/[^/]+') &&
+        attachment.durationMs is number &&
+        attachment.durationMs >= 0 &&
+        attachment.durationMs <= 5 * 60 * 1000 &&
+        attachment.createdAtMs is number;
+    }
+
+    function validChatAttachments(appId, threadId, attachments) {
+      return attachments is list &&
+        attachments.size() <= 4 &&
+        (attachments.size() < 1 || validChatAttachment(appId, threadId, attachments[0])) &&
+        (attachments.size() < 2 || validChatAttachment(appId, threadId, attachments[1])) &&
+        (attachments.size() < 3 || validChatAttachment(appId, threadId, attachments[2])) &&
+        (attachments.size() < 4 || validChatAttachment(appId, threadId, attachments[3]));
+    }
+
+    function validMessageCreate(appId, threadId) {
+      return request.resource.data.text is string &&
+        request.resource.data.text.size() <= 3000 &&
+        (
+          request.resource.data.text.size() > 0 ||
+          (request.resource.data.keys().hasAny(['attachments']) && request.resource.data.attachments.size() > 0)
+        ) &&
+        (
+          !request.resource.data.keys().hasAny(['attachments']) ||
+          validChatAttachments(appId, threadId, request.resource.data.attachments)
+        );
+    }
+
     match /artifacts/{appId}/accounts/{accountId} {
       allow read, create, update: if signedIn() && request.auth.uid == accountId;
       allow delete: if false;
@@ -269,8 +313,7 @@ service cloud.firestore {
       match /messages/{messageId} {
         allow read: if canAccessThread(appId, threadId);
         allow create: if canAccessThread(appId, threadId) &&
-          request.resource.data.text is string &&
-          request.resource.data.text.size() <= 3000;
+          validMessageCreate(appId, threadId);
         allow update, delete: if false;
       }
     }

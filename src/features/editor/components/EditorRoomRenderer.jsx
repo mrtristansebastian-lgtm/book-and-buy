@@ -3,12 +3,16 @@ import {
   ClientFormRoom,
   FaqRoom,
   FunnelTextRoom,
+  PublishRoom,
   SectionDesignRoom,
   StyleDirectionRoom
 } from '../rooms';
 import { buildEditorColourFineTuneGroups } from '../utils/editorColourSystem';
 
 const pageSettingGroups = [];
+const pageStyleFields = [
+  { key: 'bookingCtaLabel', label: 'Button text', placeholder: 'Add booking to cart', fullWidth: true }
+];
 
 const combineColourGroups = (groups, ids, title) => ({
   id: `combined-${ids.join('-')}`,
@@ -17,6 +21,96 @@ const combineColourGroups = (groups, ids, title) => ({
     .filter(group => ids.includes(group.id))
     .flatMap(group => group.controls)
 });
+
+const buildNativeGradientControls = ({ applyColorPatch, settings }) => (settings.nativeAccent ? [] : [
+  {
+    id: 'heading-underline',
+    label: 'Heading underline',
+    note: 'Underline accent beneath section headings.',
+    value: settings.headingUnderlineColor || settings.primaryColor,
+    fallback: settings.primaryColor || '#050505',
+    onApply: (color) => applyColorPatch({ headingUnderlineColor: color })
+  },
+  {
+    id: 'button-fill',
+    label: 'Button fill',
+    note: 'Primary action button background.',
+    value: settings.buttonColor || settings.primaryColor,
+    fallback: '#050505',
+    onApply: (color) => applyColorPatch({ buttonColor: color })
+  },
+  {
+    id: 'date-active-bg',
+    label: 'Selected day',
+    note: 'Selected date background.',
+    value: settings.dateActiveBgColor,
+    fallback: settings.primaryColor || '#050505',
+    onApply: (color) => applyColorPatch({ dateActiveBgColor: color })
+  },
+  {
+    id: 'slot-active-bg',
+    label: 'Selected time',
+    note: 'Chosen time background.',
+    value: settings.slotActiveBgColor,
+    fallback: settings.primaryColor || '#050505',
+    onApply: (color) => applyColorPatch({ slotActiveBgColor: color })
+  },
+  {
+    id: 'service-active-line',
+    label: 'Selected service border',
+    note: 'Selected service card highlight.',
+    value: settings.serviceActiveBorderColor,
+    fallback: settings.primaryColor || '#050505',
+    onApply: (color) => applyColorPatch({ serviceActiveBorderColor: color })
+  },
+  {
+    id: 'service-category-active',
+    label: 'Category highlight',
+    note: 'Selected service category highlight.',
+    value: settings.serviceCategoryActiveColor,
+    fallback: settings.primaryColor || '#050505',
+    onApply: (color) => applyColorPatch({ serviceCategoryActiveColor: color })
+  }
+]);
+
+const buildTimelineLayoutControls = ({ applyColorPatch, settings }) => (
+  settings.bookingPageLayout === 'timeline' ? [
+    ...(!settings.nativeAccent ? [
+      {
+        id: 'timeline-icon-fill',
+        label: 'Timeline icon fill',
+        note: 'Selected and completed timeline icon background.',
+        value: settings.timelineIconColor || settings.timelineButtonColor || settings.buttonColor || settings.primaryColor,
+        fallback: settings.timelineButtonColor || settings.buttonColor || settings.primaryColor || '#050505',
+        onApply: (color) => applyColorPatch({ timelineIconColor: color })
+      },
+      {
+        id: 'timeline-icon-text',
+        label: 'Timeline icon symbol',
+        note: 'Selected and completed timeline icon symbol.',
+        value: settings.timelineIconTextColor || settings.timelineButtonTextColor || settings.buttonTextColor,
+        fallback: settings.timelineButtonTextColor || settings.buttonTextColor || '#FFFFFF',
+        onApply: (color) => applyColorPatch({ timelineIconTextColor: color })
+      }
+    ] : []),
+    {
+      id: 'timeline-button-fill',
+      label: 'Timeline button fill',
+      note: 'Back and next button background.',
+      value: settings.timelineButtonColor || settings.buttonColor || settings.primaryColor,
+      fallback: settings.buttonColor || settings.primaryColor || '#050505',
+      onApply: (color) => applyColorPatch({ timelineButtonColor: color })
+    },
+    {
+      id: 'timeline-button-text',
+      label: 'Timeline button text',
+      note: 'Back and next button text.',
+      value: settings.timelineButtonTextColor || settings.buttonTextColor,
+      fallback: settings.buttonTextColor || '#FFFFFF',
+      onApply: (color) => applyColorPatch({ timelineButtonTextColor: color })
+    }
+  ] : []
+);
 
 const sectionRoomConfigs = {
   services: {
@@ -104,27 +198,14 @@ const sectionRoomConfigs = {
       { objectKey: 'socials', key: 'facebook', label: 'Facebook', placeholder: 'facebook.com/yourbusiness' },
       { objectKey: 'socials', key: 'website', label: 'Website', placeholder: 'yourbusiness.com' }
     ],
-    groups: [
-      {
-        id: 'social-layout',
-        label: 'Footer layout',
-        helper: 'Choose how social destinations appear at the page end.',
-        settingKey: 'socialDisplayStyle',
-        options: [
-          { value: 'icons', label: 'Icons', detail: 'Recognisable marks' },
-          { value: 'labels', label: 'Labels', detail: 'Platform names' },
-          { value: 'dock', label: 'Dock', detail: 'Grouped footer bar' },
-          { value: 'minimal', label: 'Minimal', detail: 'Low-key links' },
-          { value: 'solid', label: 'Solid', detail: 'Strong buttons' }
-        ]
-      }
-    ]
+    groups: []
   }
 };
 
 export function EditorRoomRenderer({
   activeScene,
   actions,
+  bookingPage,
   colour,
   form,
   previewStep,
@@ -143,8 +224,43 @@ export function EditorRoomRenderer({
   };
 
   if (activeScene.id === 'style') {
+    const pageColourGroup = combineColourGroups(colourGroups, ['base'], 'Page colours');
+    const nativeGradientColourControls = buildNativeGradientControls({ applyColorPatch: colour.onApplyPatch, settings });
+    const timelineLayoutColourControls = buildTimelineLayoutControls({ applyColorPatch: colour.onApplyPatch, settings });
+    const buttonColourGroup = {
+      ...combineColourGroups(colourGroups, ['action'], 'Add to Cart Button'),
+      controls: combineColourGroups(colourGroups, ['action'], 'Add to Cart Button').controls
+        .filter(control => control.id !== 'button-fill')
+    };
+    const pageColourSettingGroups = [
+      {
+        id: 'booking-page-layout',
+        label: 'Page layout',
+        helper: 'Choose how clients move through services, day, and time.',
+        settingKey: 'bookingPageLayout',
+        options: [
+          { value: 'stacked', label: 'Stacked', detail: 'Classic vertical flow' },
+          { value: 'timeline', label: 'Timeline steps', detail: 'Horizontal step-by-step flow' }
+        ],
+        colourControls: timelineLayoutColourControls,
+        colourTitle: 'Timeline buttons',
+        colourHelper: 'These colours style the back and next buttons for this layout.'
+      },
+      {
+        id: 'native-gradient',
+        label: 'Native gradient',
+        helper: 'Keep the app gradient on, or turn it off to edit the affected solid colours here.',
+        settingKey: 'nativeAccent',
+        options: [
+          { value: true, label: 'On', detail: 'Use native gradient' },
+          { value: false, label: 'Off', detail: 'Edit solid fills' }
+        ],
+        colourControls: nativeGradientColourControls,
+        colourHelper: 'These colours replace gradient-driven selected states and primary accents.'
+      }
+    ];
     return (
-      <div className="editor-section-room-stack">
+      <div className="editor-section-room-stack editor-style-room-stack">
         <StyleDirectionRoom
           settings={settings}
           value={settings.interfaceStyleDirection || 'native-precision'}
@@ -153,6 +269,18 @@ export function EditorRoomRenderer({
           showServiceLayout={false}
         />
         <SectionDesignRoom
+          colourGroup={pageColourGroup}
+          groups={pageColourSettingGroups}
+          onApplyControlColor={applyControlColor}
+          onSettingChange={actions.onSettingChange}
+          settings={settings}
+        />
+        <SectionDesignRoom
+          colourGroup={buttonColourGroup}
+          colourInFieldGroup
+          fieldGroupHelper="Label and colours for the primary booking action."
+          fieldGroupTitle="Add to Cart Button"
+          fields={pageStyleFields}
           groups={pageSettingGroups}
           onApplyControlColor={applyControlColor}
           onSettingChange={actions.onSettingChange}
@@ -162,9 +290,23 @@ export function EditorRoomRenderer({
     );
   }
 
+  if (activeScene.id === 'publish') {
+    return (
+      <PublishRoom
+        bookingPageRoute={bookingPage?.route}
+        bookingPageUrl={bookingPage?.url}
+        copyToClipboard={bookingPage?.copyToClipboard}
+        onOpenBookingPage={bookingPage?.onOpen}
+        onSave={bookingPage?.onSave}
+        onSettingChange={actions.onSettingChange}
+        settings={settings}
+      />
+    );
+  }
+
   if (['introduction', 'cart', 'checkout', 'success'].includes(activeScene.id)) {
     const funnelColourGroup = previewStep === 'select'
-      ? combineColourGroups(colourGroups, ['base', 'action'], 'Hero colours')
+      ? null
       : combineColourGroups(colourGroups, colourGroups.map(group => group.id), `${activeScene.title} colours`);
     return (
       <div className="editor-section-room-stack">
@@ -173,12 +315,14 @@ export function EditorRoomRenderer({
           settings={settings}
           onSettingChange={actions.onSettingChange}
         />
-        <SectionDesignRoom
-          colourGroup={funnelColourGroup}
-          onApplyControlColor={applyControlColor}
-          onSettingChange={actions.onSettingChange}
-          settings={settings}
-        />
+        {funnelColourGroup ? (
+          <SectionDesignRoom
+            colourGroup={funnelColourGroup}
+            onApplyControlColor={applyControlColor}
+            onSettingChange={actions.onSettingChange}
+            settings={settings}
+          />
+        ) : null}
       </div>
     );
   }

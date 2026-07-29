@@ -7,7 +7,7 @@ import { readBookingsCache, writeBookingsCache } from '../../../utils/workspaceR
 import { areJsonEqual, mergeStateIfChanged } from '../utils/workspaceState';
 import { asArray } from './useWorkspaceData';
 
-const DEFAULT_STAFF = [{ id: 'owner', name: 'Admin', color: '#39FF14' }];
+const DEFAULT_STAFF = [{ id: 'owner', name: 'Admin', title: 'Owner', color: '#39FF14' }];
 const COLLECTION_CLIENT_LIMIT = 500;
 const COLLECTION_STAFF_LIMIT = 200;
 const COLLECTION_SERVICE_LIMIT = 300;

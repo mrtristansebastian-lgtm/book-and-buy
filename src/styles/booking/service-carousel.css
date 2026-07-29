@@ -133,7 +133,7 @@ html body .editor-preview-frame.is-desktop-preview .booking-selection-workspace.
     width: fit-content;
     max-width: calc(100% - 2rem);
     min-height: 0;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     gap: 0;
@@ -164,14 +164,14 @@ html body .editor-preview-frame.is-desktop-preview .booking-selection-workspace.
 
     .booking-services-carousel-viewport {
         gap: 0.82rem !important;
-        padding: 0.25rem 2.85rem 0.8rem 1rem !important;
-        scroll-padding-inline: 1rem;
+        padding: 0.25rem 1.15rem 0.8rem 0.45rem !important;
+        scroll-padding-inline: 0.45rem;
     }
 
     .booking-services-carousel-viewport > .booking-service-option {
-        flex-basis: min(82%, 16.5rem) !important;
-        width: min(82%, 16.5rem) !important;
-        min-width: min(82%, 16.5rem) !important;
+        flex-basis: min(91%, 18rem) !important;
+        width: min(91%, 18rem) !important;
+        min-width: min(91%, 18rem) !important;
     }
 
     .booking-services-carousel-arrow {
@@ -179,18 +179,17 @@ html body .editor-preview-frame.is-desktop-preview .booking-selection-workspace.
     }
 
     .booking-services-carousel-controls {
+        display: flex;
         min-height: 0;
         margin-top: -0.12rem;
     }
 
     .booking-services-carousel::before {
-        left: 0;
-        width: 1rem;
+        display: none;
     }
 
     .booking-services-carousel::after {
-        right: 0;
-        width: 2.85rem;
+        display: none;
     }
 
     .booking-services-carousel-guide .is-touch-guide {
@@ -208,18 +207,27 @@ html body .editor-preview-frame.is-desktop-preview .booking-selection-workspace.
 
 .editor-preview-frame.is-mobile-preview .booking-services-carousel-viewport {
     gap: 0.72rem !important;
-    padding: 0.25rem 2.6rem 0.75rem 0.8rem !important;
-    scroll-padding-inline: 0.8rem;
+    padding: 0.25rem 1rem 0.75rem 0.42rem !important;
+    scroll-padding-inline: 0.42rem;
 }
 
 .editor-preview-frame.is-mobile-preview .booking-services-carousel-viewport > .booking-service-option {
-    flex: 0 0 min(82%, 15.8rem) !important;
-    width: min(82%, 15.8rem) !important;
-    min-width: min(82%, 15.8rem) !important;
+    flex: 0 0 min(91%, 17.6rem) !important;
+    width: min(91%, 17.6rem) !important;
+    min-width: min(91%, 17.6rem) !important;
 }
 
 .editor-preview-frame.is-mobile-preview .booking-services-carousel-arrow {
     display: none;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel::before,
+.editor-preview-frame.is-mobile-preview .booking-services-carousel::after {
+    display: none;
+}
+
+.editor-preview-frame.is-mobile-preview .booking-services-carousel-controls {
+    display: flex;
 }
 
 .editor-preview-frame.is-mobile-preview .booking-services-carousel-guide .is-touch-guide {

@@ -121,14 +121,14 @@ export const BookingHeroSection = ({
         className={`booking-hero-kicker flex items-center gap-4 ${inspectClass}`}
         onClick={() => previewInspectEnabled && onInspect('calendar')}
       >
-        <div className={`booking-hero-kicker-rule ${nativeAccentFillClass}`} style={{ backgroundColor: settings.primaryColor }} />
+        <div className={`booking-hero-kicker-rule ${nativeAccentFillClass}`} style={{ backgroundColor: settings.headingUnderlineColor || settings.primaryColor }} />
         <span
           className="font-bold uppercase opacity-40"
           style={{ color: settings.bodyColor, fontFamily: getFontFamily(taglineText.font), fontSize: `${taglineText.size}px`, ...(subtextLetterSpacing ? { letterSpacing: subtextLetterSpacing } : {}) }}
         >
           {settings.tagline}
         </span>
-        <div className={`booking-hero-kicker-rule ${nativeAccentFillClass}`} style={{ backgroundColor: settings.primaryColor }} />
+        <div className={`booking-hero-kicker-rule ${nativeAccentFillClass}`} style={{ backgroundColor: settings.headingUnderlineColor || settings.primaryColor }} />
       </div>
 
       {shouldRenderHeroBanner && bannerDisplay.placement === 'hero' && renderHeroMedia()}

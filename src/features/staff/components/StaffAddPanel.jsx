@@ -10,10 +10,11 @@ export const StaffAddPanel = ({
     event.preventDefault();
     const name = event.target.name.value.trim();
     const email = event.target.email.value.trim();
+    const title = event.target.title.value.trim();
     const color = event.target.color.value;
     const role = event.target.role.value;
     if (name && email) {
-      const saved = await createStaffMember({ name, email, color, role });
+      const saved = await createStaffMember({ name, email, color, role, title });
       if (saved) {
         event.target.reset();
         onClose();
@@ -44,6 +45,10 @@ export const StaffAddPanel = ({
           <div>
             <label className="text-[9px] font-bold uppercase tracking-[0.25em] text-neutral-400 block mb-2">Email</label>
             <input name="email" type="email" placeholder="ari@studio.com" required disabled={!canManageTeam && isFirebaseConfigured} className="w-full h-12 bg-white border border-neutral-200 rounded-lg px-4 text-sm font-bold outline-none text-black focus:border-black transition-colors disabled:opacity-50" />
+          </div>
+          <div className="md:col-span-2">
+            <label className="text-[9px] font-bold uppercase tracking-[0.25em] text-neutral-400 block mb-2">Work title</label>
+            <input name="title" type="text" placeholder="Chef, instructor, consultant..." disabled={!canManageTeam && isFirebaseConfigured} className="w-full h-12 bg-white border border-neutral-200 rounded-lg px-4 text-sm font-bold outline-none text-black focus:border-black transition-colors disabled:opacity-50" />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">

@@ -21,7 +21,7 @@ export function useWorkspaceIdentity({
     ? (workspaceOwnerId === user.uid ? 'owner' : activeWorkspaceGrant?.role || 'staff')
     : (isGuestWorkspace ? 'guest' : 'demo');
   const isWorkspaceOwner = Boolean(user && workspaceOwnerId === user.uid);
-  const canManageWorkspace = !isExampleMode && (isGuestWorkspace || workspaceRole === 'owner' || workspaceRole === 'admin');
+  const canManageWorkspace = isGuestWorkspace || (!isExampleMode && (workspaceRole === 'owner' || workspaceRole === 'admin'));
   const canManageTeam = canManageWorkspace;
   const workspaceChoices = useMemo(() => {
     if (!user) return [];

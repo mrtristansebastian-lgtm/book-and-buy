@@ -1,6 +1,6 @@
         .style-direction-suite {
             display: grid;
-            gap: 0.66rem;
+            gap: 0.84rem;
             padding-top: 0.62rem;
         }
 
@@ -94,10 +94,65 @@
             line-height: 1.02;
         }
 
+        .style-shape-grid > button {
+            min-height: 4.65rem;
+            border-radius: 16px;
+            padding: 0.66rem;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.72rem;
+            text-align: left;
+        }
+
+        .style-shape-grid > button:hover,
+        .style-shape-grid > button.is-active {
+            transform: translateY(-1px);
+        }
+
+        .style-shape-grid > button.is-active {
+            background: #ffffff;
+            border-color: #101828;
+            box-shadow: 0 14px 28px -24px rgba(15, 23, 42, 0.65);
+        }
+
+        .style-shape-grid > button.is-active::after {
+            border-width: 1px;
+        }
+
+        .style-shape-grid .style-direction-preview {
+            width: 3.4rem;
+            min-width: 3.4rem;
+            min-height: 3.2rem;
+            flex: 0 0 3.4rem;
+            border-radius: 14px;
+            gap: 0.18rem;
+            padding: 0.34rem;
+        }
+
+        .style-shape-grid .style-direction-preview-command-flow,
+        .style-shape-grid .style-direction-preview-command-flow b,
+        .style-shape-grid .style-direction-preview-command-flow b:first-child {
+            border-radius: 4px;
+        }
+
+        .style-shape-grid strong {
+            min-height: 0;
+            display: block;
+            place-items: unset;
+            font-size: 0.82rem;
+            font-weight: 860;
+            line-height: 1;
+        }
+
         .style-logo-control {
             display: grid;
-            gap: 0.52rem;
+            gap: 0.62rem;
             padding-bottom: 0.18rem;
+        }
+
+        .style-logo-size-row {
+            border-radius: 16px;
         }
 
         .style-logo-size-row {
@@ -290,6 +345,20 @@
 
             .style-direction-grid strong {
                 font-size: 0.68rem;
+            }
+
+            .style-shape-grid > button {
+                min-height: 4.4rem;
+                border-radius: 14px;
+                padding: 0.58rem;
+            }
+
+            .style-shape-grid .style-direction-preview {
+                min-height: 3rem;
+            }
+
+            .style-shape-grid strong {
+                font-size: 0.8rem;
             }
         }
 

@@ -43,6 +43,7 @@ export function EditorPage({
           <EditorRoomRenderer
             activeScene={activeScene}
             actions={actions}
+            bookingPage={bookingPage}
             colour={colour}
             form={form}
             previewStep={preview.previewStep}

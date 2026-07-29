@@ -19,17 +19,25 @@ const buildUnsavedPrompt = (source) => {
 
 export function useWorkspaceDirtyState() {
   const unsavedWorkspaceChangesRef = useRef(createCleanDirtyState());
-
-  const markWorkspaceDirty = useCallback((meta = {}) => {
-    const source = cleanDirtySource(typeof meta === 'string' ? meta : meta.source);
-    unsavedWorkspaceChangesRef.current = { isDirty: true, source };
-  }, []);
+  const sessionOnlyRef = useRef(false);
 
   const clearWorkspaceDirty = useCallback(() => {
     unsavedWorkspaceChangesRef.current = createCleanDirtyState();
   }, []);
 
+  const markWorkspaceDirty = useCallback((meta = {}) => {
+    if (sessionOnlyRef.current) return;
+    const source = cleanDirtySource(typeof meta === 'string' ? meta : meta.source);
+    unsavedWorkspaceChangesRef.current = { isDirty: true, source };
+  }, []);
+
+  const setWorkspaceSessionOnly = useCallback((enabled = false) => {
+    sessionOnlyRef.current = Boolean(enabled);
+    if (enabled) clearWorkspaceDirty();
+  }, [clearWorkspaceDirty]);
+
   const confirmLeavingUnsavedChanges = useCallback((options = {}) => {
+    if (sessionOnlyRef.current) return true;
     const current = unsavedWorkspaceChangesRef.current;
     if (!current.isDirty || typeof window === 'undefined') return true;
     const confirmed = window.confirm(buildUnsavedPrompt(options.source || current.source));
@@ -40,6 +48,7 @@ export function useWorkspaceDirtyState() {
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
     const confirmPageExit = (event) => {
+      if (sessionOnlyRef.current) return;
       if (!unsavedWorkspaceChangesRef.current.isDirty) return;
       event.preventDefault();
       event.returnValue = '';
@@ -52,6 +61,7 @@ export function useWorkspaceDirtyState() {
     clearWorkspaceDirty,
     confirmLeavingUnsavedChanges,
     markWorkspaceDirty,
+    setWorkspaceSessionOnly,
     unsavedWorkspaceChangesRef
   };
 }

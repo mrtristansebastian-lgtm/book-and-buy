@@ -11,7 +11,6 @@ import {
   MessageCircle,
   RefreshCw,
   Search,
-  Send,
   Smartphone,
   UserRound,
   X
@@ -29,6 +28,8 @@ import {
   normalizeEmail,
   timestampValue
 } from '../features/communications/communicationsModel';
+import { getMessagePreviewText } from '../features/communications/chatAttachments';
+import { ChatAttachmentComposer, ChatMessageAttachments } from '../features/communications/components/ChatAttachments';
 import {
   getBrowserNotificationPermission,
   makeOwnerNotification,
@@ -340,9 +341,10 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
     }
   };
 
-  const sendThreadMessage = async ({ text, kind = 'message', bookingId = '', proposedReschedule = null, rescheduleStatus = '' }) => {
+  const sendThreadMessage = async ({ text, kind = 'message', bookingId = '', proposedReschedule = null, rescheduleStatus = '', attachments = [], messageId = '', previewText = '' }) => {
     const cleanText = String(text || '').trim();
-    if (!cleanText || !db || !activeThread?.id || sending) return;
+    const safeAttachments = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
+    if ((!cleanText && !safeAttachments.length) || !db || !activeThread?.id || sending) return;
     if (activeThread.isExample) {
       setMessageDraft('');
       setActiveView('chats');
@@ -351,10 +353,14 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
     setSending(true);
     try {
       const threadRef = FirebaseSDK.doc(db, 'artifacts', appId, 'clientThreads', activeThread.id);
-      await FirebaseSDK.addDoc(FirebaseSDK.collection(db, 'artifacts', appId, 'clientThreads', activeThread.id, 'messages'), {
+      const messagePreview = previewText || getMessagePreviewText({ text: cleanText, attachments: safeAttachments });
+      const messagesCollection = FirebaseSDK.collection(db, 'artifacts', appId, 'clientThreads', activeThread.id, 'messages');
+      const messageRef = messageId ? FirebaseSDK.doc(messagesCollection, messageId) : FirebaseSDK.doc(messagesCollection);
+      await FirebaseSDK.setDoc(messageRef, {
         text: cleanText,
-        kind,
+        kind: kind || (safeAttachments.length && !cleanText ? 'attachment' : 'message'),
         bookingId,
+        ...(safeAttachments.length ? { attachments: safeAttachments } : {}),
         ...(proposedReschedule ? { proposedReschedule } : {}),
         senderId: user.uid,
         senderName: user.displayName || user.email || 'Client',
@@ -362,7 +368,7 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
         createdAt: FirebaseSDK.serverTimestamp()
       });
       const threadUpdates = {
-        lastMessage: cleanText,
+        lastMessage: messagePreview,
         lastMessageAt: FirebaseSDK.serverTimestamp(),
         lastMessageAtMs: Date.now(),
         updatedAt: FirebaseSDK.serverTimestamp(),
@@ -383,7 +389,7 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
               title: isRescheduleMessage
                 ? `Reschedule request from ${user.displayName || user.email || 'a client'}`
                 : `New message from ${user.displayName || user.email || 'a client'}`,
-              body: cleanText,
+              body: messagePreview,
               ownerId: activeThread.ownerId,
               booking: activeBooking || {},
               bookingId: bookingId || activeThread.bookingId || '',
@@ -398,6 +404,8 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
         ).catch(error => console.error('Owner message notification failed', error));
       }
       setMessageDraft('');
+    } catch (error) {
+      console.error('Client message send failed', error);
     } finally {
       setSending(false);
     }
@@ -729,7 +737,8 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
                 <div key={message.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                   <div className={`client-message-bubble ${mine ? 'client-message-client bg-[#111214] text-white rounded-br-md' : message.senderRole === 'system' ? 'client-message-system bg-white border border-neutral-200 text-neutral-500' : 'client-message-owner bg-white text-black border border-neutral-200 rounded-bl-md'} max-w-[84%] rounded-3xl px-4 py-3 shadow-sm`}>
                     <p className="text-[8px] font-bold uppercase tracking-widest opacity-45 mb-1">{message.senderRole === 'system' ? 'Update' : message.senderName || message.senderRole}</p>
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                    {message.text && <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>}
+                    <ChatMessageAttachments attachments={message.attachments} mine={mine} />
                     {proposal && (
                       <div className={`mt-3 rounded-2xl border p-3 ${mine ? 'bg-white/10 border-white/15 text-white' : 'bg-neutral-50 border-neutral-200 text-black'}`}>
                         <p className="text-[8px] font-bold uppercase tracking-[0.16em] opacity-50 mb-2">
@@ -778,18 +787,18 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
           </div>
 
           <div className="client-chat-composer p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-5 border-t border-neutral-100 bg-white">
-            <div className="flex items-end gap-2">
-              <textarea
-                value={messageDraft}
-                onChange={(event) => setMessageDraft(event.target.value)}
-                placeholder="Write a message..."
-                rows={2}
-                className="flex-1 resize-none rounded-2xl bg-neutral-50 border border-neutral-100 px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-black transition-colors"
-              />
-              <button onClick={() => sendThreadMessage({ text: messageDraft })} disabled={!messageDraft.trim() || sending} className="h-12 w-12 rounded-2xl native-gradient-button flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed">
-                <Send size={17} />
-              </button>
-            </div>
+            <ChatAttachmentComposer
+              draft={messageDraft}
+              setDraft={setMessageDraft}
+              sending={sending}
+              onSend={({ text, attachments, messageId, previewText }) => sendThreadMessage({ text, attachments, messageId, previewText })}
+              placeholder="Write a message..."
+              ariaLabel="Write a message"
+              readOnly={Boolean(activeThread?.isExample)}
+              readOnlyMessage="Example chats are read-only."
+              workspaceAppId={appId}
+              threadId={activeThread?.id || ''}
+            />
           </div>
         </>
       ) : (

@@ -1,4 +1,5 @@
-import { CalendarDays, KeyRound, Trash2, UserPlus, Users, X } from 'lucide-react';
+import { CalendarDays, Check, KeyRound, Trash2, UserPlus, Users, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { StaffAvatar } from './StaffAvatar';
 
 export const StaffFilePanel = ({
@@ -6,9 +7,16 @@ export const StaffFilePanel = ({
   canManageTeam,
   onClose,
   onRemoveStaff,
+  onSaveStaffTitle,
   selectedStaffFile,
   staffFile
 }) => {
+  const [titleDraft, setTitleDraft] = useState('');
+
+  useEffect(() => {
+    setTitleDraft(selectedStaffFile?.title || selectedStaffFile?.workTitle || selectedStaffFile?.jobTitle || '');
+  }, [selectedStaffFile]);
+
   if (!selectedStaffFile || !staffFile) {
     return (
       <div className="team-empty-state saas-card">
@@ -39,6 +47,7 @@ export const StaffFilePanel = ({
               <span className="px-2.5 py-1 rounded-md bg-neutral-100 text-neutral-500 text-[9px] font-bold uppercase tracking-widest">{staffFile.roleLabel}</span>
             </div>
             <p className="text-sm text-neutral-500 mt-2 truncate">{selectedStaffFile.email || 'No email on file'}</p>
+            <p className="text-xs font-bold text-neutral-500 mt-1 truncate">{selectedStaffFile.title || selectedStaffFile.workTitle || selectedStaffFile.jobTitle || 'No work title set'}</p>
             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mt-2">{staffFile.statusLabel}</p>
           </div>
         </div>
@@ -53,6 +62,25 @@ export const StaffFilePanel = ({
           </button>
         </div>
       </div>
+      {canManageTeam ? (
+        <div className="team-staff-title-editor">
+          <label>
+            <span>Work title</span>
+            <input
+              value={titleDraft}
+              onChange={event => setTitleDraft(event.target.value)}
+              placeholder="Chef, instructor, consultant..."
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => onSaveStaffTitle?.(titleDraft.trim())}
+            disabled={(titleDraft.trim() || '') === (selectedStaffFile.title || selectedStaffFile.workTitle || selectedStaffFile.jobTitle || '')}
+          >
+            <Check size={14} /> Save title
+          </button>
+        </div>
+      ) : null}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="rounded-lg bg-neutral-50 border border-neutral-100 p-4">
           <p className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 mb-1">Assigned Bookings</p>

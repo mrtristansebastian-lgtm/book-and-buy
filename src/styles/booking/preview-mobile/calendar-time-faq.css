@@ -52,9 +52,9 @@
         }
 
         .editor-preview-frame.is-mobile-preview .booking-calendar-focus-row {
-            width: min(100%, 15.5rem) !important;
-            grid-template-columns: 2.15rem auto 2.15rem !important;
-            gap: 0.72rem !important;
+            width: min(100%, 10.5rem) !important;
+            grid-template-columns: 2.05rem minmax(0, 1fr) 2.05rem !important;
+            gap: 0.5rem !important;
         }
 
         .editor-preview-frame.is-mobile-preview .booking-calendar-focus-arrow {
@@ -63,16 +63,27 @@
         }
 
         .editor-preview-frame.is-mobile-preview .booking-calendar-focus-tile {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            width: 100% !important;
             height: auto !important;
             padding: 0 !important;
             overflow: visible !important;
         }
 
         .editor-preview-frame.is-mobile-preview .booking-calendar-focus-tile > button {
-            min-width: 4.85rem !important;
-            width: 4.85rem !important;
+            min-width: 0 !important;
+            width: 100% !important;
             min-height: 6rem !important;
             height: 6rem !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            padding-inline: 0.35rem !important;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-calendar-focus-tile > button:nth-child(n+2) {
+            display: none !important;
         }
 
         .editor-preview-frame.is-mobile-preview .booking-time-look {

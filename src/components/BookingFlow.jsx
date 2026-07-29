@@ -225,6 +225,12 @@ export const BookingFlow = memo(({ settings: incomingSettings, onComplete, isPre
                 '--booking-service-border': settings.serviceBorderColor || withColorAlpha(settings.bodyColor || '#000000', 9, '#000000'),
                 '--booking-service-active-bg': settings.serviceActiveBgColor || withColorAlpha(settings.primaryColor || '#000000', 7, '#000000'),
                 '--booking-service-active-border': settings.serviceActiveBorderColor || settings.serviceBorderColor || settings.primaryColor || '#050505',
+                '--booking-service-category-active': settings.serviceCategoryActiveColor || settings.primaryColor || '#050505',
+                '--booking-service-category-active-bg': withColorAlpha(settings.serviceCategoryActiveColor || settings.primaryColor || '#050505', 7, '#000000'),
+                '--booking-timeline-button-bg': settings.timelineButtonColor || settings.buttonColor || settings.primaryColor || '#050505',
+                '--booking-timeline-button-text': settings.timelineButtonTextColor || settings.buttonTextColor || '#ffffff',
+                '--booking-timeline-icon-bg': settings.timelineIconColor || settings.timelineButtonColor || settings.buttonColor || settings.primaryColor || '#050505',
+                '--booking-timeline-icon-text': settings.timelineIconTextColor || settings.timelineButtonTextColor || settings.buttonTextColor || '#ffffff',
                 '--booking-venue-bg': settings.venueBgColor || withColorAlpha(settings.bodyColor || '#000000', 2, '#000000'),
                 '--booking-venue-text': settings.venueTextColor || settings.bodyColor || '#050505',
                 '--booking-venue-body': settings.venueBodyColor || settings.bodyColor || '#666666',
@@ -234,6 +240,7 @@ export const BookingFlow = memo(({ settings: incomingSettings, onComplete, isPre
                 '--booking-faq-text': settings.faqTextColor || settings.bodyColor || '#050505',
                 '--booking-faq-answer': settings.faqAnswerColor || settings.bodyColor || '#666666',
                 '--booking-step-accent': settings.primaryColor || '#050505',
+                '--booking-heading-underline': settings.headingUnderlineColor || settings.primaryColor || '#050505',
                 '--booking-step-text': settings.headingColor || '#050505',
                 '--booking-step-muted': settings.bodyColor || '#666666'
             };
@@ -415,6 +422,7 @@ export const BookingFlow = memo(({ settings: incomingSettings, onComplete, isPre
             }
 
             const selectedStaffForSummary = selectedAvailabilityStaff || null;
+            const bookingPageLayout = settings.bookingPageLayout === 'timeline' ? 'timeline' : 'stacked';
             const heroContent = (
                 <BookingHeroSection
                     accentGradientActive={accentGradientActive}
@@ -475,6 +483,7 @@ export const BookingFlow = memo(({ settings: incomingSettings, onComplete, isPre
                         pageJustify,
                         pageTextClass,
                         previewInspectEnabled,
+                        bookingPageLayout,
                         settings,
                         showServiceStep
                     }}

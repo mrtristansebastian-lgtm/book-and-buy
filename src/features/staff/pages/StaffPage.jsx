@@ -54,6 +54,15 @@ export const StaffPage = ({
     if (saved) closeStaffPanel();
   };
 
+  const handleSaveStaffTitle = async (title) => {
+    if (!selectedStaffFile) return;
+    const nextList = safeStaffList.map(staff => (
+      staff.id === selectedStaffFile.id ? { ...staff, title } : staff
+    ));
+    const saved = await saveStaff(nextList, staffList);
+    if (saved) showToast('Staff title saved');
+  };
+
   return (
     <div className="team-page flex-1 overflow-y-auto bg-white p-4 sm:p-6 md:p-10 lg:p-12">
       <StaffRoster
@@ -85,6 +94,7 @@ export const StaffPage = ({
             canManageTeam={canManageTeam}
             onClose={closeStaffPanel}
             onRemoveStaff={handleRemoveStaff}
+            onSaveStaffTitle={handleSaveStaffTitle}
             selectedStaffFile={selectedStaffFile}
             staffFile={staffFile}
           />

@@ -49,7 +49,6 @@ export const BookingRecordRow = ({
   setConfirmDialog,
   updateBooking
 }) => {
-  const assignedStaff = safeStaffList.find(staff => staff.id === booking.staffId);
   const isExampleBooking = Boolean(booking.isExample);
   const clientAvatar = getBookingClientAvatar(booking);
   const serviceDetails = getBookingService(booking);
@@ -130,7 +129,6 @@ export const BookingRecordRow = ({
                 <option value="" disabled>Assign staff</option>
                 {displayStaffList.map(staff => <option key={staff.id} value={staff.id}>{staff.name}</option>)}
               </select>
-              {assignedStaff && <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: assignedStaff.color }} />}
             </div>
           )}
         </div>

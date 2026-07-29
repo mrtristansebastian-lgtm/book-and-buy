@@ -58,41 +58,43 @@ export function StyleDirectionRoom({ settings, value, onApply, onSettingChange, 
 
   return (
     <div className="style-direction-suite">
-      <div className="cinema-control-title is-compact">
-        <span>Style direction</span>
-        <small>Choose the visual language for the full booking journey.</small>
-      </div>
-      <div className="style-direction-grid">
-        {editorStyleDirections.map((direction) => {
-          const isActive = activeDirection.id === direction.id;
-          return (
-            <button
-              key={direction.id}
-              type="button"
-              onClick={() => onApply(direction.id)}
-              className={isActive ? 'is-active' : ''}
-              aria-pressed={isActive}
-              aria-label={`${direction.label} style`}
-              title={direction.label}
-            >
-              <i className={`style-direction-preview style-direction-preview-${direction.id}`} aria-hidden="true">
-                <b />
-                <b />
-                <b />
-                <b />
-                <b />
-                <b />
-              </i>
-              <strong>{direction.label}</strong>
-            </button>
-          );
-        })}
-      </div>
-      <div className="style-logo-control">
-        <div className="cinema-control-title is-compact">
-          <span>Logo size</span>
-          <small>Resize the logo mark in the booking page header.</small>
+      <fieldset className="editor-section-setting-group style-direction-setting-group">
+        <legend>
+          <span>Style Direction</span>
+          <small>Choose rounded or square controls for the booking page.</small>
+        </legend>
+        <div className="style-direction-grid style-shape-grid">
+          {editorStyleDirections.map((direction) => {
+            const isActive = activeDirection.id === direction.id;
+            return (
+              <button
+                key={direction.id}
+                type="button"
+                onClick={() => onApply(direction.id)}
+                className={isActive ? 'is-active' : ''}
+                aria-pressed={isActive}
+                aria-label={`${direction.label} style`}
+                title={direction.label}
+              >
+                <i className={`style-direction-preview style-direction-preview-${direction.id}`} aria-hidden="true">
+                  <b />
+                  <b />
+                  <b />
+                  <b />
+                  <b />
+                  <b />
+                </i>
+                <strong>{direction.label}</strong>
+              </button>
+            );
+          })}
         </div>
+      </fieldset>
+      <fieldset className="editor-section-setting-group style-logo-control">
+        <legend>
+          <span>Logo Size</span>
+          <small>Set the header logo size.</small>
+        </legend>
         <label className="cinema-range-row style-logo-size-row">
           <span>Header logo</span>
           <b>{logoSize}px</b>
@@ -108,7 +110,7 @@ export function StyleDirectionRoom({ settings, value, onApply, onSettingChange, 
             onChange={handleLogoSizeChange}
           />
         </label>
-      </div>
+      </fieldset>
       {showServiceLayout ? (
         <>
           <div className="cinema-control-title is-compact">

@@ -38,6 +38,7 @@ export const StaffRoster = ({
       {displayStaffList.map(staff => {
         const isSelected = teamPanelMode === 'file' && selectedStaffFileId === staff.id;
         const roleLabel = getStaffRoleLabel(staff);
+        const workTitle = staff.title || staff.workTitle || staff.jobTitle || roleLabel;
         return (
           <button
             key={staff.id}
@@ -48,7 +49,7 @@ export const StaffRoster = ({
             <StaffAvatar staff={staff} />
             <span className="w-full text-center">
               <span className="block text-[10px] md:text-xs font-bold truncate">{staff.name}</span>
-              <span className={`block text-[8px] font-bold uppercase tracking-widest mt-1 ${isSelected ? 'text-white/55' : 'text-neutral-400'}`}>{roleLabel}</span>
+              <span className={`block text-[8px] font-bold uppercase tracking-widest mt-1 ${isSelected ? 'text-white/55' : 'text-neutral-400'}`}>{workTitle}</span>
             </span>
           </button>
         );

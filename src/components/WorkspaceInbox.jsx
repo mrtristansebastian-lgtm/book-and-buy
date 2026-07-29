@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Bell, Calendar, Check, ChevronDown, Clock, Hourglass, Info, MessageCircle, Plus, RefreshCw, Search, SendHorizontal, Users, Wrench, X } from 'lucide-react';
+import { ArrowLeft, Bell, Calendar, Check, ChevronDown, Clock, Hourglass, Info, MessageCircle, Pipette, Plus, RefreshCw, Search, SendHorizontal, Settings, Users, X } from 'lucide-react';
 import * as FirebaseSDK from '../services/firebase';
 import {
   LIVE_MESSAGE_LIMIT,
@@ -10,7 +10,62 @@ import {
   isPendingRescheduleProposal,
   timestampValue
 } from '../features/communications/communicationsModel';
+import { getMessagePreviewText } from '../features/communications/chatAttachments';
+import { ChatAttachmentComposer, ChatMessageAttachments } from '../features/communications/components/ChatAttachments';
 import { makeClientNotification, notificationEmailKey, NOTIFICATION_TYPES } from '../services/notifications';
+
+const cloneGuestThreads = (threads = []) => (
+  (Array.isArray(threads) ? threads : []).map(thread => ({
+    ...thread,
+    isExample: false,
+    isGuestThread: true,
+    messages: (Array.isArray(thread.messages) ? thread.messages : []).map(message => ({
+      ...message,
+      isExample: false,
+      id: message.id || `guest-message-${Math.random().toString(36).slice(2)}`
+    }))
+  }))
+);
+
+const CHAT_DEFAULT_APPEARANCE = {
+  background: '#F8FAFC',
+  clientBubble: '#FFFFFF',
+  clientText: '#172033',
+  ownerBubble: '#101114',
+  ownerText: '#FFFFFF',
+  wallpaper: 'linen'
+};
+
+const CHAT_WALLPAPERS = [
+  {
+    id: 'linen',
+    label: 'Linen',
+    note: 'Soft booking-desk texture.',
+    background: 'radial-gradient(circle at 18% 22%, rgba(15,23,42,0.055) 0 1px, transparent 1.6px), radial-gradient(circle at 76% 68%, rgba(15,23,42,0.04) 0 1px, transparent 1.6px), linear-gradient(135deg, rgba(255,255,255,0.94), rgba(241,245,249,0.94))',
+    size: '34px 34px, 38px 38px, auto'
+  },
+  {
+    id: 'paper',
+    label: 'Paper',
+    note: 'Clean subtle diagonal grain.',
+    background: 'repeating-linear-gradient(135deg, rgba(15,23,42,0.035) 0 1px, transparent 1px 13px), linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.96))',
+    size: 'auto, auto'
+  },
+  {
+    id: 'orbit',
+    label: 'Orbit',
+    note: 'Light app-style conversation pattern.',
+    background: 'radial-gradient(circle at 20% 20%, rgba(5,5,5,0.045) 0 1px, transparent 2px), radial-gradient(circle at 70% 35%, rgba(20,167,255,0.07) 0 1.5px, transparent 2.6px), radial-gradient(circle at 42% 78%, rgba(217,70,239,0.055) 0 1.2px, transparent 2.3px), linear-gradient(180deg, rgba(255,255,255,0.95), rgba(245,247,250,0.95))',
+    size: '42px 42px, 58px 58px, 64px 64px, auto'
+  },
+  {
+    id: 'plain',
+    label: 'Plain',
+    note: 'No pattern, just colour.',
+    background: 'linear-gradient(var(--support-chat-canvas), var(--support-chat-canvas))',
+    size: 'auto'
+  }
+];
 
 export function WorkspaceInbox({
   appId,
@@ -45,11 +100,24 @@ export function WorkspaceInbox({
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const [actionDialog, setActionDialog] = useState(null);
   const [clientFileOpen, setClientFileOpen] = useState(false);
-  const [supportToolsOpen, setSupportToolsOpen] = useState(false);
+  const [chatSettingsOpen, setChatSettingsOpen] = useState(false);
   const [quickBookingOpen, setQuickBookingOpen] = useState(false);
   const [quickBookingSaving, setQuickBookingSaving] = useState(false);
+  const [guestThreads, setGuestThreads] = useState(() => cloneGuestThreads(exampleThreads));
+  const [chatAppearance, setChatAppearance] = useState(CHAT_DEFAULT_APPEARANCE);
 
-  const threadSource = exampleMode ? exampleThreads : threads;
+  const guestThreadMode = isGuestWorkspace;
+  const threadSource = guestThreadMode ? guestThreads : (exampleMode ? exampleThreads : threads);
+  const activeChatWallpaper = CHAT_WALLPAPERS.find(wallpaper => wallpaper.id === chatAppearance.wallpaper) || CHAT_WALLPAPERS[0];
+  const chatSurfaceStyle = {
+    '--support-chat-canvas': chatAppearance.background,
+    '--support-chat-client-bubble': chatAppearance.clientBubble,
+    '--support-chat-client-text': chatAppearance.clientText,
+    '--support-chat-owner-bubble': chatAppearance.ownerBubble,
+    '--support-chat-owner-text': chatAppearance.ownerText,
+    '--support-chat-wallpaper': activeChatWallpaper.background,
+    '--support-chat-wallpaper-size': activeChatWallpaper.size
+  };
   const clientProfileByEmail = useMemo(() => {
     const profiles = new Map();
     clientDirectory.forEach(client => {
@@ -129,6 +197,11 @@ export function WorkspaceInbox({
     setActiveThreadId(current => (current && threadSource.some(thread => thread.id === current)) ? current : threadSource[0].id);
   }, [exampleMode, isGuestWorkspace, threadSource]);
 
+  useEffect(() => {
+    if (!isGuestWorkspace || !exampleThreads.length) return;
+    setGuestThreads(current => current.length ? current : cloneGuestThreads(exampleThreads));
+  }, [exampleThreads, isGuestWorkspace]);
+
   const activeThread = useMemo(
     () => threadSource.find(thread => thread.id === activeThreadId) || threadSource[0] || null,
     [activeThreadId, threadSource]
@@ -137,7 +210,7 @@ export function WorkspaceInbox({
     () => bookings.find(booking => booking.id === activeThread?.bookingId) || null,
     [activeThread?.bookingId, bookings]
   );
-  const visibleMessages = exampleMode ? (activeThread?.messages || []) : [...olderMessages, ...messages];
+  const visibleMessages = guestThreadMode || exampleMode ? (activeThread?.messages || []) : [...olderMessages, ...messages];
   const activeStaff = useMemo(() => {
     const emailKey = notificationEmailKey(user?.email || '');
     return staffList.find(staff => notificationEmailKey(staff.email || '') === emailKey || staff.uid === user?.uid) || staffList[0] || null;
@@ -209,7 +282,7 @@ export function WorkspaceInbox({
 
   useEffect(() => {
     setClientFileOpen(false);
-    setSupportToolsOpen(false);
+    setChatSettingsOpen(false);
   }, [activeThread?.id]);
 
   useEffect(() => {
@@ -247,8 +320,21 @@ export function WorkspaceInbox({
     }
   };
 
+  const updateGuestThread = (threadId, updater) => {
+    setGuestThreads(current => current.map(thread => {
+      if (thread.id !== threadId) return thread;
+      const nextThread = typeof updater === 'function' ? updater(thread) : { ...thread, ...updater };
+      return {
+        ...nextThread,
+        updatedAtMs: nextThread.updatedAtMs || Date.now(),
+        isGuestThread: true,
+        isExample: false
+      };
+    }));
+  };
+
   useEffect(() => {
-    if (!db || !activeThread?.id || activeThread?.isExample) {
+    if (guestThreadMode || !db || !activeThread?.id || activeThread?.isExample) {
       setMessages([]);
       setOlderMessages([]);
       setOldestMessageCursor(null);
@@ -276,10 +362,10 @@ export function WorkspaceInbox({
       }
     }, (error) => console.error('Workspace messages sync failed', error));
     return () => unsub();
-  }, [activeThread?.id, appId, db]);
+  }, [activeThread?.id, appId, db, guestThreadMode]);
 
   const loadPreviousMessages = async () => {
-    if (!db || !activeThread?.id || activeThread?.isExample || !oldestMessageCursor || loadingOlderMessages) return;
+    if (guestThreadMode || !db || !activeThread?.id || activeThread?.isExample || !oldestMessageCursor || loadingOlderMessages) return;
     setLoadingOlderMessages(true);
     try {
       const olderQuery = FirebaseSDK.query(
@@ -307,18 +393,53 @@ export function WorkspaceInbox({
 
   const sendMessage = async (text = draft, extra = {}) => {
     const cleanText = String(text || '').trim();
-    if (!cleanText || !db || !activeThread?.id || sending) return;
+    const { attachments = [], messageId = '', previewText = '', ...messageExtra } = extra || {};
+    const safeAttachments = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
+    if ((!cleanText && !safeAttachments.length) || !activeThread?.id || sending) return;
     if (activeThread.isExample) {
       setDraft('');
       showToast?.('Example preview only. Real replies will send when a client thread exists.');
       return;
     }
+    const messagePreview = previewText || getMessagePreviewText({ text: cleanText, attachments: safeAttachments });
+    if (guestThreadMode || !db) {
+      const createdAtMs = Date.now();
+      updateGuestThread(activeThread.id, thread => ({
+        ...thread,
+        lastMessage: messagePreview,
+        lastMessageAtMs: createdAtMs,
+        updatedAtMs: createdAtMs,
+        clientUnread: Number(thread.clientUnread || 0) + 1,
+        ownerUnread: 0,
+        messages: [
+          ...(thread.messages || []),
+          {
+            ...messageExtra,
+            id: messageId || `guest-message-${createdAtMs}`,
+            text: cleanText,
+            ...(safeAttachments.length ? { attachments: safeAttachments } : {}),
+            kind: messageExtra.kind || (safeAttachments.length && !cleanText ? 'attachment' : 'message'),
+            senderId: user?.uid || workspaceOwnerId || 'guest-workspace',
+            senderName: activeStaff?.name || user?.displayName || user?.email || 'Team',
+            senderPhotoURL: activeStaff?.photoURL || user?.photoURL || '',
+            staffId: activeStaff?.id || '',
+            senderRole: 'owner',
+            createdAtMs
+          }
+        ]
+      }));
+      setDraft('');
+      return;
+    }
     setSending(true);
     try {
-      await FirebaseSDK.addDoc(FirebaseSDK.collection(db, 'artifacts', appId, 'clientThreads', activeThread.id, 'messages'), {
-        ...extra,
+      const messagesCollection = FirebaseSDK.collection(db, 'artifacts', appId, 'clientThreads', activeThread.id, 'messages');
+      const messageRef = messageId ? FirebaseSDK.doc(messagesCollection, messageId) : FirebaseSDK.doc(messagesCollection);
+      await FirebaseSDK.setDoc(messageRef, {
+        ...messageExtra,
         text: cleanText,
-        kind: extra.kind || 'message',
+        ...(safeAttachments.length ? { attachments: safeAttachments } : {}),
+        kind: messageExtra.kind || (safeAttachments.length && !cleanText ? 'attachment' : 'message'),
         senderId: user?.uid || workspaceOwnerId,
         senderName: activeStaff?.name || user?.displayName || user?.email || 'Team',
         senderPhotoURL: activeStaff?.photoURL || user?.photoURL || '',
@@ -327,7 +448,7 @@ export function WorkspaceInbox({
         createdAt: FirebaseSDK.serverTimestamp()
       });
       await FirebaseSDK.updateDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'clientThreads', activeThread.id), {
-        lastMessage: cleanText,
+        lastMessage: messagePreview,
         lastMessageAt: FirebaseSDK.serverTimestamp(),
         lastMessageAtMs: Date.now(),
         updatedAt: FirebaseSDK.serverTimestamp(),
@@ -338,7 +459,7 @@ export function WorkspaceInbox({
       await createClientNotification(activeThread.clientEmail, makeClientNotification({
         type: NOTIFICATION_TYPES.NEW_MESSAGE,
         title: `New message from ${activeThread.workspaceName || 'the business'}`,
-        body: cleanText,
+        body: messagePreview,
         ownerId: workspaceOwnerId,
         booking: linkedBooking || {},
         bookingId: activeThread.bookingId || '',
@@ -348,31 +469,12 @@ export function WorkspaceInbox({
         metadata: { senderRole: 'owner' }
       }));
       setDraft('');
+    } catch (error) {
+      console.error('Workspace message send failed', error);
+      showToast?.('Could not send that message. Try again.');
     } finally {
       setSending(false);
     }
-  };
-
-  const confirmLinkedBooking = async () => {
-    if (activeThread?.isExample) {
-      showToast?.('Example preview only. Real requests can be approved from live threads.');
-      return;
-    }
-    if (!linkedBooking) {
-      showToast?.('No matching booking found for this thread yet.');
-      return;
-    }
-    await updateBooking(linkedBooking.id, { status: 'confirmed' });
-    if (activeThread?.id && db) {
-      await FirebaseSDK.updateDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'clientThreads', activeThread.id), {
-        bookingStatus: 'confirmed',
-        rescheduleStatus: '',
-        updatedAt: FirebaseSDK.serverTimestamp(),
-        updatedAtMs: Date.now()
-      }).catch(() => {});
-      await sendMessage(`Confirmed: ${linkedBooking.date} at ${linkedBooking.time}.`);
-    }
-    showToast?.('Booking confirmed and client thread updated.');
   };
 
   const offerReschedule = (proposal = null) => {
@@ -419,7 +521,13 @@ export function WorkspaceInbox({
       message
     });
 
-    if (db && activeThread.id) {
+    if (guestThreadMode && activeThread.id) {
+      updateGuestThread(activeThread.id, {
+        rescheduleStatus: actionDialog?.requestMode === 'counter' ? 'countered' : 'offered',
+        proposedReschedule: proposal,
+        updatedAtMs: Date.now()
+      });
+    } else if (db && activeThread.id) {
       await FirebaseSDK.updateDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'clientThreads', activeThread.id), {
         rescheduleStatus: actionDialog?.requestMode === 'counter' ? 'countered' : 'offered',
         proposedReschedule: proposal,
@@ -451,7 +559,13 @@ export function WorkspaceInbox({
 
     const nextProposal = { ...proposal, status: 'accepted', acceptedBy: 'owner', decidedAtMs: Date.now() };
     await updateBooking(linkedBooking.id, { date: proposal.date, time: proposal.time });
-    if (db && activeThread?.id) {
+    if (guestThreadMode && activeThread?.id) {
+      updateGuestThread(activeThread.id, {
+        rescheduleStatus: 'accepted',
+        proposedReschedule: nextProposal,
+        updatedAtMs: Date.now()
+      });
+    } else if (db && activeThread?.id) {
       await FirebaseSDK.updateDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'clientThreads', activeThread.id), {
         rescheduleStatus: 'accepted',
         proposedReschedule: nextProposal,
@@ -472,7 +586,13 @@ export function WorkspaceInbox({
       return;
     }
     const nextProposal = { ...proposal, status: 'declined', declinedBy: 'owner', decidedAtMs: Date.now() };
-    if (db && activeThread?.id) {
+    if (guestThreadMode && activeThread?.id) {
+      updateGuestThread(activeThread.id, {
+        rescheduleStatus: 'declined',
+        proposedReschedule: nextProposal,
+        updatedAtMs: Date.now()
+      });
+    } else if (db && activeThread?.id) {
       await FirebaseSDK.updateDoc(FirebaseSDK.doc(db, 'artifacts', appId, 'clientThreads', activeThread.id), {
         rescheduleStatus: 'declined',
         proposedReschedule: nextProposal,
@@ -521,15 +641,6 @@ export function WorkspaceInbox({
     showToast?.('Running-late update sent.');
   };
 
-  const bookingStatus = String(linkedBooking?.status || activeThread?.bookingStatus || '').toLowerCase();
-  const bookingActionMeta = (() => {
-    if (activeThread?.isExample) return { label: 'Preview', disabled: false, className: 'native-gradient-button' };
-    if (!linkedBooking) return { label: 'No Booking', disabled: true, className: 'bg-neutral-100 text-neutral-400 border border-neutral-200' };
-    if (bookingStatus === 'confirmed') return { label: 'Confirmed', disabled: true, className: 'bg-emerald-50 text-emerald-700 border border-emerald-100' };
-    if (bookingStatus === 'declined') return { label: 'Declined', disabled: true, className: 'bg-red-50 text-red-600 border border-red-100' };
-    if (bookingStatus === 'waitlist') return { label: 'Confirm Waitlist', disabled: false, className: 'native-gradient-button' };
-    return { label: 'Confirm', disabled: false, className: 'native-gradient-button' };
-  })();
   const clientPresenceLabel = (() => {
     if (!activeThread) return 'No active chat';
     if (activeThread.isExample) return 'Last seen just now';
@@ -575,11 +686,211 @@ export function WorkspaceInbox({
     });
   }, [threadQuery, threadSource, supportFilter]);
 
+  const renderClientInfoPanel = ({ sidePanel = false } = {}) => {
+    if (!activeThread) return null;
+    return (
+      <>
+        <div className="support-client-info-header flex items-start justify-between gap-4 p-5 pb-4 border-b border-neutral-100">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 overflow-hidden font-bold ${getThreadAvatar(activeThread) ? 'bg-neutral-100 border border-neutral-100 text-black' : 'booking-avatar-placeholder'}`}>
+              {getThreadAvatar(activeThread) ? <img src={getThreadAvatar(activeThread)} alt="" className="w-full h-full object-cover" /> : (activeThread.clientName || 'C').charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-400 mb-1">Client File</p>
+              <h3 className="text-xl font-bold tracking-tight text-black truncate">{activeThread.clientName || 'Client'}</h3>
+              <p className="text-xs text-neutral-500 truncate">{activeThreadPrefill.clientEmail || activeThreadPrefill.clientPhone || 'Support thread'}</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => setClientFileOpen(false)} className="support-client-info-close w-9 h-9 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center text-neutral-500 hover:text-black transition-colors" aria-label={sidePanel ? 'Close info panel' : 'Close client file'}>
+            <X size={15} />
+          </button>
+        </div>
+
+        <div className="support-client-file-body p-5 space-y-4">
+          <div className="support-client-file-actions">
+            <button type="button" onClick={() => { setQuickBookingOpen(true); setClientFileOpen(false); }}>
+              <Plus size={15} />
+              <span>Add booking</span>
+            </button>
+            <button type="button" onClick={() => { setActiveTab?.('bookings'); setClientFileOpen(false); }}>
+              <Calendar size={15} />
+              <span>Open bookings</span>
+            </button>
+            <button type="button" onClick={() => { offerReschedule(); setClientFileOpen(false); }}>
+              <RefreshCw size={15} />
+              <span>Offer reschedule</span>
+            </button>
+            <button type="button" onClick={() => { sendRunningLateUpdate(); setClientFileOpen(false); }}>
+              <Clock size={15} />
+              <span>Running late</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="support-client-file-tile">
+              <p>Booking</p>
+              <strong>{linkedBooking ? `${linkedBooking.date || 'Date'} / ${linkedBooking.time || 'Time'}` : activeThreadPrefill.serviceName || 'Not linked yet'}</strong>
+            </div>
+            <div className="support-client-file-tile">
+              <p>Status</p>
+              <strong>{linkedBooking?.status || activeThread.bookingStatus || 'Open'}</strong>
+            </div>
+            <div className="support-client-file-tile">
+              <p>Staff</p>
+              <strong>{assignedStaff?.name || activeStaff?.name || 'Team'}</strong>
+            </div>
+            <div className="support-client-file-tile">
+              <p>Service</p>
+              <strong>{activeThreadPrefill.serviceName || linkedBooking?.serviceName || 'Not set'}</strong>
+            </div>
+          </div>
+
+          <div className="support-client-file-list">
+            <div>
+              <span>Phone</span>
+              <strong>{activeThreadPrefill.clientPhone || 'Not saved'}</strong>
+            </div>
+            <div>
+              <span>Email</span>
+              <strong>{activeThreadPrefill.clientEmail || 'Not saved'}</strong>
+            </div>
+            <div>
+              <span>Country</span>
+              <strong>{activeThreadPrefill.clientCountry || 'Not saved'}</strong>
+            </div>
+            <div>
+              <span>Notes</span>
+              <strong>{activeThreadPrefill.clientNote || activeThread.lastMessage || 'No notes yet'}</strong>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderChatSettingsPanel = ({ sidePanel = false } = {}) => {
+    const colorControls = [
+      { key: 'background', label: 'Chat background', note: 'Base colour behind the wallpaper.' },
+      { key: 'clientBubble', label: 'Client bubble', note: 'Incoming message bubble fill.' },
+      { key: 'clientText', label: 'Client text', note: 'Incoming message copy colour.' },
+      { key: 'ownerBubble', label: 'Team bubble', note: 'Your reply bubble fill.' },
+      { key: 'ownerText', label: 'Team text', note: 'Your reply copy colour.' }
+    ];
+    const applyChatColor = (key, value) => {
+      setChatAppearance(current => ({ ...current, [key]: value }));
+    };
+
+    return (
+      <>
+        <div className="support-client-info-header flex items-start justify-between gap-4 p-5 pb-4 border-b border-neutral-100">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center text-black shrink-0">
+              <Settings size={17} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-400 mb-1">Chat Settings</p>
+              <h3 className="text-xl font-bold tracking-tight text-black truncate">Conversation style</h3>
+              <p className="text-xs text-neutral-500 truncate">Colours and wallpaper for this chat.</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => setChatSettingsOpen(false)} className="support-client-info-close w-9 h-9 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center text-neutral-500 hover:text-black transition-colors" aria-label={sidePanel ? 'Close settings panel' : 'Close chat settings'}>
+            <X size={15} />
+          </button>
+        </div>
+
+        <div className="support-client-file-body support-chat-settings-body p-5 space-y-4">
+          <section className="support-chat-settings-section">
+            <div className="support-chat-settings-section-head">
+              <p>Colours</p>
+              <span>Precise chat surface controls.</span>
+            </div>
+            <div className="support-chat-settings-grid">
+              {colorControls.map((item) => {
+                const value = chatAppearance[item.key] || '#FFFFFF';
+                return (
+                  <article
+                    key={item.key}
+                    className="editor-color-control-card support-chat-color-card"
+                    style={{ '--editor-row-color': value, '--editor-row-css-color': value }}
+                  >
+                    <label className="editor-color-control-swatch" aria-label={`Pick ${item.label} colour`}>
+                      <input
+                        type="color"
+                        value={value}
+                        onChange={(event) => applyChatColor(item.key, event.target.value)}
+                      />
+                      <span />
+                    </label>
+                    <div className="editor-color-control-copy">
+                      <span className="editor-color-control-kicker">Chat colour</span>
+                      <b>{item.label}</b>
+                      <small>{item.note}</small>
+                    </div>
+                    <div className="editor-color-control-actions">
+                      <button
+                        type="button"
+                        className="editor-color-value-pill"
+                        onClick={() => {}}
+                        title={`${item.label} colour value`}
+                      >
+                        {value}
+                      </button>
+                      <label className="editor-color-icon-button" title={`Open ${item.label} colour picker`} aria-label={`Open ${item.label} colour picker`}>
+                        <input
+                          type="color"
+                          value={value}
+                          onChange={(event) => applyChatColor(item.key, event.target.value)}
+                        />
+                        <Pipette size={13} />
+                      </label>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="support-chat-settings-section">
+            <div className="support-chat-settings-section-head">
+              <p>Wallpaper</p>
+              <span>Subtle patterns for the chat canvas.</span>
+            </div>
+            <div className="support-chat-wallpaper-grid">
+              {CHAT_WALLPAPERS.map((wallpaper) => (
+                <button
+                  key={wallpaper.id}
+                  type="button"
+                  className={`support-chat-wallpaper-choice ${chatAppearance.wallpaper === wallpaper.id ? 'is-active' : ''}`}
+                  onClick={() => setChatAppearance(current => ({ ...current, wallpaper: wallpaper.id }))}
+                >
+                  <span
+                    className="support-chat-wallpaper-preview"
+                    style={{ background: wallpaper.background, backgroundSize: wallpaper.size }}
+                  />
+                  <strong>{wallpaper.label}</strong>
+                  <small>{wallpaper.note}</small>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <button
+            type="button"
+            className="support-chat-settings-reset"
+            onClick={() => setChatAppearance(CHAT_DEFAULT_APPEARANCE)}
+          >
+            Reset style
+          </button>
+        </div>
+      </>
+    );
+  };
+
   return (
     <>
-    <section data-tour="client-inbox" className="support-inbox-card support-inbox-pro support-desk-shell saas-card overflow-hidden bg-white">
+    <section data-tour="client-inbox" className="support-inbox-card support-inbox-pro support-desk-shell saas-card overflow-hidden bg-white" style={chatSurfaceStyle}>
       <div className="h-1 native-gradient-line" />
-      <div className="support-workspace-grid grid grid-cols-1 xl:grid-cols-12 min-h-[520px] xl:min-h-[640px]">
+      <div className={`support-workspace-grid ${clientFileOpen || chatSettingsOpen ? 'is-info-open' : ''} grid grid-cols-1 xl:grid-cols-12 min-h-[520px] xl:min-h-[640px]`}>
         <aside className={`support-thread-list ${mobileChatOpen ? 'hidden xl:block' : ''} xl:col-span-4 border-b xl:border-b-0 xl:border-r border-neutral-100 bg-neutral-50/45`}>
           <div className="support-thread-search p-3 md:p-4 border-b border-neutral-100 bg-white/70">
             <div className="support-rail-head flex items-center justify-between gap-3 mb-3">
@@ -690,7 +1001,7 @@ export function WorkspaceInbox({
           </div>
         </aside>
 
-        <div className={`support-chat-panel ${mobileChatOpen ? 'fixed inset-0 z-[999] xl:static xl:z-auto' : 'hidden xl:flex'} xl:col-span-8 flex flex-col min-h-[100dvh] xl:min-h-[620px] bg-white`}>
+        <div className={`support-chat-panel ${mobileChatOpen ? 'fixed inset-0 z-[999] xl:static xl:z-auto' : 'hidden xl:flex'} ${clientFileOpen ? 'xl:col-span-5' : 'xl:col-span-8'} flex flex-col min-h-[100dvh] xl:min-h-[620px] bg-white`}>
           {activeThread ? (
             <>
               <div className="support-chat-header support-conversation-bar p-3 md:p-5 border-b border-neutral-100 flex flex-col 2xl:flex-row 2xl:items-center 2xl:justify-between gap-3 bg-white">
@@ -719,57 +1030,30 @@ export function WorkspaceInbox({
                   </div>
                 </div>
                 <div className="support-chat-actions support-chat-command-bar flex items-center gap-1.5 shrink-0 w-full 2xl:w-auto overflow-x-auto">
-                  <div className="support-chat-inline-actions hidden md:flex items-center gap-1.5">
-                    <button type="button" aria-label="Open client file" title="Client file" onClick={() => setClientFileOpen(true)} className="support-chat-action">
-                      <Info size={15} />
-                    </button>
-                    <button onClick={() => setQuickBookingOpen(true)} className="support-chat-action-primary" aria-label="Add booking from chat" title="Add booking">
-                      <Plus size={15} />
-                    </button>
-                    <button onClick={() => setActiveTab?.('bookings')} className="support-chat-action" aria-label="Open bookings" title="Bookings">
-                      <Calendar size={15} />
-                    </button>
-                    <button onClick={offerReschedule} className="support-chat-action" aria-label="Offer reschedule" title="Reschedule">
-                      <RefreshCw size={15} />
-                    </button>
-                    <button onClick={sendRunningLateUpdate} className="support-chat-action" aria-label="Send running late update" title="Running late">
-                      <Clock size={15} />
-                    </button>
-                    <button onClick={confirmLinkedBooking} disabled={bookingActionMeta.disabled} className={`support-chat-action support-chat-action-confirm disabled:cursor-not-allowed ${bookingActionMeta.className}`} aria-label={bookingActionMeta.label} title={bookingActionMeta.label}>
-                      <Check size={15} />
-                    </button>
-                  </div>
                   <button
                     type="button"
-                    aria-label={supportToolsOpen ? 'Close chat tools' : 'Open chat tools'}
-                    title={supportToolsOpen ? 'Close tools' : 'Chat tools'}
-                    onClick={() => setSupportToolsOpen(value => !value)}
-                    className={`support-chat-tools-toggle md:hidden ${supportToolsOpen ? 'is-open' : ''}`}
+                    aria-label="Open chat settings"
+                    title="Chat settings"
+                    onClick={() => {
+                      setChatSettingsOpen(open => !open);
+                      setClientFileOpen(false);
+                    }}
+                    className={`support-chat-settings-button ${chatSettingsOpen ? 'is-active' : ''}`}
                   >
-                    <Wrench size={15} />
+                    <Settings size={15} />
                   </button>
-                  {supportToolsOpen && (
-                    <div className="support-chat-tools-popover md:hidden">
-                      <button type="button" aria-label="Open client file" title="Client file" onClick={() => { setClientFileOpen(true); setSupportToolsOpen(false); }} className="support-chat-action">
-                        <Info size={15} />
-                      </button>
-                      <button onClick={() => { setQuickBookingOpen(true); setSupportToolsOpen(false); }} className="support-chat-action-primary" aria-label="Add booking from chat" title="Add booking">
-                        <Plus size={15} />
-                      </button>
-                      <button onClick={() => { setActiveTab?.('bookings'); setSupportToolsOpen(false); }} className="support-chat-action" aria-label="Open bookings" title="Bookings">
-                        <Calendar size={15} />
-                      </button>
-                      <button onClick={() => { offerReschedule(); setSupportToolsOpen(false); }} className="support-chat-action" aria-label="Offer reschedule" title="Reschedule">
-                        <RefreshCw size={15} />
-                      </button>
-                      <button onClick={() => { sendRunningLateUpdate(); setSupportToolsOpen(false); }} className="support-chat-action" aria-label="Send running late update" title="Running late">
-                        <Clock size={15} />
-                      </button>
-                      <button onClick={() => { confirmLinkedBooking(); setSupportToolsOpen(false); }} disabled={bookingActionMeta.disabled} className={`support-chat-action support-chat-action-confirm disabled:cursor-not-allowed ${bookingActionMeta.className}`} aria-label={bookingActionMeta.label} title={bookingActionMeta.label}>
-                        <Check size={15} />
-                      </button>
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    aria-label="Open chat info"
+                    title="Chat info"
+                    onClick={() => {
+                      setClientFileOpen(open => !open);
+                      setChatSettingsOpen(false);
+                    }}
+                    className={`support-chat-info-button ${clientFileOpen ? 'is-active' : ''}`}
+                  >
+                    <Info size={15} />
+                  </button>
                 </div>
               </div>
 
@@ -792,10 +1076,16 @@ export function WorkspaceInbox({
                   const pendingProposal = proposal && isPendingProposal(proposal) && ['reschedule-request', 'reschedule-offer', 'reschedule-counter'].includes(message.kind);
                   const ownerCanRespond = pendingProposal && proposal.requestedBy !== 'owner';
                   const messageTone = mine ? 'support-message-owner' : message.senderRole === 'system' ? 'support-message-system' : 'support-message-client';
+                  const messageStyle = mine
+                    ? { backgroundColor: chatAppearance.ownerBubble, color: chatAppearance.ownerText }
+                    : message.senderRole === 'system'
+                      ? undefined
+                      : { backgroundColor: chatAppearance.clientBubble, color: chatAppearance.clientText };
                   return (
                     <div key={message.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`support-message-bubble ${messageTone} max-w-[82%] rounded-2xl px-4 py-3 shadow-sm`}>
-                        <p className="support-message-copy text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                      <div className={`support-message-bubble ${messageTone} max-w-[82%] rounded-2xl px-4 py-3 shadow-sm`} style={messageStyle}>
+                        {message.text && <p className="support-message-copy text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>}
+                        <ChatMessageAttachments attachments={message.attachments} mine={mine} />
                         {proposal && (
                           <div className={`support-message-proposal mt-3 rounded-xl border p-3 ${mine ? 'is-owner' : 'is-client'}`}>
                             <p className="support-message-proposal-title text-[8px] font-bold uppercase tracking-[0.16em] mb-2">
@@ -839,19 +1129,19 @@ export function WorkspaceInbox({
               </div>
 
               <div className="support-chat-composer p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-5 border-t border-neutral-100 bg-white">
-                <div className="support-chat-composer-row flex items-end gap-2">
-                  <textarea
-                    value={draft}
-                    onChange={(event) => setDraft(event.target.value)}
-                    placeholder="Reply to client..."
-                    aria-label="Reply to client"
-                    rows={2}
-                    className="support-chat-reply-field flex-1 resize-none rounded-lg bg-white border border-neutral-200 px-4 py-3 text-sm font-medium outline-none focus:border-black transition-colors"
-                  />
-                  <button type="button" aria-label="Send reply" onClick={() => sendMessage()} disabled={!draft.trim() || sending} className="support-chat-send-button h-12 w-12 rounded-lg flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed">
-                    <SendHorizontal size={18} strokeWidth={2.5} />
-                  </button>
-                </div>
+                <ChatAttachmentComposer
+                  draft={draft}
+                  setDraft={setDraft}
+                  sending={sending}
+                  onSend={({ text, attachments, messageId, previewText }) => sendMessage(text, { attachments, messageId, previewText })}
+                  placeholder="Reply to client..."
+                  ariaLabel="Reply to client"
+                  readOnly={Boolean(activeThread?.isExample)}
+                  readOnlyMessage="Example preview only. Real replies will send when a client thread exists."
+                  showToast={showToast}
+                  workspaceAppId={appId}
+                  threadId={activeThread?.id || ''}
+                />
               </div>
             </>
           ) : (
@@ -873,66 +1163,27 @@ export function WorkspaceInbox({
             </div>
           )}
         </div>
+
+        {(clientFileOpen || chatSettingsOpen) && activeThread && (
+          <aside className="support-client-info-rail hidden xl:flex xl:col-span-3 bg-white border-l border-neutral-100">
+            <div className="support-client-info-rail-inner">
+              {chatSettingsOpen ? renderChatSettingsPanel({ sidePanel: true }) : renderClientInfoPanel({ sidePanel: true })}
+            </div>
+          </aside>
+        )}
       </div>
     </section>
     {clientFileOpen && activeThread && (
-      <div className="support-client-file-overlay fixed inset-0 z-[5000] bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="support-client-file-overlay xl:hidden fixed inset-0 z-[5000] bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div className="support-client-file-sheet w-full sm:max-w-md rounded-t-[1.35rem] sm:rounded-[1.1rem] bg-white border border-neutral-100 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex items-start justify-between gap-4 p-5 pb-4 border-b border-neutral-100">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 overflow-hidden font-bold ${getThreadAvatar(activeThread) ? 'bg-neutral-100 border border-neutral-100 text-black' : 'booking-avatar-placeholder'}`}>
-                {getThreadAvatar(activeThread) ? <img src={getThreadAvatar(activeThread)} alt="" className="w-full h-full object-cover" /> : (activeThread.clientName || 'C').charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-neutral-400 mb-1">Client File</p>
-                <h3 className="text-xl font-bold tracking-tight text-black truncate">{activeThread.clientName || 'Client'}</h3>
-                <p className="text-xs text-neutral-500 truncate">{activeThreadPrefill.clientEmail || activeThreadPrefill.clientPhone || 'Support thread'}</p>
-              </div>
-            </div>
-            <button type="button" onClick={() => setClientFileOpen(false)} className="w-9 h-9 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center text-neutral-500 hover:text-black transition-colors" aria-label="Close client file">
-              <X size={15} />
-            </button>
-          </div>
-
-          <div className="support-client-file-body p-5 space-y-4">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="support-client-file-tile">
-                <p>Booking</p>
-                <strong>{linkedBooking ? `${linkedBooking.date || 'Date'} / ${linkedBooking.time || 'Time'}` : activeThreadPrefill.serviceName || 'Not linked yet'}</strong>
-              </div>
-              <div className="support-client-file-tile">
-                <p>Status</p>
-                <strong>{linkedBooking?.status || activeThread.bookingStatus || 'Open'}</strong>
-              </div>
-              <div className="support-client-file-tile">
-                <p>Staff</p>
-                <strong>{assignedStaff?.name || activeStaff?.name || 'Team'}</strong>
-              </div>
-              <div className="support-client-file-tile">
-                <p>Service</p>
-                <strong>{activeThreadPrefill.serviceName || linkedBooking?.serviceName || 'Not set'}</strong>
-              </div>
-            </div>
-
-            <div className="support-client-file-list">
-              <div>
-                <span>Phone</span>
-                <strong>{activeThreadPrefill.clientPhone || 'Not saved'}</strong>
-              </div>
-              <div>
-                <span>Email</span>
-                <strong>{activeThreadPrefill.clientEmail || 'Not saved'}</strong>
-              </div>
-              <div>
-                <span>Country</span>
-                <strong>{activeThreadPrefill.clientCountry || 'Not saved'}</strong>
-              </div>
-              <div>
-                <span>Notes</span>
-                <strong>{activeThreadPrefill.clientNote || activeThread.lastMessage || 'No notes yet'}</strong>
-              </div>
-            </div>
-          </div>
+          {renderClientInfoPanel()}
+        </div>
+      </div>
+    )}
+    {chatSettingsOpen && (
+      <div className="support-client-file-overlay xl:hidden fixed inset-0 z-[5000] bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="support-client-file-sheet support-chat-settings-sheet w-full sm:max-w-md rounded-t-[1.35rem] sm:rounded-[1.1rem] bg-white border border-neutral-100 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          {renderChatSettingsPanel()}
         </div>
       </div>
     )}

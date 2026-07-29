@@ -201,20 +201,13 @@ export const FinancePaymentSettings = ({
   };
 
   const saveGateway = async (gateway) => {
-    if (exampleMode) {
+    const guestSessionOnly = isGuestWorkspace || (!isFirebaseConfigured || !businessId);
+    if (exampleMode && !isGuestWorkspace) {
       showToast?.('Gateway settings are read-only while example data is on.');
       return;
     }
     if (!canManageWorkspace) {
       showToast?.('Only owners and admins can manage finance settings.');
-      return;
-    }
-    if (!businessId) {
-      showToast?.('Sign in or save this workspace before saving payment settings.');
-      return;
-    }
-    if (!functions) {
-      showToast?.('Firebase Functions are not connected yet.');
       return;
     }
     const missingRequiredFields = getGatewayMissingRequiredFields({
@@ -230,6 +223,34 @@ export const FinancePaymentSettings = ({
       return;
     }
     const manual = manualGatewayIds.has(gateway.id);
+    if (guestSessionOnly) {
+      setSaved(current => ({
+        ...current,
+        [gateway.id]: {
+          ...(current[gateway.id] || {}),
+          enabled: drafts[gateway.id]?.enabled || false,
+          mode: manual ? 'live' : (drafts[gateway.id]?.mode || 'test'),
+          providerName: gateway.name,
+          updatedAt: Date.now()
+        }
+      }));
+      updateDraft(gateway.id, {
+        credentials: gateway.fields.reduce((acc, field) => {
+          acc[field.key] = '';
+          return acc;
+        }, {})
+      });
+      showToast?.(`${gateway.name} saved for this guest session.`);
+      return;
+    }
+    if (!businessId) {
+      showToast?.('Sign in or save this workspace before saving payment settings.');
+      return;
+    }
+    if (!functions) {
+      showToast?.('Firebase Functions are not connected yet.');
+      return;
+    }
     setSaving(gateway.id);
     try {
       const callable = FirebaseSDK.httpsCallable(functions, 'savePaymentGatewaySettings');

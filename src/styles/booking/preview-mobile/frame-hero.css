@@ -117,6 +117,17 @@
             max-height: 3.45rem !important;
         }
 
+        .editor-preview-frame.is-mobile-preview .booking-hero-actions {
+            width: 100%;
+            justify-content: center !important;
+            text-align: center;
+        }
+
+        .editor-preview-frame.is-mobile-preview .booking-hero-chip {
+            justify-content: center;
+            max-width: min(100%, 21rem);
+        }
+
         .editor-preview-frame.is-mobile-preview header p {
             font-size: clamp(0.88rem, 4vw, 1.02rem) !important;
             line-height: 1.42 !important;

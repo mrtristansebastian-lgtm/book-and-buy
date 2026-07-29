@@ -105,11 +105,24 @@ export const BookingDateSection = ({
                     <ChevronLeft size={16} />
                 </button>
                 <div className={`booking-calendar-look booking-calendar-focus-tile booking-calendar-${calendarDisplayStyle} ${isPreview ? 'cursor-pointer' : ''}`} onClick={() => previewInspectEnabled && onInspect('calendar')}>
-                    <button aria-pressed="true" onClick={() => setSelectedDateIdx(selectedDateIdx)} className={`appearance-none outline-none focus:outline-none flex flex-col items-center justify-center gap-1.5 text-center transition-all duration-500 relative shadow-xl z-10 ${nativeAccentFillClass ? 'booking-gradient-date' : ''}`} style={getDateSlotStyle({ isActive: true, settings, dateStyle })}>
-                        <span className="block w-full text-center text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] transition-all">{activeDate.dayName}</span>
-                        <span className="block w-full text-center text-3xl md:text-4xl font-bold tracking-tighter transition-all">{activeDate.dayNum}</span>
-                        {dateStyle === 'minimal' && <div className={`absolute -bottom-3 w-10 h-[2px] rounded-full ${nativeAccentFillClass}`} style={{ backgroundColor: settings.primaryColor }} />}
-                    </button>
+                    {displayDates.map((date) => {
+                        const dateIndex = typeof date.originalIndex === 'number' ? date.originalIndex : selectedDateIdx;
+                        const isActive = dateIndex === selectedDateIdx;
+                        return (
+                            <button
+                                key={date.localDateStr || `${date.dayName}-${date.dayNum}-${dateIndex}`}
+                                type="button"
+                                aria-pressed={isActive}
+                                onClick={() => setSelectedDateIdx(dateIndex)}
+                                className={`booking-calendar-focus-day appearance-none outline-none focus:outline-none flex flex-col items-center justify-center gap-1.5 text-center transition-all duration-500 relative ${isActive ? 'is-active shadow-xl z-10' : ''} ${isActive && nativeAccentFillClass ? 'booking-gradient-date' : ''}`}
+                                style={getDateSlotStyle({ isActive, settings, dateStyle })}
+                            >
+                                <span className="block w-full text-center text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] transition-all">{date.dayName}</span>
+                                <span className="block w-full text-center text-3xl md:text-4xl font-bold tracking-tighter transition-all">{date.dayNum}</span>
+                                {dateStyle === 'minimal' && isActive && <div className={`absolute -bottom-3 w-10 h-[2px] rounded-full ${nativeAccentFillClass}`} style={{ backgroundColor: settings.primaryColor }} />}
+                            </button>
+                        );
+                    })}
                 </div>
                 <button type="button" disabled={!canStepForward} onClick={() => setSelectedDateIdx(Math.min(datePool.length - 1, selectedDateIdx + 1))} className="booking-calendar-focus-arrow appearance-none outline-none focus:outline-none flex items-center justify-center transition-all border" style={{ color: settings.headingColor }}>
                     <ChevronRight size={16} />

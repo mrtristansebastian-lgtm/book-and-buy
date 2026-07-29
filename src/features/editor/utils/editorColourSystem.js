@@ -74,9 +74,6 @@ export const buildEditorColourFineTuneGroups = ({ settings, applyColorPatch, pre
     { id: 'background', label: 'Background', note: 'Main booking page surface.', value: settings.backgroundColor, fallback: '#ffffff', onApply: (color) => applyColorPatch({ backgroundColor: color }) },
     { id: 'heading', label: 'Heading text', note: 'Business name and section titles.', value: settings.headingColor, fallback: '#050505', onApply: (color) => applyColorPatch({ headingColor: color }) },
     { id: 'body', label: 'Body text', note: 'Descriptions, labels, and helper copy.', value: settings.bodyColor, fallback: '#666666', onApply: (color) => applyColorPatch({ bodyColor: color }) },
-    ...(!settings.nativeAccent ? [
-      { id: 'primary', label: 'Underline accent', note: 'Section heading underline colour.', value: settings.primaryColor, fallback: '#050505', onApply: (color) => applyColorPatch({ primaryColor: color, accentColor: color }) }
-    ] : [])
   ];
 
   const actionControls = [
@@ -103,7 +100,6 @@ export const buildEditorColourFineTuneGroups = ({ settings, applyColorPatch, pre
     id: 'calendar',
     title: 'Calendar',
     controls: [
-      { id: 'date-active-bg', label: 'Selected day', note: 'Selected date background.', value: settings.dateActiveBgColor, fallback: settings.primaryColor || '#050505', onApply: (color) => applyColorPatch({ dateActiveBgColor: color }) },
       { id: 'date-active-text', label: 'Selected day text', note: 'Selected date label.', value: settings.dateActiveTextColor, fallback: '#ffffff', onApply: (color) => applyColorPatch({ dateActiveTextColor: color }) },
       { id: 'date-bg', label: 'Day tile', note: 'Unselected date background.', value: settings.dateBgColor === 'transparent' ? '' : settings.dateBgColor, fallback: '#f8fafc', onApply: (color) => applyColorPatch({ dateBgColor: color }) },
       { id: 'date-text', label: 'Day tile text', note: 'Unselected date label.', value: settings.dateTextColor, fallback: '#64748b', onApply: (color) => applyColorPatch({ dateTextColor: color }) }
@@ -115,7 +111,6 @@ export const buildEditorColourFineTuneGroups = ({ settings, applyColorPatch, pre
     controls: [
       { id: 'slot-bg', label: 'Slot fill', note: 'Available time background.', value: settings.slotBgColor, fallback: '#f8fafc', onApply: (color) => applyColorPatch({ slotBgColor: color }) },
       { id: 'slot-text', label: 'Slot text', note: 'Available time label.', value: settings.slotTextColor, fallback: '#050505', onApply: (color) => applyColorPatch({ slotTextColor: color }) },
-      { id: 'slot-active-bg', label: 'Selected time', note: 'Chosen time background.', value: settings.slotActiveBgColor, fallback: settings.primaryColor || '#050505', onApply: (color) => applyColorPatch({ slotActiveBgColor: color }) },
       { id: 'slot-active-text', label: 'Selected time text', note: 'Chosen time label.', value: settings.slotActiveTextColor, fallback: '#ffffff', onApply: (color) => applyColorPatch({ slotActiveTextColor: color }) }
     ]
   },
@@ -126,10 +121,7 @@ export const buildEditorColourFineTuneGroups = ({ settings, applyColorPatch, pre
       { id: 'service-bg', label: 'Service card colour', note: 'Background of every service card.', value: settings.serviceBgColor, fallback: '#ffffff', onApply: (color) => applyColorPatch({ serviceBgColor: color, serviceActiveBgColor: color }) },
       { id: 'service-title', label: 'Service name colour', note: 'Service names and category labels.', value: settings.serviceTextColor || settings.headingColor, fallback: '#050505', onApply: (color) => applyColorPatch({ serviceTextColor: color }) },
       { id: 'service-copy', label: 'Description text colour', note: 'Descriptions shown beneath service names.', value: settings.serviceBodyColor || settings.bodyColor, fallback: '#666666', onApply: (color) => applyColorPatch({ serviceBodyColor: color }) },
-      { id: 'service-meta', label: 'Price & duration colour', note: 'Price, duration, and their labels.', value: settings.serviceMetaColor || settings.serviceTextColor || settings.bodyColor, fallback: '#050505', onApply: (color) => applyColorPatch({ serviceMetaColor: color }) },
-      ...(!settings.nativeAccent ? [
-        { id: 'service-active-line', label: 'Selected service border colour', note: 'Border around the chosen service.', value: settings.serviceActiveBorderColor, fallback: settings.primaryColor || '#050505', onApply: (color) => applyColorPatch({ serviceActiveBorderColor: color }) }
-      ] : [])
+      { id: 'service-meta', label: 'Price & duration colour', note: 'Price, duration, and their labels.', value: settings.serviceMetaColor || settings.serviceTextColor || settings.bodyColor, fallback: '#050505', onApply: (color) => applyColorPatch({ serviceMetaColor: color }) }
     ]
   },
   {

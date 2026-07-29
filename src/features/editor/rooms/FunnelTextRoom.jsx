@@ -4,8 +4,7 @@ const funnelRoomFields = {
   introduction: [
     ['input', 'brandName', 'Booking page name', 'Welcome to your business', true],
     ['input', 'tagline', 'Text above heading', 'Private bookings / by appointment'],
-    ['textarea', 'welcomeMessage', 'Subtext under heading', 'Choose a time that works for you.'],
-    ['input', 'bookingCtaLabel', 'Button text', 'Add booking to cart']
+    ['textarea', 'welcomeMessage', 'Subtext under heading', 'Choose a time that works for you.']
   ],
   cart: [
     ['input', 'cartBackLabel', 'Back link', 'Edit selection'],
