@@ -153,9 +153,12 @@
                 display: block !important;
             }
 
-            .booking-record-avatar-wrap,
-            .booking-record-status {
+            .booking-record-avatar-wrap {
                 display: none !important;
+            }
+
+            .booking-record-status {
+                display: inline-flex !important;
             }
 
             .booking-record-client-head {
@@ -176,51 +179,50 @@
             }
 
             .booking-record-info-button {
-                width: 2.25rem;
-                min-width: 2.25rem;
-                height: 2.25rem;
-                min-height: 2.25rem;
+                width: 2.5rem;
+                min-width: 2.5rem;
+                height: 2.5rem;
+                min-height: 2.5rem;
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                border-radius: 999px;
+                border-radius: 0.5rem;
                 padding: 0 !important;
-                gap: 0;
-                border: 1px solid transparent !important;
-                background:
-                    linear-gradient(#ffffff, #ffffff) padding-box,
-                    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box !important;
-                color: #050505 !important;
-                box-shadow:
-                    inset 0 1px 0 rgba(255,255,255,0.88),
-                    0 12px 26px -24px rgba(15,23,42,0.54);
+                border: 1px solid #e5e7eb !important;
+                background: #ffffff !important;
+                color: #5f6877 !important;
+                box-shadow: none;
             }
 
             .booking-record-info-button svg {
-                width: 0.9rem !important;
-                height: 0.9rem !important;
+                width: 0.88rem !important;
+                height: 0.88rem !important;
                 display: block;
                 margin: 0 !important;
-            }
-
-            .booking-record-info-button span {
-                position: absolute;
-                width: 1px;
-                height: 1px;
-                overflow: hidden;
-                clip: rect(0 0 0 0);
-                white-space: nowrap;
             }
 
             .booking-record-service {
                 width: 100%;
                 margin-top: 0 !important;
-                border-radius: 0.78rem !important;
-                padding: 0.46rem 0.58rem !important;
-                background: #f8fafc !important;
-                font-size: 0.56rem !important;
-                letter-spacing: 0.06em !important;
-                line-height: 1.18 !important;
+                border-radius: 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                font-size: 0.78rem !important;
+                letter-spacing: 0 !important;
+                line-height: 1.35 !important;
+            }
+
+            .booking-record-service-line,
+            .booking-record-service-name {
+                display: block !important;
+                color: #344054 !important;
+                font-size: 0.78rem !important;
+                font-weight: var(--native-body-weight, 500) !important;
+                letter-spacing: 0 !important;
+                line-height: 1.35 !important;
+                white-space: normal !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
             }
 
             .booking-record-time {
@@ -376,18 +378,21 @@
 
             .booking-info-field span {
                 margin: 0.16rem 0 0;
-                font-size: 0.52rem;
-                color: #050505;
-                font-weight: 900;
-                letter-spacing: 0.11em;
+                color: var(--native-label-color, #101828) !important;
+                font-size: 0.64rem;
+                font-weight: var(--native-label-weight, 760) !important;
+                letter-spacing: 0;
+                text-transform: none;
             }
 
             .booking-info-field strong {
                 max-width: 68%;
                 text-align: right;
-                font-size: 0.82rem;
-                font-weight: 540;
-                line-height: 1.22;
+                color: var(--native-body-color, #101828) !important;
+                font-size: 0.9rem;
+                font-weight: var(--native-body-weight, 500) !important;
+                letter-spacing: 0;
+                line-height: var(--native-body-line-height, 1.5);
             }
 
             .booking-info-field.is-wide strong {
@@ -395,5 +400,10 @@
                 margin-top: 0.42rem;
                 text-align: left;
                 line-height: 1.35;
+            }
+
+            .booking-reschedule-fields,
+            .booking-reschedule-actions {
+                grid-template-columns: 1fr;
             }
 }

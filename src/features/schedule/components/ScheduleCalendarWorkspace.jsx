@@ -19,6 +19,15 @@ import {
 import { PeriodSegmentedControl } from '../../../components/PeriodSegmentedControl';
 import { getLocalDateStr } from '../../../utils/dates';
 import { getBookingDateKey, getSlotStartMinutes } from '../utils/businessCalendarUtils';
+import { ScheduleOperationsBoard } from './ScheduleOperationsBoard';
+import {
+  findScheduleConflict,
+  getAvailabilityIntervals,
+  getDayScheduleSummary,
+  indexScheduleEvents,
+  layoutScheduleOverlaps,
+  normalizeScheduleEvents
+} from '../utils/scheduleOperationsModel';
 import { getCalendarDayConfig } from '../utils/scheduleWorkspaceModel';
 
 const EMPTY_LIST = [];
@@ -27,7 +36,6 @@ const PERIOD_VIEW_OPTIONS = [
   { id: 'week', label: 'Week' },
   { id: 'month', label: 'Month' }
 ];
-const VIEW_OPTIONS = [...PERIOD_VIEW_OPTIONS, { id: 'list', label: 'List' }];
 const STATUS_OPTIONS = ['confirmed', 'pending', 'completed', 'waitlist'];
 const STATUS_META = {
   confirmed: { label: 'Confirmed', Icon: Check },
@@ -36,7 +44,8 @@ const STATUS_META = {
   completed: { label: 'Completed', Icon: Check },
   reschedule: { label: 'Reschedule', Icon: RefreshCw }
 };
-const PREFERENCE_KEY = 'bookify:schedule-view:v1';
+const PREFERENCE_KEY = 'bookify:schedule-operations-view:v2';
+const PREFERENCE_SCOPE = 'schedule-board';
 const SLOT_MINUTES = 30;
 const SLOT_HEIGHT = 44;
 const GRID_TOP_INSET = 22;
@@ -95,22 +104,22 @@ const getSummaryStats = (events = []) => events.reduce((stats, event) => {
 }, { confirmed: 0, pending: 0, completed: 0, waitlist: 0, reschedule: 0 });
 const getStatusMeta = status => STATUS_META[status] || STATUS_META.confirmed;
 
-function readPreferences(contextKey, mobile) {
-  const fallback = mobile ? 'day' : contextKey === 'workspace' ? 'week' : 'day';
+function readPreferences(contextKey) {
+  const fallback = 'day';
   if (typeof window === 'undefined') {
-    return { view: fallback, serviceId: '', status: '' };
+    return { agendaOpen: false, view: fallback };
   }
   try {
     const saved = JSON.parse(window.localStorage.getItem(PREFERENCE_KEY) || '{}');
-    const preference = saved?.[contextKey] || {};
-    const savedView = VIEW_OPTIONS.some(option => option.id === preference.view) ? preference.view : fallback;
+    const preference = saved?.[PREFERENCE_SCOPE] || saved?.[contextKey] || {};
+    const requestedView = preference.view;
+    const savedView = PERIOD_VIEW_OPTIONS.some(option => option.id === requestedView) ? requestedView : fallback;
     return {
-      view: mobile && !['day', 'list'].includes(savedView) ? 'day' : savedView,
-      serviceId: String(preference.selectedServiceId || ''),
-      status: String(preference.selectedStatus || '')
+      agendaOpen: Boolean(preference.agendaOpen) || requestedView === 'agenda' || requestedView === 'list',
+      view: savedView
     };
   } catch {
-    return { view: fallback, serviceId: '', status: '' };
+    return { agendaOpen: false, view: fallback };
   }
 }
 
@@ -118,7 +127,7 @@ function writePreferences(contextKey, payload) {
   if (typeof window === 'undefined') return;
   try {
     const saved = JSON.parse(window.localStorage.getItem(PREFERENCE_KEY) || '{}');
-    window.localStorage.setItem(PREFERENCE_KEY, JSON.stringify({ ...saved, [contextKey]: payload }));
+    window.localStorage.setItem(PREFERENCE_KEY, JSON.stringify({ ...saved, [PREFERENCE_SCOPE]: payload }));
   } catch {
     // Preference persistence should never block the calendar.
   }
@@ -134,6 +143,15 @@ function getMonthDates(dateKey) {
   const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
   const gridStart = startOfWeek(first);
   return Array.from({ length: 42 }, (_, index) => addDays(gridStart, index));
+}
+
+function getMonthStreamDates(dateKey, monthCount) {
+  const anchor = fromDateKey(dateKey);
+  const dates = [];
+  for (let index = 0; index < monthCount; index += 1) {
+    dates.push(...getMonthDates(toDateKey(new Date(anchor.getFullYear(), anchor.getMonth() + index, 1))));
+  }
+  return dates;
 }
 
 function getDateTitle(view, selectedDate) {
@@ -365,9 +383,9 @@ function CalendarEvent({ density, event, minMinutes, onOpen, slotHeight }) {
         width: `calc(${width}% - 0.36rem)`
       }}
       onClick={target => onOpen(event, target.currentTarget)}
-      title={`${event.time} · ${event.clientName}${event.isOverflowGroup ? ` · ${event.overflowCount} more appointments` : ` · ${event.serviceName}`}`}
+      title={`${event.time} · ${event.clientName}${event.isOverflowGroup ? ` · ${event.overflowCount} more bookings` : ` · ${event.serviceName}`}`}
       aria-label={event.isOverflowGroup
-        ? `${event.time}, ${event.clientName} and ${event.overflowCount} more appointments`
+        ? `${event.time}, ${event.clientName} and ${event.overflowCount} more bookings`
         : `${event.time}, ${event.bookings.length > 1 ? `${event.bookings.length} attendees` : event.clientName}, ${event.serviceName}, ${firstName(event.staffName)}, ${statusLabel}`}
     >
       <span className="schedule-calendar-event-accent" aria-hidden="true" />
@@ -392,6 +410,7 @@ function CalendarEvent({ density, event, minMinutes, onOpen, slotHeight }) {
 
 function ResourceDayEvent({ event, minMinutes, onOpen }) {
   const startSlots = (event.startMinutes - minMinutes) / SLOT_MINUTES;
+  const durationSlots = Math.max(1, (event.endMinutes - event.startMinutes) / SLOT_MINUTES);
   const statusLabel = getStatusMeta(event.status).label;
   const timeRange = `${event.time} - ${formatMinutesTime(event.endMinutes)}`;
   return (
@@ -400,12 +419,12 @@ function ResourceDayEvent({ event, minMinutes, onOpen }) {
       className={`schedule-resource-day-event is-${event.status || 'confirmed'} ${event.isOverflowGroup ? 'is-overflow-group' : ''}`}
       style={{
         left: `calc(${startSlots} * var(--resource-time-slot-width) + 0.22rem)`,
-        width: 'var(--resource-event-width)'
+        width: `calc(${durationSlots} * var(--resource-time-slot-width) - 0.44rem)`
       }}
       onClick={target => onOpen(event, target.currentTarget)}
       title={`${event.time} - ${event.clientName} - ${event.serviceName}`}
       aria-label={event.isOverflowGroup
-        ? `${event.time}, ${event.clientName} and ${event.overflowCount} more appointments`
+        ? `${event.time}, ${event.clientName} and ${event.overflowCount} more bookings`
         : `${event.time}, ${event.bookings.length > 1 ? `${event.bookings.length} attendees` : event.clientName}, ${event.serviceName}, ${firstName(event.staffName)}, ${statusLabel}`}
     >
       <span className="schedule-calendar-event-accent" aria-hidden="true" />
@@ -640,7 +659,7 @@ function TimeGrid({
                 ) : null}
                 {!resourceEvents.length && resourceConfig.available ? (
                   <span className="schedule-time-grid-hint" style={{ top: `${GRID_TOP_INSET + Math.max(1, (9 * 60 - minMinutes) / SLOT_MINUTES) * SLOT_HEIGHT}px` }}>
-                    {readOnly ? 'No appointments' : 'Click a time to create a booking'}
+                    {readOnly ? 'No bookings' : 'Click a time to create a booking'}
                   </span>
                 ) : null}
                 {resourceEvents.map(event => (
@@ -734,7 +753,10 @@ function ResourceSummaryMatrix({
             <div key={staff.id} className="schedule-week-matrix-row">
               <div className="schedule-week-matrix-staff">
                 {staff.photoURL ? <img src={staff.photoURL} alt="" /> : <span>{staff.label.charAt(0)}</span>}
-                <strong>{staff.label}</strong>
+                <span className="schedule-week-matrix-staff-copy">
+                  <strong>{staff.label}</strong>
+                  {staff.subLabel ? <small>{staff.subLabel}</small> : null}
+                </span>
               </div>
               {dates.map(date => {
                 const summaryDate = fromDateKey(date.dateKey);
@@ -818,10 +840,11 @@ function BookingDrawer({
   onUpdate,
   readOnly,
   services,
-  staffList
+  staffList,
+  todayStr
 }) {
   const closeButtonRef = useRef(null);
-  const groupBookings = drawer?.event?.bookings || EMPTY_LIST;
+  const groupBookings = drawer?.event?.bookings || (drawer?.event?.booking ? [drawer.event.booking] : EMPTY_LIST);
   const [activeBookingId, setActiveBookingId] = useState(groupBookings[0]?.id || '');
   const activeBooking = groupBookings.find(booking => booking.id === activeBookingId) || drawer?.booking || groupBookings[0] || null;
   const initial = activeBooking || drawer?.draft || {};
@@ -866,16 +889,23 @@ function BookingDrawer({
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  const selectedService = services.find(service => service.id === form.serviceId);
-  const conflictingBooking = allBookings.find(booking => (
-    booking.id !== activeBooking?.id &&
-    booking.status !== 'declined' &&
-    booking.dateKey === form.dateKey &&
-    booking.time === form.time &&
-    booking.staffId &&
-    booking.staffId === form.staffId &&
-    booking.serviceId !== form.serviceId
-  ));
+  const selectedService = services.find(service => service.id === form.serviceId) || services.find(service => service.name === form.serviceId);
+  const conflictingEvent = useMemo(() => findScheduleConflict({
+    candidate: {
+      ...(activeBooking || {}),
+      ...form,
+      bookingDate: form.dateKey,
+      bookingTime: form.time,
+      serviceDuration: selectedService?.duration || activeBooking?.serviceDuration || 60
+    },
+    currentMonth: fromDateKey(form.dateKey || todayStr || getLocalDateStr(new Date())),
+    events: allBookings,
+    ignoreBookingId: activeBooking?.id,
+    services,
+    staffList,
+    todayStr
+  }), [activeBooking, allBookings, form, selectedService?.duration, services, staffList, todayStr]);
+  const conflictingBooking = conflictingEvent?.booking || null;
   const canSave = form.clientName.trim() && form.dateKey && form.time && (form.serviceId || activeBooking?.serviceName);
   const updateClientName = value => {
     const client = clientOptions.find(option => option.name.toLowerCase() === value.trim().toLowerCase());
@@ -889,7 +919,7 @@ function BookingDrawer({
 
   const submit = async event => {
     event.preventDefault();
-    if (!canSave || readOnly || saving) return;
+    if (!canSave || readOnly || saving || conflictingBooking) return;
     setSaving(true);
     const selectedStaff = staffList.find(staff => staff.id === form.staffId);
     const updates = {
@@ -932,7 +962,7 @@ function BookingDrawer({
 
   return (
     <div className="schedule-booking-drawer-backdrop" onMouseDown={event => event.target === event.currentTarget && onClose()}>
-      <aside className="schedule-booking-drawer" role="dialog" aria-modal="true" aria-label={activeBooking ? 'Booking details' : 'Create booking'}>
+      <aside className="schedule-booking-drawer schedule-command-panel" data-testid="schedule-command-panel" role="dialog" aria-modal="true" aria-label={activeBooking ? 'Booking details' : 'Create booking'}>
         <div className="schedule-booking-drawer-head">
           <div>
             <p>{activeBooking ? 'Appointment' : 'New booking'}</p>
@@ -1014,7 +1044,7 @@ function BookingDrawer({
             </label>
           </div>
           {conflictingBooking ? (
-            <div className="schedule-booking-conflict">
+            <div className="schedule-booking-conflict" data-testid="schedule-command-conflict" role="status">
               <Clock3 size={15} />
               <span>{firstName(conflictingBooking.staffName)} already has {conflictingBooking.serviceName || 'another service'} at this time.</span>
             </div>
@@ -1032,7 +1062,7 @@ function BookingDrawer({
                 <MessageCircle size={15} /> Open chat
               </button>
             ) : <span />}
-            <button type="submit" className="schedule-booking-save native-gradient-button" disabled={!canSave || readOnly || saving || Boolean(conflictingBooking)}>
+            <button type="submit" className="schedule-booking-save native-gradient-button" data-testid="schedule-command-save" disabled={!canSave || readOnly || saving || Boolean(conflictingBooking)}>
               {saving ? 'Saving...' : activeBooking ? 'Save changes' : 'Create booking'}
             </button>
           </div>
@@ -1044,6 +1074,7 @@ function BookingDrawer({
 
 export function ScheduleCalendarWorkspace({
   allBookings = EMPTY_LIST,
+  canEditSelectedCalendar = true,
   calendars = EMPTY_LIST,
   clientDirectory = EMPTY_LIST,
   exampleMode = false,
@@ -1064,16 +1095,12 @@ export function ScheduleCalendarWorkspace({
   const [mobile, setMobile] = useState(() => (
     typeof window !== 'undefined' && window.matchMedia('(max-width: 700px)').matches
   ));
-  const [view, setView] = useState(() => readPreferences(selectedCalendarId, mobile).view);
-  const [lastCalendarView, setLastCalendarView] = useState(() => {
-    const savedView = readPreferences(selectedCalendarId, mobile).view;
-    return PERIOD_VIEW_OPTIONS.some(option => option.id === savedView) ? savedView : (mobile ? 'day' : 'week');
-  });
-  const [selectedServiceId, setSelectedServiceId] = useState(() => readPreferences(selectedCalendarId, mobile).serviceId);
-  const [selectedStatus, setSelectedStatus] = useState(() => readPreferences(selectedCalendarId, mobile).status);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [view, setView] = useState(() => readPreferences(selectedCalendarId).view);
+  const [agendaOpen, setAgendaOpen] = useState(() => readPreferences(selectedCalendarId).agendaOpen);
+  const [monthWindowCount, setMonthWindowCount] = useState(2);
   const [drawer, setDrawer] = useState(null);
   const triggerRef = useRef(null);
+  const readOnly = exampleMode || !canEditSelectedCalendar;
 
   useEffect(() => {
     const query = window.matchMedia('(max-width: 700px)');
@@ -1083,67 +1110,89 @@ export function ScheduleCalendarWorkspace({
   }, []);
 
   useEffect(() => {
-    const preference = readPreferences(selectedCalendarId, mobile);
-    setView(preference.view);
-    setLastCalendarView(PERIOD_VIEW_OPTIONS.some(option => option.id === preference.view) ? preference.view : (mobile ? 'day' : 'week'));
-    setSelectedServiceId(preference.serviceId);
-    setSelectedStatus(preference.status);
-  }, [mobile, selectedCalendarId]);
+    writePreferences(selectedCalendarId, { agendaOpen, view });
+  }, [agendaOpen, selectedCalendarId, view]);
 
-  useEffect(() => {
-    writePreferences(selectedCalendarId, { view, selectedServiceId, selectedStatus });
-  }, [selectedCalendarId, selectedServiceId, selectedStatus, view]);
-
-  useEffect(() => {
-    if (!filtersOpen) return undefined;
-    const closeFilters = event => {
-      if (event.key === 'Escape') setFiltersOpen(false);
-    };
-    window.addEventListener('keydown', closeFilters);
-    return () => window.removeEventListener('keydown', closeFilters);
-  }, [filtersOpen]);
-
-  const serviceMap = useMemo(() => new Map(services.map(service => [service.id || service.name, service])), [services]);
-  const staffMap = useMemo(() => new Map(staffList.map(staff => [staff.id, staff])), [staffList]);
-  const currentMonth = useMemo(() => fromDateKey(selectedDate), [selectedDate]);
-  const events = useMemo(() => {
-    const normalized = allBookings.flatMap(booking => {
-      if (booking.status === 'declined' || booking.time === 'Waitlist') return [];
-      const dateKey = getBookingDateKey(booking, { todayStr, currentMonth });
-      const startMinutes = getSlotStartMinutes(booking.time);
-      if (!dateKey || startMinutes >= 24 * 60) return [];
-      const service = serviceMap.get(booking.serviceId) || services.find(item => item.name === booking.serviceName) || {};
-      const staff = staffMap.get(booking.staffId) || {};
-      return [{
-        id: booking.id,
-        booking,
-        clientName: booking.clientName || 'Client',
-        dateKey,
-        endMinutes: startMinutes + parseDuration(booking, service),
-        serviceId: booking.serviceId || service.id || '',
-        serviceImage: getServiceImage(service),
-        serviceName: booking.serviceName || service.name || 'Service',
-        staffId: booking.staffId || '',
-        staffName: booking.staffName || staff.name || 'Unassigned',
-        staffPhoto: getStaffPhoto(booking, staff),
-        startMinutes,
-        status: normalizeStatus(booking.status),
-        time: booking.time
-      }];
+  const visibleDateKeys = useMemo(() => (
+    [...new Set([
+      selectedDate,
+      ...getWeekDates(selectedDate).map(toDateKey),
+      ...getMonthStreamDates(selectedDate, monthWindowCount).map(toDateKey)
+    ])]
+  ), [monthWindowCount, selectedDate]);
+  const staffCalendarIds = useMemo(() => (
+    calendars
+      .filter(calendar => calendar.id && calendar.id !== 'workspace')
+      .map(calendar => calendar.id)
+  ), [calendars]);
+  const normalizedEvents = useMemo(() => normalizeScheduleEvents({
+    bookings: allBookings,
+    currentMonth: fromDateKey(selectedDate),
+    services,
+    staffList,
+    todayStr
+  }), [allBookings, selectedDate, services, staffList, todayStr]);
+  const filteredEvents = useMemo(() => normalizedEvents.filter(event => (
+    selectedCalendarId === 'workspace' || event.staffId === selectedCalendarId
+  )), [normalizedEvents, selectedCalendarId]);
+  const positionedEvents = useMemo(() => {
+    const positionedByKey = new Map(layoutScheduleOverlaps(filteredEvents).map(event => [event.eventKey, event]));
+    return filteredEvents.map(event => positionedByKey.get(event.eventKey) || event);
+  }, [filteredEvents]);
+  const eventIndex = useMemo(() => indexScheduleEvents(positionedEvents), [positionedEvents]);
+  const availabilityByKey = useMemo(() => {
+    const intervals = new Map();
+    const calendarIds = staffCalendarIds.length
+      ? staffCalendarIds
+      : [selectedCalendarId === 'workspace' ? 'workspace' : selectedCalendarId];
+    visibleDateKeys.forEach(dateKey => {
+      calendarIds.forEach(calendarId => {
+        intervals.set(`${dateKey}:${calendarId}`, getAvailabilityIntervals({
+          calendarId,
+          dateKey,
+          settings,
+          staffId: calendarId
+        }));
+      });
     });
-    return groupCalendarEvents(normalized).filter(event => (
-      (selectedCalendarId === 'workspace' || event.staffId === selectedCalendarId) &&
-      (!selectedServiceId || event.serviceId === selectedServiceId || event.serviceName === selectedServiceId) &&
-      (!selectedStatus || event.status === selectedStatus)
-    ));
-  }, [allBookings, currentMonth, selectedCalendarId, selectedServiceId, selectedStatus, serviceMap, services, staffMap, todayStr]);
+    return intervals;
+  }, [selectedCalendarId, settings, staffCalendarIds, visibleDateKeys]);
+  const summaryByDate = useMemo(() => {
+    const summaries = new Map();
+    const activeCalendarIds = selectedCalendarId === 'workspace'
+      ? (staffCalendarIds.length ? staffCalendarIds : ['workspace'])
+      : [selectedCalendarId];
+    const knownStaffIds = new Set(staffCalendarIds);
 
-  const minHour = useMemo(() => {
-    const configured = (settings.availableTimes || []).map(getSlotStartMinutes).filter(value => value < 24 * 60);
-    const visibleStarts = events.map(event => event.startMinutes);
-    const minimum = Math.min(...configured, ...visibleStarts, 8 * 60);
-    return Math.max(5, Math.floor(minimum / 60));
-  }, [events, settings.availableTimes]);
+    visibleDateKeys.forEach(dateKey => {
+      const dateEvents = eventIndex.byDate.get(dateKey) || EMPTY_LIST;
+      const calendarSummaries = activeCalendarIds.map(calendarId => {
+        const scopedEvents = calendarId === 'workspace'
+          ? dateEvents
+          : dateEvents.filter(event => event.staffId === calendarId);
+        return getDayScheduleSummary({
+          availabilityIntervals: availabilityByKey.get(`${dateKey}:${calendarId}`) || EMPTY_LIST,
+          dateKey,
+          events: scopedEvents,
+          settings,
+          staffId: calendarId
+        });
+      });
+      const unassignedEvents = selectedCalendarId === 'workspace' && staffCalendarIds.length
+        ? dateEvents.filter(event => !knownStaffIds.has(event.staffId))
+        : EMPTY_LIST;
+      const unassignedSummary = unassignedEvents.length
+        ? getDayScheduleSummary({ dateKey, events: unassignedEvents, settings })
+        : null;
+      summaries.set(dateKey, {
+        total: calendarSummaries.reduce((total, summary) => total + summary.bookedCount, 0) + (unassignedSummary?.bookedCount || 0),
+        open: calendarSummaries.reduce((total, summary) => total + summary.openSlotCount, 0),
+        attention: calendarSummaries.reduce((total, summary) => total + summary.attentionCount, 0) + (unassignedSummary?.attentionCount || 0),
+        pending: dateEvents.filter(event => event.status === 'pending').length
+      });
+    });
+    return summaries;
+  }, [availabilityByKey, eventIndex.byDate, selectedCalendarId, settings, staffCalendarIds, visibleDateKeys]);
 
   const openDrawer = (nextDrawer, trigger) => {
     triggerRef.current = trigger || document.activeElement;
@@ -1153,9 +1202,27 @@ export function ScheduleCalendarWorkspace({
     setDrawer(null);
     window.setTimeout(() => triggerRef.current?.focus?.(), 0);
   };
-  const changeView = (nextView) => startTransition(() => {
-    if (PERIOD_VIEW_OPTIONS.some(option => option.id === nextView)) setLastCalendarView(nextView);
-    setView(nextView);
+  const openEventDrawer = (event, trigger) => {
+    const booking = {
+      ...(event.booking || {}),
+      dateKey: event.dateKey,
+      serviceId: event.serviceId,
+      serviceName: event.serviceName,
+      staffId: event.staffId,
+      status: event.status,
+      time: event.time
+    };
+    openDrawer({ event: { ...event, booking, bookings: event.bookings || [booking] }, booking }, trigger);
+  };
+  const changeView = nextView => {
+    if (!PERIOD_VIEW_OPTIONS.some(option => option.id === nextView)) return;
+    startTransition(() => {
+      setView(nextView);
+      setAgendaOpen(false);
+    });
+  };
+  const toggleAgenda = nextOpen => startTransition(() => {
+    setAgendaOpen(open => (typeof nextOpen === 'boolean' ? nextOpen : !open));
   });
   const moveRange = direction => {
     const anchor = fromDateKey(selectedDate);
@@ -1165,106 +1232,35 @@ export function ScheduleCalendarWorkspace({
     onSelectDate(toDateKey(next));
   };
 
-  const weekResources = getWeekDates(selectedDate).map(date => ({
-    id: toDateKey(date),
-    dateKey: toDateKey(date),
-    label: date.toLocaleDateString('en-US', { weekday: 'short' }),
-    subLabel: formatOrdinalMonthDay(date),
-    staffId: selectedCalendarId === 'workspace' ? '' : selectedCalendarId,
-    staffName: selectedCalendarId === 'workspace' ? '' : staffMap.get(selectedCalendarId)?.name || ''
-  }));
-  const dayResources = selectedCalendarId === 'workspace'
-    ? calendars.filter(calendar => calendar.id !== 'workspace').map(calendar => ({
-      id: calendar.id,
-      dateKey: selectedDate,
-      label: calendar.shortName || firstName(calendar.name),
-      subLabel: calendar.role || '',
-      photoURL: calendar.photoURL || '',
-      staffId: calendar.id,
-      staffName: calendar.name
-    }))
-    : [{
-      id: selectedCalendarId,
-      dateKey: selectedDate,
-      label: staffMap.get(selectedCalendarId)?.name || calendars.find(calendar => calendar.id === selectedCalendarId)?.name || 'Calendar',
-      subLabel: staffMap.get(selectedCalendarId)?.title || staffMap.get(selectedCalendarId)?.workTitle || staffMap.get(selectedCalendarId)?.jobTitle || calendars.find(calendar => calendar.id === selectedCalendarId)?.role || formatDay(fromDateKey(selectedDate)),
-      photoURL: staffMap.get(selectedCalendarId)?.photoURL || '',
-      staffId: selectedCalendarId,
-      staffName: staffMap.get(selectedCalendarId)?.name || ''
-    }];
-  const resources = view === 'week' ? weekResources : dayResources.length ? dayResources : [{
-    id: 'workspace',
-    dateKey: selectedDate,
-    label: 'Business',
-    subLabel: formatDay(fromDateKey(selectedDate)),
-    staffId: ''
-  }];
-
   return (
     <section className="schedule-calendar-workspace">
-      <CalendarToolbar
-        calendarView={lastCalendarView}
+      <ScheduleOperationsBoard
+        agendaOpen={agendaOpen}
+        calendarView={view}
         calendars={calendars}
         dateTitle={getDateTitle(view, selectedDate)}
-        filtersOpen={filtersOpen}
-        onChangeService={setSelectedServiceId}
-        onChangeStatus={setSelectedStatus}
+        eventsByDate={eventIndex.byDate}
+        getAvailability={(staffId, dateKey) => (
+          availabilityByKey.get(`${dateKey}:${staffId}`) || getAvailabilityIntervals({ calendarId: staffId, dateKey, settings, staffId })
+        )}
+        getSummary={dateKey => summaryByDate.get(dateKey) || { total: 0, open: 0, attention: 0, pending: 0 }}
+        mobile={mobile}
         onChangeView={changeView}
-        onCreate={() => openDrawer({ draft: { dateKey: selectedDate, time: '09:00', staffId: selectedCalendarId === 'workspace' ? '' : selectedCalendarId } })}
+        onCreate={draft => openDrawer({ draft })}
         onMove={moveRange}
+        onMonthWindowChange={setMonthWindowCount}
+        onOpenEvent={openEventDrawer}
         onOpenSettings={onOpenSettings}
-        onSelectCalendar={calendarId => {
-          onSelectCalendar(calendarId);
-          setFiltersOpen(false);
-        }}
+        onSelectCalendar={onSelectCalendar}
+        onSelectDate={onSelectDate}
         onToday={() => onSelectDate(todayStr)}
-        onToggleFilters={() => setFiltersOpen(current => !current)}
-        readOnly={exampleMode}
+        onToggleAgenda={toggleAgenda}
+        readOnly={readOnly}
         selectedCalendarId={selectedCalendarId}
-        selectedServiceId={selectedServiceId}
-        selectedStatus={selectedStatus}
-        services={services}
+        selectedDate={selectedDate}
+        todayStr={todayStr}
         view={view}
       />
-
-      <div className="schedule-calendar-surface">
-        {view !== 'list' ? <SummaryStatusLegend /> : null}
-        {view === 'month' ? (
-          <MonthView
-            events={events}
-            onOpenDay={dateKey => {
-              onSelectDate(dateKey);
-              changeView('day');
-            }}
-            selectedDate={selectedDate}
-            todayStr={todayStr}
-          />
-        ) : view === 'list' ? listView : view === 'week' ? (
-          <ResourceSummaryMatrix
-            dates={weekResources}
-            events={events}
-            onOpenDay={(dateKey, staffId) => {
-              onSelectDate(dateKey);
-              onSelectCalendar(staffId);
-              changeView('day');
-            }}
-            staffResources={dayResources}
-            todayStr={todayStr}
-          />
-        ) : (
-          <TimeGrid
-            events={events}
-            minHour={minHour}
-            mode={resources.length === 1 ? 'focused-day' : 'resource-day'}
-            onCreate={draft => openDrawer({ draft })}
-            onOpenEvent={(event, trigger) => openDrawer({ event }, trigger)}
-            readOnly={exampleMode}
-            resources={resources}
-            settings={settings}
-            todayStr={todayStr}
-          />
-        )}
-      </div>
 
       {drawer ? (
         <BookingDrawer
@@ -1275,9 +1271,10 @@ export function ScheduleCalendarWorkspace({
           onCreate={onCreateBooking}
           onOpenChat={onOpenBookingChat}
           onUpdate={onUpdateBooking}
-          readOnly={exampleMode}
+          readOnly={readOnly}
           services={services}
           staffList={staffList}
+          todayStr={todayStr}
         />
       ) : null}
     </section>

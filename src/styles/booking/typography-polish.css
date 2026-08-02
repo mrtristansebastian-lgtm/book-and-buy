@@ -398,3 +398,79 @@ html body .booking-flow-public-shell .booking-service-meta-value,
 html body .editor-preview-frame .booking-service-meta-value {
   font-weight: 500 !important;
 }
+
+html body .booking-flow-public .booking-service-description,
+html body .booking-flow-public-shell .booking-service-description,
+html body .editor-preview-frame .booking-service-description,
+html body .booking-flow-public .booking-faq-answer,
+html body .booking-flow-public-shell .booking-faq-answer,
+html body .editor-preview-frame .booking-faq-answer,
+html body .booking-flow-public .booking-section-subtext,
+html body .booking-flow-public-shell .booking-section-subtext,
+html body .editor-preview-frame .booking-section-subtext,
+html body .booking-flow-public .booking-hero-subtitle,
+html body .booking-flow-public-shell .booking-hero-subtitle,
+html body .editor-preview-frame .booking-hero-subtitle,
+html body .booking-flow-public .booking-hero-kicker,
+html body .booking-flow-public-shell .booking-hero-kicker,
+html body .editor-preview-frame .booking-hero-kicker,
+html body .booking-flow-public .booking-hero-kicker > span,
+html body .booking-flow-public-shell .booking-hero-kicker > span,
+html body .editor-preview-frame .booking-hero-kicker > span,
+html body .booking-flow-public .booking-hero-tagline,
+html body .booking-flow-public-shell .booking-hero-tagline,
+html body .editor-preview-frame .booking-hero-tagline,
+html body .booking-flow-public .booking-selection-helper,
+html body .booking-flow-public-shell .booking-selection-helper,
+html body .editor-preview-frame .booking-selection-helper,
+html body .booking-flow-public .booking-cart-copy,
+html body .booking-flow-public-shell .booking-cart-copy,
+html body .editor-preview-frame .booking-cart-copy,
+html body .booking-flow-public .booking-checkout-copy,
+html body .booking-flow-public-shell .booking-checkout-copy,
+html body .editor-preview-frame .booking-checkout-copy,
+html body .booking-flow-public .booking-success-copy,
+html body .booking-flow-public-shell .booking-success-copy,
+html body .editor-preview-frame .booking-success-copy,
+html body .booking-flow-public .booking-venue-gallery-intro,
+html body .booking-flow-public-shell .booking-venue-gallery-intro,
+html body .editor-preview-frame .booking-venue-gallery-intro,
+html body .booking-flow-public .booking-portal-description,
+html body .booking-flow-public-shell .booking-portal-description,
+html body .editor-preview-frame .booking-portal-description {
+  color: var(--booking-body-copy, var(--booking-service-body, #050505)) !important;
+  font-family: inherit !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+}
+
+html body .booking-flow-public .booking-hero-tagline,
+html body .booking-flow-public-shell .booking-hero-tagline,
+html body .editor-preview-frame .booking-hero-tagline {
+  font-size: 0.875rem !important;
+  letter-spacing: 0 !important;
+  line-height: 1.5 !important;
+  text-transform: none !important;
+}
+
+html body .booking-flow-public .booking-hero-kicker,
+html body .booking-flow-public-shell .booking-hero-kicker,
+html body .editor-preview-frame .booking-hero-kicker {
+  gap: 0.72rem !important;
+}
+
+html body .booking-flow-public .booking-hero-kicker > .booking-hero-tagline,
+html body .booking-flow-public-shell .booking-hero-kicker > .booking-hero-tagline,
+html body .editor-preview-frame .booking-hero-kicker > .booking-hero-tagline,
+html body .editor-preview-frame.is-mobile-preview .booking-hero-kicker > .booking-hero-tagline {
+  color: var(--booking-body-copy, var(--booking-service-body, #050505)) !important;
+  display: block !important;
+  max-width: 28rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.5 !important;
+  text-align: center !important;
+  text-transform: none !important;
+  word-spacing: normal !important;
+}

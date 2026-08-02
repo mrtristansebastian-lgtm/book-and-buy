@@ -88,7 +88,9 @@ export function useDashboardRouteConfig({
       setLegalPanel: overlays.setLegalPanel,
       setRunningLateDialog: booking.actions.setRunningLateDialog,
       submitRunningLateDialog: booking.actions.submitRunningLateDialog,
-      toast: overlays.toast
+      toast: overlays.toast,
+      updateBooking: booking.actions.updateBooking,
+      showToast
     },
     navigation,
     routes: {

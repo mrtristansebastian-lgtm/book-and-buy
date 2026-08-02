@@ -1163,7 +1163,7 @@ html body .native-ui .schedule-week-matrix-staff {
   padding: 0.8rem 0.85rem;
 }
 
-html body .native-ui .schedule-week-matrix-staff :is(img, span) {
+html body .native-ui .schedule-week-matrix-staff > :is(img, span:not(.schedule-week-matrix-staff-copy)) {
   display: inline-flex;
   width: 2rem;
   height: 2rem;
@@ -1178,6 +1178,13 @@ html body .native-ui .schedule-week-matrix-staff :is(img, span) {
   object-fit: cover;
 }
 
+html body .native-ui .schedule-week-matrix-staff-copy {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.16rem;
+}
+
 html body .native-ui .schedule-week-matrix-staff strong {
   overflow: hidden;
   color: var(--calendar-ink);
@@ -1185,6 +1192,15 @@ html body .native-ui .schedule-week-matrix-staff strong {
   font-weight: 820;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+html body .native-ui .schedule-week-matrix-staff small {
+  overflow: hidden;
+  color: #667085;
+  font-size: 0.62rem;
+  font-weight: 620;
+  line-height: 1.2;
+  text-overflow: ellipsis;
 }
 
 html body .native-ui .schedule-week-summary-card {
@@ -1461,12 +1477,14 @@ html body .native-ui .schedule-month-summary {
   width: 100%;
   overflow: hidden;
   background: #fff;
+  padding: 0;
 }
 
 html body .native-ui .schedule-month-summary-weekdays,
 html body .native-ui .schedule-month-summary-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
 }
 
 html body .native-ui .schedule-month-summary-weekdays {
@@ -1513,6 +1531,7 @@ html body .native-ui .schedule-month-summary-card {
   background: #fff;
   color: var(--calendar-ink);
   text-align: left;
+  box-shadow: none;
   transition: background 150ms ease, box-shadow 150ms ease;
 }
 
@@ -1520,6 +1539,7 @@ html body .native-ui .schedule-month-summary-card:hover {
   z-index: auto;
   background: #fff;
   outline: 0;
+  box-shadow: none;
 }
 
 html body .native-ui .schedule-month-summary-card:focus-visible {
@@ -2400,5 +2420,412 @@ html body .native-ui .schedule-calendar-skeleton-grid {
   html body .native-ui .schedule-calendar-skeleton-days span {
     animation: none;
     transition: none;
+  }
+}
+
+/* Final schedule workspace fit pass. */
+html body .native-ui .dashboard-main > div.schedule-page:not(.mobile-editor-shell),
+html body .native-ui .schedule-page {
+  padding: 0.75rem clamp(0.75rem, 1.35vw, 1.25rem) 1.35rem !important;
+}
+
+html body .native-ui .schedule-workspace-shell {
+  min-height: calc(100dvh - 1.5rem) !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+html body .native-ui .schedule-top-bar {
+  min-height: 3rem !important;
+  margin: 0 !important;
+  padding: 0.42rem 0.68rem !important;
+  display: grid !important;
+  grid-template-columns: minmax(16rem, 1fr) auto !important;
+  gap: 0.8rem !important;
+  align-items: center !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(16, 24, 40, 0.08) !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui .schedule-top-bar .schedule-google-state {
+  gap: 0.56rem !important;
+}
+
+html body .native-ui .schedule-top-bar .schedule-google-state p {
+  margin: 0 !important;
+  color: #667085 !important;
+  font-size: 0.61rem !important;
+  font-weight: 760 !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+html body .native-ui .schedule-top-bar .schedule-google-state strong {
+  color: #344054 !important;
+  font-size: 0.78rem !important;
+  font-weight: 760 !important;
+  line-height: 1.16 !important;
+  letter-spacing: 0 !important;
+}
+
+html body .native-ui .schedule-top-bar .schedule-calendar-sync-copy {
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: 2rem minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 0.62rem !important;
+}
+
+html body .native-ui .schedule-top-bar .schedule-calendar-sync-copy > span:first-child {
+  width: 2rem !important;
+  height: 2rem !important;
+  border-radius: 0.68rem !important;
+}
+
+html body .native-ui .schedule-top-bar .schedule-calendar-sync-copy small {
+  margin: 0 !important;
+  color: #101828 !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+html body .native-ui .schedule-top-bar .schedule-calendar-sync-copy strong {
+  color: #101828 !important;
+  font-size: 0.93rem !important;
+  line-height: 1.15 !important;
+}
+
+html body .native-ui .schedule-top-bar-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0.52rem !important;
+  min-width: 0 !important;
+}
+
+html body .native-ui .schedule-top-bar-actions button {
+  min-height: 2.55rem !important;
+  border-radius: 0.74rem !important;
+  white-space: nowrap !important;
+}
+
+html body .native-ui .schedule-calendar-workspace {
+  min-height: calc(100dvh - 6rem) !important;
+  border-radius: 1rem !important;
+  overflow: hidden !important;
+}
+
+html body .native-ui .schedule-calendar-toolbar {
+  min-height: 4rem !important;
+  padding: 0.64rem 0.72rem !important;
+  gap: 0.72rem !important;
+}
+
+html body .native-ui .schedule-calendar-date-nav h2 {
+  font-size: clamp(1.65rem, 2.4vw, 2.35rem) !important;
+  line-height: 1.05 !important;
+}
+
+html body .native-ui .schedule-calendar-surface {
+  min-height: calc(100dvh - 12.25rem) !important;
+}
+
+html body .native-ui .schedule-time-grid.is-resource-day {
+  min-width: 100% !important;
+}
+
+html body .native-ui .schedule-resource-day-row {
+  min-height: max(7rem, calc((100dvh - 15rem) / var(--resource-row-count, 4))) !important;
+}
+
+html body .native-ui .schedule-resource-day-track {
+  min-height: inherit !important;
+}
+
+html body .native-ui .schedule-calendar-event.is-resource-day {
+  min-height: 4rem !important;
+}
+
+@media (max-width: 980px) {
+  html body .native-ui .schedule-top-bar {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  html body .native-ui .schedule-top-bar-actions {
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    padding-bottom: 0.05rem !important;
+  }
+
+  html body .native-ui .schedule-calendar-workspace {
+    min-height: calc(100dvh - 7rem) !important;
+  }
+
+  html body .native-ui .schedule-calendar-surface {
+    min-height: 38rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html body .native-ui .dashboard-main > div.schedule-page:not(.mobile-editor-shell),
+  html body .native-ui .schedule-page {
+    padding: 0.62rem !important;
+  }
+
+  html body .native-ui .schedule-top-bar {
+    padding: 0.6rem !important;
+  }
+
+  html body .native-ui .schedule-calendar-date-nav h2 {
+    font-size: 1.05rem !important;
+  }
+}
+
+/* Schedule containment correction: fit the workspace instead of spilling past it. */
+html body .native-ui .dashboard-main > div.schedule-page:not(.mobile-editor-shell),
+html body .native-ui .schedule-page {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+  padding: 0.48rem 0.62rem 0.72rem !important;
+}
+
+html body .native-ui .schedule-workspace-shell {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0.48rem !important;
+}
+
+html body .native-ui .schedule-top-bar {
+  min-width: 0 !important;
+  min-height: 2.82rem !important;
+  padding: 0.4rem 0.5rem !important;
+}
+
+html body .native-ui .schedule-top-bar-actions {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+}
+
+html body .native-ui .schedule-top-bar-actions::-webkit-scrollbar {
+  display: none !important;
+}
+
+html body .native-ui .schedule-calendar-workspace {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  overflow: hidden !important;
+}
+
+html body .native-ui .schedule-calendar-toolbar {
+  min-width: 0 !important;
+  min-height: 3.35rem !important;
+  display: grid !important;
+  grid-template-columns: minmax(18rem, 1fr) minmax(0, auto) !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  padding: 0.48rem 0.55rem !important;
+}
+
+html body .native-ui .schedule-calendar-date-nav {
+  min-width: 0 !important;
+}
+
+html body .native-ui .schedule-calendar-date-nav h2 {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  font-size: clamp(1.55rem, 2.1vw, 2.05rem) !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .native-ui .schedule-calendar-toolbar-actions {
+  min-width: 0 !important;
+  max-width: min(100%, 44rem) !important;
+  justify-content: flex-end !important;
+  overflow-x: auto !important;
+  padding-bottom: 0.04rem !important;
+  scrollbar-width: none !important;
+}
+
+html body .native-ui .schedule-calendar-toolbar-actions::-webkit-scrollbar {
+  display: none !important;
+}
+
+html body .native-ui .schedule-calendar-surface {
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+html body .native-ui .schedule-resource-day-scroll {
+  --resource-staff-width: 7.25rem !important;
+  --resource-time-slot-width: 4.62rem !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: auto !important;
+}
+
+html body .native-ui .schedule-resource-day-header {
+  height: 3.15rem !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 253, 0.98)) !important;
+}
+
+html body .native-ui .schedule-resource-day-corner {
+  justify-content: center !important;
+  padding: 0 0.75rem !important;
+  color: #475569 !important;
+  letter-spacing: 0.04em !important;
+}
+
+html body .native-ui .schedule-resource-day-time-track > span {
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding-left: 0.7rem !important;
+  background: linear-gradient(180deg, #fff, #fbfcfd) !important;
+  color: #42516a !important;
+  font-size: 0.66rem !important;
+  font-weight: 860 !important;
+}
+
+html body .native-ui .schedule-resource-day-time-track > span.is-half-hour {
+  color: transparent !important;
+  background: #fff !important;
+}
+
+html body .native-ui .schedule-resource-day-row {
+  min-height: clamp(7.1rem, 17dvh, 8.6rem) !important;
+}
+
+html body .native-ui .schedule-resource-day-track {
+  min-height: inherit !important;
+}
+
+html body .native-ui .schedule-resource-day-staff {
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.22rem !important;
+  padding: 0.58rem 0.48rem !important;
+  text-align: center !important;
+}
+
+html body .native-ui .schedule-resource-day-staff > :is(img, span:not(.schedule-resource-day-staff-copy)) {
+  width: 2.34rem !important;
+  height: 2.34rem !important;
+}
+
+html body .native-ui .schedule-resource-day-staff-copy {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  justify-items: center !important;
+  gap: 0.03rem !important;
+  line-height: 1.05 !important;
+}
+
+html body .native-ui .schedule-resource-day-staff strong,
+html body .native-ui .schedule-resource-day-staff small {
+  max-width: 6.25rem !important;
+  text-align: center !important;
+}
+
+html body .native-ui .schedule-resource-day-staff small {
+  display: -webkit-box !important;
+  margin-top: 0.05rem !important;
+  color: #263246 !important;
+  white-space: normal !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+html body .native-ui .schedule-resource-day-event {
+  top: 0.54rem !important;
+  bottom: 0.54rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  min-width: 5.1rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.34rem !important;
+  padding: 0.82rem 1rem 0.78rem !important;
+  border-radius: 12px !important;
+  text-align: center !important;
+  box-shadow: 0 9px 24px rgba(15, 23, 42, 0.09) !important;
+}
+
+html body .native-ui .schedule-resource-day-event > em {
+  max-width: 100% !important;
+  color: #59677b !important;
+  font-size: 0.66rem !important;
+  font-weight: 780 !important;
+  line-height: 1 !important;
+}
+
+html body .native-ui .schedule-resource-day-event > strong {
+  max-width: 100% !important;
+  padding-right: 0 !important;
+  color: #101828 !important;
+  font-size: clamp(0.98rem, 0.9vw, 1.14rem) !important;
+  font-weight: 850 !important;
+  line-height: 1.02 !important;
+  text-align: center !important;
+}
+
+html body .native-ui .schedule-resource-day-event > span:last-child {
+  display: inline-flex !important;
+  max-width: 100% !important;
+  grid-template-columns: none !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  color: #344054 !important;
+  font-size: 0.74rem !important;
+  font-weight: 650 !important;
+  line-height: 1.12 !important;
+  text-align: center !important;
+}
+
+html body .native-ui .schedule-resource-day-event > span:last-child > span {
+  max-width: min(100%, 16rem) !important;
+  white-space: normal !important;
+}
+
+html body .native-ui .schedule-resource-day-event .schedule-calendar-event-media {
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+}
+
+@media (max-width: 980px) {
+  html body .native-ui .schedule-calendar-toolbar {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  html body .native-ui .schedule-calendar-toolbar-actions {
+    justify-content: flex-start !important;
+    max-width: 100% !important;
+  }
+
+  html body .native-ui .schedule-resource-day-scroll {
+    --resource-staff-width: 6.75rem !important;
+    --resource-time-slot-width: 4.35rem !important;
   }
 }

@@ -222,6 +222,7 @@ export const BookingFlow = memo(({ settings: incomingSettings, onComplete, isPre
                 '--booking-service-bg': settings.serviceBgColor && settings.serviceBgColor !== 'transparent' ? settings.serviceBgColor : '#ffffff',
                 '--booking-service-text': settings.serviceTextColor || settings.headingColor || '#050505',
                 '--booking-service-body': settings.serviceBodyColor || settings.serviceTextColor || settings.headingColor || '#050505',
+                '--booking-body-copy': settings.serviceBodyColor || settings.faqAnswerColor || settings.bodyColor || settings.serviceTextColor || settings.headingColor || '#050505',
                 '--booking-service-border': settings.serviceBorderColor || withColorAlpha(settings.bodyColor || '#000000', 9, '#000000'),
                 '--booking-service-active-bg': settings.serviceActiveBgColor || withColorAlpha(settings.primaryColor || '#000000', 7, '#000000'),
                 '--booking-service-active-border': settings.serviceActiveBorderColor || settings.serviceBorderColor || settings.primaryColor || '#050505',

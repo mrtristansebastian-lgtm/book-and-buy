@@ -89,9 +89,12 @@ html body .native-ui .finance-desk-controls input::placeholder {
 
 html body .native-ui .finance-desk-list {
   display: grid !important;
-  gap: 0.72rem !important;
+  grid-template-columns: repeat(auto-fit, minmax(17.5rem, 21rem)) !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 1rem !important;
   margin-top: 0 !important;
-  padding: 1rem !important;
+  padding: 1.1rem !important;
   border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
   background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%) !important;
 }
@@ -101,69 +104,104 @@ html body .native-ui .finance-desk-list.divide-y > :not([hidden]) ~ :not([hidden
 }
 
 html body .native-ui .finance-desk-row {
+  position: relative !important;
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(24rem, auto) !important;
-  align-items: center !important;
-  gap: clamp(0.8rem, 1.8vw, 1.15rem) !important;
-  padding: 0.86rem !important;
-  border: 1px solid rgba(15, 23, 42, 0.075) !important;
-  border-radius: 1.05rem !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-content: start !important;
+  align-items: stretch !important;
+  gap: 1.05rem !important;
+  min-height: 18.5rem !important;
+  padding: 1.15rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.11) !important;
+  border-radius: 0.35rem !important;
+  overflow: visible !important;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(250, 250, 250, 0.96)) padding-box,
-    linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.025)) border-box !important;
-  box-shadow: 0 20px 48px -42px rgba(15, 23, 42, 0.62), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+    repeating-linear-gradient(0deg, rgba(15, 23, 42, 0.018) 0 1px, transparent 1px 1.72rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.995), rgba(252, 252, 252, 0.99)) padding-box,
+    linear-gradient(135deg, rgba(15, 23, 42, 0.13), rgba(15, 23, 42, 0.035)) border-box !important;
+  box-shadow: 0 26px 54px -44px rgba(15, 23, 42, 0.62), inset 0 1px 0 rgba(255,255,255,0.96) !important;
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, background 160ms ease !important;
+}
+
+html body .native-ui .finance-desk-row::before,
+html body .native-ui .finance-desk-row::after {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+html body .native-ui .finance-desk-row::before {
+  top: -0.19rem !important;
+  left: 0.65rem !important;
+  right: 0.65rem !important;
+  height: 0.38rem !important;
+  background-image: radial-gradient(circle at 0.34rem 50%, #fbfbfb 0 0.18rem, transparent 0.19rem) !important;
+  background-size: 0.68rem 0.38rem !important;
+}
+
+html body .native-ui .finance-desk-row::after {
+  bottom: -0.19rem !important;
+  left: 0.65rem !important;
+  right: 0.65rem !important;
+  height: 0.38rem !important;
+  background-image: radial-gradient(circle at 0.34rem 50%, #fbfbfb 0 0.18rem, transparent 0.19rem) !important;
+  background-size: 0.68rem 0.38rem !important;
 }
 
 html body .native-ui .finance-desk-row:hover {
   border-color: rgba(15, 23, 42, 0.13) !important;
   background:
-    linear-gradient(135deg, #ffffff, #fbfbfb) padding-box,
+    linear-gradient(180deg, #ffffff, #fbfbfb) padding-box,
     linear-gradient(135deg, rgba(15, 23, 42, 0.13), rgba(15, 23, 42, 0.04)) border-box !important;
   box-shadow: 0 24px 56px -44px rgba(15, 23, 42, 0.7), inset 0 1px 0 rgba(255,255,255,0.94) !important;
   transform: translateY(-1px) !important;
 }
 
 html body .native-ui .finance-desk-row .finance-gateway-mark {
-  width: 2.85rem !important;
-  height: 2.85rem !important;
+  width: 3.05rem !important;
+  height: 3.05rem !important;
   display: inline-flex !important;
-  flex: 0 0 2.85rem !important;
+  flex: 0 0 3.05rem !important;
   align-items: center !important;
   justify-content: center !important;
-  border: 1px solid rgba(15, 23, 42, 0.075) !important;
-  border-radius: 0.82rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  border-radius: 0.68rem !important;
   background: #ffffff !important;
   color: #050505 !important;
   overflow: hidden !important;
-  box-shadow: 0 16px 34px -32px rgba(15, 23, 42, 0.48) !important;
+  box-shadow: 0 16px 34px -32px rgba(15, 23, 42, 0.48), inset 0 0 0 4px rgba(15, 23, 42, 0.025) !important;
 }
 
 html body .native-ui .finance-desk-row-main {
   min-width: 0 !important;
   display: flex !important;
+  flex-direction: column !important;
   align-items: center !important;
-  gap: 0.8rem !important;
+  gap: 0.72rem !important;
+  text-align: center !important;
 }
 
 html body .native-ui .finance-desk-row-copy {
   min-width: 0 !important;
+  width: 100% !important;
 }
 
 html body .native-ui .finance-desk-row-title-line {
   display: flex !important;
   flex-wrap: wrap !important;
   align-items: center !important;
-  gap: 0.42rem !important;
+  justify-content: center !important;
+  gap: 0.48rem !important;
 }
 
 html body .native-ui .finance-desk-row-client {
-  max-width: min(28rem, 48vw) !important;
+  max-width: 100% !important;
   margin: 0 !important;
   overflow: hidden !important;
   color: #101828 !important;
-  font-size: 0.98rem !important;
-  font-weight: 850 !important;
+  font-size: 1rem !important;
+  font-weight: 880 !important;
   line-height: 1.15 !important;
   letter-spacing: -0.015em !important;
   text-overflow: ellipsis !important;
@@ -171,51 +209,63 @@ html body .native-ui .finance-desk-row-client {
 }
 
 html body .native-ui .finance-desk-row-description {
-  max-width: min(34rem, 52vw) !important;
-  margin: 0.28rem 0 0 !important;
+  max-width: 100% !important;
+  margin: 0.62rem 0 0 !important;
   overflow: hidden !important;
-  color: #667085 !important;
-  font-size: 0.82rem !important;
-  font-weight: 650 !important;
+  color: #101828 !important;
+  font-size: 0.84rem !important;
+  font-weight: 500 !important;
   line-height: 1.35 !important;
   text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  text-align: center !important;
+  white-space: normal !important;
 }
 
 html body .native-ui .finance-desk-row-reference {
-  margin: 0.26rem 0 0 !important;
-  color: #98a2b3 !important;
-  font-size: 0.58rem !important;
-  font-weight: 850 !important;
+  margin: 0.8rem auto 0 !important;
+  display: inline-flex !important;
+  max-width: 100% !important;
+  padding: 0.36rem 0.52rem !important;
+  border: 1px dashed rgba(15, 23, 42, 0.16) !important;
+  border-radius: 0.35rem !important;
+  overflow: hidden !important;
+  color: #101828 !important;
+  font-size: 0.56rem !important;
+  font-weight: 500 !important;
   letter-spacing: 0.055em !important;
   line-height: 1.2 !important;
+  text-overflow: ellipsis !important;
   text-transform: uppercase !important;
+  white-space: nowrap !important;
 }
 
 html body .native-ui .finance-desk-row-stats {
   display: grid !important;
-  grid-template-columns: minmax(6.8rem, auto) minmax(8.35rem, auto) minmax(7rem, auto) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   align-items: stretch !important;
-  justify-content: end !important;
-  gap: 0.48rem !important;
+  justify-content: stretch !important;
+  gap: 0.55rem !important;
+  margin-top: auto !important;
+  padding-top: 1rem !important;
+  border-top: 1px dashed rgba(15, 23, 42, 0.18) !important;
 }
 
 html body .native-ui .finance-desk-stat {
-  min-height: 3.08rem !important;
+  min-height: 3.45rem !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
   gap: 0.12rem !important;
-  padding: 0.55rem 0.7rem !important;
-  border: 1px solid rgba(15, 23, 42, 0.065) !important;
-  border-radius: 0.86rem !important;
-  background: rgba(255, 255, 255, 0.72) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+  padding: 0.6rem 0.7rem !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-radius: 0.6rem !important;
+  background: rgba(248, 250, 252, 0.72) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.96) !important;
 }
 
 html body .native-ui .finance-desk-stat-label {
   margin: 0 !important;
-  color: #667085 !important;
+  color: #101828 !important;
   font-size: 0.58rem !important;
   font-weight: 850 !important;
   letter-spacing: 0.06em !important;
@@ -226,21 +276,22 @@ html body .native-ui .finance-desk-stat-label {
 html body .native-ui .finance-desk-stat-value {
   margin: 0 !important;
   color: #101828 !important;
-  font-size: 1.05rem !important;
-  font-weight: 850 !important;
-  letter-spacing: -0.025em !important;
-  line-height: 1.08 !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.18 !important;
   white-space: nowrap !important;
 }
 
 html body .native-ui .finance-desk-stat-value.is-date {
-  font-size: 0.9rem !important;
-  font-weight: 760 !important;
-  letter-spacing: -0.015em !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
 }
 
 html body .native-ui .finance-desk-row-action {
-  min-height: 3.08rem !important;
+  grid-column: 1 / -1 !important;
+  min-height: 3rem !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -276,8 +327,8 @@ html body .native-ui .finance-desk-row-action.is-view-only {
 }
 
 @media (max-width: 980px) {
-  html body .native-ui .finance-desk-row {
-    grid-template-columns: minmax(0, 1fr) !important;
+  html body .native-ui .finance-desk-list {
+    grid-template-columns: repeat(auto-fit, minmax(16.5rem, 1fr)) !important;
   }
 
   html body .native-ui .finance-desk-row-client,
@@ -293,19 +344,21 @@ html body .native-ui .finance-desk-row-action.is-view-only {
 @media (max-width: 767px) {
   html body .native-ui .finance-desk-list {
     gap: 0.68rem !important;
-    padding: 0.1rem 0 0 !important;
+    grid-template-columns: minmax(0, 20.5rem) !important;
+    justify-content: center !important;
+    padding: 0.4rem 0 0 !important;
     border-top: 0 !important;
     background: transparent !important;
   }
 
   html body .native-ui .finance-desk-row {
-    padding: 0.78rem !important;
-    border-radius: 0.98rem !important;
-    background: #ffffff !important;
+    min-height: 18rem !important;
+    padding: 1rem !important;
+    border-radius: 0.35rem !important;
   }
 
   html body .native-ui .finance-desk-row-main {
-    align-items: flex-start !important;
+    align-items: center !important;
   }
 
   html body .native-ui .finance-desk-row-stats {

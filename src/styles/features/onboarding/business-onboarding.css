@@ -4364,3 +4364,718 @@ html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboa
     min-height: auto;
   }
 }
+
+/* Flush setup assistant shell: keep onboarding embedded in the app surface. */
+html body .native-ui.business-onboarding-page:not(.is-complete) {
+  min-height: 100dvh !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  color: #101828 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+  min-height: 4.35rem !important;
+  display: grid !important;
+  grid-template-columns: minmax(14rem, 0.92fr) minmax(0, 1.35fr) !important;
+  align-items: center !important;
+  gap: clamp(0.75rem, 2vw, 1.25rem) !important;
+  padding: 0.72rem clamp(1rem, 2.8vw, 2rem) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(16, 24, 40, 0.08) !important;
+  border-radius: 0 !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-main {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-brand-logo {
+  flex: 0 0 auto !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0.5rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions span {
+  color: #101828 !important;
+  font-size: 0.68rem !important;
+  font-weight: 760 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions b,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header small {
+  min-height: 2.25rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 0.72rem !important;
+  border-radius: 999px !important;
+  color: #101828 !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions button {
+  min-height: 2.35rem !important;
+  border-color: rgba(16, 24, 40, 0.1) !important;
+  border-radius: 0.75rem !important;
+  padding: 0 0.78rem !important;
+  background: #ffffff !important;
+  box-shadow: 0 10px 28px -26px rgba(16, 24, 40, 0.58) !important;
+  font-size: 0.66rem !important;
+  letter-spacing: 0.03em !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path {
+  min-width: 0 !important;
+  display: block !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path .onboarding-mascot-card {
+  display: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path ol {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(6.25rem, 1fr)) !important;
+  gap: 0.36rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li {
+  min-width: 0 !important;
+  transform: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li button {
+  min-height: 2.65rem !important;
+  grid-template-columns: 1.55rem minmax(0, 1fr) !important;
+  gap: 0.42rem !important;
+  padding: 0.42rem 0.48rem !important;
+  border: 1px solid rgba(16, 24, 40, 0.075) !important;
+  border-radius: 0.78rem !important;
+  background: #ffffff !important;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li button:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(16, 24, 40, 0.16) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li.is-active button {
+  border-color: transparent !important;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--onboarding-gradient) border-box !important;
+  background-size: auto, 420% 420% !important;
+  background-position: 0 0, var(--onboarding-gradient-position) !important;
+  box-shadow: 0 16px 36px -30px rgba(16, 24, 40, 0.6) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li button > span {
+  width: 1.55rem !important;
+  height: 1.55rem !important;
+  border-radius: 0.48rem !important;
+  font-size: 0.62rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li strong {
+  overflow: hidden !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  line-height: 1.05 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li small {
+  display: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage {
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header {
+  align-items: end !important;
+  padding: clamp(1.15rem, 2.6vw, 2rem) clamp(1.1rem, 4vw, 4rem) 0.85rem !important;
+  border-bottom: 1px solid rgba(16, 24, 40, 0.07) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header p {
+  margin: 0 0 0.35rem !important;
+  color: #101828 !important;
+  font-size: 0.72rem !important;
+  font-weight: 760 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header h1 {
+  max-width: 58rem !important;
+  font-size: clamp(2rem, 4.8vw, 4.05rem) !important;
+  letter-spacing: -0.045em !important;
+  line-height: 0.96 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header span {
+  max-width: 54rem !important;
+  margin-top: 0.58rem !important;
+  color: #101828 !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-step-card {
+  min-height: 0 !important;
+  align-items: start !important;
+  padding: clamp(1rem, 2.6vw, 2.15rem) clamp(1.1rem, 4vw, 4rem) !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) :is(
+  .onboarding-choice-card,
+  .onboarding-form-card,
+  .onboarding-rules-layout,
+  .onboarding-launch-list,
+  .onboarding-form-fields,
+  .onboarding-type-panel,
+  .onboarding-commerce-step,
+  .onboarding-industry-step,
+  .onboarding-business-photo-panel,
+  .onboarding-business-location-panel,
+  .service-wizard-field,
+  .service-media-panel,
+  .service-save-panel
+) {
+  border-color: rgba(16, 24, 40, 0.08) !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 46px -42px rgba(15, 23, 42, 0.58) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-choice-card {
+  border-radius: 0.9rem !important;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-choice-card:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(16, 24, 40, 0.16) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 30 !important;
+  padding: 0.82rem clamp(1.1rem, 4vw, 4rem) !important;
+  border-top: 1px solid rgba(16, 24, 40, 0.08) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.58rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer button,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-complete-actions button {
+  min-height: 2.75rem !important;
+  border-radius: 0.82rem !important;
+  padding: 0 1rem !important;
+  box-shadow: none !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.03em !important;
+}
+
+@media (max-width: 980px) {
+  html body .native-ui.business-onboarding-page:not(.is-complete) {
+    overflow-y: auto !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar {
+    position: relative !important;
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+    padding: 0.72rem !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-main,
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions,
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer,
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer > div {
+    flex-wrap: wrap !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions {
+    justify-content: flex-start !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path ol {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header {
+    align-items: start !important;
+    flex-direction: column !important;
+    padding: 1rem 0.9rem 0.82rem !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-step-card {
+    padding: 0.9rem !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer {
+    padding: 0.72rem 0.9rem calc(0.72rem + env(safe-area-inset-bottom)) !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer button,
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer > div {
+    width: 100% !important;
+  }
+}
+
+/* Final setup assistant shell polish: two-tier navigation and compact step flow. */
+html body .native-ui.business-onboarding-page:not(.is-complete) {
+  min-height: 100dvh !important;
+  grid-template-rows: auto auto !important;
+  align-content: start !important;
+  overflow-y: auto !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  gap: 0.62rem !important;
+  padding: 0.68rem clamp(1rem, 3vw, 2rem) 0.78rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-main,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path {
+  width: min(100%, 72rem) !important;
+  margin: 0 auto !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-main {
+  gap: clamp(0.75rem, 2vw, 1.4rem) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-brand {
+  min-width: 0 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-brand strong {
+  white-space: nowrap !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions {
+  flex: 0 0 auto !important;
+  gap: 0.58rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions button {
+  min-width: max-content !important;
+  padding: 0 0.88rem !important;
+  white-space: nowrap !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions b {
+  min-height: 2.35rem !important;
+  padding: 0 0.88rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path {
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path::-webkit-scrollbar {
+  display: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path ol {
+  grid-template-columns: repeat(6, minmax(7.2rem, 1fr)) !important;
+  min-width: min(100%, 58rem) !important;
+  padding: 0.18rem !important;
+  border: 1px solid rgba(16, 24, 40, 0.07) !important;
+  border-radius: 1rem !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li button {
+  min-height: 2.32rem !important;
+  padding: 0.36rem 0.48rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage {
+  min-height: 0 !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header {
+  width: min(100%, 58rem) !important;
+  margin: 0 auto !important;
+  padding: clamp(1.25rem, 3vw, 2.25rem) clamp(1rem, 2vw, 1.5rem) 0.65rem !important;
+  border-bottom: 0 !important;
+  text-align: center !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header h1 {
+  max-width: none !important;
+  font-size: clamp(1.45rem, 2.25vw, 2rem) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.03em !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header span {
+  max-width: 46rem !important;
+  margin: 0.35rem auto 0 !important;
+  font-size: 0.92rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-step-card {
+  width: min(100%, 58rem) !important;
+  margin: 0 auto !important;
+  padding: 0.75rem clamp(1rem, 2vw, 1.5rem) 0 !important;
+  overflow: visible !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer {
+  position: static !important;
+  width: min(100%, 58rem) !important;
+  margin: 0.9rem auto 0 !important;
+  padding: 0.75rem clamp(1rem, 2vw, 1.5rem) clamp(1.25rem, 3vw, 2rem) !important;
+  border-top: 1px solid rgba(16, 24, 40, 0.07) !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer button {
+  min-height: 2.72rem !important;
+}
+
+@media (max-width: 900px) {
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-main {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar-actions {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    padding-bottom: 0.08rem !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path ol {
+    grid-template-columns: repeat(6, minmax(7rem, 8.2rem)) !important;
+    min-width: max-content !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-topbar {
+    padding: 0.72rem 0.82rem !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-header {
+    padding: 1.1rem 0.9rem 0.55rem !important;
+    text-align: left !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-step-card {
+    padding: 0.72rem 0.9rem 0 !important;
+  }
+
+  html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage-footer {
+    padding: 0.72rem 0.9rem calc(0.85rem + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Launch progress and grouped setup flow polish. */
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path ol {
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  gap: 0.34rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li button {
+  min-height: 2.55rem !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.78rem !important;
+  padding: 0.42rem 0.56rem !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  grid-template-columns: 1.45rem minmax(0, 1fr) !important;
+  gap: 0.42rem !important;
+  text-align: left !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li button > span {
+  width: 1.45rem !important;
+  height: 1.45rem !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.48rem !important;
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li strong {
+  color: #667085 !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  line-height: 1.08 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li.is-active button {
+  border-color: transparent !important;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--onboarding-gradient) border-box !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--onboarding-gradient-position) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li.is-active button > span,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li.is-complete button > span {
+  border-color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.34), rgba(255,255,255,0.08)),
+    var(--onboarding-gradient) !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--onboarding-gradient-position) !important;
+  color: #101828 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-progress-path li.is-active strong {
+  color: #101828 !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-service-wizard-panel,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-schedule-panel {
+  width: min(100%, 76rem) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage:has(.onboarding-service-wizard-panel) .onboarding-stage-header,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage:has(.onboarding-service-wizard-panel) .onboarding-step-card,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage:has(.onboarding-service-wizard-panel) .onboarding-stage-footer,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage:has(.onboarding-schedule-panel) .onboarding-stage-header,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage:has(.onboarding-schedule-panel) .onboarding-step-card,
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage:has(.onboarding-schedule-panel) .onboarding-stage-footer {
+  width: min(100%, 78rem) !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-stage:has(.onboarding-schedule-panel) .onboarding-step-card {
+  padding-top: 0.55rem !important;
+}
+
+html body .native-ui.business-onboarding-page:not(.is-complete) .onboarding-full-schedule-editor .schedule-settings-wizard-modal {
+  min-height: clamp(36rem, 62dvh, 48rem) !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-tabbed-flow {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: minmax(13rem, 0.28fr) minmax(0, 1fr) !important;
+  gap: 0.82rem !important;
+  align-items: stretch !important;
+  padding-bottom: 0 !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list {
+  min-width: 0 !important;
+  border: 1px solid rgba(16, 24, 40, 0.08) !important;
+  border-radius: 1rem !important;
+  padding: 0.42rem !important;
+  display: grid !important;
+  align-content: start !important;
+  gap: 0.42rem !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 46px -42px rgba(15, 23, 42, 0.48) !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list button {
+  min-height: 4.2rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 0.82rem !important;
+  padding: 0.62rem !important;
+  display: grid !important;
+  grid-template-columns: 1.68rem minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  gap: 0.1rem 0.5rem !important;
+  background: transparent !important;
+  color: #101828 !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list button:hover {
+  border-color: rgba(16, 24, 40, 0.1) !important;
+  background: #fbfcfd !important;
+  transform: translateY(-1px) !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list button > span {
+  grid-row: 1 / span 2 !important;
+  width: 1.68rem !important;
+  height: 1.68rem !important;
+  border: 1px solid rgba(16, 24, 40, 0.1) !important;
+  border-radius: 0.56rem !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #ffffff !important;
+  color: #667085 !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list button strong {
+  color: #101828 !important;
+  font-size: 0.82rem !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list button small {
+  grid-column: 2 !important;
+  color: #667085 !important;
+  font-size: 0.68rem !important;
+  font-weight: 650 !important;
+  line-height: 1.18 !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list button.is-active {
+  border-color: transparent !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.54)) padding-box,
+    var(--onboarding-gradient) border-box !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--onboarding-gradient-position) !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-step-list button.is-complete > span,
+html body .native-ui.business-onboarding-page .service-setup-step-list button.is-active > span {
+  border-color: #111827 !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-panel {
+  min-height: clamp(24rem, 44dvh, 35rem) !important;
+  border: 1px solid rgba(16, 24, 40, 0.08) !important;
+  border-radius: 1rem !important;
+  padding: clamp(0.8rem, 1.6vw, 1rem) !important;
+  display: grid !important;
+  align-content: start !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 46px -42px rgba(15, 23, 42, 0.48) !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-panel-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.72rem !important;
+  align-items: stretch !important;
+}
+
+html body .native-ui.business-onboarding-page .service-setup-panel-grid.is-basics .service-location-field,
+html body .native-ui.business-onboarding-page .service-setup-panel-grid.is-media .service-media-panel {
+  grid-column: 1 / -1 !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-tabbed-flow .service-description-field {
+  min-height: clamp(18rem, 34dvh, 27rem) !important;
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-tabbed-flow .service-description-field textarea {
+  min-height: clamp(13rem, 28dvh, 22rem) !important;
+  border-color: rgba(16, 24, 40, 0.12) !important;
+  border-radius: 0.9rem !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html body .native-ui.business-onboarding-page .onboarding-service-tabbed-flow .service-wizard-field,
+html body .native-ui.business-onboarding-page .onboarding-service-tabbed-flow .service-media-panel,
+html body .native-ui.business-onboarding-page .onboarding-service-tabbed-flow .service-save-panel {
+  box-shadow: none !important;
+}
+
+@media (max-width: 900px) {
+  html body .native-ui.business-onboarding-page .onboarding-service-tabbed-flow {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .native-ui.business-onboarding-page .service-setup-step-list {
+    grid-template-columns: repeat(4, minmax(8.4rem, 1fr)) !important;
+    overflow-x: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html body .native-ui.business-onboarding-page .service-setup-panel-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .native-ui.business-onboarding-page .service-setup-panel {
+    min-height: 0 !important;
+  }
+
+  html body .native-ui.business-onboarding-page .service-setup-step-list {
+    grid-template-columns: repeat(4, minmax(8rem, 1fr)) !important;
+  }
+}

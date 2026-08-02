@@ -56,6 +56,7 @@ export const BusinessCalendar = ({
       <section data-tour="schedule-calendar">
         <ScheduleCalendarWorkspace
           allBookings={bookings}
+          canEditSelectedCalendar={schedule.canEditSelectedCalendar}
           calendars={schedule.calendars}
           clientDirectory={clientDirectory}
           exampleMode={readOnly}

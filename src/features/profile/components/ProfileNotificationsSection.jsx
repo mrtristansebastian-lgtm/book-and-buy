@@ -36,7 +36,7 @@ const ToggleRow = ({ active, disabled, note, onClick, title }) => (
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className={`flex min-h-[4.5rem] items-center justify-between gap-4 rounded-lg border px-4 py-3 text-left transition-all ${active ? 'border-black bg-black text-white' : 'border-neutral-200 bg-white text-black hover:border-black'} ${disabled ? 'cursor-default opacity-80' : ''}`}
+    className={`notification-toggle-row flex min-h-[4.5rem] items-center justify-between gap-4 rounded-lg border px-4 py-3 text-left transition-all ${active ? 'is-active border-black bg-black text-white' : 'border-neutral-200 bg-white text-black hover:border-black'} ${disabled ? 'is-disabled cursor-default opacity-80' : ''}`}
   >
     <span className="min-w-0">
       <span className="block text-sm font-black tracking-tight">{title}</span>
@@ -120,8 +120,8 @@ export const ProfileNotificationsSection = ({
   const activeEmailCount = emailMessageKeys.filter(key => normalized[key]?.active !== false).length;
 
   return (
-    <section className={`profile-section profile-section-notifications ${activeProfileSection === 'notifications' ? 'block' : 'hidden'} bg-white rounded-lg p-5 sm:p-6 md:p-8`}>
-      <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+    <section className={`profile-section profile-section-notifications profile-notifications-room ${activeProfileSection === 'notifications' ? 'block' : 'hidden'} bg-white rounded-lg p-5 sm:p-6 md:p-8`}>
+      <div className="profile-notifications-header mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <p className="mb-3 text-[10px] font-bold uppercase text-neutral-300">Notifications Studio</p>
           <h3 className="text-2xl font-black text-black md:text-3xl">Emails and in-app alerts</h3>
@@ -132,14 +132,14 @@ export const ProfileNotificationsSection = ({
         <button
           type="button"
           onClick={saveAll}
-          className="h-11 rounded-full bg-black px-6 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-neutral-800"
+          className="notification-save-button h-11 rounded-full bg-black px-6 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-neutral-800"
         >
           Save notifications
         </button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <article className="rounded-lg border border-neutral-100 bg-neutral-50 p-5">
+      <div className="notification-status-grid grid gap-4 lg:grid-cols-3">
+        <article className="notification-status-card rounded-lg border border-neutral-100 bg-neutral-50 p-5">
           <Mail size={16} className="mb-4 text-black" />
           <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Email provider</p>
           <h4 className="mt-2 text-xl font-black text-black">{providerStatus.configured ? 'Resend ready' : 'Resend setup needed'}</h4>
@@ -147,7 +147,7 @@ export const ProfileNotificationsSection = ({
             {providerStatus.loading ? 'Checking server status...' : providerStatus.configured ? 'Server email is connected.' : `Missing: ${(providerStatus.missing || []).join(', ') || 'provider secrets'}.`}
           </p>
         </article>
-        <article className="rounded-lg border border-neutral-100 bg-neutral-50 p-5">
+        <article className="notification-status-card rounded-lg border border-neutral-100 bg-neutral-50 p-5">
           <ShieldCheck size={16} className="mb-4 text-black" />
           <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Auth emails</p>
           <h4 className="mt-2 text-xl font-black text-black">Platform managed</h4>
@@ -155,7 +155,7 @@ export const ProfileNotificationsSection = ({
             Verification and password reset emails are Build A Booking branded and sent from Functions.
           </p>
         </article>
-        <article className="rounded-lg border border-neutral-100 bg-neutral-50 p-5">
+        <article className="notification-status-card rounded-lg border border-neutral-100 bg-neutral-50 p-5">
           <BellRing size={16} className="mb-4 text-black" />
           <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Active templates</p>
           <h4 className="mt-2 text-xl font-black text-black">{activeEmailCount}/{emailMessageKeys.length}</h4>
@@ -166,7 +166,7 @@ export const ProfileNotificationsSection = ({
       </div>
 
       <div className="mt-6 grid gap-5 xl:grid-cols-2">
-        <section className="rounded-lg border border-neutral-100 bg-white p-5">
+        <section className="notification-settings-card rounded-lg border border-neutral-100 bg-white p-5">
           <div className="mb-4 flex items-center justify-between gap-4">
             <div>
               <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Email channels</p>
@@ -187,7 +187,7 @@ export const ProfileNotificationsSection = ({
           </div>
         </section>
 
-        <section className="rounded-lg border border-neutral-100 bg-white p-5">
+        <section className="notification-settings-card rounded-lg border border-neutral-100 bg-white p-5">
           <div className="mb-4">
             <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">In-app channels</p>
             <h4 className="mt-1 text-xl font-black text-black">Always-on core alerts</h4>
@@ -210,7 +210,7 @@ export const ProfileNotificationsSection = ({
         </section>
       </div>
 
-      <section className="mt-5 rounded-lg border border-neutral-100 bg-white p-5">
+      <section className="notification-settings-card notification-reminders-card mt-5 rounded-lg border border-neutral-100 bg-white p-5">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Client reminders</p>
@@ -245,14 +245,14 @@ export const ProfileNotificationsSection = ({
         </div>
       </section>
 
-      <section className="mt-5 rounded-lg border border-neutral-100 bg-white p-5">
+      <section className="notification-settings-card notification-templates-card mt-5 rounded-lg border border-neutral-100 bg-white p-5">
         <div className="mb-4">
           <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400">Templates</p>
           <h4 className="mt-1 text-xl font-black text-black">Client email copy</h4>
         </div>
         <div className="grid gap-4 xl:grid-cols-2">
           {emailTemplates.map(template => (
-            <article key={template.key} className="rounded-lg border border-neutral-100 bg-neutral-50 p-4">
+            <article key={template.key} className="notification-template-card rounded-lg border border-neutral-100 bg-neutral-50 p-4">
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
                   <h5 className="text-base font-black text-black">{template.title}</h5>
@@ -270,7 +270,7 @@ export const ProfileNotificationsSection = ({
               <textarea
                 value={normalized[template.key]?.text || ''}
                 onChange={(event) => updateTemplate(template.key, { text: event.target.value })}
-                className="min-h-[112px] w-full resize-none rounded-lg border border-transparent bg-white p-4 text-sm font-semibold leading-relaxed text-black outline-none transition-colors focus:border-black"
+                className="notification-template-textarea min-h-[112px] w-full resize-none rounded-lg border border-transparent bg-white p-4 text-sm font-semibold leading-relaxed text-black outline-none transition-colors focus:border-black"
               />
             </article>
           ))}

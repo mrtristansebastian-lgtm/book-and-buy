@@ -1,4 +1,4 @@
-import { getLocalDateStr } from '../../../utils/dates';
+import { getLocalDateStr } from '../../../utils/dates.js';
 
 const monthLookup = {
     jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2, apr: 3, april: 3,

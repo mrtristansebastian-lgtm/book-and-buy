@@ -2,6 +2,18 @@ import { Images, MapPin, Plus } from 'lucide-react';
 import { getFontFamily } from '../../../data/fonts';
 import { getBlockMargins } from '../utils/bookingFlowUtils';
 
+const formatHeroTagline = (tagline = '') => {
+  const value = String(tagline || '').trim();
+  if (!value) return value;
+  const hasLowercase = /[a-z]/.test(value);
+  const hasLetters = /[A-Z]/i.test(value);
+  if (!hasLetters || hasLowercase) return value;
+
+  return value
+    .toLocaleLowerCase()
+    .replace(/(^|[.!?]\s+)([a-z])/g, (_, prefix, letter) => `${prefix}${letter.toLocaleUpperCase()}`);
+};
+
 export const BookingHeroSection = ({
   accentGradientActive,
   bannerDisplay,
@@ -29,6 +41,8 @@ export const BookingHeroSection = ({
   const canPreviewUploadMedia = Boolean(isPreview && onMediaUpload);
   const shouldRenderHeroLogo = Boolean(logoDisplay.visible && (hasHeroLogo || canPreviewUploadMedia));
   const shouldRenderHeroBanner = Boolean(bannerDisplay.visible && (hasHeroBanner || canPreviewUploadMedia));
+
+  const heroTagline = formatHeroTagline(settings.tagline);
 
   const handlePreviewMediaUpload = (key, event) => {
     const file = event.target.files?.[0];
@@ -123,10 +137,10 @@ export const BookingHeroSection = ({
       >
         <div className={`booking-hero-kicker-rule ${nativeAccentFillClass}`} style={{ backgroundColor: settings.headingUnderlineColor || settings.primaryColor }} />
         <span
-          className="font-bold uppercase opacity-40"
-          style={{ color: settings.bodyColor, fontFamily: getFontFamily(taglineText.font), fontSize: `${taglineText.size}px`, ...(subtextLetterSpacing ? { letterSpacing: subtextLetterSpacing } : {}) }}
+          className="booking-hero-tagline"
+          style={{ color: settings.bodyColor, fontFamily: getFontFamily(taglineText.font) }}
         >
-          {settings.tagline}
+          {heroTagline}
         </span>
         <div className={`booking-hero-kicker-rule ${nativeAccentFillClass}`} style={{ backgroundColor: settings.headingUnderlineColor || settings.primaryColor }} />
       </div>

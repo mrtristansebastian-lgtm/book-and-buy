@@ -121,6 +121,7 @@ export function ChatAttachmentComposer({
   const imageInputRef = useRef(null);
   const documentInputRef = useRef(null);
   const recorderRef = useRef(null);
+  const textareaRef = useRef(null);
   const voiceChunksRef = useRef([]);
   const voiceStreamRef = useRef(null);
   const voiceTimerRef = useRef(null);
@@ -151,6 +152,18 @@ export function ChatAttachmentComposer({
     window.clearInterval(voiceTimerRef.current);
     voiceStreamRef.current?.getTracks?.().forEach(track => track.stop());
   }, []);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = 'auto';
+    const styles = globalThis.getComputedStyle?.(textarea);
+    const maxHeight = Number.parseFloat(styles?.maxHeight || '') || 112;
+    const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, [draft]);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -427,11 +440,12 @@ export function ChatAttachmentComposer({
           <Paperclip size={17} />
         </button>
         <textarea
+          ref={textareaRef}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder={placeholder}
           aria-label={ariaLabel}
-          rows={2}
+          rows={1}
           disabled={composerBusy || sending}
         />
         <button

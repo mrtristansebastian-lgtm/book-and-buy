@@ -224,3 +224,21 @@
             text-align: center;
             font-variant-numeric: tabular-nums;
         }
+
+        html body .native-ui .finance-timeline-statbar > div p:first-child {
+            color: #101828 !important;
+            font-size: 0.5rem !important;
+            font-weight: 850 !important;
+            letter-spacing: 0.08em !important;
+            line-height: 1.1 !important;
+            opacity: 1 !important;
+        }
+
+        html body .native-ui .finance-timeline-statbar > div p:last-child {
+            color: #050505 !important;
+            font-size: clamp(1.45rem, 2vw, 1.85rem) !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.02em !important;
+            line-height: 1.05 !important;
+            opacity: 1 !important;
+        }

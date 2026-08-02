@@ -110,27 +110,37 @@ html body .native-ui .support-inbox-pro .support-message-owner .support-message-
 
 html body .native-ui .support-desk-shell .support-message-proposal,
 html body .native-ui .support-inbox-pro .support-message-proposal {
-    border-radius: 0.8rem !important;
+    border-radius: 0.86rem !important;
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: #101828 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94) !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal.is-owner,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-owner {
     background: #ffffff !important;
-    border-color: #d9e1e9 !important;
-    color: #172033 !important;
+    border-color: rgba(255, 255, 255, 0.72) !important;
+    color: #101828 !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal.is-client,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-client {
-    background: #f8fafc !important;
-    border-color: #dfe5ec !important;
-    color: #172033 !important;
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: #101828 !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal-title,
 html body .native-ui .support-inbox-pro .support-message-proposal-title,
 html body .native-ui .support-desk-shell .support-message-proposal-status,
 html body .native-ui .support-inbox-pro .support-message-proposal-status {
+    color: #667085 !important;
+    font-size: 0.64rem !important;
+    font-weight: var(--native-label-weight, 760) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.1 !important;
+    text-transform: none !important;
     opacity: 1 !important;
 }
 
@@ -140,17 +150,12 @@ html body .native-ui .support-desk-shell .support-message-proposal.is-owner .sup
 html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-label,
 html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-status,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-status {
-    color: #6b778a !important;
-}
-
-html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-tile,
-html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-tile {
-    background: #f3f6f9 !important;
+    color: #667085 !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal.is-owner .support-message-proposal-value,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-owner .support-message-proposal-value {
-    color: #172033 !important;
+    color: #101828 !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-title,
@@ -159,24 +164,110 @@ html body .native-ui .support-desk-shell .support-message-proposal.is-client .su
 html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-title,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-label,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-status {
-    color: #6b778a !important;
+    color: #667085 !important;
 }
 
+html body .native-ui .support-desk-shell .support-message-proposal-tile,
+html body .native-ui .support-inbox-pro .support-message-proposal-tile,
 html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-tile,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-tile {
     background: #ffffff !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: none !important;
 }
 
+html body .native-ui .support-desk-shell .support-message-proposal-label,
+html body .native-ui .support-inbox-pro .support-message-proposal-label {
+    color: #667085 !important;
+    font-size: 0.64rem !important;
+    font-weight: var(--native-label-weight, 760) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.1 !important;
+    text-transform: none !important;
+    opacity: 1 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal-value,
+html body .native-ui .support-inbox-pro .support-message-proposal-value,
 html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-value,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-client .support-message-proposal-value {
-    color: #172033 !important;
+    color: #101828 !important;
+    font-size: 0.84rem !important;
+    font-weight: var(--native-body-weight, 500) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.25 !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal-secondary,
 html body .native-ui .support-inbox-pro .support-message-proposal-secondary {
-    border-color: #cbd5e1 !important;
-    background: transparent !important;
-    color: #253149 !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+    background: #ffffff !important;
+    color: #101828 !important;
+    font-size: 0.6rem !important;
+    font-weight: var(--native-label-weight, 760) !important;
+    letter-spacing: 0.04em !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal button,
+html body .native-ui .support-inbox-pro .support-message-proposal button {
+    border-radius: 0.58rem !important;
+    font-size: 0.6rem !important;
+    font-weight: var(--native-label-weight, 760) !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1 !important;
+}
+
+html body .native-ui .support-desk-shell .support-message-proposal .native-gradient-button,
+html body .native-ui .support-inbox-pro .support-message-proposal .native-gradient-button {
+    color: #101828 !important;
+}
+
+html body .native-ui .client-chat-shell .client-message-proposal {
+    border-radius: 0.86rem !important;
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: #101828 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94) !important;
+}
+
+html body .native-ui .client-chat-shell .client-message-proposal-title,
+html body .native-ui .client-chat-shell .client-message-proposal-label,
+html body .native-ui .client-chat-shell .client-message-proposal-status {
+    color: #667085 !important;
+    font-size: 0.64rem !important;
+    font-weight: var(--native-label-weight, 760) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.1 !important;
+    text-transform: none !important;
+    opacity: 1 !important;
+}
+
+html body .native-ui .client-chat-shell .client-message-proposal-tile {
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    box-shadow: none !important;
+}
+
+html body .native-ui .client-chat-shell .client-message-proposal-value {
+    color: #101828 !important;
+    font-size: 0.84rem !important;
+    font-weight: var(--native-body-weight, 500) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.25 !important;
+}
+
+html body .native-ui .client-chat-shell .client-message-proposal button {
+    border-radius: 0.58rem !important;
+    font-size: 0.6rem !important;
+    font-weight: var(--native-label-weight, 760) !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1 !important;
+}
+
+html body .native-ui .client-chat-shell .client-message-proposal-secondary {
+    border-color: rgba(15, 23, 42, 0.12) !important;
+    background: #ffffff !important;
+    color: #101828 !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal.is-client .support-message-proposal-secondary,
@@ -266,16 +357,16 @@ html body .native-ui .support-inbox-pro .support-message-client .chat-attachment
 
 html body .native-ui .support-desk-shell .support-message-proposal.is-owner,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-owner {
-    background: color-mix(in srgb, var(--support-chat-owner-bubble, #101114) 10%, #ffffff) !important;
-    border-color: color-mix(in srgb, var(--support-chat-owner-bubble, #101114) 28%, #ffffff) !important;
-    color: var(--support-chat-owner-text, #ffffff) !important;
+    background: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.72) !important;
+    color: #101828 !important;
 }
 
 html body .native-ui .support-desk-shell .support-message-proposal.is-client,
 html body .native-ui .support-inbox-pro .support-message-proposal.is-client {
-    background: color-mix(in srgb, var(--support-chat-client-bubble, #ffffff) 86%, #f8fafc) !important;
-    border-color: color-mix(in srgb, var(--support-chat-client-bubble, #ffffff) 70%, #172033) !important;
-    color: var(--support-chat-client-text, #172033) !important;
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: #101828 !important;
 }
 
 /* Thread rail hierarchy: identity, metadata, then the latest message. */

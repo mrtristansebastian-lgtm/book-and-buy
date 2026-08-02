@@ -1,37 +1,14 @@
 import {
-  Briefcase,
   Calendar,
   Check,
   DollarSign,
   Hourglass,
   Info,
-  Mail,
   MessagesSquare,
   X
 } from 'lucide-react';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import { isManualPaymentMarkable } from '../utils/bookingPaymentModel';
-
-const RunningPersonIcon = ({ size = 14, strokeWidth = 2.6, ...props }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    {...props}
-  >
-    <circle cx="14" cy="4.5" r="2" />
-    <path d="m11.8 8.2 4.2 2.2 2.3-2.2" />
-    <path d="m13.3 10.1-2.6 3.7 3.6 2.2 1.9 3.8" />
-    <path d="m10.6 13.8-3.2 1.1-2 3" />
-    <path d="M7 7.8h4.4" />
-  </svg>
-);
 
 export const BookingRecordRow = ({
   approveBooking,
@@ -43,8 +20,6 @@ export const BookingRecordRow = ({
   onSetBookingInfo,
   openBookingChat,
   safeStaffList,
-  sendReviewToBooking,
-  sendRunningLateToBooking,
   sendWaitlistToBooking,
   setConfirmDialog,
   updateBooking
@@ -52,16 +27,11 @@ export const BookingRecordRow = ({
   const isExampleBooking = Boolean(booking.isExample);
   const clientAvatar = getBookingClientAvatar(booking);
   const serviceDetails = getBookingService(booking);
-  const serviceSummary = serviceDetails?.name
-    ? [serviceDetails.name, formatServiceDuration(serviceDetails.duration), formatServicePrice(serviceDetails)].filter(Boolean).join(' / ')
-    : '';
-  const statusStyle = booking.status === 'confirmed'
-    ? 'bg-[#39FF14] text-black'
-    : booking.status === 'waitlist'
-      ? 'bg-amber-100 text-amber-800'
-      : booking.status === 'declined'
-        ? 'bg-red-50 text-red-600'
-        : 'bg-black text-white';
+  const serviceName = serviceDetails?.name || '';
+  const servicePrice = formatServicePrice(serviceDetails);
+  const serviceDuration = formatServiceDuration(serviceDetails?.duration) || 'No fixed duration';
+  const normalizedStatus = booking.status === 'waitlisted' ? 'waitlist' : booking.status || 'pending';
+  const statusStyle = `is-${normalizedStatus}`;
   const isPaid = booking.paymentStatus === 'paid';
   const isConfirmed = booking.status === 'confirmed';
   const canMarkManualPayment = isManualPaymentMarkable(booking);
@@ -87,35 +57,42 @@ export const BookingRecordRow = ({
               <h3 className="text-lg md:text-xl font-bold tracking-tight text-black truncate">{booking.clientName}</h3>
               {isExampleBooking && <span className="shrink-0 px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest bg-neutral-100 text-neutral-500">Example Only</span>}
               <span className={`booking-record-status shrink-0 px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest ${statusStyle}`}>{booking.status === 'waitlist' ? 'Standby' : booking.status}</span>
-              <button
-                type="button"
-                onClick={() => onSetBookingInfo(booking)}
-                className="booking-record-info-button"
-                aria-label={`View booking information for ${booking.clientName}`}
-                data-testid="booking-action-info"
-              >
-                <Info size={13} />
-                <span>Info</span>
-              </button>
             </div>
-            {serviceSummary && (
-              <p className="booking-record-service mt-2 inline-flex max-w-full items-center gap-2 rounded-full bg-neutral-50 border border-neutral-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-neutral-500">
-                <Briefcase size={12} className="shrink-0" />
-                <span className="truncate">{serviceSummary}</span>
-              </p>
+            {serviceName && (
+              <div className="booking-record-service">
+                <span className="booking-record-service-line">
+                  <span className="booking-record-service-name">
+                    {serviceName}
+                    {servicePrice ? `, ${servicePrice}` : ''}
+                    {serviceDuration ? `, ${serviceDuration}` : ''}
+                  </span>
+                </span>
+              </div>
             )}
           </div>
         </div>
 
         <div className="booking-record-time 2xl:col-span-2">
-          <p className="metric-value text-2xl font-bold tracking-tight text-black">{booking.time}</p>
+          <p className="booking-record-time-value metric-value text-2xl font-bold tracking-tight text-black">{booking.time}</p>
           <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">{booking.date}</p>
         </div>
 
         <div className="booking-record-staff 2xl:col-span-3">
           {isExampleBooking ? (
-            <div className="inline-flex h-10 items-center px-3 rounded-lg bg-neutral-50 border border-neutral-100 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-              Example preview
+            <div className="flex items-center gap-2">
+              <div className="inline-flex h-10 items-center px-3 rounded-lg bg-neutral-50 border border-neutral-100 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                Example preview
+              </div>
+              <button
+                type="button"
+                onClick={() => onSetBookingInfo(booking)}
+                className="booking-record-info-button booking-record-info-trigger"
+                aria-label={`View booking information for ${booking.clientName}`}
+                title="View booking information"
+                data-testid="booking-action-info"
+              >
+                <Info size={14} />
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -129,6 +106,16 @@ export const BookingRecordRow = ({
                 <option value="" disabled>Assign staff</option>
                 {displayStaffList.map(staff => <option key={staff.id} value={staff.id}>{staff.name}</option>)}
               </select>
+              <button
+                type="button"
+                onClick={() => onSetBookingInfo(booking)}
+                className="booking-record-info-button booking-record-info-trigger"
+                aria-label={`View booking information for ${booking.clientName}`}
+                title="View booking information"
+                data-testid="booking-action-info"
+              >
+                <Info size={14} />
+              </button>
             </div>
           )}
         </div>
@@ -162,15 +149,6 @@ export const BookingRecordRow = ({
               >
                 <MessagesSquare size={14} /> Chat
               </button>
-              <button
-                onClick={() => sendRunningLateToBooking(booking)}
-                aria-label={`Send running late update to ${booking.clientName}`}
-                title="Running late"
-                data-testid="booking-action-late"
-                className="h-10 px-3 rounded-lg bg-white border border-neutral-200 text-neutral-600 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-50 hover:text-black hover:border-neutral-300 transition-all"
-              >
-                <RunningPersonIcon size={14} /> Late
-              </button>
               {showPaymentButton && (
                 <button
                   type="button"
@@ -192,14 +170,6 @@ export const BookingRecordRow = ({
                   <DollarSign size={14} strokeWidth={2.8} /> {isPaid ? 'Paid' : 'Mark Paid'}
                 </button>
               )}
-              <button
-                onClick={() => sendReviewToBooking(booking)}
-                aria-label={`Send review request to ${booking.clientName}`}
-                data-testid="booking-action-review"
-                className="h-10 px-3 rounded-lg bg-white border border-neutral-200 text-neutral-600 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-50 hover:text-black transition-all"
-              >
-                <Mail size={14} /> Review
-              </button>
               <button
                 onClick={() => {
                   if (isConfirmed) return;

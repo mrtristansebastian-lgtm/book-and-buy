@@ -29,8 +29,10 @@ export function DashboardOverlays({
   setImageCropModal,
   setLegalPanel,
   setRunningLateDialog,
+  showToast,
   submitRunningLateDialog,
-  toast
+  toast,
+  updateBooking
 }) {
   return (
     <>
@@ -60,6 +62,15 @@ export function DashboardOverlays({
             actionLabel: 'Remove',
             onConfirm: () => deleteBooking(booking.id)
           });
+        }}
+        onRequestReschedule={async (booking, proposal) => {
+          await updateBooking?.(booking.id, {
+            rescheduleStatus: 'offered',
+            proposedReschedule: proposal,
+            rescheduleRequest: proposal
+          });
+          showToast?.('Reschedule request sent to the client.');
+          setBookingInfoDialog(null);
         }}
       />
       <RunningLateDialog

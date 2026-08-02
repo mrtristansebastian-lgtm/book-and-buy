@@ -38,30 +38,31 @@
 
         .support-desk-shell .support-chat-composer,
         .client-chat-shell .client-chat-composer {
-            background: rgba(255, 255, 255, 0.92) !important;
-            border-color: var(--support-soft-border) !important;
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
+            background: transparent !important;
+            border-color: transparent !important;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
-        .support-chat-composer-row {
-            align-items: stretch !important;
-            gap: 0.58rem !important;
+        .support-chat-composer-row,
+        .chat-attachment-composer-row {
+            align-items: center !important;
+            gap: 0.5rem !important;
         }
 
         .support-desk-shell .support-chat-composer textarea,
         .client-chat-shell .client-chat-composer textarea {
-            min-height: 3.05rem !important;
+            min-height: 2.5rem !important;
             max-height: 7rem;
-            border-radius: 1.05rem !important;
-            background: rgba(255, 255, 255, 0.94) !important;
+            border-radius: 0.76rem !important;
+            background: color-mix(in srgb, var(--support-chat-canvas, #f8fafc) 42%, #ffffff) !important;
             border-color: var(--support-border) !important;
             color: var(--support-ink) !important;
-            padding: 0.88rem 1rem !important;
-            line-height: 1.35 !important;
+            padding: 0.56rem 0.92rem !important;
+            line-height: 1.3 !important;
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.96),
-                0 14px 38px -34px rgba(15, 23, 42, 0.45) !important;
+                0 12px 30px -28px rgba(15, 23, 42, 0.36) !important;
         }
 
         .support-desk-shell .support-chat-composer button,
@@ -72,13 +73,13 @@
 
         .support-desk-shell .support-chat-composer .support-chat-send-button {
             position: relative;
-            flex: 0 0 3.05rem;
-            width: 3.05rem !important;
-            min-width: 3.05rem !important;
+            flex: 0 0 2.55rem;
+            width: 2.55rem !important;
+            min-width: 2.55rem !important;
             height: auto !important;
-            min-height: 3.05rem !important;
+            min-height: 2.55rem !important;
             border: 1px solid transparent !important;
-            border-radius: 1.05rem !important;
+            border-radius: 0.76rem !important;
             background:
                 linear-gradient(#ffffff, #ffffff) padding-box,
                 var(--native-accent-gradient) border-box !important;

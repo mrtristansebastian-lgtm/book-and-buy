@@ -740,18 +740,18 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
                     {message.text && <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>}
                     <ChatMessageAttachments attachments={message.attachments} mine={mine} />
                     {proposal && (
-                      <div className={`mt-3 rounded-2xl border p-3 ${mine ? 'bg-white/10 border-white/15 text-white' : 'bg-neutral-50 border-neutral-200 text-black'}`}>
-                        <p className="text-[8px] font-bold uppercase tracking-[0.16em] opacity-50 mb-2">
+                      <div className="client-message-proposal mt-3 rounded-2xl border border-neutral-100 bg-white p-3 text-[#101828]">
+                        <p className="client-message-proposal-title text-[8px] font-bold uppercase tracking-[0.16em] opacity-50 mb-2">
                           {proposal.status === 'accepted' ? 'Reschedule accepted' : proposal.status === 'declined' ? 'Reschedule declined' : proposal.source === 'counter' ? 'Counter offer' : 'Reschedule option'}
                         </p>
                         <div className="grid grid-cols-2 gap-2 mb-3">
-                          <div className={`rounded-xl px-3 py-2 ${mine ? 'bg-white/10' : 'bg-white'}`}>
-                            <p className="text-[8px] font-bold uppercase tracking-widest opacity-45">Date</p>
-                            <p className="text-xs font-bold mt-1">{proposal.date || 'To confirm'}</p>
+                          <div className="client-message-proposal-tile rounded-xl border border-neutral-100 bg-white px-3 py-2">
+                            <p className="client-message-proposal-label text-[8px] font-bold uppercase tracking-widest opacity-45">Date</p>
+                            <p className="client-message-proposal-value text-xs font-bold mt-1">{proposal.date || 'To confirm'}</p>
                           </div>
-                          <div className={`rounded-xl px-3 py-2 ${mine ? 'bg-white/10' : 'bg-white'}`}>
-                            <p className="text-[8px] font-bold uppercase tracking-widest opacity-45">Time</p>
-                            <p className="text-xs font-bold mt-1">{proposal.time || 'To confirm'}</p>
+                          <div className="client-message-proposal-tile rounded-xl border border-neutral-100 bg-white px-3 py-2">
+                            <p className="client-message-proposal-label text-[8px] font-bold uppercase tracking-widest opacity-45">Time</p>
+                            <p className="client-message-proposal-value text-xs font-bold mt-1">{proposal.time || 'To confirm'}</p>
                           </div>
                         </div>
                         {clientCanRespond ? (
@@ -759,19 +759,19 @@ export function ClientPortal({ appId, db, user, isGuestPreview = false, onSignOu
                             <button type="button" onClick={() => acceptRescheduleProposal(proposal)} className="h-9 rounded-xl native-gradient-button text-black text-[8px] font-bold uppercase tracking-widest">
                               Accept
                             </button>
-                            <button type="button" onClick={() => openCounterOffer(proposal)} className={`h-9 rounded-xl border text-[8px] font-bold uppercase tracking-widest ${mine ? 'border-white/20 bg-white/10 text-white' : 'border-neutral-200 bg-white text-black'}`}>
+                            <button type="button" onClick={() => openCounterOffer(proposal)} className="client-message-proposal-secondary h-9 rounded-xl border border-neutral-200 bg-white text-black text-[8px] font-bold uppercase tracking-widest">
                               Counter
                             </button>
-                            <button type="button" onClick={() => declineRescheduleProposal(proposal)} className={`h-9 rounded-xl border text-[8px] font-bold uppercase tracking-widest ${mine ? 'border-white/20 bg-white/10 text-white' : 'border-neutral-200 bg-white text-black'}`}>
+                            <button type="button" onClick={() => declineRescheduleProposal(proposal)} className="client-message-proposal-secondary h-9 rounded-xl border border-neutral-200 bg-white text-black text-[8px] font-bold uppercase tracking-widest">
                               Decline
                             </button>
                           </div>
                         ) : pendingProposal ? (
-                          <p className="text-[10px] font-bold uppercase tracking-widest opacity-45">
+                          <p className="client-message-proposal-status text-[10px] font-bold uppercase tracking-widest opacity-45">
                             {proposal.requestedBy === 'client' ? 'Waiting for business response' : 'Waiting for your response'}
                           </p>
                         ) : (
-                          <p className="text-[10px] font-bold uppercase tracking-widest opacity-45">{proposal.status || 'Closed'}</p>
+                          <p className="client-message-proposal-status text-[10px] font-bold uppercase tracking-widest opacity-45">{proposal.status || 'Closed'}</p>
                         )}
                       </div>
                     )}

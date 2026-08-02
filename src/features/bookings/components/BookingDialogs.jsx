@@ -1,7 +1,20 @@
-import { Trash2, X } from 'lucide-react';
+import { useState } from 'react';
+import { CalendarDays, Clock3, RefreshCw, Trash2, X } from 'lucide-react';
+import { createRescheduleProposal } from '../../communications/communicationsModel';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
+import { getLocalDateStr } from '../../../utils/dates';
 
-export const BookingInfoDialog = ({ booking, staffList = [], getBookingService, onClose, onRequestDelete }) => {
+export const BookingInfoDialog = ({
+  booking,
+  staffList = [],
+  getBookingService,
+  onClose,
+  onRequestDelete,
+  onRequestReschedule
+}) => {
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [rescheduleDraft, setRescheduleDraft] = useState({ date: '', time: '' });
+  const [sendingReschedule, setSendingReschedule] = useState(false);
   if (!booking) return null;
 
   const serviceDetails = getBookingService?.(booking);
@@ -29,6 +42,24 @@ export const BookingInfoDialog = ({ booking, staffList = [], getBookingService, 
     { label: 'Method', value: booking.paymentMethod || booking.paymentGateway || 'Not selected' },
     { label: 'Note', value: booking.clientNote || 'No note saved' }
   ];
+  const canSendReschedule = rescheduleDraft.date.trim() && rescheduleDraft.time.trim() && !sendingReschedule;
+  const submitReschedule = async () => {
+    if (!canSendReschedule) return;
+    setSendingReschedule(true);
+    try {
+      const proposal = createRescheduleProposal({
+        bookingId: booking.id,
+        date: rescheduleDraft.date.trim(),
+        time: rescheduleDraft.time.trim(),
+        requestedBy: 'owner',
+        source: 'offer',
+        message: `Reschedule request from the business: ${rescheduleDraft.date.trim()} at ${rescheduleDraft.time.trim()}. Confirm this time or send a counter offer.`
+      });
+      await onRequestReschedule?.(booking, proposal);
+    } finally {
+      setSendingReschedule(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/45 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -41,9 +72,9 @@ export const BookingInfoDialog = ({ booking, staffList = [], getBookingService, 
       >
         <div className="flex items-start justify-between gap-4 mb-5">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-2">Booking Info</p>
+            <p className="booking-info-eyebrow text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 mb-2">Booking Info</p>
             <h2 id="booking-info-title" className="text-2xl font-bold tracking-tight text-black">{booking.clientName || 'Client'}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-neutral-500">Full booking, client, staff, and payment context.</p>
+            <p className="booking-info-description mt-2 text-sm leading-relaxed text-neutral-500">Full booking, client, staff, and payment context.</p>
           </div>
           <button type="button" aria-label="Close booking info" data-testid="booking-info-close" onClick={onClose} className="w-10 h-10 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center text-neutral-500 hover:text-black transition-colors">
             <X size={16} />
@@ -57,10 +88,57 @@ export const BookingInfoDialog = ({ booking, staffList = [], getBookingService, 
             </div>
           ))}
         </div>
+        <button type="button" data-testid="booking-info-reschedule" onClick={() => setRescheduleOpen(true)} className="booking-info-reschedule-button mt-4">
+          <RefreshCw size={14} /> Reschedule Booking
+        </button>
         <button type="button" data-testid="booking-info-delete" onClick={() => onRequestDelete?.(booking)} className="booking-info-danger-button mt-4">
           <Trash2 size={14} /> Remove Booking
         </button>
       </div>
+      {rescheduleOpen ? (
+        <div className="booking-reschedule-overlay" role="presentation">
+          <section className="booking-reschedule-wizard" role="dialog" aria-modal="true" aria-label="Reschedule booking">
+            <div className="booking-reschedule-wizard-head">
+              <span className="booking-reschedule-wizard-icon native-gradient-icon" aria-hidden="true">
+                <RefreshCw size={16} />
+              </span>
+              <div>
+                <p>Reschedule request</p>
+                <h3>What time would you like to reschedule to?</h3>
+                <span>A request will be sent to the client. They can confirm this time or send a counter offer from their end.</span>
+              </div>
+              <button type="button" aria-label="Close reschedule wizard" onClick={() => setRescheduleOpen(false)}>
+                <X size={15} />
+              </button>
+            </div>
+            <div className="booking-reschedule-fields">
+              <label>
+                <span><CalendarDays size={13} /> New date</span>
+                <input
+                  type="date"
+                  min={getLocalDateStr(new Date())}
+                  value={rescheduleDraft.date}
+                  onChange={(event) => setRescheduleDraft(prev => ({ ...prev, date: event.target.value }))}
+                />
+              </label>
+              <label>
+                <span><Clock3 size={13} /> New time</span>
+                <input
+                  type="time"
+                  value={rescheduleDraft.time}
+                  onChange={(event) => setRescheduleDraft(prev => ({ ...prev, time: event.target.value }))}
+                />
+              </label>
+            </div>
+            <div className="booking-reschedule-actions">
+              <button type="button" onClick={() => setRescheduleOpen(false)}>Back</button>
+              <button type="button" className="native-gradient-button" disabled={!canSendReschedule} onClick={submitReschedule}>
+                {sendingReschedule ? 'Sending' : 'Send Request'}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 };

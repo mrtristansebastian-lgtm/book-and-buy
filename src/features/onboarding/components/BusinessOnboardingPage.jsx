@@ -229,6 +229,7 @@ export function BusinessOnboardingPage({
   const [applyScope, setApplyScope] = useState('always');
   const [scheduleSlotEditor, setScheduleSlotEditor] = useState(null);
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+  const [activeServiceSetupGroup, setActiveServiceSetupGroup] = useState('basics');
   const [serviceSaved, setServiceSaved] = useState(false);
   const [industryMenuOpen, setIndustryMenuOpen] = useState(true);
   const [countryMenuOpen, setCountryMenuOpen] = useState(false);
@@ -941,191 +942,262 @@ export function BusinessOnboardingPage({
     }
 
     if (stepId === 'services') {
+      const serviceSetupGroups = [
+        {
+          id: 'basics',
+          number: '01',
+          title: 'Basics',
+          description: 'Name, category, and location',
+          complete: Boolean(primaryService.name?.trim())
+        },
+        {
+          id: 'pricing',
+          number: '02',
+          title: 'Pricing',
+          description: 'Price and duration',
+          complete: primaryServicePriceType === 'quote' || Boolean(primaryService.price || primaryService.durationMode === 'none' || primaryServiceDuration)
+        },
+        {
+          id: 'details',
+          number: '03',
+          title: 'Details',
+          description: 'Client-facing description',
+          complete: Boolean(primaryService.description?.trim())
+        },
+        {
+          id: 'media',
+          number: '04',
+          title: 'Photos & save',
+          description: 'Images and launch status',
+          complete: serviceSaved
+        }
+      ];
+      const activeServiceGroup = serviceSetupGroups.find(group => group.id === activeServiceSetupGroup) || serviceSetupGroups[0];
+
       return (
         <div className="onboarding-focus-page onboarding-service-wizard-panel">
           {renderSectionHeader({
             title: 'Set up the service clients will book.',
             description: 'Keep this simple for launch. You can add more services and advanced settings later.'
           })}
-          <div className="service-wizard-grid onboarding-service-compact-grid">
-            <label className="service-wizard-field service-main-field onboarding-question">
-              <span>Service name</span>
-              <input
-                autoFocus
-                value={primaryService.name}
-                onChange={(event) => updateService(editingServiceIndex, { name: event.target.value })}
-                placeholder="Signature Appointment"
-              />
-            </label>
-            <label className="service-wizard-field service-category-field onboarding-question">
-              <span>Category</span>
-              <input
-                value={primaryService.category || preset.label}
-                onChange={(event) => updateService(editingServiceIndex, { category: event.target.value })}
-                placeholder="Beauty, consulting, tutoring..."
-              />
-            </label>
-            <div className="service-wizard-field service-price-field onboarding-question">
-              <span>Price</span>
-              <div className="service-price-mode-grid" role="radiogroup" aria-label="Service pricing type">
-                {servicePriceTypeOptions.map(option => {
-                  const selected = primaryServicePriceType === option.id;
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      className={selected ? 'is-active' : ''}
-                      onClick={() => updateService(editingServiceIndex, {
-                        priceType: option.id,
-                        price: option.id === 'quote' ? '' : primaryService.price
-                      })}
-                      aria-pressed={selected}
-                    >
-                      <span>{selected ? <Check size={13} /> : null}</span>
-                      <strong>{option.label}</strong>
-                      <small>{option.helper}</small>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="service-money-row">
-                <input
-                  value={primaryService.currency || 'R'}
-                  onChange={(event) => updateService(editingServiceIndex, { currency: event.target.value })}
-                  aria-label="Currency"
-                  disabled={primaryServicePriceType === 'quote'}
-                />
-                <input
-                  value={primaryService.price || ''}
-                  onChange={(event) => updateService(editingServiceIndex, { price: event.target.value })}
-                  placeholder={primaryServicePriceType === 'hourly' ? '450 per hour' : primaryServicePriceType === 'from' ? '450 starting price' : '450'}
-                  aria-label="Price"
-                  disabled={primaryServicePriceType === 'quote'}
-                />
-              </div>
-              <small>{primaryServicePriceType === 'quote' ? 'No amount needed. Clients will request this service and you can quote them after.' : 'Use numbers only here. The booking page will format it for clients.'}</small>
+          <div className="service-wizard-grid onboarding-service-compact-grid onboarding-service-tabbed-flow">
+            <div className="service-setup-step-list" role="tablist" aria-label="Service setup sections">
+              {serviceSetupGroups.map(group => {
+                const selected = activeServiceGroup.id === group.id;
+                return (
+                  <button
+                    key={group.id}
+                    type="button"
+                    className={`${selected ? 'is-active' : ''} ${group.complete ? 'is-complete' : ''}`}
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setActiveServiceSetupGroup(group.id)}
+                  >
+                    <span>{group.complete ? <Check size={13} /> : group.number}</span>
+                    <strong>{group.title}</strong>
+                    <small>{group.description}</small>
+                  </button>
+                );
+              })}
             </div>
-            <div className="service-wizard-field service-duration-field onboarding-question">
-              <span>Duration</span>
-              <div className="service-duration-choice-panel">
-                <select
-                  aria-label="Service duration"
-                  value={primaryService.durationMode === 'none' ? '' : isCustomDuration ? 'custom' : primaryServiceDuration}
-                  disabled={primaryService.durationMode === 'none'}
-                  onChange={(event) => {
-                    if (event.target.value === 'custom') {
-                      updateService(editingServiceIndex, { durationMode: 'custom', duration: primaryServiceDuration || '60' });
-                      return;
-                    }
-                    updateService(editingServiceIndex, { duration: event.target.value, durationMode: 'fixed' });
-                  }}
-                >
-                  <option value="">No fixed duration</option>
-                  {serviceDurationOptions.map(option => (
-                    <option
-                      key={option.minutes}
-                      value={option.minutes}
-                    >
-                      {option.label}
-                    </option>
-                  ))}
-                  <option value="custom">Custom duration</option>
-                </select>
-                <label className={`service-no-duration ${primaryService.durationMode === 'none' ? 'is-active' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={primaryService.durationMode === 'none'}
-                    onChange={(event) => updateService(editingServiceIndex, {
-                      durationMode: event.target.checked ? 'none' : 'fixed',
-                      duration: event.target.checked ? '' : (primaryServiceDuration || '60')
-                    })}
-                  />
-                  <span>{primaryService.durationMode === 'none' ? <Check size={13} /> : null}</span>
-                  <strong>No fixed duration</strong>
-                </label>
-                {isCustomDuration && (
-                  <label className="service-custom-duration">
-                    <span>Custom minutes</span>
+
+            <div className="service-setup-panel" role="tabpanel" aria-label={activeServiceGroup.title}>
+              {activeServiceGroup.id === 'basics' && (
+                <div className="service-setup-panel-grid is-basics">
+                  <label className="service-wizard-field service-main-field onboarding-question">
+                    <span>Service name</span>
                     <input
-                      type="number"
-                      min="5"
-                      step="5"
-                      value={primaryServiceDuration}
-                      onChange={(event) => updateService(editingServiceIndex, { duration: event.target.value, durationMode: 'custom' })}
-                      placeholder="75"
+                      autoFocus
+                      value={primaryService.name}
+                      onChange={(event) => updateService(editingServiceIndex, { name: event.target.value })}
+                      placeholder="Signature Appointment"
                     />
                   </label>
-                )}
-              </div>
-            </div>
-            <div className="service-wizard-field service-location-field onboarding-question">
-              <span>Where is this service done?</span>
-              <div className="service-location-grid">
-                {[
-                  ['online', 'Online', 'Video or remote session'],
-                  ['my_location', 'At my location', 'Clients come to you'],
-                  ['mobile', 'I travel', 'You go to clients']
-                ].map(([id, label, helper]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={draft.locationMode === id ? 'is-active' : ''}
-                    onClick={() => updateDraft({ locationMode: id })}
-                    aria-pressed={draft.locationMode === id}
-                  >
-                    <span>{draft.locationMode === id ? <Check size={15} /> : null}</span>
-                    <strong>{label}</strong>
-                    <small>{helper}</small>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <label className="service-wizard-field service-description-field onboarding-question">
-              <span>Description</span>
-              <textarea
-                value={primaryService.description || ''}
-                onChange={(event) => updateService(editingServiceIndex, { description: event.target.value })}
-                placeholder="What is included, who it is for, and anything clients should know."
-                rows={4}
-              />
-            </label>
-            <div className="service-media-panel service-photos-field onboarding-question">
-              <div>
-                <span>Service photos</span>
-                <strong>{primaryService.imageUrls?.length ? `${primaryService.imageUrls.length} image${primaryService.imageUrls.length === 1 ? '' : 's'} added` : 'Optional photos'}</strong>
-              </div>
-              <div className="service-media-grid">
-                {(primaryService.imageUrls || []).slice(0, 8).map((url, imageIndex) => (
-                  <div key={`${url}-${imageIndex}`} className="service-media-thumb">
-                    <img src={url} alt="" />
-                    <button type="button" onClick={() => removeServiceImage(editingServiceIndex, imageIndex)} aria-label="Remove service image">
-                      <X size={13} />
-                    </button>
+                  <label className="service-wizard-field service-category-field onboarding-question">
+                    <span>Category</span>
+                    <input
+                      value={primaryService.category || preset.label}
+                      onChange={(event) => updateService(editingServiceIndex, { category: event.target.value })}
+                      placeholder="Beauty, consulting, tutoring..."
+                    />
+                  </label>
+                  <div className="service-wizard-field service-location-field onboarding-question">
+                    <span>Where is this service done?</span>
+                    <div className="service-location-grid">
+                      {[
+                        ['online', 'Online', 'Video or remote session'],
+                        ['my_location', 'At my location', 'Clients come to you'],
+                        ['mobile', 'I travel', 'You go to clients']
+                      ].map(([id, label, helper]) => (
+                        <button
+                          key={id}
+                          type="button"
+                          className={draft.locationMode === id ? 'is-active' : ''}
+                          onClick={() => updateDraft({ locationMode: id })}
+                          aria-pressed={draft.locationMode === id}
+                        >
+                          <span>{draft.locationMode === id ? <Check size={15} /> : null}</span>
+                          <strong>{label}</strong>
+                          <small>{helper}</small>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                ))}
-                <label className="service-media-add" aria-label="Upload service images">
-                  <span aria-hidden="true">+</span>
-                  <input type="file" accept="image/*" multiple onChange={(event) => handleServiceImageUpload(editingServiceIndex, event)} />
+                </div>
+              )}
+
+              {activeServiceGroup.id === 'pricing' && (
+                <div className="service-setup-panel-grid is-pricing">
+                  <div className="service-wizard-field service-price-field onboarding-question">
+                    <span>Price</span>
+                    <div className="service-price-mode-grid" role="radiogroup" aria-label="Service pricing type">
+                      {servicePriceTypeOptions.map(option => {
+                        const selected = primaryServicePriceType === option.id;
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            className={selected ? 'is-active' : ''}
+                            onClick={() => updateService(editingServiceIndex, {
+                              priceType: option.id,
+                              price: option.id === 'quote' ? '' : primaryService.price
+                            })}
+                            aria-pressed={selected}
+                          >
+                            <span>{selected ? <Check size={13} /> : null}</span>
+                            <strong>{option.label}</strong>
+                            <small>{option.helper}</small>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="service-money-row">
+                      <input
+                        value={primaryService.currency || 'R'}
+                        onChange={(event) => updateService(editingServiceIndex, { currency: event.target.value })}
+                        aria-label="Currency"
+                        disabled={primaryServicePriceType === 'quote'}
+                      />
+                      <input
+                        value={primaryService.price || ''}
+                        onChange={(event) => updateService(editingServiceIndex, { price: event.target.value })}
+                        placeholder={primaryServicePriceType === 'hourly' ? '450 per hour' : primaryServicePriceType === 'from' ? '450 starting price' : '450'}
+                        aria-label="Price"
+                        disabled={primaryServicePriceType === 'quote'}
+                      />
+                    </div>
+                    <small>{primaryServicePriceType === 'quote' ? 'No amount needed. Clients will request this service and you can quote them after.' : 'Use numbers only here. The booking page will format it for clients.'}</small>
+                  </div>
+                  <div className="service-wizard-field service-duration-field onboarding-question">
+                    <span>Duration</span>
+                    <div className="service-duration-choice-panel">
+                      <select
+                        aria-label="Service duration"
+                        value={primaryService.durationMode === 'none' ? '' : isCustomDuration ? 'custom' : primaryServiceDuration}
+                        disabled={primaryService.durationMode === 'none'}
+                        onChange={(event) => {
+                          if (event.target.value === 'custom') {
+                            updateService(editingServiceIndex, { durationMode: 'custom', duration: primaryServiceDuration || '60' });
+                            return;
+                          }
+                          updateService(editingServiceIndex, { duration: event.target.value, durationMode: 'fixed' });
+                        }}
+                      >
+                        <option value="">No fixed duration</option>
+                        {serviceDurationOptions.map(option => (
+                          <option
+                            key={option.minutes}
+                            value={option.minutes}
+                          >
+                            {option.label}
+                          </option>
+                        ))}
+                        <option value="custom">Custom duration</option>
+                      </select>
+                      <label className={`service-no-duration ${primaryService.durationMode === 'none' ? 'is-active' : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={primaryService.durationMode === 'none'}
+                          onChange={(event) => updateService(editingServiceIndex, {
+                            durationMode: event.target.checked ? 'none' : 'fixed',
+                            duration: event.target.checked ? '' : (primaryServiceDuration || '60')
+                          })}
+                        />
+                        <span>{primaryService.durationMode === 'none' ? <Check size={13} /> : null}</span>
+                        <strong>No fixed duration</strong>
+                      </label>
+                      {isCustomDuration && (
+                        <label className="service-custom-duration">
+                          <span>Custom minutes</span>
+                          <input
+                            type="number"
+                            min="5"
+                            step="5"
+                            value={primaryServiceDuration}
+                            onChange={(event) => updateService(editingServiceIndex, { duration: event.target.value, durationMode: 'custom' })}
+                            placeholder="75"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeServiceGroup.id === 'details' && (
+                <label className="service-wizard-field service-description-field onboarding-question">
+                  <span>Description</span>
+                  <textarea
+                    value={primaryService.description || ''}
+                    onChange={(event) => updateService(editingServiceIndex, { description: event.target.value })}
+                    placeholder="What is included, who it is for, and anything clients should know."
+                    rows={7}
+                  />
                 </label>
-              </div>
-              <p className="service-media-hint">
-                <span>First photo becomes the card image. This is optional for launch.</span>
-              </p>
-            </div>
-            <div className={`service-save-panel onboarding-question ${serviceSaved ? 'is-saved' : ''}`}>
-              <div>
-                <span>{serviceSaved ? 'Service saved' : 'Ready to save'}</span>
-                <strong>{serviceSaved ? `${primaryService.name || 'Service'} is ready for launch.` : 'Save this service, then create another if you need one.'}</strong>
-                <p>You can always add more services later in the Services section.</p>
-              </div>
-              <button type="button" className="service-save-button" onClick={saveCurrentService}>
-                {serviceSaved ? <Check size={15} /> : null}
-                {serviceSaved ? 'Saved' : 'Save this service'}
-              </button>
-              {serviceSaved && (
-                <button type="button" className="service-create-another-button" onClick={createAnotherService}>
-                  Create another one
-                </button>
+              )}
+
+              {activeServiceGroup.id === 'media' && (
+                <div className="service-setup-panel-grid is-media">
+                  <div className="service-media-panel service-photos-field onboarding-question">
+                    <div>
+                      <span>Service photos</span>
+                      <strong>{primaryService.imageUrls?.length ? `${primaryService.imageUrls.length} image${primaryService.imageUrls.length === 1 ? '' : 's'} added` : 'Optional photos'}</strong>
+                    </div>
+                    <div className="service-media-grid">
+                      {(primaryService.imageUrls || []).slice(0, 8).map((url, imageIndex) => (
+                        <div key={`${url}-${imageIndex}`} className="service-media-thumb">
+                          <img src={url} alt="" />
+                          <button type="button" onClick={() => removeServiceImage(editingServiceIndex, imageIndex)} aria-label="Remove service image">
+                            <X size={13} />
+                          </button>
+                        </div>
+                      ))}
+                      <label className="service-media-add" aria-label="Upload service images">
+                        <span aria-hidden="true">+</span>
+                        <input type="file" accept="image/*" multiple onChange={(event) => handleServiceImageUpload(editingServiceIndex, event)} />
+                      </label>
+                    </div>
+                    <p className="service-media-hint">
+                      <span>First photo becomes the card image. This is optional for launch.</span>
+                    </p>
+                  </div>
+                  <div className={`service-save-panel onboarding-question ${serviceSaved ? 'is-saved' : ''}`}>
+                    <div>
+                      <span>{serviceSaved ? 'Service saved' : 'Ready to save'}</span>
+                      <strong>{serviceSaved ? `${primaryService.name || 'Service'} is ready for launch.` : 'Save this service, then create another if you need one.'}</strong>
+                      <p>You can always add more services later in the Services section.</p>
+                    </div>
+                    <button type="button" className="service-save-button" onClick={saveCurrentService}>
+                      {serviceSaved ? <Check size={15} /> : null}
+                      {serviceSaved ? 'Saved' : 'Save this service'}
+                    </button>
+                    {serviceSaved && (
+                      <button type="button" className="service-create-another-button" onClick={createAnotherService}>
+                        Create another one
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </div>

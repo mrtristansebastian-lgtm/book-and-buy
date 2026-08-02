@@ -13,12 +13,12 @@ html body .native-ui {
   --native-label-color: #101828;
   --native-label-weight: 760;
   --native-label-size: 0.78rem;
-  --native-subtext-color: #667085;
-  --native-subtext-weight: 720;
+  --native-subtext-color: #101828;
+  --native-subtext-weight: 500;
   --native-subtext-tracking: 0;
   --native-subtext-line-height: 1.28;
-  --native-body-color: #344054;
-  --native-body-weight: 620;
+  --native-body-color: #101828;
+  --native-body-weight: 500;
   --native-body-line-height: 1.5;
 }
 
@@ -114,7 +114,19 @@ html body .native-ui :where(
   .onboarding-summary-card small,
   .onboarding-summary-card em,
   .editor-cinema-hero-copy p,
-  .cinema-control-title small
+  .cinema-control-title small,
+  .editor-section-setting-group legend small,
+  .editor-inline-setting-heading small,
+  .editor-room-theme-brief-inline p,
+  .editor-room-muted-note,
+  .support-client-info-panel p,
+  .support-chat-settings-panel p,
+  .support-presence-label,
+  .notification-panel-subtitle,
+  .notification-card-body,
+  .booking-desk-subcopy,
+  .manual-booking-sheet p,
+  .client-portal-page p
 ) {
   color: var(--native-subtext-color) !important;
   font-family: inherit !important;
@@ -172,4 +184,18 @@ html body .native-ui.business-onboarding-page .onboarding-publish-summary .onboa
   letter-spacing: 0 !important;
   line-height: 1.35 !important;
   text-transform: none !important;
+}
+
+html body :where(
+  p[class*="text-neutral-500"]:not([class*="uppercase"]):not([class*="tracking"]),
+  p[class*="text-neutral-400"]:not([class*="uppercase"]):not([class*="tracking"]),
+  span.notification-card-body,
+  .launch-empty-copy,
+  .support-thread-preview,
+  .support-thread-service
+) {
+  color: var(--native-body-color, #101828) !important;
+  font-family: inherit !important;
+  font-weight: var(--native-body-weight, 500) !important;
+  opacity: 1 !important;
 }

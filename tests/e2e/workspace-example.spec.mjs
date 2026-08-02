@@ -91,11 +91,11 @@ test('compact example data stays coherent across dashboard sections and public p
   await expectPortraitsToDecode(page, bookingPortraits);
 
   await page.goto('/#/dashboard/schedule', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.schedule-week-matrix-row')).toHaveCount(4, { timeout: 60_000 });
+  await expect(page.getByTestId('schedule-operations-board')).toBeVisible({ timeout: 60_000 });
   const schedulePortraits = page.locator('img[src*="/example/your-business/people/staff/"]');
   await expect(schedulePortraits.first()).toBeVisible();
   await expectPortraitsToDecode(page, schedulePortraits);
-  await expect(page.locator('.schedule-calendar-create')).toBeDisabled();
+  await expect(page.getByTestId('schedule-create')).toBeDisabled();
 
   const publicSnapshot = await page.evaluate(key => JSON.parse(window.localStorage.getItem(key) || 'null'), publicPreviewKey);
   expect(publicSnapshot.version).toBe(3);
