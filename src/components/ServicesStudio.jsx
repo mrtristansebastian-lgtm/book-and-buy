@@ -31,6 +31,7 @@ export const ServicesStudio = ({
   const [selectedId, setSelectedId] = useState('');
   const [draft, setDraft] = useState(() => blankService());
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const businessCurrency = settings?.currency || 'R';
 
   const categoryOptions = useMemo(() => getCategoryOptions(services), [services]);
   const filteredServices = useMemo(() => filterServices({
@@ -50,10 +51,11 @@ export const ServicesStudio = ({
     return saved !== false;
   };
 
-  const openCreateService = () => {
+  const openCreateService = (initialValues = {}) => {
     const nextService = blankService({
       category: categoryFilter !== 'all' ? categoryFilter : '',
-      staffIds: staffFilter !== 'all' && staffFilter !== 'unassigned' ? [staffFilter] : []
+      staffIds: staffFilter !== 'all' && staffFilter !== 'unassigned' ? [staffFilter] : [],
+      ...initialValues
     });
     setSelectedId(nextService.id);
     setDraft(nextService);
@@ -72,15 +74,18 @@ export const ServicesStudio = ({
   };
 
   const saveDraft = async () => {
-    const cleaned = normalizeService(draft);
+    const cleaned = normalizeService({
+      ...draft,
+      currency: getServiceCurrencyPrefix(businessCurrency),
+      priceType: ['fixed', 'free', 'quote'].includes(draft.priceType) ? draft.priceType : 'fixed'
+    });
     if (!cleaned.name.trim()) {
       showToast?.('Give this service a name first.');
       return;
     }
-    const bookingType = cleaned.bookingType || cleaned.serviceType || 'appointment';
-    const durationOptionalTypes = new Set(['event', 'venue-room', 'vehicle', 'equipment', 'membership']);
+    const bookingType = cleaned.scheduleType || cleaned.bookingType || cleaned.serviceType || 'appointment';
     const usesScheduleDuration = cleaned.durationMode === 'schedule';
-    if (!durationOptionalTypes.has(bookingType) && !usesScheduleDuration && !normalizeServiceDurationValue(cleaned.duration)) {
+    if (bookingType !== 'class_session' && !usesScheduleDuration && !normalizeServiceDurationValue(cleaned.duration)) {
       showToast?.('Choose a service duration or select no fixed duration.');
       return;
     }
@@ -188,6 +193,8 @@ export const ServicesStudio = ({
       <ServiceFileModal
         isOpen={isServiceModalOpen}
         draft={draft}
+        businessCurrency={businessCurrency}
+        categoryOptions={categoryOptions}
         selectedServiceExists={selectedServiceExists}
         staffOptions={staffOptions}
         canManageWorkspace={canManageWorkspace}
@@ -201,4 +208,21 @@ export const ServicesStudio = ({
       />
     </div>
   );
+};
+
+const getServiceCurrencyPrefix = (currency = '') => {
+  const normalized = String(currency || '').trim().toUpperCase();
+  if (!normalized) return 'R';
+  const symbols = {
+    ZAR: 'R',
+    USD: '$',
+    GBP: '£',
+    EUR: '€',
+    AUD: 'A$',
+    CAD: 'C$',
+    NGN: '₦',
+    KES: 'KSh',
+    BWP: 'P'
+  };
+  return symbols[normalized] || currency;
 };

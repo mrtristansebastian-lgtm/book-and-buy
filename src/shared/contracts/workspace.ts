@@ -1,3 +1,5 @@
+import type { ScheduleType } from "./booking";
+
 export interface WorkspaceFeatureFlags {
   birthday?: boolean;
   waitlist?: boolean;
@@ -36,6 +38,11 @@ export interface WorkspaceService {
   duration?: string | number;
   category?: string;
   active?: boolean;
+  scheduleType?: ScheduleType | string;
+  bookingType?: ScheduleType | string;
+  serviceType?: ScheduleType | string;
+  capacity?: number | string;
+  sessionLabel?: string;
   staffIds?: string[];
   sortOrder?: number;
   photoURL?: string;

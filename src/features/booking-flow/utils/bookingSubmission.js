@@ -11,6 +11,7 @@ export function buildPublicBookingPayload({
   selectedStaffId,
   staffAssignmentMode
 }) {
+  const scheduleType = selectedService?.scheduleType || selectedService?.bookingType || selectedService?.serviceType || 'appointment';
   return {
     ...formData,
     name: collectClientName ? formData.name : 'Client',
@@ -26,6 +27,13 @@ export function buildPublicBookingPayload({
     servicePriceType: selectedService?.priceType || '',
     serviceDuration: selectedService?.duration || '',
     serviceCategory: selectedService?.category || '',
+    scheduleType,
+    serviceScheduleType: scheduleType,
+    scheduleResourceId: selectedService?.resourceId || selectedService?.resourceLabel || selectedService?.resourceName || '',
+    scheduleResourceName: selectedService?.resourceLabel || selectedService?.resourceName || '',
+    scheduleSessionId: selectedService?.sessionId || selectedService?.sessionLabel || '',
+    scheduleSessionName: selectedService?.sessionLabel || '',
+    partySize: formData.partySize || '',
     staffId: staffAssignmentMode === 'client' ? selectedStaffId : '',
     staffName: staffAssignmentMode === 'client' ? (selectedAvailabilityStaff?.name || '') : '',
     staffPhotoURL: staffAssignmentMode === 'client' ? (selectedAvailabilityStaff?.photoURL || '') : '',

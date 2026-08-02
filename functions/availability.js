@@ -2,6 +2,8 @@ const cleanString = (value, max = 240) => (
   String(value || '').trim().slice(0, max)
 );
 
+const { getServiceScheduleType } = require('./scheduleTypes');
+
 const safeLockId = (dateKey, time) => (
   `${cleanString(dateKey, 32)}_${cleanString(time, 32)}`
     .replace(/[^a-zA-Z0-9_-]/g, '-')
@@ -142,7 +144,10 @@ const getServiceForAvailability = ({ workspace = {}, incoming = {} }) => {
     ...service,
     id: serviceId || cleanString(service.id, 120),
     duration: incoming.serviceDuration || service.duration || '',
-    staffIds: Array.isArray(service.staffIds) ? service.staffIds.map(id => cleanString(id, 120)).filter(Boolean) : []
+    staffIds: Array.isArray(service.staffIds) ? service.staffIds.map(id => cleanString(id, 120)).filter(Boolean) : [],
+    scheduleType: getServiceScheduleType(service),
+    capacity: Number(service.capacity || service.scheduleConfig?.capacity || 1),
+    sessionLabel: cleanString(service.sessionLabel || service.scheduleConfig?.sessionLabel || '', 160)
   };
 };
 
@@ -198,6 +203,7 @@ const getServiceAvailabilityModel = ({
 
   const service = getServiceForAvailability({ workspace, incoming });
   const durationMinutes = parseDurationMinutes(service.duration, rules.fallbackDurationMinutes);
+  const scheduleType = service.scheduleType || 'appointment';
   if (!serviceIsAvailableForDate({ workspace, serviceId: service.id, dateKey })) {
     return {
       rules,
@@ -215,6 +221,42 @@ const getServiceAvailabilityModel = ({
     ? eligibleStaff.filter(staff => staff.id === requestedStaffId)
     : eligibleStaff;
   const candidateSlots = sortSlots(businessConfig.times || []);
+
+  if (scheduleType === 'class_session') {
+    const capacity = Math.max(1, Math.min(500, Math.round(Number(service.capacity) || 1)));
+    const takenSeatsForSlot = (slot) => bookings.reduce((total, booking) => (
+      bookingBlocksAvailability(booking, rules.holdMode) &&
+      cleanString(booking.serviceId, 120) === service.id &&
+      cleanString(booking.dateKey, 32) === dateKey &&
+      cleanString(booking.time, 80) === slot
+        ? total + Math.max(1, Math.round(Number(booking.partySize || 1) || 1))
+        : total
+    ), 0);
+    const timeOptions = candidateSlots.filter(slot => {
+      const takenSeats = takenSeatsForSlot(slot);
+      return takenSeats < capacity;
+    });
+    return {
+      rules,
+      scheduleType,
+      durationMinutes,
+      staffOptions: eligibleStaff,
+      timeOptions,
+      selectedOption: requestedTime && timeOptions.includes(requestedTime)
+        ? { time: requestedTime, staff: visibleStaff[0] || eligibleStaff[0] || null }
+        : null,
+      sessions: timeOptions.map(slot => ({
+        id: `${service.id}:${dateKey}:${slot}`.slice(0, 180),
+        dateKey,
+        time: slot,
+        label: service.sessionLabel || service.name || 'Session',
+        capacity,
+        remaining: Math.max(0, capacity - takenSeatsForSlot(slot))
+      })),
+      unavailableReason: timeOptions.length ? '' : 'This session is full'
+    };
+  }
+
   const timeAssignments = new Map();
 
   for (const slot of candidateSlots) {
@@ -254,6 +296,7 @@ const getServiceAvailabilityModel = ({
 
   return {
     rules,
+    scheduleType,
     durationMinutes,
     staffOptions: eligibleStaff,
     timeOptions,

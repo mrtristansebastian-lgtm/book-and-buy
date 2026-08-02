@@ -10,7 +10,8 @@ const baseWorkspace = {
   publicStaff: [{ id: 'owner', name: 'Owner' }],
   services: [
     { id: 'haircut', name: 'Haircut', duration: '60', staffIds: [] },
-    { id: 'colour', name: 'Colour', duration: '60', staffIds: [] }
+    { id: 'colour', name: 'Colour', duration: '60', staffIds: [] },
+    { id: 'workshop', name: 'Workshop', duration: '120', staffIds: [], scheduleType: 'class_session', capacity: 2 }
   ],
   staffCalendars: {
     owner: { availableTimes: ['09:00', '10:00'] }
@@ -32,6 +33,63 @@ test('service availability periods allow existing availability when no period ma
 
   assert.deepEqual(model.timeOptions, ['09:00', '10:00']);
   assert.equal(model.unavailableReason, '');
+});
+
+test('class session availability keeps spots open until capacity is reached', () => {
+  const model = getServiceAvailabilityModel({
+    workspace: baseWorkspace,
+    dateKey: '2026-06-08',
+    incoming: { serviceId: 'workshop' },
+    bookings: [
+      { id: 'seat-1', serviceId: 'workshop', dateKey: '2026-06-08', time: '09:00', status: 'confirmed' }
+    ]
+  });
+
+  assert.equal(model.scheduleType, 'class_session');
+  assert.deepEqual(model.timeOptions, ['09:00', '10:00']);
+  assert.equal(model.sessions.find(session => session.time === '09:00').remaining, 1);
+});
+
+test('class session availability removes full sessions', () => {
+  const model = getServiceAvailabilityModel({
+    workspace: baseWorkspace,
+    dateKey: '2026-06-08',
+    incoming: { serviceId: 'workshop' },
+    bookings: [
+      { id: 'seat-1', serviceId: 'workshop', dateKey: '2026-06-08', time: '09:00', status: 'confirmed' },
+      { id: 'seat-2', serviceId: 'workshop', dateKey: '2026-06-08', time: '09:00', status: 'pending' }
+    ]
+  });
+
+  assert.deepEqual(model.timeOptions, ['10:00']);
+});
+
+test('class session availability uses service capacity and duration', () => {
+  const workspace = {
+    ...baseWorkspace,
+    services: [
+      ...baseWorkspace.services,
+      {
+        id: 'capacity-workshop',
+        name: 'Capacity workshop',
+        scheduleType: 'class_session',
+        capacity: '3',
+        duration: '150'
+      }
+    ]
+  };
+  const model = getServiceAvailabilityModel({
+    workspace,
+    dateKey: '2026-06-08',
+    incoming: { serviceId: 'capacity-workshop' },
+    bookings: [
+      { id: 'seat-1', serviceId: 'capacity-workshop', dateKey: '2026-06-08', time: '09:00', status: 'confirmed', partySize: 2 }
+    ]
+  });
+
+  assert.equal(model.durationMinutes, 150);
+  assert.equal(model.sessions.find(session => session.time === '09:00').capacity, 3);
+  assert.equal(model.sessions.find(session => session.time === '09:00').remaining, 1);
 });
 
 test('service availability periods hide services outside the selected period service set', () => {

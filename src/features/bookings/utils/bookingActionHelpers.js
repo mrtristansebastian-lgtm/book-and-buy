@@ -1,4 +1,5 @@
 import { getLocalDateStr } from '../../../utils/dates';
+import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import {
   buildSupportThreadId,
   normalizeEmail
@@ -73,6 +74,13 @@ export const createBookingRecordFromFlow = ({ formData, date, dateKey, status, t
   servicePriceType: formData.servicePriceType || '',
   serviceDuration: formData.serviceDuration || '',
   serviceCategory: formData.serviceCategory || '',
+  scheduleType: formData.scheduleType || formData.serviceScheduleType || 'appointment',
+  serviceScheduleType: formData.serviceScheduleType || formData.scheduleType || 'appointment',
+  scheduleResourceId: formData.scheduleResourceId || '',
+  scheduleResourceName: formData.scheduleResourceName || '',
+  scheduleSessionId: formData.scheduleSessionId || '',
+  scheduleSessionName: formData.scheduleSessionName || '',
+  partySize: formData.partySize || '',
   staffId: formData.staffId || '',
   staffName: formData.staffName || '',
   staffPhotoURL: formData.staffPhotoURL || '',
@@ -102,6 +110,7 @@ export const createManualBookingRecordFromForm = ({ formData, settings, workspac
   const servicePrice = String(selectedService?.price ?? formData.get('servicePrice') ?? '').trim();
   const serviceDuration = String(selectedService?.duration ?? formData.get('serviceDuration') ?? '').trim();
   const serviceCategory = String(selectedService?.category ?? formData.get('serviceCategory') ?? '').trim();
+  const scheduleType = selectedService ? getServiceScheduleType(selectedService) : 'appointment';
   const paymentMethod = String(formData.get('paymentMethod') || '').trim();
   const paymentProviderName = paymentProviderNames[paymentMethod] || '';
   const priceNumber = parsePriceNumber(servicePrice);
@@ -123,6 +132,12 @@ export const createManualBookingRecordFromForm = ({ formData, settings, workspac
     servicePriceType: selectedService?.priceType || 'fixed',
     serviceDuration,
     serviceCategory,
+    scheduleType,
+    serviceScheduleType: scheduleType,
+    scheduleResourceId: selectedService?.resourceId || selectedService?.resourceLabel || selectedService?.resourceName || '',
+    scheduleResourceName: selectedService?.resourceLabel || selectedService?.resourceName || '',
+    scheduleSessionId: selectedService?.sessionId || selectedService?.sessionLabel || '',
+    scheduleSessionName: selectedService?.sessionLabel || '',
     amountInCents: Number.isFinite(priceNumber) ? Math.round(priceNumber * 100) : 0,
     currency: settings.currency || 'ZAR',
     paymentMethod,
@@ -154,6 +169,7 @@ export const createManualBookingRecordFromChat = ({ payload = {}, settings, work
   const serviceName = selectedService?.name || String(payload.serviceName || '').trim() || 'Manual service';
   const servicePrice = String(selectedService?.price ?? payload.servicePrice ?? '').trim();
   const serviceDuration = String(selectedService?.duration ?? payload.serviceDuration ?? '').trim();
+  const scheduleType = selectedService ? getServiceScheduleType(selectedService) : 'appointment';
   const priceNumber = parsePriceNumber(servicePrice);
   const clientEmail = String(payload.clientEmail || '').trim();
   const now = Date.now();
@@ -173,6 +189,12 @@ export const createManualBookingRecordFromChat = ({ payload = {}, settings, work
     servicePriceType: selectedService?.priceType || 'fixed',
     serviceDuration,
     serviceCategory: selectedService?.category || '',
+    scheduleType,
+    serviceScheduleType: scheduleType,
+    scheduleResourceId: selectedService?.resourceId || selectedService?.resourceLabel || selectedService?.resourceName || '',
+    scheduleResourceName: selectedService?.resourceLabel || selectedService?.resourceName || '',
+    scheduleSessionId: selectedService?.sessionId || selectedService?.sessionLabel || '',
+    scheduleSessionName: selectedService?.sessionLabel || '',
     amountInCents: Number.isFinite(priceNumber) ? Math.round(priceNumber * 100) : 0,
     currency: settings.currency || 'ZAR',
     paymentMethod: '',

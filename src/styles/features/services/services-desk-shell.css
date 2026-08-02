@@ -217,6 +217,7 @@ html body .native-ui .service-desk-card-action {
     min-height: 2.62rem;
     padding-inline: 0.82rem;
   }
+
 }
 
 html body .native-ui .service-modal-panel {
@@ -703,6 +704,7 @@ html body .native-ui .service-native-gradient-skin :is(
 
 html body .native-ui .service-native-gradient-skin :is(
   .service-segment-grid button.is-active,
+  .service-style-grid button.is-active,
   .service-duration-grid button.is-active,
   .service-duration-free-choice.is-active,
   .service-staff-grid button.is-active,
@@ -877,6 +879,7 @@ html body .native-ui .is-wide {
 }
 
 html body .native-ui .service-wizard-field > span,
+html body .native-ui .service-media-panel-head span,
 html body .native-ui .service-media-panel > div:first-child span {
   color: #8a8f98;
   font-size: 0.62rem;
@@ -954,6 +957,251 @@ html body .native-ui .service-select-with-custom {
   gap: 0.48rem;
 }
 
+html body .native-ui .service-category-menu {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+html body .native-ui .service-category-menu-trigger {
+  width: 100%;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid #d9dde4;
+  border-radius: 8px !important;
+  background: #ffffff;
+  color: #050505;
+  padding: 0 0.92rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+html body .native-ui .service-category-menu-trigger span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .service-category-menu.is-open .service-category-menu-trigger,
+html body .native-ui .service-category-menu-trigger:focus-visible {
+  border-color: transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+  box-shadow: 0 0 0 4px rgba(5, 5, 5, 0.045);
+}
+
+html body .native-ui .service-category-menu-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.42rem);
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 0.52rem;
+  padding: 0.54rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.95rem;
+  background: #ffffff;
+  box-shadow: 0 24px 60px -34px rgba(15, 23, 42, 0.42);
+}
+
+html body .native-ui .service-category-menu-list {
+  max-height: 17rem;
+  display: grid;
+  gap: 0.22rem;
+  overflow-y: auto;
+  padding-right: 0.1rem;
+}
+
+html body .native-ui .service-category-menu-list button {
+  min-height: 2.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.7rem;
+  background: #ffffff;
+  color: #344054;
+  padding: 0 0.72rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+html body .native-ui .service-category-menu-list button:hover {
+  background: #f8fafc;
+}
+
+html body .native-ui .service-category-menu-list button.is-active {
+  border-color: transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+  color: #050505;
+}
+
+html body .native-ui .service-category-custom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.42rem;
+  padding-top: 0.48rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+html body .native-ui .service-category-custom input {
+  min-height: 2.45rem;
+  border-radius: 0.72rem !important;
+  font-size: 0.78rem;
+}
+
+html body .native-ui .service-category-custom button {
+  min-height: 2.45rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.72rem;
+  background: #050505;
+  color: #ffffff;
+  padding: 0 0.82rem;
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-category-custom button:disabled {
+  opacity: 0.35;
+}
+
+html body .native-ui .service-duration-menu-popover {
+  min-width: min(24rem, 92vw);
+}
+
+html body .native-ui .service-duration-schedule-choice {
+  width: 100%;
+  min-height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.82rem;
+  background: #f8fafc;
+  color: #050505;
+  padding: 0.72rem 0.78rem;
+  text-align: left;
+}
+
+html body .native-ui .service-duration-schedule-choice strong,
+html body .native-ui .service-duration-schedule-choice small {
+  display: block;
+}
+
+html body .native-ui .service-duration-schedule-choice strong {
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+html body .native-ui .service-duration-schedule-choice small {
+  margin-top: 0.12rem;
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+html body .native-ui .service-duration-schedule-choice.is-active {
+  border-color: transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+}
+
+html body .native-ui .service-duration-custom {
+  display: grid;
+  gap: 0.68rem;
+  padding: 0.72rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.86rem;
+  background: #f8fafc;
+}
+
+html body .native-ui .service-duration-custom-head {
+  display: grid;
+  gap: 0.12rem;
+}
+
+html body .native-ui .service-duration-custom-head strong {
+  color: #050505;
+  font-size: 0.88rem;
+  font-weight: 950;
+}
+
+html body .native-ui .service-duration-custom-head span {
+  color: #667085;
+  font-size: 0.72rem;
+  font-weight: 720;
+}
+
+html body .native-ui .service-duration-slot-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.48rem;
+}
+
+html body .native-ui .service-duration-slot-row label {
+  display: grid;
+  gap: 0.28rem;
+}
+
+html body .native-ui .service-duration-slot-row input {
+  width: 100%;
+  min-height: 3.15rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.78rem !important;
+  background: #ffffff;
+  color: #050505;
+  padding: 0 0.78rem;
+  font-size: 1.15rem;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+html body .native-ui .service-duration-slot-row label > span {
+  color: #667085;
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-duration-custom > button {
+  min-height: 2.72rem;
+  border-color: rgba(15, 23, 42, 0.08);
+  border-radius: 0.78rem;
+  background:
+    linear-gradient(135deg, rgba(221, 255, 115, 0.72), rgba(187, 247, 208, 0.8), rgba(186, 230, 253, 0.72));
+  color: #050505;
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .service-duration-custom > button:disabled {
+  opacity: 0.35;
+}
+
 
 html body .native-ui .service-live-toggle,
 html body .native-ui .service-segment-grid button {
@@ -981,20 +1229,97 @@ html body .native-ui .service-segment-grid {
   gap: 0.45rem;
 }
 
+html body .native-ui .service-style-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+html body .native-ui .service-style-grid button {
+  min-width: 0;
+  min-height: 6rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.72rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #101828;
+  padding: 0.86rem;
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+html body .native-ui .service-style-grid button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+html body .native-ui .service-style-grid button > svg {
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0.5rem;
+  border-radius: 999px;
+  background: #f2f4f7;
+  color: #050505;
+}
+
+html body .native-ui .service-style-grid button span,
+html body .native-ui .service-style-grid button strong,
+html body .native-ui .service-style-grid button small {
+  min-width: 0;
+  display: block;
+}
+
+html body .native-ui .service-style-grid button strong {
+  color: #050505;
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.06;
+}
+
+html body .native-ui .service-style-grid button small {
+  margin-top: 0.26rem;
+  color: #667085;
+  font-size: 0.76rem;
+  font-weight: 680;
+  line-height: 1.28;
+}
+
+html body .native-ui .service-style-grid button.is-active {
+  border-color: transparent;
+  box-shadow: 0 18px 34px -32px rgba(15, 23, 42, 0.38);
+}
+
 html body .native-ui .service-money-row {
   display: grid;
   grid-template-columns: 4.4rem minmax(0, 1fr);
   gap: 0.45rem;
 }
 
-html body .native-ui .service-media-panel {
-  padding: 0.86rem;
+html body .native-ui .service-money-prefix {
+  min-height: 3rem;
+  display: grid;
+  place-items: center;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 0.72rem;
-  background: #fafafa;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #050505;
+  font-size: 0.86rem;
+  font-weight: 950;
+}
+
+html body .native-ui .service-media-panel {
+  padding: 0.78rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.78rem;
+  background: #ffffff;
+  box-shadow: 0 14px 30px -30px rgba(15, 23, 42, 0.34);
 }
 
 
+html body .native-ui .service-media-panel-head,
 html body .native-ui .service-media-panel > div:first-child {
   display: flex;
   align-items: center;
@@ -1002,10 +1327,46 @@ html body .native-ui .service-media-panel > div:first-child {
   gap: 0.8rem;
 }
 
+html body .native-ui .service-media-panel-head > div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+html body .native-ui .service-media-panel-head strong,
 html body .native-ui .service-media-panel > div:first-child strong {
   color: #050505;
-  font-size: 0.78rem;
-  font-weight: 900;
+  font-size: 0.9rem;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+html body .native-ui .service-media-upload-button {
+  position: relative;
+  min-height: 2.18rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.44rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+  color: #050505;
+  padding: 0 0.78rem;
+  font-size: 0.6rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+html body .native-ui .service-media-upload-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 html body .native-ui .service-media-hint {
@@ -1303,8 +1664,9 @@ html body .native-ui .service-desk-file-card .service-desk-card-action {
 
 html body .native-ui .service-media-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(5rem, 6.15rem));
-  gap: 0.48rem;
+  grid-template-columns: repeat(auto-fit, minmax(5.6rem, 6.4rem));
+  gap: 0.5rem;
+  margin-top: 0.62rem;
 }
 
 html body .native-ui .service-media-thumb,
@@ -1312,7 +1674,8 @@ html body .native-ui .service-media-add {
   position: relative;
   aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 0.58rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0.68rem;
   background: #eef1f5;
 }
 
@@ -1324,25 +1687,40 @@ html body .native-ui .service-media-thumb img {
 
 html body .native-ui .service-media-thumb button {
   position: absolute;
-  top: 0.3rem;
-  right: 0.3rem;
-  width: 1.62rem;
-  height: 1.62rem;
+  top: 0.32rem;
+  right: 0.32rem;
+  width: 1.58rem;
+  height: 1.58rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 0;
   border-radius: 999px;
-  background: #050505;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.95);
+  color: #ef4444;
+  box-shadow: 0 12px 22px -16px rgba(15, 23, 42, 0.55);
 }
 
 html body .native-ui .service-media-add {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed rgba(15, 23, 42, 0.18);
-  color: #667085;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.28rem;
+  border-style: dashed;
+  border-color: rgba(15, 23, 42, 0.13);
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+  color: #050505;
   cursor: pointer;
+}
+
+html body .native-ui .service-media-add span {
+  color: #475569;
+  font-size: 0.58rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 html body .native-ui .service-media-add input {
@@ -1604,6 +1982,7 @@ html body .native-ui .service-wizard-primary {
   }
 
   html body .native-ui .service-wizard-grid,
+  html body .native-ui .service-style-grid,
   html body .native-ui .service-staff-grid,
   html body .native-ui .service-location-grid,
   html body .native-ui .service-rule-list {

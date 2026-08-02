@@ -27,8 +27,21 @@ test('availability payload normalizes the public lookup contract', () => {
   assert.equal(payload.requestedStaffId, 'stylist-1');
   assert.deepEqual(payload.incoming, {
     serviceId: 'cutz',
-    serviceDuration: '45 min'
+    serviceDuration: '45 min',
+    scheduleType: ''
   });
+});
+
+test('availability payload accepts schedule type metadata', () => {
+  const payload = validateAvailabilityLookupPayload(availabilityPayload({
+    service: {
+      serviceId: 'workshop',
+      serviceDuration: '120 min',
+      scheduleType: 'class_session'
+    }
+  }));
+
+  assert.equal(payload.incoming.scheduleType, 'class_session');
 });
 
 test('availability payload rejects invalid dates, service shape, and unknown service fields', () => {

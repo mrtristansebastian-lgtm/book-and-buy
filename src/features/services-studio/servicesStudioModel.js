@@ -1,5 +1,6 @@
 import { Briefcase, Check, X } from 'lucide-react';
 import { normalizeService } from '../../utils/services';
+import { SCHEDULE_TYPE_OPTIONS } from '../../utils/scheduleTypes';
 
 export const blankService = (initialValues = {}) => normalizeService({
   name: 'New Service',
@@ -12,6 +13,7 @@ export const blankService = (initialValues = {}) => normalizeService({
   staffIds: [],
   imageUrls: [],
   active: true,
+  scheduleType: 'appointment',
   bookingType: 'appointment',
   serviceType: 'appointment',
   durationMode: 'fixed',
@@ -21,10 +23,11 @@ export const blankService = (initialValues = {}) => normalizeService({
 
 export const priceTypes = [
   { id: 'fixed', label: 'Fixed' },
-  { id: 'from', label: 'From' },
-  { id: 'hourly', label: 'Hourly' },
+  { id: 'free', label: 'Free' },
   { id: 'quote', label: 'Quote' }
 ];
+
+export const serviceScheduleTypeOptions = SCHEDULE_TYPE_OPTIONS;
 
 export const serviceStatusFilters = [
   { id: 'all', label: 'All', icon: Briefcase },
@@ -92,7 +95,10 @@ export const filterServices = ({
       service.description,
       service.price,
       service.duration,
-      service.priceType
+      service.priceType,
+      service.scheduleType,
+      service.bookingType,
+      service.serviceType
     ].filter(Boolean).join(' ').toLowerCase().includes(normalizedQuery);
     const matchesStatus = statusFilter === 'all'
       || (statusFilter === 'live' && service.active !== false)

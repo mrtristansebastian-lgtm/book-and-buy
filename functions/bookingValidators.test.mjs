@@ -42,10 +42,24 @@ test('owner booking payload normalizes launch-critical booking fields', () => {
   assert.equal(booking.currency, 'ZAR');
   assert.equal(booking.paymentGateway, 'cash');
   assert.equal(booking.paymentStatus, 'manual_pending');
+  assert.equal(booking.scheduleType, 'appointment');
   assert.equal(booking.notificationChannels.email, false);
   assert.equal(booking.notificationChannels.portal, true);
   assert.equal(booking.createdAt, 'SERVER_TIMESTAMP');
   assert.equal(booking.updatedAt, 'SERVER_TIMESTAMP');
+});
+
+test('owner booking payload normalizes schedule type fields', () => {
+  const booking = validateOwnerBookingPayload(ownerBooking({
+    scheduleType: 'workshop',
+    scheduleSessionId: 'session-1',
+    partySize: '3'
+  }));
+
+  assert.equal(booking.scheduleType, 'class_session');
+  assert.equal(booking.serviceScheduleType, 'class_session');
+  assert.equal(booking.scheduleSessionId, 'session-1');
+  assert.equal(booking.partySize, '3');
 });
 
 test('owner booking payload rejects invalid shape, date, and time', () => {

@@ -23,7 +23,16 @@ export interface BookingServiceSnapshot {
   servicePriceType?: string;
   serviceDuration?: string;
   serviceCategory?: string;
+  scheduleType?: ScheduleType | string;
+  serviceScheduleType?: ScheduleType | string;
+  scheduleSessionId?: string;
+  scheduleSessionName?: string;
+  partySize?: string | number;
 }
+
+export type ScheduleType =
+  | "appointment"
+  | "class_session";
 
 export interface BookingClientSnapshot {
   clientName: string;

@@ -6,5 +6,6 @@ export {
   filterServices,
   getCategoryOptions,
   normalizeServiceDurationValue,
-  serviceDurationOptions
+  serviceDurationOptions,
+  serviceScheduleTypeOptions
 } from './servicesStudioModel';

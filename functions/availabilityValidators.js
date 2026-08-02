@@ -1,6 +1,6 @@
 const { HttpsError } = require('firebase-functions/v2/https');
 
-const AVAILABILITY_SERVICE_FIELDS = new Set(['serviceId', 'serviceDuration']);
+const AVAILABILITY_SERVICE_FIELDS = new Set(['serviceId', 'serviceDuration', 'scheduleType', 'serviceScheduleType']);
 const MAX_AVAILABILITY_PAYLOAD_BYTES = 4_000;
 
 const cleanString = (value, max = 240) => (
@@ -56,7 +56,8 @@ const validateAvailabilityLookupPayload = (data = {}) => {
     requestedStaffId,
     incoming: {
       serviceId: requireString(service.serviceId, 'Service', 120),
-      serviceDuration: cleanString(service.serviceDuration, 80)
+      serviceDuration: cleanString(service.serviceDuration, 80),
+      scheduleType: cleanString(service.scheduleType || service.serviceScheduleType, 60)
     }
   };
 };

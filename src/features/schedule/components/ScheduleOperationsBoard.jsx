@@ -61,7 +61,6 @@ const countStatusBookings = events => events.reduce((totals, event) => {
   if (Object.prototype.hasOwnProperty.call(totals, event.status)) totals[event.status] += count;
   return totals;
 }, Object.fromEntries(STATUS_LEGEND.map(([status]) => [status, 0])));
-
 function StaffAvatar({ calendar, compact = false, rail = false }) {
   const label = calendar?.shortName || calendar?.name || 'Business';
   const iconSize = rail ? 16 : compact ? 13 : 15;
@@ -110,6 +109,29 @@ function ScheduleStatusLegend({ totals }) {
   );
 }
 
+function ScheduleTypeRail({ onSelectScheduleType, scheduleTypes = [], selectedScheduleType }) {
+  if (!scheduleTypes.length || (scheduleTypes.length === 1 && scheduleTypes[0].id === 'appointment')) return null;
+  return (
+    <div className="schedule-ops-type-rail" aria-label="Schedule type">
+      {scheduleTypes.map(type => {
+        const active = type.id === selectedScheduleType;
+        return (
+          <button
+            key={type.id}
+            type="button"
+            className={active ? 'is-active native-gradient-ring' : ''}
+            aria-pressed={active}
+            onClick={() => onSelectScheduleType(type.id)}
+          >
+            <strong>{type.shortLabel || type.label}</strong>
+            <span>{type.scheduleLabel}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function ScheduleOperationsToolbar({
   agendaOpen,
   dateTitle,
@@ -131,7 +153,6 @@ function ScheduleOperationsToolbar({
           <button type="button" aria-label="Next date range" onClick={() => onMove(1)}><ChevronRight size={17} /></button>
         </div>
         <div className="schedule-ops-date-copy">
-          <p>Operations board</p>
           <h2>{dateTitle}</h2>
         </div>
       </div>
@@ -190,10 +211,13 @@ function EventCard({ event, onOpen }) {
   const bookingId = bookings[0]?.id || event.id;
   const time = event.time || formatTime(event.startMinutes || 0);
   const endTime = Number.isFinite(event.endMinutes) ? formatTime(event.endMinutes) : '';
+  const isClassSession = event.scheduleType === 'class_session';
+  const attendeeCount = Number(event.attendeeCount) || bookings.reduce((total, booking) => total + Math.max(1, Number(booking.partySize || 1) || 1), 0);
+  const capacity = Number(event.serviceCapacity || event.booking?.serviceCapacity || 0);
   return (
     <button
       type="button"
-      className={`schedule-ops-event is-${event.status || 'confirmed'}`}
+      className={`schedule-ops-event is-${event.status || 'confirmed'} ${isClassSession ? 'is-class-session' : ''}`}
       data-testid={`schedule-booking-card-${bookingId}`}
       onClick={target => onOpen(event, target.currentTarget)}
       title={`${time} · ${event.clientName || 'Client'} · ${event.serviceName || 'Service'}`}
@@ -201,10 +225,10 @@ function EventCard({ event, onOpen }) {
       <span className="schedule-ops-event-status" aria-hidden="true" />
       <span className="schedule-ops-event-copy">
         <em>{time}{endTime ? ` – ${endTime}` : ''}</em>
-        <strong>{event.clientName || 'Client'}</strong>
-        <small>{event.serviceName || 'Service'}</small>
+        <strong>{isClassSession ? event.serviceName || 'Class' : event.clientName || 'Client'}</strong>
+        <small>{isClassSession ? `${attendeeCount}${capacity ? ` / ${capacity}` : ''} signed up` : event.serviceName || 'Service'}</small>
       </span>
-      {bookings.length > 1 ? <span className="schedule-ops-event-count">+{bookings.length - 1}</span> : null}
+      {isClassSession ? <span className="schedule-ops-event-count">{attendeeCount}</span> : bookings.length > 1 ? <span className="schedule-ops-event-count">+{bookings.length - 1}</span> : null}
     </button>
   );
 }
@@ -280,6 +304,7 @@ function DesktopDayBoard({ dateKey, getAvailability, getEvents, onCreate, onOpen
                     />
                   );
                 })}
+                <span className="schedule-ops-day-end-pad" aria-hidden="true" />
                 {memberEvents.map(event => {
                   const startSlots = (event.startMinutes - min) / SLOT_MINUTES;
                   const durationSlots = Math.max(1, (event.endMinutes - event.startMinutes) / SLOT_MINUTES);
@@ -567,12 +592,15 @@ export function ScheduleOperationsBoard({
   onOpenEvent,
   onOpenSettings,
   onSelectCalendar,
+  onSelectScheduleType,
   onSelectDate,
   onToday,
   onToggleAgenda,
   readOnly,
   mobile = false,
   selectedCalendarId,
+  selectedScheduleType = 'appointment',
+  scheduleTypes = [],
   selectedDate,
   todayStr,
   view
@@ -627,6 +655,7 @@ export function ScheduleOperationsBoard({
         <ScheduleScopeRail calendars={calendars} onSelectCalendar={onSelectCalendar} selectedCalendarId={selectedCalendarId} />
         <ScheduleStatusLegend totals={statusTotals} />
       </div>
+      <ScheduleTypeRail scheduleTypes={scheduleTypes} selectedScheduleType={selectedScheduleType} onSelectScheduleType={onSelectScheduleType} />
 
       {!agendaOpen && view === 'day' ? (
         <>

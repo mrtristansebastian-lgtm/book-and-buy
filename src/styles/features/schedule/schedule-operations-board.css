@@ -7,6 +7,7 @@ html body .native-ui .schedule-operations-board {
   --ops-surface: #fff;
   --ops-canvas: #fff;
   --ops-slot-width: 3.55rem;
+  --ops-timeline-end-pad: 4.4rem;
   display: grid;
   min-width: 0;
   min-height: 0;
@@ -62,6 +63,123 @@ html body .native-ui .schedule-ops-context-rail {
   gap: 0.72rem;
   padding: 0.46rem 0.68rem 0.5rem;
   border-bottom: 1px solid var(--ops-soft-line);
+}
+
+html body .native-ui .schedule-ops-type-rail {
+  display: flex;
+  align-items: stretch;
+  gap: 0.58rem;
+  min-width: 0;
+  padding: 0.62rem 0.68rem;
+  border-bottom: 1px solid var(--ops-soft-line);
+  background: #ffffff;
+  overflow: auto hidden;
+  scrollbar-width: none;
+}
+
+html body .native-ui .schedule-ops-type-rail::-webkit-scrollbar {
+  display: none;
+}
+
+html body .native-ui .schedule-ops-type-rail button {
+  min-width: 8.5rem;
+  display: grid;
+  gap: 0.16rem;
+  border: 1px solid var(--ops-line);
+  border-radius: 0.82rem;
+  background: #ffffff;
+  color: var(--ops-ink);
+  padding: 0.58rem 0.74rem;
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+html body .native-ui .schedule-ops-type-rail button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+html body .native-ui .schedule-ops-type-rail button strong {
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.045em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-ops-type-rail button span {
+  color: var(--ops-muted);
+  font-size: 0.62rem;
+  font-weight: 720;
+  line-height: 1.18;
+}
+
+html body .native-ui .schedule-ops-event-switcher {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.52rem;
+  overflow: auto hidden;
+  scrollbar-width: none;
+}
+
+html body .native-ui .schedule-ops-event-switcher::-webkit-scrollbar {
+  display: none;
+}
+
+html body .native-ui .schedule-ops-event-switcher button {
+  min-height: 2.44rem;
+  display: inline-grid;
+  flex: 0 0 auto;
+  align-content: center;
+  gap: 0.12rem;
+  padding: 0.46rem 0.72rem;
+  border: 1px solid var(--ops-line);
+  border-radius: 0.9rem;
+  background: #fff;
+  color: var(--ops-ink);
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+html body .native-ui .schedule-ops-event-switcher button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+html body .native-ui .schedule-ops-event-switcher button span {
+  color: #7b8492;
+  font-size: 0.54rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-ops-event-switcher button strong {
+  max-width: 9.5rem;
+  overflow: hidden;
+  color: var(--ops-ink);
+  font-size: 0.68rem;
+  font-weight: 950;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-ops-event-switcher button.is-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.34rem;
+  border-color: transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(135deg, #ddff73, #bbf7d0, #bae6fd)) border-box;
+}
+
+html body .native-ui .schedule-ops-event-switcher button.is-add span {
+  color: #050505;
 }
 
 html body .native-ui .schedule-ops-date-nav {
@@ -381,7 +499,7 @@ html body .native-ui .schedule-ops-day-scroll {
 }
 
 html body .native-ui .schedule-ops-day-board {
-  min-width: calc(10.75rem + (var(--schedule-ops-slot-count) * var(--ops-slot-width)));
+  min-width: calc(10.75rem + (var(--schedule-ops-slot-count) * var(--ops-slot-width)) + var(--ops-timeline-end-pad));
 }
 
 html body .native-ui .schedule-ops-day-header,
@@ -422,12 +540,12 @@ html body .native-ui .schedule-ops-day-header > span {
 
 html body .native-ui .schedule-ops-day-times {
   display: grid;
-  grid-template-columns: repeat(var(--schedule-ops-hour-count), calc(var(--ops-slot-width) * 2));
+  grid-template-columns: repeat(var(--schedule-ops-hour-count), calc(var(--ops-slot-width) * 2)) var(--ops-timeline-end-pad);
 }
 
 html body .native-ui .schedule-ops-day-track {
   display: grid;
-  grid-template-columns: repeat(var(--schedule-ops-slot-count), var(--ops-slot-width));
+  grid-template-columns: repeat(var(--schedule-ops-slot-count), var(--ops-slot-width)) var(--ops-timeline-end-pad);
 }
 
 html body .native-ui .schedule-ops-day-times span {
@@ -508,6 +626,16 @@ html body .native-ui .schedule-ops-day-slot:nth-child(even) {
   border-right-color: var(--ops-line);
 }
 
+html body .native-ui .schedule-ops-day-slot:last-child {
+  pointer-events: none;
+}
+
+html body .native-ui .schedule-ops-day-end-pad {
+  min-width: 0;
+  border-right: 0;
+  background: transparent;
+}
+
 html body .native-ui .schedule-ops-day-slot.is-open:hover,
 html body .native-ui .schedule-ops-day-slot.is-open:focus-visible {
   z-index: 1;
@@ -560,6 +688,25 @@ html body .native-ui .schedule-ops-event.is-pending .schedule-ops-event-status {
 html body .native-ui .schedule-ops-event.is-completed .schedule-ops-event-status { background: #5e89e6; }
 html body .native-ui .schedule-ops-event.is-waitlist .schedule-ops-event-status { background: #9b78e8; }
 html body .native-ui .schedule-ops-event.is-reschedule .schedule-ops-event-status { background: #12a9bd; }
+
+html body .native-ui .schedule-ops-event.is-class-session {
+  grid-template-columns: 0.32rem minmax(0, 1fr) auto;
+}
+
+html body .native-ui .schedule-ops-event.is-class-session .schedule-ops-event-copy strong {
+  font-size: 0.68rem;
+}
+
+html body .native-ui .schedule-ops-event.is-class-session .schedule-ops-event-count {
+  min-width: 1.72rem;
+  height: 1.72rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #f8fafc;
+  color: #101828;
+}
 
 html body .native-ui .schedule-ops-event-copy {
   display: grid;
@@ -939,6 +1086,303 @@ html body .native-ui .schedule-ops-month-card.is-outside {
 
 html body .native-ui .schedule-ops-month-loader {
   min-height: 1px;
+}
+
+html body .native-ui .schedule-ops-type-board {
+  display: grid;
+  gap: 0.82rem;
+  padding: 0.68rem;
+  background: #ffffff;
+}
+
+html body .native-ui .schedule-ops-type-board > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.28rem 0.1rem;
+}
+
+html body .native-ui .schedule-ops-type-board > header p,
+html body .native-ui .schedule-ops-type-board > header h3 {
+  margin: 0;
+}
+
+html body .native-ui .schedule-ops-type-board > header p {
+  color: var(--ops-muted);
+  font-size: 0.57rem;
+  font-weight: 840;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-ops-type-board > header h3 {
+  color: var(--ops-ink);
+  font-size: clamp(1.18rem, 2.2vw, 1.72rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-ops-type-board > header span {
+  max-width: 34rem;
+  color: var(--ops-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: right;
+}
+
+html body .native-ui .schedule-ops-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 0.62rem;
+}
+
+html body .native-ui .schedule-ops-type-card {
+  min-width: 0;
+  min-height: 14rem;
+  display: grid;
+  align-content: start;
+  gap: 0.72rem;
+  padding: 0.78rem;
+  border: 1px solid var(--ops-line);
+  border-radius: 0.9rem;
+  background: #ffffff;
+  box-shadow: 0 18px 44px -40px rgba(15, 23, 42, 0.42);
+}
+
+html body .native-ui .schedule-ops-type-card > header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.62rem;
+}
+
+html body .native-ui .schedule-ops-type-card > header > span {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ops-line);
+  border-radius: 0.82rem;
+  background: #f8fafc;
+}
+
+html body .native-ui .schedule-ops-type-card > header em,
+html body .native-ui .schedule-ops-type-card > header strong,
+html body .native-ui .schedule-ops-type-card > header p,
+html body .native-ui .schedule-ops-type-card > header h3 {
+  display: block;
+  margin: 0;
+}
+
+html body .native-ui .schedule-ops-type-card > header em,
+html body .native-ui .schedule-ops-type-card > header p {
+  color: #98a2b3;
+  font-size: 0.54rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-ops-type-card > header strong {
+  color: var(--ops-ink);
+  font-size: 1.22rem;
+  font-weight: 920;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-ops-type-card > header h3 {
+  margin-top: 0.18rem;
+  color: var(--ops-ink);
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1.08;
+}
+
+html body .native-ui .schedule-ops-type-statuses {
+  min-height: 2.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 0.36rem;
+}
+
+html body .native-ui .schedule-ops-type-body {
+  display: grid;
+  gap: 0.42rem;
+}
+
+html body .native-ui .schedule-ops-type-body > p {
+  margin: 0;
+  color: var(--ops-muted);
+  font-size: 0.78rem;
+  font-weight: 680;
+  line-height: 1.35;
+}
+
+html body .native-ui .schedule-ops-type-card .schedule-ops-event {
+  min-height: 3.7rem;
+}
+
+html body .native-ui .schedule-ops-event-package-board {
+  display: grid;
+  gap: 0.82rem;
+  padding: 0.68rem;
+  background: #ffffff;
+}
+
+html body .native-ui .schedule-ops-event-package-board > header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.28rem 0.1rem;
+}
+
+html body .native-ui .schedule-ops-event-package-board > header p,
+html body .native-ui .schedule-ops-event-package-board > header h3 {
+  margin: 0;
+}
+
+html body .native-ui .schedule-ops-event-package-board > header p {
+  color: var(--ops-muted);
+  font-size: 0.57rem;
+  font-weight: 840;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-ops-event-package-board > header h3 {
+  color: var(--ops-ink);
+  font-size: clamp(1.18rem, 2.2vw, 1.72rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-ops-event-package-board > header span {
+  max-width: 37rem;
+  color: var(--ops-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: right;
+}
+
+html body .native-ui .schedule-ops-event-package-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.7rem;
+  align-items: start;
+}
+
+html body .native-ui .schedule-ops-event-package-card {
+  min-height: 13.6rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr;
+  align-content: start;
+  gap: 0.68rem;
+  padding: 0.84rem;
+}
+
+html body .native-ui .schedule-ops-event-package-main {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 0.13rem;
+}
+
+html body .native-ui .schedule-ops-event-package-main small,
+html body .native-ui .schedule-ops-event-package-main em {
+  overflow: hidden;
+  color: #7b8492;
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 820;
+  line-height: 1.12;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-ops-event-package-main strong {
+  overflow: hidden;
+  color: var(--ops-ink);
+  font-size: 1rem;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html body .native-ui .schedule-ops-event-package-stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+html body .native-ui .schedule-ops-event-package-stats span {
+  min-height: 3.35rem;
+  display: grid;
+  place-items: center;
+  gap: 0.12rem;
+  border: 1px solid var(--ops-soft-line);
+  border-radius: 0.82rem;
+  background: #fcfcfd;
+}
+
+html body .native-ui .schedule-ops-event-package-stats strong {
+  color: var(--ops-ink);
+  font-size: 1.12rem;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+html body .native-ui .schedule-ops-event-package-stats small {
+  color: #7b8492;
+  font-size: 0.52rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+html body .native-ui .schedule-ops-event-package-card .schedule-ops-week-card-events,
+html body .native-ui .schedule-ops-event-package-card .schedule-ops-week-card-footer {
+  grid-column: 1 / -1;
+}
+
+html body .native-ui .schedule-ops-event-package-empty {
+  min-height: 12rem;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.38rem;
+  padding: 1.4rem;
+  border: 1px dashed rgba(15, 23, 42, 0.13);
+  border-radius: 1rem;
+  background: #fff;
+  color: #667085;
+  text-align: center;
+}
+
+html body .native-ui .schedule-ops-event-package-empty strong {
+  color: var(--ops-ink);
+  font-size: 0.95rem;
+  font-weight: 920;
+}
+
+html body .native-ui .schedule-ops-event-package-empty span {
+  max-width: 28rem;
+  font-size: 0.74rem;
+  font-weight: 680;
+  line-height: 1.4;
 }
 
 html body .native-ui .schedule-ops-agenda {

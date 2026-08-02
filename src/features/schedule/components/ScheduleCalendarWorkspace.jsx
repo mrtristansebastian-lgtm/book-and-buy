@@ -18,6 +18,10 @@ import {
 } from 'lucide-react';
 import { PeriodSegmentedControl } from '../../../components/PeriodSegmentedControl';
 import { getLocalDateStr } from '../../../utils/dates';
+import {
+  getScheduleTypeOptionsForServices,
+  normalizeScheduleType
+} from '../../../utils/scheduleTypes';
 import { getBookingDateKey, getSlotStartMinutes } from '../utils/businessCalendarUtils';
 import { ScheduleOperationsBoard } from './ScheduleOperationsBoard';
 import {
@@ -186,6 +190,47 @@ function groupCalendarEvents(events) {
     left.dateKey.localeCompare(right.dateKey) ||
     left.startMinutes - right.startMinutes ||
     left.serviceName.localeCompare(right.serviceName)
+  ));
+}
+
+function groupClassSessionEvents(events) {
+  const groups = new Map();
+  const result = [];
+  events.forEach(event => {
+    if (event.scheduleType !== 'class_session') {
+      result.push(event);
+      return;
+    }
+    const key = [
+      event.scheduleSessionId || event.serviceId || event.serviceName,
+      event.dateKey,
+      event.time,
+      event.staffId || 'unassigned'
+    ].join('|');
+    const group = groups.get(key);
+    if (group) {
+      group.bookings.push(event.booking);
+      group.attendeeCount += Math.max(1, Number(event.booking?.partySize || 1) || 1);
+      group.endMinutes = Math.max(group.endMinutes, event.endMinutes);
+      group.serviceCapacity = Math.max(group.serviceCapacity || 0, event.serviceCapacity || 0);
+      if (event.status === 'pending') group.status = 'pending';
+      return;
+    }
+    const grouped = {
+      ...event,
+      id: `class-session-${key.replace(/[^a-zA-Z0-9_-]/g, '-')}`,
+      eventKey: `class-session-${key}`,
+      clientName: event.serviceName || 'Class',
+      bookings: [event.booking],
+      attendeeCount: Math.max(1, Number(event.booking?.partySize || 1) || 1)
+    };
+    groups.set(key, grouped);
+    result.push(grouped);
+  });
+  return result.sort((left, right) => (
+    String(left.dateKey || '').localeCompare(String(right.dateKey || '')) ||
+    (left.startMinutes ?? Number.MAX_SAFE_INTEGER) - (right.startMinutes ?? Number.MAX_SAFE_INTEGER) ||
+    String(left.serviceName || left.clientName || '').localeCompare(String(right.serviceName || right.clientName || ''))
   ));
 }
 
@@ -935,6 +980,12 @@ function BookingDrawer({
       serviceDuration: selectedService?.duration || activeBooking?.serviceDuration || '',
       servicePrice: selectedService?.price ?? activeBooking?.servicePrice ?? '',
       serviceCategory: selectedService?.category || activeBooking?.serviceCategory || '',
+      scheduleType: selectedService?.scheduleType || activeBooking?.scheduleType || activeBooking?.serviceScheduleType || 'appointment',
+      serviceScheduleType: selectedService?.scheduleType || activeBooking?.serviceScheduleType || activeBooking?.scheduleType || 'appointment',
+      scheduleResourceId: selectedService?.resourceId || selectedService?.resourceLabel || selectedService?.resourceName || activeBooking?.scheduleResourceId || '',
+      scheduleResourceName: selectedService?.resourceLabel || selectedService?.resourceName || activeBooking?.scheduleResourceName || '',
+      scheduleSessionId: selectedService?.sessionId || selectedService?.sessionLabel || activeBooking?.scheduleSessionId || '',
+      scheduleSessionName: selectedService?.sessionLabel || activeBooking?.scheduleSessionName || '',
       staffId: form.staffId,
       staffName: selectedStaff?.name || '',
       staffPhotoURL: selectedStaff?.photoURL || '',
@@ -1097,6 +1148,7 @@ export function ScheduleCalendarWorkspace({
   ));
   const [view, setView] = useState(() => readPreferences(selectedCalendarId).view);
   const [agendaOpen, setAgendaOpen] = useState(() => readPreferences(selectedCalendarId).agendaOpen);
+  const [selectedScheduleType, setSelectedScheduleType] = useState('appointment');
   const [monthWindowCount, setMonthWindowCount] = useState(2);
   const [drawer, setDrawer] = useState(null);
   const triggerRef = useRef(null);
@@ -1125,6 +1177,12 @@ export function ScheduleCalendarWorkspace({
       .filter(calendar => calendar.id && calendar.id !== 'workspace')
       .map(calendar => calendar.id)
   ), [calendars]);
+  const scheduleTypes = useMemo(() => getScheduleTypeOptionsForServices(services), [services]);
+  useEffect(() => {
+    if (!scheduleTypes.some(type => type.id === selectedScheduleType)) {
+      setSelectedScheduleType(scheduleTypes[0]?.id || 'appointment');
+    }
+  }, [scheduleTypes, selectedScheduleType]);
   const normalizedEvents = useMemo(() => normalizeScheduleEvents({
     bookings: allBookings,
     currentMonth: fromDateKey(selectedDate),
@@ -1132,9 +1190,11 @@ export function ScheduleCalendarWorkspace({
     staffList,
     todayStr
   }), [allBookings, selectedDate, services, staffList, todayStr]);
-  const filteredEvents = useMemo(() => normalizedEvents.filter(event => (
-    selectedCalendarId === 'workspace' || event.staffId === selectedCalendarId
-  )), [normalizedEvents, selectedCalendarId]);
+  const scheduleBoardEvents = useMemo(() => groupClassSessionEvents(normalizedEvents), [normalizedEvents]);
+  const filteredEvents = useMemo(() => scheduleBoardEvents.filter(event => (
+    (selectedCalendarId === 'workspace' || event.staffId === selectedCalendarId) &&
+    normalizeScheduleType(event.scheduleType) === selectedScheduleType
+  )), [scheduleBoardEvents, selectedCalendarId, selectedScheduleType]);
   const positionedEvents = useMemo(() => {
     const positionedByKey = new Map(layoutScheduleOverlaps(filteredEvents).map(event => [event.eventKey, event]));
     return filteredEvents.map(event => positionedByKey.get(event.eventKey) || event);
@@ -1252,11 +1312,14 @@ export function ScheduleCalendarWorkspace({
         onOpenEvent={openEventDrawer}
         onOpenSettings={onOpenSettings}
         onSelectCalendar={onSelectCalendar}
+        onSelectScheduleType={setSelectedScheduleType}
         onSelectDate={onSelectDate}
         onToday={() => onSelectDate(todayStr)}
         onToggleAgenda={toggleAgenda}
         readOnly={readOnly}
         selectedCalendarId={selectedCalendarId}
+        selectedScheduleType={selectedScheduleType}
+        scheduleTypes={scheduleTypes}
         selectedDate={selectedDate}
         todayStr={todayStr}
         view={view}

@@ -2,7 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { previewTimeSlots } from '../config/bookingFlowConfig';
 import { getPublicStaffOptions } from '../utils/bookingFlowUtils';
 
-const emptyAvailability = { loading: false, times: null, staffOptions: [], unavailableReason: '' };
+const emptyAvailability = {
+  loading: false,
+  times: null,
+  staffOptions: [],
+  scheduleType: 'appointment',
+  sessions: [],
+  unavailableReason: ''
+};
 
 export function useBookingFlowAvailability({
   activeDate,
@@ -75,7 +82,8 @@ export function useBookingFlowAvailability({
           staffId: staffAssignmentMode === 'client' ? selectedStaffId : '',
           service: {
             serviceId: selectedService.id,
-            serviceDuration: selectedService.duration || ''
+            serviceDuration: selectedService.duration || '',
+            scheduleType: selectedService.scheduleType || selectedService.bookingType || selectedService.serviceType || 'appointment'
           }
         });
         if (cancelled) return;
@@ -85,6 +93,8 @@ export function useBookingFlowAvailability({
           loading: false,
           times: Array.isArray(data.times) ? data.times : [],
           staffOptions,
+          scheduleType: data.scheduleType || selectedService.scheduleType || 'appointment',
+          sessions: Array.isArray(data.sessions) ? data.sessions : [],
           unavailableReason: data.unavailableReason || ''
         });
         if (staffAssignmentMode === 'client') {
@@ -113,6 +123,9 @@ export function useBookingFlowAvailability({
     availableTimesForActiveDate,
     selectedService?.duration,
     selectedService?.id,
+    selectedService?.scheduleType,
+    selectedService?.bookingType,
+    selectedService?.serviceType,
     selectedStaffId,
     serviceAwareAvailabilityEnabled,
     setSelectedStaffId,

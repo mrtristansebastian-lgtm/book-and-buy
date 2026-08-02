@@ -149,18 +149,6 @@ export const industryPresets = {
       { name: 'Studio Consultation', category: 'Planning', description: 'Talk through your project before booking studio time.', price: '0', duration: '30' }
     ]
   },
-  events: {
-    label: 'Event service provider',
-    goal: 'Manage enquiries',
-    tagline: 'Event help without the admin',
-    accent: '#D946EF',
-    welcome: 'Choose the event support you need and request a slot.',
-    services: [
-      { name: 'Event Consultation', category: 'Planning', description: 'Discuss the event needs and next steps.', price: '350', duration: '45' },
-      { name: 'Setup Crew Booking', category: 'Event support', description: 'Reserve a team for event setup.', price: '1200', duration: '180' },
-      { name: 'Full Event Package', category: 'Packages', description: 'Request a quote for a complete event service.', price: '', priceType: 'quote', duration: '60' }
-    ]
-  },
   restaurant: {
     label: 'Restaurant & tastings',
     goal: 'Take table requests',
@@ -170,19 +158,7 @@ export const industryPresets = {
     services: [
       { name: 'Table Reservation', category: 'Dining', description: 'Reserve a table for your party.', price: '0', duration: '90' },
       { name: 'Tasting Experience', category: 'Experiences', description: 'A curated tasting session.', price: '650', duration: '120' },
-      { name: 'Private Dining Enquiry', category: 'Events', description: 'Request a private dining slot.', price: '', priceType: 'quote', duration: '60' }
-    ]
-  },
-  accommodation: {
-    label: 'Guest house or stay',
-    goal: 'Handle stay enquiries',
-    tagline: 'Stay requests made simple',
-    accent: '#0284C7',
-    welcome: 'Request a stay, viewing, or guest service.',
-    services: [
-      { name: 'Room Enquiry', category: 'Accommodation', description: 'Ask about room availability.', price: '', priceType: 'quote', duration: '30' },
-      { name: 'Property Viewing', category: 'Viewing', description: 'View the property before booking.', price: '0', duration: '45' },
-      { name: 'Guest Service Slot', category: 'Guest services', description: 'Reserve a service during your stay.', price: '250', duration: '30' }
+      { name: 'Private Dining Enquiry', category: 'Dining', description: 'Request a private dining slot.', price: '', priceType: 'quote', duration: '60' }
     ]
   },
   cleaning: {
@@ -195,18 +171,6 @@ export const industryPresets = {
       { name: 'Standard Clean', category: 'Cleaning', description: 'Routine cleaning for a home or small office.', price: '500', duration: '120' },
       { name: 'Deep Clean', category: 'Cleaning', description: 'A detailed clean for tougher jobs.', price: '950', duration: '240' },
       { name: 'Site Assessment', category: 'Planning', description: 'Assess the site before confirming the work.', price: '0', duration: '30' }
-    ]
-  },
-  trades: {
-    label: 'Repair or trade service',
-    goal: 'Qualify jobs faster',
-    tagline: 'Repair visits made easier',
-    accent: '#EA580C',
-    welcome: 'Choose the job type and request a visit.',
-    services: [
-      { name: 'Call-out Visit', category: 'Repairs', description: 'A site visit to inspect the job.', price: '350', duration: '60' },
-      { name: 'Small Repair', category: 'Repairs', description: 'Book time for a smaller repair task.', price: '650', duration: '120' },
-      { name: 'Quote Appointment', category: 'Quotes', description: 'Assess a larger job before quoting.', price: '0', duration: '45' }
     ]
   },
   automotive: {
@@ -309,15 +273,15 @@ export const industryGroups = [
   },
   {
     id: 'spaces_events',
-    label: 'Spaces, events & hospitality',
-    description: 'Venues, rentals, shoots, restaurants, stays, and event services.',
-    businessTypes: ['rentals', 'venue', 'photography', 'musicstudio', 'events', 'restaurant', 'accommodation']
+    label: 'Spaces & experiences',
+    description: 'Venues, rentals, shoots, studios, and restaurant experiences.',
+    businessTypes: ['rentals', 'venue', 'photography', 'musicstudio', 'restaurant']
   },
   {
     id: 'home_vehicle_pets',
     label: 'Home, vehicle & pet services',
-    description: 'Cleaning, repairs, trades, automotive work, and pet appointments.',
-    businessTypes: ['cleaning', 'trades', 'automotive', 'petcare']
+    description: 'Cleaning, automotive work, and pet appointments.',
+    businessTypes: ['cleaning', 'automotive', 'petcare']
   },
   {
     id: 'professional',

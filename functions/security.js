@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { HttpsError } = require('firebase-functions/v2/https');
+const { getServiceScheduleType, normalizeScheduleType } = require('./scheduleTypes');
 
 const PUBLIC_BOOKING_FIELDS = new Set([
   'clientName',
@@ -16,6 +17,15 @@ const PUBLIC_BOOKING_FIELDS = new Set([
   'servicePriceType',
   'serviceDuration',
   'serviceCategory',
+  'scheduleType',
+  'serviceScheduleType',
+  'bookingType',
+  'serviceType',
+  'scheduleResourceId',
+  'scheduleResourceName',
+  'scheduleSessionId',
+  'scheduleSessionName',
+  'partySize',
   'staffId',
   'staffName',
   'staffPhotoURL',
@@ -194,6 +204,13 @@ const validatePublicBookingPayload = (incoming = {}) => {
     servicePriceType: cleanString(incoming.servicePriceType, 40),
     serviceDuration: cleanString(incoming.serviceDuration, 80),
     serviceCategory: cleanString(incoming.serviceCategory, 120),
+    scheduleType: normalizeScheduleType(incoming.scheduleType || incoming.serviceScheduleType || incoming.bookingType || incoming.serviceType),
+    serviceScheduleType: normalizeScheduleType(incoming.serviceScheduleType || incoming.scheduleType || incoming.bookingType || incoming.serviceType),
+    scheduleResourceId: cleanString(incoming.scheduleResourceId, 120),
+    scheduleResourceName: cleanString(incoming.scheduleResourceName, 160),
+    scheduleSessionId: cleanString(incoming.scheduleSessionId, 120),
+    scheduleSessionName: cleanString(incoming.scheduleSessionName, 160),
+    partySize: cleanString(incoming.partySize, 40),
     staffId: cleanString(incoming.staffId, 120),
     staffName: cleanString(incoming.staffName, 120),
     staffPhotoURL: cleanString(incoming.staffPhotoURL, 500),
@@ -228,6 +245,8 @@ const alignBookingWithWorkspace = ({ booking, workspace, availabilityRules }) =>
     if (!staff) throw new HttpsError('failed-precondition', 'That staff member is not available for online booking.');
   }
 
+  const scheduleType = getServiceScheduleType(service);
+
   return {
     ...booking,
     serviceId: cleanString(service.id, 120),
@@ -236,7 +255,14 @@ const alignBookingWithWorkspace = ({ booking, workspace, availabilityRules }) =>
     servicePrice: cleanString(service.price, 80),
     servicePriceType: cleanString(service.priceType, 40),
     serviceDuration: cleanString(service.duration, 80),
-    serviceCategory: cleanString(service.category, 120)
+    serviceCategory: cleanString(service.category, 120),
+    scheduleType,
+    serviceScheduleType: scheduleType,
+    scheduleResourceId: cleanString(service.resourceId || service.resourceLabel || service.resourceName || booking.scheduleResourceId, 120),
+    scheduleResourceName: cleanString(service.resourceLabel || service.resourceName || booking.scheduleResourceName, 160),
+    scheduleSessionId: cleanString(service.sessionId || service.sessionLabel || booking.scheduleSessionId, 120),
+    scheduleSessionName: cleanString(service.sessionLabel || booking.scheduleSessionName, 160),
+    partySize: cleanString(booking.partySize, 40)
   };
 };
 

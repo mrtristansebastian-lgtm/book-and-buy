@@ -1,5 +1,6 @@
 const { HttpsError } = require('firebase-functions/v2/https');
 const { cleanString, normalizeEmail, requireString } = require('./functionUtils');
+const { normalizeScheduleType } = require('./scheduleTypes');
 
 const bookingTimestamp = (value, fallback) => (
   Number.isFinite(Number(value)) ? Number(value) : fallback()
@@ -48,6 +49,13 @@ const validateOwnerBookingPayload = (incoming = {}, { serverTimestamp = () => Da
     servicePriceType: cleanString(incoming.servicePriceType, 40),
     serviceDuration: cleanString(incoming.serviceDuration, 80),
     serviceCategory: cleanString(incoming.serviceCategory, 120),
+    scheduleType: normalizeScheduleType(incoming.scheduleType || incoming.serviceScheduleType || incoming.bookingType || incoming.serviceType),
+    serviceScheduleType: normalizeScheduleType(incoming.serviceScheduleType || incoming.scheduleType || incoming.bookingType || incoming.serviceType),
+    scheduleResourceId: cleanString(incoming.scheduleResourceId, 120),
+    scheduleResourceName: cleanString(incoming.scheduleResourceName, 160),
+    scheduleSessionId: cleanString(incoming.scheduleSessionId, 120),
+    scheduleSessionName: cleanString(incoming.scheduleSessionName, 160),
+    partySize: cleanString(incoming.partySize, 40),
     amountInCents: normalizeAmountInCents(incoming),
     currency: cleanString(incoming.currency || 'ZAR', 12).toUpperCase(),
     staffId: cleanString(incoming.staffId, 120),

@@ -1,4 +1,5 @@
 import { getLocalDateStr } from '../../../utils/dates.js';
+import { getBookingScheduleType } from '../../../utils/scheduleTypes.js';
 import { getBookingDateKey, getStaffDisplayName } from './businessCalendarUtils.js';
 
 /**
@@ -233,6 +234,7 @@ export const normalizeScheduleEvents = ({
         || {};
       const staffId = cleanText(booking.staffId);
       const staff = staffById.get(staffId) || {};
+      const scheduleType = getBookingScheduleType(booking, service);
       const status = normalizeScheduleStatus(booking);
       const dateKey = getBookingDateKey(getBookingDateInput(booking), { todayStr, currentMonth });
       const time = getBookingTime(booking);
@@ -272,6 +274,13 @@ export const normalizeScheduleEvents = ({
         serviceId: serviceId || cleanText(service.id),
         serviceName: serviceNameFromBooking || cleanText(service.name) || 'Service',
         serviceImage: cleanText(service.imageUrls?.[0] || service.imageUrl || service.image),
+        serviceCapacity: Number(service.capacity || service.scheduleConfig?.capacity || booking.serviceCapacity || 0) || 0,
+        scheduleType,
+        serviceScheduleType: scheduleType,
+        scheduleResourceId: cleanText(booking.scheduleResourceId || booking.scheduleResourceName || service.resourceLabel || service.resourceName),
+        scheduleResourceName: cleanText(booking.scheduleResourceName || service.resourceLabel || service.resourceName),
+        scheduleSessionId: cleanText(booking.scheduleSessionId || booking.scheduleSessionName || service.sessionLabel),
+        scheduleSessionName: cleanText(booking.scheduleSessionName || service.sessionLabel),
         staffId,
         staffName: cleanText(booking.staffName) || getStaffDisplayName(staff),
         staffPhoto: cleanText(booking.staffPhotoURL || staff.photoURL || staff.avatar),

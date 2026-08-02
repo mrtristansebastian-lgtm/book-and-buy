@@ -18,6 +18,7 @@ const {
 const {
   validateAvailabilityLookupPayload
 } = require('./availabilityValidators');
+const { normalizeScheduleType } = require('./scheduleTypes');
 const {
   validateCreateOwnerBookingRequestPayload,
   validateCreatePublicBookingRequestPayload
@@ -464,6 +465,7 @@ const getOwnerBookingWorkspace = async ({ appId, ownerId }) => {
 const applyWorkspaceDefaultsToOwnerBooking = ({ booking, workspace }) => {
   const service = (workspace.services || []).find(item => cleanString(item.id, 120) === booking.serviceId) || null;
   const staff = (workspace.publicStaff || []).find(item => item.id === booking.staffId) || null;
+  const scheduleType = normalizeScheduleType(booking.scheduleType || booking.serviceScheduleType || service?.scheduleType || service?.bookingType || service?.serviceType);
   return {
     ...booking,
     serviceName: booking.serviceName || service?.name || '',
@@ -472,6 +474,13 @@ const applyWorkspaceDefaultsToOwnerBooking = ({ booking, workspace }) => {
     servicePriceType: booking.servicePriceType || service?.priceType || '',
     serviceDuration: booking.serviceDuration || service?.duration || '',
     serviceCategory: booking.serviceCategory || service?.category || '',
+    scheduleType,
+    serviceScheduleType: booking.serviceScheduleType || scheduleType,
+    scheduleResourceId: booking.scheduleResourceId || service?.resourceId || service?.resourceLabel || service?.resourceName || '',
+    scheduleResourceName: booking.scheduleResourceName || service?.resourceLabel || service?.resourceName || '',
+    scheduleSessionId: booking.scheduleSessionId || service?.sessionId || service?.sessionLabel || '',
+    scheduleSessionName: booking.scheduleSessionName || service?.sessionLabel || '',
+    partySize: booking.partySize || '',
     staffName: booking.staffName || staff?.name || '',
     staffPhotoURL: booking.staffPhotoURL || staff?.photoURL || '',
     serviceDurationMinutes: parseDurationMinutes(booking.serviceDuration || service?.duration || '', normalizeAvailabilityRules(workspace).fallbackDurationMinutes),
@@ -557,6 +566,7 @@ const writeOwnerBookingTransaction = async ({
       availabilityMode: availabilityRules.enabled ? availabilityRules.staffAssignmentMode : 'legacy'
     };
     const shouldLockSlot = bookingRecord.dateKey && bookingBlocksAvailability(bookingRecord, availabilityRules.holdMode);
+    const usesCapacitySeats = bookingRecord.scheduleType === 'class_session';
 
     if (shouldLockSlot) {
       if (availabilityRules.enabled) {
@@ -595,32 +605,34 @@ const writeOwnerBookingTransaction = async ({
         bookingRecord.serviceDurationMinutes = manualAssignment.durationMinutes;
         bookingRecord.availabilityMode = availabilityRules.staffAssignmentMode;
 
-        const startMinutes = timeToMinutes(bookingRecord.time);
-        if (startMinutes === null) {
-          throw new HttpsError('invalid-argument', 'Booking time is invalid.');
+        if (!usesCapacitySeats) {
+          const startMinutes = timeToMinutes(bookingRecord.time);
+          if (startMinutes === null) {
+            throw new HttpsError('invalid-argument', 'Booking time is invalid.');
+          }
+          const lockRefs = getLockBucketIds({
+            dateKey: bookingRecord.dateKey,
+            staffId: assignedStaff.id,
+            startMinutes,
+            durationMinutes: manualAssignment.durationMinutes
+          }).map(lockId => lockBaseRef.collection('slotLocks').doc(lockId));
+          const lockSnaps = await Promise.all(lockRefs.map(lockRef => transaction.get(lockRef)));
+          if (lockSnaps.some(lockSnap => lockSnap.exists)) {
+            throw new HttpsError('already-exists', 'That time was just requested. Pick another slot.');
+          }
+          lockRefs.forEach((lockRef) => transaction.set(lockRef, {
+            bookingId: bookingRef.id,
+            ownerId,
+            dateKey: bookingRecord.dateKey,
+            time: bookingRecord.time,
+            staffId: assignedStaff.id,
+            durationMinutes: manualAssignment.durationMinutes,
+            status: bookingRecord.status,
+            ...getExpirationFields(SLOT_LOCK_TTL_MS),
+            createdAt: serverTimestamp()
+          }));
         }
-        const lockRefs = getLockBucketIds({
-          dateKey: bookingRecord.dateKey,
-          staffId: assignedStaff.id,
-          startMinutes,
-          durationMinutes: manualAssignment.durationMinutes
-        }).map(lockId => lockBaseRef.collection('slotLocks').doc(lockId));
-        const lockSnaps = await Promise.all(lockRefs.map(lockRef => transaction.get(lockRef)));
-        if (lockSnaps.some(lockSnap => lockSnap.exists)) {
-          throw new HttpsError('already-exists', 'That time was just requested. Pick another slot.');
-        }
-        lockRefs.forEach((lockRef) => transaction.set(lockRef, {
-          bookingId: bookingRef.id,
-          ownerId,
-          dateKey: bookingRecord.dateKey,
-          time: bookingRecord.time,
-          staffId: assignedStaff.id,
-          durationMinutes: manualAssignment.durationMinutes,
-          status: bookingRecord.status,
-          ...getExpirationFields(SLOT_LOCK_TTL_MS),
-          createdAt: serverTimestamp()
-        }));
-      } else {
+      } else if (!usesCapacitySeats) {
         const lockRef = lockBaseRef.collection('slotLocks').doc(safeLockId(bookingRecord.dateKey, `${bookingRecord.staffId || 'workspace'}_${bookingRecord.time}`));
         const lockSnap = await transaction.get(lockRef);
         if (lockSnap.exists) {
@@ -957,9 +969,11 @@ exports.getPublicServiceAvailability = onCall(publicCallableOptions, async (requ
   });
   return {
     rules: availability.rules,
+    scheduleType: availability.scheduleType || 'appointment',
     durationMinutes: availability.durationMinutes,
     staffOptions: availability.rules.staffAssignmentMode === 'client' ? availability.staffOptions : [],
     times: availability.timeOptions,
+    sessions: Array.isArray(availability.sessions) ? availability.sessions : [],
     unavailableReason: availability.unavailableReason
   };
 });
@@ -1018,6 +1032,13 @@ exports.createPublicBookingRequest = onCall(bookingCallableOptions, async (reque
     servicePriceType,
     serviceDuration,
     serviceCategory,
+    scheduleType,
+    serviceScheduleType,
+    scheduleResourceId,
+    scheduleResourceName,
+    scheduleSessionId,
+    scheduleSessionName,
+    partySize,
     staffId: requestedStaffId,
     staffName: requestedStaffName,
     staffPhotoURL: requestedStaffPhotoURL,
@@ -1089,6 +1110,13 @@ exports.createPublicBookingRequest = onCall(bookingCallableOptions, async (reque
     servicePriceType,
     serviceDuration,
     serviceCategory,
+    scheduleType,
+    serviceScheduleType,
+    scheduleResourceId,
+    scheduleResourceName,
+    scheduleSessionId,
+    scheduleSessionName,
+    partySize,
     staffId: '',
     staffName: '',
     staffPhotoURL: '',
@@ -1112,6 +1140,7 @@ exports.createPublicBookingRequest = onCall(bookingCallableOptions, async (reque
     timestamp: Date.now(),
     createdAt: serverTimestamp()
   };
+  const usesCapacitySeats = scheduleType === 'class_session';
 
   let transactionResult = null;
   await db.runTransaction(async (transaction) => {
@@ -1155,32 +1184,34 @@ exports.createPublicBookingRequest = onCall(bookingCallableOptions, async (reque
         bookingRecord.serviceDurationMinutes = availability.durationMinutes;
         bookingRecord.availabilityMode = availabilityRules.staffAssignmentMode;
 
-        const startMinutes = timeToMinutes(time);
-        if (startMinutes === null) {
-          throw new HttpsError('invalid-argument', 'Booking time is invalid.');
+        if (!usesCapacitySeats) {
+          const startMinutes = timeToMinutes(time);
+          if (startMinutes === null) {
+            throw new HttpsError('invalid-argument', 'Booking time is invalid.');
+          }
+          const lockRefs = getLockBucketIds({
+            dateKey,
+            staffId: assignedStaff.id,
+            startMinutes,
+            durationMinutes: availability.durationMinutes
+          }).map(lockId => workspaceRef.collection('slotLocks').doc(lockId));
+          const lockSnaps = await Promise.all(lockRefs.map(lockRef => transaction.get(lockRef)));
+          if (lockSnaps.some(lockSnap => lockSnap.exists)) {
+            throw new HttpsError('already-exists', 'That time was just requested. Pick another slot.');
+          }
+          lockRefs.forEach((lockRef) => transaction.set(lockRef, {
+            bookingId: bookingRef.id,
+            ownerId,
+            dateKey,
+            time,
+            staffId: assignedStaff.id,
+            durationMinutes: availability.durationMinutes,
+            status,
+            ...getExpirationFields(SLOT_LOCK_TTL_MS),
+            createdAt: serverTimestamp()
+          }));
         }
-        const lockRefs = getLockBucketIds({
-          dateKey,
-          staffId: assignedStaff.id,
-          startMinutes,
-          durationMinutes: availability.durationMinutes
-        }).map(lockId => workspaceRef.collection('slotLocks').doc(lockId));
-        const lockSnaps = await Promise.all(lockRefs.map(lockRef => transaction.get(lockRef)));
-        if (lockSnaps.some(lockSnap => lockSnap.exists)) {
-          throw new HttpsError('already-exists', 'That time was just requested. Pick another slot.');
-        }
-        lockRefs.forEach((lockRef) => transaction.set(lockRef, {
-          bookingId: bookingRef.id,
-          ownerId,
-          dateKey,
-          time,
-          staffId: assignedStaff.id,
-          durationMinutes: availability.durationMinutes,
-          status,
-          ...getExpirationFields(SLOT_LOCK_TTL_MS),
-          createdAt: serverTimestamp()
-        }));
-      } else {
+      } else if (!usesCapacitySeats) {
         const slotLockRef = workspaceRef.collection('slotLocks').doc(safeLockId(dateKey, time));
         const lockSnap = await transaction.get(slotLockRef);
         if (lockSnap.exists) {
@@ -1221,6 +1252,13 @@ exports.createPublicBookingRequest = onCall(bookingCallableOptions, async (reque
         servicePriceType,
         serviceDuration,
         serviceCategory,
+        scheduleType,
+        serviceScheduleType,
+        scheduleResourceId,
+        scheduleResourceName,
+        scheduleSessionId,
+        scheduleSessionName,
+        partySize,
         staffId: bookingRecord.staffId,
         staffName: bookingRecord.staffName,
         staffPhotoURL: bookingRecord.staffPhotoURL,
@@ -1248,6 +1286,8 @@ exports.createPublicBookingRequest = onCall(bookingCallableOptions, async (reque
       workspaceLogo: bookingRecord.workspaceLogo,
       serviceId,
       serviceName,
+      scheduleType,
+      serviceScheduleType,
       paymentMethod,
       paymentGateway,
       paymentProviderName,

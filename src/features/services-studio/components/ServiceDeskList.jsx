@@ -1,5 +1,6 @@
 import { ArrowUpRight, Briefcase, CheckCircle2, ImagePlus, Plus, SlidersHorizontal, UsersRound } from 'lucide-react';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
+import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
 
 export function ServiceDeskList({
   filteredServices,
@@ -47,6 +48,7 @@ export function ServiceDeskList({
             const duration = service.durationMode === 'schedule' ? '' : formatServiceDuration(service.duration);
             const price = formatServicePrice(service);
             const hasImage = Boolean(service.imageUrls?.[0]);
+            const scheduleTypeMeta = getScheduleTypeMeta(service.scheduleType || service.bookingType || service.serviceType);
 
             return (
               <article key={service.id} className={`service-desk-file-card service-booking-card-preview ${selectedId === service.id ? 'is-active' : ''}`}>
@@ -95,6 +97,7 @@ export function ServiceDeskList({
                     <span className={`service-desk-card-status ${service.active !== false ? 'is-live' : 'is-hidden'}`}>
                       {service.active !== false ? 'Live' : 'Hidden'}
                     </span>
+                    <span>{scheduleTypeMeta.singular}</span>
                     <span><UsersRound size={13} /> {assignedStaff.length > 0 ? `${assignedStaff.length} staff` : 'No staff'}</span>
                   </div>
                   <button type="button" onClick={() => onOpenService(service)} className="service-desk-card-action">

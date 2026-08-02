@@ -25,6 +25,8 @@ const bookingHoldSummary = ({ bookingId, booking = {} }) => {
     dateKey,
     time,
     status,
+    serviceId: cleanString(booking.serviceId, 120),
+    scheduleType: cleanString(booking.scheduleType || booking.serviceScheduleType || 'appointment', 60),
     staffId: staffId || ANY_STAFF,
     serviceDurationMinutes: durationMinutes,
     serviceDuration: cleanString(booking.serviceDuration || '', 80),
@@ -47,6 +49,9 @@ const holdRef = ({ db, appId, ownerId, dateKey, bookingId }) => (
 
 const toAvailabilityBooking = (hold = {}) => ({
   id: hold.bookingId || '',
+  serviceId: hold.serviceId || '',
+  scheduleType: hold.scheduleType || 'appointment',
+  serviceScheduleType: hold.scheduleType || 'appointment',
   time: hold.time || '',
   status: hold.status || 'pending',
   staffId: hold.staffId && hold.staffId !== ANY_STAFF ? hold.staffId : '',

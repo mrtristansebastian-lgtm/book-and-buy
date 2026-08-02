@@ -1,44 +1,122 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
   Briefcase,
   Check,
+  ChevronDown,
   Clock,
-  DollarSign,
   Home,
   Image,
   MapPin,
-  Sparkles,
   Trash2,
+  Users,
   Video,
   X
 } from 'lucide-react';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import {
+  getScheduleTypeMeta,
+  normalizeScheduleType,
+  scheduleTypeRequiresApproval
+} from '../../../utils/scheduleTypes';
+import {
   getStaffInitial,
   priceTypes,
   normalizeServiceDurationValue,
-  serviceDurationOptions
+  serviceScheduleTypeOptions
 } from '../servicesStudioModel';
 
 const wizardSteps = [
+  { id: 'type', label: 'Type', title: 'Booking type', helper: 'Choose how clients reserve this service.' },
   { id: 'details', label: 'Details', title: 'Service details', helper: 'Name, description, category, and visibility.' },
-  { id: 'pricing', label: 'Pricing', title: 'Pricing', helper: 'Choose how this service is charged, including price and tax.' },
-  { id: 'availability', label: 'Duration', title: 'Service duration', helper: 'Choose a fixed duration, or let schedule availability decide the booking length.' },
+  { id: 'pricing', label: 'Pricing', title: 'Pricing', helper: 'Choose how this service is charged.' },
+  { id: 'delivery', label: 'Team', title: 'Assign staff members', helper: 'Choose which team members can run or manage this service.' },
   { id: 'photos', label: 'Photos', title: 'Service photos', helper: 'Add the images clients see on the booking page service card.' },
-  { id: 'delivery', label: 'Staff', title: 'Assign staff members', helper: 'Choose which team members can take this appointment.' },
   { id: 'location', label: 'Location', title: 'Location', helper: 'Choose where the service happens and add travel or online details.' },
   { id: 'rules', label: 'Rules', title: 'Booking rules', helper: 'Control notice, payment, approval, cancellation, and repeat bookings.' },
   { id: 'preview', label: 'Preview', title: 'Booking page card', helper: 'See the exact service card style clients will see on the booking page.' }
 ];
 
-const typeCopy = {
+const stepCopyByType = {
   appointment: {
-    delivery: 'Assign staff members',
-    deliveryHint: 'Choose who can take this appointment.'
+    details: { label: 'Details', title: 'Appointment details', helper: 'Name the service clearly, set the duration, and describe what the one-to-one booking includes.' },
+    pricing: { label: 'Pricing', title: 'Appointment pricing', helper: 'Set the client-facing price for this one-to-one booking.' }
   },
+  class_session: {
+    details: { label: 'Details', title: 'Spot booking details', helper: 'Name the class, workshop, or session, then set duration and capacity.' }
+  }
 };
+
+const priceTypesByType = {
+  appointment: ['fixed', 'free', 'quote'],
+  class_session: ['fixed', 'free', 'quote']
+};
+
+const APPOINTMENT_CATEGORY_OPTIONS = Object.freeze([
+  'Beauty & salon',
+  'Barbering',
+  'Nails',
+  'Brows & lashes',
+  'Makeup',
+  'Skincare',
+  'Spa & massage',
+  'Wellness',
+  'Fitness coaching',
+  'Personal training',
+  'Health consult',
+  'Therapy & counselling',
+  'Coaching',
+  'Consulting',
+  'Professional services',
+  'Finance & tax',
+  'Legal consult',
+  'Real estate',
+  'Photography',
+  'Creative studio',
+  'Music studio',
+  'Tutoring',
+  'Childcare',
+  'Restaurant booking',
+  'Tasting experience',
+  'Venue viewing',
+  'Rental appointment',
+  'Cleaning',
+  'Automotive',
+  'Pet grooming',
+  'Pet care',
+  'Community service',
+  'Other appointment'
+]);
+
+const SEAT_CATEGORY_OPTIONS = Object.freeze([
+  'Workshop',
+  'Class',
+  'Course',
+  'Training session',
+  'Group session',
+  'Masterclass',
+  'Seminar',
+  'Bootcamp',
+  'Cohort programme',
+  'Fitness class',
+  'Yoga class',
+  'Pilates class',
+  'Dance class',
+  'Kids class',
+  'Tutoring group',
+  'Cooking class',
+  'Baking class',
+  'Art class',
+  'Music class',
+  'Language class',
+  'Wellness session',
+  'Support group',
+  'Tasting session',
+  'Studio session',
+  'Drop-in session',
+  'Spot booking'
+]);
 
 const locationOptions = [
   { id: 'business', label: 'At Business', icon: Home },
@@ -90,7 +168,7 @@ const cancellationWindowOptions = [
   { value: '7 days', label: '7 days' }
 ];
 
-const getServiceType = () => 'appointment';
+const getServiceType = (service = {}) => normalizeScheduleType(service.scheduleType || service.bookingType || service.serviceType);
 
 const asBool = (value, fallback = false) => typeof value === 'boolean' ? value : fallback;
 
@@ -150,9 +228,174 @@ function SelectWithCustom({ value = '', options = [], onChange, customPlaceholde
   );
 }
 
+function ServiceCategoryMenu({ customOptions = [], onChange, type = 'appointment', value = '' }) {
+  const [open, setOpen] = useState(false);
+  const [customValue, setCustomValue] = useState('');
+  const baseOptions = type === 'class_session' ? SEAT_CATEGORY_OPTIONS : APPOINTMENT_CATEGORY_OPTIONS;
+  const options = useMemo(() => {
+    const seen = new Set();
+    return [...baseOptions, ...customOptions, value]
+      .map(option => String(option || '').trim())
+      .filter(Boolean)
+      .filter(option => {
+        const key = option.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }, [baseOptions, customOptions, value]);
+  const filteredCustomValue = customValue.trim();
+
+  const choose = (option) => {
+    onChange(option);
+    setOpen(false);
+    setCustomValue('');
+  };
+
+  const addCustom = () => {
+    if (!filteredCustomValue) return;
+    choose(filteredCustomValue);
+  };
+
+  return (
+    <div className={`service-category-menu ${open ? 'is-open' : ''}`}>
+      <button type="button" className="service-category-menu-trigger" onClick={() => setOpen(current => !current)} aria-expanded={open}>
+        <span>{value || 'Choose category'}</span>
+        <ChevronDownIcon />
+      </button>
+      {open ? (
+        <div className="service-category-menu-popover">
+          <div className="service-category-menu-list">
+            {options.map(option => (
+              <button key={option} type="button" className={option === value ? 'is-active' : ''} onClick={() => choose(option)}>
+                <span>{option}</span>
+                {option === value ? <Check size={13} /> : null}
+              </button>
+            ))}
+          </div>
+          <div className="service-category-custom">
+            <input
+              value={customValue}
+              onChange={(event) => setCustomValue(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  addCustom();
+                }
+              }}
+              placeholder={type === 'class_session' ? 'Add custom spot category' : 'Add custom appointment category'}
+            />
+            <button type="button" onClick={addCustom} disabled={!filteredCustomValue}>Add</button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function DurationMenu({ allowSchedule = false, durationMode = 'fixed', onChange, value = '' }) {
+  const [open, setOpen] = useState(false);
+  const [hours, setHours] = useState('');
+  const [minutes, setMinutes] = useState('');
+  const normalizedValue = normalizeServiceDurationValue(value);
+  const selectedLabel = durationMode === 'schedule'
+    ? 'No fixed duration'
+    : normalizedValue
+      ? formatServiceDuration(normalizedValue)
+      : 'Choose duration';
+
+  const chooseDuration = (nextValue, nextMode = 'fixed') => {
+    onChange(nextValue, nextMode);
+    setOpen(false);
+    setHours('');
+    setMinutes('');
+  };
+
+  const applyCustomDuration = () => {
+    const hourValue = Number(hours || 0);
+    const minuteValue = Number(minutes || 0);
+    if (!Number.isFinite(hourValue) || !Number.isFinite(minuteValue)) return;
+    const totalMinutes = Math.round((hourValue * 60) + minuteValue);
+    if (totalMinutes <= 0) return;
+    chooseDuration(String(totalMinutes), 'fixed');
+  };
+  const canApply = Number(hours || 0) > 0 || Number(minutes || 0) > 0;
+
+  return (
+    <div className={`service-category-menu service-duration-menu ${open ? 'is-open' : ''}`}>
+      <button type="button" className="service-category-menu-trigger" onClick={() => setOpen(current => !current)} aria-expanded={open}>
+        <span>{selectedLabel}</span>
+        <ChevronDownIcon />
+      </button>
+      {open ? (
+        <div className="service-category-menu-popover service-duration-menu-popover">
+          {allowSchedule ? (
+            <button type="button" className={`service-duration-schedule-choice ${durationMode === 'schedule' ? 'is-active' : ''}`} onClick={() => chooseDuration('', 'schedule')}>
+              <span>
+                <strong>No fixed duration</strong>
+                <small>Use the booking blocks you make available in Schedule.</small>
+              </span>
+              {durationMode === 'schedule' ? <Check size={14} /> : null}
+            </button>
+          ) : null}
+          <div className="service-duration-custom">
+            <div className="service-duration-custom-head">
+              <strong>Set fixed duration</strong>
+              <span>Fill in hours, minutes, or both.</span>
+            </div>
+            <div className="service-duration-slot-row">
+              <label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={hours}
+                  onChange={(event) => setHours(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      applyCustomDuration();
+                    }
+                  }}
+                  placeholder="0"
+                />
+                <span>Hours</span>
+              </label>
+              <label>
+                <input
+                  type="number"
+                  min="0"
+                  step="5"
+                  value={minutes}
+                  onChange={(event) => setMinutes(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      applyCustomDuration();
+                    }
+                  }}
+                  placeholder="30"
+                />
+                <span>Minutes</span>
+              </label>
+            </div>
+            <button type="button" onClick={applyCustomDuration} disabled={!canApply}>Set duration</button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ChevronDownIcon() {
+  return <ChevronDown size={14} aria-hidden="true" />;
+}
+
 export function ServiceFileModal({
   isOpen,
   draft,
+  businessCurrency = 'R',
+  categoryOptions = [],
   selectedServiceExists,
   staffOptions,
   canManageWorkspace,
@@ -167,48 +410,114 @@ export function ServiceFileModal({
   const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
-    if (isOpen) setStepIndex(0);
+    if (isOpen) {
+      setStepIndex(0);
+    }
   }, [isOpen, draft?.id]);
 
   const bookingType = getServiceType(draft);
-  const currentStep = wizardSteps[stepIndex] || wizardSteps[0];
-  const selectedDuration = normalizeServiceDurationValue(draft.duration);
+  const allowedPriceTypeIds = priceTypesByType[bookingType] || priceTypesByType.appointment;
+  const activePriceType = allowedPriceTypeIds.includes(draft.priceType) ? draft.priceType : allowedPriceTypeIds[0];
+  const priceCurrency = getCurrencyPrefix(businessCurrency || draft.currency || 'R');
+  const steps = wizardSteps
+    .map(step => ({
+      ...step,
+      ...(stepCopyByType[bookingType]?.[step.id] || {})
+    }));
+  const currentStep = steps[stepIndex] || steps[0];
   const durationSummary = draft.durationMode === 'schedule' ? '' : formatServiceDuration(draft.duration);
-  const copy = typeCopy[bookingType] || typeCopy.appointment;
   const canGoBack = stepIndex > 0;
-  const isLastStep = stepIndex === wizardSteps.length - 1;
+  const isLastStep = stepIndex === steps.length - 1;
 
   if (!isOpen) return null;
 
   const update = (key, value) => onUpdateDraft(key, value);
-  const nextStep = () => setStepIndex(index => Math.min(index + 1, wizardSteps.length - 1));
+  const updateBookingStyle = (nextType) => {
+    const scheduleType = normalizeScheduleType(nextType);
+    onUpdateDraft('scheduleType', scheduleType);
+    onUpdateDraft('bookingType', scheduleType);
+    onUpdateDraft('serviceType', scheduleType);
+    if (scheduleType === 'class_session') {
+      if (!draft.name || draft.name === 'New Service') onUpdateDraft('name', 'New Class Session');
+      if (!draft.category) onUpdateDraft('category', 'Spots');
+    }
+    if (scheduleType === 'appointment' && (!draft.name || draft.name === 'New Service')) onUpdateDraft('name', 'New Service');
+    if (scheduleTypeRequiresApproval(scheduleType)) onUpdateDraft('approvalRequired', true);
+  };
+  const nextStep = () => setStepIndex(index => Math.min(index + 1, steps.length - 1));
   const prevStep = () => setStepIndex(index => Math.max(index - 1, 0));
+  const renderDetailsStep = () => {
+    const detailCopy = {
+      appointment: {
+        name: 'Appointment name',
+        category: 'Service category',
+        placeholder: 'e.g. Skin consultation, Strategy call, Haircut',
+        categoryPlaceholder: 'Beauty, consulting, tutoring...',
+        description: 'What happens in the appointment, who it is for, and what clients should know before arriving.'
+      },
+      class_session: {
+        name: 'Spot booking name',
+        category: 'Spot category',
+        placeholder: 'e.g. Beginner bread workshop',
+        categoryPlaceholder: 'Workshop, fitness, music, tutoring...',
+        description: 'Class level, what attendees learn, what is included, and what they should bring.'
+      }
+    }[bookingType] || {};
 
-  const renderDetailsStep = () => (
-    <div className="service-wizard-grid">
-      <WizardField label="Service name" wide>
-        <input value={draft.name} onChange={(event) => update('name', event.target.value)} placeholder="Service name" />
-      </WizardField>
-      <WizardField label="Category">
-        <input value={draft.category} onChange={(event) => update('category', event.target.value)} placeholder="Beauty, consulting, tutoring..." />
-      </WizardField>
-      <WizardField label="Visibility">
-        <button type="button" className={`service-live-toggle ${draft.active ? 'is-live' : ''}`} onClick={() => update('active', !draft.active)}>
-          {draft.active ? 'Live' : 'Hidden'}
-        </button>
-      </WizardField>
-      <WizardField label="Description" wide>
-        <textarea value={draft.description} onChange={(event) => update('description', event.target.value)} placeholder="What is included, who it is for, and anything clients should know." rows={4} />
-      </WizardField>
-    </div>
-  );
+    return (
+      <div className="service-wizard-grid">
+        <WizardField label={detailCopy.name || 'Service name'} wide>
+          <input value={draft.name} onChange={(event) => update('name', event.target.value)} placeholder={detailCopy.placeholder || 'Service name'} />
+        </WizardField>
+        <WizardField label={detailCopy.category || 'Category'}>
+          <ServiceCategoryMenu
+            customOptions={categoryOptions}
+            onChange={(value) => update('category', value)}
+            type={bookingType}
+            value={draft.category}
+          />
+        </WizardField>
+        <WizardField label="Duration">
+          <DurationMenu
+            allowSchedule={bookingType === 'appointment'}
+            durationMode={draft.durationMode || 'fixed'}
+            value={draft.duration || ''}
+            onChange={(value, mode) => {
+              update('durationMode', mode);
+              update('duration', normalizeServiceDurationValue(value) || value);
+            }}
+          />
+        </WizardField>
+        {bookingType === 'class_session' ? (
+          <WizardField label="Capacity">
+            <input type="number" min="1" value={draft.capacity || 1} onChange={(event) => update('capacity', event.target.value)} placeholder="12" />
+          </WizardField>
+        ) : null}
+        <WizardField label="Visibility">
+          <button type="button" className={`service-live-toggle ${draft.active ? 'is-live' : ''}`} onClick={() => update('active', !draft.active)}>
+            {draft.active ? 'Live' : 'Hidden'}
+          </button>
+        </WizardField>
+        <WizardField label="Description" wide>
+          <textarea value={draft.description} onChange={(event) => update('description', event.target.value)} placeholder={detailCopy.description || 'What is included, who it is for, and anything clients should know.'} rows={4} />
+        </WizardField>
+      </div>
+    );
+  };
 
   const renderPhotosStep = () => (
     <div className="service-wizard-grid">
       <div className="service-media-panel is-wide">
-        <div>
-          <span>Gallery photos of services</span>
-          <strong>{draft.imageUrls?.length ? `${draft.imageUrls.length} image${draft.imageUrls.length === 1 ? '' : 's'} added` : 'No images yet'}</strong>
+        <div className="service-media-panel-head">
+          <div>
+            <span>Service photos</span>
+            <strong>{draft.imageUrls?.length ? `${draft.imageUrls.length} image${draft.imageUrls.length === 1 ? '' : 's'} added` : 'Add a cover photo'}</strong>
+          </div>
+          <label className="service-media-upload-button" aria-label="Upload service images">
+            <Image size={15} />
+            <span>Add photos</span>
+            <input type="file" accept="image/*" multiple onChange={onGalleryUpload} />
+          </label>
         </div>
         <div className="service-media-grid">
           {(draft.imageUrls || []).slice(0, 8).map((url, index) => (
@@ -221,6 +530,7 @@ export function ServiceFileModal({
           ))}
           <label className="service-media-add" aria-label="Upload service images">
             <Image size={18} />
+            <span>{draft.imageUrls?.length ? 'Add more' : 'Upload cover'}</span>
             <input type="file" accept="image/*" multiple onChange={onGalleryUpload} />
           </label>
         </div>
@@ -232,71 +542,27 @@ export function ServiceFileModal({
     </div>
   );
 
-  const renderPricingStep = () => (
+  const renderStyleStep = () => (
     <div className="service-wizard-grid">
-      <WizardField label="Price type">
-        <div className="service-segment-grid">
-          {priceTypes.map(type => (
-            <button key={type.id} type="button" className={draft.priceType === type.id ? 'is-active' : ''} onClick={() => update('priceType', type.id)}>
-              {type.label}
-            </button>
-          ))}
-        </div>
-      </WizardField>
-      <WizardField label="Price">
-        <div className="service-money-row">
-          <input value={draft.currency} onChange={(event) => update('currency', event.target.value)} aria-label="Currency" />
-          <input value={draft.price} onChange={(event) => update('price', event.target.value)} placeholder={draft.priceType === 'quote' ? 'Optional' : '450'} aria-label="Price" />
-        </div>
-      </WizardField>
-      <WizardField label="Tax">
-        <input value={draft.taxRate || ''} onChange={(event) => update('taxRate', event.target.value)} placeholder="Optional, e.g. 15%" />
-      </WizardField>
-      <div className="service-adaptive-note is-wide">
-        <DollarSign size={16} />
-        <div>
-          <strong>{formatServicePrice(draft) || 'No price shown yet'}</strong>
-          <span>This is how the price will appear across the services desk and booking flow.</span>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderDurationPicker = () => (
-    <div className="service-duration-choice-panel">
-      <button
-        type="button"
-        role="radio"
-        aria-checked={draft.durationMode === 'schedule'}
-        className={`service-duration-free-choice ${draft.durationMode === 'schedule' ? 'is-active' : ''}`}
-        onClick={() => {
-          update('durationMode', 'schedule');
-          update('duration', '');
-        }}
-      >
-        <Clock size={16} />
-        <span>
-          <strong>No fixed duration</strong>
-          <small>Bookings use the time blocks you make available in Schedule.</small>
-        </span>
-      </button>
-      <div className="service-duration-grid" role="radiogroup" aria-label="Service duration">
-        {serviceDurationOptions.map(option => {
-          const value = String(option.minutes);
-          const active = draft.durationMode !== 'schedule' && selectedDuration === value;
+      <div className="service-style-grid is-wide" role="radiogroup" aria-label="Booking style">
+        {serviceScheduleTypeOptions.map(option => {
+          const active = bookingType === option.id;
+          const Icon = option.id === 'appointment' ? Clock
+            : Users;
           return (
             <button
-              key={value}
+              key={option.id}
               type="button"
               role="radio"
               aria-checked={active}
-              className={active ? 'is-active' : ''}
-              onClick={() => {
-                update('durationMode', 'fixed');
-                update('duration', value);
-              }}
+              className={active ? 'is-active native-gradient-ring' : ''}
+              onClick={() => updateBookingStyle(option.id)}
             >
-              {option.label}
+              <Icon size={17} />
+              <span>
+                <strong>{option.setupLabel}</strong>
+                <small>{option.description}</small>
+              </span>
             </button>
           );
         })}
@@ -304,40 +570,32 @@ export function ServiceFileModal({
     </div>
   );
 
-  const renderAvailabilityStep = () => (
-    <div className="service-wizard-grid">
-      <div className="service-wizard-field is-wide">
-        <span>Duration</span>
-        {renderDurationPicker()}
+  const renderPricingStep = () => {
+    return (
+      <div className="service-wizard-grid">
+        <WizardField label="Price type">
+          <div className="service-segment-grid">
+            {priceTypes
+              .filter(type => allowedPriceTypeIds.includes(type.id))
+              .map(type => (
+              <button key={type.id} type="button" className={activePriceType === type.id ? 'is-active' : ''} onClick={() => update('priceType', type.id)}>
+                {type.label}
+              </button>
+            ))}
+          </div>
+        </WizardField>
+        <WizardField label="Price">
+          <div className="service-money-row">
+            <span className="service-money-prefix" aria-label={`Currency ${priceCurrency}`}>{priceCurrency}</span>
+            <input value={draft.price} onChange={(event) => update('price', event.target.value)} placeholder={activePriceType === 'quote' ? 'Optional' : '450'} aria-label="Price" />
+          </div>
+        </WizardField>
       </div>
-      <WizardField label="Buffer before">
-        <SelectWithCustom
-          value={draft.bufferBefore || ''}
-          options={bufferOptions}
-          onChange={(value) => update('bufferBefore', value)}
-          customPlaceholder="e.g. 20 min"
-        />
-      </WizardField>
-      <WizardField label="Buffer after">
-        <SelectWithCustom
-          value={draft.bufferAfter || ''}
-          options={bufferOptions}
-          onChange={(value) => update('bufferAfter', value)}
-          customPlaceholder="e.g. 20 min"
-        />
-      </WizardField>
-    </div>
-  );
+    );
+  };
 
   const renderDeliveryStep = () => (
     <div className="service-wizard-grid">
-      <div className="service-adaptive-note is-wide">
-        <Sparkles size={16} />
-        <div>
-          <strong>{copy.delivery}</strong>
-          <span>{copy.deliveryHint}</span>
-        </div>
-      </div>
       <div className="service-staff-grid is-wide">
         {staffOptions.map(staff => {
           const active = draft.staffIds?.includes(staff.id);
@@ -429,29 +687,52 @@ export function ServiceFileModal({
           customPlaceholder="e.g. 18 hours"
         />
       </WizardField>
+      <WizardField label="Buffer before">
+        <SelectWithCustom
+          value={draft.bufferBefore || ''}
+          options={bufferOptions}
+          onChange={(value) => update('bufferBefore', value)}
+          customPlaceholder="e.g. 20 min"
+        />
+      </WizardField>
+      <WizardField label="Buffer after">
+        <SelectWithCustom
+          value={draft.bufferAfter || ''}
+          options={bufferOptions}
+          onChange={(value) => update('bufferAfter', value)}
+          customPlaceholder="e.g. 20 min"
+        />
+      </WizardField>
       <div className="service-rule-list is-wide">
         <TogglePill checked={asBool(draft.reschedulingAllowed, true)} label="Rescheduling allowed" onChange={(value) => update('reschedulingAllowed', value)} />
         <TogglePill checked={asBool(draft.depositRequired)} label="Deposit required" onChange={(value) => update('depositRequired', value)} />
         <TogglePill checked={asBool(draft.fullPaymentRequired)} label="Full payment required" onChange={(value) => update('fullPaymentRequired', value)} />
-        <TogglePill checked={asBool(draft.approvalRequired)} label="Approval required" onChange={(value) => update('approvalRequired', value)} />
+        <TogglePill checked={asBool(draft.approvalRequired, scheduleTypeRequiresApproval(bookingType))} label="Approval required" onChange={(value) => update('approvalRequired', value)} />
         <TogglePill checked={asBool(draft.repeatBookingsAllowed)} label="Allow repeat bookings" onChange={(value) => update('repeatBookingsAllowed', value)} />
       </div>
     </div>
   );
 
   const renderBookingCardPreviewStep = () => {
-    const cardVariant = 'appointment';
+    const cardVariant = bookingType;
     const previewByType = {
       appointment: {
         category: draft.category || 'Appointment',
         name: 'New Service',
         description: 'A polished one-to-one booking card with the same image, copy, and price layout clients see.',
-        price: `${draft.currency || 'R'}850`,
+        price: `${priceCurrency}850`,
         duration: '45 min'
+      },
+      class_session: {
+        category: draft.category || 'Class',
+        name: 'Saturday Workshop',
+        description: 'A scheduled group session with spots, instructor, waitlist, and attendee management.',
+        price: `${priceCurrency}650`,
+        duration: '3 hours'
       }
     };
-    const previewDefaults = previewByType.appointment;
-    const price = formatServicePrice(draft) || previewDefaults.price;
+    const previewDefaults = previewByType[bookingType] || previewByType.appointment;
+    const price = formatServicePrice({ ...draft, currency: priceCurrency, priceType: activePriceType }) || previewDefaults.price;
     const duration = draft.durationMode === 'schedule' ? '' : durationSummary || previewDefaults.duration;
     const previewCategory = draft.category || previewDefaults.category;
     const previewName = !draft.name || draft.name === 'New Service' ? previewDefaults.name : draft.name;
@@ -522,8 +803,8 @@ export function ServiceFileModal({
 
   const renderStep = () => {
     if (currentStep.id === 'details') return renderDetailsStep();
+    if (currentStep.id === 'type') return renderStyleStep();
     if (currentStep.id === 'pricing') return renderPricingStep();
-    if (currentStep.id === 'availability') return renderAvailabilityStep();
     if (currentStep.id === 'photos') return renderPhotosStep();
     if (currentStep.id === 'delivery') return renderDeliveryStep();
     if (currentStep.id === 'location') return renderLocationStep();
@@ -538,7 +819,7 @@ export function ServiceFileModal({
           <div className="min-w-0">
             <p>Create Service</p>
             <h2>{selectedServiceExists ? draft.name || 'Edit service' : 'Create service'}</h2>
-            <span>Appointment setup wizard. Only relevant questions are shown.</span>
+            <span>{getScheduleTypeMeta(bookingType).singular} setup wizard. Only relevant questions are shown.</span>
           </div>
           <button type="button" onClick={onClose} className="service-wizard-close" aria-label="Close service editor">
             <X size={18} />
@@ -548,7 +829,7 @@ export function ServiceFileModal({
         <div className="service-wizard-shell">
           <aside className="service-wizard-sidebar">
             <div className="service-step-list" aria-label="Service setup steps">
-              {wizardSteps.map((step, index) => (
+              {steps.map((step, index) => (
                 <button
                   key={step.id}
                   type="button"
@@ -564,7 +845,7 @@ export function ServiceFileModal({
 
           <main className="service-wizard-main">
             <div className="service-wizard-step-head">
-              <span>Step {stepIndex + 1} of {wizardSteps.length}</span>
+              <span>Step {stepIndex + 1} of {steps.length}</span>
               <h3>{currentStep.title}</h3>
               <p>{currentStep.helper}</p>
             </div>
@@ -601,3 +882,20 @@ export function ServiceFileModal({
     </div>
   );
 }
+
+const getCurrencyPrefix = (currency = '') => {
+  const normalized = String(currency || '').trim().toUpperCase();
+  if (!normalized) return 'R';
+  const symbols = {
+    ZAR: 'R',
+    USD: '$',
+    GBP: '£',
+    EUR: '€',
+    AUD: 'A$',
+    CAD: 'C$',
+    NGN: '₦',
+    KES: 'KSh',
+    BWP: 'P'
+  };
+  return symbols[normalized] || currency;
+};
