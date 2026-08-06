@@ -1,6 +1,7 @@
 import { PublicBusinessHeader } from '../public-surface/PublicBusinessHeader';
-import { DEMO_WORKSPACE } from '../../config/workspaceDefaults';
 import { navigate } from '../../app/routing';
+import { useWorkspace } from '../workspace/WorkspaceContext';
+import { PublicBookingFlow } from '../booking/components/PublicBookingFlow';
 
 function HomePage({ workspace }) {
   return (
@@ -30,14 +31,7 @@ function HomePage({ workspace }) {
 }
 
 function BookPage({ workspace }) {
-  return (
-    <section className="px-5 md:px-10 py-10 grid gap-4 max-w-3xl">
-      <h1 className="bb-page-title text-4xl m-0">Book</h1>
-      <p className="bb-muted m-0">
-        Public booking flow for {workspace.brandName} lands here next — service, date, time, request.
-      </p>
-    </section>
-  );
+  return <PublicBookingFlow workspaceName={workspace.brandName} />;
 }
 
 function ShopPage({ workspace }) {
@@ -63,11 +57,12 @@ function SocialPage({ workspace }) {
 }
 
 export function PublicWebsiteApp({ slug, page }) {
+  const { workspace: demo } = useWorkspace();
   const workspace =
-    slug === DEMO_WORKSPACE.slug || slug === 'flour-and-flame'
-      ? DEMO_WORKSPACE
+    slug === demo.slug || slug === 'flour-and-flame'
+      ? demo
       : {
-          ...DEMO_WORKSPACE,
+          ...demo,
           slug,
           brandName: slug
             .split('-')

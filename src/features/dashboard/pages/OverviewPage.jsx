@@ -1,8 +1,9 @@
 import { navigate } from '../../../app/routing';
-import { DEMO_WORKSPACE } from '../../../config/workspaceDefaults';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
 
-export function OverviewPage() {
-  const publicBase = `/w/${DEMO_WORKSPACE.slug}`;
+export function OverviewPage({ pendingRequests = 0 }) {
+  const { workspace } = useWorkspace();
+  const publicBase = `/w/${workspace.slug}`;
 
   return (
     <div className="grid gap-6">
@@ -15,7 +16,7 @@ export function OverviewPage() {
 
       <section className="grid gap-3 md:grid-cols-3">
         {[
-          { label: 'Booking requests', value: '—', href: '/dashboard/services' },
+          { label: 'Booking requests', value: String(pendingRequests), href: '/dashboard/services' },
           { label: 'Product orders', value: '—', href: '/dashboard/products' },
           { label: 'Support threads', value: '—', href: '/dashboard/communications' }
         ].map((item) => (

@@ -2,16 +2,11 @@ import { OwnerWorkspaceShell } from './components/OwnerWorkspaceShell';
 import { OverviewPage } from './pages/OverviewPage';
 import { ComingSoonPanel } from '../../shared/ui/ComingSoonPanel';
 import { workspaceTabLabels } from '../../config/routeConfig';
+import { ServicesPage } from '../services/pages/ServicesPage';
+import { SchedulePage } from '../schedule/pages/SchedulePage';
+import { useWorkspace } from '../workspace/WorkspaceContext';
 
 const PAGE_COPY = {
-  services: {
-    title: 'Services',
-    body: 'Catalog and Booking Requests will live here with a period-style Catalog | Requests toggle.'
-  },
-  staff: {
-    title: 'Schedule',
-    body: 'Today’s operational board — staff lanes, hours, and confirmed bookings.'
-  },
   products: {
     title: 'Products',
     body: 'Product catalog and order fulfilment with a Catalog | Orders toggle.'
@@ -43,10 +38,17 @@ const PAGE_COPY = {
 };
 
 export function OwnerWorkspaceApp({ tab }) {
+  const { bookings } = useWorkspace();
+  const pending = bookings.filter((booking) => ['pending', 'waitlist'].includes(booking.status)).length;
+
   return (
     <OwnerWorkspaceShell tab={tab}>
       {tab === 'overview' ? (
-        <OverviewPage />
+        <OverviewPage pendingRequests={pending} />
+      ) : tab === 'services' ? (
+        <ServicesPage />
+      ) : tab === 'staff' ? (
+        <SchedulePage />
       ) : (
         <ComingSoonPanel
           title={PAGE_COPY[tab]?.title || workspaceTabLabels[tab]}

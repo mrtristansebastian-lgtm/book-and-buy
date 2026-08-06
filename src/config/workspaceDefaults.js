@@ -36,16 +36,4 @@ export const createDefaultSettings = () => ({
   }
 });
 
-export const DEMO_WORKSPACE = {
-  ...createDefaultSettings(),
-  slug: 'flour-and-flame',
-  brandName: 'Flour & Flame',
-  tagline: 'Baking studio in Cape Town',
-  welcomeMessage: 'Reserve a class or take home something fresh.',
-  website: {
-    pages: { home: true, book: true, shop: true, social: true },
-    headline: 'Bake with us.',
-    subcopy: 'Hands-on classes, private sessions, and kitchen goods.',
-    ctaLabel: 'Book a class'
-  }
-};
+export { createDemoWorkspace as createDemoWorkspaceSettings } from '../data/demoWorkspace';
