@@ -1,13 +1,29 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { createDemoWorkspace } from '../../data/demoWorkspace';
+import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList } from '../../utils/services';
-import { normalizeProduct, normalizeProductList } from '../../utils/products';
+import { normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
 
 const WorkspaceContext = createContext(null);
+const STORAGE_KEY = 'book-and-buy.workspace-mode';
+
+function readInitialWorkspace() {
+  try {
+    const mode = localStorage.getItem(STORAGE_KEY);
+    if (mode === 'owner') {
+      const raw = localStorage.getItem('book-and-buy.owner-workspace');
+      if (raw) return JSON.parse(raw);
+      return createBlankWorkspace({ onboardingComplete: false });
+    }
+  } catch {
+    /* ignore */
+  }
+  return createDemoWorkspace();
+}
 
 export function WorkspaceProvider({ children }) {
-  const [workspace, setWorkspace] = useState(() => createDemoWorkspace());
+  const [workspace, setWorkspace] = useState(() => readInitialWorkspace());
 
   const api = useMemo(() => {
     const updateBooking = (id, patch) => {
@@ -248,6 +264,43 @@ export function WorkspaceProvider({ children }) {
               : gateway
           )
         }));
+      },
+      loadDemoWorkspace: () => {
+        const next = createDemoWorkspace();
+        localStorage.setItem(STORAGE_KEY, 'demo');
+        localStorage.removeItem('book-and-buy.owner-workspace');
+        setWorkspace(next);
+        return next;
+      },
+      startOwnerOnboarding: () => {
+        const next = createBlankWorkspace({ onboardingComplete: false });
+        localStorage.setItem(STORAGE_KEY, 'owner');
+        localStorage.setItem('book-and-buy.owner-workspace', JSON.stringify(next));
+        setWorkspace(next);
+        return next;
+      },
+      completeOnboarding: (patch = {}) => {
+        setWorkspace((prev) => {
+          const next = {
+            ...createBlankWorkspace({
+              ...prev,
+              ...patch,
+              website: {
+                ...prev.website,
+                ...(patch.website || {}),
+                pages: {
+                  ...prev.website?.pages,
+                  ...(patch.website?.pages || {})
+                }
+              },
+              onboardingComplete: true,
+              isDemo: false
+            })
+          };
+          localStorage.setItem(STORAGE_KEY, 'owner');
+          localStorage.setItem('book-and-buy.owner-workspace', JSON.stringify(next));
+          return next;
+        });
       }
     };
   }, [workspace]);

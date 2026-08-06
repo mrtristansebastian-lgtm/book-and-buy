@@ -27,6 +27,14 @@ export function parseAppRoute(path = getLocationPath()) {
     };
   }
 
+  if (parts[0] === 'onboarding') {
+    return { kind: 'onboarding' };
+  }
+
+  if (parts[0] === 'portal' || parts[0] === 'client-portal') {
+    return { kind: 'portal' };
+  }
+
   if (parts[0] === 'w' && parts[1]) {
     return {
       kind: 'public',

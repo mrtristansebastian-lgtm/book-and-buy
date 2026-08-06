@@ -420,6 +420,8 @@ export function createDemoWorkspace() {
     welcomeMessage: 'Reserve a class or take home something fresh.',
     email: 'hello@flourandflame.example',
     phone: '+27 21 555 0100',
+    onboardingComplete: true,
+    isDemo: true,
     nativeAccent: true,
     notifications: {
       emailBookingRequests: true,
