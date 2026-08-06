@@ -438,6 +438,8 @@ export function createDemoWorkspace() {
       ctaLabel: 'Book a class',
       homeHeadline: 'Bake with us.',
       homeSubtext: 'Hands-on classes, private sessions, and kitchen goods.',
+      heroImageUrl: '/example/flour-and-flame/hero.webp',
+      logoUrl: '/example/flour-and-flame/flame-and-flour-logo.webp',
       bookHeadline: 'Book a class or private lesson',
       bookSubtext: 'Pick a service, choose a time, and send your request.',
       buyHeadline: 'Take the kitchen home',

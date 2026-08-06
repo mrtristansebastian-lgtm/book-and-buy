@@ -160,12 +160,27 @@ export function FinancePage() {
                 />
               ) : null}
 
-              <p className="bb-muted m-0 text-xs">
-                Status:{' '}
-                {gateway.enabled
-                  ? `${gateway.mode || 'test'} · ${gateway.configured === false ? 'needs setup' : 'ready'}`
-                  : 'off'}
-              </p>
+              <div className="flex flex-wrap gap-2 items-center">
+                {!gateway.enabled ? (
+                  <span className="text-xs font-bold uppercase tracking-wide text-black/35 border border-black/10 px-2 py-1 rounded-full">
+                    Off — hidden on public checkout
+                  </span>
+                ) : gateway.configured === false ||
+                  (meta.needsKeys && !gateway.credentialSummary?.publicKeyLast4) ? (
+                  <span className="text-xs font-bold uppercase tracking-wide text-[#b45309] px-2 py-1 rounded-full bg-[#b45309]/10">
+                    Needs setup · {gateway.mode || 'test'}
+                  </span>
+                ) : (
+                  <span className="text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-full bg-black/[0.05]">
+                    Ready for checkout · {gateway.mode || 'test'}
+                  </span>
+                )}
+                {meta.needsKeys && gateway.enabled && !gateway.credentialSummary?.publicKeyLast4 ? (
+                  <span className="text-xs font-semibold text-[#b45309]">
+                    Add a public key (demo stores last4 only)
+                  </span>
+                ) : null}
+              </div>
             </article>
           );
         })}

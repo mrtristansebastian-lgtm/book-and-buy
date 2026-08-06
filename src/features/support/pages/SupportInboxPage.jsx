@@ -7,6 +7,10 @@ export function SupportInboxPage() {
     () => [...threads].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)),
     [threads]
   );
+  const unreadCount = useMemo(
+    () => threads.filter((thread) => thread.unread).length,
+    [threads]
+  );
   const [activeId, setActiveId] = useState(sorted[0]?.id || '');
   const [draft, setDraft] = useState('');
 
@@ -18,9 +22,19 @@ export function SupportInboxPage() {
 
   return (
     <div className="grid gap-5">
-      <header className="grid gap-1">
-        <h1 className="bb-page-title text-3xl m-0">Support</h1>
-        <p className="bb-muted m-0">Client threads tied to bookings and questions.</p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div className="grid gap-1">
+          <h1 className="bb-page-title text-3xl m-0">Support</h1>
+          <p className="bb-muted m-0">
+            Client threads from bookings and the client directory. Start a thread from Requests or
+            Clients.
+          </p>
+        </div>
+        {unreadCount > 0 ? (
+          <span className="bb-primary-btn py-1.5 px-3 text-xs pointer-events-none">
+            {unreadCount} unread
+          </span>
+        ) : null}
       </header>
 
       <section className="grid gap-3 lg:grid-cols-[280px_1fr] min-h-[520px]">

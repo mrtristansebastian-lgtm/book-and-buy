@@ -7,7 +7,7 @@ import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
 
 const STEPS = ['service', 'datetime', 'details', 'done'];
 
-export function PublicBookingFlow({ workspaceName }) {
+export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = false }) {
   const { services, bookings, addBooking, workspace } = useWorkspace();
   const activeServices = services.filter((service) => service.active !== false);
   const [step, setStep] = useState('service');
@@ -60,74 +60,92 @@ export function PublicBookingFlow({ workspaceName }) {
     setStep('done');
   };
 
+  const stepIndex = STEPS.indexOf(step) + 1;
+  const stepTotal = STEPS.length - 1;
+
   if (step === 'done' && created) {
     return (
-      <section className="px-5 md:px-10 py-10 grid gap-4 max-w-2xl">
-        <h1 className="bb-page-title text-4xl m-0">Request sent</h1>
-        <p className="bb-muted m-0">
-          {created.serviceName} on {formatDisplayDate(created.dateKey)} at {created.time}.{' '}
-          {workspaceName || 'The business'} will review and confirm.
-        </p>
-        <button
-          type="button"
-          className="bb-primary-btn justify-self-start"
-          onClick={() => {
-            setStep('service');
-            setServiceId('');
-            setDateKey('');
-            setTime('');
-            setDetails({ clientName: '', clientEmail: '', clientPhone: '', clientNote: '' });
-            setCreated(null);
-          }}
-        >
-          Book another
-        </button>
+      <section className="bb-public-gutter py-10">
+        <div className="bb-public-measure grid gap-4">
+          <h1 className="bb-page-title text-4xl m-0">Request sent</h1>
+          <p className="bb-muted m-0">
+            {created.serviceName} on {formatDisplayDate(created.dateKey)} at {created.time}.{' '}
+            {workspaceName || 'The business'} will review and confirm.
+          </p>
+          <button
+            type="button"
+            className="bb-primary-btn justify-self-start"
+            onClick={() => {
+              setStep('service');
+              setServiceId('');
+              setDateKey('');
+              setTime('');
+              setDetails({ clientName: '', clientEmail: '', clientPhone: '', clientNote: '' });
+              setCreated(null);
+            }}
+          >
+            Book another
+          </button>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="px-5 md:px-10 py-8 grid gap-6 max-w-4xl">
-      <header className="grid gap-2">
-        <h1 className="bb-page-title text-4xl m-0">Book</h1>
-        <p className="bb-muted m-0">
-          {STEPS.indexOf(step) + 1} / {STEPS.length - 1} · Choose a service, pick a time, send your request.
-        </p>
-      </header>
+    <section
+      className={`bb-public-gutter py-7 ${preview ? 'pointer-events-none' : ''}`}
+    >
+      <div className="bb-public-measure-wide grid gap-6">
+        {hideTitle ? (
+          <p className="bb-public-progress">
+            Step {stepIndex} of {stepTotal}
+          </p>
+        ) : (
+          <header className="grid gap-2">
+            <h1 className="bb-page-title text-4xl m-0">Book</h1>
+            <p className="bb-public-progress">
+              Step {stepIndex} of {stepTotal} · Choose a service, pick a time, send your request.
+            </p>
+          </header>
+        )}
 
       {step === 'service' ? (
-        <div className="grid gap-3">
-          {activeServices.map((item) => {
-            const meta = getScheduleTypeMeta(item.scheduleType);
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className={`bb-panel text-left p-4 grid md:grid-cols-[112px_1fr] gap-4 ${
-                  serviceId === item.id ? 'booking-gradient-border' : ''
-                }`}
-                onClick={() => setServiceId(item.id)}
-              >
-                <div className="h-24 rounded-xl overflow-hidden bg-black/5">
-                  {item.imageUrls?.[0] ? (
-                    <img src={item.imageUrls[0]} alt="" className="w-full h-full object-cover" />
-                  ) : null}
-                </div>
-                <div className="grid gap-1 content-center">
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <strong className="text-lg">{item.name}</strong>
-                    <span className="text-xs uppercase tracking-wide text-black/40">{meta.singular}</span>
+        <div className="grid gap-4">
+          <div className="bb-public-service-list">
+            {activeServices.map((item) => {
+              const meta = getScheduleTypeMeta(item.scheduleType);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="bb-public-service-row"
+                  aria-pressed={serviceId === item.id}
+                  onClick={() => setServiceId(item.id)}
+                >
+                  <div className="bb-public-service-media">
+                    {item.imageUrls?.[0] ? (
+                      <img src={item.imageUrls[0]} alt="" />
+                    ) : null}
                   </div>
-                  <p className="bb-muted m-0 text-sm">{item.description}</p>
-                  <p className="m-0 text-sm font-semibold">
+                  <div className="bb-public-service-copy">
+                    <p className="bb-public-service-meta">{meta.singular}</p>
+                    <strong>{item.name}</strong>
+                    <p className="bb-public-service-desc">{item.description}</p>
+                    <p className="bb-public-service-price md:hidden">
+                      {[formatServicePrice(item), formatServiceDuration(item.duration)]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                  </div>
+                  <p className="bb-public-service-price hidden md:block">
                     {[formatServicePrice(item), formatServiceDuration(item.duration)]
                       .filter(Boolean)
                       .join(' · ')}
                   </p>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
           <button
             type="button"
             className="bb-primary-btn justify-self-start"
@@ -267,6 +285,7 @@ export function PublicBookingFlow({ workspaceName }) {
           </div>
         </div>
       ) : null}
+      </div>
     </section>
   );
 }

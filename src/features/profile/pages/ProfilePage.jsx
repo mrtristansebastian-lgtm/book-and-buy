@@ -95,6 +95,10 @@ export function ProfilePage() {
         <section className="grid gap-4 max-w-3xl">
           <div className="bb-panel p-5 grid gap-3">
             <h2 className="bb-page-title text-xl m-0">Add team member</h2>
+            <p className="bb-muted m-0 text-sm">
+              Invite stub for now — members are stored on this workspace until Firebase auth invites
+              land.
+            </p>
             <div className="grid sm:grid-cols-2 gap-2">
               <input
                 className="native-control-input px-4"

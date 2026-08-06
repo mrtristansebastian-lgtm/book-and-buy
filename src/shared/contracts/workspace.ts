@@ -80,6 +80,18 @@ export interface WebsitePageVisibility {
 export interface WebsiteSettings {
   homeHeadline?: string;
   homeSubtext?: string;
+  headline?: string;
+  subcopy?: string;
+  bookHeadline?: string;
+  bookSubtext?: string;
+  buyHeadline?: string;
+  buySubtext?: string;
+  socialHeadline?: string;
+  socialSubtext?: string;
+  ctaLabel?: string;
+  heroImageUrl?: string;
+  logoUrl?: string;
+  published?: boolean;
   ctaPrimary?: "book" | "shop" | "social" | string;
   pages?: WebsitePageVisibility;
   featuredServiceIds?: string[];

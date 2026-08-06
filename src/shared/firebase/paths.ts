@@ -21,6 +21,7 @@ export const publicWorkspaceStaffPath = (appId: string, slug: string) =>
 export const callableNames = {
   createOwnerBookingRequest: "createOwnerBookingRequest",
   createPublicBookingRequest: "createPublicBookingRequest",
+  createPublicProductOrder: "createPublicProductOrder",
   getPublicPaymentOptions: "getPublicPaymentOptions",
   getPublicServiceAvailability: "getPublicServiceAvailability",
   initiatePayment: "initiatePayment",

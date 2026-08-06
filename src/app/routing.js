@@ -52,7 +52,27 @@ export function parseAppRoute(path = getLocationPath()) {
   }
 
   if (parts[0] === 'demo') {
-    return { kind: 'public', slug: 'flour-and-flame', page: 'home', demo: true };
+    // Guest demo opens the owner dashboard; public site stays at /w/flour-and-flame
+    if (!parts[1] || parts[1] === 'dashboard') {
+      return {
+        kind: 'owner',
+        tab: resolveWorkspaceTab(parts[2] || 'overview'),
+        demo: true
+      };
+    }
+    if (['home', 'book', 'buy', 'shop', 'social'].includes(parts[1])) {
+      return {
+        kind: 'public',
+        slug: 'flour-and-flame',
+        page: normalizePublicPage(parts[1]),
+        demo: true
+      };
+    }
+    return {
+      kind: 'owner',
+      tab: resolveWorkspaceTab(parts[1] || 'overview'),
+      demo: true
+    };
   }
 
   return { kind: 'auth' };

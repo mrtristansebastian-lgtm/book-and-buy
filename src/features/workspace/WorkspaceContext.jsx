@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { createDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList } from '../../utils/services';
@@ -6,15 +6,26 @@ import { normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
 
 const WorkspaceContext = createContext(null);
-const STORAGE_KEY = 'book-and-buy.workspace-mode';
+const MODE_KEY = 'book-and-buy.workspace-mode';
+const OWNER_KEY = 'book-and-buy.owner-workspace';
+const DEMO_KEY = 'book-and-buy.demo-workspace';
+
+function safeParse(raw, fallback) {
+  try {
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 function readInitialWorkspace() {
   try {
-    const mode = localStorage.getItem(STORAGE_KEY);
+    const mode = localStorage.getItem(MODE_KEY);
     if (mode === 'owner') {
-      const raw = localStorage.getItem('book-and-buy.owner-workspace');
-      if (raw) return JSON.parse(raw);
-      return createBlankWorkspace({ onboardingComplete: false });
+      return safeParse(localStorage.getItem(OWNER_KEY), createBlankWorkspace({ onboardingComplete: false }));
+    }
+    if (mode === 'demo') {
+      return safeParse(localStorage.getItem(DEMO_KEY), createDemoWorkspace());
     }
   } catch {
     /* ignore */
@@ -22,8 +33,26 @@ function readInitialWorkspace() {
   return createDemoWorkspace();
 }
 
+function persistWorkspace(next) {
+  try {
+    if (next.isDemo) {
+      localStorage.setItem(MODE_KEY, 'demo');
+      localStorage.setItem(DEMO_KEY, JSON.stringify(next));
+      return;
+    }
+    localStorage.setItem(MODE_KEY, 'owner');
+    localStorage.setItem(OWNER_KEY, JSON.stringify(next));
+  } catch {
+    /* ignore quota */
+  }
+}
+
 export function WorkspaceProvider({ children }) {
   const [workspace, setWorkspace] = useState(() => readInitialWorkspace());
+
+  useEffect(() => {
+    persistWorkspace(workspace);
+  }, [workspace]);
 
   const api = useMemo(() => {
     const updateBooking = (id, patch) => {
@@ -132,7 +161,15 @@ export function WorkspaceProvider({ children }) {
               ...prev.website?.pages,
               ...(patch.pages || {})
             }
-          }
+          },
+          publishedAt: patch.publish ? Date.now() : prev.publishedAt
+        }));
+      },
+      publishWebsite: () => {
+        setWorkspace((prev) => ({
+          ...prev,
+          publishedAt: Date.now(),
+          website: { ...prev.website, published: true }
         }));
       },
       addSocialPost: (post) => {
@@ -149,10 +186,13 @@ export function WorkspaceProvider({ children }) {
         };
         setWorkspace((prev) => ({
           ...prev,
-          socialPosts: [record, ...(prev.socialPosts || []).map((item, index) => ({
-            ...item,
-            order: index + 1
-          }))]
+          socialPosts: [
+            record,
+            ...(prev.socialPosts || []).map((item, index) => ({
+              ...item,
+              order: index + 1
+            }))
+          ]
         }));
         return record;
       },
@@ -172,6 +212,12 @@ export function WorkspaceProvider({ children }) {
       },
       updateProfile: (patch) => {
         setWorkspace((prev) => ({ ...prev, ...patch }));
+      },
+      updateAvailabilityRules: (patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          availabilityRules: { ...prev.availabilityRules, ...patch }
+        }));
       },
       updateNotifications: (patch) => {
         setWorkspace((prev) => ({
@@ -213,6 +259,96 @@ export function WorkspaceProvider({ children }) {
               : [...(prev.clients || []), next]
           };
         });
+      },
+      removeClient: (id) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          clients: (prev.clients || []).filter((client) => client.id !== id)
+        }));
+      },
+      startThreadFromBooking: (booking) => {
+        if (!booking) return null;
+        let created = null;
+        setWorkspace((prev) => {
+          const existing = (prev.threads || []).find(
+            (thread) =>
+              String(thread.clientEmail || '').toLowerCase() ===
+                String(booking.clientEmail || '').toLowerCase() &&
+              thread.subject?.includes(booking.serviceName || '')
+          );
+          if (existing) {
+            created = existing;
+            return {
+              ...prev,
+              threads: prev.threads.map((thread) =>
+                thread.id === existing.id
+                  ? { ...thread, unread: true, updatedAt: Date.now() }
+                  : thread
+              )
+            };
+          }
+          created = {
+            id: `thread-${Date.now()}`,
+            clientName: booking.clientName,
+            clientEmail: booking.clientEmail || '',
+            subject: `Re: ${booking.serviceName}`,
+            bookingId: booking.id,
+            unread: false,
+            updatedAt: Date.now(),
+            messages: [
+              {
+                id: `m-${Date.now()}`,
+                from: 'business',
+                body: `Following up on ${booking.serviceName} (${booking.dateKey || booking.date} ${booking.time}).`,
+                at: Date.now()
+              }
+            ]
+          };
+          return { ...prev, threads: [created, ...(prev.threads || [])] };
+        });
+        return created;
+      },
+      startThreadFromClient: (client) => {
+        if (!client) return null;
+        let created = null;
+        setWorkspace((prev) => {
+          const email = String(client.email || '').toLowerCase();
+          const existing = (prev.threads || []).find(
+            (thread) =>
+              String(thread.clientEmail || '').toLowerCase() === email &&
+              thread.subject === `Message · ${client.name}`
+          );
+          if (existing) {
+            created = existing;
+            return {
+              ...prev,
+              threads: prev.threads.map((thread) =>
+                thread.id === existing.id
+                  ? { ...thread, unread: true, updatedAt: Date.now() }
+                  : thread
+              )
+            };
+          }
+          created = {
+            id: `thread-${Date.now()}`,
+            clientName: client.name,
+            clientEmail: client.email || '',
+            subject: `Message · ${client.name}`,
+            clientId: client.id,
+            unread: false,
+            updatedAt: Date.now(),
+            messages: [
+              {
+                id: `m-${Date.now()}`,
+                from: 'business',
+                body: `Hi ${client.name}, reaching out from ${prev.brandName}.`,
+                at: Date.now()
+              }
+            ]
+          };
+          return { ...prev, threads: [created, ...(prev.threads || [])] };
+        });
+        return created;
       },
       sendThreadMessage: (threadId, body) => {
         const text = String(body || '').trim();
@@ -265,17 +401,34 @@ export function WorkspaceProvider({ children }) {
           )
         }));
       },
-      loadDemoWorkspace: () => {
-        const next = createDemoWorkspace();
-        localStorage.setItem(STORAGE_KEY, 'demo');
-        localStorage.removeItem('book-and-buy.owner-workspace');
+      loadDemoWorkspace: ({ reset = false } = {}) => {
+        const stored = !reset ? safeParse(localStorage.getItem(DEMO_KEY), null) : null;
+        const next = stored?.isDemo ? stored : createDemoWorkspace();
+        localStorage.setItem(MODE_KEY, 'demo');
+        localStorage.setItem(DEMO_KEY, JSON.stringify(next));
         setWorkspace(next);
         return next;
       },
+      resetDemoWorkspace: () => {
+        const next = createDemoWorkspace();
+        localStorage.setItem(MODE_KEY, 'demo');
+        localStorage.setItem(DEMO_KEY, JSON.stringify(next));
+        setWorkspace(next);
+        return next;
+      },
+      exitDemoMode: () => {
+        localStorage.setItem(MODE_KEY, 'owner');
+        const owner = safeParse(
+          localStorage.getItem(OWNER_KEY),
+          createBlankWorkspace({ onboardingComplete: false })
+        );
+        setWorkspace(owner);
+        return owner;
+      },
       startOwnerOnboarding: () => {
         const next = createBlankWorkspace({ onboardingComplete: false });
-        localStorage.setItem(STORAGE_KEY, 'owner');
-        localStorage.setItem('book-and-buy.owner-workspace', JSON.stringify(next));
+        localStorage.setItem(MODE_KEY, 'owner');
+        localStorage.setItem(OWNER_KEY, JSON.stringify(next));
         setWorkspace(next);
         return next;
       },
@@ -297,8 +450,8 @@ export function WorkspaceProvider({ children }) {
               isDemo: false
             })
           };
-          localStorage.setItem(STORAGE_KEY, 'owner');
-          localStorage.setItem('book-and-buy.owner-workspace', JSON.stringify(next));
+          localStorage.setItem(MODE_KEY, 'owner');
+          localStorage.setItem(OWNER_KEY, JSON.stringify(next));
           return next;
         });
       }

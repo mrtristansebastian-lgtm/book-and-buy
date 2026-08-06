@@ -5,7 +5,7 @@ Greenfield rebuild of the Book and Buy owner workspace and public pages.
 ## Stack
 
 - React 18 + Vite + TypeScript + Tailwind
-- Firebase (Auth, Firestore, Storage, Functions)
+- Firebase (Auth, Firestore, Storage, Functions) — optional until `.env.local` is set
 - Exact native accent gradient system under `src/design/`
 
 ## Develop
@@ -19,16 +19,22 @@ Open `http://127.0.0.1:5173/`
 
 - Auth entry: `#/`
 - Owner workspace: `#/dashboard/overview`
-- Demo public site: `#/demo` or `#/w/flour-and-flame`
+- Demo owner dashboard: `#/demo` (Flour & Flame)
+- Public demo site: `#/w/flour-and-flame`
+
+Without `VITE_FIREBASE_CONFIG`, the app runs in **local mode** (localStorage workspace + demo). Copy `.env.example` to `.env.local` and paste your Firebase web config JSON to enable Auth, Firestore public slug load, and callable helpers under `src/shared/firebase/`.
 
 ## Rebuild phases
 
 1. Foundation + shells — done
-2. Book pillar — done (demo workspace state)
-3. Buy pillar — Products catalog/orders, public Buy cart/checkout — done
-4. E-Business Platform — Pages + Social studios, Home/Book/Buy/Social — done
-5. Run — Support, Clients, Profile/Team, Finance gateways — done
-6. Hardening — onboarding, client portal, health/smoke, Capacitor config stub — done
+2. Book pillar — done
+3. Buy pillar — done
+4. E-Business Platform — done
+5. Run — Support, Clients, Profile/Team, Finance — done
+6. Hardening — onboarding, client portal, health/smoke, Capacitor stub — done
+7. Pro section depth — demo → dashboard, write-through persist, Overview/Book/Buy/E-Business/Run polish — done
+8. Live E-Business studio — shared public renderer, polished Home/Book/Buy/Social, Shopify-style live device mockups — done
+9. Firebase track (started) — client init, Auth context + login form when configured, public slug Firestore loader, callable wrappers; full Firestore sync + real `onCall` deploy still next
 
 See `docs/book-and-buy-vision.md`.
 
@@ -46,7 +52,7 @@ Capacitor config is ready (`capacitor.config.json`); add native projects later w
 - `#/` — auth entry
 - `#/onboarding` — create workspace wizard
 - `#/portal` — client portal lookup
-- `#/demo` — Flour & Flame public demo
+- `#/demo` — Flour & Flame **owner dashboard**
 - `#/dashboard/services` — Catalog | Requests + manual booking
 - `#/dashboard/staff` — Schedule day board
 - `#/dashboard/products` — Catalog | Orders
@@ -60,4 +66,3 @@ Capacitor config is ready (`capacitor.config.json`); add native projects later w
 - `#/w/flour-and-flame/book` — Book
 - `#/w/flour-and-flame/buy` — Buy (`/shop` still aliases)
 - `#/w/flour-and-flame/social` — Social
-

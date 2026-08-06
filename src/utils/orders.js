@@ -28,9 +28,12 @@ export function createPublicProductOrder({
   });
 
   const amountInCents = lineItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
-  const method = ['card', 'manual_eft', 'cash'].includes(paymentMethod)
-    ? paymentMethod
+  const method = ['card', 'stripe', 'paystack', 'manual_eft', 'cash'].includes(paymentMethod)
+    ? paymentMethod === 'card'
+      ? 'stripe'
+      : paymentMethod
     : 'cash';
+  const isManual = method === 'cash' || method === 'manual_eft';
 
   return {
     id: `ord-${Date.now()}`,
@@ -44,7 +47,7 @@ export function createPublicProductOrder({
     clientPhone: String(client.clientPhone || '').trim(),
     clientNote: String(client.clientNote || '').trim(),
     paymentMethod: method,
-    paymentStatus: method === 'cash' || method === 'manual_eft' ? 'manual_pending' : 'unpaid',
+    paymentStatus: isManual ? 'manual_pending' : 'unpaid',
     status: 'pending',
     amountInCents,
     currency: 'R',

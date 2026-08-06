@@ -28,6 +28,8 @@ export const createDefaultSettings = () => ({
     ctaLabel: 'Book now',
     homeHeadline: 'Welcome in.',
     homeSubtext: 'Book a service or buy products from one place.',
+    heroImageUrl: '',
+    logoUrl: '',
     bookHeadline: 'Book',
     bookSubtext: 'Choose a service and request a time.',
     buyHeadline: 'Buy',

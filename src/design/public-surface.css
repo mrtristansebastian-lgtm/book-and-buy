@@ -1,0 +1,569 @@
+/* Shared public E-Business layout */
+.bb-public-surface {
+  --bb-public-gutter: 1.25rem;
+  --bb-public-gutter-lg: 2.5rem;
+  --bb-public-measure: 46rem;
+  --bb-public-measure-wide: 64rem;
+  --bb-public-header-h: 3.75rem;
+  min-height: 100%;
+  background: #fff;
+}
+
+@media (min-width: 768px) {
+  .bb-public-surface {
+    --bb-public-gutter: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bb-public-surface {
+    --bb-public-gutter: var(--bb-public-gutter-lg);
+  }
+}
+
+.bb-public-gutter {
+  padding-left: var(--bb-public-gutter);
+  padding-right: var(--bb-public-gutter);
+}
+
+.bb-public-measure {
+  width: 100%;
+  max-width: var(--bb-public-measure);
+  margin-inline: auto;
+}
+
+.bb-public-measure-wide {
+  width: 100%;
+  max-width: var(--bb-public-measure-wide);
+  margin-inline: auto;
+}
+
+.bb-public-surface--preview .bb-public-header {
+  position: sticky;
+  top: 0;
+}
+
+.bb-public-header--preview {
+  font-size: 0.92em;
+}
+
+/* Header alignment with gutters — overrides base shell padding when inside public surface */
+.bb-public-surface .bb-public-header {
+  padding-left: var(--bb-public-gutter);
+  padding-right: var(--bb-public-gutter);
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+  min-height: var(--bb-public-header-h);
+  gap: 0.75rem;
+}
+
+.bb-public-surface .bb-public-header .bb-brand-mark {
+  font-size: 1.35rem;
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.bb-public-surface .bb-public-nav {
+  justify-content: flex-end;
+  gap: 0.2rem;
+}
+
+.bb-public-surface .bb-public-nav a {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+}
+
+@media (max-width: 640px) {
+  .bb-public-surface .bb-public-header {
+    flex-wrap: wrap;
+    row-gap: 0.45rem;
+  }
+
+  .bb-public-surface .bb-public-nav {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.15rem;
+  }
+
+  .bb-public-surface .bb-public-nav a {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.55rem;
+  }
+}
+
+/* Home */
+.bb-public-home {
+  position: relative;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  min-height: calc(100dvh - var(--bb-public-header-h));
+}
+
+.bb-public-home-atmosphere {
+  background:
+    radial-gradient(120% 80% at 10% 0%, rgba(255, 214, 170, 0.45), transparent 55%),
+    radial-gradient(90% 70% at 90% 20%, rgba(120, 160, 200, 0.28), transparent 50%),
+    linear-gradient(160deg, #1c1917 0%, #292524 45%, #0c0a09 100%);
+}
+
+.bb-public-home-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.28) 42%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+}
+
+.bb-public-home-copy {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  gap: 1rem;
+  max-width: 40rem;
+  padding-bottom: clamp(2.5rem, 8vh, 4.5rem);
+  padding-top: 4rem;
+  color: #fff;
+}
+
+.bb-public-home-brand {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-weight: 820;
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  font-size: clamp(2.75rem, 7vw, 4.75rem);
+  color: #fff;
+}
+
+.bb-public-home-support {
+  margin: 0;
+  max-width: 28rem;
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.bb-public-home-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+/* Page intros (Book / shared) */
+.bb-public-page-intro {
+  padding-top: clamp(1.75rem, 4vw, 2.75rem);
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  margin-bottom: 0;
+}
+
+.bb-public-page-intro h1 {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  margin: 0;
+}
+
+.bb-public-page-intro .bb-public-lede {
+  margin: 0;
+  max-width: 36rem;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: #667085;
+}
+
+.bb-public-progress {
+  margin: 0.65rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 620;
+  letter-spacing: 0.02em;
+  color: rgba(15, 23, 42, 0.4);
+}
+
+/* Book service list — compact horizontal rows */
+.bb-public-service-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bb-public-service-row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.95rem;
+  background: #fbfbfb;
+  padding: 0.7rem 0.85rem 0.7rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+@media (min-width: 768px) {
+  .bb-public-service-row {
+    grid-template-columns: 6.25rem minmax(0, 1fr) auto;
+    gap: 1.1rem;
+    padding: 0.75rem 1rem 0.75rem 0.75rem;
+  }
+}
+
+.bb-public-service-row:hover {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+.bb-public-service-row[aria-pressed='true'] {
+  background: #fff;
+  border-color: #050505;
+  box-shadow: inset 0 0 0 1px #050505;
+}
+
+.bb-public-service-media {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 0.7rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.04);
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .bb-public-service-media {
+    width: 6.25rem;
+    height: 6.25rem;
+  }
+}
+
+.bb-public-service-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bb-public-service-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.bb-public-service-copy strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-public-service-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(15, 23, 42, 0.4);
+}
+
+.bb-public-service-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #667085;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-public-service-price {
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 680;
+  color: #050505;
+}
+
+@media (min-width: 768px) {
+  .bb-public-service-price {
+    margin: 0;
+    justify-self: end;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+/* Buy catalog — roomy grid, compact cards */
+.bb-public-buy-section {
+  padding-top: clamp(1.75rem, 4vw, 2.75rem);
+  padding-bottom: 3rem;
+  display: grid;
+  gap: 1.75rem;
+}
+
+.bb-public-buy-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+}
+
+.bb-public-buy-header h1 {
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
+  margin: 0;
+}
+
+.bb-public-product-grid {
+  display: grid;
+  gap: 1.5rem 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 560px) {
+  .bb-public-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-public-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.75rem 1.5rem;
+  }
+}
+
+.bb-public-product-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 1rem;
+  background: #fbfbfb;
+  min-width: 0;
+}
+
+.bb-public-product-media {
+  aspect-ratio: 5 / 4;
+  max-height: 11.5rem;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+@media (min-width: 560px) {
+  .bb-public-product-media {
+    max-height: 12.5rem;
+  }
+}
+
+.bb-public-product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-product-body {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 0.35rem;
+  align-content: start;
+  padding: 0.9rem 1rem 1rem;
+  min-width: 0;
+}
+
+.bb-public-product-body h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.bb-public-product-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #667085;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-public-product-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem 0.75rem;
+  margin-top: 0.45rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-public-product-footer .bb-primary-btn,
+.bb-public-product-footer .bb-ghost-btn {
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+}
+
+.bb-public-product-price {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #050505;
+}
+
+/* Social */
+.bb-public-social {
+  padding-top: clamp(1.75rem, 4vw, 2.75rem);
+  padding-bottom: 3rem;
+  display: grid;
+  gap: 2rem;
+}
+
+.bb-public-social-header h1 {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  margin: 0;
+}
+
+.bb-public-social-feed {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.bb-public-social-card {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 1.35rem;
+}
+
+.bb-public-social-card--text {
+  padding: 1.5rem 1.5rem 1.65rem;
+}
+
+.bb-public-social-card--image .bb-public-social-body {
+  padding: 1.35rem 1.5rem 1.55rem;
+}
+
+.bb-public-social-media {
+  aspect-ratio: 4 / 3;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.bb-public-social-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-social-body {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bb-public-social-body h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.bb-public-social-caption {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #101828;
+}
+
+.bb-public-empty {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: #667085;
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+  border-radius: 1.15rem;
+}
+
+/* Device mockup — inherit live type scale */
+.bb-device-preview {
+  width: 100%;
+}
+
+.bb-device-preview--phone {
+  max-width: 340px;
+  margin-inline: auto;
+}
+
+.bb-device-preview--desktop {
+  max-width: 100%;
+}
+
+.bb-device-bezel {
+  position: relative;
+  border-radius: 1.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #e8eaed;
+  padding: 0.65rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.bb-device-preview--phone .bb-device-bezel {
+  border-radius: 2rem;
+  padding: 0.75rem 0.55rem 0.9rem;
+  background: #111827;
+  border-color: #0f172a;
+}
+
+.bb-device-notch {
+  position: absolute;
+  top: 0.85rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5.5rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #0b1220;
+  z-index: 2;
+}
+
+.bb-device-screen {
+  background: #fff;
+  border-radius: 1.2rem;
+  overflow: auto;
+  max-height: min(70vh, 720px);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-device-preview--phone .bb-device-screen {
+  border-radius: 1.35rem;
+  max-height: min(68vh, 640px);
+  border: 0;
+}
+
+.bb-device-screen .bb-public-surface {
+  min-width: 0;
+  --bb-public-gutter: 1rem;
+  --bb-public-header-h: 3.25rem;
+}
+
+.bb-device-preview--phone .bb-public-home {
+  min-height: 460px;
+}
+
+.bb-device-preview--phone .bb-public-home-brand {
+  font-size: 2rem;
+}
+
+.bb-device-preview--phone .bb-public-home-support {
+  font-size: 0.95rem;
+}
+
+.bb-studio-split {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .bb-studio-split {
+    grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.15fr);
+  }
+}

@@ -35,13 +35,20 @@ export function savePaymentGatewaySettings({
   credentialSummary
 } = {}) {
   if (!gatewayType) throw new Error('gatewayType is required');
+  const summary = credentialSummary || {};
+  const needsKeys = gatewayType === 'stripe' || gatewayType === 'paystack';
+  const configured = needsKeys
+    ? Boolean(summary.publicKeyLast4)
+    : gatewayType === 'manual_eft'
+      ? Boolean(summary.accountHolder || summary.bankName || summary.instructions)
+      : true;
   return {
     ok: true,
     gatewayType,
     enabled: Boolean(enabled),
     mode: mode === 'live' ? 'live' : 'test',
-    configured: true,
-    credentialSummary: credentialSummary || {},
+    configured,
+    credentialSummary: summary,
     updatedAt: Date.now()
   };
 }
