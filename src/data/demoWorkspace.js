@@ -79,10 +79,170 @@ export const DEMO_SERVICES = normalizeServiceList([
 ]);
 
 export const DEMO_STAFF = [
-  { id: 'jordan-lee', name: 'Jordan Lee', role: 'Owner and Head Chef', color: '#111827' },
-  { id: 'thando-mokoena', name: 'Thando Mokoena', role: 'Bread and Pastry Instructor', color: '#0F766E' },
-  { id: 'maya-patel', name: 'Maya Patel', role: 'Culinary Instructor', color: '#B45309' },
-  { id: 'sofia-martins', name: 'Sofia Martins', role: 'Studio Host', color: '#0369A1' }
+  {
+    id: 'jordan-lee',
+    name: 'Jordan Lee',
+    role: 'Owner and Head Chef',
+    accessRole: 'Owner',
+    email: 'jordan@flourandflame.example',
+    color: '#111827'
+  },
+  {
+    id: 'thando-mokoena',
+    name: 'Thando Mokoena',
+    role: 'Bread and Pastry Instructor',
+    accessRole: 'Admin',
+    email: 'thando@flourandflame.example',
+    color: '#0F766E'
+  },
+  {
+    id: 'maya-patel',
+    name: 'Maya Patel',
+    role: 'Culinary Instructor',
+    accessRole: 'Staff',
+    email: 'maya@flourandflame.example',
+    color: '#B45309'
+  },
+  {
+    id: 'sofia-martins',
+    name: 'Sofia Martins',
+    role: 'Studio Host',
+    accessRole: 'Staff',
+    email: 'sofia@flourandflame.example',
+    color: '#0369A1'
+  }
+];
+
+export const DEMO_CLIENTS = [
+  {
+    id: 'client-001',
+    name: 'Aisha Naidoo',
+    email: 'aisha.naidoo@example.com',
+    phone: '+27 72 555 1001',
+    country: 'South Africa'
+  },
+  {
+    id: 'client-002',
+    name: 'Daniel Botha',
+    email: 'daniel.botha@example.com',
+    phone: '+27 72 555 1002',
+    country: 'South Africa'
+  },
+  {
+    id: 'client-003',
+    name: 'Lerato Dlamini',
+    email: 'lerato.dlamini@example.com',
+    phone: '+27 72 555 1003',
+    country: 'South Africa'
+  },
+  {
+    id: 'client-004',
+    name: 'Ethan Williams',
+    email: 'ethan.williams@example.com',
+    phone: '+27 72 555 1004',
+    country: 'South Africa'
+  },
+  {
+    id: 'client-005',
+    name: 'Zara Hassan',
+    email: 'zara.hassan@example.com',
+    phone: '+971 4 555 1009',
+    country: 'United Arab Emirates'
+  }
+];
+
+export const DEMO_THREADS = [
+  {
+    id: 'thread-1',
+    clientName: 'Aisha Naidoo',
+    clientEmail: 'aisha.naidoo@example.com',
+    subject: 'Reschedule request',
+    unread: true,
+    updatedAt: Date.now() - 1000 * 60 * 25,
+    messages: [
+      {
+        id: 'm1',
+        from: 'client',
+        body: "Could I move tomorrow's bread workshop to next Saturday?",
+        at: Date.now() - 1000 * 60 * 40
+      },
+      {
+        id: 'm2',
+        from: 'business',
+        body: 'Of course. The next Saturday class starts at 09:00 and still has space.',
+        at: Date.now() - 1000 * 60 * 30
+      },
+      {
+        id: 'm3',
+        from: 'client',
+        body: 'That works perfectly for me.',
+        at: Date.now() - 1000 * 60 * 25
+      }
+    ]
+  },
+  {
+    id: 'thread-2',
+    clientName: 'Daniel Botha',
+    clientEmail: 'daniel.botha@example.com',
+    subject: 'Private lesson focus',
+    unread: false,
+    updatedAt: Date.now() - 1000 * 60 * 180,
+    messages: [
+      {
+        id: 'm4',
+        from: 'client',
+        body: 'For my private baking lesson, can we focus on celebration cakes?',
+        at: Date.now() - 1000 * 60 * 200
+      },
+      {
+        id: 'm5',
+        from: 'business',
+        body: 'Absolutely — we will set the session around stacking and buttercream.',
+        at: Date.now() - 1000 * 60 * 180
+      }
+    ]
+  }
+];
+
+export const DEMO_PAYMENT_GATEWAYS = [
+  {
+    gatewayType: 'stripe',
+    enabled: true,
+    mode: 'test',
+    configured: true,
+    providerName: 'Stripe',
+    credentialSummary: { publicKeyLast4: '4242', webhookConfigured: true }
+  },
+  {
+    gatewayType: 'paystack',
+    enabled: true,
+    mode: 'test',
+    configured: true,
+    providerName: 'Paystack',
+    credentialSummary: { publicKeyLast4: '9911', webhookConfigured: true }
+  },
+  {
+    gatewayType: 'manual_eft',
+    enabled: true,
+    mode: 'live',
+    configured: true,
+    providerName: 'Manual EFT',
+    credentialSummary: {
+      accountHolder: 'Flour & Flame Studio',
+      bankName: 'Example Bank',
+      accountNumber: '****4412',
+      branchCode: '250655',
+      instructions: 'Use your booking or order name as reference.'
+    }
+  },
+  {
+    gatewayType: 'cash',
+    enabled: true,
+    mode: 'live',
+    configured: true,
+    providerName: 'Cash',
+    credentialSummary: { instructions: 'Pay in studio on the day.' }
+  }
 ];
 
 export const DEMO_PRODUCTS = normalizeProductList([
@@ -258,7 +418,17 @@ export function createDemoWorkspace() {
     brandName: 'Flour & Flame',
     tagline: 'Baking studio in Cape Town',
     welcomeMessage: 'Reserve a class or take home something fresh.',
+    email: 'hello@flourandflame.example',
+    phone: '+27 21 555 0100',
     nativeAccent: true,
+    notifications: {
+      emailBookingRequests: true,
+      emailProductOrders: true,
+      emailSupportMessages: true
+    },
+    paymentGateways: DEMO_PAYMENT_GATEWAYS,
+    clients: DEMO_CLIENTS,
+    threads: DEMO_THREADS,
     website: {
       pages: { home: true, book: true, buy: true, social: true },
       headline: 'Bake with us.',

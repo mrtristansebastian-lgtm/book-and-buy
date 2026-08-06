@@ -2,7 +2,7 @@ import { navigate, publicPagePath } from '../../../app/routing';
 import { E_BUSINESS_PAGES, E_BUSINESS_PLATFORM_NAME } from '../../../config/eBusinessPlatform';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
-export function OverviewPage({ pendingRequests = 0, pendingOrders = 0 }) {
+export function OverviewPage({ pendingRequests = 0, pendingOrders = 0, unreadSupport = 0 }) {
   const { workspace } = useWorkspace();
 
   return (
@@ -18,7 +18,7 @@ export function OverviewPage({ pendingRequests = 0, pendingOrders = 0 }) {
         {[
           { label: 'Booking requests', value: String(pendingRequests), href: '/dashboard/services' },
           { label: 'Product orders', value: String(pendingOrders), href: '/dashboard/products' },
-          { label: 'Support threads', value: '—', href: '/dashboard/communications' }
+          { label: 'Support threads', value: String(unreadSupport), href: '/dashboard/communications' }
         ].map((item) => (
           <button
             key={item.label}

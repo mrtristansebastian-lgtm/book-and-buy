@@ -35,6 +35,9 @@ export function WorkspaceProvider({ children }) {
       bookings: workspace.bookings,
       products: workspace.products,
       orders: workspace.orders,
+      clients: workspace.clients || [],
+      threads: workspace.threads || [],
+      paymentGateways: workspace.paymentGateways || [],
       setServices: (services) =>
         setWorkspace((prev) => ({ ...prev, services: normalizeServiceList(services) })),
       upsertService: (service) => {
@@ -149,6 +152,101 @@ export function WorkspaceProvider({ children }) {
         setWorkspace((prev) => ({
           ...prev,
           socialPosts: (prev.socialPosts || []).filter((post) => post.id !== id)
+        }));
+      },
+      updateProfile: (patch) => {
+        setWorkspace((prev) => ({ ...prev, ...patch }));
+      },
+      updateNotifications: (patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          notifications: { ...prev.notifications, ...patch }
+        }));
+      },
+      upsertStaff: (member) => {
+        setWorkspace((prev) => {
+          const next = {
+            id: member.id || `staff-${Date.now()}`,
+            accessRole: 'Staff',
+            color: '#050505',
+            ...member
+          };
+          const exists = (prev.staff || []).some((item) => item.id === next.id);
+          return {
+            ...prev,
+            staff: exists
+              ? prev.staff.map((item) => (item.id === next.id ? { ...item, ...next } : item))
+              : [...(prev.staff || []), next]
+          };
+        });
+      },
+      removeStaff: (id) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          staff: (prev.staff || []).filter((member) => member.id !== id)
+        }));
+      },
+      upsertClient: (client) => {
+        setWorkspace((prev) => {
+          const next = { id: client.id || `client-${Date.now()}`, ...client };
+          const exists = (prev.clients || []).some((item) => item.id === next.id);
+          return {
+            ...prev,
+            clients: exists
+              ? prev.clients.map((item) => (item.id === next.id ? { ...item, ...next } : item))
+              : [...(prev.clients || []), next]
+          };
+        });
+      },
+      sendThreadMessage: (threadId, body) => {
+        const text = String(body || '').trim();
+        if (!text) return;
+        setWorkspace((prev) => ({
+          ...prev,
+          threads: (prev.threads || []).map((thread) =>
+            thread.id === threadId
+              ? {
+                  ...thread,
+                  unread: false,
+                  updatedAt: Date.now(),
+                  messages: [
+                    ...(thread.messages || []),
+                    {
+                      id: `m-${Date.now()}`,
+                      from: 'business',
+                      body: text,
+                      at: Date.now()
+                    }
+                  ]
+                }
+              : thread
+          )
+        }));
+      },
+      markThreadRead: (threadId) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          threads: (prev.threads || []).map((thread) =>
+            thread.id === threadId ? { ...thread, unread: false } : thread
+          )
+        }));
+      },
+      updatePaymentGateway: (gatewayType, patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          paymentGateways: (prev.paymentGateways || []).map((gateway) =>
+            gateway.gatewayType === gatewayType
+              ? {
+                  ...gateway,
+                  ...patch,
+                  credentialSummary: {
+                    ...gateway.credentialSummary,
+                    ...(patch.credentialSummary || {})
+                  },
+                  updatedAt: Date.now()
+                }
+              : gateway
+          )
         }));
       }
     };

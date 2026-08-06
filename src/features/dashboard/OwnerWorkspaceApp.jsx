@@ -1,42 +1,30 @@
 import { OwnerWorkspaceShell } from './components/OwnerWorkspaceShell';
 import { OverviewPage } from './pages/OverviewPage';
-import { ComingSoonPanel } from '../../shared/ui/ComingSoonPanel';
-import { workspaceTabLabels } from '../../config/routeConfig';
 import { ServicesPage } from '../services/pages/ServicesPage';
 import { SchedulePage } from '../schedule/pages/SchedulePage';
 import { ProductsPage } from '../products/pages/ProductsPage';
 import { WebsiteStudioPage } from '../website/pages/WebsiteStudioPage';
 import { SocialStudioPage } from '../social/pages/SocialStudioPage';
+import { SupportInboxPage } from '../support/pages/SupportInboxPage';
+import { FinancePage } from '../finance/pages/FinancePage';
+import { ClientsPage } from '../clients/pages/ClientsPage';
+import { ProfilePage } from '../profile/pages/ProfilePage';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 
-const PAGE_COPY = {
-  communications: {
-    title: 'Support',
-    body: 'Client ↔ business messaging threads.'
-  },
-  finance: {
-    title: 'Finance',
-    body: 'Stripe, Paystack (API keys), Manual EFT, and Cash.'
-  },
-  clients: {
-    title: 'Clients',
-    body: 'Client directory and booking history.'
-  },
-  profile: {
-    title: 'Profile',
-    body: 'Account, brand basics, team, and notifications.'
-  }
-};
-
 export function OwnerWorkspaceApp({ tab }) {
-  const { bookings, orders } = useWorkspace();
+  const { bookings, orders, threads } = useWorkspace();
   const pending = bookings.filter((booking) => ['pending', 'waitlist'].includes(booking.status)).length;
   const pendingOrders = orders.filter((order) => order.status === 'pending').length;
+  const unreadSupport = (threads || []).filter((thread) => thread.unread).length;
 
   return (
     <OwnerWorkspaceShell tab={tab}>
       {tab === 'overview' ? (
-        <OverviewPage pendingRequests={pending} pendingOrders={pendingOrders} />
+        <OverviewPage
+          pendingRequests={pending}
+          pendingOrders={pendingOrders}
+          unreadSupport={unreadSupport}
+        />
       ) : tab === 'services' ? (
         <ServicesPage />
       ) : tab === 'staff' ? (
@@ -47,12 +35,15 @@ export function OwnerWorkspaceApp({ tab }) {
         <WebsiteStudioPage />
       ) : tab === 'social' ? (
         <SocialStudioPage />
-      ) : (
-        <ComingSoonPanel
-          title={PAGE_COPY[tab]?.title || workspaceTabLabels[tab]}
-          body={PAGE_COPY[tab]?.body || 'This area is next in the rebuild.'}
-        />
-      )}
+      ) : tab === 'communications' ? (
+        <SupportInboxPage />
+      ) : tab === 'finance' ? (
+        <FinancePage />
+      ) : tab === 'clients' ? (
+        <ClientsPage />
+      ) : tab === 'profile' ? (
+        <ProfilePage />
+      ) : null}
     </OwnerWorkspaceShell>
   );
 }
