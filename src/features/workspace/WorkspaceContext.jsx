@@ -1,6 +1,8 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { createDemoWorkspace } from '../../data/demoWorkspace';
 import { normalizeService, normalizeServiceList } from '../../utils/services';
+import { normalizeProduct, normalizeProductList } from '../../utils/products';
+import { createPublicProductOrder } from '../../utils/orders';
 
 const WorkspaceContext = createContext(null);
 
@@ -17,11 +19,22 @@ export function WorkspaceProvider({ children }) {
       }));
     };
 
+    const updateOrder = (id, patch) => {
+      setWorkspace((prev) => ({
+        ...prev,
+        orders: prev.orders.map((order) =>
+          order.id === id ? { ...order, ...patch, updatedAt: Date.now() } : order
+        )
+      }));
+    };
+
     return {
       workspace,
       services: workspace.services,
       staff: workspace.staff,
       bookings: workspace.bookings,
+      products: workspace.products,
+      orders: workspace.orders,
       setServices: (services) =>
         setWorkspace((prev) => ({ ...prev, services: normalizeServiceList(services) })),
       upsertService: (service) => {
@@ -41,6 +54,23 @@ export function WorkspaceProvider({ children }) {
           ...prev,
           services: prev.services.filter((service) => service.id !== id)
         })),
+      upsertProduct: (product) => {
+        setWorkspace((prev) => {
+          const next = normalizeProduct(product);
+          const exists = prev.products.some((item) => item.id === next.id);
+          return {
+            ...prev,
+            products: exists
+              ? prev.products.map((item) => (item.id === next.id ? next : item))
+              : [...prev.products, next]
+          };
+        });
+      },
+      removeProduct: (id) =>
+        setWorkspace((prev) => ({
+          ...prev,
+          products: prev.products.filter((product) => product.id !== id)
+        })),
       addBooking: (booking) => {
         const record = {
           id: booking.id || `bk-${Date.now()}`,
@@ -57,7 +87,22 @@ export function WorkspaceProvider({ children }) {
       confirmBooking: (id) => updateBooking(id, { status: 'confirmed' }),
       declineBooking: (id) => updateBooking(id, { status: 'declined' }),
       waitlistBooking: (id) => updateBooking(id, { status: 'waitlist' }),
-      markPaid: (id) => updateBooking(id, { paymentStatus: 'paid' })
+      markPaid: (id) => updateBooking(id, { paymentStatus: 'paid' }),
+      placeProductOrder: ({ items, client, paymentMethod }) => {
+        const order = createPublicProductOrder({
+          workspaceSlug: workspace.slug,
+          workspaceName: workspace.brandName,
+          items,
+          client,
+          paymentMethod
+        });
+        setWorkspace((prev) => ({ ...prev, orders: [order, ...prev.orders] }));
+        return order;
+      },
+      updateOrder,
+      fulfilOrder: (id) => updateOrder(id, { status: 'fulfilled' }),
+      cancelOrder: (id) => updateOrder(id, { status: 'cancelled' }),
+      markOrderPaid: (id) => updateOrder(id, { paymentStatus: 'paid' })
     };
   }, [workspace]);
 

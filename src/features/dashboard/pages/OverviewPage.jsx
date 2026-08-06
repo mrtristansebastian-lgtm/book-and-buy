@@ -1,7 +1,7 @@
 import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
-export function OverviewPage({ pendingRequests = 0 }) {
+export function OverviewPage({ pendingRequests = 0, pendingOrders = 0 }) {
   const { workspace } = useWorkspace();
   const publicBase = `/w/${workspace.slug}`;
 
@@ -17,7 +17,7 @@ export function OverviewPage({ pendingRequests = 0 }) {
       <section className="grid gap-3 md:grid-cols-3">
         {[
           { label: 'Booking requests', value: String(pendingRequests), href: '/dashboard/services' },
-          { label: 'Product orders', value: '—', href: '/dashboard/products' },
+          { label: 'Product orders', value: String(pendingOrders), href: '/dashboard/products' },
           { label: 'Support threads', value: '—', href: '/dashboard/communications' }
         ].map((item) => (
           <button

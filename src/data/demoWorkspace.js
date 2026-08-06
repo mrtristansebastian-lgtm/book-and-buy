@@ -1,4 +1,5 @@
 import { normalizeServiceList } from '../utils/services';
+import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
 const today = startOfToday();
@@ -82,6 +83,103 @@ export const DEMO_STAFF = [
   { id: 'thando-mokoena', name: 'Thando Mokoena', role: 'Bread and Pastry Instructor', color: '#0F766E' },
   { id: 'maya-patel', name: 'Maya Patel', role: 'Culinary Instructor', color: '#B45309' },
   { id: 'sofia-martins', name: 'Sofia Martins', role: 'Studio Host', color: '#0369A1' }
+];
+
+export const DEMO_PRODUCTS = normalizeProductList([
+  {
+    id: 'artisan-bread-box',
+    name: 'Artisan Bread Box',
+    category: 'Baked goods',
+    price: 320,
+    stockAvailable: 12,
+    description: 'A mixed box of the day’s loaves — sourdough, seeded, and a soft milk loaf.',
+    image: '/example/flour-and-flame/products/artisan-bread-box.png'
+  },
+  {
+    id: 'fresh-pasta-starter-set',
+    name: 'Fresh Pasta Starter Set',
+    category: 'Kits',
+    price: 480,
+    stockAvailable: 8,
+    description: 'Flour blend, semolina, recipe cards, and a wooden paddle for home pasta nights.',
+    image: '/example/flour-and-flame/products/fresh-pasta-starter-set.png'
+  },
+  {
+    id: 'kitchen-notes',
+    name: 'Kitchen Notes',
+    category: 'Books',
+    price: 260,
+    stockAvailable: 20,
+    description: 'Studio recipes, fermentation notes, and plating ideas from the Flour & Flame team.',
+    image: '/example/flour-and-flame/products/kitchen-notes.png'
+  },
+  {
+    id: 'private-menu-consult',
+    name: 'Private Menu Consult',
+    category: 'Consulting',
+    priceType: 'quote',
+    quoteBased: true,
+    stockLabel: 'By arrangement',
+    description: 'Plan a custom menu or celebration bake with the kitchen — priced after a short consult.',
+    image: '/example/flour-and-flame/venue/tasting-room.webp'
+  }
+]);
+
+const sampleOrders = [
+  {
+    id: 'ord-1',
+    requestType: 'product_order',
+    orderType: 'product',
+    clientName: 'Ethan Williams',
+    clientEmail: 'ethan.williams@example.com',
+    clientPhone: '+27 72 555 1004',
+    items: [
+      {
+        productId: 'artisan-bread-box',
+        name: 'Artisan Bread Box',
+        quantity: 2,
+        unitPriceCents: 32000,
+        lineTotalCents: 64000
+      }
+    ],
+    amountInCents: 64000,
+    currency: 'R',
+    paymentMethod: 'manual_eft',
+    paymentStatus: 'manual_pending',
+    status: 'pending',
+    source: 'public_shop',
+    timestamp: Date.now() - 1000 * 60 * 40
+  },
+  {
+    id: 'ord-2',
+    requestType: 'product_order',
+    orderType: 'product',
+    clientName: 'Zara Hassan',
+    clientEmail: 'zara.hassan@example.com',
+    items: [
+      {
+        productId: 'kitchen-notes',
+        name: 'Kitchen Notes',
+        quantity: 1,
+        unitPriceCents: 26000,
+        lineTotalCents: 26000
+      },
+      {
+        productId: 'fresh-pasta-starter-set',
+        name: 'Fresh Pasta Starter Set',
+        quantity: 1,
+        unitPriceCents: 48000,
+        lineTotalCents: 48000
+      }
+    ],
+    amountInCents: 74000,
+    currency: 'R',
+    paymentMethod: 'cash',
+    paymentStatus: 'paid',
+    status: 'fulfilled',
+    source: 'public_shop',
+    timestamp: Date.now() - 1000 * 60 * 60 * 26
+  }
 ];
 
 const sampleBookings = [
@@ -175,6 +273,7 @@ export function createDemoWorkspace() {
     services: DEMO_SERVICES,
     staff: DEMO_STAFF,
     bookings: sampleBookings,
-    products: []
+    products: DEMO_PRODUCTS,
+    orders: sampleOrders
   };
 }

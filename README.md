@@ -24,17 +24,19 @@ Open `http://127.0.0.1:5173/`
 ## Rebuild phases
 
 1. Foundation + shells — done
-2. Book pillar — Services catalog/requests, Schedule, public booking, manual booking — done (demo workspace state)
-3. Buy pillar
+2. Book pillar — done (demo workspace state)
+3. Buy pillar — Products catalog/orders, public shop cart/checkout — done (demo workspace state)
 4. Website + Social studios
 5. Support, finance, clients, payments
 6. Hardening / mobile
 
 See `docs/book-and-buy-vision.md`.
 
-## Try the Book pillar
+## Try Book + Buy
 
 - `#/dashboard/services` — Catalog | Requests + manual booking
 - `#/dashboard/staff` — Schedule day board
+- `#/dashboard/products` — Catalog | Orders
 - `#/w/flour-and-flame/book` — public booking flow
+- `#/w/flour-and-flame/shop` — public storefront cart/checkout
 

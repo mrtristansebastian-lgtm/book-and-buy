@@ -4,13 +4,10 @@ import { ComingSoonPanel } from '../../shared/ui/ComingSoonPanel';
 import { workspaceTabLabels } from '../../config/routeConfig';
 import { ServicesPage } from '../services/pages/ServicesPage';
 import { SchedulePage } from '../schedule/pages/SchedulePage';
+import { ProductsPage } from '../products/pages/ProductsPage';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 
 const PAGE_COPY = {
-  products: {
-    title: 'Products',
-    body: 'Product catalog and order fulfilment with a Catalog | Orders toggle.'
-  },
   website: {
     title: 'Website',
     body: 'Guided site builder for Home, Book, Shop, and Social — sections, preview, publish. No cinema free-form editor.'
@@ -38,17 +35,20 @@ const PAGE_COPY = {
 };
 
 export function OwnerWorkspaceApp({ tab }) {
-  const { bookings } = useWorkspace();
+  const { bookings, orders } = useWorkspace();
   const pending = bookings.filter((booking) => ['pending', 'waitlist'].includes(booking.status)).length;
+  const pendingOrders = orders.filter((order) => order.status === 'pending').length;
 
   return (
     <OwnerWorkspaceShell tab={tab}>
       {tab === 'overview' ? (
-        <OverviewPage pendingRequests={pending} />
+        <OverviewPage pendingRequests={pending} pendingOrders={pendingOrders} />
       ) : tab === 'services' ? (
         <ServicesPage />
       ) : tab === 'staff' ? (
         <SchedulePage />
+      ) : tab === 'products' ? (
+        <ProductsPage />
       ) : (
         <ComingSoonPanel
           title={PAGE_COPY[tab]?.title || workspaceTabLabels[tab]}

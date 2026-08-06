@@ -2,6 +2,7 @@ import { PublicBusinessHeader } from '../public-surface/PublicBusinessHeader';
 import { navigate } from '../../app/routing';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import { PublicBookingFlow } from '../booking/components/PublicBookingFlow';
+import { PublicStorefront } from '../storefront/components/PublicStorefront';
 
 function HomePage({ workspace }) {
   return (
@@ -35,14 +36,7 @@ function BookPage({ workspace }) {
 }
 
 function ShopPage({ workspace }) {
-  return (
-    <section className="px-5 md:px-10 py-10 grid gap-4 max-w-3xl">
-      <h1 className="bb-page-title text-4xl m-0">Shop</h1>
-      <p className="bb-muted m-0">
-        Storefront cart and checkout for {workspace.brandName} lands here next.
-      </p>
-    </section>
-  );
+  return <PublicStorefront workspaceName={workspace.brandName} />;
 }
 
 function SocialPage({ workspace }) {
