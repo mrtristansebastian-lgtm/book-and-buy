@@ -58,7 +58,7 @@ export function PublicStorefront({ workspaceName }) {
     <section className="px-5 md:px-10 py-8 grid gap-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="grid gap-2">
-          <h1 className="bb-page-title text-4xl m-0">Shop</h1>
+          <h1 className="bb-page-title text-4xl m-0">Buy</h1>
           <p className="bb-muted m-0">Kitchen goods and take-home sets from {workspaceName || workspace.brandName}.</p>
         </div>
         <button type="button" className="bb-ink-btn" onClick={() => setPanel(panel === 'cart' ? 'shop' : 'cart')}>

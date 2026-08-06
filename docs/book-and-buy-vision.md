@@ -19,10 +19,10 @@ This is the product north star. For screen-by-screen and backend detail, see [bo
 |-------|-----|
 | `/w/:slug` | Website home |
 | `/w/:slug/book` (also `/book/:slug`) | Book a service |
-| `/w/:slug/shop` (also `/shop/:slug`) | Buy products |
+| `/w/:slug/buy` (also `/shop/:slug`, `/w/:slug/shop`) | Buy products |
 | `/w/:slug/social` | Social feed |
 
-Same brand chrome. Clear nav between Home, Book, Shop, and Social when each page is enabled.
+Same brand chrome. Clear nav between Home, Book, Buy, and Social when each page is enabled. Owner name for this public site: **E-Business Platform**.
 
 ### Owner (dashboard)
 
@@ -32,8 +32,8 @@ Same brand chrome. Clear nav between Home, Book, Shop, and Social when each page
 | Services | Catalog + Booking Requests |
 | Schedule | Today’s board (hours settings stay light) |
 | Products | Catalog + Orders |
-| Website | Guided site builder + live preview + publish |
-| Social | Post composer that publishes the public Social page |
+| E-Business Platform → Pages | Guided Home / Book / Buy / Social copy + visibility + publish |
+| E-Business Platform → Social | Post composer that publishes the public Social page |
 | Support | Client threads |
 | Finance | Stripe, Paystack (API keys), Manual EFT, Cash |
 | Clients / Profile | People, team, brand basics |

@@ -102,7 +102,55 @@ export function WorkspaceProvider({ children }) {
       updateOrder,
       fulfilOrder: (id) => updateOrder(id, { status: 'fulfilled' }),
       cancelOrder: (id) => updateOrder(id, { status: 'cancelled' }),
-      markOrderPaid: (id) => updateOrder(id, { paymentStatus: 'paid' })
+      markOrderPaid: (id) => updateOrder(id, { paymentStatus: 'paid' }),
+      updateWebsite: (patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          website: {
+            ...prev.website,
+            ...patch,
+            pages: {
+              ...prev.website?.pages,
+              ...(patch.pages || {})
+            }
+          }
+        }));
+      },
+      addSocialPost: (post) => {
+        const record = {
+          id: post.id || `post-${Date.now()}`,
+          type: post.type || 'text',
+          mediaUrl: post.mediaUrl || '',
+          caption: post.caption || '',
+          title: post.title || '',
+          published: post.published !== false,
+          createdAt: Date.now(),
+          order: 0,
+          ...post
+        };
+        setWorkspace((prev) => ({
+          ...prev,
+          socialPosts: [record, ...(prev.socialPosts || []).map((item, index) => ({
+            ...item,
+            order: index + 1
+          }))]
+        }));
+        return record;
+      },
+      updateSocialPost: (id, patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          socialPosts: (prev.socialPosts || []).map((post) =>
+            post.id === id ? { ...post, ...patch } : post
+          )
+        }));
+      },
+      removeSocialPost: (id) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          socialPosts: (prev.socialPosts || []).filter((post) => post.id !== id)
+        }));
+      }
     };
   }, [workspace]);
 

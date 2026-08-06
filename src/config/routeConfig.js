@@ -1,4 +1,6 @@
-/** Owner workspace tabs — Website and Social are separate (vision). */
+import { E_BUSINESS_PLATFORM_NAME } from './eBusinessPlatform';
+
+/** Owner workspace tabs — Website (Pages) and Social under E-Business Platform. */
 export const workspaceTabIds = [
   'overview',
   'services',
@@ -29,9 +31,12 @@ export const workspaceTabAliases = {
   site: 'website',
   pages: 'website',
   editor: 'website',
+  'e-business': 'website',
+  ebusiness: 'website',
   orders: 'products',
   'product-orders': 'products',
   shop: 'products',
+  buy: 'products',
   payments: 'finance'
 };
 
@@ -53,7 +58,7 @@ export const workspaceTabLabels = {
   services: 'Services',
   staff: 'Schedule',
   products: 'Products',
-  website: 'Website',
+  website: 'Pages',
   social: 'Social',
   communications: 'Support',
   finance: 'Finance',
@@ -65,7 +70,7 @@ export const workspaceGroupLabels = {
   home: 'Home',
   book: 'Book',
   buy: 'Buy',
-  presence: 'Your pages',
+  presence: E_BUSINESS_PLATFORM_NAME,
   run: 'Run'
 };
 

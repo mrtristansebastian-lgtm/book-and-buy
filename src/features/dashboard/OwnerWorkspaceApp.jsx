@@ -5,17 +5,11 @@ import { workspaceTabLabels } from '../../config/routeConfig';
 import { ServicesPage } from '../services/pages/ServicesPage';
 import { SchedulePage } from '../schedule/pages/SchedulePage';
 import { ProductsPage } from '../products/pages/ProductsPage';
+import { WebsiteStudioPage } from '../website/pages/WebsiteStudioPage';
+import { SocialStudioPage } from '../social/pages/SocialStudioPage';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 
 const PAGE_COPY = {
-  website: {
-    title: 'Website',
-    body: 'Guided site builder for Home, Book, Shop, and Social — sections, preview, publish. No cinema free-form editor.'
-  },
-  social: {
-    title: 'Social',
-    body: 'Post composer that publishes your public Social page.'
-  },
   communications: {
     title: 'Support',
     body: 'Client ↔ business messaging threads.'
@@ -49,6 +43,10 @@ export function OwnerWorkspaceApp({ tab }) {
         <SchedulePage />
       ) : tab === 'products' ? (
         <ProductsPage />
+      ) : tab === 'website' ? (
+        <WebsiteStudioPage />
+      ) : tab === 'social' ? (
+        <SocialStudioPage />
       ) : (
         <ComingSoonPanel
           title={PAGE_COPY[tab]?.title || workspaceTabLabels[tab]}

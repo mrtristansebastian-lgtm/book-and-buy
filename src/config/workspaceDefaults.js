@@ -20,12 +20,20 @@ export const createDefaultSettings = () => ({
     pages: {
       home: true,
       book: true,
-      shop: true,
+      buy: true,
       social: true
     },
     headline: 'Welcome in.',
-    subcopy: 'Book a service or shop products from one place.',
-    ctaLabel: 'Book now'
+    subcopy: 'Book a service or buy products from one place.',
+    ctaLabel: 'Book now',
+    homeHeadline: 'Welcome in.',
+    homeSubtext: 'Book a service or buy products from one place.',
+    bookHeadline: 'Book',
+    bookSubtext: 'Choose a service and request a time.',
+    buyHeadline: 'Buy',
+    buySubtext: 'Order products from this business.',
+    socialHeadline: 'Social',
+    socialSubtext: 'Updates from the business.'
   },
   socialPosts: [],
   services: [],

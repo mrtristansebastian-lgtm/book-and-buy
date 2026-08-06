@@ -1,9 +1,9 @@
-import { navigate } from '../../../app/routing';
+import { navigate, publicPagePath } from '../../../app/routing';
+import { E_BUSINESS_PAGES, E_BUSINESS_PLATFORM_NAME } from '../../../config/eBusinessPlatform';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
 export function OverviewPage({ pendingRequests = 0, pendingOrders = 0 }) {
   const { workspace } = useWorkspace();
-  const publicBase = `/w/${workspace.slug}`;
 
   return (
     <div className="grid gap-6">
@@ -34,18 +34,18 @@ export function OverviewPage({ pendingRequests = 0, pendingOrders = 0 }) {
 
       <section className="bb-panel p-5 grid gap-4">
         <div>
-          <h2 className="bb-page-title text-xl m-0">Your public pages</h2>
-          <p className="bb-muted m-0 mt-1 text-sm">Share Home, Book, Shop, and Social from one site.</p>
+          <h2 className="bb-page-title text-xl m-0">{E_BUSINESS_PLATFORM_NAME}</h2>
+          <p className="bb-muted m-0 mt-1 text-sm">Share Home, Book, Buy, and Social from one site.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {[
-            ['Home', publicBase],
-            ['Book', `${publicBase}/book`],
-            ['Shop', `${publicBase}/shop`],
-            ['Social', `${publicBase}/social`]
-          ].map(([label, href]) => (
-            <button key={label} type="button" className="bb-ghost-btn" onClick={() => navigate(href)}>
-              {label}
+          {E_BUSINESS_PAGES.map((page) => (
+            <button
+              key={page.id}
+              type="button"
+              className="bb-ghost-btn"
+              onClick={() => navigate(publicPagePath(workspace.slug, page.id))}
+            >
+              {page.label}
             </button>
           ))}
         </div>

@@ -25,18 +25,22 @@ Open `http://127.0.0.1:5173/`
 
 1. Foundation + shells — done
 2. Book pillar — done (demo workspace state)
-3. Buy pillar — Products catalog/orders, public shop cart/checkout — done (demo workspace state)
-4. Website + Social studios
+3. Buy pillar — Products catalog/orders, public Buy cart/checkout — done
+4. E-Business Platform — Pages + Social studios, Home/Book/Buy/Social — done
 5. Support, finance, clients, payments
 6. Hardening / mobile
 
 See `docs/book-and-buy-vision.md`.
 
-## Try Book + Buy
+## Try Book + Buy + E-Business Platform
 
 - `#/dashboard/services` — Catalog | Requests + manual booking
 - `#/dashboard/staff` — Schedule day board
 - `#/dashboard/products` — Catalog | Orders
-- `#/w/flour-and-flame/book` — public booking flow
-- `#/w/flour-and-flame/shop` — public storefront cart/checkout
+- `#/dashboard/website` — E-Business Platform page studio
+- `#/dashboard/social` — Social studio
+- `#/w/flour-and-flame` — public Home
+- `#/w/flour-and-flame/book` — Book
+- `#/w/flour-and-flame/buy` — Buy (`/shop` still aliases)
+- `#/w/flour-and-flame/social` — Social
 

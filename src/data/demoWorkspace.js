@@ -260,11 +260,48 @@ export function createDemoWorkspace() {
     welcomeMessage: 'Reserve a class or take home something fresh.',
     nativeAccent: true,
     website: {
-      pages: { home: true, book: true, shop: true, social: true },
+      pages: { home: true, book: true, buy: true, social: true },
       headline: 'Bake with us.',
       subcopy: 'Hands-on classes, private sessions, and kitchen goods.',
-      ctaLabel: 'Book a class'
+      ctaLabel: 'Book a class',
+      homeHeadline: 'Bake with us.',
+      homeSubtext: 'Hands-on classes, private sessions, and kitchen goods.',
+      bookHeadline: 'Book a class or private lesson',
+      bookSubtext: 'Pick a service, choose a time, and send your request.',
+      buyHeadline: 'Take the kitchen home',
+      buySubtext: 'Bread boxes, pasta kits, and studio notes ready to order.',
+      socialHeadline: 'From the studio',
+      socialSubtext: 'Posts, clips, and notes from Flour & Flame.'
     },
+    socialPosts: [
+      {
+        id: 'post-1',
+        type: 'image',
+        mediaUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
+        caption: 'Morning bake — loaves cooling on the rack.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 8,
+        order: 0
+      },
+      {
+        id: 'post-2',
+        type: 'image',
+        mediaUrl: '/example/flour-and-flame/venue/pastry-island.webp',
+        caption: 'Pastry island prep for Saturday’s French foundations class.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 30,
+        order: 1
+      },
+      {
+        id: 'post-3',
+        type: 'text',
+        title: 'Studio note',
+        caption: 'Private baking lessons are open for March — tell us what you want to master.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 50,
+        order: 2
+      }
+    ],
     availabilityRules: {
       businessOpenTime: '09:00',
       businessCloseTime: '17:00',
