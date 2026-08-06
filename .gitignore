@@ -1,17 +1,12 @@
-node_modules/
-dist/
-.firebase/
+node_modules
+dist
 .env
 .env.local
-functions/.secret.local
-vite-dev.*.log
+.env.*.local
+.DS_Store
 *.log
-.local-dev-logs/
-_local_backups/
-Build a Booking MVP APP/
-.agents/
-legacy/
-test-results/
-tmp/
-public/example/flour-and-flame/flame-and-flour-logo.webp
-public/example/flour-and-flame/flame-and-flour-logo-white.webp
+.firebase
+.local-dev-logs
+test-results
+playwright-report
+_rebuild-seed

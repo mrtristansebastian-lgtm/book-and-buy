@@ -1,0 +1,31 @@
+@import './native-accent-system.css';
+@import './native-gradient-primitives.css';
+@import './native-motion-keyframes.css';
+@import './native-typography-consistency.css';
+@import './native-booking-theme.css';
+@import './app-shell.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  color: #101828;
+  background: #fbfbfb;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}

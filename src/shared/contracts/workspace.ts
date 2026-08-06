@@ -20,6 +20,12 @@ export interface WorkspaceFeatureFlags {
 export interface AvailabilityRules {
   enabled?: boolean;
   scheduleMode?: "time_slots" | "first_come";
+  slotDurationMode?: "service" | "custom" | "bookable_times";
+  slotDurationMinutes?: string | number;
+  arrivalIntervalMinutes?: string | number;
+  businessOpenTime?: string;
+  businessCloseTime?: string;
+  autoOpenSpots?: boolean;
   staffAssignmentMode?: "auto" | "client" | "later";
   holdMode?: "pending_confirmed" | "pending_only" | "confirmed_only" | "confirmed";
   bookingNotice?: string;
@@ -48,6 +54,52 @@ export interface WorkspaceService {
   photoURL?: string;
 }
 
+export interface WorkspaceProduct {
+  id: string;
+  name: string;
+  description?: string;
+  price?: string | number;
+  priceType?: "fixed" | "quote" | string;
+  quoteBased?: boolean;
+  category?: string;
+  mainCategory?: string;
+  stockAvailable?: string | number;
+  stockLabel?: string;
+  hideStockOnCard?: boolean;
+  imageUrls?: string[];
+  active?: boolean;
+}
+
+export interface WebsitePageVisibility {
+  home?: boolean;
+  book?: boolean;
+  shop?: boolean;
+  social?: boolean;
+}
+
+export interface WebsiteSettings {
+  homeHeadline?: string;
+  homeSubtext?: string;
+  ctaPrimary?: "book" | "shop" | "social" | string;
+  pages?: WebsitePageVisibility;
+  featuredServiceIds?: string[];
+  featuredProductIds?: string[];
+  showFaq?: boolean;
+  showContact?: boolean;
+}
+
+export interface SocialPost {
+  id: string;
+  type?: "image" | "video" | "text" | string;
+  mediaUrl?: string;
+  caption?: string;
+  title?: string;
+  duration?: string;
+  published?: boolean;
+  createdAt?: number;
+  order?: number;
+}
+
 export interface WorkspaceSettings {
   slug: string;
   brandName: string;
@@ -69,9 +121,12 @@ export interface WorkspaceSettings {
   googleCalendar?: Record<string, unknown>;
   features?: WorkspaceFeatureFlags;
   services?: WorkspaceService[];
+  products?: WorkspaceProduct[];
   publicStaff?: Array<{ id: string; name: string; color?: string; photoURL?: string }>;
   paymentOptions?: unknown[];
   manualPaymentOptions?: unknown[];
+  website?: WebsiteSettings;
+  socialPosts?: SocialPost[];
   [key: string]: unknown;
 }
 

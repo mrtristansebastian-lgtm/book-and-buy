@@ -1,7 +1,2 @@
-export * from './bookingDeskConfig';
-export * from './communicationsConfig';
-export * from './editorConfig';
-export * from './legalConfig';
-export * from './routeConfig';
-export * from './workspaceDefaults';
-export * from './workspaceExample';
+export const APP_NAME = 'Book and Buy';
+export const APP_ID = import.meta.env.VITE_APP_ID || 'build-a-booking-v2';

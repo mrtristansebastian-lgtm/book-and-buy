@@ -1,0 +1,191 @@
+.bb-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 480px at 12% -10%, rgba(185, 227, 255, 0.35), transparent 55%),
+    radial-gradient(900px 420px at 88% 0%, rgba(255, 212, 242, 0.28), transparent 50%),
+    #fbfbfb;
+}
+
+.bb-brand-mark {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-weight: 760;
+  letter-spacing: -0.03em;
+  color: #050505;
+}
+
+.bb-page-title {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-weight: 820;
+  letter-spacing: -0.018em;
+  line-height: 1.06;
+  color: #101828;
+}
+
+.bb-muted {
+  color: #667085;
+}
+
+.bb-segment {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.bb-segment button {
+  border: 0;
+  background: transparent;
+  color: #667085;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.bb-segment button[aria-pressed='true'] {
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+}
+
+.bb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #667085;
+  border-radius: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 620;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-nav-item[aria-current='page'] {
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.22)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+}
+
+.bb-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1.15rem;
+  font-family: Inter, Figtree, sans-serif;
+  font-weight: 680;
+  color: #050505;
+  cursor: pointer;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+}
+
+.bb-ink-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1.15rem;
+  font-family: Inter, Figtree, sans-serif;
+  font-weight: 680;
+  color: #fff;
+  background: #050505;
+  cursor: pointer;
+}
+
+.bb-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 999px;
+  padding: 0.75rem 1.15rem;
+  font-family: Inter, Figtree, sans-serif;
+  font-weight: 620;
+  color: #050505;
+  background: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+}
+
+.bb-panel {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1rem;
+}
+
+.bb-public-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.bb-public-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.bb-public-nav a {
+  text-decoration: none;
+  color: #667085;
+  font-weight: 620;
+  font-size: 0.88rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+}
+
+.bb-public-nav a[aria-current='page'] {
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+}
+
+.bb-coming-soon {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .bb-owner-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .bb-owner-sidebar {
+    display: none !important;
+  }
+
+  .bb-mobile-dock {
+    display: flex !important;
+  }
+}

@@ -1,12 +1,17 @@
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
+      colors: {
+        ink: '#050505',
+        navy: '#101828',
+        canvas: '#FBFBFB'
+      },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
-        mono: ['Space Grotesk', 'monospace'],
-        display: ['Syne', 'sans-serif']
+        brand: ['"Plus Jakarta Sans"', 'Figtree', 'sans-serif'],
+        body: ['Figtree', '"Plus Jakarta Sans"', 'sans-serif'],
+        button: ['Inter', 'Figtree', 'sans-serif']
       }
     }
   },

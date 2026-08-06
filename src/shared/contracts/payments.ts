@@ -1,4 +1,4 @@
-export type PaymentGatewayId = "stripe" | "payfast" | "yoco" | "paystack" | "manual_eft" | "cash";
+export type PaymentGatewayId = "stripe" | "paystack" | "manual_eft" | "cash";
 
 export interface PaymentGatewaySettings {
   gatewayType: PaymentGatewayId;
