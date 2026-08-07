@@ -68,14 +68,17 @@ export function ConversationPane({ inbox }) {
             declineBooking(linkedBooking.id);
             postSystem(`Booking declined · ${linkedBooking.serviceName}`);
           },
-          onSuggestReschedule: () => {
+          onSetupReschedule: () => {
+            const when = linkedBooking
+              ? `${linkedBooking.dateKey || linkedBooking.date} at ${linkedBooking.time}`
+              : '';
             setComposerPrefill(
               linkedBooking
-                ? `Would ${linkedBooking.dateKey || linkedBooking.date} ${linkedBooking.time} still work, or shall we find another slot?`
-                : 'Would you like to pick another date and time?'
+                ? `Let's set up a reschedule for ${linkedBooking.serviceName} (currently ${when}). What date and time work better?`
+                : "Let's set up a reschedule — what date and time work better?"
             );
           },
-          onViewBooking: () => navigate('/dashboard/services'),
+          onViewBooking: () => navigate('/dashboard/requests'),
           onMarkPaid: () => {
             if (!linkedOrder) return;
             markOrderPaid(linkedOrder.id);
@@ -86,7 +89,7 @@ export function ConversationPane({ inbox }) {
             fulfilOrder(linkedOrder.id);
             postSystem('Order marked fulfilled');
           },
-          onViewOrder: () => navigate('/dashboard/products'),
+          onViewOrder: () => navigate('/dashboard/orders'),
           onCopyEmail: async () => {
             if (!active.clientEmail) return;
             try {

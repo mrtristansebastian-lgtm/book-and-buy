@@ -161,7 +161,8 @@ export const DEMO_CLIENTS = [
   }
 ];
 
-export const DEMO_THREADS_SCHEMA = 2;
+export const DEMO_THREADS_SCHEMA = 3;
+export const DEMO_ORDERS_SCHEMA = 2;
 
 export const DEMO_THREADS = [
   {
@@ -250,11 +251,12 @@ export const DEMO_THREADS = [
           {
             id: 'att-voice-1',
             kind: 'voice',
-            name: 'voice-note.webm',
-            mime: 'audio/webm',
+            name: 'voice-note.wav',
+            mime: 'audio/wav',
             size: 42000,
             url: '',
-            durationMs: 14000
+            durationMs: 2400,
+            demoTone: true
           }
         ]
       }
@@ -413,6 +415,52 @@ const sampleOrders = [
     timestamp: Date.now() - 1000 * 60 * 40
   },
   {
+    id: 'ord-3',
+    requestType: 'product_order',
+    orderType: 'product',
+    clientName: 'Mia Jacobs',
+    clientEmail: 'mia.jacobs@example.com',
+    items: [
+      {
+        productId: 'fresh-pasta-starter-set',
+        name: 'Fresh Pasta Starter Set',
+        quantity: 1,
+        unitPriceCents: 48000,
+        lineTotalCents: 48000
+      }
+    ],
+    amountInCents: 48000,
+    currency: 'R',
+    paymentMethod: 'card',
+    paymentStatus: 'paid',
+    status: 'accepted',
+    source: 'public_shop',
+    timestamp: Date.now() - 1000 * 60 * 60 * 5
+  },
+  {
+    id: 'ord-4',
+    requestType: 'product_order',
+    orderType: 'product',
+    clientName: 'Kai Petersen',
+    clientEmail: 'kai.petersen@example.com',
+    items: [
+      {
+        productId: 'kitchen-notes',
+        name: 'Kitchen Notes',
+        quantity: 2,
+        unitPriceCents: 26000,
+        lineTotalCents: 52000
+      }
+    ],
+    amountInCents: 52000,
+    currency: 'R',
+    paymentMethod: 'cash',
+    paymentStatus: 'paid',
+    status: 'shipped',
+    source: 'public_shop',
+    timestamp: Date.now() - 1000 * 60 * 60 * 18
+  },
+  {
     id: 'ord-2',
     requestType: 'product_order',
     orderType: 'product',
@@ -527,6 +575,7 @@ export function createDemoWorkspace() {
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
+    ordersSchema: DEMO_ORDERS_SCHEMA,
     nativeAccent: true,
     notifications: {
       emailBookingRequests: true,
@@ -806,6 +855,11 @@ export function hydrateDemoWorkspace(stored) {
     stored.threads.length < 3 ||
     !stored.threads.some((thread) => thread?.presence);
 
+  const staleOrders =
+    Number(stored.ordersSchema || 0) < DEMO_ORDERS_SCHEMA ||
+    !Array.isArray(stored.orders) ||
+    stored.orders.length < 3;
+
   const website = staleWebsite
     ? {
         ...fresh.website,
@@ -856,8 +910,10 @@ export function hydrateDemoWorkspace(stored) {
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
+    ordersSchema: DEMO_ORDERS_SCHEMA,
     website,
     socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts,
-    threads: staleThreads ? fresh.threads : stored.threads
+    threads: staleThreads ? fresh.threads : stored.threads,
+    orders: staleOrders ? fresh.orders : stored.orders
   };
 }

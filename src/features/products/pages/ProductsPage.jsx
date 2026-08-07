@@ -1,8 +1,6 @@
-﻿import { useMemo, useState } from 'react';
+﻿import { useState } from 'react';
 import { Pencil, Plus } from 'lucide-react';
-import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { ProductOrdersDesk } from '../components/ProductOrdersDesk';
 import {
   createProductId,
   formatProductPrice,
@@ -23,15 +21,9 @@ const emptyDraft = () => ({
 });
 
 export function ProductsPage() {
-  const { products, orders, upsertProduct, removeProduct } = useWorkspace();
-  const [mode, setMode] = useState('catalog');
+  const { products, upsertProduct, removeProduct } = useWorkspace();
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
-
-  const pendingCount = useMemo(
-    () => orders.filter((order) => order.status === 'pending').length,
-    [orders]
-  );
 
   const openEdit = (product) => {
     setDraft({
@@ -67,75 +59,58 @@ export function ProductsPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="grid gap-1">
           <h1 className="bb-page-title text-3xl m-0">Products</h1>
-          <p className="bb-muted m-0">Catalog and order fulfilment for Buy.</p>
+          <p className="bb-muted m-0">Your Buy catalog.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <PeriodSegmentedControl
-            ariaLabel="Products mode"
-            value={mode}
-            onChange={setMode}
-            options={[
-              { id: 'catalog', label: 'Catalog' },
-              { id: 'orders', label: 'Orders', count: pendingCount }
-            ]}
-          />
-          {mode === 'catalog' ? (
-            <button
-              type="button"
-              className="bb-primary-btn"
-              onClick={() => {
-                setDraft(emptyDraft());
-                setDraftOpen(true);
-              }}
-            >
-              <Plus size={16} /> Add product
-            </button>
-          ) : null}
-        </div>
+        <button
+          type="button"
+          className="bb-primary-btn"
+          onClick={() => {
+            setDraft(emptyDraft());
+            setDraftOpen(true);
+          }}
+        >
+          <Plus size={16} /> Add product
+        </button>
       </header>
 
-      {mode === 'catalog' ? (
-        <section className="grid gap-3 md:grid-cols-2">
-          {products.length === 0 ? (
-            <div className="bb-panel p-6 bb-muted md:col-span-2">No products yet.</div>
-          ) : (
-            products.map((product) => (
-              <article key={product.id} className="bb-panel overflow-hidden grid">
-                <div className="h-44 bg-black/5">
-                  {product.imageUrls?.[0] ? (
-                    <img src={product.imageUrls[0]} alt="" className="w-full h-full object-cover" />
-                  ) : null}
-                </div>
-                <div className="p-4 grid gap-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="grid gap-1 min-w-0">
-                      <h2 className="bb-page-title text-xl m-0">{product.name}</h2>
-                      <p className="bb-muted m-0 text-sm line-clamp-2">{product.description}</p>
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <button type="button" className="bb-ghost-btn" onClick={() => openEdit(product)}>
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        className="bb-ghost-btn"
-                        onClick={() => removeProduct(product.id)}
-                      >
-                        Remove
-                      </button>
-                    </div>
+      <section className="grid gap-3 md:grid-cols-2">
+        {products.length === 0 ? (
+          <div className="bb-panel p-6 bb-muted md:col-span-2">No products yet.</div>
+        ) : (
+          products.map((product) => (
+            <article key={product.id} className="bb-panel overflow-hidden grid">
+              <div className="h-44 bg-black/5">
+                {product.imageUrls?.[0] ? (
+                  <img src={product.imageUrls[0]} alt="" className="w-full h-full object-cover" />
+                ) : null}
+              </div>
+              <div className="p-4 grid gap-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="grid gap-1 min-w-0">
+                    <h2 className="bb-page-title text-xl m-0">{product.name}</h2>
+                    <p className="bb-muted m-0 text-sm line-clamp-2">{product.description}</p>
                   </div>
-                  <p className="m-0 text-sm font-semibold text-ink">
-                    {[formatProductPrice(product), formatStockNote(product)].filter(Boolean).join(' · ')}
-                  </p>
+                  <div className="flex gap-2 shrink-0">
+                    <button type="button" className="bb-ghost-btn" onClick={() => openEdit(product)}>
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      className="bb-ghost-btn"
+                      onClick={() => removeProduct(product.id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
-              </article>
-            ))
-          )}
-        </section>
-      ) : (
-        <ProductOrdersDesk />
-      )}
+                <p className="m-0 text-sm font-semibold text-ink">
+                  {[formatProductPrice(product), formatStockNote(product)].filter(Boolean).join(' · ')}
+                </p>
+              </div>
+            </article>
+          ))
+        )}
+      </section>
 
       {draftOpen ? (
         <div className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4">

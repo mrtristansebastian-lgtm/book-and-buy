@@ -70,6 +70,16 @@
   cursor: pointer;
 }
 
+.bb-nav-item.is-nested {
+  margin-left: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #98a2b3;
+  border-left: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
 .bb-nav-item[aria-current='page'] {
   color: #050505;
   background-image:
@@ -77,6 +87,11 @@
     var(--native-accent-button-gradient);
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
+}
+
+.bb-nav-item.is-nested[aria-current='page'] {
+  color: #050505;
+  border-left-color: transparent;
 }
 
 .bb-primary-btn {

@@ -1,10 +1,16 @@
-import { FileText, Mic } from 'lucide-react';
+import { Download, FileText, FileImage, File } from 'lucide-react';
 import {
   formatDayLabel,
-  formatDuration,
   formatFileSize,
   formatMessageTime
 } from '../utils/supportFormat';
+import { VoiceNotePlayer } from './VoiceNotePlayer';
+
+function FileIcon({ mime = '', kind = 'file' }) {
+  if (kind === 'image' || String(mime).startsWith('image/')) return <FileImage size={16} />;
+  if (String(mime).includes('pdf')) return <FileText size={16} />;
+  return <File size={16} />;
+}
 
 export function MessageTimeline({ messages = [], onOpenImage }) {
   let lastDay = '';
@@ -26,6 +32,7 @@ export function MessageTimeline({ messages = [], onOpenImage }) {
 
         const isBusiness = message.from === 'business';
         const attachments = message.attachments || [];
+        const tone = isBusiness ? 'business' : 'client';
 
         return (
           <div key={message.id}>
@@ -34,7 +41,7 @@ export function MessageTimeline({ messages = [], onOpenImage }) {
               className={`bb-support-bubble-row ${isBusiness ? 'is-business' : 'is-client'}`}
             >
               <div className={`bb-support-bubble ${isBusiness ? 'is-business' : 'is-client'}`}>
-                {message.body ? <div>{message.body}</div> : null}
+                {message.body ? <div className="bb-support-bubble-text">{message.body}</div> : null}
                 {attachments.map((att) => {
                   if (att.kind === 'image' && att.url) {
                     return (
@@ -50,37 +57,40 @@ export function MessageTimeline({ messages = [], onOpenImage }) {
                   }
                   if (att.kind === 'voice') {
                     return (
-                      <div key={att.id} className="bb-support-voice">
-                        {att.url ? (
-                          <audio controls preload="metadata" src={att.url} />
-                        ) : (
-                          <>
-                            <Mic size={16} />
-                            <span className="bb-support-voice-fallback">
-                              Voice note · {formatDuration(att.durationMs)}
-                            </span>
-                          </>
-                        )}
-                      </div>
+                      <VoiceNotePlayer
+                        key={att.id}
+                        url={att.url}
+                        durationMs={att.durationMs}
+                        tone={tone}
+                        demoTone={Boolean(att.demoTone) || !att.url}
+                      />
                     );
                   }
                   return (
                     <div key={att.id} className="bb-support-attach-file">
-                      <FileText size={16} />
-                      <span className="min-w-0 truncate">
-                        {att.name || 'File'}
-                        {att.size ? ` · ${formatFileSize(att.size)}` : ''}
+                      <span className="bb-support-attach-file-icon">
+                        <FileIcon mime={att.mime} kind={att.kind} />
+                      </span>
+                      <span className="bb-support-attach-file-copy min-w-0">
+                        <strong className="truncate block">{att.name || 'File'}</strong>
+                        <span className="bb-support-attach-file-meta">
+                          {att.size ? formatFileSize(att.size) : 'Attachment'}
+                        </span>
                       </span>
                       {att.url ? (
                         <a
-                          className="underline font-semibold"
+                          className="bb-support-attach-file-dl"
                           href={att.url}
+                          download={att.name || 'attachment'}
                           target="_blank"
                           rel="noreferrer"
+                          aria-label={`Download ${att.name || 'file'}`}
                         >
-                          Open
+                          <Download size={14} />
                         </a>
-                      ) : null}
+                      ) : (
+                        <span className="bb-support-attach-file-meta">Demo</span>
+                      )}
                     </div>
                   );
                 })}

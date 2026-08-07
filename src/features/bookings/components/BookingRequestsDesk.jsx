@@ -1,218 +1,208 @@
 import { useMemo, useState } from 'react';
+import { Check, DollarSign, Hourglass } from 'lucide-react';
 import { navigate } from '../../../app/routing';
+import { toDateKey } from '../../../utils/dates';
+import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { formatDisplayDate } from '../../../utils/dates';
-import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
+import {
+  OpsAction,
+  OpsAssignSelect,
+  OpsAvatar,
+  OpsChatAction,
+  OpsDeclineAction,
+  OpsDeskTabs,
+  OpsStatusBadge,
+  formatOpsDayLabel
+} from '../../ops-desk/components/OpsDeskPrimitives';
 
-const FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'pending', label: 'Pending' },
-  { id: 'confirmed', label: 'Confirmed' },
-  { id: 'waitlist', label: 'Waitlist' }
-];
+const STATUS_LABELS = {
+  pending: 'Pending',
+  confirmed: 'Confirmed',
+  waitlist: 'Waitlisted',
+  declined: 'Declined',
+  cancelled: 'Cancelled'
+};
+
+function isPastBooking(booking, todayKey) {
+  const key = booking.dateKey || booking.date || '';
+  if (!key) return false;
+  return key < todayKey;
+}
+
+function matchesFilter(booking, filter, todayKey) {
+  const status = booking.status || 'pending';
+  const past = isPastBooking(booking, todayKey);
+  const closed = ['declined', 'cancelled'].includes(status);
+
+  switch (filter) {
+    case 'upcoming':
+      return !past && !closed;
+    case 'review':
+      return status === 'pending' && !past;
+    case 'confirmed':
+      return status === 'confirmed';
+    case 'waitlist':
+      return status === 'waitlist';
+    case 'history':
+      return past || closed;
+    case 'all':
+      return true;
+    default:
+      return true;
+  }
+}
 
 export function BookingRequestsDesk() {
   const {
     bookings,
+    services,
+    staff,
     confirmBooking,
     declineBooking,
     waitlistBooking,
     markPaid,
+    assignBookingStaff,
     startThreadFromBooking
   } = useWorkspace();
-  const [filter, setFilter] = useState('pending');
-  const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(null);
+  const [filter, setFilter] = useState('upcoming');
+  const todayKey = toDateKey(new Date());
 
-  const rows = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return bookings
-      .filter((booking) => (filter === 'all' ? true : booking.status === filter))
-      .filter((booking) => {
-        if (!needle) return true;
-        return [booking.clientName, booking.serviceName, booking.clientEmail]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(needle));
-      });
-  }, [bookings, filter, query]);
+  const counts = useMemo(() => {
+    const next = {
+      upcoming: 0,
+      review: 0,
+      confirmed: 0,
+      waitlist: 0,
+      history: 0,
+      all: bookings.length
+    };
+    for (const booking of bookings) {
+      if (matchesFilter(booking, 'upcoming', todayKey)) next.upcoming += 1;
+      if (matchesFilter(booking, 'review', todayKey)) next.review += 1;
+      if (matchesFilter(booking, 'confirmed', todayKey)) next.confirmed += 1;
+      if (matchesFilter(booking, 'waitlist', todayKey)) next.waitlist += 1;
+      if (matchesFilter(booking, 'history', todayKey)) next.history += 1;
+    }
+    return next;
+  }, [bookings, todayKey]);
 
-  const selected = bookings.find((booking) => booking.id === selectedId) || null;
+  const rows = useMemo(
+    () =>
+      bookings
+        .filter((booking) => matchesFilter(booking, filter, todayKey))
+        .slice()
+        .sort((a, b) => {
+          const dateA = `${a.dateKey || a.date || ''} ${a.time || ''}`;
+          const dateB = `${b.dateKey || b.date || ''} ${b.time || ''}`;
+          return dateA.localeCompare(dateB);
+        }),
+    [bookings, filter, todayKey]
+  );
+
+  const openChat = (booking) => {
+    const thread = startThreadFromBooking(booking);
+    if (thread?.id) setSupportFocusThread(thread.id);
+    navigate('/dashboard/communications');
+  };
+
+  const serviceFor = (booking) =>
+    services.find((service) => service.id === booking.serviceId) || null;
 
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <PeriodSegmentedControl
-          ariaLabel="Request filter"
-          value={filter}
-          onChange={setFilter}
-          options={FILTERS.map((item) => ({
-            ...item,
-            count:
-              item.id === 'all'
-                ? bookings.length
-                : bookings.filter((booking) => booking.status === item.id).length
-          }))}
-        />
-        <input
-          className="native-control-input px-4 min-w-[220px]"
-          placeholder="Search client or service"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </div>
+    <section className="bb-ops-desk">
+      <OpsDeskTabs
+        ariaLabel="Booking request filters"
+        value={filter}
+        onChange={setFilter}
+        options={[
+          { id: 'upcoming', label: 'Upcoming', count: counts.upcoming },
+          { id: 'review', label: 'Review', count: counts.review },
+          { id: 'confirmed', label: 'Confirmed', count: counts.confirmed },
+          { id: 'waitlist', label: 'Waitlist', count: counts.waitlist },
+          { id: 'history', label: 'History', count: counts.history },
+          { id: 'all', label: 'All', count: counts.all }
+        ]}
+      />
 
-      <div className="grid gap-3">
+      <div className="bb-ops-rows">
         {rows.length === 0 ? (
-          <div className="bb-panel p-6 bb-muted">No booking requests in this view.</div>
+          <div className="bb-ops-empty">No booking requests in this view.</div>
         ) : (
-          rows.map((booking) => (
-            <article key={booking.id} className="bb-panel p-4 md:p-5 grid gap-3">
-              <button
-                type="button"
-                className="bg-transparent border-0 p-0 text-left grid gap-1"
-                onClick={() => setSelectedId(booking.id)}
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="grid gap-1">
-                    <h3 className="bb-page-title text-xl m-0">{booking.clientName}</h3>
-                    <p className="m-0 text-sm font-semibold">{booking.serviceName}</p>
-                    <p className="bb-muted m-0 text-sm">
-                      {formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}
-                      {booking.staffName ? ` · ${booking.staffName}` : ''}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 text-right">
-                    <span className="text-xs font-bold uppercase tracking-wide">{booking.status}</span>
-                    <span className="bb-muted text-xs">{booking.paymentStatus || 'unpaid'}</span>
+          rows.map((booking) => {
+            const service = serviceFor(booking);
+            const meta = [
+              booking.serviceName,
+              service ? formatServicePrice(service) : '',
+              service ? formatServiceDuration(service.duration) : ''
+            ]
+              .filter(Boolean)
+              .join(', ');
+            const status = booking.status || 'pending';
+            const closed = ['declined', 'cancelled'].includes(status);
+            const needsApprove = status === 'pending';
+
+            return (
+              <article key={booking.id} className="bb-ops-row">
+                <div className="bb-ops-person">
+                  <OpsAvatar name={booking.clientName} />
+                  <div className="bb-ops-person-copy">
+                    <div className="bb-ops-person-top">
+                      <h3 className="bb-ops-person-name">{booking.clientName}</h3>
+                      <OpsStatusBadge status={status} label={STATUS_LABELS[status] || status} />
+                    </div>
+                    <p className="bb-ops-meta">{meta}</p>
                   </div>
                 </div>
-              </button>
-              <div className="flex flex-wrap gap-2">
-                {booking.status !== 'confirmed' ? (
-                  <button
-                    type="button"
-                    className="bb-primary-btn"
-                    onClick={() => confirmBooking(booking.id)}
-                  >
-                    Confirm
-                  </button>
-                ) : null}
-                {booking.status === 'pending' ? (
-                  <button
-                    type="button"
-                    className="bb-ghost-btn"
-                    onClick={() => waitlistBooking(booking.id)}
-                  >
-                    Waitlist
-                  </button>
-                ) : null}
-                {booking.paymentStatus !== 'paid' ? (
-                  <button type="button" className="bb-ghost-btn" onClick={() => markPaid(booking.id)}>
+
+                <div className="bb-ops-when">
+                  <p className="bb-ops-when-primary">{booking.time || '—'}</p>
+                  <p className="bb-ops-when-secondary">
+                    {formatOpsDayLabel(booking.dateKey || booking.date)}
+                  </p>
+                </div>
+
+                <OpsAssignSelect
+                  value={booking.staffId || ''}
+                  options={staff}
+                  hint="Staff assigned to this booking"
+                  onChange={(staffId) => {
+                    const member = staff.find((item) => item.id === staffId) || null;
+                    assignBookingStaff(booking.id, member);
+                  }}
+                />
+
+                <div className="bb-ops-actions">
+                  <OpsChatAction onClick={() => openChat(booking)} />
+                  <OpsAction onClick={() => markPaid(booking.id)}>
+                    <DollarSign size={13} strokeWidth={2.4} />
                     Mark paid
-                  </button>
-                ) : null}
-                <button type="button" className="bb-ghost-btn" onClick={() => setSelectedId(booking.id)}>
-                  Details
-                </button>
-                {!['declined', 'cancelled'].includes(booking.status) ? (
-                  <button
-                    type="button"
-                    className="bb-ghost-btn"
-                    onClick={() => declineBooking(booking.id)}
-                  >
-                    Decline
-                  </button>
-                ) : null}
-              </div>
-            </article>
-          ))
+                  </OpsAction>
+                  {!closed && status !== 'waitlist' ? (
+                    <OpsAction onClick={() => waitlistBooking(booking.id)}>
+                      <Hourglass size={13} strokeWidth={2.2} />
+                      Waitlist
+                    </OpsAction>
+                  ) : (
+                    <span className="bb-ops-action is-ghost-slot" aria-hidden="true">
+                      Waitlist
+                    </span>
+                  )}
+                  {needsApprove ? (
+                    <div className="bb-ops-action-cluster">
+                      <OpsAction tone="primary" onClick={() => confirmBooking(booking.id)}>
+                        <Check size={14} strokeWidth={2.6} />
+                        Approve
+                      </OpsAction>
+                      <OpsDeclineAction onClick={() => declineBooking(booking.id)} />
+                    </div>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })
         )}
       </div>
-
-      {selected ? (
-        <div className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4">
-          <div className="bb-panel w-full max-w-lg p-5 grid gap-4 max-h-[90vh] overflow-auto">
-            <div className="flex items-start justify-between gap-3">
-              <div className="grid gap-1">
-                <h2 className="bb-page-title text-2xl m-0">{selected.clientName}</h2>
-                <p className="bb-muted m-0 text-sm">{selected.serviceName}</p>
-              </div>
-              <button type="button" className="bb-ghost-btn" onClick={() => setSelectedId(null)}>
-                Close
-              </button>
-            </div>
-            <dl className="grid gap-2 text-sm m-0">
-              <div className="flex justify-between gap-3">
-                <dt className="bb-muted">When</dt>
-                <dd className="m-0 font-semibold">
-                  {formatDisplayDate(selected.dateKey || selected.date)} · {selected.time}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="bb-muted">Status</dt>
-                <dd className="m-0 font-semibold">{selected.status}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="bb-muted">Payment</dt>
-                <dd className="m-0 font-semibold">{selected.paymentStatus || 'unpaid'}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="bb-muted">Email</dt>
-                <dd className="m-0 font-semibold">{selected.clientEmail || '—'}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="bb-muted">Phone</dt>
-                <dd className="m-0 font-semibold">{selected.clientPhone || '—'}</dd>
-              </div>
-              <div className="flex justify-between gap-3">
-                <dt className="bb-muted">Staff</dt>
-                <dd className="m-0 font-semibold">{selected.staffName || 'Unassigned'}</dd>
-              </div>
-              {selected.clientNote ? (
-                <div className="grid gap-1">
-                  <dt className="bb-muted">Note</dt>
-                  <dd className="m-0">{selected.clientNote}</dd>
-                </div>
-              ) : null}
-            </dl>
-            <div className="flex flex-wrap gap-2">
-              {selected.status !== 'confirmed' ? (
-                <button
-                  type="button"
-                  className="bb-primary-btn"
-                  onClick={() => confirmBooking(selected.id)}
-                >
-                  Confirm
-                </button>
-              ) : null}
-              {selected.paymentStatus !== 'paid' ? (
-                <button type="button" className="bb-ghost-btn" onClick={() => markPaid(selected.id)}>
-                  Mark paid
-                </button>
-              ) : null}
-              <button
-                type="button"
-                className="bb-ghost-btn"
-                onClick={() => {
-                  const thread = startThreadFromBooking(selected);
-                  if (thread?.id) setSupportFocusThread(thread.id);
-                  navigate('/dashboard/communications');
-                }}
-              >
-                Open thread
-              </button>
-              <button
-                type="button"
-                className="bb-ghost-btn"
-                onClick={() => navigate('/dashboard/staff')}
-              >
-                View on Schedule
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </section>
   );
 }

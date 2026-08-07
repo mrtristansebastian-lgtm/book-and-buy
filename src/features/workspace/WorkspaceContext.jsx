@@ -246,6 +246,13 @@ export function WorkspaceProvider({ children }) {
       fulfilOrder: (id) => updateOrder(id, { status: 'fulfilled' }),
       cancelOrder: (id) => updateOrder(id, { status: 'cancelled' }),
       markOrderPaid: (id) => updateOrder(id, { paymentStatus: 'paid' }),
+      acceptOrder: (id) => updateOrder(id, { status: 'accepted' }),
+      shipOrder: (id) => updateOrder(id, { status: 'shipped' }),
+      assignBookingStaff: (id, staffMember) =>
+        updateBooking(id, {
+          staffId: staffMember?.id || '',
+          staffName: staffMember?.name || ''
+        }),
       updateWebsite: (patch) => {
         setWorkspace((prev) => ({
           ...prev,

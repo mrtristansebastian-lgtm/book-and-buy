@@ -45,13 +45,13 @@ export function OverviewPage({ pendingRequests = 0, pendingOrders = 0, unreadSup
           {
             label: 'Booking requests',
             value: String(pendingRequests),
-            href: '/dashboard/services',
+            href: '/dashboard/requests',
             hint: 'Needs triage'
           },
           {
             label: 'Product orders',
             value: String(pendingOrders),
-            href: '/dashboard/products',
+            href: '/dashboard/orders',
             hint: 'Awaiting fulfilment'
           },
           {

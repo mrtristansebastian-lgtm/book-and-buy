@@ -1,180 +1,229 @@
 import { useMemo, useState } from 'react';
+import { Check, DollarSign, PackageCheck, Truck } from 'lucide-react';
 import { navigate } from '../../../app/routing';
-import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { formatCents } from '../../../utils/products';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
+import {
+  OpsAction,
+  OpsAvatar,
+  OpsChatAction,
+  OpsDeclineAction,
+  OpsDeskTabs,
+  OpsStatusBadge
+} from '../../ops-desk/components/OpsDeskPrimitives';
 
-const FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'pending', label: 'Pending' },
-  { id: 'fulfilled', label: 'Fulfilled' },
-  { id: 'cancelled', label: 'Cancelled' }
-];
+const STATUS_LABELS = {
+  pending: 'New',
+  accepted: 'Accepted',
+  shipped: 'Shipped',
+  fulfilled: 'Fulfilled',
+  cancelled: 'Cancelled'
+};
+
+function matchesFilter(order, filter) {
+  const status = order.status || 'pending';
+  switch (filter) {
+    case 'new':
+      return status === 'pending';
+    case 'accepted':
+      return status === 'accepted';
+    case 'shipped':
+      return status === 'shipped';
+    case 'fulfilled':
+      return status === 'fulfilled';
+    case 'cancelled':
+      return status === 'cancelled';
+    case 'all':
+      return true;
+    default:
+      return true;
+  }
+}
+
+function formatPlacedAt(timestamp) {
+  const date = new Date(Number(timestamp) || Date.now());
+  if (Number.isNaN(date.getTime())) return { time: '—', day: '—' };
+  const time = date.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+  const weekday = date.toLocaleDateString('en-GB', { weekday: 'short' });
+  const day = date.getDate();
+  const month = date.toLocaleDateString('en-GB', { month: 'short' });
+  return { time, day: `${weekday}, ${day} ${month}` };
+}
 
 export function ProductOrdersDesk() {
-  const { orders, fulfilOrder, cancelOrder, markOrderPaid, startThreadFromOrder } =
-    useWorkspace();
-  const [filter, setFilter] = useState('pending');
-  const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(null);
+  const {
+    orders,
+    acceptOrder,
+    shipOrder,
+    fulfilOrder,
+    cancelOrder,
+    markOrderPaid,
+    startThreadFromOrder
+  } = useWorkspace();
+  const [filter, setFilter] = useState('new');
 
-  const rows = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return orders
-      .filter((order) => (filter === 'all' ? true : order.status === filter))
-      .filter((order) => {
-        if (!needle) return true;
-        return [order.clientName, order.clientEmail, ...(order.items || []).map((item) => item.name)]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(needle));
-      });
-  }, [orders, filter, query]);
+  const counts = useMemo(() => {
+    const next = {
+      new: 0,
+      accepted: 0,
+      shipped: 0,
+      fulfilled: 0,
+      cancelled: 0,
+      all: orders.length
+    };
+    for (const order of orders) {
+      const status = order.status || 'pending';
+      if (status === 'pending') next.new += 1;
+      else if (status === 'accepted') next.accepted += 1;
+      else if (status === 'shipped') next.shipped += 1;
+      else if (status === 'fulfilled') next.fulfilled += 1;
+      else if (status === 'cancelled') next.cancelled += 1;
+    }
+    return next;
+  }, [orders]);
 
-  const selected = orders.find((order) => order.id === selectedId) || null;
+  const rows = useMemo(
+    () =>
+      orders
+        .filter((order) => matchesFilter(order, filter))
+        .slice()
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)),
+    [orders, filter]
+  );
+
+  const openChat = (order) => {
+    const thread = startThreadFromOrder(order);
+    if (thread?.id) setSupportFocusThread(thread.id);
+    navigate('/dashboard/communications');
+  };
 
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <PeriodSegmentedControl
-          ariaLabel="Order filter"
-          value={filter}
-          onChange={setFilter}
-          options={FILTERS.map((item) => ({
-            ...item,
-            count:
-              item.id === 'all'
-                ? orders.length
-                : orders.filter((order) => order.status === item.id).length
-          }))}
-        />
-        <input
-          className="native-control-input px-4 min-w-[220px]"
-          placeholder="Search client or product"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
-      </div>
+    <section className="bb-ops-desk">
+      <OpsDeskTabs
+        ariaLabel="Product order filters"
+        value={filter}
+        onChange={setFilter}
+        options={[
+          { id: 'new', label: 'New', count: counts.new },
+          { id: 'accepted', label: 'Accepted', count: counts.accepted },
+          { id: 'shipped', label: 'Shipped', count: counts.shipped },
+          { id: 'fulfilled', label: 'Fulfilled', count: counts.fulfilled },
+          { id: 'cancelled', label: 'Cancelled', count: counts.cancelled },
+          { id: 'all', label: 'All', count: counts.all }
+        ]}
+      />
 
-      <div className="grid gap-3">
+      <div className="bb-ops-rows">
         {rows.length === 0 ? (
-          <div className="bb-panel p-6 bb-muted">No product orders in this view.</div>
+          <div className="bb-ops-empty">No product orders in this view.</div>
         ) : (
-          rows.map((order) => (
-            <article key={order.id} className="bb-panel p-4 md:p-5 grid gap-3">
-              <button
-                type="button"
-                className="bg-transparent border-0 p-0 text-left grid gap-1"
-                onClick={() => setSelectedId(order.id)}
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="grid gap-1">
-                    <h3 className="bb-page-title text-xl m-0">{order.clientName}</h3>
-                    <p className="m-0 text-sm font-semibold">
-                      {(order.items || [])
-                        .map((item) => `${item.quantity}× ${item.name}`)
-                        .join(', ')}
-                    </p>
-                    <p className="bb-muted m-0 text-sm">
-                      {formatCents(order.amountInCents, order.currency)} · {order.paymentMethod}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 text-right">
-                    <span className="text-xs font-bold uppercase tracking-wide">{order.status}</span>
-                    <span className="bb-muted text-xs">{order.paymentStatus}</span>
+          rows.map((order) => {
+            const status = order.status || 'pending';
+            const itemsLabel = (order.items || [])
+              .map((item) => `${item.quantity}× ${item.name}`)
+              .join(', ');
+            const meta = [
+              itemsLabel,
+              formatCents(order.amountInCents, order.currency),
+              order.paymentMethod ? String(order.paymentMethod).replace(/_/g, ' ') : ''
+            ]
+              .filter(Boolean)
+              .join(', ');
+            const placed = formatPlacedAt(order.timestamp);
+            const closed = status === 'cancelled' || status === 'fulfilled';
+
+            return (
+              <article key={order.id} className="bb-ops-row">
+                <div className="bb-ops-person">
+                  <OpsAvatar name={order.clientName} />
+                  <div className="bb-ops-person-copy">
+                    <div className="bb-ops-person-top">
+                      <h3 className="bb-ops-person-name">{order.clientName}</h3>
+                      <OpsStatusBadge
+                        status={status === 'pending' ? 'new' : status}
+                        label={STATUS_LABELS[status] || status}
+                      />
+                    </div>
+                    <p className="bb-ops-meta">{meta}</p>
                   </div>
                 </div>
-              </button>
-              <div className="flex flex-wrap gap-2">
-                {order.status === 'pending' ? (
-                  <button
-                    type="button"
-                    className="bb-primary-btn"
-                    onClick={() => fulfilOrder(order.id)}
-                  >
-                    Mark fulfilled
-                  </button>
-                ) : null}
-                {order.paymentStatus !== 'paid' ? (
-                  <button
-                    type="button"
-                    className="bb-ghost-btn"
-                    onClick={() => markOrderPaid(order.id)}
-                  >
-                    Mark paid
-                  </button>
-                ) : null}
-                <button type="button" className="bb-ghost-btn" onClick={() => setSelectedId(order.id)}>
-                  Details
-                </button>
-                <button
-                  type="button"
-                  className="bb-ghost-btn"
-                  onClick={() => {
-                    const thread = startThreadFromOrder(order);
-                    if (thread?.id) setSupportFocusThread(thread.id);
-                    navigate('/dashboard/communications');
-                  }}
-                >
-                  Message
-                </button>
-                {order.status !== 'cancelled' ? (
-                  <button type="button" className="bb-ghost-btn" onClick={() => cancelOrder(order.id)}>
-                    Cancel
-                  </button>
-                ) : null}
-              </div>
-            </article>
-          ))
+
+                <div className="bb-ops-when">
+                  <p className="bb-ops-when-primary">{placed.time}</p>
+                  <p className="bb-ops-when-secondary">{placed.day}</p>
+                </div>
+
+                <div className="bb-ops-assign">
+                  <p className="bb-ops-assign-label">Payment</p>
+                  <div className="bb-ops-assign-control">
+                    <select
+                      value={order.paymentStatus === 'paid' ? 'paid' : 'unpaid'}
+                      onChange={(event) => {
+                        if (event.target.value === 'paid') markOrderPaid(order.id);
+                      }}
+                      aria-label="Payment status"
+                    >
+                      <option value="unpaid">
+                        {order.paymentStatus === 'manual_pending' ? 'Awaiting EFT' : 'Unpaid'}
+                      </option>
+                      <option value="paid">Paid</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="bb-ops-actions">
+                  <OpsChatAction onClick={() => openChat(order)} />
+                  {order.paymentStatus !== 'paid' ? (
+                    <OpsAction onClick={() => markOrderPaid(order.id)}>
+                      <DollarSign size={13} strokeWidth={2.4} />
+                      Mark paid
+                    </OpsAction>
+                  ) : (
+                    <span className="bb-ops-action is-ghost-slot" aria-hidden="true">
+                      Mark paid
+                    </span>
+                  )}
+                  {status === 'pending' ? (
+                    <div className="bb-ops-action-cluster">
+                      <OpsAction tone="primary" onClick={() => acceptOrder(order.id)}>
+                        <Check size={14} strokeWidth={2.6} />
+                        Accept
+                      </OpsAction>
+                      <OpsDeclineAction label="Cancel order" onClick={() => cancelOrder(order.id)} />
+                    </div>
+                  ) : null}
+                  {status === 'accepted' ? (
+                    <div className="bb-ops-action-cluster">
+                      <OpsAction tone="primary" onClick={() => shipOrder(order.id)}>
+                        <Truck size={13} strokeWidth={2.2} />
+                        Ship
+                      </OpsAction>
+                      <OpsDeclineAction label="Cancel order" onClick={() => cancelOrder(order.id)} />
+                    </div>
+                  ) : null}
+                  {status === 'shipped' ? (
+                    <div className="bb-ops-action-cluster">
+                      <OpsAction tone="primary" onClick={() => fulfilOrder(order.id)}>
+                        <PackageCheck size={13} strokeWidth={2.2} />
+                        Fulfilled
+                      </OpsAction>
+                      <OpsDeclineAction label="Cancel order" onClick={() => cancelOrder(order.id)} />
+                    </div>
+                  ) : null}
+                  {!closed && !['pending', 'accepted', 'shipped'].includes(status) ? (
+                    <OpsDeclineAction label="Cancel order" onClick={() => cancelOrder(order.id)} />
+                  ) : null}
+                </div>
+              </article>
+            );
+          })
         )}
       </div>
-
-      {selected ? (
-        <div className="fixed inset-0 z-40 bg-black/30 grid place-items-center p-4">
-          <div className="bb-panel w-full max-w-lg p-5 grid gap-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="bb-page-title text-2xl m-0">{selected.clientName}</h2>
-                <p className="bb-muted m-0 text-sm">{selected.clientEmail || 'No email'}</p>
-              </div>
-              <button type="button" className="bb-ghost-btn" onClick={() => setSelectedId(null)}>
-                Close
-              </button>
-            </div>
-            <div className="grid gap-2">
-              {(selected.items || []).map((item) => (
-                <div
-                  key={`${item.productId}-${item.name}`}
-                  className="rounded-xl border border-black/8 px-3 py-2 text-sm flex justify-between gap-2"
-                >
-                  <span>
-                    {item.quantity}× {item.name}
-                  </span>
-                  <strong>{formatCents(item.lineTotalCents, selected.currency)}</strong>
-                </div>
-              ))}
-            </div>
-            <p className="m-0 text-sm font-semibold">
-              Total {formatCents(selected.amountInCents, selected.currency)} · {selected.paymentMethod} ·{' '}
-              {selected.paymentStatus}
-            </p>
-            {selected.clientNote ? (
-              <p className="bb-muted m-0 text-sm">Note: {selected.clientNote}</p>
-            ) : null}
-            <button
-              type="button"
-              className="bb-primary-btn justify-self-start"
-              onClick={() => {
-                const thread = startThreadFromOrder(selected);
-                if (thread?.id) setSupportFocusThread(thread.id);
-                navigate('/dashboard/communications');
-              }}
-            >
-              Message client
-            </button>
-          </div>
-        </div>
-      ) : null}
     </section>
   );
 }

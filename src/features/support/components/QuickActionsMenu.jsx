@@ -1,5 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
-import { Zap } from 'lucide-react';
+import {
+  CalendarClock,
+  CheckCircle2,
+  ChevronDown,
+  Copy,
+  Eye,
+  Link2,
+  PackageCheck,
+  Wallet,
+  XCircle,
+  Zap
+} from 'lucide-react';
+
+function ActionItem({ icon: Icon, label, onClick, disabled = false, tone = 'default' }) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      className={`bb-support-quick-item ${tone !== 'default' ? `is-${tone}` : ''}`}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <span className="bb-support-quick-item-icon" aria-hidden="true">
+        <Icon size={14} strokeWidth={2} />
+      </span>
+      <span>{label}</span>
+    </button>
+  );
+}
 
 export function QuickActionsMenu({
   linkedBooking,
@@ -7,7 +35,7 @@ export function QuickActionsMenu({
   clientEmail,
   onConfirmBooking,
   onDeclineBooking,
-  onSuggestReschedule,
+  onSetupReschedule,
   onViewBooking,
   onMarkPaid,
   onFulfilOrder,
@@ -26,8 +54,15 @@ export function QuickActionsMenu({
     const onDoc = (event) => {
       if (!rootRef.current?.contains(event.target)) setOpen(false);
     };
+    const onKey = (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
     document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
   const run = (fn) => {
@@ -35,67 +70,107 @@ export function QuickActionsMenu({
     setOpen(false);
   };
 
+  const hasBookingActions = Boolean(linkedBooking);
+  const hasOrderActions = Boolean(linkedOrder);
+  const hasLinkActions =
+    (clientBookings.length && !linkedBooking) || (clientOrders.length && !linkedOrder);
+
   return (
-    <div className="bb-support-quick-menu support-quick-control" ref={rootRef}>
-      <button type="button" className="bb-ink-btn" onClick={() => setOpen((v) => !v)}>
-        <Zap size={14} />
-        Quick actions
+    <div className={`bb-support-quick-menu ${open ? 'is-open' : ''}`} ref={rootRef}>
+      <button
+        type="button"
+        className="bb-support-quick-trigger"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Zap size={13} strokeWidth={2.25} />
+        <span>Quick actions</span>
+        <ChevronDown size={13} strokeWidth={2.25} className="bb-support-quick-chevron" />
       </button>
       {open ? (
         <div className="bb-support-quick-panel" role="menu">
-          {linkedBooking ? (
-            <>
+          {hasBookingActions ? (
+            <div className="bb-support-quick-group">
+              <p className="bb-support-quick-label">Booking</p>
               {linkedBooking.status === 'pending' ? (
-                <button type="button" onClick={() => run(onConfirmBooking)}>
-                  Confirm booking
-                </button>
+                <ActionItem
+                  icon={CheckCircle2}
+                  label="Confirm booking"
+                  tone="positive"
+                  onClick={() => run(onConfirmBooking)}
+                />
               ) : null}
               {linkedBooking.status === 'pending' || linkedBooking.status === 'waitlist' ? (
-                <button type="button" onClick={() => run(onDeclineBooking)}>
-                  Decline booking
-                </button>
+                <ActionItem
+                  icon={XCircle}
+                  label="Decline booking"
+                  tone="danger"
+                  onClick={() => run(onDeclineBooking)}
+                />
               ) : null}
-              <button type="button" onClick={() => run(onSuggestReschedule)}>
-                Suggest reschedule
-              </button>
-              <button type="button" onClick={() => run(onViewBooking)}>
-                View booking
-              </button>
-            </>
+              <ActionItem
+                icon={CalendarClock}
+                label="Set up reschedule"
+                onClick={() => run(onSetupReschedule)}
+              />
+              <ActionItem
+                icon={Eye}
+                label="View booking"
+                onClick={() => run(onViewBooking)}
+              />
+            </div>
           ) : null}
-          {linkedOrder ? (
-            <>
+
+          {hasOrderActions ? (
+            <div className="bb-support-quick-group">
+              <p className="bb-support-quick-label">Order</p>
               {linkedOrder.paymentStatus !== 'paid' ? (
-                <button type="button" onClick={() => run(onMarkPaid)}>
-                  Mark order paid
-                </button>
+                <ActionItem
+                  icon={Wallet}
+                  label="Mark order paid"
+                  onClick={() => run(onMarkPaid)}
+                />
               ) : null}
               {linkedOrder.status === 'pending' ? (
-                <button type="button" onClick={() => run(onFulfilOrder)}>
-                  Mark fulfilled
-                </button>
+                <ActionItem
+                  icon={PackageCheck}
+                  label="Mark fulfilled"
+                  onClick={() => run(onFulfilOrder)}
+                />
               ) : null}
-              <button type="button" onClick={() => run(onViewOrder)}>
-                View order
-              </button>
-            </>
+              <ActionItem icon={Eye} label="View order" onClick={() => run(onViewOrder)} />
+            </div>
           ) : null}
-          {clientBookings.length && !linkedBooking ? (
-            <button
-              type="button"
-              onClick={() => run(() => onLinkBooking?.(clientBookings[0]))}
-            >
-              Link latest booking
-            </button>
+
+          {hasLinkActions ? (
+            <div className="bb-support-quick-group">
+              <p className="bb-support-quick-label">Link</p>
+              {clientBookings.length && !linkedBooking ? (
+                <ActionItem
+                  icon={Link2}
+                  label="Link latest booking"
+                  onClick={() => run(() => onLinkBooking?.(clientBookings[0]))}
+                />
+              ) : null}
+              {clientOrders.length && !linkedOrder ? (
+                <ActionItem
+                  icon={Link2}
+                  label="Link latest order"
+                  onClick={() => run(() => onLinkOrder?.(clientOrders[0]))}
+                />
+              ) : null}
+            </div>
           ) : null}
-          {clientOrders.length && !linkedOrder ? (
-            <button type="button" onClick={() => run(() => onLinkOrder?.(clientOrders[0]))}>
-              Link latest order
-            </button>
-          ) : null}
-          <button type="button" disabled={!clientEmail} onClick={() => run(onCopyEmail)}>
-            Copy email
-          </button>
+
+          <div className="bb-support-quick-group">
+            <ActionItem
+              icon={Copy}
+              label="Copy email"
+              disabled={!clientEmail}
+              onClick={() => run(onCopyEmail)}
+            />
+          </div>
         </div>
       ) : null}
     </div>

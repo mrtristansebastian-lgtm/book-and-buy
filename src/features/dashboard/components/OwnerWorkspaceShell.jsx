@@ -1,8 +1,10 @@
 import {
   BriefcaseBusiness,
   CalendarDays,
+  ClipboardList,
   CreditCard,
   Home,
+  Inbox,
   MessageSquare,
   Package,
   Share2,
@@ -15,7 +17,8 @@ import {
   workspaceGroupLabels,
   workspaceTabGroups,
   workspaceTabIds,
-  workspaceTabLabels
+  workspaceTabLabels,
+  workspaceTabParents
 } from '../../../config/routeConfig';
 import { APP_NAME } from '../../../config/appConfig';
 import { navigate } from '../../../app/routing';
@@ -24,8 +27,10 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 const ICONS = {
   overview: Home,
   services: BriefcaseBusiness,
+  requests: Inbox,
   staff: CalendarDays,
   products: Package,
+  orders: ClipboardList,
   website: Globe2,
   social: Share2,
   communications: MessageSquare,
@@ -46,9 +51,22 @@ function groupTabs() {
 
 export function OwnerWorkspaceShell({ tab, children }) {
   const groups = groupTabs();
-  const { workspace, threads, exitDemoMode, resetDemoWorkspace, startOwnerOnboarding } =
+  const { workspace, threads, bookings, orders, exitDemoMode, resetDemoWorkspace, startOwnerOnboarding } =
     useWorkspace();
   const unreadSupport = (threads || []).filter((thread) => thread.unread).length;
+  const pendingRequests = (bookings || []).filter((booking) =>
+    ['pending', 'waitlist'].includes(booking.status)
+  ).length;
+  const pendingOrders = (orders || []).filter((order) =>
+    ['pending', 'accepted', 'shipped'].includes(order.status)
+  ).length;
+
+  const badgeFor = (id) => {
+    if (id === 'communications' && unreadSupport > 0) return unreadSupport;
+    if (id === 'requests' && pendingRequests > 0) return pendingRequests;
+    if (id === 'orders' && pendingOrders > 0) return pendingOrders;
+    return 0;
+  };
 
   return (
     <div className="bb-shell native-ui min-h-screen">
@@ -106,18 +124,20 @@ export function OwnerWorkspaceShell({ tab, children }) {
                 </div>
                 {tabs.map((id) => {
                   const Icon = ICONS[id];
+                  const nested = Boolean(workspaceTabParents[id]);
+                  const badge = badgeFor(id);
                   return (
                     <button
                       key={id}
                       type="button"
-                      className="bb-nav-item"
+                      className={`bb-nav-item ${nested ? 'is-nested' : ''}`}
                       aria-current={tab === id ? 'page' : undefined}
                       onClick={() => navigate(`/dashboard/${id}`)}
                     >
-                      <Icon size={17} strokeWidth={2.2} />
+                      <Icon size={nested ? 15 : 17} strokeWidth={2.2} />
                       <span>{workspaceTabLabels[id]}</span>
-                      {id === 'communications' && unreadSupport > 0 ? (
-                        <span className="ml-auto text-[0.65rem] font-bold">{unreadSupport}</span>
+                      {badge > 0 ? (
+                        <span className="ml-auto text-[0.65rem] font-bold">{badge}</span>
                       ) : null}
                     </button>
                   );

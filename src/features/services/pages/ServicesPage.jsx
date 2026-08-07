@@ -1,9 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pencil, Plus } from 'lucide-react';
-import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { BookingRequestsDesk } from '../../bookings/components/BookingRequestsDesk';
-import { ManualBookingSheet } from '../../bookings/components/ManualBookingSheet';
 import {
   createServiceId,
   formatServiceDuration,
@@ -27,16 +24,9 @@ const emptyDraft = () => ({
 });
 
 export function ServicesPage() {
-  const { services, bookings, staff, upsertService, removeService } = useWorkspace();
-  const [mode, setMode] = useState('catalog');
-  const [manualOpen, setManualOpen] = useState(false);
+  const { services, staff, upsertService, removeService } = useWorkspace();
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
-
-  const pendingCount = useMemo(
-    () => bookings.filter((booking) => ['pending', 'waitlist'].includes(booking.status)).length,
-    [bookings]
-  );
 
   const openCreate = () => {
     setDraft(emptyDraft());
@@ -79,88 +69,67 @@ export function ServicesPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="grid gap-1">
           <h1 className="bb-page-title text-3xl m-0">Services</h1>
-          <p className="bb-muted m-0">Catalog and booking requests in one place.</p>
+          <p className="bb-muted m-0">Your Book catalog.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <PeriodSegmentedControl
-            ariaLabel="Services mode"
-            value={mode}
-            onChange={setMode}
-            options={[
-              { id: 'catalog', label: 'Catalog' },
-              { id: 'requests', label: 'Requests', count: pendingCount }
-            ]}
-          />
-          {mode === 'catalog' ? (
-            <button type="button" className="bb-primary-btn" onClick={openCreate}>
-              <Plus size={16} /> Add service
-            </button>
-          ) : (
-            <button type="button" className="bb-ink-btn" onClick={() => setManualOpen(true)}>
-              Manual booking
-            </button>
-          )}
-        </div>
+        <button type="button" className="bb-primary-btn" onClick={openCreate}>
+          <Plus size={16} /> Add service
+        </button>
       </header>
 
-      {mode === 'catalog' ? (
-        <section className="grid gap-3">
-          {services.length === 0 ? (
-            <div className="bb-panel p-6 bb-muted">No services yet. Add your first offering.</div>
-          ) : (
-            services.map((service) => {
-              const meta = getScheduleTypeMeta(service.scheduleType);
-              return (
-                <article
-                  key={service.id}
-                  className="bb-panel p-4 md:p-5 grid md:grid-cols-[120px_1fr_auto] gap-4 items-center"
-                >
-                  <div className="h-24 rounded-xl overflow-hidden bg-black/5">
-                    {service.imageUrls?.[0] ? (
-                      <img src={service.imageUrls[0]} alt="" className="w-full h-full object-cover" />
+      <section className="grid gap-3">
+        {services.length === 0 ? (
+          <div className="bb-panel p-6 bb-muted">No services yet. Add your first offering.</div>
+        ) : (
+          services.map((service) => {
+            const meta = getScheduleTypeMeta(service.scheduleType);
+            return (
+              <article
+                key={service.id}
+                className="bb-panel p-4 md:p-5 grid md:grid-cols-[120px_1fr_auto] gap-4 items-center"
+              >
+                <div className="h-24 rounded-xl overflow-hidden bg-black/5">
+                  {service.imageUrls?.[0] ? (
+                    <img src={service.imageUrls[0]} alt="" className="w-full h-full object-cover" />
+                  ) : null}
+                </div>
+                <div className="grid gap-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="bb-page-title text-xl m-0">{service.name}</h2>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-black/40">
+                      {meta.singular}
+                    </span>
+                    {service.active === false ? (
+                      <span className="text-xs font-semibold text-black/35">Hidden</span>
                     ) : null}
                   </div>
-                  <div className="grid gap-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="bb-page-title text-xl m-0">{service.name}</h2>
-                      <span className="text-xs font-semibold uppercase tracking-wide text-black/40">
-                        {meta.singular}
-                      </span>
-                      {service.active === false ? (
-                        <span className="text-xs font-semibold text-black/35">Hidden</span>
-                      ) : null}
-                    </div>
-                    <p className="bb-muted m-0 text-sm line-clamp-2">{service.description}</p>
-                    <p className="m-0 text-sm font-semibold text-ink">
-                      {[
-                        formatServicePrice(service),
-                        formatServiceDuration(service.duration),
-                        service.category
-                      ]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" className="bb-ghost-btn" onClick={() => openEdit(service)}>
-                      <Pencil size={15} /> Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="bb-ghost-btn"
-                      onClick={() => removeService(service.id)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </article>
-              );
-            })
-          )}
-        </section>
-      ) : (
-        <BookingRequestsDesk />
-      )}
+                  <p className="bb-muted m-0 text-sm line-clamp-2">{service.description}</p>
+                  <p className="m-0 text-sm font-semibold text-ink">
+                    {[
+                      formatServicePrice(service),
+                      formatServiceDuration(service.duration),
+                      service.category
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" className="bb-ghost-btn" onClick={() => openEdit(service)}>
+                    <Pencil size={15} /> Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="bb-ghost-btn"
+                    onClick={() => removeService(service.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </article>
+            );
+          })
+        )}
+      </section>
 
       {draftOpen ? (
         <div className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4">
@@ -270,8 +239,6 @@ export function ServicesPage() {
           </div>
         </div>
       ) : null}
-
-      {manualOpen ? <ManualBookingSheet onClose={() => setManualOpen(false)} /> : null}
     </div>
   );
 }
