@@ -17,17 +17,17 @@ const ALIASES = Object.freeze({
 export const SCHEDULE_TYPE_OPTIONS = Object.freeze([
   {
     id: 'appointment',
-    label: 'Appointments',
-    singular: 'Appointment',
-    setupLabel: 'Book an appointment',
-    description: 'One client booking a set time with you or a staff member.'
+    label: 'Slots',
+    singular: 'Slot',
+    setupLabel: 'Book a slot',
+    description: 'For booking a time slot for one individual.'
   },
   {
     id: 'class_session',
     label: 'Spots',
-    singular: 'Spot booking',
-    setupLabel: 'Book a spot',
-    description: 'Classes, workshops, and group sessions where clients reserve a spot.'
+    singular: 'Spot',
+    setupLabel: 'Book a Spot',
+    description: 'For multiple open spots in a class or programme.'
   }
 ]);
 

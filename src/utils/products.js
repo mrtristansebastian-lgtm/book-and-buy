@@ -53,3 +53,20 @@ export const getProductUnitPriceCents = (product = {}) => {
 
 export const formatCents = (cents = 0, currency = 'R') =>
   `${currency}${(Number(cents || 0) / 100).toFixed(0)}`;
+
+export const collectProductCategories = (products = [], existing = []) => {
+  const seen = new Set();
+  const out = [];
+  for (const label of [
+    ...(Array.isArray(existing) ? existing : []),
+    ...products.map((product) => product.category)
+  ]) {
+    const value = String(label || '').trim();
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
+  }
+  return out;
+};

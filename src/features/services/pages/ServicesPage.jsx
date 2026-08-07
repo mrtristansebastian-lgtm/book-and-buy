@@ -20,6 +20,10 @@ const emptyDraft = () => ({
   description: '',
   category: '',
   capacity: '1',
+  sessionStartDate: '',
+  sessionStartTime: '10:00',
+  sessionEndDate: '',
+  sessionEndTime: '12:00',
   staffIds: [],
   image: '',
   active: true
@@ -60,6 +64,10 @@ export function ServicesPage() {
       description: service.description || '',
       category: service.category || '',
       capacity: String(service.capacity || 1),
+      sessionStartDate: service.sessionStartDate || '',
+      sessionStartTime: service.sessionStartTime || '10:00',
+      sessionEndDate: service.sessionEndDate || service.sessionStartDate || '',
+      sessionEndTime: service.sessionEndTime || '12:00',
       staffIds: service.staffIds || [],
       image: service.imageUrls?.[0] || '',
       active: service.active !== false
@@ -123,6 +131,7 @@ export function ServicesPage() {
             <ServiceCatalogCard
               key={service.id}
               service={service}
+              bookings={workspace.bookings || []}
               onEdit={openEdit}
               onRemove={(item) => removeService(item.id)}
             />

@@ -1,5 +1,6 @@
 import { toDateKey } from './dates';
 import { getServiceDurationMinutes, parseDurationMinutes } from './services';
+import { getServiceScheduleType } from './scheduleTypes';
 
 const DEFAULT_OPEN = '09:00';
 const DEFAULT_CLOSE = '17:00';
@@ -53,9 +54,13 @@ export function getDaySlots({
   const todayKey = toDateKey(new Date());
   if (dateKey < todayKey) return [];
 
+  const service = (services || []).find((item) => item.id === serviceId);
+  if (service && getServiceScheduleType(service) === 'class_session') {
+    return [];
+  }
+
   const open = toMinutes(openTime || DEFAULT_OPEN);
   const close = toMinutes(closeTime || DEFAULT_CLOSE);
-  const service = (services || []).find((item) => item.id === serviceId);
   const duration = Math.max(
     15,
     Number(durationMinutes) ||

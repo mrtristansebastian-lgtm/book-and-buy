@@ -1,5 +1,5 @@
 import { collectServiceCategories, normalizeServiceList } from '../utils/services';
-import { normalizeProductList } from '../utils/products';
+import { collectProductCategories, normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
 /** Bump when demo website shape gains required public Home fields. */
@@ -7,6 +7,9 @@ export const DEMO_WEBSITE_SCHEMA = 12;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 3;
+
+/** Bump when demo services gain spot session windows (start/end date + time). */
+export const DEMO_SERVICES_SCHEMA = 1;
 
 /** Stable sample MP4 for demo video player (no local video assets required). */
 export const DEMO_SAMPLE_VIDEO_URL =
@@ -29,6 +32,10 @@ export const DEMO_SERVICES = normalizeServiceList([
     duration: 180,
     scheduleType: 'class_session',
     capacity: 8,
+    sessionStartDate: toDateKey(addDays(today, 3)),
+    sessionStartTime: '10:00',
+    sessionEndDate: toDateKey(addDays(today, 3)),
+    sessionEndTime: '13:00',
     description:
       'Mix, roll, shape, and cook fresh pasta before sitting down to enjoy the finished dishes together.\n\nYou’ll work through dough hydration, resting, rolling, cutting, and a simple sauce finish — then share the meal at the studio table.',
     imageUrls: [
@@ -46,6 +53,10 @@ export const DEMO_SERVICES = normalizeServiceList([
     duration: 210,
     scheduleType: 'class_session',
     capacity: 10,
+    sessionStartDate: toDateKey(addDays(today, 5)),
+    sessionStartTime: '09:00',
+    sessionEndDate: toDateKey(addDays(today, 5)),
+    sessionEndTime: '12:30',
     description:
       'Learn fermentation, shaping, scoring, and baking while making your own naturally leavened loaf.\n\nThe session covers starter care, bulk fermentation cues, and oven steam so you can repeat the bake at home.',
     imageUrls: [
@@ -63,6 +74,10 @@ export const DEMO_SERVICES = normalizeServiceList([
     duration: 180,
     scheduleType: 'class_session',
     capacity: 8,
+    sessionStartDate: toDateKey(addDays(today, 8)),
+    sessionStartTime: '10:00',
+    sessionEndDate: toDateKey(addDays(today, 9)),
+    sessionEndTime: '13:00',
     description:
       'Build confidence with laminated dough, choux pastry, fillings, glazing, and elegant finishing.\n\nLeave with plated pastries plus notes you can reuse for celebrations at home.',
     imageUrls: [
@@ -80,6 +95,10 @@ export const DEMO_SERVICES = normalizeServiceList([
     duration: 180,
     scheduleType: 'class_session',
     capacity: 8,
+    sessionStartDate: toDateKey(addDays(today, 12)),
+    sessionStartTime: '17:00',
+    sessionEndDate: toDateKey(addDays(today, 12)),
+    sessionEndTime: '20:00',
     description:
       'Cook a generous Cape Malay menu while learning how to balance aromatics, spice, sweetness, and heat.\n\nExpect a shared table finish and take-home spice notes from the kitchen.',
     imageUrls: [
@@ -748,6 +767,7 @@ export function createDemoWorkspace() {
     isDemo: true,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
+    servicesSchema: DEMO_SERVICES_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
     financeSchema: DEMO_FINANCE_SCHEMA,
@@ -1024,6 +1044,12 @@ export function createDemoWorkspace() {
     staff: DEMO_STAFF,
     bookings: sampleBookings,
     products: DEMO_PRODUCTS,
+    productCategories: collectProductCategories(DEMO_PRODUCTS, [
+      'Baked goods',
+      'Kits',
+      'Books',
+      'Consulting'
+    ]),
     orders: sampleOrders
   };
 }
@@ -1076,6 +1102,21 @@ export function hydrateDemoWorkspace(stored) {
     stored.bookings.length < 5 ||
     !Array.isArray(stored.orders) ||
     stored.orders.length < 6;
+
+  const spotServicesMissingSessions = (stored.services || []).some((service) => {
+    if (String(service?.scheduleType || '') !== 'class_session') return false;
+    return !(
+      service?.sessionStartDate &&
+      service?.sessionStartTime &&
+      service?.sessionEndDate &&
+      service?.sessionEndTime
+    );
+  });
+  const staleServices =
+    Number(stored.servicesSchema || 0) < DEMO_SERVICES_SCHEMA ||
+    !Array.isArray(stored.services) ||
+    stored.services.length < 4 ||
+    spotServicesMissingSessions;
 
   const website = staleWebsite
     ? {
@@ -1141,12 +1182,13 @@ export function hydrateDemoWorkspace(stored) {
     isDemo: true,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
+    servicesSchema: DEMO_SERVICES_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
     financeSchema: DEMO_FINANCE_SCHEMA,
     website,
     products: staleWebsite ? fresh.products : stored.products || fresh.products,
-    services: staleWebsite ? fresh.services : stored.services || fresh.services,
+    services: staleWebsite || staleServices ? fresh.services : stored.services || fresh.services,
     socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts,
     threads: staleThreads ? fresh.threads : stored.threads,
     orders: staleFinance || staleOrders ? fresh.orders : stored.orders,

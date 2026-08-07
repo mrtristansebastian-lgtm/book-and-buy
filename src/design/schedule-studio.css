@@ -1,0 +1,554 @@
+/* Schedule desk — Slots day board + Spots programme ops */
+
+.bb-schedule-desk {
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.bb-schedule-desk-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.95rem;
+}
+
+.bb-schedule-desk-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.bb-schedule-desk-eyebrow {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-schedule-desk-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.55rem, 2.8vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: #101828;
+}
+
+.bb-schedule-desk-lede {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 550;
+  color: #667085;
+}
+
+.bb-schedule-desk-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.bb-schedule-mode {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 0.2rem;
+  padding: 0.22rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #f8fafc;
+}
+
+.bb-schedule-mode-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 740;
+  color: #667085;
+  cursor: pointer;
+}
+
+.bb-schedule-mode-btn.is-active {
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+}
+
+.bb-schedule-day-nav {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.bb-schedule-day-label {
+  min-width: 8.5rem;
+  text-align: center;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  font-weight: 720;
+  font-size: 0.88rem;
+  color: #101828;
+}
+
+.bb-schedule-stage {
+  display: grid;
+  gap: 1rem;
+  animation: bb-schedule-stage-in 0.22s ease;
+}
+
+@keyframes bb-schedule-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-schedule-empty {
+  padding: 1.35rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  background: #fff;
+}
+
+.bb-schedule-empty-title {
+  margin: 0 0 0.25rem;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-schedule-empty-copy {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #667085;
+  max-width: 42ch;
+}
+
+.bb-schedule-lanes {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.bb-schedule-lane {
+  display: grid;
+  gap: 0.65rem;
+  align-content: start;
+  min-height: 11rem;
+  padding: 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
+.bb-schedule-lane-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.bb-schedule-lane-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.bb-schedule-lane-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-schedule-lane-count {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 720;
+  color: #98a2b3;
+}
+
+.bb-schedule-lane-empty {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #98a2b3;
+}
+
+.bb-schedule-booking {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fafafa;
+}
+
+.bb-schedule-booking-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.bb-schedule-booking-status {
+  font-size: 0.62rem;
+  font-weight: 780;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #667085;
+}
+
+.bb-schedule-booking-service {
+  font-size: 0.84rem;
+  font-weight: 720;
+  color: #101828;
+}
+
+.bb-schedule-booking-client {
+  font-size: 0.78rem;
+  color: #667085;
+}
+
+.bb-schedule-spot-stats {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bb-schedule-spot-stat {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.bb-schedule-spot-stat-label {
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-schedule-spot-stat-value {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #101828;
+}
+
+.bb-schedule-spot-grid {
+  display: grid;
+  gap: 0.95rem;
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+}
+
+.bb-schedule-spot-card {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+  text-align: left;
+}
+
+.bb-schedule-spot-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #f2f4f7;
+  overflow: hidden;
+}
+
+.bb-schedule-spot-media.is-empty {
+  background: linear-gradient(145deg, #f8fafc, #eef2f6);
+}
+
+.bb-schedule-spot-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-schedule-spot-media .bb-schedule-spot-pill {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+}
+
+.bb-schedule-spot-card-body {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.85rem 0.95rem 0.95rem;
+}
+
+.bb-schedule-spot-name {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-schedule-spot-pill {
+  flex: 0 0 auto;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.bb-schedule-spot-pill.is-live {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.bb-schedule-spot-pill.is-upcoming {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.bb-schedule-spot-pill.is-ended {
+  background: #f2f4f7;
+  color: #98a2b3;
+}
+
+.bb-schedule-spot-when-list {
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bb-schedule-spot-when-list > div {
+  display: grid;
+  gap: 0.05rem;
+}
+
+.bb-schedule-spot-when-list dt {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-schedule-spot-when-list dd {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #344054;
+}
+
+.bb-schedule-spot-staff {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 620;
+  color: #667085;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-schedule-spot-capacity {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #667085;
+}
+
+.bb-schedule-spot-bar {
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.bb-schedule-spot-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background-image: var(
+    --native-accent-button-gradient,
+    linear-gradient(120deg, #b9e3ff, #ffd4f2)
+  );
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 40%) 50%;
+  transition: width 0.35s ease;
+}
+
+.bb-schedule-spot-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  min-height: 2.35rem;
+  margin-top: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  color: #101828;
+  font-size: 0.78rem;
+  font-weight: 740;
+  cursor: pointer;
+}
+
+.bb-schedule-spot-info:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #fafafa;
+}
+
+.bb-schedule-spot-sheet {
+  width: min(32rem, 100%) !important;
+}
+
+.bb-schedule-spot-sheet-head {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.bb-schedule-spot-sheet-thumb {
+  width: 4.5rem;
+  aspect-ratio: 1;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background: #f2f4f7;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-schedule-spot-sheet-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-schedule-spot-sheet-copy {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: start;
+  min-width: 0;
+}
+
+.bb-schedule-spot-sheet-body {
+  display: grid;
+  gap: 1rem;
+}
+
+.bb-schedule-spot-sheet-facts {
+  margin: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.bb-schedule-spot-sheet-facts > div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.bb-schedule-spot-sheet-facts dt {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-schedule-spot-sheet-facts dd {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 720;
+  color: #101828;
+}
+
+.bb-schedule-spot-sheet-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #475467;
+  white-space: pre-wrap;
+}
+
+.bb-schedule-spot-sheet-seats {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.bb-schedule-spot-sheet-seats-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #667085;
+}
+
+.bb-schedule-spot-bookings {
+  display: grid;
+  gap: 0.55rem;
+}
+
+@media (max-width: 900px) {
+  .bb-schedule-spot-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+html body .native-ui .bb-schedule-desk .bb-schedule-desk-lede,
+html body .native-ui .bb-schedule-desk .bb-schedule-empty-copy,
+html body .native-ui .bb-schedule-desk .bb-schedule-spot-staff,
+html body .native-ui .bb-schedule-desk .bb-schedule-spot-sheet-desc {
+  color: #667085 !important;
+}
+
+html body .native-ui .bb-schedule-desk .bb-schedule-desk-title,
+html body .native-ui .bb-schedule-desk .bb-schedule-spot-stat-value,
+html body .native-ui .bb-schedule-desk .bb-schedule-spot-name,
+html body .native-ui .bb-schedule-desk .bb-schedule-spot-sheet-facts dd {
+  color: #101828 !important;
+  font-weight: 800 !important;
+}

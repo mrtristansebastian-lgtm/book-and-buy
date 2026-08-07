@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { createDemoWorkspace, hydrateDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList, collectServiceCategories } from '../../utils/services';
-import { normalizeProduct } from '../../utils/products';
+import { collectProductCategories, normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -212,11 +212,16 @@ export function WorkspaceProvider({ children }) {
         setWorkspace((prev) => {
           const next = normalizeProduct(product);
           const exists = prev.products.some((item) => item.id === next.id);
+          const products = exists
+            ? prev.products.map((item) => (item.id === next.id ? next : item))
+            : [...prev.products, next];
           return {
             ...prev,
-            products: exists
-              ? prev.products.map((item) => (item.id === next.id ? next : item))
-              : [...prev.products, next]
+            products,
+            productCategories: collectProductCategories(
+              products,
+              prev.productCategories || []
+            )
           };
         });
       },
@@ -225,6 +230,12 @@ export function WorkspaceProvider({ children }) {
           ...prev,
           products: prev.products.filter((product) => product.id !== id)
         })),
+      setProductCategories: (categories) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          productCategories: collectProductCategories(prev.products || [], categories || [])
+        }));
+      },
       addBooking: (booking) => {
         const record = {
           id: booking.id || `bk-${Date.now()}`,

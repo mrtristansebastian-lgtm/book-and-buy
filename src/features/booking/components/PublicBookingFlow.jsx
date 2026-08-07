@@ -5,7 +5,8 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
 import { CatalogCategoryTabs } from '../../storefront/components/CatalogCategoryTabs';
-import { formatServiceDurationLabel, formatServicePrice } from '../../../utils/services';
+import { formatServiceCardMeta, formatServicePrice, getServiceOpenSpots } from '../../../utils/services';
+import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import {
   buildCatalogCategoryTabs,
   filterCatalogByCategory,
@@ -24,6 +25,7 @@ export function PublicBookingFlow({
 }) {
   const ctx = useWorkspace();
   const workspace = catalogWorkspace || ctx.workspace;
+  const bookings = workspace.bookings || [];
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
   const [categoryId, setCategoryId] = useState('all');
@@ -93,7 +95,9 @@ export function PublicBookingFlow({
               const category = getCatalogCategory(item, 'Service');
               const imageSrc = item.imageUrls?.[0] || item.image || '';
               const price = formatServicePrice(item);
-              const duration = formatServiceDurationLabel(item);
+              const cardMeta = formatServiceCardMeta(item);
+              const isSpot = getServiceScheduleType(item) === 'class_session';
+              const spotsLeft = isSpot ? getServiceOpenSpots(item, bookings) : null;
               const inCart = cart.items.some((row) => row.lineKey === `service:${item.id}`);
               return (
                 <article
@@ -111,10 +115,20 @@ export function PublicBookingFlow({
                       {category ? (
                         <span className="bb-public-product-sticker">{category}</span>
                       ) : null}
-                      {duration ? (
-                        <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
-                          {duration}
-                        </span>
+                      {cardMeta || spotsLeft != null ? (
+                        <div className="bb-public-product-sticker-stack">
+                          {cardMeta ? (
+                            <span className="bb-public-product-sticker bb-public-product-sticker--ink">
+                              {cardMeta}
+                            </span>
+                          ) : null}
+                          {spotsLeft != null ? (
+                            <span className="bb-public-product-sticker bb-public-product-sticker--spots">
+                              <strong>{spotsLeft}</strong>
+                              <span>{spotsLeft === 1 ? 'spot left' : 'spots left'}</span>
+                            </span>
+                          ) : null}
+                        </div>
                       ) : null}
                     </div>
                     <div className="bb-public-product-body">

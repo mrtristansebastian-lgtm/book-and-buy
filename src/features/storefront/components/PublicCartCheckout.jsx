@@ -2,7 +2,14 @@ import { useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { formatCents } from '../../../utils/products';
-import { formatServicePrice, formatServiceDuration, getServiceDurationMinutes } from '../../../utils/services';
+import {
+  formatServiceDuration,
+  formatServicePrice,
+  formatServiceSessionLabel,
+  getServiceDurationMinutes,
+  getServiceOpenSpots
+} from '../../../utils/services';
+import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import { getPublicPaymentOptions } from '../../../utils/payments';
 import { getDaySlots } from '../../../utils/availability';
 import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
@@ -173,13 +180,23 @@ export function PublicCartCheckout({
 
   const submitBooking = async (item) => {
     const service = services.find((row) => row.id === item.serviceId);
+    const isSpot =
+      item.isSpot || getServiceScheduleType(service || item) === 'class_session';
+    const dateKey = isSpot
+      ? service?.sessionStartDate || item.dateKey
+      : item.dateKey;
+    const time = isSpot
+      ? service?.sessionStartTime || item.time
+      : item.time;
     const payload = {
       serviceId: item.serviceId,
       serviceName: item.name,
-      scheduleType: item.scheduleType,
-      date: item.dateKey,
-      dateKey: item.dateKey,
-      time: item.time,
+      scheduleType: item.scheduleType || service?.scheduleType,
+      date: dateKey,
+      dateKey,
+      time,
+      sessionEndDate: isSpot ? service?.sessionEndDate || item.sessionEndDate || '' : '',
+      sessionEndTime: isSpot ? service?.sessionEndTime || item.sessionEndTime || '' : '',
       durationMinutes: service ? getServiceDurationMinutes(service) : 60,
       clientName: details.clientName.trim(),
       clientEmail: details.clientEmail.trim(),
@@ -404,10 +421,19 @@ export function PublicCartCheckout({
               <strong>{item.name}</strong>
               {item.kind === 'service' ? (
                 <p className="bb-muted m-0 text-sm">
-                  {item.dateKey && item.time
-                    ? `${formatDisplayDate(item.dateKey)} · ${item.time}`
-                    : 'Choose a date and time below'}
-                  {item.duration
+                  {item.isSpot
+                    ? item.sessionLabel ||
+                      formatServiceSessionLabel({
+                        sessionStartDate: item.sessionStartDate || item.dateKey,
+                        sessionStartTime: item.sessionStartTime || item.time,
+                        sessionEndDate: item.sessionEndDate,
+                        sessionEndTime: item.sessionEndTime
+                      }) ||
+                      'Programme seat'
+                    : item.dateKey && item.time
+                      ? `${formatDisplayDate(item.dateKey)} · ${item.time}`
+                      : 'Choose a date and time below'}
+                  {!item.isSpot && item.duration
                     ? ` · ${formatServiceDuration(item.duration)}`
                     : ''}
                 </p>
@@ -450,18 +476,43 @@ export function PublicCartCheckout({
       </div>
 
       {cart.hasServices
-        ? cart.serviceItems.map((item) => (
-            <div key={`slot-${item.lineKey}`} className="bb-public-product-card p-4 grid gap-3">
-              <h3 className="bb-page-title text-xl m-0">Schedule · {item.name}</h3>
-              <ServiceSlotPicker
-                item={item}
-                bookings={bookings}
-                workspace={workspace}
-                services={services}
-                onSlot={(slot) => cart.updateServiceSlot(item.lineKey, slot)}
-              />
-            </div>
-          ))
+        ? cart.serviceItems.map((item) => {
+            const service = services.find((row) => row.id === item.serviceId);
+            const isSpot =
+              item.isSpot || getServiceScheduleType(service || item) === 'class_session';
+            if (isSpot) {
+              const openSpots = service
+                ? getServiceOpenSpots(service, bookings)
+                : Math.max(0, Number(item.capacity || 1) || 1);
+              return (
+                <div key={`slot-${item.lineKey}`} className="bb-public-product-card p-4 grid gap-2">
+                  <h3 className="bb-page-title text-xl m-0">Seat · {item.name}</h3>
+                  <p className="bb-muted m-0 text-sm">
+                    {item.sessionLabel ||
+                      formatServiceSessionLabel(service || item) ||
+                      'Fixed programme window'}
+                  </p>
+                  <p className="bb-muted m-0 text-sm">
+                    {openSpots > 0
+                      ? `${openSpots} open spot${openSpots === 1 ? '' : 's'} remaining`
+                      : 'This programme is currently full — you can still request a seat.'}
+                  </p>
+                </div>
+              );
+            }
+            return (
+              <div key={`slot-${item.lineKey}`} className="bb-public-product-card p-4 grid gap-3">
+                <h3 className="bb-page-title text-xl m-0">Schedule · {item.name}</h3>
+                <ServiceSlotPicker
+                  item={item}
+                  bookings={bookings}
+                  workspace={workspace}
+                  services={services}
+                  onSlot={(slot) => cart.updateServiceSlot(item.lineKey, slot)}
+                />
+              </div>
+            );
+          })
         : null}
 
       <div className="bb-public-product-card p-5 grid gap-3">

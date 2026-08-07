@@ -5,10 +5,12 @@ import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
 import { formatProductPrice, formatStockNote } from '../../../utils/products';
 import {
-  formatServiceDuration,
-  formatServicePrice
+  formatServiceCardMeta,
+  formatServicePrice,
+  getServiceOpenSpots
 } from '../../../utils/services';
 import { getCatalogCategory } from '../../../utils/catalogCategories';
+import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 
 function collectImages(item = {}) {
   const urls = Array.isArray(item.imageUrls)
@@ -74,8 +76,12 @@ export function PublicCatalogDetail({
       : item.priceType === 'quote';
   const price =
     kind === 'service' ? formatServicePrice(item) : formatProductPrice(item);
-  const duration =
-    kind === 'service' ? formatServiceDuration(item.duration) : '';
+  const timingMeta = kind === 'service' ? formatServiceCardMeta(item) : '';
+  const isSpotService =
+    kind === 'service' && getServiceScheduleType(item) === 'class_session';
+  const spotsLeft = isSpotService
+    ? getServiceOpenSpots(item, workspace?.bookings || [])
+    : null;
   const stock = kind === 'product' ? formatStockNote(item) : '';
   const meta =
     kind === 'service'
@@ -163,10 +169,18 @@ export function PublicCatalogDetail({
                 <span className="bb-public-product-stat-label">Price</span>
                 <span className="bb-public-detail-price">{price || '—'}</span>
               </div>
-              {duration ? (
+              {timingMeta ? (
                 <div className="bb-public-detail-fact">
-                  <span className="bb-public-product-stat-label">Duration</span>
-                  <span className="bb-public-detail-price">{duration}</span>
+                  <span className="bb-public-product-stat-label">
+                    {isSpotService ? 'When' : 'Duration'}
+                  </span>
+                  <span className="bb-public-detail-price">{timingMeta}</span>
+                  {spotsLeft != null ? (
+                    <span className="bb-public-detail-spots-left">
+                      <strong>{spotsLeft}</strong>{' '}
+                      {spotsLeft === 1 ? 'spot left' : 'spots left'}
+                    </span>
+                  ) : null}
                 </div>
               ) : null}
               {stock ? (

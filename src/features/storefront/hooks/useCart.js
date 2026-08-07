@@ -1,6 +1,10 @@
 import { useMemo, useState } from 'react';
 import { getProductUnitPriceCents } from '../../../utils/products';
-import { getServiceUnitPriceCents } from '../../../utils/services';
+import {
+  formatServiceSessionLabel,
+  getServiceUnitPriceCents
+} from '../../../utils/services';
+import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 
 export const productLineKey = (id) => `product:${id}`;
 export const serviceLineKey = (id) => `service:${id}`;
@@ -41,6 +45,7 @@ export function useCart() {
   const addService = (service) => {
     if (!service?.id) return;
     const lineKey = serviceLineKey(service.id);
+    const isSpot = getServiceScheduleType(service) === 'class_session';
     setItems((prev) => {
       if (prev.some((item) => item.lineKey === lineKey)) return prev;
       return [
@@ -56,10 +61,17 @@ export function useCart() {
           currency: service.currency || 'R',
           quantity: 1,
           scheduleType: service.scheduleType,
+          isSpot,
           duration: service.duration || '',
+          sessionLabel: isSpot ? formatServiceSessionLabel(service) : '',
+          sessionStartDate: service.sessionStartDate || '',
+          sessionStartTime: service.sessionStartTime || '',
+          sessionEndDate: service.sessionEndDate || '',
+          sessionEndTime: service.sessionEndTime || '',
+          capacity: service.capacity || 1,
           priceLabel: service.priceType === 'quote' ? 'Quote after consult' : '',
-          dateKey: '',
-          time: ''
+          dateKey: isSpot ? service.sessionStartDate || '' : '',
+          time: isSpot ? service.sessionStartTime || '' : ''
         }
       ];
     });
@@ -83,7 +95,7 @@ export function useCart() {
   const updateServiceSlot = (lineKey, { dateKey = '', time = '' } = {}) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.lineKey === lineKey && item.kind === 'service'
+        item.lineKey === lineKey && item.kind === 'service' && !item.isSpot
           ? { ...item, dateKey, time }
           : item
       )
@@ -117,7 +129,11 @@ export function useCart() {
       hasProducts: productItems.length > 0,
       serviceItems,
       productItems,
-      allServicesSlotted: serviceItems.every((item) => item.dateKey && item.time)
+      allServicesSlotted: serviceItems.every((item) =>
+        item.isSpot
+          ? Boolean(item.dateKey && item.time)
+          : Boolean(item.dateKey && item.time)
+      )
     };
   }, [items]);
 

@@ -50,6 +50,10 @@ export interface WorkspaceService {
   bookingType?: ScheduleType | string;
   serviceType?: ScheduleType | string;
   capacity?: number | string;
+  sessionStartDate?: string;
+  sessionStartTime?: string;
+  sessionEndDate?: string;
+  sessionEndTime?: string;
   sessionLabel?: string;
   staffIds?: string[];
   sortOrder?: number;
@@ -195,6 +199,7 @@ export interface WorkspaceSettings {
   services?: WorkspaceService[];
   serviceCategories?: string[];
   products?: WorkspaceProduct[];
+  productCategories?: string[];
   publicStaff?: Array<{ id: string; name: string; color?: string; photoURL?: string }>;
   paymentOptions?: unknown[];
   manualPaymentOptions?: unknown[];

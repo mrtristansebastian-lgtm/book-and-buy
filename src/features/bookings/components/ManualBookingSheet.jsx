@@ -1,8 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getDaySlots } from '../../../utils/availability';
 import { toDateKey } from '../../../utils/dates';
-import { getServiceDurationMinutes } from '../../../utils/services';
+import {
+  formatServiceSessionLabel,
+  getServiceDurationMinutes
+} from '../../../utils/services';
+import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 
 export function ManualBookingSheet({ onClose }) {
   const { services, staff, bookings, addBooking, workspace } = useWorkspace();
@@ -18,18 +22,31 @@ export function ManualBookingSheet({ onClose }) {
   });
 
   const service = services.find((item) => item.id === form.serviceId);
+  const isSpot = getServiceScheduleType(service) === 'class_session';
+
+  useEffect(() => {
+    if (!isSpot || !service) return;
+    setForm((prev) => ({
+      ...prev,
+      date: service.sessionStartDate || prev.date,
+      time: service.sessionStartTime || prev.time
+    }));
+  }, [isSpot, service?.id, service?.sessionStartDate, service?.sessionStartTime]);
 
   const slots = useMemo(
     () =>
-      getDaySlots({
-        dateKey: form.date,
-        bookings,
-        serviceId: form.serviceId,
-        openTime: workspace.availabilityRules?.businessOpenTime,
-        closeTime: workspace.availabilityRules?.businessCloseTime,
-        services
-      }),
+      isSpot
+        ? []
+        : getDaySlots({
+            dateKey: form.date,
+            bookings,
+            serviceId: form.serviceId,
+            openTime: workspace.availabilityRules?.businessOpenTime,
+            closeTime: workspace.availabilityRules?.businessCloseTime,
+            services
+          }),
     [
+      isSpot,
       form.date,
       form.serviceId,
       bookings,
@@ -51,6 +68,8 @@ export function ManualBookingSheet({ onClose }) {
       date: form.date,
       dateKey: form.date,
       time: form.time,
+      sessionEndDate: isSpot ? service.sessionEndDate || '' : '',
+      sessionEndTime: isSpot ? service.sessionEndTime || '' : '',
       durationMinutes: getServiceDurationMinutes(service),
       clientName: form.clientName.trim(),
       clientEmail: form.clientEmail.trim(),
@@ -68,7 +87,9 @@ export function ManualBookingSheet({ onClose }) {
         <h2 className="bb-page-title text-2xl m-0">Manual booking</h2>
         <select
           value={form.serviceId}
-          onChange={(event) => setForm((prev) => ({ ...prev, serviceId: event.target.value, time: '' }))}
+          onChange={(event) =>
+            setForm((prev) => ({ ...prev, serviceId: event.target.value, time: '' }))
+          }
         >
           {services.map((item) => (
             <option key={item.id} value={item.id}>
@@ -87,28 +108,38 @@ export function ManualBookingSheet({ onClose }) {
             </option>
           ))}
         </select>
-        <input
-          type="date"
-          className="native-control-input px-4"
-          value={form.date}
-          onChange={(event) => setForm((prev) => ({ ...prev, date: event.target.value, time: '' }))}
-        />
-        <div className="flex flex-wrap gap-2">
-          {slots.length === 0 ? (
-            <p className="bb-muted m-0 text-sm">No open slots on this day.</p>
-          ) : (
-            slots.map((slot) => (
-              <button
-                key={slot.time}
-                type="button"
-                className={form.time === slot.time ? 'bb-primary-btn' : 'bb-ghost-btn'}
-                onClick={() => setForm((prev) => ({ ...prev, time: slot.time }))}
-              >
-                {slot.time}
-              </button>
-            ))
-          )}
-        </div>
+        {isSpot ? (
+          <p className="bb-muted m-0 text-sm">
+            Spot programme · {formatServiceSessionLabel(service) || 'Session window'}
+          </p>
+        ) : (
+          <>
+            <input
+              type="date"
+              className="native-control-input px-4"
+              value={form.date}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, date: event.target.value, time: '' }))
+              }
+            />
+            <div className="flex flex-wrap gap-2">
+              {slots.length === 0 ? (
+                <p className="bb-muted m-0 text-sm">No open slots on this day.</p>
+              ) : (
+                slots.map((slot) => (
+                  <button
+                    key={slot.time}
+                    type="button"
+                    className={form.time === slot.time ? 'bb-primary-btn' : 'bb-ghost-btn'}
+                    onClick={() => setForm((prev) => ({ ...prev, time: slot.time }))}
+                  >
+                    {slot.time}
+                  </button>
+                ))
+              )}
+            </div>
+          </>
+        )}
         <input
           className="native-control-input px-4"
           placeholder="Client name"

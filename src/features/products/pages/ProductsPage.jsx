@@ -1,12 +1,13 @@
-﻿import { useState } from 'react';
-import { Pencil, Plus } from 'lucide-react';
+﻿import { useMemo, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
+  collectProductCategories,
   createProductId,
-  formatProductPrice,
-  formatStockNote,
   normalizeProduct
 } from '../../../utils/products';
+import { ProductCatalogCard } from '../components/ProductCatalogCard';
+import { ProductEditorSheet } from '../components/ProductEditorSheet';
 
 const emptyDraft = () => ({
   id: '',
@@ -14,6 +15,8 @@ const emptyDraft = () => ({
   price: '',
   category: '',
   stockAvailable: '',
+  stockLabel: '',
+  hideStockOnCard: false,
   description: '',
   image: '',
   quoteBased: false,
@@ -21,9 +24,25 @@ const emptyDraft = () => ({
 });
 
 export function ProductsPage() {
-  const { products, upsertProduct, removeProduct } = useWorkspace();
+  const {
+    products,
+    workspace,
+    upsertProduct,
+    removeProduct,
+    setProductCategories
+  } = useWorkspace();
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
+
+  const categories = useMemo(
+    () => collectProductCategories(products, workspace.productCategories || []),
+    [products, workspace.productCategories]
+  );
+
+  const openCreate = () => {
+    setDraft(emptyDraft());
+    setDraftOpen(true);
+  };
 
   const openEdit = (product) => {
     setDraft({
@@ -32,12 +51,19 @@ export function ProductsPage() {
       price: String(product.price ?? ''),
       category: product.category || '',
       stockAvailable: String(product.stockAvailable ?? ''),
+      stockLabel: product.stockLabel || '',
+      hideStockOnCard: Boolean(product.hideStockOnCard),
       description: product.description || '',
       image: product.imageUrls?.[0] || '',
       quoteBased: Boolean(product.quoteBased || product.priceType === 'quote'),
       active: product.active !== false
     });
     setDraftOpen(true);
+  };
+
+  const closeDraft = () => {
+    setDraftOpen(false);
+    setDraft(emptyDraft());
   };
 
   const saveDraft = () => {
@@ -50,147 +76,68 @@ export function ProductsPage() {
         imageUrls: draft.image ? [draft.image] : []
       })
     );
-    setDraft(emptyDraft());
-    setDraftOpen(false);
+    closeDraft();
+  };
+
+  const addCategory = (label) => {
+    const next = String(label || '').trim();
+    if (!next) return;
+    const merged = collectProductCategories(products, [
+      ...(workspace.productCategories || []),
+      next
+    ]);
+    setProductCategories?.(merged);
   };
 
   return (
-    <div className="grid gap-5">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="bb-page-title text-3xl m-0">Products</h1>
-          <p className="bb-muted m-0">Your Buy catalog.</p>
+    <div className="bb-services-desk">
+      <header className="bb-services-desk-header">
+        <div className="bb-services-desk-copy">
+          <p className="bb-services-desk-eyebrow">Buy</p>
+          <h1 className="bb-services-desk-title">Products</h1>
+          <p className="bb-services-desk-lede">
+            Your Buy catalog — same card language clients see on the public site.
+          </p>
         </div>
-        <button
-          type="button"
-          className="bb-primary-btn"
-          onClick={() => {
-            setDraft(emptyDraft());
-            setDraftOpen(true);
-          }}
-        >
+        <button type="button" className="bb-primary-btn" onClick={openCreate}>
           <Plus size={16} /> Add product
         </button>
       </header>
 
-      <section className="grid gap-3 md:grid-cols-2">
-        {products.length === 0 ? (
-          <div className="bb-panel p-6 bb-muted md:col-span-2">No products yet.</div>
-        ) : (
-          products.map((product) => (
-            <article key={product.id} className="bb-panel overflow-hidden grid">
-              <div className="h-44 bg-black/5">
-                {product.imageUrls?.[0] ? (
-                  <img src={product.imageUrls[0]} alt="" className="w-full h-full object-cover" />
-                ) : null}
-              </div>
-              <div className="p-4 grid gap-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="grid gap-1 min-w-0">
-                    <h2 className="bb-page-title text-xl m-0">{product.name}</h2>
-                    <p className="bb-muted m-0 text-sm line-clamp-2">{product.description}</p>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <button type="button" className="bb-ghost-btn" onClick={() => openEdit(product)}>
-                      <Pencil size={15} />
-                    </button>
-                    <button
-                      type="button"
-                      className="bb-ghost-btn"
-                      onClick={() => removeProduct(product.id)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-                <p className="m-0 text-sm font-semibold text-ink">
-                  {[formatProductPrice(product), formatStockNote(product)].filter(Boolean).join(' · ')}
-                </p>
-              </div>
-            </article>
-          ))
-        )}
-      </section>
-
-      {draftOpen ? (
-        <div className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4">
-          <div className="bb-panel w-full max-w-lg p-5 grid gap-3">
-            <h2 className="bb-page-title text-2xl m-0">{draft.id ? 'Edit product' : 'New product'}</h2>
-            <input
-              className="native-control-input px-4"
-              placeholder="Product name"
-              value={draft.name}
-              onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                className="native-control-input px-4"
-                placeholder="Price"
-                disabled={draft.quoteBased}
-                value={draft.price}
-                onChange={(event) => setDraft((prev) => ({ ...prev, price: event.target.value }))}
-              />
-              <input
-                className="native-control-input px-4"
-                placeholder="Stock note"
-                value={draft.stockAvailable}
-                onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, stockAvailable: event.target.value }))
-                }
-              />
-            </div>
-            <label className="flex items-center gap-2 text-sm font-semibold">
-              <input
-                type="checkbox"
-                checked={draft.quoteBased}
-                onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, quoteBased: event.target.checked }))
-                }
-              />
-              Quote-based (no cart price)
-            </label>
-            <input
-              className="native-control-input px-4"
-              placeholder="Category"
-              value={draft.category}
-              onChange={(event) => setDraft((prev) => ({ ...prev, category: event.target.value }))}
-            />
-            <input
-              className="native-control-input px-4"
-              placeholder="Image URL"
-              value={draft.image}
-              onChange={(event) => setDraft((prev) => ({ ...prev, image: event.target.value }))}
-            />
-            <textarea
-              className="native-control-input px-4 py-3"
-              rows={3}
-              placeholder="Description"
-              value={draft.description}
-              onChange={(event) =>
-                setDraft((prev) => ({ ...prev, description: event.target.value }))
-              }
-            />
-            <label className="flex items-center gap-2 text-sm font-semibold">
-              <input
-                type="checkbox"
-                checked={draft.active}
-                onChange={(event) =>
-                  setDraft((prev) => ({ ...prev, active: event.target.checked }))
-                }
-              />
-              Visible on public Buy page
-            </label>
-            <div className="flex gap-2 justify-end">
-              <button type="button" className="bb-ghost-btn" onClick={() => setDraftOpen(false)}>
-                Cancel
-              </button>
-              <button type="button" className="bb-primary-btn" onClick={saveDraft}>
-                Save product
-              </button>
-            </div>
-          </div>
+      {products.length === 0 ? (
+        <div className="bb-services-catalog-empty">
+          No products yet. Add your first item.
         </div>
-      ) : null}
+      ) : (
+        <div className="bb-public-product-grid bb-services-catalog-grid">
+          {products.map((product) => (
+            <ProductCatalogCard
+              key={product.id}
+              product={product}
+              onEdit={openEdit}
+              onRemove={(item) => removeProduct(item.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      <ProductEditorSheet
+        open={draftOpen}
+        draft={draft}
+        onChange={setDraft}
+        onClose={closeDraft}
+        onSave={saveDraft}
+        onDelete={
+          draft.id
+            ? () => {
+                removeProduct(draft.id);
+                closeDraft();
+              }
+            : undefined
+        }
+        categories={categories}
+        onAddCategory={addCategory}
+      />
     </div>
   );
 }

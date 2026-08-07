@@ -10,6 +10,7 @@
 @import './ops-desk.css';
 @import './finance.css';
 @import './services-studio.css';
+@import './schedule-studio.css';
 @import './image-crop.css';
 
 @tailwind base;

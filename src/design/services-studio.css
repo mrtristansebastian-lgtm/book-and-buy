@@ -56,6 +56,15 @@
   font-weight: 600;
 }
 
+.bb-services-spots-meta {
+  margin: 0 !important;
+  font-size: 0.72rem !important;
+  font-weight: 720 !important;
+  letter-spacing: -0.01em;
+  color: #475467 !important;
+  -webkit-line-clamp: 1 !important;
+}
+
 /* Under-card actions — match public cart bar slot */
 .bb-services-catalog-actions {
   display: grid;
@@ -128,6 +137,11 @@
   box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
 }
 
+.bb-services-sheet-panel--setup {
+  width: min(42rem, 100%);
+  max-height: min(46rem, calc(100vh - 2rem));
+}
+
 .bb-services-sheet-head {
   display: flex;
   align-items: flex-start;
@@ -173,6 +187,274 @@
   padding: 1rem 1.05rem;
   overflow: auto;
   min-width: 0;
+}
+
+/* Setup timeline */
+
+.bb-services-setup {
+  display: grid;
+  grid-template-columns: 8.75rem minmax(0, 1fr);
+  gap: 1.15rem 1.35rem;
+  align-items: start;
+}
+
+.bb-services-setup-mobile {
+  display: none;
+  margin: 0;
+  grid-column: 1 / -1;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-services-setup-mobile span {
+  margin-left: 0.45rem;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  font-weight: 780;
+  color: #101828;
+}
+
+.bb-services-setup-rail {
+  position: sticky;
+  top: 0;
+  min-width: 0;
+}
+
+.bb-services-setup-rail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  position: relative;
+}
+
+.bb-services-setup-rail-list::before {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  width: 1px;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.bb-services-setup-rail-item {
+  position: relative;
+  z-index: 1;
+}
+
+.bb-services-setup-rail-btn {
+  display: grid;
+  grid-template-columns: 1.7rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.35rem 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.bb-services-setup-rail-btn:disabled {
+  cursor: default;
+}
+
+.bb-services-setup-rail-dot {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  font-weight: 780;
+  color: #667085;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 0 0 4px #fff;
+}
+
+.bb-services-setup-rail-label {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  color: #98a2b3;
+}
+
+.bb-services-setup-rail-item.is-current .bb-services-setup-rail-dot {
+  color: #050505;
+  border-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+}
+
+.bb-services-setup-rail-item.is-current .bb-services-setup-rail-label {
+  color: #101828;
+  font-weight: 780;
+}
+
+.bb-services-setup-rail-item.is-done .bb-services-setup-rail-dot {
+  color: #101828;
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #f2f4f7;
+}
+
+.bb-services-setup-rail-item.is-done .bb-services-setup-rail-label {
+  color: #475467;
+}
+
+.bb-services-setup-rail-btn:not(:disabled):hover .bb-services-setup-rail-label {
+  color: #101828;
+}
+
+.bb-services-setup-stage {
+  min-width: 0;
+  animation: bb-services-stage-in 0.22s ease;
+}
+
+@keyframes bb-services-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-services-field-row--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.bb-services-type-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.bb-services-type-card {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bb-services-type-card:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+}
+
+.bb-services-type-card.is-active {
+  border-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.bb-services-type-card-title {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #101828;
+}
+
+.bb-services-type-card-copy {
+  font-size: 0.8rem;
+  font-weight: 550;
+  line-height: 1.4;
+  color: #475467;
+}
+
+.bb-services-type-card.is-active .bb-services-type-card-copy {
+  color: #344054;
+}
+
+.bb-services-review {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.bb-services-review-media {
+  aspect-ratio: 16 / 9;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background: #f2f4f7;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  font-weight: 650;
+  color: #98a2b3;
+}
+
+.bb-services-review-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-services-review-list {
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bb-services-review-list > div {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.bb-services-review-list dt {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 720;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-services-review-list dd {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: #101828;
+  line-height: 1.3;
+}
+
+.bb-services-review-desc dd {
+  font-weight: 550;
+  font-size: 0.8rem;
+  color: #475467;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .bb-services-section {
@@ -407,8 +689,32 @@ html body .native-ui .bb-services-sheet .bb-services-sheet-title {
   font-weight: 800 !important;
 }
 
+@media (max-width: 720px) {
+  .bb-services-setup {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .bb-services-setup-mobile {
+    display: block;
+  }
+
+  .bb-services-setup-rail {
+    display: none;
+  }
+
+  .bb-services-review {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-services-review-media {
+    max-width: 12rem;
+  }
+}
+
 @media (max-width: 640px) {
-  .bb-services-field-row {
+  .bb-services-field-row,
+  .bb-services-field-row--2 {
     grid-template-columns: 1fr;
   }
 
@@ -421,9 +727,19 @@ html body .native-ui .bb-services-sheet .bb-services-sheet-title {
     padding: 0;
   }
 
-  .bb-services-sheet-panel {
+  .bb-services-sheet-panel,
+  .bb-services-sheet-panel--setup {
     width: 100%;
-    max-height: min(92vh, 44rem);
+    max-height: min(92vh, 48rem);
     border-radius: 1rem 1rem 0 0;
   }
+}
+
+html body .native-ui .bb-services-sheet .bb-services-review-list dd {
+  color: #101828 !important;
+}
+
+html body .native-ui .bb-services-sheet .bb-services-review-desc dd {
+  color: #475467 !important;
+  font-weight: 550 !important;
 }

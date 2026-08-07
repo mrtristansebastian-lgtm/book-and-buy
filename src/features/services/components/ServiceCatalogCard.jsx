@@ -1,14 +1,17 @@
 import { Pencil, Trash2 } from 'lucide-react';
 import {
-  formatServiceDurationLabel,
-  formatServicePrice
+  formatServiceCardMeta,
+  formatServicePrice,
+  getServiceOpenSpots
 } from '../../../utils/services';
-import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
+import { getScheduleTypeMeta, getServiceScheduleType } from '../../../utils/scheduleTypes';
 
-export function ServiceCatalogCard({ service, onEdit, onRemove }) {
+export function ServiceCatalogCard({ service, bookings = [], onEdit, onRemove }) {
   const imageSrc = service.imageUrls?.[0] || '';
   const category = String(service.category || '').trim();
-  const duration = formatServiceDurationLabel(service);
+  const cardMeta = formatServiceCardMeta(service);
+  const isSpot = getServiceScheduleType(service) === 'class_session';
+  const spotsLeft = isSpot ? getServiceOpenSpots(service, bookings) : null;
   const price = formatServicePrice(service);
   const meta = getScheduleTypeMeta(service.scheduleType);
   const hidden = service.active === false;
@@ -28,10 +31,20 @@ export function ServiceCatalogCard({ service, onEdit, onRemove }) {
             <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
               Hidden
             </span>
-          ) : duration ? (
-            <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
-              {duration}
-            </span>
+          ) : cardMeta || spotsLeft != null ? (
+            <div className="bb-public-product-sticker-stack">
+              {cardMeta ? (
+                <span className="bb-public-product-sticker bb-public-product-sticker--ink">
+                  {cardMeta}
+                </span>
+              ) : null}
+              {spotsLeft != null ? (
+                <span className="bb-public-product-sticker bb-public-product-sticker--spots">
+                  <strong>{spotsLeft}</strong>
+                  <span>{spotsLeft === 1 ? 'spot left' : 'spots left'}</span>
+                </span>
+              ) : null}
+            </div>
           ) : null}
         </div>
         <div className="bb-public-product-body">

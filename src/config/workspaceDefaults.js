@@ -101,6 +101,7 @@ export const createDefaultSettings = () => ({
   services: [],
   serviceCategories: [],
   products: [],
+  productCategories: [],
   features: {
     waitlist: true,
     faq: true

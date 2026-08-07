@@ -434,6 +434,49 @@
   text-align: right;
 }
 
+.bb-public-product-sticker-stack {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 2;
+  display: grid;
+  gap: 0.22rem;
+  justify-items: end;
+  max-width: calc(58% - 0.4rem);
+  pointer-events: none;
+}
+
+.bb-public-product-sticker-stack .bb-public-product-sticker {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  max-width: 100%;
+}
+
+.bb-public-product-sticker--spots {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.bb-public-product-sticker--spots strong {
+  font-size: 0.62rem;
+  font-weight: 820;
+  letter-spacing: -0.02em;
+}
+
+.bb-public-product-sticker--spots span {
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #475467;
+}
+
 .bb-public-product-sticker--ink {
   border-color: transparent;
   background: #050505;
@@ -734,6 +777,22 @@
   font-weight: 650;
   letter-spacing: -0.02em;
   color: #101828;
+}
+
+.bb-public-detail-spots-left {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 620;
+  color: #475467;
+}
+
+.bb-public-detail-spots-left strong {
+  font-size: 0.92rem;
+  font-weight: 780;
+  color: #101828;
+  letter-spacing: -0.02em;
 }
 
 .bb-public-detail-section-label {
@@ -2878,6 +2937,12 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-device-preview--phone .bb-public-product-sticker--end {
   left: auto;
   right: 0.28rem;
+}
+
+.bb-device-preview--phone .bb-public-product-sticker-stack {
+  top: 0.28rem;
+  right: 0.28rem;
+  gap: 0.16rem;
 }
 
 .bb-device-preview--phone .bb-public-product-price-row {
