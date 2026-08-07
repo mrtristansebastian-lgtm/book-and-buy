@@ -6,6 +6,7 @@
 @import './app-shell.css';
 @import './public-surface.css';
 @import './social-studio.css';
+@import './support-inbox.css';
 
 @tailwind base;
 @tailwind components;

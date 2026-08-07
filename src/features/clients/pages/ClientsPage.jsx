@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
 import { navigate } from '../../../app/routing';
+import { setSupportFocusThread } from '../../support/utils/supportFormat';
 
 const emptyClient = () => ({
   id: '',
@@ -128,7 +129,8 @@ export function ClientsPage() {
                   type="button"
                   className="bb-ghost-btn"
                   onClick={() => {
-                    startThreadFromClient(selected);
+                    const thread = startThreadFromClient(selected);
+                    if (thread?.id) setSupportFocusThread(thread.id);
                     navigate('/dashboard/communications');
                   }}
                 >
@@ -172,7 +174,8 @@ export function ClientsPage() {
                       type="button"
                       className="bb-ghost-btn py-1 px-2 text-xs"
                       onClick={() => {
-                        startThreadFromBooking(booking);
+                        const thread = startThreadFromBooking(booking);
+                        if (thread?.id) setSupportFocusThread(thread.id);
                         navigate('/dashboard/communications');
                       }}
                     >

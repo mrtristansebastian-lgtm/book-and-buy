@@ -161,29 +161,54 @@ export const DEMO_CLIENTS = [
   }
 ];
 
+export const DEMO_THREADS_SCHEMA = 2;
+
 export const DEMO_THREADS = [
   {
     id: 'thread-1',
     clientName: 'Aisha Naidoo',
     clientEmail: 'aisha.naidoo@example.com',
+    clientId: 'client-001',
     subject: 'Reschedule request',
+    bookingId: 'bk-1',
     unread: true,
     updatedAt: Date.now() - 1000 * 60 * 25,
+    presence: { status: 'online', lastSeenAt: Date.now() - 1000 * 60 * 2 },
     messages: [
       {
         id: 'm1',
+        type: 'text',
         from: 'client',
         body: "Could I move tomorrow's bread workshop to next Saturday?",
         at: Date.now() - 1000 * 60 * 40
       },
       {
         id: 'm2',
+        type: 'text',
         from: 'business',
         body: 'Of course. The next Saturday class starts at 09:00 and still has space.',
         at: Date.now() - 1000 * 60 * 30
       },
       {
+        id: 'm2b',
+        type: 'image',
+        from: 'business',
+        body: 'Here is the studio setup for that class.',
+        at: Date.now() - 1000 * 60 * 28,
+        attachments: [
+          {
+            id: 'att-kitchen',
+            kind: 'image',
+            name: 'teaching-kitchen.webp',
+            mime: 'image/webp',
+            size: 180000,
+            url: '/example/flour-and-flame/products/artisan-bread-box.png'
+          }
+        ]
+      },
+      {
         id: 'm3',
+        type: 'text',
         from: 'client',
         body: 'That works perfectly for me.',
         at: Date.now() - 1000 * 60 * 25
@@ -194,21 +219,88 @@ export const DEMO_THREADS = [
     id: 'thread-2',
     clientName: 'Daniel Botha',
     clientEmail: 'daniel.botha@example.com',
+    clientId: 'client-002',
     subject: 'Private lesson focus',
+    bookingId: 'bk-2',
     unread: false,
     updatedAt: Date.now() - 1000 * 60 * 180,
+    presence: { status: 'away', lastSeenAt: Date.now() - 1000 * 60 * 45 },
     messages: [
       {
         id: 'm4',
+        type: 'text',
         from: 'client',
         body: 'For my private baking lesson, can we focus on celebration cakes?',
         at: Date.now() - 1000 * 60 * 200
       },
       {
         id: 'm5',
+        type: 'text',
         from: 'business',
         body: 'Absolutely — we will set the session around stacking and buttercream.',
         at: Date.now() - 1000 * 60 * 180
+      },
+      {
+        id: 'm5b',
+        type: 'voice',
+        from: 'client',
+        body: '',
+        at: Date.now() - 1000 * 60 * 175,
+        attachments: [
+          {
+            id: 'att-voice-1',
+            kind: 'voice',
+            name: 'voice-note.webm',
+            mime: 'audio/webm',
+            size: 42000,
+            url: '',
+            durationMs: 14000
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'thread-3',
+    clientName: 'Zara Hassan',
+    clientEmail: 'zara.hassan@example.com',
+    clientId: 'client-005',
+    subject: 'Order · Kitchen Notes',
+    orderId: 'ord-2',
+    unread: false,
+    updatedAt: Date.now() - 1000 * 60 * 90,
+    presence: { status: 'offline', lastSeenAt: Date.now() - 1000 * 60 * 60 * 8 },
+    messages: [
+      {
+        id: 'm6',
+        type: 'system',
+        from: 'business',
+        body: 'Order linked · Kitchen Notes + Fresh Pasta Starter Set',
+        at: Date.now() - 1000 * 60 * 95
+      },
+      {
+        id: 'm7',
+        type: 'text',
+        from: 'client',
+        body: 'Can you hold the pasta kit for collection on Friday?',
+        at: Date.now() - 1000 * 60 * 92
+      },
+      {
+        id: 'm8',
+        type: 'file',
+        from: 'business',
+        body: 'Collection slip attached.',
+        at: Date.now() - 1000 * 60 * 90,
+        attachments: [
+          {
+            id: 'att-file-1',
+            kind: 'file',
+            name: 'collection-slip.pdf',
+            mime: 'application/pdf',
+            size: 82000,
+            url: ''
+          }
+        ]
       }
     ]
   }
@@ -434,6 +526,7 @@ export function createDemoWorkspace() {
     isDemo: true,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
+    threadsSchema: DEMO_THREADS_SCHEMA,
     nativeAccent: true,
     notifications: {
       emailBookingRequests: true,
@@ -707,6 +800,12 @@ export function hydrateDemoWorkspace(stored) {
     !hasVideo ||
     !hasText;
 
+  const staleThreads =
+    Number(stored.threadsSchema || 0) < DEMO_THREADS_SCHEMA ||
+    !Array.isArray(stored.threads) ||
+    stored.threads.length < 3 ||
+    !stored.threads.some((thread) => thread?.presence);
+
   const website = staleWebsite
     ? {
         ...fresh.website,
@@ -756,7 +855,9 @@ export function hydrateDemoWorkspace(stored) {
     isDemo: true,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
+    threadsSchema: DEMO_THREADS_SCHEMA,
     website,
-    socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts
+    socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts,
+    threads: staleThreads ? fresh.threads : stored.threads
   };
 }

@@ -388,35 +388,114 @@ export function WorkspaceProvider({ children }) {
         setWorkspace((prev) => {
           const existing = (prev.threads || []).find(
             (thread) =>
-              String(thread.clientEmail || '').toLowerCase() ===
+              thread.bookingId === booking.id ||
+              (String(thread.clientEmail || '').toLowerCase() ===
                 String(booking.clientEmail || '').toLowerCase() &&
-              thread.subject?.includes(booking.serviceName || '')
+                thread.subject?.includes(booking.serviceName || ''))
           );
           if (existing) {
-            created = existing;
+            created = { ...existing, bookingId: existing.bookingId || booking.id };
             return {
               ...prev,
               threads: prev.threads.map((thread) =>
                 thread.id === existing.id
-                  ? { ...thread, unread: true, updatedAt: Date.now() }
+                  ? {
+                      ...thread,
+                      bookingId: thread.bookingId || booking.id,
+                      unread: true,
+                      updatedAt: Date.now()
+                    }
                   : thread
               )
             };
           }
+          const now = Date.now();
           created = {
-            id: `thread-${Date.now()}`,
+            id: `thread-${now}`,
             clientName: booking.clientName,
             clientEmail: booking.clientEmail || '',
             subject: `Re: ${booking.serviceName}`,
             bookingId: booking.id,
             unread: false,
-            updatedAt: Date.now(),
+            updatedAt: now,
+            presence: { status: 'offline', lastSeenAt: now },
             messages: [
               {
-                id: `m-${Date.now()}`,
+                id: `m-${now}`,
+                type: 'system',
+                from: 'business',
+                body: `Booking linked · ${booking.serviceName} (${booking.dateKey || booking.date} ${booking.time})`,
+                at: now
+              },
+              {
+                id: `m-${now + 1}`,
+                type: 'text',
                 from: 'business',
                 body: `Following up on ${booking.serviceName} (${booking.dateKey || booking.date} ${booking.time}).`,
-                at: Date.now()
+                at: now + 1
+              }
+            ]
+          };
+          return { ...prev, threads: [created, ...(prev.threads || [])] };
+        });
+        return created;
+      },
+      startThreadFromOrder: (order) => {
+        if (!order) return null;
+        let created = null;
+        setWorkspace((prev) => {
+          const existing = (prev.threads || []).find(
+            (thread) =>
+              thread.orderId === order.id ||
+              (String(thread.clientEmail || '').toLowerCase() ===
+                String(order.clientEmail || '').toLowerCase() &&
+                thread.subject?.startsWith('Order ·'))
+          );
+          if (existing) {
+            created = { ...existing, orderId: existing.orderId || order.id };
+            return {
+              ...prev,
+              threads: prev.threads.map((thread) =>
+                thread.id === existing.id
+                  ? {
+                      ...thread,
+                      orderId: thread.orderId || order.id,
+                      unread: true,
+                      updatedAt: Date.now()
+                    }
+                  : thread
+              )
+            };
+          }
+          const now = Date.now();
+          const itemLabel = (order.items || [])
+            .map((item) => item.name)
+            .filter(Boolean)
+            .slice(0, 2)
+            .join(' + ');
+          created = {
+            id: `thread-${now}`,
+            clientName: order.clientName,
+            clientEmail: order.clientEmail || '',
+            subject: `Order · ${itemLabel || 'Products'}`,
+            orderId: order.id,
+            unread: false,
+            updatedAt: now,
+            presence: { status: 'offline', lastSeenAt: now },
+            messages: [
+              {
+                id: `m-${now}`,
+                type: 'system',
+                from: 'business',
+                body: `Order linked · ${itemLabel || 'Products'}`,
+                at: now
+              },
+              {
+                id: `m-${now + 1}`,
+                type: 'text',
+                from: 'business',
+                body: `Hi ${order.clientName}, reaching out about your order.`,
+                at: now + 1
               }
             ]
           };
@@ -445,20 +524,23 @@ export function WorkspaceProvider({ children }) {
               )
             };
           }
+          const now = Date.now();
           created = {
-            id: `thread-${Date.now()}`,
+            id: `thread-${now}`,
             clientName: client.name,
             clientEmail: client.email || '',
             subject: `Message · ${client.name}`,
             clientId: client.id,
             unread: false,
-            updatedAt: Date.now(),
+            updatedAt: now,
+            presence: { status: 'offline', lastSeenAt: now },
             messages: [
               {
-                id: `m-${Date.now()}`,
+                id: `m-${now}`,
+                type: 'text',
                 from: 'business',
                 body: `Hi ${client.name}, reaching out from ${prev.brandName}.`,
-                at: Date.now()
+                at: now
               }
             ]
           };
@@ -466,27 +548,57 @@ export function WorkspaceProvider({ children }) {
         });
         return created;
       },
-      sendThreadMessage: (threadId, body) => {
-        const text = String(body || '').trim();
-        if (!text) return;
+      sendThreadMessage: (threadId, payload) => {
+        const incoming = typeof payload === 'string' ? { body: payload } : payload || {};
+        const text = String(incoming.body || '').trim();
+        const attachments = Array.isArray(incoming.attachments) ? incoming.attachments : [];
+        const type =
+          incoming.type ||
+          (attachments[0]?.kind === 'voice'
+            ? 'voice'
+            : attachments[0]?.kind === 'image'
+              ? 'image'
+              : attachments[0]?.kind === 'file'
+                ? 'file'
+                : 'text');
+        if (!text && !attachments.length && type !== 'system') return null;
+        const message = {
+          id: `m-${Date.now()}`,
+          type,
+          from: incoming.from || 'business',
+          body: text,
+          at: Date.now(),
+          ...(attachments.length ? { attachments } : {})
+        };
         setWorkspace((prev) => ({
           ...prev,
           threads: (prev.threads || []).map((thread) =>
             thread.id === threadId
               ? {
                   ...thread,
-                  unread: false,
+                  unread: message.from === 'client',
                   updatedAt: Date.now(),
-                  messages: [
-                    ...(thread.messages || []),
-                    {
-                      id: `m-${Date.now()}`,
-                      from: 'business',
-                      body: text,
-                      at: Date.now()
-                    }
-                  ]
+                  messages: [...(thread.messages || []), message]
                 }
+              : thread
+          )
+        }));
+        return message;
+      },
+      updateThread: (threadId, patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          threads: (prev.threads || []).map((thread) =>
+            thread.id === threadId ? { ...thread, ...patch, updatedAt: Date.now() } : thread
+          )
+        }));
+      },
+      setThreadPresence: (threadId, presence) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          threads: (prev.threads || []).map((thread) =>
+            thread.id === threadId
+              ? { ...thread, presence: { ...(thread.presence || {}), ...presence } }
               : thread
           )
         }));

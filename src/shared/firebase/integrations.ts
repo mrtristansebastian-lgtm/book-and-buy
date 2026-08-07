@@ -80,6 +80,84 @@ export async function uploadPublicImage(file: File, pathHint = 'website') {
   return { ok: true as const, localOnly: false, url };
 }
 
+const MAX_CHAT_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+const CHAT_ALLOWED_PREFIXES = ['image/', 'audio/', 'application/pdf', 'text/plain'];
+const CHAT_ALLOWED_EXACT = new Set([
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+]);
+
+function isAllowedChatMime(mime: string) {
+  const type = String(mime || '').toLowerCase();
+  if (!type) return false;
+  if (CHAT_ALLOWED_EXACT.has(type)) return true;
+  return CHAT_ALLOWED_PREFIXES.some((prefix) => type.startsWith(prefix));
+}
+
+function attachmentKindFromMime(mime: string): 'image' | 'voice' | 'file' {
+  const type = String(mime || '').toLowerCase();
+  if (type.startsWith('image/')) return 'image';
+  if (type.startsWith('audio/')) return 'voice';
+  return 'file';
+}
+
+/**
+ * Upload a chat attachment (image/doc/audio) for Support inbox.
+ * Falls back to a local data URL offline / when unsigned-in.
+ */
+export async function uploadChatAttachment(
+  file: File,
+  { threadId = 'local', messageId = `m-${Date.now()}` }: { threadId?: string; messageId?: string } = {}
+) {
+  if (!(file instanceof File)) {
+    throw new Error('Choose a file.');
+  }
+  if (!isAllowedChatMime(file.type)) {
+    throw new Error('Use an image, PDF, document, or audio file.');
+  }
+  if (file.size > MAX_CHAT_ATTACHMENT_BYTES) {
+    throw new Error('Attachment must be under 25MB.');
+  }
+
+  const kind = attachmentKindFromMime(file.type);
+  const meta = {
+    id: `att-${Date.now()}`,
+    kind,
+    name: file.name || 'attachment',
+    mime: file.type,
+    size: file.size
+  };
+
+  const firebase = getFirebase();
+  const ownerId = firebase?.auth.currentUser?.uid;
+  if (!firebase || !ownerId) {
+    const url = await fileToDataUrl(file);
+    return {
+      ok: true as const,
+      localOnly: true,
+      attachment: { ...meta, url },
+      reason: 'Saved locally until Storage is available.'
+    };
+  }
+
+  const storage = getStorage(firebase.app);
+  const safeThread = String(threadId || 'local').replace(/[^a-zA-Z0-9_-]/g, '');
+  const safeMessage = String(messageId || `m-${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '');
+  const fileName = sanitizeFileName(file.name || 'attachment');
+  const objectPath = `artifacts/${APP_ID}/clientThreads/${safeThread}/attachments/${safeMessage}/${fileName}`;
+  const storageRef = ref(storage, objectPath);
+  await uploadBytes(storageRef, file, { contentType: file.type });
+  const url = await getDownloadURL(storageRef);
+  return {
+    ok: true as const,
+    localOnly: false,
+    attachment: { ...meta, url }
+  };
+}
+
 /** Placeholder until a Places callable + API key ship. */
 export async function fetchGooglePlaceReviews(placeId: string) {
   const id = String(placeId || '').trim();

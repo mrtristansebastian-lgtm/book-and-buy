@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
+import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { formatCents } from '../../../utils/products';
+import { setSupportFocusThread } from '../../support/utils/supportFormat';
 
 const FILTERS = [
   { id: 'all', label: 'All' },
@@ -11,7 +13,8 @@ const FILTERS = [
 ];
 
 export function ProductOrdersDesk() {
-  const { orders, fulfilOrder, cancelOrder, markOrderPaid } = useWorkspace();
+  const { orders, fulfilOrder, cancelOrder, markOrderPaid, startThreadFromOrder } =
+    useWorkspace();
   const [filter, setFilter] = useState('pending');
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState(null);
@@ -104,6 +107,17 @@ export function ProductOrdersDesk() {
                 <button type="button" className="bb-ghost-btn" onClick={() => setSelectedId(order.id)}>
                   Details
                 </button>
+                <button
+                  type="button"
+                  className="bb-ghost-btn"
+                  onClick={() => {
+                    const thread = startThreadFromOrder(order);
+                    if (thread?.id) setSupportFocusThread(thread.id);
+                    navigate('/dashboard/communications');
+                  }}
+                >
+                  Message
+                </button>
                 {order.status !== 'cancelled' ? (
                   <button type="button" className="bb-ghost-btn" onClick={() => cancelOrder(order.id)}>
                     Cancel
@@ -147,6 +161,17 @@ export function ProductOrdersDesk() {
             {selected.clientNote ? (
               <p className="bb-muted m-0 text-sm">Note: {selected.clientNote}</p>
             ) : null}
+            <button
+              type="button"
+              className="bb-primary-btn justify-self-start"
+              onClick={() => {
+                const thread = startThreadFromOrder(selected);
+                if (thread?.id) setSupportFocusThread(thread.id);
+                navigate('/dashboard/communications');
+              }}
+            >
+              Message client
+            </button>
           </div>
         </div>
       ) : null}

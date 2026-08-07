@@ -3,6 +3,7 @@ import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { setSupportFocusThread } from '../../support/utils/supportFormat';
 
 const FILTERS = [
   { id: 'all', label: 'All' },
@@ -194,7 +195,8 @@ export function BookingRequestsDesk() {
                 type="button"
                 className="bb-ghost-btn"
                 onClick={() => {
-                  startThreadFromBooking(selected);
+                  const thread = startThreadFromBooking(selected);
+                  if (thread?.id) setSupportFocusThread(thread.id);
                   navigate('/dashboard/communications');
                 }}
               >
