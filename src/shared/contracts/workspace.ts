@@ -151,6 +151,7 @@ export interface SocialPost {
   id: string;
   type?: "image" | "video" | "text" | string;
   mediaUrl?: string;
+  posterUrl?: string;
   caption?: string;
   title?: string;
   duration?: string;

@@ -69,8 +69,10 @@ export function WorkspaceProvider({ children }) {
       const next = hydrateDemoWorkspace(prev);
       if (
         next.websiteSchema === prev.websiteSchema &&
+        next.socialSchema === prev.socialSchema &&
         next.website?.aboutBody === prev.website?.aboutBody &&
-        (next.website?.venueImages?.length || 0) === (prev.website?.venueImages?.length || 0)
+        (next.website?.venueImages?.length || 0) === (prev.website?.venueImages?.length || 0) &&
+        (next.socialPosts?.length || 0) === (prev.socialPosts?.length || 0)
       ) {
         return prev;
       }
@@ -289,6 +291,8 @@ export function WorkspaceProvider({ children }) {
           id: post.id || `post-${Date.now()}`,
           type: post.type || 'text',
           mediaUrl: post.mediaUrl || '',
+          posterUrl: post.posterUrl || '',
+          duration: post.duration || '',
           caption: post.caption || '',
           title: post.title || '',
           published: post.published !== false,

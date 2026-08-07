@@ -63,6 +63,8 @@ function publicSocialPosts(posts: unknown) {
       title: post.title || '',
       caption: post.caption || '',
       mediaUrl: post.mediaUrl || '',
+      posterUrl: post.posterUrl || '',
+      duration: post.duration || '',
       published: true,
       createdAt: post.createdAt || 0,
       order: post.order ?? 0

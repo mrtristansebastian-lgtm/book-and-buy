@@ -5,6 +5,13 @@ import { addDays, toDateKey } from '../utils/dates';
 /** Bump when demo website shape gains required public Home fields. */
 export const DEMO_WEBSITE_SCHEMA = 2;
 
+/** Bump when demo social feed gains Posts / Videos / Text mix. */
+export const DEMO_SOCIAL_SCHEMA = 2;
+
+/** Stable sample MP4 for demo video player (no local video assets required). */
+export const DEMO_SAMPLE_VIDEO_URL =
+  'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4';
+
 const today = startOfToday();
 
 function startOfToday() {
@@ -426,6 +433,7 @@ export function createDemoWorkspace() {
     onboardingComplete: true,
     isDemo: true,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
+    socialSchema: DEMO_SOCIAL_SCHEMA,
     nativeAccent: true,
     notifications: {
       emailBookingRequests: true,
@@ -573,13 +581,92 @@ export function createDemoWorkspace() {
         order: 1
       },
       {
-        id: 'post-3',
+        id: 'post-4',
+        type: 'image',
+        mediaUrl: '/example/flour-and-flame/venue/tasting-room.webp',
+        caption: 'Tasting room set for the evening class.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 40,
+        order: 2
+      },
+      {
+        id: 'post-5',
+        type: 'image',
+        mediaUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
+        caption: 'Benches ready. Aprons out.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 55,
+        order: 3
+      },
+      {
+        id: 'vid-1',
+        type: 'video',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/venue/pastry-island.webp',
+        title: 'Rolling dough on pastry island',
+        caption: 'A quiet look at how we start laminated pastry mornings.',
+        duration: '0:15',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 12,
+        order: 0
+      },
+      {
+        id: 'vid-2',
+        type: 'video',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
+        title: 'Loaves into the oven',
+        caption: 'Steam, score, bake — the Friday rhythm.',
+        duration: '0:15',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 36,
+        order: 1
+      },
+      {
+        id: 'vid-3',
+        type: 'video',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
+        title: 'Class walkthrough',
+        caption: 'What to expect when you book a hands-on session.',
+        duration: '0:15',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 72,
+        order: 2
+      },
+      {
+        id: 'text-1',
         type: 'text',
         title: 'Studio note',
         caption: 'Private baking lessons are open for March — tell us what you want to master.',
         published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 50,
+        createdAt: Date.now() - 1000 * 60 * 60 * 6,
+        order: 0
+      },
+      {
+        id: 'text-2',
+        type: 'text',
+        caption: 'Sold a few pasta kits this morning. If you’ve been waiting, this week’s batch is ready on Buy.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 20,
+        order: 1
+      },
+      {
+        id: 'text-3',
+        type: 'text',
+        title: 'Hours',
+        caption: 'Studio open Tue–Sat. Sunday private bookings by request.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 48,
         order: 2
+      },
+      {
+        id: 'text-4',
+        type: 'text',
+        caption: 'Tip from today’s class: rest your dough longer than you think. Texture always tells.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 70,
+        order: 3
       }
     ],
     availabilityRules: {
@@ -611,57 +698,57 @@ export function hydrateDemoWorkspace(stored) {
     !Array.isArray(stored.website?.venueImages) ||
     !stored.website.venueImages.length;
 
-  if (!staleWebsite) {
-    return {
-      ...fresh,
-      ...stored,
-      isDemo: true,
-      websiteSchema: DEMO_WEBSITE_SCHEMA,
-      website: {
+  const hasVideo = (stored.socialPosts || []).some((post) => post?.type === 'video');
+  const hasText = (stored.socialPosts || []).some((post) => post?.type === 'text');
+  const staleSocial =
+    Number(stored.socialSchema || 0) < DEMO_SOCIAL_SCHEMA ||
+    !Array.isArray(stored.socialPosts) ||
+    stored.socialPosts.length < 6 ||
+    !hasVideo ||
+    !hasText;
+
+  const website = staleWebsite
+    ? {
+        ...fresh.website,
+        ...(stored.website || {}),
+        aboutTitle: fresh.website.aboutTitle,
+        aboutBody: fresh.website.aboutBody,
+        aboutImageUrl: fresh.website.aboutImageUrl,
+        reasonsTitle: fresh.website.reasonsTitle,
+        reasons: fresh.website.reasons,
+        venueTitle: fresh.website.venueTitle,
+        venueImages: fresh.website.venueImages,
+        address: fresh.website.address,
+        mapEmbedUrl: fresh.website.mapEmbedUrl,
+        mapLinkUrl: fresh.website.mapLinkUrl,
+        reviewsTitle: fresh.website.reviewsTitle,
+        reviews: fresh.website.reviews,
+        bookStripTitle: fresh.website.bookStripTitle,
+        bookStripBody: fresh.website.bookStripBody,
+        bookStripCta: fresh.website.bookStripCta,
+        bookFaqTitle: fresh.website.bookFaqTitle,
+        bookFaq: fresh.website.bookFaq,
+        sections: fresh.website.sections,
+        sectionOrder: fresh.website.sectionOrder,
+        featuredProductId: fresh.website.featuredProductId,
+        heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
+        homeHeadline: stored.website?.homeHeadline || fresh.website.homeHeadline,
+        homeSubtext: stored.website?.homeSubtext || fresh.website.homeSubtext,
+        ctaLabel: stored.website?.ctaLabel || fresh.website.ctaLabel,
+        buyCtaLabel: stored.website?.buyCtaLabel || fresh.website.buyCtaLabel
+      }
+    : {
         ...fresh.website,
         ...(stored.website || {})
-      }
-    };
-  }
+      };
 
   return {
     ...fresh,
     ...stored,
     isDemo: true,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
-    website: {
-      ...fresh.website,
-      ...(stored.website || {}),
-      // Prefer current rich Home demo content when the cache is incomplete.
-      aboutTitle: fresh.website.aboutTitle,
-      aboutBody: fresh.website.aboutBody,
-      aboutImageUrl: fresh.website.aboutImageUrl,
-      reasonsTitle: fresh.website.reasonsTitle,
-      reasons: fresh.website.reasons,
-      venueTitle: fresh.website.venueTitle,
-      venueImages: fresh.website.venueImages,
-      address: fresh.website.address,
-      mapEmbedUrl: fresh.website.mapEmbedUrl,
-      mapLinkUrl: fresh.website.mapLinkUrl,
-      reviewsTitle: fresh.website.reviewsTitle,
-      reviews: fresh.website.reviews,
-      bookStripTitle: fresh.website.bookStripTitle,
-      bookStripBody: fresh.website.bookStripBody,
-      bookStripCta: fresh.website.bookStripCta,
-      bookFaqTitle: fresh.website.bookFaqTitle,
-      bookFaq: fresh.website.bookFaq,
-      sections: fresh.website.sections,
-      sectionOrder: fresh.website.sectionOrder,
-      featuredProductId: fresh.website.featuredProductId,
-      heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
-      homeHeadline: stored.website?.homeHeadline || fresh.website.homeHeadline,
-      homeSubtext: stored.website?.homeSubtext || fresh.website.homeSubtext,
-      ctaLabel: stored.website?.ctaLabel || fresh.website.ctaLabel,
-      buyCtaLabel: stored.website?.buyCtaLabel || fresh.website.buyCtaLabel
-    },
-    socialPosts:
-      Array.isArray(stored.socialPosts) && stored.socialPosts.length
-        ? stored.socialPosts
-        : fresh.socialPosts
+    socialSchema: DEMO_SOCIAL_SCHEMA,
+    website,
+    socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts
   };
 }

@@ -3,6 +3,7 @@ import { navigate, publicPagePath } from '../../../app/routing';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
 import { fetchGooglePlaceReviews } from '../../../shared/firebase/integrations';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
+import { SocialFeed } from '../../social/components/SocialFeed';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
 import { EditableText, EditableImage, EditSection } from './editable';
 
@@ -694,129 +695,6 @@ export function PublicBuyView({
   );
 }
 
-export function PublicSocialView({
-  workspace,
-  editMode = false,
-  onUpdateWebsite,
-  onUpdateSocialPost,
-  onAddSocialPost,
-  showDrafts = false
-}) {
-  const website = workspace.website || {};
-  const posts = [...(workspace.socialPosts || [])]
-    .filter((post) => (editMode && showDrafts ? true : post.published !== false))
-    .sort(
-      (a, b) => (a.order ?? 0) - (b.order ?? 0) || (b.createdAt || 0) - (a.createdAt || 0)
-    );
-
-  return (
-    <section className="bb-public-social bb-public-gutter">
-      <div className="bb-public-measure grid gap-8">
-        <header className="bb-public-social-header grid gap-3">
-          <EditableText
-            as="h1"
-            className="bb-page-title"
-            editMode={editMode}
-            value={website.socialHeadline || 'Social'}
-            placeholder="Social headline"
-            onChange={(value) => onUpdateWebsite?.({ socialHeadline: value })}
-          />
-          <EditableText
-            as="p"
-            className="bb-public-lede m-0"
-            editMode={editMode}
-            multiline
-            value={website.socialSubtext || `Updates from ${workspace.brandName}.`}
-            placeholder="Social supporting line"
-            onChange={(value) => onUpdateWebsite?.({ socialSubtext: value })}
-          />
-        </header>
-
-        {editMode ? (
-          <button
-            type="button"
-            className="bb-primary-btn justify-self-start"
-            onClick={() =>
-              onAddSocialPost?.({
-                type: 'text',
-                title: 'New post',
-                caption: 'Write your caption…',
-                published: false
-              })
-            }
-          >
-            Add post
-          </button>
-        ) : null}
-
-        <div className="bb-public-social-feed">
-          {posts.length === 0 ? (
-            <div className="bb-public-empty">No posts published yet.</div>
-          ) : (
-            posts.map((post) => {
-              const isImage = post.type === 'image' || post.mediaUrl;
-              return (
-                <article
-                  key={post.id}
-                  className={`bb-public-social-card ${
-                    isImage && post.mediaUrl
-                      ? 'bb-public-social-card--image'
-                      : 'bb-public-social-card--text'
-                  }`}
-                >
-                  {editMode && post.published === false ? (
-                    <div className="bb-edit-section-badge mx-4 mt-3">Draft</div>
-                  ) : null}
-                  {isImage ? (
-                    <EditableImage
-                      editMode={editMode}
-                      src={post.mediaUrl || ''}
-                      className="bb-public-social-media"
-                      imgClassName="w-full h-full object-cover"
-                      storageFolder="social"
-                      onChange={(url) =>
-                        onUpdateSocialPost?.(post.id, { mediaUrl: url, type: 'image' })
-                      }
-                    />
-                  ) : null}
-                  <div className="bb-public-social-body">
-                    <EditableText
-                      as="h2"
-                      className="bb-page-title"
-                      editMode={editMode}
-                      value={post.title || ''}
-                      placeholder="Title (optional)"
-                      onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-                    />
-                    <EditableText
-                      as="p"
-                      className="bb-public-social-caption"
-                      editMode={editMode}
-                      multiline
-                      value={post.caption || ''}
-                      placeholder="Caption"
-                      onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-                    />
-                    {editMode ? (
-                      <button
-                        type="button"
-                        className="bb-ghost-btn justify-self-start py-1.5 px-3 text-xs"
-                        onClick={() =>
-                          onUpdateSocialPost?.(post.id, {
-                            published: post.published === false
-                          })
-                        }
-                      >
-                        {post.published !== false ? 'Unpublish' : 'Publish'}
-                      </button>
-                    ) : null}
-                  </div>
-                </article>
-              );
-            })
-          )}
-        </div>
-      </div>
-    </section>
-  );
+export function PublicSocialView(props) {
+  return <SocialFeed {...props} />;
 }

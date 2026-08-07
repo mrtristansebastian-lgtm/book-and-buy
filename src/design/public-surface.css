@@ -402,7 +402,7 @@
   padding-top: clamp(1.75rem, 4vw, 2.75rem);
   padding-bottom: 3rem;
   display: grid;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .bb-public-social-header h1 {
@@ -410,53 +410,309 @@
   margin: 0;
 }
 
-.bb-public-social-feed {
+.bb-social-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.bb-social-tabs {
+  min-width: 0;
+}
+
+.bb-social-tabs .bb-segment {
+  flex-wrap: wrap;
+}
+
+/* Posts — Instagram-like square grid */
+.bb-social-posts-grid {
   display: grid;
-  gap: 1.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
 }
 
-.bb-public-social-card {
+@media (min-width: 768px) {
+  .bb-social-posts-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+.bb-social-post-cell {
+  position: relative;
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.bb-social-draft-badge {
+  position: absolute;
+  z-index: 2;
+  top: 0.45rem;
+  left: 0.45rem;
+}
+
+.bb-social-post-media {
+  aspect-ratio: 1 / 1;
+  border-radius: 0.85rem;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.07);
-  border-radius: 1.35rem;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-.bb-public-social-card--text {
-  padding: 1.5rem 1.5rem 1.65rem;
-}
-
-.bb-public-social-card--image .bb-public-social-body {
-  padding: 1.35rem 1.5rem 1.55rem;
-}
-
-.bb-public-social-media {
-  aspect-ratio: 4 / 3;
-  background: rgba(15, 23, 42, 0.04);
-}
-
-.bb-public-social-media img {
+.bb-social-post-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.bb-public-social-body {
+.bb-social-post-meta {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  padding: 0 0.15rem 0.25rem;
 }
 
-.bb-public-social-body h2 {
+.bb-social-post-caption {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #344054;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.bb-public-social-caption {
+/* Videos — YouTube-like stage + list */
+.bb-social-videos {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 960px) {
+  .bb-social-videos {
+    grid-template-columns: minmax(0, 1.45fr) minmax(16rem, 0.9fr);
+    align-items: start;
+    gap: 1.5rem;
+  }
+}
+
+.bb-social-video-stage {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.bb-social-video-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1rem;
+  background: #0c0a09;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  display: block;
+  object-fit: contain;
+}
+
+.bb-social-video-player--empty {
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.bb-social-video-stage-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bb-social-video-caption {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  color: #475467;
+}
+
+.bb-social-video-list {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.bb-social-video-row {
+  display: grid;
+  gap: 0.55rem;
+  border-radius: 0.85rem;
+  padding: 0.2rem;
+}
+
+.bb-social-video-row.is-active {
+  background: #f7f7f8;
+}
+
+.bb-social-video-row-hit {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 0.35rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+}
+
+.bb-social-video-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.55rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.bb-social-video-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-social-video-duration {
+  position: absolute;
+  right: 0.3rem;
+  bottom: 0.3rem;
+  padding: 0.12rem 0.35rem;
+  border-radius: 0.3rem;
+  background: rgba(5, 5, 5, 0.82);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.bb-social-video-row-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.bb-social-video-row-copy strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 720;
+  color: #101828;
+  letter-spacing: -0.02em;
+}
+
+.bb-social-video-row-copy span {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #667085;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-social-video-edit {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.35rem 0.45rem 0.65rem;
+}
+
+.bb-social-video-poster-edit {
+  aspect-ratio: 16 / 9;
+  max-width: 14rem;
+  border-radius: 0.65rem;
+  overflow: hidden;
+}
+
+/* Text — Twitter-like timeline */
+.bb-social-text-stream {
+  display: grid;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-social-text-item {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  gap: 0.85rem;
+  padding: 1.05rem 0.15rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-social-text-avatar {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #f2f4f7;
+  color: #101828;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-weight: 780;
+  font-size: 0.95rem;
+}
+
+.bb-social-text-body {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.bb-social-text-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.bb-social-text-head strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 760;
+  color: #101828;
+}
+
+.bb-social-text-time {
+  font-size: 0.82rem;
+  color: #98a2b3;
+  font-weight: 560;
+}
+
+.bb-social-text-kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #667085;
+}
+
+.bb-social-text-caption {
+  margin: 0;
+  font-size: 1.02rem;
   line-height: 1.5;
   color: #101828;
+  white-space: pre-wrap;
+}
+
+html body .native-ui .bb-public-surface .bb-social-post-caption,
+html body .native-ui .bb-public-surface .bb-social-video-caption,
+html body .native-ui .bb-public-surface .bb-social-video-row-copy span {
+  color: #475467 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-social-text-caption {
+  color: #101828 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-social-text-kicker,
+html body .native-ui .bb-public-surface .bb-social-text-time {
+  color: #667085 !important;
 }
 
 .bb-public-empty {
