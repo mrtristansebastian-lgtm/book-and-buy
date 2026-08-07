@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Film, ImagePlus, Replace } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
+import { ImageCropModal } from '../../media/ImageCropModal';
 
 export function VideoPostComposer({ onAddSocialPost }) {
   const videoRef = useRef(null);
@@ -12,6 +13,9 @@ export function VideoPostComposer({ onAddSocialPost }) {
   const [duration, setDuration] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [cropSource, setCropSource] = useState(null);
+  const [cropOpen, setCropOpen] = useState(false);
+  const [fileNameHint, setFileNameHint] = useState('');
 
   const reset = () => {
     setMediaUrl('');
@@ -34,17 +38,27 @@ export function VideoPostComposer({ onAddSocialPost }) {
     setMediaUrl(URL.createObjectURL(file));
   };
 
-  const onPoster = async (event) => {
+  const onPoster = (event) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
+    setError('');
+    setFileNameHint(file.name || '');
+    setCropSource(file);
+    setCropOpen(true);
+  };
+
+  const onCropConfirm = async (file) => {
     setBusy(true);
     setError('');
     try {
       const result = await uploadPublicImage(file, 'social');
       setPosterUrl(result.url || '');
+      setCropOpen(false);
+      setCropSource(null);
     } catch (err) {
       setError(err?.message || 'Poster upload failed');
+      throw err;
     } finally {
       setBusy(false);
     }
@@ -74,7 +88,7 @@ export function VideoPostComposer({ onAddSocialPost }) {
       <header className="bb-social-compose-head">
         <h2 className="bb-social-compose-title">Upload video</h2>
         <p className="bb-social-compose-lede">
-          Preview locally from a file, or paste a durable link for sharing.
+          Preview locally, then publish into the same Videos stage clients see live.
         </p>
       </header>
 
@@ -109,7 +123,7 @@ export function VideoPostComposer({ onAddSocialPost }) {
                   <Film size={22} />
                 </span>
                 <span className="bb-social-dropzone-label">Choose video</span>
-                <span className="bb-social-dropzone-hint">MP4 or WebM · 16:9 preview</span>
+                <span className="bb-social-dropzone-hint">MP4 or WebM · 16:9</span>
               </span>
             </button>
           )}
@@ -174,7 +188,7 @@ export function VideoPostComposer({ onAddSocialPost }) {
               )}
               <span className="bb-social-compose-poster-copy">
                 <strong>{posterUrl ? 'Change poster' : 'Add poster'}</strong>
-                <span>Thumbnail shown in the Videos list</span>
+                <span>16:9 thumbnail · cropped before save</span>
               </span>
             </button>
             <input ref={posterRef} type="file" accept="image/*" className="hidden" onChange={onPoster} />
@@ -191,6 +205,19 @@ export function VideoPostComposer({ onAddSocialPost }) {
           </div>
         </div>
       </div>
+
+      <ImageCropModal
+        open={cropOpen}
+        source={cropSource}
+        preset="videoPoster"
+        fileNameHint={fileNameHint}
+        onCancel={() => {
+          if (busy) return;
+          setCropOpen(false);
+          setCropSource(null);
+        }}
+        onConfirm={onCropConfirm}
+      />
     </section>
   );
 }

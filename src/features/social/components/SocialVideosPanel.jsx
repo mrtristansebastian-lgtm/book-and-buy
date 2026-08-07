@@ -6,6 +6,7 @@ export function SocialVideosPanel({
   posts,
   editMode = false,
   onUpdateSocialPost,
+  onRemoveSocialPost,
   initialActiveId = ''
 }) {
   const [activeId, setActiveId] = useState(initialActiveId || posts[0]?.id || '');
@@ -176,6 +177,15 @@ export function SocialVideosPanel({
                     >
                       {post.published !== false ? 'Unpublish' : 'Publish'}
                     </button>
+                    {onRemoveSocialPost ? (
+                      <button
+                        type="button"
+                        className="bb-ghost-btn py-1.5 px-3 text-xs justify-self-start"
+                        onClick={() => onRemoveSocialPost(post.id)}
+                      >
+                        Delete
+                      </button>
+                    ) : null}
                   </div>
                 ) : null}
               </article>

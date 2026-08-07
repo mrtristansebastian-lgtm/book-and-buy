@@ -1237,6 +1237,13 @@
   white-space: pre-wrap;
 }
 
+.bb-social-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-self: start;
+}
+
 /* Studio may still reference legacy grid cells */
 .bb-social-posts-grid {
   display: grid;

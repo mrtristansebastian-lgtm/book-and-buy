@@ -67,7 +67,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
       <header className="bb-social-compose-head">
         <h2 className="bb-social-compose-title">New post</h2>
         <p className="bb-social-compose-lede">
-          Title, caption, and photo — Instagram 4:5 portrait for the Posts gallery.
+          Crop to Instagram 4:5, then publish into the same gallery clients see live.
         </p>
       </header>
 

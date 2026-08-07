@@ -7,6 +7,7 @@ export function SocialPostsGrid({
   posts,
   editMode = false,
   onUpdateSocialPost,
+  onRemoveSocialPost,
   onOpenPost,
   emptyLabel
 }) {
@@ -77,15 +78,26 @@ export function SocialPostsGrid({
             </div>
 
             {editMode ? (
-              <button
-                type="button"
-                className="bb-ghost-btn py-1 px-2.5 text-xs justify-self-start"
-                onClick={() =>
-                  onUpdateSocialPost?.(post.id, { published: post.published === false })
-                }
-              >
-                {post.published !== false ? 'Unpublish' : 'Publish'}
-              </button>
+              <div className="bb-social-edit-actions">
+                <button
+                  type="button"
+                  className="bb-ghost-btn py-1 px-2.5 text-xs"
+                  onClick={() =>
+                    onUpdateSocialPost?.(post.id, { published: post.published === false })
+                  }
+                >
+                  {post.published !== false ? 'Unpublish' : 'Publish'}
+                </button>
+                {onRemoveSocialPost ? (
+                  <button
+                    type="button"
+                    className="bb-ghost-btn py-1 px-2.5 text-xs"
+                    onClick={() => onRemoveSocialPost(post.id)}
+                  >
+                    Delete
+                  </button>
+                ) : null}
+              </div>
             ) : null}
           </article>
         );

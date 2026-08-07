@@ -1,142 +1,86 @@
-import { formatSocialTime, getSocialPostKind } from '../utils/socialPostType';
+import { useMemo, useState } from 'react';
+import { getSocialPostKind } from '../utils/socialPostType';
+import { SocialPostsGrid } from './SocialPostsGrid';
+import { SocialPostLightbox } from './SocialPostLightbox';
+import { SocialVideosPanel } from './SocialVideosPanel';
+import { SocialTextTimeline } from './SocialTextTimeline';
 
+/**
+ * Studio library — same visual surfaces as the live Business Blog.
+ */
 export function SocialStudioLibrary({
   tab,
   posts,
-  brandName = 'Business',
   onUpdateSocialPost,
   onRemoveSocialPost
 }) {
   const kind = tab === 'videos' ? 'video' : tab === 'text' ? 'text' : 'image';
-  const items = posts.filter((post) => getSocialPostKind(post) === kind);
+  const items = useMemo(
+    () => posts.filter((post) => getSocialPostKind(post) === kind),
+    [posts, kind]
+  );
   const label = tab === 'videos' ? 'Videos' : tab === 'text' ? 'Articles' : 'Posts';
+  const [lightboxId, setLightboxId] = useState('');
 
-  if (!items.length) {
-    return (
-      <section className="bb-social-library">
-        <header className="bb-social-library-head">
-          <h2 className="bb-page-title text-lg m-0">Your {label.toLowerCase()}</h2>
-        </header>
-        <div className="bb-public-empty">Nothing here yet — create one above.</div>
-      </section>
-    );
-  }
+  const liveCount = items.filter((item) => item.published !== false).length;
+  const draftCount = items.filter((item) => item.published === false).length;
 
   return (
     <section className="bb-social-library">
       <header className="bb-social-library-head">
-        <h2 className="bb-page-title text-lg m-0">Your {label.toLowerCase()}</h2>
-        <p className="bb-muted m-0 text-sm">
-          {items.filter((item) => item.published !== false).length} live ·{' '}
-          {items.filter((item) => item.published === false).length} drafts
-        </p>
+        <div className="bb-social-library-head-copy">
+          <p className="bb-social-library-eyebrow">Live preview</p>
+          <h2 className="bb-social-library-title">Your {label.toLowerCase()}</h2>
+        </div>
+        {items.length ? (
+          <p className="bb-social-library-meta">
+            {liveCount} live · {draftCount} draft{draftCount === 1 ? '' : 's'}
+          </p>
+        ) : null}
       </header>
 
-      {kind === 'image' ? (
-        <div className="bb-social-library-grid">
-          {items.map((post) => (
-            <article key={post.id} className="bb-social-library-cell">
-              <div className="bb-social-library-media">
-                {post.mediaUrl ? <img src={post.mediaUrl} alt="" /> : null}
-                {post.published === false ? (
-                  <span className="bb-edit-section-badge bb-social-library-badge">Draft</span>
-                ) : null}
-              </div>
-              <p className="bb-social-library-caption">{post.caption || 'Untitled post'}</p>
-              <LibraryActions
-                post={post}
+      <div className="bb-social-library-surface">
+        {kind === 'image' ? (
+          <>
+            <SocialPostsGrid
+              posts={items}
+              editMode
+              onUpdateSocialPost={onUpdateSocialPost}
+              onRemoveSocialPost={onRemoveSocialPost}
+              onOpenPost={setLightboxId}
+              emptyLabel="Nothing here yet — publish a photo above."
+            />
+            {lightboxId ? (
+              <SocialPostLightbox
+                posts={items}
+                activeId={lightboxId}
+                editMode
+                onClose={() => setLightboxId('')}
+                onChangeActive={setLightboxId}
                 onUpdateSocialPost={onUpdateSocialPost}
-                onRemoveSocialPost={onRemoveSocialPost}
               />
-            </article>
-          ))}
-        </div>
-      ) : null}
+            ) : null}
+          </>
+        ) : null}
 
-      {kind === 'video' ? (
-        <div className="bb-social-library-video-list">
-          {items.map((post) => (
-            <article key={post.id} className="bb-social-library-video-row">
-              <div className="bb-social-video-thumb">
-                {post.posterUrl || post.mediaUrl ? (
-                  <img src={post.posterUrl || post.mediaUrl} alt="" />
-                ) : null}
-                {post.duration ? (
-                  <span className="bb-social-video-duration">{post.duration}</span>
-                ) : null}
-              </div>
-              <div className="bb-social-library-video-copy">
-                <div className="flex flex-wrap items-center gap-2">
-                  <strong>{post.title || 'Untitled video'}</strong>
-                  {post.published === false ? (
-                    <span className="bb-edit-section-badge">Draft</span>
-                  ) : null}
-                </div>
-                <p className="bb-muted m-0 text-sm">{post.caption || ''}</p>
-                <LibraryActions
-                  post={post}
-                  onUpdateSocialPost={onUpdateSocialPost}
-                  onRemoveSocialPost={onRemoveSocialPost}
-                />
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : null}
+        {kind === 'video' ? (
+          <SocialVideosPanel
+            posts={items}
+            editMode
+            onUpdateSocialPost={onUpdateSocialPost}
+            onRemoveSocialPost={onRemoveSocialPost}
+          />
+        ) : null}
 
-      {kind === 'text' ? (
-        <div className="bb-social-library-text-stream">
-          {items.map((post) => (
-            <article key={post.id} className="bb-social-text-item">
-              <div className="bb-social-text-avatar" aria-hidden="true">
-                {String(brandName || 'B')
-                  .trim()
-                  .charAt(0)
-                  .toUpperCase()}
-              </div>
-              <div className="bb-social-text-body">
-                <header className="bb-social-text-head">
-                  <strong>{brandName}</strong>
-                  <span className="bb-social-text-time">{formatSocialTime(post.createdAt)}</span>
-                  {post.published === false ? (
-                    <span className="bb-edit-section-badge">Draft</span>
-                  ) : null}
-                </header>
-                {post.title ? <p className="bb-social-text-kicker">{post.title}</p> : null}
-                <p className="bb-social-text-caption">{post.caption}</p>
-                <LibraryActions
-                  post={post}
-                  onUpdateSocialPost={onUpdateSocialPost}
-                  onRemoveSocialPost={onRemoveSocialPost}
-                />
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : null}
+        {kind === 'text' ? (
+          <SocialTextTimeline
+            posts={items}
+            editMode
+            onUpdateSocialPost={onUpdateSocialPost}
+            onRemoveSocialPost={onRemoveSocialPost}
+          />
+        ) : null}
+      </div>
     </section>
-  );
-}
-
-function LibraryActions({ post, onUpdateSocialPost, onRemoveSocialPost }) {
-  return (
-    <div className="bb-social-library-actions">
-      <button
-        type="button"
-        className="bb-ghost-btn py-1 px-2.5 text-xs"
-        onClick={() =>
-          onUpdateSocialPost?.(post.id, { published: post.published === false })
-        }
-      >
-        {post.published !== false ? 'Unpublish' : 'Publish'}
-      </button>
-      <button
-        type="button"
-        className="bb-ghost-btn py-1 px-2.5 text-xs"
-        onClick={() => onRemoveSocialPost?.(post.id)}
-      >
-        Delete
-      </button>
-    </div>
   );
 }

@@ -1,14 +1,12 @@
 import { useState } from 'react';
 
-export function TextPostComposer({ brandName = 'Business', onAddSocialPost }) {
+/**
+ * Editorial article composer — matches live Business Blog notes.
+ */
+export function TextPostComposer({ onAddSocialPost }) {
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
   const [error, setError] = useState('');
-
-  const initial = String(brandName || 'B')
-    .trim()
-    .charAt(0)
-    .toUpperCase();
 
   const reset = () => {
     setTitle('');
@@ -30,44 +28,50 @@ export function TextPostComposer({ brandName = 'Business', onAddSocialPost }) {
     reset();
   };
 
+  const nowLabel = new Date().toLocaleString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+
   return (
     <section className="bb-social-compose bb-social-compose--text">
       <header className="bb-social-compose-head">
-        <h2 className="bb-social-compose-title">New text update</h2>
-        <p className="bb-social-compose-lede">Write a short article for the Text tab on your live Business Blog.</p>
+        <h2 className="bb-social-compose-title">New article</h2>
+        <p className="bb-social-compose-lede">
+          Write a note that will appear on the Articles tab exactly as previewed below.
+        </p>
       </header>
 
-      <div className="bb-social-compose-tweet">
-        <div className="bb-social-text-avatar" aria-hidden="true">
-          {initial}
+      <div className="bb-social-compose-note">
+        <div className="bb-social-compose-note-meta">
+          <span className="bb-social-compose-note-stamp">{nowLabel}</span>
+          <span className="bb-social-note-mark bb-public-native-fill" aria-hidden="true" />
+          <span className="bb-edit-section-badge">Drafting</span>
         </div>
-        <div className="bb-social-compose-tweet-main">
-          <div className="bb-social-compose-tweet-meta">
-            <strong>{brandName}</strong>
-            <span>Drafting now</span>
-          </div>
-          <input
-            className="bb-social-compose-kicker-input"
-            value={title}
-            placeholder="Kicker (optional)"
-            onChange={(event) => setTitle(event.target.value)}
-          />
-          <textarea
-            className="bb-social-compose-tweet-input"
-            rows={4}
-            value={caption}
-            placeholder="What’s happening?"
-            onChange={(event) => setCaption(event.target.value)}
-          />
-          {error ? <p className="bb-social-compose-error">{error}</p> : null}
-          <div className="bb-social-compose-actions bb-social-compose-actions--tweet">
-            <button type="button" className="bb-ghost-btn" onClick={() => submit(false)}>
-              Save draft
-            </button>
-            <button type="button" className="bb-primary-btn" onClick={() => submit(true)}>
-              Post
-            </button>
-          </div>
+        <input
+          className="bb-social-compose-note-title"
+          value={title}
+          placeholder="Title (optional)"
+          onChange={(event) => setTitle(event.target.value)}
+        />
+        <textarea
+          className="bb-social-compose-note-body"
+          rows={5}
+          value={caption}
+          placeholder="Write your article…"
+          onChange={(event) => setCaption(event.target.value)}
+        />
+        {error ? <p className="bb-social-compose-error">{error}</p> : null}
+        <div className="bb-social-compose-actions">
+          <button type="button" className="bb-ghost-btn" onClick={() => submit(false)}>
+            Save draft
+          </button>
+          <button type="button" className="bb-primary-btn" onClick={() => submit(true)}>
+            Publish
+          </button>
         </div>
       </div>
     </section>

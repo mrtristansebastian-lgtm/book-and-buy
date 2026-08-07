@@ -1,18 +1,12 @@
 import { useMemo, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Radio } from 'lucide-react';
 import { E_BUSINESS_PLATFORM_NAME } from '../../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { getSocialPostKind } from '../utils/socialPostType';
+import { SocialProfileTabs } from '../components/SocialProfileTabs';
 import { SocialStudioCompose } from '../components/SocialStudioCompose';
 import { SocialStudioLibrary } from '../components/SocialStudioLibrary';
-
-const TABS = [
-  { id: 'posts', label: 'Posts', kind: 'image' },
-  { id: 'videos', label: 'Videos', kind: 'video' },
-  { id: 'text', label: 'Articles', kind: 'text' }
-];
 
 export function SocialStudioPage() {
   const { workspace, addSocialPost, updateSocialPost, removeSocialPost } = useWorkspace();
@@ -28,55 +22,43 @@ export function SocialStudioPage() {
     return next;
   }, [posts]);
 
-  const tabOptions = TABS.map((item) => ({
-    id: item.id,
-    label: item.label,
-    count: counts[item.kind]
-  }));
+  const kind = tab === 'videos' ? 'video' : tab === 'text' ? 'text' : 'image';
 
   return (
     <div className="bb-social-studio">
       <header className="bb-social-studio-header">
         <div className="bb-social-studio-header-row">
-          <div className="grid gap-1 min-w-0">
-            <p className="m-0 text-xs font-bold uppercase tracking-[0.08em] text-black/35">
-              {E_BUSINESS_PLATFORM_NAME}
-            </p>
-            <h1 className="bb-page-title text-2xl md:text-3xl m-0">Business Blog</h1>
-            <p className="bb-muted m-0 text-sm">
-              Create posts, upload videos, and write articles. Publish when you’re ready for the
-              live Business Blog.
+          <div className="bb-social-studio-header-copy">
+            <p className="bb-social-studio-eyebrow">{E_BUSINESS_PLATFORM_NAME}</p>
+            <h1 className="bb-social-studio-title">Business Blog studio</h1>
+            <p className="bb-social-studio-lede">
+              Publish posts, videos, and articles. What you see below is what goes live.
             </p>
           </div>
           <button
             type="button"
-            className="bb-ghost-btn shrink-0"
+            className="bb-ghost-btn bb-social-studio-live-btn shrink-0"
             onClick={() => navigate(publicPagePath(workspace.slug, 'social'))}
           >
-            <ExternalLink size={15} /> Open live
+            <Radio size={14} strokeWidth={2.2} />
+            Open live
+            <ExternalLink size={13} strokeWidth={2.2} />
           </button>
         </div>
 
         <div className="bb-social-studio-tabs">
-          <PeriodSegmentedControl
-            ariaLabel="Business Blog content type"
-            value={tab}
-            onChange={setTab}
-            options={tabOptions}
-          />
+          <SocialProfileTabs value={tab} onChange={setTab} />
+          <p className="bb-social-studio-tab-count" aria-live="polite">
+            {counts[kind]} in library
+          </p>
         </div>
       </header>
 
       <div className="bb-social-studio-body">
-        <SocialStudioCompose
-          tab={tab}
-          brandName={workspace.brandName}
-          onAddSocialPost={addSocialPost}
-        />
+        <SocialStudioCompose tab={tab} onAddSocialPost={addSocialPost} />
         <SocialStudioLibrary
           tab={tab}
           posts={posts}
-          brandName={workspace.brandName}
           onUpdateSocialPost={updateSocialPost}
           onRemoveSocialPost={removeSocialPost}
         />
