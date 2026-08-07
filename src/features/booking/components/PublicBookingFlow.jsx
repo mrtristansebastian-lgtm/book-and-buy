@@ -95,7 +95,7 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
     <section
       className={`bb-public-gutter py-7 ${preview ? 'pointer-events-none' : ''}`}
     >
-      <div className="bb-public-measure-wide grid gap-6">
+      <div className="bb-public-measure grid gap-6">
         {hideTitle ? (
           <p className="bb-public-progress">
             Step {stepIndex} of {stepTotal}
@@ -137,7 +137,7 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
                         .join(' · ')}
                     </p>
                   </div>
-                  <p className="bb-public-service-price hidden md:block">
+                  <p className="bb-public-service-price hidden md:block m-0">
                     {[formatServicePrice(item), formatServiceDuration(item.duration)]
                       .filter(Boolean)
                       .join(' · ')}

@@ -2,7 +2,7 @@
 .bb-public-surface {
   --bb-public-gutter: 1.25rem;
   --bb-public-gutter-lg: 2.5rem;
-  --bb-public-measure: 46rem;
+  --bb-public-measure: 52rem;
   --bb-public-measure-wide: 64rem;
   --bb-public-header-h: 3.75rem;
   min-height: 100%;
@@ -181,94 +181,112 @@
   color: rgba(15, 23, 42, 0.4);
 }
 
-/* Book service list — compact horizontal rows */
-.bb-public-service-list {
+/* Book + Buy shared list rows */
+.bb-public-service-list,
+.bb-public-product-grid {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
-.bb-public-service-row {
+.bb-public-service-row,
+.bb-public-product-card {
   display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);
+  grid-template-columns: 5rem minmax(0, 1fr);
   gap: 0.9rem;
   align-items: center;
   width: 100%;
+  max-width: 46rem;
+  min-width: 0;
   text-align: left;
   border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 0.95rem;
-  background: #fbfbfb;
-  padding: 0.7rem 0.85rem 0.7rem 0.7rem;
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.45rem 0.75rem 0.45rem 0.45rem;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.bb-public-product-card {
+  cursor: default;
+  max-width: none;
 }
 
 @media (min-width: 768px) {
-  .bb-public-service-row {
-    grid-template-columns: 6.25rem minmax(0, 1fr) auto;
-    gap: 1.1rem;
-    padding: 0.75rem 1rem 0.75rem 0.75rem;
+  .bb-public-service-row,
+  .bb-public-product-card {
+    grid-template-columns: 5.25rem minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 0.5rem 1rem 0.5rem 0.5rem;
   }
 }
 
-.bb-public-service-row:hover {
-  background: #fff;
-  border-color: rgba(15, 23, 42, 0.16);
+.bb-public-service-row:hover,
+.bb-public-product-card:hover {
+  border-color: rgba(15, 23, 42, 0.18);
 }
 
 .bb-public-service-row[aria-pressed='true'] {
-  background: #fff;
   border-color: #050505;
   box-shadow: inset 0 0 0 1px #050505;
 }
 
-.bb-public-service-media {
-  width: 5.5rem;
-  height: 5.5rem;
-  border-radius: 0.7rem;
+.bb-public-service-media,
+.bb-public-product-media {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 0.65rem;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.04);
+  background: #f2f4f7;
   flex-shrink: 0;
 }
 
 @media (min-width: 768px) {
-  .bb-public-service-media {
-    width: 6.25rem;
-    height: 6.25rem;
+  .bb-public-service-media,
+  .bb-public-product-media {
+    width: 5.25rem;
+    height: 5.25rem;
   }
 }
 
-.bb-public-service-media img {
+.bb-public-service-media img,
+.bb-public-product-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-.bb-public-service-copy {
+.bb-public-service-copy,
+.bb-public-product-body {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.15rem;
   min-width: 0;
 }
 
-.bb-public-service-copy strong {
+.bb-public-service-copy strong,
+.bb-public-product-body h2 {
+  margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 720;
   letter-spacing: -0.02em;
+  line-height: 1.2;
   color: #101828;
 }
 
 .bb-public-service-meta {
   margin: 0;
-  font-size: 0.78rem;
-  font-weight: 650;
+  font-size: 0.68rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(15, 23, 42, 0.4);
+  letter-spacing: 0.07em;
+  color: rgba(15, 23, 42, 0.38);
 }
 
-.bb-public-service-desc {
+.bb-public-service-desc,
+.bb-public-product-desc {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   line-height: 1.4;
   color: #667085;
   display: -webkit-box;
@@ -277,23 +295,57 @@
   overflow: hidden;
 }
 
-.bb-public-service-price {
-  margin: 0.15rem 0 0;
-  font-size: 0.9rem;
-  font-weight: 680;
+.bb-public-service-price,
+.bb-public-product-price {
+  margin: 0.2rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 700;
   color: #050505;
 }
 
 @media (min-width: 768px) {
-  .bb-public-service-price {
+  .bb-public-service-price,
+  .bb-public-product-aside {
     margin: 0;
     justify-self: end;
+    align-self: center;
     text-align: right;
+  }
+
+  .bb-public-service-price {
     white-space: nowrap;
   }
 }
 
-/* Buy catalog — roomy grid, compact cards */
+.bb-public-product-aside {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: start;
+}
+
+@media (min-width: 768px) {
+  .bb-public-product-aside {
+    justify-items: end;
+    min-width: 8.75rem;
+    gap: 0.55rem;
+  }
+}
+
+.bb-public-product-aside .bb-primary-btn,
+.bb-public-product-aside .bb-ghost-btn {
+  padding: 0.55rem 0.95rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.bb-public-product-quote {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #667085;
+}
+
+/* Buy catalog shell */
 .bb-public-buy-section {
   padding-top: clamp(1.75rem, 4vw, 2.75rem);
   padding-bottom: 3rem;
@@ -314,103 +366,7 @@
   margin: 0;
 }
 
-.bb-public-product-grid {
-  display: grid;
-  gap: 1.5rem 1.25rem;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 560px) {
-  .bb-public-product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1100px) {
-  .bb-public-product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.75rem 1.5rem;
-  }
-}
-
-.bb-public-product-card {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  overflow: hidden;
-  border: 1px solid rgba(15, 23, 42, 0.09);
-  border-radius: 1rem;
-  background: #fbfbfb;
-  min-width: 0;
-}
-
-.bb-public-product-media {
-  aspect-ratio: 5 / 4;
-  max-height: 11.5rem;
-  background: rgba(15, 23, 42, 0.04);
-}
-
-@media (min-width: 560px) {
-  .bb-public-product-media {
-    max-height: 12.5rem;
-  }
-}
-
-.bb-public-product-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.bb-public-product-body {
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
-  gap: 0.35rem;
-  align-content: start;
-  padding: 0.9rem 1rem 1rem;
-  min-width: 0;
-}
-
-.bb-public-product-body h2 {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.2;
-}
-
-.bb-public-product-desc {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.4;
-  color: #667085;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.bb-public-product-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.55rem 0.75rem;
-  margin-top: 0.45rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
-}
-
-.bb-public-product-footer .bb-primary-btn,
-.bb-public-product-footer .bb-ghost-btn {
-  padding: 0.55rem 0.9rem;
-  font-size: 0.82rem;
-}
-
-.bb-public-product-price {
-  margin: 0;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #050505;
-}
+/* Keep Buy as a single-column list so copy/CTA aren’t squeezed. */
 
 /* Social */
 .bb-public-social {

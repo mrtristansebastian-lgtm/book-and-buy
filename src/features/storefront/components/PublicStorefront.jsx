@@ -72,7 +72,7 @@ export function PublicStorefront({
     <section
       className={`bb-public-buy-section bb-public-gutter ${preview ? 'pointer-events-none' : ''}`}
     >
-      <div className="bb-public-measure-wide grid gap-7">
+      <div className="bb-public-measure grid gap-7">
         <header className="bb-public-buy-header">
           <div className="grid gap-2 max-w-2xl">
             <h1 className="bb-page-title">{title}</h1>
@@ -95,33 +95,33 @@ export function PublicStorefront({
           <div className="bb-public-product-grid">
             {catalog.map((product) => {
               const quote = product.quoteBased || product.priceType === 'quote';
+              const imageSrc = product.imageUrls?.[0] || product.image || '';
               const priceLine = [formatProductPrice(product), formatStockNote(product)]
                 .filter(Boolean)
                 .join(' · ');
               return (
                 <article key={product.id} className="bb-public-product-card">
                   <div className="bb-public-product-media">
-                    {product.imageUrls?.[0] ? (
-                      <img src={product.imageUrls[0]} alt="" />
-                    ) : null}
+                    {imageSrc ? <img src={imageSrc} alt="" /> : null}
                   </div>
                   <div className="bb-public-product-body">
-                    <h2 className="bb-page-title">{product.name}</h2>
+                    <h2>{product.name}</h2>
                     <p className="bb-public-product-desc">{product.description}</p>
-                    <div className="bb-public-product-footer">
-                      <p className="bb-public-product-price">{priceLine || (quote ? 'Quote' : '')}</p>
-                      {quote ? (
-                        <span className="bb-muted text-xs font-semibold">Request quote</span>
-                      ) : (
-                        <button
-                          type="button"
-                          className="bb-primary-btn"
-                          onClick={() => cart.addItem(product)}
-                        >
-                          Add to cart
-                        </button>
-                      )}
-                    </div>
+                    <p className="bb-public-product-price md:hidden">{priceLine}</p>
+                  </div>
+                  <div className="bb-public-product-aside">
+                    <p className="bb-public-product-price hidden md:block">{priceLine}</p>
+                    {quote ? (
+                      <span className="bb-ghost-btn pointer-events-none">Quote only</span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="bb-primary-btn"
+                        onClick={() => cart.addItem(product)}
+                      >
+                        Add to cart
+                      </button>
+                    )}
                   </div>
                 </article>
               );

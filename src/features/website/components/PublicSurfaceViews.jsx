@@ -61,7 +61,7 @@ export function PublicBookView({ workspace, preview = false }) {
   return (
     <div className={`bb-public-book ${preview ? 'bb-public-preview-flow' : ''}`}>
       <div className="bb-public-page-intro bb-public-gutter">
-        <div className="bb-public-measure-wide grid gap-2">
+        <div className="bb-public-measure grid gap-2">
           <h1 className="bb-page-title">{title}</h1>
           <p className="bb-public-lede">{subtext}</p>
         </div>
