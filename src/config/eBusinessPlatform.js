@@ -1,6 +1,6 @@
 /** Public Home / Book / Buy / Business Blog surface — owner-facing product name. */
-export const E_BUSINESS_PLATFORM_NAME = 'E-Business Platform';
-export const E_BUSINESS_PLATFORM_SHORT = 'E-Business';
+export const E_BUSINESS_PLATFORM_NAME = 'Business Platforms';
+export const E_BUSINESS_PLATFORM_SHORT = 'Business Platforms';
 
 /** Public page ids shown to customers. */
 export const E_BUSINESS_PAGES = [

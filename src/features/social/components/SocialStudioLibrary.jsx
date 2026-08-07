@@ -9,7 +9,7 @@ export function SocialStudioLibrary({
 }) {
   const kind = tab === 'videos' ? 'video' : tab === 'text' ? 'text' : 'image';
   const items = posts.filter((post) => getSocialPostKind(post) === kind);
-  const label = tab === 'videos' ? 'Videos' : tab === 'text' ? 'Text updates' : 'Posts';
+  const label = tab === 'videos' ? 'Videos' : tab === 'text' ? 'Articles' : 'Posts';
 
   if (!items.length) {
     return (

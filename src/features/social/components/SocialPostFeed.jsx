@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { EditableImage, EditableText } from '../../website/components/editable';
 import { getSocialPostKind } from '../utils/socialPostType';
+import { BbVideoPlayer } from './BbVideoPlayer';
 
 function FeedMedia({ post, editMode, onUpdateSocialPost }) {
   const kind = getSocialPostKind(post);
@@ -45,12 +46,11 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
     return (
       <div className="bb-social-feed-media bb-social-feed-media--video">
         {post.mediaUrl ? (
-          <video
-            className="bb-social-feed-video"
+          <BbVideoPlayer
             src={post.mediaUrl}
-            poster={post.posterUrl || undefined}
-            controls
-            playsInline
+            poster={post.posterUrl || ''}
+            title={post.title || 'Video'}
+            className="bb-social-feed-video"
           />
         ) : post.posterUrl ? (
           <img src={post.posterUrl} alt="" className="bb-social-feed-media-img" />

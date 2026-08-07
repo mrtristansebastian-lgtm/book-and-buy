@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { EditableImage, EditableText } from '../../website/components/editable';
+import { BbVideoPlayer } from './BbVideoPlayer';
 
 export function SocialVideosPanel({
   posts,
@@ -40,13 +41,12 @@ export function SocialVideosPanel({
         </div>
         <div className="bb-social-video-player-frame">
           {active.mediaUrl ? (
-            <video
+            <BbVideoPlayer
               key={active.id}
               className="bb-social-video-player"
-              controls
-              playsInline
-              poster={active.posterUrl || undefined}
               src={active.mediaUrl}
+              poster={active.posterUrl || ''}
+              title={active.title || 'Video'}
             />
           ) : (
             <div className="bb-social-video-player bb-social-video-player--empty">

@@ -34,7 +34,7 @@ export function TextPostComposer({ brandName = 'Business', onAddSocialPost }) {
     <section className="bb-social-compose bb-social-compose--text">
       <header className="bb-social-compose-head">
         <h2 className="bb-social-compose-title">New text update</h2>
-        <p className="bb-social-compose-lede">Short notes for the Text tab on your live Business Blog.</p>
+        <p className="bb-social-compose-lede">Write a short article for the Text tab on your live Business Blog.</p>
       </header>
 
       <div className="bb-social-compose-tweet">

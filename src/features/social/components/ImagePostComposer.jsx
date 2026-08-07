@@ -5,12 +5,14 @@ import { uploadPublicImage } from '../../../shared/firebase/integrations';
 export function ImagePostComposer({ onAddSocialPost }) {
   const fileRef = useRef(null);
   const [mediaUrl, setMediaUrl] = useState('');
+  const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   const reset = () => {
     setMediaUrl('');
+    setTitle('');
     setCaption('');
     setError('');
   };
@@ -39,6 +41,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
     onAddSocialPost?.({
       type: 'image',
       mediaUrl: mediaUrl.trim(),
+      title: title.trim(),
       caption: caption.trim(),
       published
     });
@@ -49,7 +52,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
     <section className="bb-social-compose bb-social-compose--image">
       <header className="bb-social-compose-head">
         <h2 className="bb-social-compose-title">New post</h2>
-        <p className="bb-social-compose-lede">Square photo and caption for the Posts tab.</p>
+        <p className="bb-social-compose-lede">Title, caption, and photo for the Posts gallery.</p>
       </header>
 
       <div className="bb-social-compose-image-layout">
@@ -87,6 +90,15 @@ export function ImagePostComposer({ onAddSocialPost }) {
         </div>
 
         <div className="bb-social-compose-fields">
+          <label className="bb-social-field">
+            <span>Title</span>
+            <input
+              className="native-control-input"
+              value={title}
+              placeholder="Post title"
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </label>
           <label className="bb-social-field">
             <span>Caption</span>
             <textarea

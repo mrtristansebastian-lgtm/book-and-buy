@@ -3,7 +3,7 @@ import { navigate, publicItemPath, publicPagePath } from '../../../app/routing';
 import { PublicPageIntro } from '../../public-surface/PublicPageIntro';
 import { getSocialPostKind } from '../utils/socialPostType';
 import { SocialPostsGrid } from './SocialPostsGrid';
-import { SocialPostFeed } from './SocialPostFeed';
+import { SocialPostLightbox } from './SocialPostLightbox';
 import { SOCIAL_PROFILE_TABS, SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
@@ -33,7 +33,7 @@ export function SocialFeed({
   const website = workspace.website || {};
   const slug = workspace.slug || '';
   const [tab, setTab] = useState('posts');
-  const [localPostId, setLocalPostId] = useState('');
+  const [lightboxId, setLightboxId] = useState('');
 
   const visiblePosts = useMemo(
     () =>
@@ -55,36 +55,39 @@ export function SocialFeed({
   }, [visiblePosts]);
 
   const useLocalNav = preview || editMode;
-  const routePostId = useLocalNav ? localPostId : String(itemId || '').trim();
+  const routePostId = useLocalNav ? '' : String(itemId || '').trim();
   const routePost = visiblePosts.find((post) => post.id === routePostId) || null;
   const routeKind = routePost ? getSocialPostKind(routePost) : null;
+  const imagePosts = postsByKind.image || [];
 
   useEffect(() => {
     if (!routePost) return;
     setTab(tabForKind(routeKind));
+    if (routeKind === 'image') setLightboxId(routePost.id);
   }, [routePost, routeKind]);
 
   const activeTab = SOCIAL_PROFILE_TABS.find((item) => item.id === tab) || SOCIAL_PROFILE_TABS[0];
   const tabPosts = postsByKind[activeTab.kind] || [];
 
-  // Only photo posts use the Instagram-style vertical feed.
-  const feedMode = Boolean(routePost && routeKind === 'image');
-  const feedPosts = postsByKind.image || [];
-
   const openPost = (postId) => {
-    if (useLocalNav) {
-      setLocalPostId(postId);
-      return;
+    setLightboxId(postId);
+    if (!useLocalNav) {
+      navigate(publicItemPath(slug, 'social', postId));
     }
-    navigate(publicItemPath(slug, 'social', postId));
   };
 
-  const closeFeed = () => {
-    if (useLocalNav) {
-      setLocalPostId('');
-      return;
+  const closeLightbox = () => {
+    setLightboxId('');
+    if (!useLocalNav && itemId) {
+      navigate(publicPagePath(slug, 'social'));
     }
-    navigate(publicPagePath(slug, 'social'));
+  };
+
+  const changeLightbox = (postId) => {
+    setLightboxId(postId);
+    if (!useLocalNav) {
+      navigate(publicItemPath(slug, 'social', postId));
+    }
   };
 
   const addForTab = () => {
@@ -103,14 +106,15 @@ export function SocialFeed({
     if (tab === 'text') {
       onAddSocialPost?.({
         type: 'text',
-        title: '',
-        caption: 'What’s happening?',
+        title: 'New article',
+        caption: 'Write the article…',
         published: false
       });
       return;
     }
     onAddSocialPost?.({
       type: 'image',
+      title: 'New post',
       caption: 'Write a caption…',
       mediaUrl: '',
       published: false
@@ -118,26 +122,10 @@ export function SocialFeed({
   };
 
   const addLabel =
-    tab === 'videos' ? 'Add video' : tab === 'text' ? 'Add text' : 'Add photo';
+    tab === 'videos' ? 'Add video' : tab === 'text' ? 'Add article' : 'Add photo';
 
-  if (feedMode) {
-    return (
-      <section className="bb-public-social bb-public-social--feed bb-public-gutter">
-        <div className="bb-public-measure-wide">
-          <SocialPostFeed
-            posts={feedPosts}
-            initialPostId={routePost.id}
-            brandName={workspace.brandName}
-            slug={slug}
-            logoUrl={website.logoUrl || ''}
-            editMode={editMode}
-            onBack={closeFeed}
-            onUpdateSocialPost={onUpdateSocialPost}
-          />
-        </div>
-      </section>
-    );
-  }
+  const lightboxOpen =
+    Boolean(lightboxId) && imagePosts.some((post) => post.id === lightboxId);
 
   return (
     <section className="bb-public-social bb-public-gutter">
@@ -169,7 +157,7 @@ export function SocialFeed({
             editMode={editMode}
             onUpdateSocialPost={onUpdateSocialPost}
             onOpenPost={openPost}
-            emptyLabel={editMode ? 'Add a photo to fill the grid.' : 'No photos published yet.'}
+            emptyLabel={editMode ? 'Add a photo post to fill the gallery.' : 'No posts published yet.'}
           />
         ) : null}
         {tab === 'videos' ? (
@@ -183,14 +171,22 @@ export function SocialFeed({
         {tab === 'text' ? (
           <SocialTextTimeline
             posts={tabPosts}
-            brandName={workspace.brandName}
-            slug={slug}
-            logoUrl={website.logoUrl || ''}
             editMode={editMode}
             onUpdateSocialPost={onUpdateSocialPost}
           />
         ) : null}
       </div>
+
+      {lightboxOpen ? (
+        <SocialPostLightbox
+          posts={imagePosts}
+          activeId={lightboxId}
+          editMode={editMode}
+          onClose={closeLightbox}
+          onChangeActive={changeLightbox}
+          onUpdateSocialPost={onUpdateSocialPost}
+        />
+      ) : null}
     </section>
   );
 }

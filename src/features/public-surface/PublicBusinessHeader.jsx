@@ -16,7 +16,7 @@ export function PublicBusinessHeader({ slug, page, brandName, pages = {}, previe
       >
         {brandName}
       </button>
-      <nav className="bb-public-nav" aria-label="E-Business Platform pages">
+      <nav className="bb-public-nav" aria-label="Business Platforms pages">
         {E_BUSINESS_PAGES.filter((link) => isPublicPageEnabled(pages, link.id)).map((link) => (
           <a
             key={link.id}

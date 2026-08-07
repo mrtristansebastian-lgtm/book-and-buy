@@ -68,7 +68,6 @@ export function WebsiteStudioPage() {
       <header className="bb-studio-toolbar bb-panel px-4 py-3 grid gap-3">
         <div className="bb-studio-toolbar-top">
           <div className="grid gap-1 min-w-0">
-            <p className="bb-studio-eyebrow m-0">The</p>
             <h1 className="bb-page-title text-2xl md:text-3xl m-0">{E_BUSINESS_PLATFORM_NAME}</h1>
             <p className="bb-muted m-0 text-sm">
               View to scroll. Edit to change copy and images on the page.
@@ -96,7 +95,7 @@ export function WebsiteStudioPage() {
 
         <div className="flex flex-wrap items-center gap-3">
           <PeriodSegmentedControl
-            ariaLabel="E-Business page surface"
+            ariaLabel="Business Platforms page surface"
             value={surface}
             onChange={setSurface}
             options={pageOptions}

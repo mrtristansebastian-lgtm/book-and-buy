@@ -182,7 +182,9 @@ export const DEMO_CLIENTS = [
 ];
 
 export const DEMO_THREADS_SCHEMA = 3;
-export const DEMO_ORDERS_SCHEMA = 2;
+export const DEMO_ORDERS_SCHEMA = 3;
+/** Bump when demo finance ledger sample bookings/orders change. */
+export const DEMO_FINANCE_SCHEMA = 1;
 
 export const DEMO_THREADS = [
   {
@@ -473,6 +475,7 @@ const sampleOrders = [
     currency: 'R',
     paymentMethod: 'card',
     paymentStatus: 'paid',
+    paidAt: Date.now() - 1000 * 60 * 60 * 5,
     status: 'accepted',
     source: 'public_shop',
     timestamp: Date.now() - 1000 * 60 * 60 * 5
@@ -496,6 +499,7 @@ const sampleOrders = [
     currency: 'R',
     paymentMethod: 'cash',
     paymentStatus: 'paid',
+    paidAt: Date.now() - 1000 * 60 * 60 * 18,
     status: 'shipped',
     source: 'public_shop',
     timestamp: Date.now() - 1000 * 60 * 60 * 18
@@ -526,9 +530,81 @@ const sampleOrders = [
     currency: 'R',
     paymentMethod: 'cash',
     paymentStatus: 'paid',
+    paidAt: Date.now() - 1000 * 60 * 60 * 26,
     status: 'fulfilled',
     source: 'public_shop',
     timestamp: Date.now() - 1000 * 60 * 60 * 26
+  },
+  {
+    id: 'ord-5',
+    requestType: 'product_order',
+    orderType: 'product',
+    clientName: 'Sam Nkosi',
+    clientEmail: 'sam.nkosi@example.com',
+    items: [
+      {
+        productId: 'artisan-bread-box',
+        name: 'Artisan Bread Box',
+        quantity: 1,
+        unitPriceCents: 32000,
+        lineTotalCents: 32000
+      }
+    ],
+    amountInCents: 32000,
+    currency: 'R',
+    paymentMethod: 'paystack',
+    paymentStatus: 'paid',
+    paidAt: Date.now() - 1000 * 60 * 60 * 24 * 12,
+    status: 'fulfilled',
+    source: 'public_shop',
+    timestamp: Date.now() - 1000 * 60 * 60 * 24 * 12
+  },
+  {
+    id: 'ord-6',
+    requestType: 'product_order',
+    orderType: 'product',
+    clientName: 'Priya Naidoo',
+    clientEmail: 'priya.naidoo@example.com',
+    items: [
+      {
+        productId: 'fresh-pasta-starter-set',
+        name: 'Fresh Pasta Starter Set',
+        quantity: 2,
+        unitPriceCents: 48000,
+        lineTotalCents: 96000
+      }
+    ],
+    amountInCents: 96000,
+    currency: 'R',
+    paymentMethod: 'stripe',
+    paymentStatus: 'paid',
+    paidAt: Date.now() - 1000 * 60 * 60 * 24 * 28,
+    status: 'fulfilled',
+    source: 'public_shop',
+    timestamp: Date.now() - 1000 * 60 * 60 * 24 * 28
+  },
+  {
+    id: 'ord-7',
+    requestType: 'product_order',
+    orderType: 'product',
+    clientName: 'Chris Meyer',
+    clientEmail: 'chris.meyer@example.com',
+    items: [
+      {
+        productId: 'kitchen-notes',
+        name: 'Kitchen Notes',
+        quantity: 3,
+        unitPriceCents: 26000,
+        lineTotalCents: 78000
+      }
+    ],
+    amountInCents: 78000,
+    currency: 'R',
+    paymentMethod: 'manual_eft',
+    paymentStatus: 'unpaid',
+    status: 'pending',
+    source: 'public_shop',
+    timestamp: Date.now() - 1000 * 60 * 60 * 24 * 3
   }
 ];
 
@@ -546,6 +622,11 @@ const sampleBookings = [
     time: '09:00',
     status: 'confirmed',
     paymentStatus: 'paid',
+    paymentMethod: 'stripe',
+    amountInCents: 78000,
+    currency: 'R',
+    paidAt: Date.now() - 1000 * 60 * 60 * 6,
+    timestamp: Date.now() - 1000 * 60 * 60 * 48,
     staffId: 'thando-mokoena',
     staffName: 'Thando Mokoena',
     source: 'public'
@@ -563,6 +644,10 @@ const sampleBookings = [
     time: '14:00',
     status: 'pending',
     paymentStatus: 'unpaid',
+    paymentMethod: 'manual_eft',
+    amountInCents: 120000,
+    currency: 'R',
+    timestamp: Date.now() - 1000 * 60 * 60 * 8,
     staffId: 'sofia-martins',
     staffName: 'Sofia Martins',
     source: 'public'
@@ -580,6 +665,10 @@ const sampleBookings = [
     time: '10:00',
     status: 'pending',
     paymentStatus: 'manual_pending',
+    paymentMethod: 'manual_eft',
+    amountInCents: 85000,
+    currency: 'R',
+    timestamp: Date.now() - 1000 * 60 * 60 * 20,
     staffId: 'jordan-lee',
     staffName: 'Jordan Lee',
     source: 'public'
@@ -596,8 +685,53 @@ const sampleBookings = [
     time: '11:00',
     status: 'waitlist',
     paymentStatus: 'unpaid',
+    amountInCents: 95000,
+    currency: 'R',
+    timestamp: Date.now() - 1000 * 60 * 60 * 30,
     staffId: 'maya-patel',
     staffName: 'Maya Patel',
+    source: 'public'
+  },
+  {
+    id: 'bk-5',
+    serviceId: 'cape-malay-cooking',
+    serviceName: 'Cape Malay Cooking',
+    scheduleType: 'class_session',
+    clientName: 'Owen du Plessis',
+    clientEmail: 'owen.duplessis@example.com',
+    date: toDateKey(addDays(today, -7)),
+    dateKey: toDateKey(addDays(today, -7)),
+    time: '10:00',
+    status: 'confirmed',
+    paymentStatus: 'paid',
+    paymentMethod: 'paystack',
+    amountInCents: 90000,
+    currency: 'R',
+    paidAt: Date.now() - 1000 * 60 * 60 * 24 * 9,
+    timestamp: Date.now() - 1000 * 60 * 60 * 24 * 10,
+    staffId: 'jordan-lee',
+    staffName: 'Jordan Lee',
+    source: 'public'
+  },
+  {
+    id: 'bk-6',
+    serviceId: 'artisan-bread',
+    serviceName: 'Artisan Bread Workshop',
+    scheduleType: 'class_session',
+    clientName: 'Fatima Abrahams',
+    clientEmail: 'fatima.abrahams@example.com',
+    date: toDateKey(addDays(today, -21)),
+    dateKey: toDateKey(addDays(today, -21)),
+    time: '09:00',
+    status: 'confirmed',
+    paymentStatus: 'paid',
+    paymentMethod: 'cash',
+    amountInCents: 78000,
+    currency: 'R',
+    paidAt: Date.now() - 1000 * 60 * 60 * 24 * 22,
+    timestamp: Date.now() - 1000 * 60 * 60 * 24 * 23,
+    staffId: 'thando-mokoena',
+    staffName: 'Thando Mokoena',
     source: 'public'
   }
 ];
@@ -616,6 +750,7 @@ export function createDemoWorkspace() {
     socialSchema: DEMO_SOCIAL_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
+    financeSchema: DEMO_FINANCE_SCHEMA,
     nativeAccent: true,
     notifications: {
       emailBookingRequests: true,
@@ -759,8 +894,9 @@ export function createDemoWorkspace() {
       {
         id: 'post-1',
         type: 'image',
+        title: 'Morning bake',
         mediaUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
-        caption: 'Morning bake — loaves cooling on the rack.',
+        caption: 'Loaves cooling on the rack after the first oven run.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 8,
         order: 0
@@ -768,8 +904,9 @@ export function createDemoWorkspace() {
       {
         id: 'post-2',
         type: 'image',
+        title: 'Pastry island',
         mediaUrl: '/example/flour-and-flame/venue/pastry-island.webp',
-        caption: 'Pastry island prep for Saturday’s French foundations class.',
+        caption: 'Prep for Saturday’s French foundations class.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 30,
         order: 1
@@ -777,8 +914,9 @@ export function createDemoWorkspace() {
       {
         id: 'post-4',
         type: 'image',
+        title: 'Tasting room',
         mediaUrl: '/example/flour-and-flame/venue/tasting-room.webp',
-        caption: 'Tasting room set for the evening class.',
+        caption: 'Set for the evening class tasting.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 40,
         order: 2
@@ -786,6 +924,7 @@ export function createDemoWorkspace() {
       {
         id: 'post-5',
         type: 'image',
+        title: 'Teaching kitchen',
         mediaUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
         caption: 'Benches ready. Aprons out.',
         published: true,
@@ -831,8 +970,9 @@ export function createDemoWorkspace() {
       {
         id: 'text-1',
         type: 'text',
-        title: 'Studio note',
-        caption: 'Private baking lessons are open for March — tell us what you want to master.',
+        title: 'Private lessons open for March',
+        caption:
+          'One-to-one baking sessions are booking now. Tell us what you want to master — laminated pastry, celebration cakes, or everyday bread — and we will build the class around you.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 6,
         order: 0
@@ -840,7 +980,9 @@ export function createDemoWorkspace() {
       {
         id: 'text-2',
         type: 'text',
-        caption: 'Sold a few pasta kits this morning. If you’ve been waiting, this week’s batch is ready on Buy.',
+        title: 'This week’s pasta kits are ready',
+        caption:
+          'A fresh batch landed on Buy this morning. If you have been waiting for the fresh pasta starter set, this is the week to grab one before they go.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 20,
         order: 1
@@ -848,8 +990,9 @@ export function createDemoWorkspace() {
       {
         id: 'text-3',
         type: 'text',
-        title: 'Hours',
-        caption: 'Studio open Tue–Sat. Sunday private bookings by request.',
+        title: 'Studio hours',
+        caption:
+          'We are open Tuesday through Saturday for classes and walk-in kitchen goods. Sunday is reserved for private bookings by request.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 48,
         order: 2
@@ -857,7 +1000,9 @@ export function createDemoWorkspace() {
       {
         id: 'text-4',
         type: 'text',
-        caption: 'Tip from today’s class: rest your dough longer than you think. Texture always tells.',
+        title: 'A note from today’s class',
+        caption:
+          'Rest your dough longer than you think. Texture always tells the truth — and patience is the quiet ingredient that makes the bake.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 70,
         order: 3
@@ -911,6 +1056,13 @@ export function hydrateDemoWorkspace(stored) {
     Number(stored.ordersSchema || 0) < DEMO_ORDERS_SCHEMA ||
     !Array.isArray(stored.orders) ||
     stored.orders.length < 3;
+
+  const staleFinance =
+    Number(stored.financeSchema || 0) < DEMO_FINANCE_SCHEMA ||
+    !Array.isArray(stored.bookings) ||
+    stored.bookings.length < 5 ||
+    !Array.isArray(stored.orders) ||
+    stored.orders.length < 6;
 
   const website = staleWebsite
     ? {
@@ -978,11 +1130,13 @@ export function hydrateDemoWorkspace(stored) {
     socialSchema: DEMO_SOCIAL_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
+    financeSchema: DEMO_FINANCE_SCHEMA,
     website,
     products: staleWebsite ? fresh.products : stored.products || fresh.products,
     services: staleWebsite ? fresh.services : stored.services || fresh.services,
     socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts,
     threads: staleThreads ? fresh.threads : stored.threads,
-    orders: staleOrders ? fresh.orders : stored.orders
+    orders: staleFinance || staleOrders ? fresh.orders : stored.orders,
+    bookings: staleFinance ? fresh.bookings : stored.bookings || fresh.bookings
   };
 }

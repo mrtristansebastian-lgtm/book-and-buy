@@ -3,7 +3,7 @@ import { Clapperboard, Grid3X3, Type } from 'lucide-react';
 const TABS = [
   { id: 'posts', label: 'Posts', kind: 'image', Icon: Grid3X3 },
   { id: 'videos', label: 'Videos', kind: 'video', Icon: Clapperboard },
-  { id: 'text', label: 'Text', kind: 'text', Icon: Type }
+  { id: 'text', label: 'Articles', kind: 'text', Icon: Type }
 ];
 
 export function SocialProfileTabs({ value = 'posts', onChange }) {

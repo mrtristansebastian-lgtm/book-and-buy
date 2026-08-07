@@ -11,7 +11,7 @@ import { SocialStudioLibrary } from '../components/SocialStudioLibrary';
 const TABS = [
   { id: 'posts', label: 'Posts', kind: 'image' },
   { id: 'videos', label: 'Videos', kind: 'video' },
-  { id: 'text', label: 'Text', kind: 'text' }
+  { id: 'text', label: 'Articles', kind: 'text' }
 ];
 
 export function SocialStudioPage() {
@@ -44,7 +44,7 @@ export function SocialStudioPage() {
             </p>
             <h1 className="bb-page-title text-2xl md:text-3xl m-0">Business Blog</h1>
             <p className="bb-muted m-0 text-sm">
-              Create posts, upload videos, and write text updates. Publish when you’re ready for the
+              Create posts, upload videos, and write articles. Publish when you’re ready for the
               live Business Blog.
             </p>
           </div>

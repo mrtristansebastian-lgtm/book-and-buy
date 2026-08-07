@@ -1,6 +1,8 @@
-import { Play } from 'lucide-react';
-import { getSocialPostKind } from '../utils/socialPostType';
+import { EditableText } from '../../website/components/editable';
 
+/**
+ * Photo posts: media-first gallery cards (Buy trading-card rhythm).
+ */
 export function SocialPostsGrid({
   posts,
   editMode = false,
@@ -12,46 +14,72 @@ export function SocialPostsGrid({
     return (
       <div className="bb-public-empty">
         {emptyLabel ||
-          (editMode ? 'Add a photo or video to fill the grid.' : 'No posts published yet.')}
+          (editMode ? 'Add a photo post to fill the gallery.' : 'No posts published yet.')}
       </div>
     );
   }
 
   return (
-    <div className="bb-social-posts-grid" role="list">
+    <div className="bb-social-post-cards" role="list">
       {posts.map((post) => {
-        const kind = getSocialPostKind(post);
-        const isVideo = kind === 'video';
-        const src = isVideo ? post.posterUrl || post.mediaUrl || '' : post.mediaUrl || '';
+        const src = post.mediaUrl || '';
 
         return (
-          <article key={post.id} className="bb-social-post-cell" role="listitem">
+          <article key={post.id} className="bb-social-post-card" role="listitem">
             {editMode && post.published === false ? (
-              <div className="bb-edit-section-badge bb-social-draft-badge">Draft</div>
-            ) : null}
-            <button
-              type="button"
-              className="bb-social-post-hit"
-              onClick={() => onOpenPost?.(post.id)}
-              aria-label="Open post"
-            >
-              <div className="bb-social-post-media">
-                {src ? (
-                  <img src={src} alt="" className="bb-social-post-media-img" />
-                ) : (
-                  <div className="bb-social-post-media-empty" aria-hidden="true" />
-                )}
-                {isVideo ? (
-                  <span className="bb-social-post-play" aria-hidden="true">
-                    <Play size={14} fill="currentColor" strokeWidth={0} />
-                  </span>
-                ) : null}
+              <div className="bb-social-post-card-meta">
+                <span className="bb-edit-section-badge">Draft</span>
               </div>
-            </button>
+            ) : null}
+
+            <div className="bb-social-post-card-surface">
+              <button
+                type="button"
+                className="bb-social-post-card-media"
+                onClick={() => onOpenPost?.(post.id)}
+                aria-label={`View ${post.title || 'post'}`}
+              >
+                {src ? (
+                  <img src={src} alt="" className="bb-social-post-card-img" />
+                ) : (
+                  <div className="bb-social-post-card-empty">
+                    {editMode ? 'Add photo in studio' : 'No image'}
+                  </div>
+                )}
+              </button>
+
+              <div className="bb-social-post-card-body">
+                <header className="bb-social-post-card-head">
+                  <EditableText
+                    as="h2"
+                    className="bb-social-post-card-title"
+                    editMode={editMode}
+                    value={post.title || ''}
+                    placeholder="Post title"
+                    onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
+                  />
+                  <span
+                    className="bb-social-post-card-underline bb-public-native-fill"
+                    aria-hidden="true"
+                  />
+                </header>
+
+                <EditableText
+                  as="p"
+                  className="bb-social-post-card-caption"
+                  editMode={editMode}
+                  multiline
+                  value={post.caption || ''}
+                  placeholder="Caption"
+                  onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+                />
+              </div>
+            </div>
+
             {editMode ? (
               <button
                 type="button"
-                className="bb-ghost-btn bb-social-post-publish py-1 px-2 text-xs"
+                className="bb-ghost-btn py-1 px-2.5 text-xs justify-self-start"
                 onClick={() =>
                   onUpdateSocialPost?.(post.id, { published: post.published === false })
                 }
