@@ -1,6 +1,11 @@
 import { collectServiceCategories, normalizeServiceList } from '../utils/services';
 import { collectProductCategories, normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
+import {
+  createStaffAvailabilityForRoster,
+  normalizeAvailabilityRules,
+  normalizeStaffAvailabilityMap
+} from '../utils/staffAvailability';
 
 /** Bump when demo website shape gains required public Home fields. */
 export const DEMO_WEBSITE_SCHEMA = 12;
@@ -10,6 +15,9 @@ export const DEMO_SOCIAL_SCHEMA = 3;
 
 /** Bump when demo services gain spot session windows (start/end date + time). */
 export const DEMO_SERVICES_SCHEMA = 1;
+
+/** Bump when demo staff availability / closed-days / staff photos change. */
+export const DEMO_AVAILABILITY_SCHEMA = 2;
 
 /** Stable sample MP4 for demo video player (no local video assets required). */
 export const DEMO_SAMPLE_VIDEO_URL =
@@ -134,7 +142,9 @@ export const DEMO_STAFF = [
     role: 'Owner and Head Chef',
     accessRole: 'Owner',
     email: 'jordan@flourandflame.example',
-    color: '#111827'
+    color: '#111827',
+    photoURL:
+      'https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=256&h=256&fit=crop&crop=faces'
   },
   {
     id: 'thando-mokoena',
@@ -142,7 +152,9 @@ export const DEMO_STAFF = [
     role: 'Bread and Pastry Instructor',
     accessRole: 'Admin',
     email: 'thando@flourandflame.example',
-    color: '#0F766E'
+    color: '#0F766E',
+    photoURL:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=256&h=256&fit=crop&crop=faces'
   },
   {
     id: 'maya-patel',
@@ -150,7 +162,9 @@ export const DEMO_STAFF = [
     role: 'Culinary Instructor',
     accessRole: 'Staff',
     email: 'maya@flourandflame.example',
-    color: '#B45309'
+    color: '#B45309',
+    photoURL:
+      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=256&h=256&fit=crop&crop=faces'
   },
   {
     id: 'sofia-martins',
@@ -158,7 +172,9 @@ export const DEMO_STAFF = [
     role: 'Studio Host',
     accessRole: 'Staff',
     email: 'sofia@flourandflame.example',
-    color: '#0369A1'
+    color: '#0369A1',
+    photoURL:
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=256&h=256&fit=crop&crop=faces'
   }
 ];
 
@@ -771,6 +787,7 @@ export function createDemoWorkspace() {
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
     financeSchema: DEMO_FINANCE_SCHEMA,
+    availabilitySchema: DEMO_AVAILABILITY_SCHEMA,
     nativeAccent: true,
     notifications: {
       emailBookingRequests: true,
@@ -1028,11 +1045,13 @@ export function createDemoWorkspace() {
         order: 3
       }
     ],
-    availabilityRules: {
+    availabilityRules: normalizeAvailabilityRules({
       businessOpenTime: '09:00',
       businessCloseTime: '17:00',
-      scheduleMode: 'time_slots'
-    },
+      scheduleMode: 'time_slots',
+      openWeekdays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+      closedDates: []
+    }),
     services: DEMO_SERVICES,
     serviceCategories: collectServiceCategories(DEMO_SERVICES, [
       'Cooking',
@@ -1042,6 +1061,7 @@ export function createDemoWorkspace() {
       'Private lessons'
     ]),
     staff: DEMO_STAFF,
+    staffAvailability: createStaffAvailabilityForRoster(DEMO_STAFF, '09:00', '17:00', 8),
     bookings: sampleBookings,
     products: DEMO_PRODUCTS,
     productCategories: collectProductCategories(DEMO_PRODUCTS, [
@@ -1118,6 +1138,13 @@ export function hydrateDemoWorkspace(stored) {
     stored.services.length < 4 ||
     spotServicesMissingSessions;
 
+  const staleAvailability =
+    Number(stored.availabilitySchema || 0) < DEMO_AVAILABILITY_SCHEMA ||
+    !stored.staffAvailability ||
+    typeof stored.staffAvailability !== 'object' ||
+    !Object.keys(stored.staffAvailability).length ||
+    !Array.isArray(stored.availabilityRules?.openWeekdays);
+
   const website = staleWebsite
     ? {
         ...fresh.website,
@@ -1186,9 +1213,32 @@ export function hydrateDemoWorkspace(stored) {
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
     financeSchema: DEMO_FINANCE_SCHEMA,
+    availabilitySchema: DEMO_AVAILABILITY_SCHEMA,
     website,
+    staff: (Array.isArray(stored.staff) && stored.staff.length ? stored.staff : fresh.staff).map(
+      (member) => {
+        const demo = DEMO_STAFF.find((item) => item.id === member.id);
+        if (!demo) return member;
+        return {
+          ...member,
+          photoURL: member.photoURL || demo.photoURL,
+          color: member.color || demo.color
+        };
+      }
+    ),
     products: staleWebsite ? fresh.products : stored.products || fresh.products,
     services: staleWebsite || staleServices ? fresh.services : stored.services || fresh.services,
+    availabilityRules: staleAvailability
+      ? fresh.availabilityRules
+      : normalizeAvailabilityRules(stored.availabilityRules || fresh.availabilityRules),
+    staffAvailability: staleAvailability
+      ? fresh.staffAvailability
+      : normalizeStaffAvailabilityMap(
+          stored.staffAvailability || {},
+          stored.staff || fresh.staff,
+          stored.availabilityRules?.businessOpenTime || '09:00',
+          stored.availabilityRules?.businessCloseTime || '17:00'
+        ),
     socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts,
     threads: staleThreads ? fresh.threads : stored.threads,
     orders: staleFinance || staleOrders ? fresh.orders : stored.orders,

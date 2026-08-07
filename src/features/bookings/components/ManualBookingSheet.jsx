@@ -43,15 +43,22 @@ export function ManualBookingSheet({ onClose }) {
             serviceId: form.serviceId,
             openTime: workspace.availabilityRules?.businessOpenTime,
             closeTime: workspace.availabilityRules?.businessCloseTime,
-            services
+            availabilityRules: workspace.availabilityRules,
+            services,
+            staff,
+            staffId: form.staffId || undefined,
+            staffAvailability: workspace.staffAvailability
           }),
     [
       isSpot,
       form.date,
       form.serviceId,
+      form.staffId,
       bookings,
+      workspace.availabilityRules,
+      workspace.staffAvailability,
       services,
-      workspace.availabilityRules
+      staff
     ]
   );
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   BriefcaseBusiness,
+  CalendarClock,
   CalendarDays,
   ClipboardList,
   CreditCard,
@@ -32,6 +33,7 @@ const ICONS = {
   services: BriefcaseBusiness,
   requests: Inbox,
   staff: CalendarDays,
+  availability: CalendarClock,
   products: Package,
   orders: ClipboardList,
   website: Globe2,

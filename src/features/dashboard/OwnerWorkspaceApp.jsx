@@ -3,6 +3,7 @@ import { OverviewPage } from './pages/OverviewPage';
 import { ServicesPage } from '../services/pages/ServicesPage';
 import { RequestsPage } from '../bookings/pages/RequestsPage';
 import { SchedulePage } from '../schedule/pages/SchedulePage';
+import { AvailabilityPage } from '../schedule/pages/AvailabilityPage';
 import { ProductsPage } from '../products/pages/ProductsPage';
 import { OrdersPage } from '../products/pages/OrdersPage';
 import { WebsiteStudioPage } from '../website/pages/WebsiteStudioPage';
@@ -35,6 +36,8 @@ export function OwnerWorkspaceApp({ tab }) {
         <RequestsPage />
       ) : tab === 'staff' ? (
         <SchedulePage />
+      ) : tab === 'availability' ? (
+        <AvailabilityPage />
       ) : tab === 'products' ? (
         <ProductsPage />
       ) : tab === 'orders' ? (

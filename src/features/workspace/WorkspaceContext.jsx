@@ -9,6 +9,10 @@ import {
   loadOwnerWorkspaceFromFirestore,
   saveOwnerWorkspaceToFirestore
 } from '../../shared/firebase/ownerWorkspace';
+import {
+  canEditAvailabilityRules,
+  canEditStaffAvailability
+} from '../../utils/staffAccess';
 
 const WorkspaceContext = createContext(null);
 const MODE_KEY = 'book-and-buy.workspace-mode';
@@ -359,9 +363,34 @@ export function WorkspaceProvider({ children }) {
         setWorkspace((prev) => ({ ...prev, ...patch }));
       },
       updateAvailabilityRules: (patch) => {
+        if (!canEditAvailabilityRules({ user, workspace })) return;
         setWorkspace((prev) => ({
           ...prev,
           availabilityRules: { ...prev.availabilityRules, ...patch }
+        }));
+      },
+      upsertStaffAvailability: (staffId, entry) => {
+        if (!staffId) return;
+        if (
+          !canEditStaffAvailability({
+            user,
+            workspace,
+            staff: workspace.staff || [],
+            staffId
+          })
+        ) {
+          return;
+        }
+        setWorkspace((prev) => ({
+          ...prev,
+          staffAvailability: {
+            ...(prev.staffAvailability || {}),
+            [staffId]: {
+              ...(prev.staffAvailability?.[staffId] || { staffId }),
+              ...entry,
+              staffId
+            }
+          }
         }));
       },
       updateNotifications: (patch) => {
@@ -379,19 +408,44 @@ export function WorkspaceProvider({ children }) {
             ...member
           };
           const exists = (prev.staff || []).some((item) => item.id === next.id);
+          const open = prev.availabilityRules?.businessOpenTime || '09:00';
+          const close = prev.availabilityRules?.businessCloseTime || '17:00';
+          const staffAvailability = { ...(prev.staffAvailability || {}) };
+          if (!staffAvailability[next.id]) {
+            staffAvailability[next.id] = {
+              staffId: next.id,
+              weekTemplate: {
+                mon: { open: true, ranges: [{ start: open, end: close }] },
+                tue: { open: true, ranges: [{ start: open, end: close }] },
+                wed: { open: true, ranges: [{ start: open, end: close }] },
+                thu: { open: true, ranges: [{ start: open, end: close }] },
+                fri: { open: true, ranges: [{ start: open, end: close }] },
+                sat: { open: false, ranges: [] },
+                sun: { open: false, ranges: [] }
+              },
+              days: {},
+              blocks: []
+            };
+          }
           return {
             ...prev,
             staff: exists
               ? prev.staff.map((item) => (item.id === next.id ? { ...item, ...next } : item))
-              : [...(prev.staff || []), next]
+              : [...(prev.staff || []), next],
+            staffAvailability
           };
         });
       },
       removeStaff: (id) => {
-        setWorkspace((prev) => ({
-          ...prev,
-          staff: (prev.staff || []).filter((member) => member.id !== id)
-        }));
+        setWorkspace((prev) => {
+          const staffAvailability = { ...(prev.staffAvailability || {}) };
+          delete staffAvailability[id];
+          return {
+            ...prev,
+            staff: (prev.staff || []).filter((member) => member.id !== id),
+            staffAvailability
+          };
+        });
       },
       upsertClient: (client) => {
         setWorkspace((prev) => {
@@ -727,7 +781,7 @@ export function WorkspaceProvider({ children }) {
         );
       }
     };
-  }, [workspace, user?.uid]);
+  }, [workspace, user]);
 
   return <WorkspaceContext.Provider value={api}>{children}</WorkspaceContext.Provider>;
 }

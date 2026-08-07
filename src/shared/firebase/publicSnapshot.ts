@@ -100,6 +100,7 @@ export function buildPublicWorkspaceSnapshot(workspace: AnyRecord) {
     products: publicProducts(workspace.products),
     staff: publicStaff(workspace.staff),
     availabilityRules: workspace.availabilityRules || {},
+    staffAvailability: workspace.staffAvailability || {},
     paymentGateways: publicPaymentGateways(workspace.paymentGateways),
     published: true,
     publishedAt: Date.now(),

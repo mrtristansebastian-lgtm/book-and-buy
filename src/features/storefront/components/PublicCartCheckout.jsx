@@ -33,7 +33,10 @@ function ServiceSlotPicker({ item, bookings, workspace, services, onSlot }) {
         serviceId: item.serviceId,
         openTime: workspace.availabilityRules?.businessOpenTime,
         closeTime: workspace.availabilityRules?.businessCloseTime,
+        availabilityRules: workspace.availabilityRules,
         services,
+        staff: workspace.staff || [],
+        staffAvailability: workspace.staffAvailability,
         durationMinutes: service ? undefined : 60
       }),
     [
@@ -41,6 +44,8 @@ function ServiceSlotPicker({ item, bookings, workspace, services, onSlot }) {
       item.serviceId,
       bookings,
       workspace.availabilityRules,
+      workspace.staff,
+      workspace.staffAvailability,
       services,
       service
     ]
@@ -83,7 +88,10 @@ function ServiceSlotPicker({ item, bookings, workspace, services, onSlot }) {
               serviceId: item.serviceId,
               openTime: workspace.availabilityRules?.businessOpenTime,
               closeTime: workspace.availabilityRules?.businessCloseTime,
-              services
+              availabilityRules: workspace.availabilityRules,
+              services,
+              staff: workspace.staff || [],
+              staffAvailability: workspace.staffAvailability
             }).length > 0;
           return (
             <button

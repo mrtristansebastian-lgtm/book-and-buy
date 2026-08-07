@@ -25,6 +25,10 @@ export interface AvailabilityRules {
   arrivalIntervalMinutes?: string | number;
   businessOpenTime?: string;
   businessCloseTime?: string;
+  /** Weekdays the business is open (mon..sun). */
+  openWeekdays?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun" | string>;
+  /** Explicit closed dates (holidays), YYYY-MM-DD. */
+  closedDates?: string[];
   autoOpenSpots?: boolean;
   staffAssignmentMode?: "auto" | "client" | "later";
   holdMode?: "pending_confirmed" | "pending_only" | "confirmed_only" | "confirmed";
@@ -33,6 +37,36 @@ export interface AvailabilityRules {
   cancellationWindow?: string;
   reschedulingAllowed?: boolean;
   repeatBookingsAllowed?: boolean;
+}
+
+export interface AvailabilityRange {
+  start: string;
+  end: string;
+}
+
+export interface StaffDayAvailability {
+  /** open = bookable shifts; break/off = not bookable */
+  status?: "open" | "break" | "off";
+  open: boolean;
+  ranges: AvailabilityRange[];
+  note?: string;
+  source?: "template" | "manual" | "status";
+}
+
+export interface StaffAvailabilityBlock {
+  id?: string;
+  startDate: string;
+  endDate: string;
+  startTime?: string;
+  endTime?: string;
+  reason?: string;
+}
+
+export interface StaffAvailabilityEntry {
+  staffId: string;
+  weekTemplate: Record<string, { open: boolean; ranges: AvailabilityRange[] }>;
+  days: Record<string, StaffDayAvailability>;
+  blocks?: StaffAvailabilityBlock[];
 }
 
 export interface WorkspaceService {
@@ -192,6 +226,8 @@ export interface WorkspaceSettings {
   availableTimes?: string[];
   schedule?: Record<string, { available?: boolean; times?: string[] }>;
   staffCalendars?: Record<string, unknown>;
+  /** Per-staff week templates + explicit day overrides. */
+  staffAvailability?: Record<string, StaffAvailabilityEntry>;
   availabilityRules?: AvailabilityRules;
   reminders?: Record<string, boolean>;
   googleCalendar?: Record<string, unknown>;
