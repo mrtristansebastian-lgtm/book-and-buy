@@ -523,3 +523,401 @@
     grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.15fr);
   }
 }
+
+/* Canvas-first studio */
+.bb-studio-canvas {
+  min-width: 0;
+}
+
+.bb-studio-toolbar {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 5;
+}
+
+.bb-studio-stage {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.bb-studio-stage.is-edit .bb-device-preview--desktop {
+  max-width: 920px;
+  width: 100%;
+}
+
+.bb-studio-edit-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.45);
+}
+
+/* Inline edit primitives */
+.bb-editable-text {
+  outline: none;
+  border-radius: 0.35rem;
+  cursor: text;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.bb-public-surface--edit .bb-editable-text:hover,
+.bb-editable-text.is-focused {
+  background: rgba(5, 5, 5, 0.04);
+  box-shadow: 0 0 0 2px rgba(5, 5, 5, 0.22);
+}
+
+.bb-studio-section-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bb-editable-image.absolute {
+  inset: 0;
+}
+
+.bb-editable-text.is-empty:before {
+  content: attr(data-placeholder);
+  color: rgba(15, 23, 42, 0.35);
+}
+
+.bb-editable-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-editable-image-empty {
+  min-height: 10rem;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.bb-editable-image-hit {
+  position: absolute;
+  inset: auto 0.5rem 0.5rem auto;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(5, 5, 5, 0.82);
+  color: #fff;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.bb-editable-image-pop {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 2.5rem;
+  z-index: 4;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border-radius: 0.85rem;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+}
+
+.bb-edit-section {
+  position: relative;
+}
+
+.bb-edit-section--edit {
+  outline: 1px dashed transparent;
+}
+
+.bb-edit-section--edit:hover {
+  outline-color: rgba(15, 23, 42, 0.14);
+}
+
+.bb-edit-section--hidden {
+  opacity: 0.45;
+}
+
+.bb-edit-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem var(--bb-public-gutter);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.4);
+}
+
+.bb-edit-section-badge {
+  display: inline-flex;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bb-edit-section-coach {
+  margin: 0 var(--bb-public-gutter) 0.75rem;
+  font-size: 0.8rem;
+  color: rgba(15, 23, 42, 0.45);
+}
+
+/* Rich Home */
+.bb-public-home-stack {
+  display: grid;
+}
+
+.bb-public-home-block {
+  padding-top: clamp(2.5rem, 6vw, 4rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.bb-public-home-block--soft {
+  background: #f7f7f8;
+}
+
+.bb-public-about {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .bb-public-about {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 2.5rem;
+  }
+}
+
+.bb-public-about-media {
+  aspect-ratio: 4 / 3;
+  border-radius: 1.15rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.05);
+  min-height: 14rem;
+}
+
+.bb-public-reasons {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .bb-public-reasons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.bb-public-reason {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1.15rem 1.2rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-public-venue-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(12rem, 70%);
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scroll-snap-type: x mandatory;
+}
+
+@media (min-width: 900px) {
+  .bb-public-venue-grid {
+    grid-auto-flow: dense;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+  }
+}
+
+.bb-public-venue-card {
+  margin: 0;
+  scroll-snap-align: start;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.bb-public-venue-media {
+  aspect-ratio: 4 / 3;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.bb-public-venue-card figcaption {
+  font-size: 0.82rem;
+  color: #667085;
+}
+
+.bb-public-visit {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .bb-public-visit {
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 2rem;
+    align-items: stretch;
+  }
+}
+
+.bb-public-map-frame {
+  min-height: 16rem;
+  border-radius: 1.1rem;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.bb-public-map-frame iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 16rem;
+  border: 0;
+}
+
+.bb-public-reviews {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 800px) {
+  .bb-public-reviews {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.bb-public-review {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1.25rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.bb-public-stars {
+  color: #050505;
+  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+}
+
+.bb-public-review-quote {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.bb-public-review-name {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #667085;
+}
+
+.bb-public-book-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.5rem 1.6rem;
+  border-radius: 1.25rem;
+  background: #050505;
+  color: #fff;
+}
+
+.bb-public-book-strip .bb-page-title,
+.bb-public-book-strip .bb-public-lede {
+  color: #fff;
+}
+
+.bb-public-book-strip .bb-public-lede {
+  opacity: 0.82;
+}
+
+.bb-public-book-layout {
+  display: grid;
+  gap: 1.5rem;
+  padding-bottom: 2.5rem;
+}
+
+@media (min-width: 960px) {
+  .bb-public-book-layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(14rem, 0.65fr);
+    align-items: start;
+    max-width: var(--bb-public-measure-wide);
+    margin-inline: auto;
+  }
+
+  .bb-public-book-main .bb-public-gutter {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.bb-public-book-aside {
+  padding: 1.25rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fbfbfb;
+}
+
+.bb-public-product-card--featured {
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #f7f7f8;
+}
+
+/* Motion */
+@keyframes bb-public-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-public-home-copy,
+.bb-public-home-block {
+  animation: bb-public-rise 0.55s ease both;
+}
+
+.bb-public-home-block:nth-of-type(2) {
+  animation-delay: 0.04s;
+}
+
+.bb-public-home-block:nth-of-type(3) {
+  animation-delay: 0.08s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-public-home-copy,
+  .bb-public-home-block {
+    animation: none;
+  }
+}
+
+.bb-device-preview--phone .bb-public-home {
+  min-height: 420px;
+}
+
+.bb-public-surface--edit .bb-public-home-ctas .bb-primary-btn,
+.bb-public-surface--edit .bb-public-home-ctas .bb-ghost-btn {
+  pointer-events: auto;
+}

@@ -9,7 +9,9 @@ export function PublicStorefront({
   workspaceName,
   title = 'Buy',
   subtext,
-  preview = false
+  preview = false,
+  featuredProductId = '',
+  hideIntro = false
 }) {
   const { products, placeProductOrder, workspace, paymentGateways } = useWorkspace();
   const cart = useCart();
@@ -30,6 +32,11 @@ export function PublicStorefront({
   const [placed, setPlaced] = useState(null);
 
   const catalog = products.filter((product) => product.active !== false);
+  const featured =
+    catalog.find((product) => product.id === featuredProductId) || catalog[0] || null;
+  const gridProducts = featuredProductId
+    ? catalog.filter((product) => product.id !== featured?.id)
+    : catalog;
 
   const submit = () => {
     if (!cart.items.length || !details.clientName.trim()) return;
@@ -73,27 +80,73 @@ export function PublicStorefront({
       className={`bb-public-buy-section bb-public-gutter ${preview ? 'pointer-events-none' : ''}`}
     >
       <div className="bb-public-measure grid gap-7">
-        <header className="bb-public-buy-header">
-          <div className="grid gap-2 max-w-2xl">
-            <h1 className="bb-page-title">{title}</h1>
-            <p className="bb-public-lede m-0">
-              {subtext ||
-                `Kitchen goods and take-home sets from ${workspaceName || workspace.brandName}.`}
-            </p>
+        {hideIntro ? (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="bb-ink-btn"
+              onClick={() => setPanel(panel === 'cart' ? 'shop' : 'cart')}
+            >
+              <ShoppingBag size={16} />
+              Cart ({cart.count})
+            </button>
           </div>
-          <button
-            type="button"
-            className="bb-ink-btn"
-            onClick={() => setPanel(panel === 'cart' ? 'shop' : 'cart')}
-          >
-            <ShoppingBag size={16} />
-            Cart ({cart.count})
-          </button>
-        </header>
+        ) : (
+          <header className="bb-public-buy-header">
+            <div className="grid gap-2 max-w-2xl">
+              <h1 className="bb-page-title">{title}</h1>
+              <p className="bb-public-lede m-0">
+                {subtext ||
+                  `Kitchen goods and take-home sets from ${workspaceName || workspace.brandName}.`}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="bb-ink-btn"
+              onClick={() => setPanel(panel === 'cart' ? 'shop' : 'cart')}
+            >
+              <ShoppingBag size={16} />
+              Cart ({cart.count})
+            </button>
+          </header>
+        )}
+
+        {panel === 'shop' && featured && featuredProductId ? (
+          <article className="bb-public-product-card bb-public-product-card--featured">
+            <div className="bb-public-product-media">
+              {(featured.imageUrls?.[0] || featured.image) ? (
+                <img src={featured.imageUrls?.[0] || featured.image} alt="" />
+              ) : null}
+            </div>
+            <div className="bb-public-product-body">
+              <p className="bb-public-service-meta">Featured</p>
+              <h2>{featured.name}</h2>
+              <p className="bb-public-product-desc">{featured.description}</p>
+            </div>
+            <div className="bb-public-product-aside">
+              <p className="bb-public-product-price">
+                {[formatProductPrice(featured), formatStockNote(featured)]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+              {featured.quoteBased || featured.priceType === 'quote' ? (
+                <span className="bb-ghost-btn pointer-events-none">Quote only</span>
+              ) : (
+                <button
+                  type="button"
+                  className="bb-primary-btn"
+                  onClick={() => cart.addItem(featured)}
+                >
+                  Add to cart
+                </button>
+              )}
+            </div>
+          </article>
+        ) : null}
 
         {panel === 'shop' ? (
           <div className="bb-public-product-grid">
-            {catalog.map((product) => {
+            {(featuredProductId ? gridProducts : catalog).map((product) => {
               const quote = product.quoteBased || product.priceType === 'quote';
               const imageSrc = product.imageUrls?.[0] || product.image || '';
               const priceLine = [formatProductPrice(product), formatStockNote(product)]

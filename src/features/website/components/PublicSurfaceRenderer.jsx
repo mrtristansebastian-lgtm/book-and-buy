@@ -15,19 +15,26 @@ const VIEWS = {
 
 /**
  * Shared tree for live public site and Pages studio device mockups.
- * @param {{ workspace: object, page?: string, preview?: boolean, showHeader?: boolean }} props
  */
 export function PublicSurfaceRenderer({
   workspace,
   page = 'home',
   preview = false,
-  showHeader = true
+  editMode = false,
+  showHeader = true,
+  onUpdateWebsite,
+  onUpdateProfile,
+  onUpdateSocialPost,
+  onAddSocialPost,
+  showDrafts = false
 }) {
   const View = VIEWS[page] || PublicHomeView;
 
   return (
     <div
-      className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''}`}
+      className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''} ${
+        editMode ? 'bb-public-surface--edit' : ''
+      }`}
       data-page={page}
     >
       {showHeader ? (
@@ -36,10 +43,19 @@ export function PublicSurfaceRenderer({
           page={page}
           brandName={workspace.brandName}
           pages={workspace.website?.pages}
-          preview={preview}
+          preview={preview || editMode}
         />
       ) : null}
-      <View workspace={workspace} preview={preview} />
+      <View
+        workspace={workspace}
+        preview={preview}
+        editMode={editMode}
+        onUpdateWebsite={onUpdateWebsite}
+        onUpdateProfile={onUpdateProfile}
+        onUpdateSocialPost={onUpdateSocialPost}
+        onAddSocialPost={onAddSocialPost}
+        showDrafts={showDrafts}
+      />
     </div>
   );
 }

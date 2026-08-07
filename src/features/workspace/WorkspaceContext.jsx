@@ -160,17 +160,27 @@ export function WorkspaceProvider({ children }) {
             pages: {
               ...prev.website?.pages,
               ...(patch.pages || {})
+            },
+            sections: {
+              ...prev.website?.sections,
+              ...(patch.sections || {})
             }
           },
           publishedAt: patch.publish ? Date.now() : prev.publishedAt
         }));
       },
       publishWebsite: () => {
-        setWorkspace((prev) => ({
-          ...prev,
-          publishedAt: Date.now(),
-          website: { ...prev.website, published: true }
-        }));
+        setWorkspace((prev) => {
+          const next = {
+            ...prev,
+            publishedAt: Date.now(),
+            website: { ...prev.website, published: true }
+          };
+          import('../../shared/firebase/integrations').then(({ publishWorkspaceToFirestore }) => {
+            publishWorkspaceToFirestore(next).catch(() => {});
+          });
+          return next;
+        });
       },
       addSocialPost: (post) => {
         const record = {

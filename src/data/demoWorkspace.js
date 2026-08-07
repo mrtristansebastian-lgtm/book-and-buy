@@ -433,9 +433,19 @@ export function createDemoWorkspace() {
     threads: DEMO_THREADS,
     website: {
       pages: { home: true, book: true, buy: true, social: true },
+      sections: {
+        about: true,
+        reasons: true,
+        venue: true,
+        map: true,
+        reviews: true,
+        bookStrip: true
+      },
+      sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews', 'bookStrip'],
       headline: 'Bake with us.',
       subcopy: 'Hands-on classes, private sessions, and kitchen goods.',
       ctaLabel: 'Book a class',
+      buyCtaLabel: 'Buy',
       homeHeadline: 'Bake with us.',
       homeSubtext: 'Hands-on classes, private sessions, and kitchen goods.',
       heroImageUrl: '/example/flour-and-flame/hero.webp',
@@ -445,7 +455,99 @@ export function createDemoWorkspace() {
       buyHeadline: 'Take the kitchen home',
       buySubtext: 'Bread boxes, pasta kits, and studio notes ready to order.',
       socialHeadline: 'From the studio',
-      socialSubtext: 'Posts, clips, and notes from Flour & Flame.'
+      socialSubtext: 'Posts, clips, and notes from Flour & Flame.',
+      aboutTitle: 'A working teaching kitchen',
+      aboutBody:
+        'Flour & Flame is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
+      aboutImageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
+      reasonsTitle: 'Why cook with us',
+      reasons: [
+        {
+          id: 'r1',
+          title: 'Small groups',
+          body: 'Enough attention to learn, enough energy to enjoy the room.'
+        },
+        {
+          id: 'r2',
+          title: 'Real kitchen gear',
+          body: 'Work on pro benches with the tools we actually use every day.'
+        },
+        {
+          id: 'r3',
+          title: 'Take-home sets',
+          body: 'Bread boxes, pasta kits, and notes so the craft continues at home.'
+        }
+      ],
+      venueTitle: 'Inside the studio',
+      venueImages: [
+        {
+          id: 'v1',
+          url: '/example/flour-and-flame/venue/bread-ovens.webp',
+          caption: 'Bread ovens'
+        },
+        {
+          id: 'v2',
+          url: '/example/flour-and-flame/venue/pastry-island.webp',
+          caption: 'Pastry island'
+        },
+        {
+          id: 'v3',
+          url: '/example/flour-and-flame/venue/tasting-room.webp',
+          caption: 'Tasting room'
+        },
+        {
+          id: 'v4',
+          url: '/example/flour-and-flame/venue/entrance.webp',
+          caption: 'Entrance'
+        }
+      ],
+      address: '12 Woodstock Kitchen Lane, Cape Town',
+      mapEmbedUrl:
+        'https://maps.google.com/maps?q=Woodstock%2C%20Cape%20Town&t=&z=14&ie=UTF8&iwloc=&output=embed',
+      mapLinkUrl: 'https://maps.google.com/?q=Woodstock,+Cape+Town',
+      reviewsTitle: 'From the table',
+      reviews: [
+        {
+          id: 'rev1',
+          quote: 'Best Saturday I’ve spent in a kitchen — left with a loaf and real confidence.',
+          name: 'Aisha N.',
+          rating: 5
+        },
+        {
+          id: 'rev2',
+          quote: 'Private lesson was tailored perfectly. Calm, clear, and delicious.',
+          name: 'Daniel K.',
+          rating: 5
+        },
+        {
+          id: 'rev3',
+          quote: 'The pasta kit was a hit at home. Packaging and notes are beautiful.',
+          name: 'Lebo M.',
+          rating: 5
+        }
+      ],
+      bookStripTitle: 'Reserve a class',
+      bookStripBody: 'See open times on the Book page and send a request in minutes.',
+      bookStripCta: 'See availability',
+      bookFaqTitle: 'What to expect',
+      bookFaq: [
+        {
+          id: 'f1',
+          q: 'How do booking requests work?',
+          a: 'Choose a service and time, send your details, and we confirm by email.'
+        },
+        {
+          id: 'f2',
+          q: 'What should I bring?',
+          a: 'Closed shoes and an appetite. Aprons and ingredients are provided for classes.'
+        },
+        {
+          id: 'f3',
+          q: 'Can I book privately?',
+          a: 'Yes — pick Private Baking Lesson or message us from Support.'
+        }
+      ],
+      featuredProductId: 'artisan-bread-box'
     },
     socialPosts: [
       {

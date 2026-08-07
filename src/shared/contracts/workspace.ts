@@ -77,6 +77,31 @@ export interface WebsitePageVisibility {
   social?: boolean;
 }
 
+export interface WebsiteHomeReason {
+  id: string;
+  title?: string;
+  body?: string;
+}
+
+export interface WebsiteVenueImage {
+  id: string;
+  url?: string;
+  caption?: string;
+}
+
+export interface WebsiteReview {
+  id: string;
+  quote?: string;
+  name?: string;
+  rating?: number;
+}
+
+export interface WebsiteFaqItem {
+  id: string;
+  q?: string;
+  a?: string;
+}
+
 export interface WebsiteSettings {
   homeHeadline?: string;
   homeSubtext?: string;
@@ -89,9 +114,30 @@ export interface WebsiteSettings {
   socialHeadline?: string;
   socialSubtext?: string;
   ctaLabel?: string;
+  buyCtaLabel?: string;
   heroImageUrl?: string;
   logoUrl?: string;
   published?: boolean;
+  aboutTitle?: string;
+  aboutBody?: string;
+  aboutImageUrl?: string;
+  reasonsTitle?: string;
+  reasons?: WebsiteHomeReason[];
+  venueTitle?: string;
+  venueImages?: WebsiteVenueImage[];
+  address?: string;
+  mapEmbedUrl?: string;
+  mapLinkUrl?: string;
+  reviewsTitle?: string;
+  reviews?: WebsiteReview[];
+  bookStripTitle?: string;
+  bookStripBody?: string;
+  bookStripCta?: string;
+  bookFaqTitle?: string;
+  bookFaq?: WebsiteFaqItem[];
+  featuredProductId?: string;
+  sections?: Record<string, boolean>;
+  sectionOrder?: string[];
   ctaPrimary?: "book" | "shop" | "social" | string;
   pages?: WebsitePageVisibility;
   featuredServiceIds?: string[];
