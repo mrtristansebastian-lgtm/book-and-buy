@@ -137,6 +137,9 @@ export interface WebsiteSettings {
   reviewsTitle?: string;
   reviewsEyebrow?: string;
   reviews?: WebsiteReview[];
+  offerTitle?: string;
+  offerBookCta?: string;
+  offerBuyCta?: string;
   bookStripTitle?: string;
   bookStripBody?: string;
   bookStripCta?: string;

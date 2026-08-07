@@ -20,6 +20,7 @@ const VIEWS = {
 export function PublicSurfaceRenderer({
   workspace,
   page = 'home',
+  itemId = '',
   preview = false,
   editMode = false,
   showHeader = true,
@@ -51,6 +52,7 @@ export function PublicSurfaceRenderer({
         ) : null}
         <View
           workspace={workspace}
+          itemId={itemId}
           preview={preview}
           editMode={editMode}
           publicMode={publicMode}

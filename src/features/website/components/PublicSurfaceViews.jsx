@@ -1,12 +1,14 @@
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
 import { SocialFeed } from '../../social/components/SocialFeed';
+import { PublicCatalogDetail } from '../../storefront/components/PublicCatalogDetail';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
 import { EditableText } from './editable';
 import {
   AboutSection,
   HeroSection,
   MapSection,
+  OfferSection,
   ReasonsSection,
   ReviewsSection,
   VenueSection
@@ -105,6 +107,17 @@ export function PublicHomeView({
         patchReview={patchReview}
         patchWebsite={patchWebsite}
       />
+    ),
+    offer: (
+      <OfferSection
+        key="offer"
+        workspace={workspace}
+        website={website}
+        editMode={editMode}
+        preview={preview}
+        hidden={!sectionOn(website, 'offer')}
+        patchWebsite={patchWebsite}
+      />
     )
   };
 
@@ -125,6 +138,7 @@ export function PublicHomeView({
 
 export function PublicBookView({
   workspace,
+  itemId = '',
   preview = false,
   editMode = false,
   publicMode = false,
@@ -136,6 +150,24 @@ export function PublicBookView({
     website.bookSubtext ||
     `Choose a service and request a time with ${workspace.brandName || 'us'}.`;
   const faq = website.bookFaq || [];
+
+  if (itemId) {
+    const service =
+      (workspace.services || []).find(
+        (row) => row.id === itemId && row.active !== false
+      ) || null;
+    return (
+      <PublicCatalogDetail
+        kind="service"
+        item={service}
+        workspace={workspace}
+        workspaceName={workspace.brandName}
+        slug={workspace.slug}
+        preview={preview || editMode}
+        publicMode={publicMode}
+      />
+    );
+  }
 
   return (
     <div className={`bb-public-book ${preview || editMode ? 'bb-public-preview-flow' : ''}`}>
@@ -267,6 +299,7 @@ export function PublicBookView({
 
 export function PublicBuyView({
   workspace,
+  itemId = '',
   preview = false,
   editMode = false,
   publicMode = false,
@@ -279,6 +312,22 @@ export function PublicBuyView({
     `Kitchen goods and take-home sets from ${workspace.brandName || 'this business'}.`;
 
   const products = workspace.products || [];
+
+  if (itemId) {
+    const product =
+      products.find((row) => row.id === itemId && row.active !== false) || null;
+    return (
+      <PublicCatalogDetail
+        kind="product"
+        item={product}
+        workspace={workspace}
+        workspaceName={workspace.brandName}
+        slug={workspace.slug}
+        preview={preview || editMode}
+        publicMode={publicMode}
+      />
+    );
+  }
 
   return (
     <div className={`bb-public-buy ${preview || editMode ? 'bb-public-preview-flow' : ''}`}>

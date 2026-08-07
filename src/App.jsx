@@ -32,7 +32,9 @@ export default function App() {
   }
 
   if (route.kind === 'public') {
-    return <PublicWebsiteApp slug={route.slug} page={route.page} />;
+    return (
+      <PublicWebsiteApp slug={route.slug} page={route.page} itemId={route.itemId || ''} />
+    );
   }
 
   if (route.kind === 'onboarding') {

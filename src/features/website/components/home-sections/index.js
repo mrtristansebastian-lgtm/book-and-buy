@@ -4,4 +4,5 @@ export { ReasonsSection } from './ReasonsSection';
 export { VenueSection } from './VenueSection';
 export { MapSection } from './MapSection';
 export { ReviewsSection } from './ReviewsSection';
+export { OfferSection } from './OfferSection';
 export { BookStripSection } from './BookStripSection';

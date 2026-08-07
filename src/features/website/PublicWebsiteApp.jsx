@@ -12,7 +12,7 @@ function titleCaseSlug(slug) {
     .join(' ');
 }
 
-export function PublicWebsiteApp({ slug, page }) {
+export function PublicWebsiteApp({ slug, page, itemId = '' }) {
   const { workspace: local } = useWorkspace();
   const [remote, setRemote] = useState(null);
   const [loadingRemote, setLoadingRemote] = useState(() => isFirebaseConfigured());
@@ -81,6 +81,7 @@ export function PublicWebsiteApp({ slug, page }) {
       <PublicSurfaceRenderer
         workspace={workspace}
         page={page || 'home'}
+        itemId={itemId || ''}
         publicMode={Boolean(remote) || !localMatch}
       />
     </div>

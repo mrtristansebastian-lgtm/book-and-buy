@@ -98,7 +98,7 @@
   align-items: end;
   justify-items: center;
   overflow: hidden;
-  min-height: clamp(28rem, calc(100dvh - var(--bb-public-header-h) - 5.5rem), 46rem);
+  min-height: clamp(22rem, calc(100dvh - var(--bb-public-header-h) - 9rem), 34rem);
 }
 
 .bb-public-home-atmosphere {
@@ -122,10 +122,10 @@
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 42rem;
+  max-width: 40rem;
   margin-inline: auto;
-  padding-top: clamp(2.5rem, 6vh, 4rem);
-  padding-bottom: clamp(2.75rem, 8vh, 4.5rem);
+  padding-top: clamp(1.75rem, 4vh, 2.75rem);
+  padding-bottom: clamp(1.85rem, 5vh, 3rem);
   color: #fff;
   text-align: center;
   justify-items: center;
@@ -133,8 +133,8 @@
 
 .bb-public-home-copy-inner {
   display: grid;
-  gap: 0.9rem;
-  max-width: 34rem;
+  gap: 0.75rem;
+  max-width: 32rem;
   margin-inline: auto;
   justify-items: center;
 }
@@ -144,8 +144,8 @@
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-weight: 820;
   letter-spacing: -0.035em;
-  line-height: 0.96;
-  font-size: clamp(2.4rem, 5.8vw, 4rem);
+  line-height: 0.98;
+  font-size: clamp(2rem, 4.8vw, 3.25rem);
   color: #fff;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
   text-align: center;
@@ -153,8 +153,8 @@
 
 .bb-public-home-support {
   margin: 0;
-  max-width: 28rem;
-  font-size: clamp(1rem, 2vw, 1.18rem);
+  max-width: 26rem;
+  font-size: clamp(0.95rem, 1.7vw, 1.08rem);
   line-height: 1.5;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.92);
@@ -166,8 +166,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.7rem;
-  padding-top: 0.35rem;
+  gap: 0.65rem;
+  padding-top: 0.2rem;
 }
 
 .bb-public-home-ctas .bb-ghost-btn {
@@ -203,7 +203,7 @@
 .bb-public-catalog-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.65rem, 3.2vw, 2.15rem);
+  font-size: clamp(0.82rem, 1.6vw, 1.08rem);
   font-weight: 820;
   letter-spacing: -0.035em;
   line-height: 1.05;
@@ -238,7 +238,7 @@
 .bb-public-service-list,
 .bb-public-product-grid {
   display: grid;
-  gap: 1rem;
+  gap: 0.52rem;
   grid-template-columns: minmax(0, 1fr);
   width: 100%;
   align-items: stretch;
@@ -248,14 +248,14 @@
   .bb-public-service-list,
   .bb-public-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 0.52rem;
   }
 }
 
 @media (min-width: 900px) {
   .bb-public-product-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.15rem;
+    gap: 0.6rem;
   }
 }
 
@@ -268,33 +268,34 @@
 
   .bb-public-product-surface > .bb-public-product-media,
   .bb-public-product-surface > .bb-public-product-body {
-    margin-inline: 0.95rem;
+    margin-inline: 0.4rem;
   }
 
   .bb-public-product-surface > .bb-public-product-media {
-    margin-top: 0.95rem;
+    margin-top: 0.4rem;
   }
 
   .bb-public-product-grid .bb-public-product-body {
-    padding: 0.9rem 0.25rem 0.8rem;
+    padding: 0.4rem 0.3rem;
+    align-content: center;
   }
 
   .bb-public-product-grid .bb-public-product-body h2 {
-    font-size: 1.08rem;
+    font-size: 0.44rem;
   }
 
   .bb-public-product-grid .bb-public-product-desc {
-    max-width: 36ch;
-    font-size: 0.88rem;
+    max-width: 28ch;
+    font-size: 0.62rem;
   }
 
   .bb-public-product-stats {
-    min-height: 3.85rem;
+    min-height: 0;
   }
 
   .bb-public-product-cart-btn {
-    padding: 0.92rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.44rem 0.55rem;
+    font-size: 0.64rem;
   }
 }
 
@@ -318,27 +319,41 @@
 
 .bb-public-product-grid > .bb-public-product-card {
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   padding: 0;
   gap: 0;
+  align-self: stretch;
 }
 
 .bb-public-product-surface {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   min-width: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-bottom: 0;
-  border-radius: 1.25rem 1.25rem 0 0;
+  border-radius: 0.65rem 0.65rem 0 0;
   background: #fff;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+}
+
+.bb-public-product-surface:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.28);
+  outline-offset: 2px;
 }
 
 .bb-public-product-grid > .bb-public-product-card:hover .bb-public-product-surface {
   border-color: rgba(15, 23, 42, 0.16);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.06);
 }
 
 .bb-public-product-grid > .bb-public-product-card.is-in-cart {
@@ -354,24 +369,24 @@
   background-position: 0 0, var(--native-accent-x) 50%;
   border: 1.5px solid transparent;
   border-bottom: 0;
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05);
 }
 
 .bb-public-product-surface > .bb-public-product-media,
 .bb-public-product-surface > .bb-public-product-body {
-  margin-inline: 0.85rem;
+  margin-inline: 0.4rem;
 }
 
 .bb-public-product-surface > .bb-public-product-media {
-  margin-top: 0.85rem;
+  margin-top: 0.4rem;
 }
 
 .bb-public-product-grid .bb-public-product-media {
   position: relative;
   width: auto;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   height: auto;
-  border-radius: 0.95rem;
+  border-radius: 0.48rem;
   overflow: hidden;
   background: #f2f4f7;
 }
@@ -383,47 +398,79 @@
   display: block;
 }
 
+.bb-public-product-sticker {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  z-index: 2;
+  max-width: calc(100% - 0.7rem);
+  margin: 0;
+  padding: 0.22rem 0.42rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  color: #101828;
+  font-size: 0.5rem;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  pointer-events: none;
+}
+
 .bb-public-product-grid .bb-public-product-body {
   display: grid;
-  gap: 0.4rem;
-  align-content: start;
+  gap: 0.18rem;
+  align-content: center;
   justify-items: center;
+  justify-content: center;
   min-width: 0;
-  padding: 0.95rem 0.35rem 0.85rem;
+  width: 100%;
+  padding: 0.45rem 0.35rem;
   text-align: center;
 }
 
 .bb-public-product-grid .bb-public-product-body h2 {
   margin: 0;
+  width: 100%;
+  max-width: 18ch;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 1.05rem;
+  font-size: 0.44rem;
   font-weight: 780;
   letter-spacing: -0.03em;
   line-height: 1.2;
   color: #101828;
   text-align: center;
+  text-wrap: balance;
 }
 
 .bb-public-service-meta {
   margin: 0;
-  font-size: 0.68rem;
+  font-size: 0.48rem;
   font-weight: 740;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: rgba(15, 23, 42, 0.42);
   text-align: center;
 }
 
 .bb-public-product-grid .bb-public-product-desc {
   margin: 0;
-  max-width: 28ch;
-  font-size: 0.84rem;
-  line-height: 1.45;
+  width: 100%;
+  max-width: 22ch;
+  font-size: 0.62rem;
+  line-height: 1.3;
   font-weight: 500;
   color: #667085;
   text-align: center;
+  text-wrap: balance;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -432,7 +479,7 @@
   display: grid;
   grid-template-columns: 1fr;
   border-top: 1px solid rgba(15, 23, 42, 0.1);
-  min-height: 4.1rem;
+  min-height: 0;
 }
 
 .bb-public-product-stats.has-duration {
@@ -441,10 +488,10 @@
 
 .bb-public-product-stat {
   display: grid;
-  gap: 0.28rem;
+  gap: 0.08rem;
   align-content: center;
   justify-items: center;
-  padding: 0.85rem 0.65rem;
+  padding: 0.38rem 0.3rem;
   text-align: center;
 }
 
@@ -453,15 +500,15 @@
 }
 
 .bb-public-product-stat-label {
-  font-size: 0.66rem;
+  font-size: 0.48rem;
   font-weight: 740;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(15, 23, 42, 0.42);
 }
 
 .bb-public-product-stat-value {
-  font-size: 0.92rem;
+  font-size: 0.68rem;
   font-weight: 560;
   letter-spacing: -0.01em;
   color: #101828;
@@ -471,15 +518,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.22rem;
   width: 100%;
   margin: 0;
-  padding: 0.85rem 1rem;
+  padding: 0.44rem 0.55rem;
   border: 0;
-  border-radius: 0 0 1.25rem 1.25rem;
+  border-radius: 0 0 0.65rem 0.65rem;
   color: #050505;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.86rem;
+  font-size: 0.64rem;
   font-weight: 760;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -490,7 +537,7 @@
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
   background-blend-mode: soft-light, normal;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.04);
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 
@@ -515,6 +562,160 @@
   color: #667085;
 }
 
+/* Product / service detail pages */
+.bb-public-detail {
+  padding-top: clamp(1rem, 2.5vw, 1.5rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.bb-public-detail-shell {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.bb-public-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bb-public-detail-layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .bb-public-detail-layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+    gap: 2.25rem;
+  }
+
+  .bb-public-detail-copy {
+    position: sticky;
+    top: 1.25rem;
+  }
+}
+
+.bb-public-detail-gallery {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (max-width: 899px) {
+  .bb-public-detail-gallery {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(82%, 1fr);
+    gap: 0.65rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bb-public-detail-gallery::-webkit-scrollbar {
+    height: 0;
+  }
+}
+
+.bb-public-detail-frame {
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 1.15rem;
+  overflow: hidden;
+  background: #f2f4f7;
+  scroll-snap-align: start;
+}
+
+.bb-public-detail-frame.is-empty {
+  min-height: 16rem;
+}
+
+.bb-public-detail-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-detail-copy {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  justify-items: start;
+  text-align: left;
+}
+
+.bb-public-detail-copy .bb-public-service-meta {
+  text-align: left;
+}
+
+.bb-public-detail-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.45rem, 3.2vw, 2.05rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #101828;
+}
+
+.bb-public-detail-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  width: 100%;
+  padding: 0.85rem 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-public-detail-fact {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.bb-public-detail-price {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-public-detail-section-label {
+  margin: 0 0 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.42);
+}
+
+.bb-public-detail-body {
+  max-width: 38ch;
+}
+
+.bb-public-detail-body p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 500;
+  color: #475467;
+  white-space: pre-wrap;
+}
+
+.bb-public-detail-cart-btn {
+  width: 100%;
+  max-width: 22rem;
+  margin-top: 0.35rem;
+  border-radius: 1rem;
+}
+
 /* Buy catalog shell */
 .bb-public-buy-section {
   padding-top: clamp(1.25rem, 3vw, 2rem);
@@ -532,8 +733,35 @@
 }
 
 .bb-public-buy-header h1 {
-  font-size: clamp(1.65rem, 3.2vw, 2.15rem);
+  font-size: clamp(0.82rem, 1.6vw, 1.08rem);
   margin: 0;
+}
+
+.bb-public-catalog-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem 0.75rem;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.bb-public-catalog-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.bb-public-catalog-tabs .bb-segment {
+  flex-wrap: wrap;
+  width: auto;
+  max-width: 100%;
+}
+
+.bb-public-catalog-tabs .bb-segment button {
+  font-size: 0.74rem;
+  padding: 0.38rem 0.68rem;
 }
 
 /* Social */
@@ -980,7 +1208,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-device-preview--phone .bb-public-catalog-title,
 .bb-device-preview--phone .bb-page-title.text-4xl,
 .bb-device-preview--phone .bb-page-title.text-3xl {
-  font-size: 1.45rem;
+  font-size: 0.9rem;
   line-height: 1.12;
 }
 
@@ -990,25 +1218,25 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-device-preview--phone .bb-public-home {
-  min-height: 22rem;
+  min-height: 18.5rem;
 }
 
 .bb-device-preview--phone .bb-public-home-copy {
-  padding-top: 2rem;
-  padding-bottom: 1.85rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.45rem;
 }
 
 .bb-device-preview--phone .bb-public-home-brand {
-  font-size: 1.85rem;
+  font-size: 1.65rem;
 }
 
 .bb-device-preview--phone .bb-public-home-support {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
 }
 
 .bb-device-preview--phone .bb-public-home-block {
-  padding-top: 1.85rem;
-  padding-bottom: 1.85rem;
+  padding-top: 1.55rem;
+  padding-bottom: 1.55rem;
 }
 
 .bb-device-preview--phone .bb-public-about,
@@ -1029,22 +1257,22 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-device-preview--phone .bb-public-venue-title,
 .bb-device-preview--phone .bb-public-visit-title,
 .bb-device-preview--phone .bb-public-reviews-title {
-  font-size: 1.65rem;
+  font-size: 1.45rem;
   max-width: none;
 }
 
 .bb-device-preview--phone .bb-public-reason {
-  padding: 1.1rem 0;
+  padding: 0.85rem 0;
   border-left: 0 !important;
 }
 
 .bb-device-preview--phone .bb-public-review {
-  padding: 1.15rem 0;
+  padding: 0.85rem 0;
   border-left: 0 !important;
 }
 
 .bb-device-preview--phone .bb-public-reason-index {
-  font-size: 2rem;
+  font-size: 1.55rem;
 }
 
 .bb-device-preview--phone .bb-public-venue-grid {
@@ -1059,7 +1287,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-device-preview--phone .bb-public-map-frame,
 .bb-device-preview--phone .bb-public-map-frame iframe {
-  min-height: 14rem;
+  min-height: 11rem;
 }
 
 .bb-device-preview--phone .bb-public-book-strip {
@@ -1107,65 +1335,113 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-device-preview--phone .bb-public-product-surface {
-  border-radius: 1rem 1rem 0 0;
+  border-radius: 0.6rem 0.6rem 0 0;
 }
 
 .bb-device-preview--phone .bb-public-product-cart-btn {
-  border-radius: 0 0 1rem 1rem;
-  padding: 0.82rem 0.9rem;
-  font-size: 0.82rem;
-  gap: 0.4rem;
+  border-radius: 0 0 0.6rem 0.6rem;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.6rem;
+  gap: 0.2rem;
 }
 
 .bb-device-preview--phone .bb-public-product-grid {
   grid-template-columns: minmax(0, 1fr) !important;
-  gap: 0.85rem;
+  gap: 0.5rem;
 }
 
 .bb-device-preview--phone .bb-public-product-surface > .bb-public-product-media,
 .bb-device-preview--phone .bb-public-product-surface > .bb-public-product-body {
-  margin-inline: 0.8rem;
+  margin-inline: 0.38rem;
 }
 
 .bb-device-preview--phone .bb-public-product-surface > .bb-public-product-media {
-  margin-top: 0.8rem;
+  margin-top: 0.38rem;
 }
 
 .bb-device-preview--phone .bb-public-product-grid .bb-public-product-media {
   width: auto;
   height: auto;
-  aspect-ratio: 4 / 3;
-  border-radius: 0.8rem;
+  aspect-ratio: 16 / 10;
+  border-radius: 0.42rem;
+}
+
+.bb-device-preview--phone .bb-public-product-sticker {
+  top: 0.28rem;
+  left: 0.28rem;
+  padding: 0.18rem 0.34rem;
+  font-size: 0.44rem;
+  border-radius: 0.28rem;
 }
 
 .bb-device-preview--phone .bb-public-product-grid .bb-public-product-body {
-  padding: 0.75rem 0.2rem 0.7rem;
+  padding: 0.35rem 0.25rem;
+  align-content: center;
 }
 
 .bb-device-preview--phone .bb-public-product-grid .bb-public-product-body h2 {
-  font-size: 0.98rem;
+  font-size: 0.42rem;
 }
 
 .bb-device-preview--phone .bb-public-product-grid .bb-public-product-desc {
-  font-size: 0.8rem;
-  max-width: 34ch;
+  font-size: 0.58rem;
+  max-width: 26ch;
   -webkit-line-clamp: 2;
 }
 
 .bb-device-preview--phone .bb-public-product-stats {
-  min-height: 3.5rem;
+  min-height: 0;
 }
 
 .bb-device-preview--phone .bb-public-product-stat {
-  padding: 0.7rem 0.45rem;
+  padding: 0.32rem 0.22rem;
 }
 
 .bb-device-preview--phone .bb-public-product-stat-label {
-  font-size: 0.6rem;
+  font-size: 0.44rem;
 }
 
 .bb-device-preview--phone .bb-public-product-stat-value {
-  font-size: 0.84rem;
+  font-size: 0.62rem;
+}
+
+.bb-device-preview--phone .bb-public-detail {
+  padding-top: 0.85rem;
+  padding-bottom: 1.75rem;
+}
+
+.bb-device-preview--phone .bb-public-detail-title {
+  font-size: 1.25rem;
+}
+
+.bb-device-preview--phone .bb-public-detail-gallery {
+  grid-auto-columns: minmax(88%, 1fr);
+  gap: 0.5rem;
+}
+
+.bb-device-preview--phone .bb-public-detail-frame {
+  aspect-ratio: 4 / 5;
+  border-radius: 0.9rem;
+}
+
+.bb-device-preview--phone .bb-public-detail-cart-btn {
+  max-width: none;
+  border-radius: 0.9rem;
+}
+
+.bb-device-preview--phone .bb-public-offer-title {
+  font-size: 1.55rem;
+}
+
+.bb-device-preview--phone .bb-public-offer-ctas {
+  width: 100%;
+  flex-direction: column;
+}
+
+.bb-device-preview--phone .bb-public-offer-ctas .bb-primary-btn,
+.bb-device-preview--phone .bb-public-offer-ctas .bb-ghost-btn {
+  width: 100%;
+  min-width: 0;
 }
 
 .bb-device-preview--phone .bb-public-cal-grid {
@@ -1204,6 +1480,17 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   flex-direction: column;
   align-items: stretch;
   gap: 0.75rem;
+}
+
+.bb-device-preview--phone .bb-public-catalog-tools {
+  width: 100%;
+  justify-content: space-between;
+  margin-left: 0;
+}
+
+.bb-device-preview--phone .bb-public-catalog-tabs .bb-segment button {
+  font-size: 0.66rem;
+  padding: 0.32rem 0.5rem;
 }
 
 .bb-device-preview--phone .bb-public-cart-row {
@@ -1522,22 +1809,21 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-home-block {
   position: relative;
-  padding-top: clamp(2.75rem, 6.5vw, 4.25rem);
-  padding-bottom: clamp(2.75rem, 6.5vw, 4.25rem);
+  padding-top: clamp(2.15rem, 5vw, 3.25rem);
+  padding-bottom: clamp(2.15rem, 5vw, 3.25rem);
 }
 
 .bb-public-home-block--soft {
   background: linear-gradient(180deg, #f8f8f9 0%, #f4f5f6 100%);
 }
 
-/* Native accent split lines frame hero + every Home section */
-.bb-public-home::after,
-.bb-public-home-block::before,
-.bb-public-home-block::after {
+/* Native accent split line under the hero only */
+.bb-public-home::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
+  bottom: 0;
   height: 3px;
   z-index: 4;
   pointer-events: none;
@@ -1548,24 +1834,6 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
   background-blend-mode: soft-light, normal;
-}
-
-.bb-public-home::after {
-  bottom: 0;
-}
-
-.bb-public-home-block::before {
-  top: 0;
-}
-
-.bb-public-home-block::after {
-  bottom: 0;
-}
-
-/* One line per boundary — avoid stacking when sections meet */
-.bb-public-home + .bb-public-home-block::before,
-.bb-public-home-block + .bb-public-home-block::before {
-  display: none;
 }
 
 .bb-public-section-eyebrow {
@@ -1665,66 +1933,80 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   position: relative;
   overflow: hidden;
   background: #fff;
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
 }
 
 .bb-public-about {
   display: grid;
-  gap: 2rem;
+  gap: 1.35rem;
   align-items: center;
+  max-width: 56rem;
+  margin-inline: auto;
 }
 
 @media (min-width: 900px) {
   .bb-public-about {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: clamp(2.5rem, 5vw, 4rem);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
     align-items: center;
   }
 }
 
 .bb-public-about-copy {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.7rem;
   align-content: center;
   justify-items: center;
   justify-self: center;
   width: 100%;
-  max-width: 30rem;
+  max-width: 26rem;
   text-align: center;
 }
 
 .bb-public-about-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(2.15rem, 4.2vw, 3.35rem);
+  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
   font-weight: 820;
   letter-spacing: -0.04em;
-  line-height: 0.98;
+  line-height: 1.05;
   color: #101828;
   max-width: 12ch;
   text-align: center;
 }
 
 .bb-public-about-body {
-  margin: 0.15rem 0 0;
-  font-size: clamp(1.02rem, 1.7vw, 1.14rem);
-  line-height: 1.65;
+  margin: 0.1rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
   font-weight: 500;
   color: #475467;
-  max-width: 36ch;
+  max-width: 34ch;
   text-align: center;
 }
 
 .bb-public-about-media-wrap {
   position: relative;
   isolation: isolate;
+  max-width: 22rem;
+  width: 100%;
+  justify-self: center;
+}
+
+@media (min-width: 900px) {
+  .bb-public-about-media-wrap {
+    max-width: 26rem;
+    justify-self: end;
+  }
 }
 
 .bb-public-about-media-frame {
   position: absolute;
-  inset: auto -0.65rem -0.65rem auto;
-  width: 42%;
-  height: 42%;
-  border-radius: 0 0 1.35rem 0;
+  inset: auto -0.5rem -0.5rem auto;
+  width: 36%;
+  height: 36%;
+  border-radius: 0 0 1.1rem 0;
   z-index: 0;
   pointer-events: none;
 }
@@ -1733,15 +2015,15 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   position: relative;
   z-index: 1;
   aspect-ratio: 1 / 1;
-  border-radius: 1.15rem;
+  border-radius: 1rem;
   overflow: hidden;
   background: rgba(15, 23, 42, 0.05);
-  min-height: 14rem;
-  max-height: 28rem;
+  min-height: 11rem;
+  max-height: 22rem;
   width: 100%;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.65) inset,
-    0 28px 56px rgba(15, 23, 42, 0.14);
+    0 18px 36px rgba(15, 23, 42, 0.12);
 }
 
 .bb-public-about-media img {
@@ -1763,18 +2045,20 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   overflow: hidden;
   background: #f4f4f5;
   color: #101828;
-  padding-top: clamp(3.25rem, 7vw, 5rem);
-  padding-bottom: clamp(3.25rem, 7vw, 5rem);
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
 }
 
 .bb-public-reasons-shell {
   display: grid;
-  gap: clamp(2rem, 5vw, 3.25rem);
+  gap: clamp(1.25rem, 3vw, 1.85rem);
+  max-width: 56rem;
+  margin-inline: auto;
 }
 
 .bb-public-reasons-head {
   display: grid;
-  gap: 0.85rem;
+  gap: 0.7rem;
   width: 100%;
   max-width: none;
   justify-items: center;
@@ -1784,10 +2068,10 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-reasons-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(2.15rem, 4.2vw, 3.25rem);
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
   font-weight: 820;
   letter-spacing: -0.04em;
-  line-height: 0.98;
+  line-height: 1.05;
   color: #101828;
   max-width: 14ch;
   text-align: center;
@@ -1807,8 +2091,8 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-reason {
   display: grid;
-  gap: 0.85rem;
-  padding: 1.5rem 0;
+  gap: 0.55rem;
+  padding: 1.1rem 0;
   border-top: 1px solid rgba(15, 23, 42, 0.1);
   background: transparent;
   border-radius: 0;
@@ -1818,7 +2102,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 @media (min-width: 768px) {
   .bb-public-reason {
-    padding: 0.35rem 1.5rem 0.15rem;
+    padding: 0.15rem 1.15rem 0;
     border-top: 0;
     border-left: 1px solid rgba(15, 23, 42, 0.1);
   }
@@ -1831,10 +2115,10 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-reason-index {
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(2.4rem, 4vw, 3.25rem);
+  font-size: clamp(1.65rem, 2.8vw, 2.15rem);
   font-weight: 820;
   letter-spacing: -0.06em;
-  line-height: 0.9;
+  line-height: 0.95;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
@@ -1846,27 +2130,27 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-reason-copy {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.4rem;
 }
 
 .bb-public-reason-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.22rem, 2vw, 1.5rem);
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
   font-weight: 760;
   letter-spacing: -0.03em;
-  line-height: 1.12;
+  line-height: 1.15;
   color: #101828;
 }
 
 .bb-public-reason-body,
 .bb-public-reason p {
   margin: 0;
-  font-size: 0.98rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.5;
   font-weight: 500;
   color: #475467;
-  max-width: 28ch;
+  max-width: 26ch;
 }
 
 /* Venue — even photo grid, images keep natural proportions */
@@ -2048,39 +2332,43 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   position: relative;
   overflow: hidden;
   background: #f4f4f5;
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
 }
 
 .bb-public-visit {
   display: grid;
-  gap: 1.75rem;
+  gap: 1.25rem;
   align-items: stretch;
+  max-width: 52rem;
+  margin-inline: auto;
 }
 
 @media (min-width: 900px) {
   .bb-public-visit {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    gap: clamp(2rem, 4vw, 3.25rem);
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(1.35rem, 2.5vw, 2rem);
   }
 }
 
 .bb-public-visit-copy {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.75rem;
   align-content: center;
   justify-items: center;
   justify-self: center;
   width: 100%;
-  max-width: 28rem;
+  max-width: 22rem;
   text-align: center;
 }
 
 .bb-public-visit-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(2.15rem, 4.2vw, 3.25rem);
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
   font-weight: 820;
   letter-spacing: -0.04em;
-  line-height: 0.98;
+  line-height: 1.05;
   color: #101828;
   max-width: 10ch;
   text-align: center;
@@ -2088,8 +2376,8 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-visit-body {
   margin: 0.1rem 0 0;
-  font-size: clamp(1.02rem, 1.7vw, 1.14rem);
-  line-height: 1.6;
+  font-size: 0.95rem;
+  line-height: 1.55;
   font-weight: 500;
   color: #475467;
   max-width: 28ch;
@@ -2118,15 +2406,25 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-map-wrap {
   position: relative;
   isolation: isolate;
-  min-height: 18rem;
+  min-height: 12.5rem;
+  max-width: 28rem;
+  width: 100%;
+  justify-self: center;
+}
+
+@media (min-width: 900px) {
+  .bb-public-map-wrap {
+    max-width: none;
+    justify-self: stretch;
+  }
 }
 
 .bb-public-map-frame-accent {
   position: absolute;
-  inset: auto auto -0.65rem -0.65rem;
-  width: 38%;
-  height: 38%;
-  border-radius: 0 0 0 1.25rem;
+  inset: auto auto -0.45rem -0.45rem;
+  width: 30%;
+  height: 30%;
+  border-radius: 0 0 0 1rem;
   z-index: 0;
   pointer-events: none;
 }
@@ -2135,33 +2433,33 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   position: relative;
   z-index: 1;
   height: 100%;
-  min-height: 18rem;
-  border-radius: 1.15rem;
+  min-height: 12.5rem;
+  border-radius: 1rem;
   overflow: hidden;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 24px 48px rgba(15, 23, 42, 0.1);
+    0 16px 32px rgba(15, 23, 42, 0.08);
 }
 
 @media (min-width: 900px) {
   .bb-public-map-frame {
-    min-height: 22rem;
+    min-height: 15rem;
   }
 }
 
 .bb-public-map-frame iframe {
   width: 100%;
   height: 100%;
-  min-height: 18rem;
+  min-height: 12.5rem;
   border: 0;
   display: block;
 }
 
 @media (min-width: 900px) {
   .bb-public-map-frame iframe {
-    min-height: 22rem;
+    min-height: 15rem;
   }
 }
 
@@ -2170,17 +2468,21 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   position: relative;
   overflow: hidden;
   background: #fff;
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
 }
 
 .bb-public-reviews-shell {
   display: grid;
-  gap: clamp(1.75rem, 4vw, 2.75rem);
+  gap: clamp(1.25rem, 3vw, 1.85rem);
   justify-items: stretch;
+  max-width: 56rem;
+  margin-inline: auto;
 }
 
 .bb-public-reviews-head {
   display: grid;
-  gap: 0.85rem;
+  gap: 0.7rem;
   width: 100%;
   max-width: none;
   justify-items: center;
@@ -2190,10 +2492,10 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-reviews-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(2.15rem, 4.2vw, 3.25rem);
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
   font-weight: 820;
   letter-spacing: -0.04em;
-  line-height: 0.98;
+  line-height: 1.05;
   color: #101828;
   max-width: 14ch;
   text-align: center;
@@ -2213,9 +2515,9 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-review {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.55rem;
   align-content: start;
-  padding: 1.5rem 0;
+  padding: 1.1rem 0;
   border-top: 1px solid rgba(15, 23, 42, 0.1);
   background: transparent;
   border-radius: 0;
@@ -2225,7 +2527,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 @media (min-width: 800px) {
   .bb-public-review {
-    padding: 0.2rem 1.4rem 0.15rem;
+    padding: 0.1rem 1.1rem 0;
     border-top: 0;
     border-left: 1px solid rgba(15, 23, 42, 0.1);
   }
@@ -2241,7 +2543,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   align-items: center;
   gap: 0.08rem;
   letter-spacing: 0.12em;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   line-height: 1;
 }
 
@@ -2256,8 +2558,8 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-review-quote {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.05rem, 1.8vw, 1.18rem);
-  line-height: 1.55;
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  line-height: 1.5;
   font-weight: 560;
   letter-spacing: -0.015em;
   color: #1d2939;
@@ -2265,8 +2567,8 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-review-name {
-  margin: 0.15rem 0 0;
-  font-size: 0.82rem;
+  margin: 0.1rem 0 0;
+  font-size: 0.75rem;
   font-weight: 720;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2277,6 +2579,49 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+/* Offer CTA — after reviews */
+.bb-public-offer-block {
+  background: #fff;
+}
+
+.bb-public-offer-shell {
+  display: grid;
+  gap: clamp(1.35rem, 3vw, 1.85rem);
+  justify-items: center;
+  text-align: center;
+}
+
+.bb-public-offer-head {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+  justify-items: center;
+}
+
+.bb-public-offer-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.85rem, 3.8vw, 2.75rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #101828;
+  text-align: center;
+  max-width: 14ch;
+}
+
+.bb-public-offer-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.bb-public-offer-ctas .bb-primary-btn,
+.bb-public-offer-ctas .bb-ghost-btn {
+  min-width: 9.5rem;
 }
 
 .bb-public-book-strip {
@@ -2532,6 +2877,8 @@ html body .native-ui .bb-public-surface .bb-public-about-body {
 html body .native-ui .bb-public-surface .bb-public-catalog-title,
 html body .native-ui .bb-public-surface .bb-public-page-intro .bb-page-title,
 html body .native-ui .bb-public-surface .bb-public-page-intro h1,
+html body .native-ui .bb-public-surface .bb-public-detail-title,
+html body .native-ui .bb-public-surface .bb-public-offer-title,
 html body .native-ui .bb-public-surface .bb-public-venue-title,
 html body .native-ui .bb-public-surface .bb-public-visit-title,
 html body .native-ui .bb-public-surface .bb-public-reviews-title {
@@ -2640,8 +2987,6 @@ html body .native-ui .bb-public-surface .bb-public-reason-index {
 html body .native-ui .bb-public-surface .bb-public-native-fill,
 html body .native-ui .bb-public-surface .bb-public-section-accent,
 html body .native-ui .bb-public-surface .bb-public-home::after,
-html body .native-ui .bb-public-surface .bb-public-home-block::before,
-html body .native-ui .bb-public-surface .bb-public-home-block::after,
 html body .native-ui .bb-public-surface .bb-public-section-eyebrow-mark,
 html body .native-ui .bb-public-surface .bb-public-about-media-frame,
 html body .native-ui .bb-public-surface .bb-public-map-frame-accent,
@@ -2663,6 +3008,8 @@ html body .native-ui .bb-public-surface .bb-public-book-strip .bb-public-lede {
 
 html body .native-ui .bb-public-surface .bb-public-home-copy .bb-primary-btn,
 html body .native-ui .bb-public-surface .bb-public-home-copy .bb-primary-btn :where(span, strong, small),
+html body .native-ui .bb-public-surface .bb-public-offer-ctas .bb-primary-btn,
+html body .native-ui .bb-public-surface .bb-public-offer-ctas .bb-primary-btn :where(span, strong, small),
 html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn,
 html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn :where(span, strong, small),
 html body .native-ui .bb-public-surface .bb-public-product-cart-btn,

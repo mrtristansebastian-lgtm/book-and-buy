@@ -3,7 +3,8 @@ export const DEFAULT_HOME_SECTION_ORDER = [
   'reasons',
   'venue',
   'map',
-  'reviews'
+  'reviews',
+  'offer'
 ];
 
 export const createDefaultHomeSections = () => ({
@@ -12,6 +13,7 @@ export const createDefaultHomeSections = () => ({
   venue: true,
   map: true,
   reviews: true,
+  offer: true,
   bookStrip: false
 });
 
@@ -81,6 +83,9 @@ export const createDefaultSettings = () => ({
     reviewsTitle: 'What clients say',
     reviewsEyebrow: 'Reviews',
     reviews: [],
+    offerTitle: 'View what we offer',
+    offerBookCta: 'Bookings',
+    offerBuyCta: 'Products',
     bookStripTitle: 'Ready to book?',
     bookStripBody: 'Pick a service and request a time that works for you.',
     bookStripCta: 'See availability',

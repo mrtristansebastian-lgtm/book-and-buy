@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { navigate, publicItemPath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
+import { CatalogCategoryTabs } from '../../storefront/components/CatalogCategoryTabs';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
-import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
+import {
+  buildCatalogCategoryTabs,
+  filterCatalogByCategory,
+  getCatalogCategory
+} from '../../../utils/catalogCategories';
 
 /**
  * Public Book catalog — trading cards matching Buy, shared cart with slot checkout.
@@ -20,9 +26,25 @@ export function PublicBookingFlow({
   const workspace = catalogWorkspace || ctx.workspace;
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
-  const activeServices = (workspace.services || []).filter(
-    (service) => service.active !== false
+  const [categoryId, setCategoryId] = useState('all');
+
+  const activeServices = useMemo(
+    () => (workspace.services || []).filter((service) => service.active !== false),
+    [workspace.services]
   );
+  const categoryTabs = useMemo(
+    () => buildCatalogCategoryTabs(activeServices),
+    [activeServices]
+  );
+  const visibleServices = useMemo(
+    () => filterCatalogByCategory(activeServices, categoryId),
+    [activeServices, categoryId]
+  );
+
+  const openDetail = (serviceId) => {
+    if (preview) return;
+    navigate(publicItemPath(workspace.slug, 'book', serviceId));
+  };
 
   const cartButton = (
     <button
@@ -35,6 +57,20 @@ export function PublicBookingFlow({
     </button>
   );
 
+  const catalogTools = (
+    <div className="bb-public-catalog-tools">
+      {panel === 'shop' ? (
+        <CatalogCategoryTabs
+          options={categoryTabs}
+          value={categoryId}
+          onChange={setCategoryId}
+          ariaLabel="Service categories"
+        />
+      ) : null}
+      {cartButton}
+    </div>
+  );
+
   return (
     <section
       className={`bb-public-buy-section ${hideTitle ? '' : 'bb-public-gutter'} ${
@@ -43,7 +79,7 @@ export function PublicBookingFlow({
     >
       <div className={`${hideTitle ? '' : 'bb-public-measure-wide'} grid gap-6`}>
         {hideTitle ? (
-          <div className="flex justify-end">{cartButton}</div>
+          catalogTools
         ) : (
           <header className="bb-public-buy-header">
             <div className="bb-public-catalog-intro">
@@ -52,7 +88,7 @@ export function PublicBookingFlow({
                 Add a service to your cart, then pick a date and time at checkout.
               </p>
             </div>
-            {cartButton}
+            {catalogTools}
           </header>
         )}
 
@@ -65,8 +101,8 @@ export function PublicBookingFlow({
           />
         ) : (
           <div className="bb-public-product-grid">
-            {activeServices.map((item) => {
-              const meta = getScheduleTypeMeta(item.scheduleType);
+            {visibleServices.map((item) => {
+              const category = getCatalogCategory(item, 'Service');
               const imageSrc = item.imageUrls?.[0] || item.image || '';
               const price = formatServicePrice(item);
               const duration = formatServiceDuration(item.duration);
@@ -76,12 +112,19 @@ export function PublicBookingFlow({
                   key={item.id}
                   className={`bb-public-product-card${inCart ? ' is-in-cart' : ''}`}
                 >
-                  <div className="bb-public-product-surface">
+                  <button
+                    type="button"
+                    className="bb-public-product-surface"
+                    onClick={() => openDetail(item.id)}
+                    aria-label={`View ${item.name}`}
+                  >
                     <div className="bb-public-product-media">
                       {imageSrc ? <img src={imageSrc} alt="" /> : null}
+                      {category ? (
+                        <span className="bb-public-product-sticker">{category}</span>
+                      ) : null}
                     </div>
                     <div className="bb-public-product-body">
-                      <p className="bb-public-service-meta">{meta.singular}</p>
                       <h2>{item.name}</h2>
                       {item.description ? (
                         <p className="bb-public-product-desc">{item.description}</p>
@@ -101,7 +144,7 @@ export function PublicBookingFlow({
                         </div>
                       ) : null}
                     </div>
-                  </div>
+                  </button>
                   <button
                     type="button"
                     className="bb-public-product-cart-btn"
@@ -111,7 +154,7 @@ export function PublicBookingFlow({
                       setPanel('cart');
                     }}
                   >
-                    <ShoppingBag size={15} strokeWidth={2.35} />
+                    <ShoppingBag size={12} strokeWidth={2.4} />
                     <span>{inCart ? 'In cart' : 'Add to cart'}</span>
                   </button>
                 </article>
@@ -119,6 +162,8 @@ export function PublicBookingFlow({
             })}
             {activeServices.length === 0 ? (
               <p className="bb-muted m-0">No bookable services published yet.</p>
+            ) : visibleServices.length === 0 ? (
+              <p className="bb-muted m-0">No services in this category.</p>
             ) : null}
           </div>
         )}

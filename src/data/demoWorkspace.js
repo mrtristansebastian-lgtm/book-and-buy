@@ -3,7 +3,7 @@ import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 10;
+export const DEMO_WEBSITE_SCHEMA = 12;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 2;
@@ -30,8 +30,12 @@ export const DEMO_SERVICES = normalizeServiceList([
     scheduleType: 'class_session',
     capacity: 8,
     description:
-      'Mix, roll, shape, and cook fresh pasta before sitting down to enjoy the finished dishes together.',
-    image: '/example/flour-and-flame/services/pasta-from-scratch.webp',
+      'Mix, roll, shape, and cook fresh pasta before sitting down to enjoy the finished dishes together.\n\nYou’ll work through dough hydration, resting, rolling, cutting, and a simple sauce finish — then share the meal at the studio table.',
+    imageUrls: [
+      '/example/flour-and-flame/venue/pastry-island.png',
+      '/example/flour-and-flame/products/fresh-pasta-starter-set.png',
+      '/example/flour-and-flame/venue/studio-notes.png'
+    ],
     staffIds: ['jordan-lee', 'maya-patel']
   },
   {
@@ -43,8 +47,12 @@ export const DEMO_SERVICES = normalizeServiceList([
     scheduleType: 'class_session',
     capacity: 10,
     description:
-      'Learn fermentation, shaping, scoring, and baking while making your own naturally leavened loaf.',
-    image: '/example/flour-and-flame/services/artisan-bread.webp',
+      'Learn fermentation, shaping, scoring, and baking while making your own naturally leavened loaf.\n\nThe session covers starter care, bulk fermentation cues, and oven steam so you can repeat the bake at home.',
+    imageUrls: [
+      '/example/flour-and-flame/venue/bread-ovens.png',
+      '/example/flour-and-flame/products/artisan-bread-box.png',
+      '/example/flour-and-flame/hero.png'
+    ],
     staffIds: ['thando-mokoena', 'maya-patel']
   },
   {
@@ -56,8 +64,12 @@ export const DEMO_SERVICES = normalizeServiceList([
     scheduleType: 'class_session',
     capacity: 8,
     description:
-      'Build confidence with laminated dough, choux pastry, fillings, glazing, and elegant finishing.',
-    image: '/example/flour-and-flame/services/french-pastry.webp',
+      'Build confidence with laminated dough, choux pastry, fillings, glazing, and elegant finishing.\n\nLeave with plated pastries plus notes you can reuse for celebrations at home.',
+    imageUrls: [
+      '/example/flour-and-flame/venue/pastry-island.png',
+      '/example/flour-and-flame/venue/studio-notes.png',
+      '/example/flour-and-flame/products/kitchen-notes.png'
+    ],
     staffIds: ['jordan-lee', 'thando-mokoena']
   },
   {
@@ -69,8 +81,12 @@ export const DEMO_SERVICES = normalizeServiceList([
     scheduleType: 'class_session',
     capacity: 8,
     description:
-      'Cook a generous Cape Malay menu while learning how to balance aromatics, spice, sweetness, and heat.',
-    image: '/example/flour-and-flame/services/cape-malay.webp',
+      'Cook a generous Cape Malay menu while learning how to balance aromatics, spice, sweetness, and heat.\n\nExpect a shared table finish and take-home spice notes from the kitchen.',
+    imageUrls: [
+      '/example/flour-and-flame/hero.png',
+      '/example/flour-and-flame/venue/pastry-island.png',
+      '/example/flour-and-flame/venue/bread-ovens.png'
+    ],
     staffIds: ['jordan-lee', 'maya-patel']
   },
   {
@@ -82,8 +98,12 @@ export const DEMO_SERVICES = normalizeServiceList([
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'A focused one-to-one lesson shaped around your baking goals, from fundamentals to celebration cakes.',
-    image: '/example/flour-and-flame/services/private-baking.webp',
+      'A focused one-to-one lesson shaped around your baking goals, from fundamentals to celebration cakes.\n\nBring a recipe you’d like to refine, or ask us to plan the session around a technique you want to lock in.',
+    imageUrls: [
+      '/example/flour-and-flame/venue/studio-notes.png',
+      '/example/flour-and-flame/products/kitchen-notes.png',
+      '/example/flour-and-flame/venue/bread-ovens.png'
+    ],
     staffIds: ['thando-mokoena', 'sofia-martins']
   }
 ]);
@@ -356,8 +376,13 @@ export const DEMO_PRODUCTS = normalizeProductList([
     category: 'Baked goods',
     price: 320,
     stockAvailable: 12,
-    description: 'A mixed box of the day’s loaves — sourdough, seeded, and a soft milk loaf.',
-    image: '/example/flour-and-flame/products/artisan-bread-box.png'
+    description:
+      'A mixed box of the day’s loaves — sourdough, seeded, and a soft milk loaf.\n\nBaked the morning of collection so the crust stays lively and the crumb stays open. Best enjoyed within two days, or freeze slices for later.',
+    imageUrls: [
+      '/example/flour-and-flame/products/artisan-bread-box.png',
+      '/example/flour-and-flame/venue/bread-ovens.png',
+      '/example/flour-and-flame/hero.png'
+    ]
   },
   {
     id: 'fresh-pasta-starter-set',
@@ -365,8 +390,13 @@ export const DEMO_PRODUCTS = normalizeProductList([
     category: 'Kits',
     price: 480,
     stockAvailable: 8,
-    description: 'Flour blend, semolina, recipe cards, and a wooden paddle for home pasta nights.',
-    image: '/example/flour-and-flame/products/fresh-pasta-starter-set.png'
+    description:
+      'Flour blend, semolina, recipe cards, and a wooden paddle for home pasta nights.\n\nEverything you need for a first from-scratch batch, scaled for two generous plates.',
+    imageUrls: [
+      '/example/flour-and-flame/products/fresh-pasta-starter-set.png',
+      '/example/flour-and-flame/venue/pastry-island.png',
+      '/example/flour-and-flame/venue/studio-notes.png'
+    ]
   },
   {
     id: 'kitchen-notes',
@@ -374,8 +404,13 @@ export const DEMO_PRODUCTS = normalizeProductList([
     category: 'Books',
     price: 260,
     stockAvailable: 20,
-    description: 'Studio recipes, fermentation notes, and plating ideas from the Flour & Flame team.',
-    image: '/example/flour-and-flame/products/kitchen-notes.png'
+    description:
+      'Studio recipes, fermentation notes, and plating ideas from the Flour & Flame team.\n\nA compact studio companion for weeknight bakes and weekend projects.',
+    imageUrls: [
+      '/example/flour-and-flame/products/kitchen-notes.png',
+      '/example/flour-and-flame/venue/studio-notes.png',
+      '/example/flour-and-flame/products/artisan-bread-box.png'
+    ]
   },
   {
     id: 'private-menu-consult',
@@ -384,8 +419,13 @@ export const DEMO_PRODUCTS = normalizeProductList([
     priceType: 'quote',
     quoteBased: true,
     stockLabel: 'By arrangement',
-    description: 'Plan a custom menu or celebration bake with the kitchen — priced after a short consult.',
-    image: '/example/flour-and-flame/venue/tasting-room.webp'
+    description:
+      'Plan a custom menu or celebration bake with the kitchen — priced after a short consult.\n\nShare headcount, dietary needs, and the feel you want; we’ll reply with a clear quote and timeline.',
+    imageUrls: [
+      '/example/flour-and-flame/venue/pastry-island.png',
+      '/example/flour-and-flame/hero.png',
+      '/example/flour-and-flame/products/kitchen-notes.png'
+    ]
   }
 ]);
 
@@ -593,9 +633,10 @@ export function createDemoWorkspace() {
         venue: true,
         map: true,
         reviews: true,
+        offer: true,
         bookStrip: false
       },
-      sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews'],
+      sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews', 'offer'],
       headline: 'Cook Bold. Bake Beautifully.',
       subcopy:
         'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
@@ -688,6 +729,9 @@ export function createDemoWorkspace() {
           rating: 5
         }
       ],
+      offerTitle: 'View what we offer',
+      offerBookCta: 'Bookings',
+      offerBuyCta: 'Products',
       bookStripTitle: 'Reserve a class',
       bookStripBody: 'See open times on the Book page and send a request in minutes.',
       bookStripCta: 'See availability',
@@ -890,6 +934,9 @@ export function hydrateDemoWorkspace(stored) {
         reviewsTitle: fresh.website.reviewsTitle,
         reviewsEyebrow: fresh.website.reviewsEyebrow,
         reviews: fresh.website.reviews,
+        offerTitle: fresh.website.offerTitle,
+        offerBookCta: fresh.website.offerBookCta,
+        offerBuyCta: fresh.website.offerBuyCta,
         bookStripTitle: fresh.website.bookStripTitle,
         bookStripBody: fresh.website.bookStripBody,
         bookStripCta: fresh.website.bookStripCta,
@@ -897,6 +944,7 @@ export function hydrateDemoWorkspace(stored) {
         bookFaq: fresh.website.bookFaq,
         sections: {
           ...fresh.website.sections,
+          offer: true,
           bookStrip: false
         },
         sectionOrder: fresh.website.sectionOrder,
@@ -931,6 +979,8 @@ export function hydrateDemoWorkspace(stored) {
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
     website,
+    products: staleWebsite ? fresh.products : stored.products || fresh.products,
+    services: staleWebsite ? fresh.services : stored.services || fresh.services,
     socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts,
     threads: staleThreads ? fresh.threads : stored.threads,
     orders: staleOrders ? fresh.orders : stored.orders

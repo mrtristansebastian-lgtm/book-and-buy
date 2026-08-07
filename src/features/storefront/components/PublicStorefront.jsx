@@ -1,9 +1,16 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { navigate, publicItemPath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { PublicCartCheckout } from './PublicCartCheckout';
+import { CatalogCategoryTabs } from './CatalogCategoryTabs';
 import { formatProductPrice } from '../../../utils/products';
+import {
+  buildCatalogCategoryTabs,
+  filterCatalogByCategory,
+  getCatalogCategory
+} from '../../../utils/catalogCategories';
 
 export function PublicStorefront({
   catalogWorkspace,
@@ -20,13 +27,30 @@ export function PublicStorefront({
   const products = workspace.products || [];
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
+  const [categoryId, setCategoryId] = useState('all');
 
-  const catalog = products.filter((product) => product.active !== false);
+  const catalog = useMemo(
+    () => products.filter((product) => product.active !== false),
+    [products]
+  );
+  const categoryTabs = useMemo(() => buildCatalogCategoryTabs(catalog), [catalog]);
+  const filteredCatalog = useMemo(
+    () => filterCatalogByCategory(catalog, categoryId),
+    [catalog, categoryId]
+  );
+
   const featured =
-    catalog.find((product) => product.id === featuredProductId) || catalog[0] || null;
-  const gridProducts = featuredProductId
-    ? catalog.filter((product) => product.id !== featured?.id)
-    : catalog;
+    categoryId === 'all'
+      ? catalog.find((product) => product.id === featuredProductId) || null
+      : null;
+  const gridProducts = featured
+    ? filteredCatalog.filter((product) => product.id !== featured.id)
+    : filteredCatalog;
+
+  const openDetail = (productId) => {
+    if (preview) return;
+    navigate(publicItemPath(workspace.slug, 'buy', productId));
+  };
 
   const cartButton = (
     <button
@@ -39,24 +63,47 @@ export function PublicStorefront({
     </button>
   );
 
+  const catalogTools = (
+    <div className="bb-public-catalog-tools">
+      {panel === 'shop' ? (
+        <CatalogCategoryTabs
+          options={categoryTabs}
+          value={categoryId}
+          onChange={setCategoryId}
+          ariaLabel="Product categories"
+        />
+      ) : null}
+      {cartButton}
+    </div>
+  );
+
   const renderCard = (product, featuredCard = false) => {
     const quote = product.quoteBased || product.priceType === 'quote';
     const imageSrc = product.imageUrls?.[0] || product.image || '';
     const price = formatProductPrice(product);
-    const category =
-      product.category || product.mainCategory || (featuredCard ? 'Featured' : 'Product');
+    const category = getCatalogCategory(
+      product,
+      featuredCard ? 'Featured' : 'Product'
+    );
 
     return (
       <article
         key={product.id}
         className={`bb-public-product-card${featuredCard ? ' bb-public-product-card--featured' : ''}`}
       >
-        <div className="bb-public-product-surface">
+        <button
+          type="button"
+          className="bb-public-product-surface"
+          onClick={() => openDetail(product.id)}
+          aria-label={`View ${product.name}`}
+        >
           <div className="bb-public-product-media">
             {imageSrc ? <img src={imageSrc} alt="" /> : null}
+            {category ? (
+              <span className="bb-public-product-sticker">{category}</span>
+            ) : null}
           </div>
           <div className="bb-public-product-body">
-            <p className="bb-public-service-meta">{category}</p>
             <h2>{product.name}</h2>
             {product.description ? (
               <p className="bb-public-product-desc">{product.description}</p>
@@ -68,7 +115,7 @@ export function PublicStorefront({
               <span className="bb-public-product-stat-value">{price || '—'}</span>
             </div>
           </div>
-        </div>
+        </button>
         <button
           type="button"
           className="bb-public-product-cart-btn"
@@ -79,7 +126,7 @@ export function PublicStorefront({
             setPanel('cart');
           }}
         >
-          <ShoppingBag size={15} strokeWidth={2.35} />
+          <ShoppingBag size={12} strokeWidth={2.4} />
           <span>{quote ? 'Quote only' : 'Add to cart'}</span>
         </button>
       </article>
@@ -92,7 +139,7 @@ export function PublicStorefront({
     >
       <div className="bb-public-measure-wide grid gap-6">
         {hideIntro ? (
-          <div className="flex justify-end">{cartButton}</div>
+          catalogTools
         ) : (
           <header className="bb-public-buy-header">
             <div className="bb-public-catalog-intro">
@@ -102,7 +149,7 @@ export function PublicStorefront({
                   `Kitchen goods and take-home sets from ${workspaceName || workspace.brandName}.`}
               </p>
             </div>
-            {cartButton}
+            {catalogTools}
           </header>
         )}
 
@@ -116,9 +163,11 @@ export function PublicStorefront({
         ) : (
           <div className="bb-public-product-grid">
             {featured && featuredProductId ? renderCard(featured, true) : null}
-            {(featuredProductId ? gridProducts : catalog).map((product) => renderCard(product))}
+            {gridProducts.map((product) => renderCard(product))}
             {catalog.length === 0 ? (
               <p className="bb-muted m-0">No products published yet.</p>
+            ) : filteredCatalog.length === 0 ? (
+              <p className="bb-muted m-0">No products in this category.</p>
             ) : null}
           </div>
         )}

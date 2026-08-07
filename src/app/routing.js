@@ -36,18 +36,26 @@ export function parseAppRoute(path = getLocationPath()) {
   }
 
   if (parts[0] === 'w' && parts[1]) {
+    const page = normalizePublicPage(parts[2] || 'home');
+    const itemId =
+      (page === 'book' || page === 'buy') && parts[3]
+        ? decodeURIComponent(String(parts[3]))
+        : '';
     return {
       kind: 'public',
       slug: parts[1],
-      page: normalizePublicPage(parts[2] || 'home')
+      page,
+      itemId
     };
   }
 
   if ((parts[0] === 'book' || parts[0] === 'shop' || parts[0] === 'buy') && parts[1]) {
+    const page = parts[0] === 'book' ? 'book' : 'buy';
     return {
       kind: 'public',
       slug: parts[1],
-      page: parts[0] === 'book' ? 'book' : 'buy'
+      page,
+      itemId: parts[2] ? decodeURIComponent(String(parts[2])) : ''
     };
   }
 
@@ -61,10 +69,16 @@ export function parseAppRoute(path = getLocationPath()) {
       };
     }
     if (['home', 'book', 'buy', 'shop', 'social'].includes(parts[1])) {
+      const page = normalizePublicPage(parts[1]);
+      const itemId =
+        (page === 'book' || page === 'buy') && parts[2]
+          ? decodeURIComponent(String(parts[2]))
+          : '';
       return {
         kind: 'public',
         slug: 'flour-and-flame',
-        page: normalizePublicPage(parts[1]),
+        page,
+        itemId,
         demo: true
       };
     }
@@ -82,6 +96,16 @@ export function publicPagePath(slug, page = 'home') {
   const normalized = normalizePublicPage(page);
   if (normalized === 'home') return `/w/${slug}`;
   return `/w/${slug}/${normalized}`;
+}
+
+/** Product (`buy`) or service (`book`) detail path. */
+export function publicItemPath(slug, page, itemId) {
+  const normalized = normalizePublicPage(page);
+  const id = String(itemId || '').trim();
+  if (!id || (normalized !== 'book' && normalized !== 'buy')) {
+    return publicPagePath(slug, normalized);
+  }
+  return `/w/${slug}/${normalized}/${encodeURIComponent(id)}`;
 }
 
 export function navigate(to, { replace = false } = {}) {
