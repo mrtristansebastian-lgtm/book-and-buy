@@ -902,8 +902,7 @@
 .bb-public-book-strip .bb-page-title,
 .bb-public-book-strip .bb-public-lede,
 .bb-public-book-strip p,
-.bb-public-book-strip h2,
-.bb-public-book-strip span {
+.bb-public-book-strip h2 {
   color: #fff;
 }
 
@@ -989,7 +988,7 @@
  * Beat native-typography-consistency !important rules on public pages.
  * Those rules force dark heading/body colors that break hero + book strip.
  */
-html body .native-ui .bb-public-surface .bb-public-home-copy :where(h1, h2, h3, p, span),
+html body .native-ui .bb-public-surface .bb-public-home-copy :where(h1, h2, h3, p),
 html body .native-ui .bb-public-surface .bb-public-home-brand,
 html body .native-ui .bb-public-surface .bb-public-home-support {
   color: #fff !important;
@@ -1047,10 +1046,17 @@ html body .native-ui .bb-public-surface .bb-public-home-block :where(h2, h3) {
 }
 
 /* Dark panels last so they win over body/lede rules above */
-html body .native-ui .bb-public-surface .bb-public-book-strip :where(h1, h2, h3, p, span),
+html body .native-ui .bb-public-surface .bb-public-book-strip :where(h1, h2, h3, p),
 html body .native-ui .bb-public-surface .bb-public-book-strip .bb-page-title,
 html body .native-ui .bb-public-surface .bb-public-book-strip .bb-public-lede {
   color: #fff !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-primary-btn,
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-primary-btn :where(span, strong, small),
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn,
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn :where(span, strong, small) {
+  color: #050505 !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text.is-empty:before {

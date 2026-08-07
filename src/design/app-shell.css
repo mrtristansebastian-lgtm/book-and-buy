@@ -98,6 +98,12 @@
   background-position: 0 0, var(--native-accent-x) 50%;
 }
 
+/* Gradient primary buttons always use black label text (including nested spans). */
+html body .native-ui .bb-primary-btn,
+html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
+  color: #050505 !important;
+}
+
 .bb-ink-btn {
   display: inline-flex;
   align-items: center;
