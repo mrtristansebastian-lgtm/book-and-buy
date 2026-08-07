@@ -38,6 +38,7 @@ Without `VITE_FIREBASE_CONFIG`, the app runs in **local mode** (localStorage wor
 10. Firebase track — Storage image upload (with local fallback), Firestore publish on Publish, Google Calendar link after booking, Places Place ID + import stub; full Places callable still needs API key deploy
 11. Live public slug loop — ownerId bind, owner settings Firestore cache, public-safe Publish, `#/w/:slug` prefers Firestore, Book/Buy catalogs from public snapshot (booking/order Functions still needed for cross-device intake)
 12. Social tabbed feed — Posts (IG grid) / Videos (YT stage) / Text (timeline) on shared public + studio renderer
+13. Social publishing studio — flush owner create UI (no device mockup) for photo / video / text → live Social page
 
 See `docs/book-and-buy-vision.md`.
 
