@@ -141,6 +141,15 @@ export interface WebsiteSettings {
   sectionOrder?: string[];
   /** Per-section Home layout index (0–2). */
   sectionLayouts?: Record<string, 0 | 1 | 2 | number>;
+  /** Active overall Home pack/template id, or `custom` when mixed. */
+  homeLayoutId?: string;
+  /** Owner-saved overall Home layout recipes. */
+  homeLayoutTemplates?: Array<{
+    id: string;
+    name: string;
+    sectionLayouts: Record<string, 0 | 1 | 2 | number>;
+    createdAt?: number;
+  }>;
   ctaPrimary?: "book" | "shop" | "social" | string;
   pages?: WebsitePageVisibility;
   featuredServiceIds?: string[];

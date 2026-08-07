@@ -56,6 +56,8 @@ export const createDefaultSettings = () => ({
     sections: createDefaultHomeSections(),
     sectionOrder: createDefaultHomeSectionOrder(),
     sectionLayouts: createDefaultSectionLayouts(),
+    homeLayoutId: 'classic',
+    homeLayoutTemplates: [],
     headline: 'Welcome in.',
     subcopy: 'Book a service or buy products from one place.',
     ctaLabel: 'Book now',

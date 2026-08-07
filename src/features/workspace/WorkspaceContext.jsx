@@ -263,7 +263,10 @@ export function WorkspaceProvider({ children }) {
             sectionLayouts: {
               ...prev.website?.sectionLayouts,
               ...(patch.sectionLayouts || {})
-            }
+            },
+            homeLayoutTemplates: Array.isArray(patch.homeLayoutTemplates)
+              ? patch.homeLayoutTemplates
+              : prev.website?.homeLayoutTemplates || []
           },
           publishedAt: patch.publish ? Date.now() : prev.publishedAt
         }));

@@ -9,6 +9,7 @@ import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { DevicePreviewFrame } from '../components/DevicePreviewFrame';
+import { HomeLayoutPicker } from '../components/HomeLayoutPicker';
 
 export function WebsiteStudioPage() {
   const {
@@ -73,7 +74,7 @@ export function WebsiteStudioPage() {
             </p>
             <h1 className="bb-page-title text-2xl md:text-3xl m-0">Pages</h1>
             <p className="bb-muted m-0 text-sm">
-              View to scroll. Edit to change copy, images, and section layouts.
+              View to scroll. Edit to change copy, images, and layouts.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -120,6 +121,9 @@ export function WebsiteStudioPage() {
               { id: 'desktop', label: 'Desktop' }
             ]}
           />
+          {editMode && surface === 'home' ? (
+            <HomeLayoutPicker website={website} onUpdateWebsite={updateWebsite} />
+          ) : null}
           <label className="flex items-center gap-2 text-sm font-semibold ml-auto">
             <input
               type="checkbox"
@@ -136,8 +140,7 @@ export function WebsiteStudioPage() {
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>
         {editMode ? (
           <p className="bb-studio-edit-hint">
-            Edit mode — click text or images to change them. Use the arrow on each section to try
-            another layout.
+            Edit mode — pick an overall Layout, or use each section arrow to mix styles.
           </p>
         ) : null}
         <DevicePreviewFrame

@@ -11,7 +11,9 @@ import {
   ReasonsSection,
   ReviewsSection,
   VenueSection,
+  findMatchingLayoutId,
   nextSectionLayout,
+  normalizeSectionLayouts,
   resolveSectionLayout
 } from './home-sections';
 
@@ -39,11 +41,14 @@ export function PublicHomeView({
   const patchWebsite = (patch) => onUpdateWebsite?.(patch);
 
   const cycleLayout = (sectionId) => {
+    const nextLayouts = normalizeSectionLayouts({
+      ...(website.sectionLayouts || {}),
+      [sectionId]: nextSectionLayout(website, sectionId)
+    });
+    const nextWebsite = { ...website, sectionLayouts: nextLayouts };
     patchWebsite({
-      sectionLayouts: {
-        ...(website.sectionLayouts || {}),
-        [sectionId]: nextSectionLayout(website, sectionId)
-      }
+      sectionLayouts: nextLayouts,
+      homeLayoutId: findMatchingLayoutId(nextWebsite) || 'custom'
     });
   };
 

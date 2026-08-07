@@ -13,3 +13,16 @@ export {
   nextSectionLayout,
   sectionLayoutClass
 } from './sectionLayout';
+export {
+  BUILTIN_HOME_LAYOUT_PACKS,
+  listHomeLayoutOptions,
+  getPackSectionLayouts,
+  layoutsEqual,
+  normalizeSectionLayouts,
+  findMatchingLayoutId,
+  isUniqueLayoutCombo,
+  resolveHomeLayoutId,
+  getHomeLayoutLabel,
+  applyHomeLayoutPack,
+  saveHomeLayoutTemplate
+} from './homeLayoutPacks';

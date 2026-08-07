@@ -527,3 +527,143 @@ html body .native-ui .bb-public-surface .bb-public-book-strip--minimal .bb-publi
 .bb-device-preview--phone .bb-public-venue-grid--strip .bb-public-venue-card {
   flex-basis: 85%;
 }
+
+/* ——— Overall layout picker (studio toolbar) ——— */
+
+.bb-home-layout-picker {
+  position: relative;
+  z-index: 6;
+}
+
+.bb-home-layout-picker-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.35rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: #101828;
+  cursor: pointer;
+  font: inherit;
+}
+
+.bb-home-layout-picker-trigger:hover {
+  border-color: rgba(15, 23, 42, 0.22);
+  background: #fafafa;
+}
+
+.bb-home-layout-picker-kicker {
+  font-size: 0.68rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-home-layout-picker-value {
+  font-size: 0.88rem;
+  font-weight: 680;
+  color: #101828;
+}
+
+.bb-home-layout-picker-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  min-width: 15.5rem;
+  padding: 0.45rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  box-shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.35);
+  display: grid;
+  gap: 0.15rem;
+}
+
+.bb-home-layout-picker-group {
+  margin: 0.35rem 0.45rem 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-home-layout-picker-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 620;
+  color: #101828;
+  cursor: pointer;
+}
+
+.bb-home-layout-picker-option:hover {
+  background: #f4f5f7;
+}
+
+.bb-home-layout-picker-option.is-active {
+  background: #f2f4f7;
+  font-weight: 720;
+}
+
+.bb-home-layout-picker-footer {
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bb-home-layout-picker-save {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  text-align: left;
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: #101828;
+  cursor: pointer;
+}
+
+.bb-home-layout-picker-save:hover:not(:disabled) {
+  background: #f4f5f7;
+}
+
+.bb-home-layout-picker-save:disabled {
+  color: #98a2b3;
+  cursor: not-allowed;
+}
+
+.bb-home-layout-picker-save-form {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.25rem 0.2rem 0.1rem;
+}
+
+.bb-home-layout-picker-save-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.bb-home-layout-picker-hint,
+.bb-home-layout-picker-error {
+  margin: 0 0.45rem 0.15rem;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: #98a2b3;
+}
+
+.bb-home-layout-picker-error {
+  color: #b45309;
+}
