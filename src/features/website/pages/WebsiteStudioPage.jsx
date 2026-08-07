@@ -66,27 +66,26 @@ export function WebsiteStudioPage() {
   return (
     <div className="bb-studio-canvas grid gap-4">
       <header className="bb-studio-toolbar bb-panel px-4 py-3 grid gap-3">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="grid gap-1">
-            <p className="m-0 text-xs font-bold uppercase tracking-[0.08em] text-black/35">
-              {E_BUSINESS_PLATFORM_NAME}
-            </p>
-            <h1 className="bb-page-title text-2xl md:text-3xl m-0">Pages</h1>
+        <div className="bb-studio-toolbar-top">
+          <div className="grid gap-1 min-w-0">
+            <p className="bb-studio-eyebrow m-0">The</p>
+            <h1 className="bb-page-title text-2xl md:text-3xl m-0">{E_BUSINESS_PLATFORM_NAME}</h1>
             <p className="bb-muted m-0 text-sm">
               View to scroll. Edit to change copy and images on the page.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="bb-studio-actions">
             <button
               type="button"
-              className="bb-ghost-btn"
+              className="bb-studio-action bb-studio-action--ghost"
               onClick={() => navigate(publicPagePath(workspace.slug, surface))}
             >
-              <ExternalLink size={15} /> Open live
+              <ExternalLink size={14} strokeWidth={2.2} />
+              Open live
             </button>
             <button
               type="button"
-              className="bb-primary-btn"
+              className="bb-studio-action bb-studio-action--primary"
               disabled={publishing}
               onClick={publishFlash}
             >

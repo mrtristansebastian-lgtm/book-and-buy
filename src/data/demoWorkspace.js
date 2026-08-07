@@ -3,7 +3,7 @@ import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 5;
+export const DEMO_WEBSITE_SCHEMA = 9;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 2;
@@ -593,15 +593,17 @@ export function createDemoWorkspace() {
         venue: true,
         map: true,
         reviews: true,
-        bookStrip: true
+        bookStrip: false
       },
-      sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews', 'bookStrip'],
-      headline: 'Bake with us.',
-      subcopy: 'Hands-on classes, private sessions, and kitchen goods.',
+      sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews'],
+      headline: 'Cook Bold. Bake Beautifully.',
+      subcopy:
+        'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
       ctaLabel: 'Book a class',
       buyCtaLabel: 'Buy',
-      homeHeadline: 'Bake with us.',
-      homeSubtext: 'Hands-on classes, private sessions, and kitchen goods.',
+      homeHeadline: 'Cook Bold. Bake Beautifully.',
+      homeSubtext:
+        'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
       heroImageUrl: '/example/flour-and-flame/hero.webp',
       logoUrl: '/example/flour-and-flame/flame-and-flour-logo.webp',
       bookHeadline: 'Book a class or private lesson',
@@ -881,12 +883,17 @@ export function hydrateDemoWorkspace(stored) {
         bookStripCta: fresh.website.bookStripCta,
         bookFaqTitle: fresh.website.bookFaqTitle,
         bookFaq: fresh.website.bookFaq,
-        sections: fresh.website.sections,
+        sections: {
+          ...fresh.website.sections,
+          bookStrip: false
+        },
         sectionOrder: fresh.website.sectionOrder,
         featuredProductId: fresh.website.featuredProductId,
         heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
-        homeHeadline: stored.website?.homeHeadline || fresh.website.homeHeadline,
-        homeSubtext: stored.website?.homeSubtext || fresh.website.homeSubtext,
+        homeHeadline: fresh.website.homeHeadline,
+        homeSubtext: fresh.website.homeSubtext,
+        headline: fresh.website.headline,
+        subcopy: fresh.website.subcopy,
         ctaLabel: stored.website?.ctaLabel || fresh.website.ctaLabel,
         buyCtaLabel: stored.website?.buyCtaLabel || fresh.website.buyCtaLabel
       }

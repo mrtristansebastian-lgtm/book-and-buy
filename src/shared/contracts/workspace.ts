@@ -125,6 +125,7 @@ export interface WebsiteSettings {
   reasons?: WebsiteHomeReason[];
   venueTitle?: string;
   venueImages?: WebsiteVenueImage[];
+  mapTitle?: string;
   address?: string;
   mapEmbedUrl?: string;
   mapLinkUrl?: string;

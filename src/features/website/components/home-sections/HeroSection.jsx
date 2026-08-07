@@ -13,14 +13,15 @@ export function HeroSection({
   website,
   editMode,
   preview,
-  onUpdateProfile,
   patchWebsite
 }) {
-  const brand = workspace.brandName || 'Business';
-  const support =
+  const headline =
     website.homeHeadline ||
-    website.homeSubtext ||
     website.headline ||
+    workspace.brandName ||
+    'Business';
+  const body =
+    website.homeSubtext ||
     website.subcopy ||
     workspace.tagline ||
     '';
@@ -45,19 +46,21 @@ export function HeroSection({
             as="h1"
             className="bb-public-home-brand"
             editMode={editMode}
-            value={brand}
-            placeholder="Business name"
-            onChange={(value) => onUpdateProfile?.({ brandName: value })}
+            value={headline}
+            placeholder="Hero headline"
+            onChange={(value) =>
+              patchWebsite({ homeHeadline: value, headline: value })
+            }
           />
           <EditableText
             as="p"
             className="bb-public-home-support"
             editMode={editMode}
             multiline
-            value={support}
+            value={body}
             placeholder="Short supporting line"
             onChange={(value) =>
-              patchWebsite({ homeHeadline: value, headline: value, homeSubtext: value })
+              patchWebsite({ homeSubtext: value, subcopy: value })
             }
           />
           <div className="bb-public-home-ctas">

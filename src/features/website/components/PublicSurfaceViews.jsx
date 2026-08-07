@@ -5,7 +5,6 @@ import { PublicStorefront } from '../../storefront/components/PublicStorefront';
 import { EditableText } from './editable';
 import {
   AboutSection,
-  BookStripSection,
   HeroSection,
   MapSection,
   ReasonsSection,
@@ -104,17 +103,6 @@ export function PublicHomeView({
         editMode={editMode}
         hidden={!sectionOn(website, 'reviews')}
         patchReview={patchReview}
-        patchWebsite={patchWebsite}
-      />
-    ),
-    bookStrip: (
-      <BookStripSection
-        key="bookStrip"
-        workspace={workspace}
-        website={website}
-        editMode={editMode}
-        preview={preview}
-        hidden={!sectionOn(website, 'bookStrip')}
         patchWebsite={patchWebsite}
       />
     )

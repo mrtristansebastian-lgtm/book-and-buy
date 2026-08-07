@@ -3,8 +3,7 @@ export const DEFAULT_HOME_SECTION_ORDER = [
   'reasons',
   'venue',
   'map',
-  'reviews',
-  'bookStrip'
+  'reviews'
 ];
 
 export const createDefaultHomeSections = () => ({
@@ -13,7 +12,7 @@ export const createDefaultHomeSections = () => ({
   venue: true,
   map: true,
   reviews: true,
-  bookStrip: true
+  bookStrip: false
 });
 
 export const createDefaultHomeSectionOrder = () => [...DEFAULT_HOME_SECTION_ORDER];
@@ -70,6 +69,7 @@ export const createDefaultSettings = () => ({
     ],
     venueTitle: 'Our space',
     venueImages: [],
+    mapTitle: 'Visit',
     address: '',
     mapEmbedUrl: '',
     mapLinkUrl: '',
