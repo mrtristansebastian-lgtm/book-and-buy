@@ -33,15 +33,19 @@ export function TextPostComposer({ brandName = 'Business', onAddSocialPost }) {
   return (
     <section className="bb-social-compose bb-social-compose--text">
       <header className="bb-social-compose-head">
-        <h2 className="bb-page-title text-xl m-0">New text update</h2>
-        <p className="bb-muted m-0 text-sm">Short notes for the Text tab on your public Social page.</p>
+        <h2 className="bb-social-compose-title">New text update</h2>
+        <p className="bb-social-compose-lede">Short notes for the Text tab on your live Social page.</p>
       </header>
 
       <div className="bb-social-compose-tweet">
         <div className="bb-social-text-avatar" aria-hidden="true">
           {initial}
         </div>
-        <div className="bb-social-compose-fields">
+        <div className="bb-social-compose-tweet-main">
+          <div className="bb-social-compose-tweet-meta">
+            <strong>{brandName}</strong>
+            <span>Drafting now</span>
+          </div>
           <input
             className="bb-social-compose-kicker-input"
             value={title}
@@ -56,7 +60,7 @@ export function TextPostComposer({ brandName = 'Business', onAddSocialPost }) {
             onChange={(event) => setCaption(event.target.value)}
           />
           {error ? <p className="bb-social-compose-error">{error}</p> : null}
-          <div className="bb-social-compose-actions">
+          <div className="bb-social-compose-actions bb-social-compose-actions--tweet">
             <button type="button" className="bb-ghost-btn" onClick={() => submit(false)}>
               Save draft
             </button>
