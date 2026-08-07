@@ -100,6 +100,7 @@ export function VenueSection({
                         className="bb-public-venue-media"
                         imgClassName="bb-public-venue-img"
                         storageFolder="venue"
+                        preset="venue"
                         onChange={(url) => patchVenue(image.id, 'url', url)}
                       />
                     </button>
@@ -110,6 +111,7 @@ export function VenueSection({
                       className="bb-public-venue-media"
                       imgClassName="bb-public-venue-img"
                       storageFolder="venue"
+                      preset="venue"
                       onChange={(url) => patchVenue(image.id, 'url', url)}
                     />
                   )}

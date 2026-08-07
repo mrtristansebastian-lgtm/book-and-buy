@@ -65,6 +65,7 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
               className="bb-social-feed-poster-edit"
               imgClassName="bb-social-feed-media-img"
               storageFolder="social"
+              preset="videoPoster"
               placeholderLabel="Poster"
               onChange={(url) =>
                 onUpdateSocialPost?.(post.id, { posterUrl: url, type: 'video' })
@@ -84,6 +85,7 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
         className="bb-social-feed-media"
         imgClassName="bb-social-feed-media-img"
         storageFolder="social"
+        preset="socialPost"
         placeholderLabel="Add photo"
         onChange={(url) => onUpdateSocialPost?.(post.id, { mediaUrl: url, type: 'image' })}
       />

@@ -389,7 +389,7 @@
 .bb-public-product-grid .bb-public-product-media {
   position: relative;
   width: auto;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   height: auto;
   border-radius: 0.48rem;
   overflow: hidden;
@@ -1260,7 +1260,7 @@
 
 .bb-social-post-media {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   background: rgba(15, 23, 42, 0.06);
 }
@@ -1539,7 +1539,7 @@
 .bb-social-feed-media {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   background: rgba(15, 23, 42, 0.05);
   border-radius: 0.2rem;
@@ -2593,7 +2593,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-device-preview--phone .bb-public-product-grid .bb-public-product-media {
   width: auto;
   height: auto;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border-radius: 0.42rem;
 }
 
@@ -3571,6 +3571,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-venue-media {
   position: relative;
   width: 100%;
+  aspect-ratio: 3 / 2;
   border-radius: 0.85rem;
   overflow: hidden;
   background: rgba(15, 23, 42, 0.05);
@@ -3578,15 +3579,15 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-venue-media:not(:has(img)) {
-  min-height: 8.5rem;
+  min-height: 0;
 }
 
 .bb-public-venue-img,
 .bb-public-venue-media img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
 }
 

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { ImagePlus, Replace } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
+import { ImageCropModal } from '../../media/ImageCropModal';
 
 export function ImagePostComposer({ onAddSocialPost }) {
   const fileRef = useRef(null);
@@ -9,6 +10,9 @@ export function ImagePostComposer({ onAddSocialPost }) {
   const [caption, setCaption] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [cropSource, setCropSource] = useState(null);
+  const [cropOpen, setCropOpen] = useState(false);
+  const [fileNameHint, setFileNameHint] = useState('');
 
   const reset = () => {
     setMediaUrl('');
@@ -17,17 +21,27 @@ export function ImagePostComposer({ onAddSocialPost }) {
     setError('');
   };
 
-  const onPick = async (event) => {
+  const onPick = (event) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
+    setError('');
+    setFileNameHint(file.name || '');
+    setCropSource(file);
+    setCropOpen(true);
+  };
+
+  const onCropConfirm = async (file) => {
     setBusy(true);
     setError('');
     try {
       const result = await uploadPublicImage(file, 'social');
       setMediaUrl(result.url || '');
+      setCropOpen(false);
+      setCropSource(null);
     } catch (err) {
       setError(err?.message || 'Upload failed');
+      throw err;
     } finally {
       setBusy(false);
     }
@@ -52,14 +66,16 @@ export function ImagePostComposer({ onAddSocialPost }) {
     <section className="bb-social-compose bb-social-compose--image">
       <header className="bb-social-compose-head">
         <h2 className="bb-social-compose-title">New post</h2>
-        <p className="bb-social-compose-lede">Title, caption, and photo for the Posts gallery.</p>
+        <p className="bb-social-compose-lede">
+          Title, caption, and photo — Instagram 4:5 portrait for the Posts gallery.
+        </p>
       </header>
 
       <div className="bb-social-compose-image-layout">
         <div className="bb-social-compose-media-col">
           <button
             type="button"
-            className={`bb-social-dropzone bb-social-dropzone--square ${mediaUrl ? 'has-media' : ''}`}
+            className={`bb-social-dropzone bb-social-dropzone--portrait ${mediaUrl ? 'has-media' : ''}`}
             onClick={() => fileRef.current?.click()}
             disabled={busy}
           >
@@ -71,7 +87,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
                   <ImagePlus size={22} />
                 </span>
                 <span className="bb-social-dropzone-label">{busy ? 'Uploading…' : 'Add photo'}</span>
-                <span className="bb-social-dropzone-hint">JPG or PNG · square works best</span>
+                <span className="bb-social-dropzone-hint">JPG or PNG · 4:5 portrait</span>
               </span>
             )}
           </button>
@@ -120,6 +136,19 @@ export function ImagePostComposer({ onAddSocialPost }) {
           </div>
         </div>
       </div>
+
+      <ImageCropModal
+        open={cropOpen}
+        source={cropSource}
+        preset="socialPost"
+        fileNameHint={fileNameHint}
+        onCancel={() => {
+          if (busy) return;
+          setCropOpen(false);
+          setCropSource(null);
+        }}
+        onConfirm={onCropConfirm}
+      />
     </section>
   );
 }

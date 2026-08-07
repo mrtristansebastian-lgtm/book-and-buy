@@ -36,6 +36,7 @@ export function HeroSection({
         className="absolute inset-0"
         imgClassName="absolute inset-0 w-full h-full object-cover"
         storageFolder="brand"
+        preset="hero"
         onChange={(url) => patchWebsite({ heroImageUrl: url })}
         placeholderLabel="Add hero image URL"
       />

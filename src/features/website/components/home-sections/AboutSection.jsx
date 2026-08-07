@@ -53,6 +53,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
               className="bb-public-about-media"
               imgClassName="w-full h-full object-cover"
               storageFolder="venue"
+              preset="about"
               onChange={(url) => patchWebsite({ aboutImageUrl: url })}
               placeholderLabel="About image URL"
             />

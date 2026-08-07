@@ -119,6 +119,7 @@ export function SocialVideosPanel({
                       className="bb-social-video-poster-edit"
                       imgClassName="w-full h-full object-cover"
                       storageFolder="social"
+                      preset="videoPoster"
                       placeholderLabel="Poster image"
                       onChange={(url) =>
                         onUpdateSocialPost?.(post.id, { posterUrl: url, type: 'video' })

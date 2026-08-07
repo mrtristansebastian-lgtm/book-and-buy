@@ -162,6 +162,11 @@
   padding: 0;
 }
 
+.bb-social-dropzone--portrait {
+  aspect-ratio: 4 / 5;
+  padding: 0;
+}
+
 .bb-social-dropzone--video {
   aspect-ratio: 16 / 9;
   padding: 0;
