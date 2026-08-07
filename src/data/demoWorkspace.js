@@ -2,6 +2,9 @@ import { normalizeServiceList } from '../utils/services';
 import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
+/** Bump when demo website shape gains required public Home fields. */
+export const DEMO_WEBSITE_SCHEMA = 2;
+
 const today = startOfToday();
 
 function startOfToday() {
@@ -422,6 +425,7 @@ export function createDemoWorkspace() {
     phone: '+27 21 555 0100',
     onboardingComplete: true,
     isDemo: true,
+    websiteSchema: DEMO_WEBSITE_SCHEMA,
     nativeAccent: true,
     notifications: {
       emailBookingRequests: true,
@@ -588,5 +592,76 @@ export function createDemoWorkspace() {
     bookings: sampleBookings,
     products: DEMO_PRODUCTS,
     orders: sampleOrders
+  };
+}
+
+/**
+ * Merge a cached demo workspace with the current Flour & Flame public Home content
+ * when the stored copy predates rich sections (about/venue/map/reviews).
+ */
+export function hydrateDemoWorkspace(stored) {
+  const fresh = createDemoWorkspace();
+  if (!stored || typeof stored !== 'object') return fresh;
+
+  const staleWebsite =
+    Number(stored.websiteSchema || 0) < DEMO_WEBSITE_SCHEMA ||
+    !stored.website?.aboutBody ||
+    !Array.isArray(stored.website?.reasons) ||
+    !stored.website.reasons.length ||
+    !Array.isArray(stored.website?.venueImages) ||
+    !stored.website.venueImages.length;
+
+  if (!staleWebsite) {
+    return {
+      ...fresh,
+      ...stored,
+      isDemo: true,
+      websiteSchema: DEMO_WEBSITE_SCHEMA,
+      website: {
+        ...fresh.website,
+        ...(stored.website || {})
+      }
+    };
+  }
+
+  return {
+    ...fresh,
+    ...stored,
+    isDemo: true,
+    websiteSchema: DEMO_WEBSITE_SCHEMA,
+    website: {
+      ...fresh.website,
+      ...(stored.website || {}),
+      // Prefer current rich Home demo content when the cache is incomplete.
+      aboutTitle: fresh.website.aboutTitle,
+      aboutBody: fresh.website.aboutBody,
+      aboutImageUrl: fresh.website.aboutImageUrl,
+      reasonsTitle: fresh.website.reasonsTitle,
+      reasons: fresh.website.reasons,
+      venueTitle: fresh.website.venueTitle,
+      venueImages: fresh.website.venueImages,
+      address: fresh.website.address,
+      mapEmbedUrl: fresh.website.mapEmbedUrl,
+      mapLinkUrl: fresh.website.mapLinkUrl,
+      reviewsTitle: fresh.website.reviewsTitle,
+      reviews: fresh.website.reviews,
+      bookStripTitle: fresh.website.bookStripTitle,
+      bookStripBody: fresh.website.bookStripBody,
+      bookStripCta: fresh.website.bookStripCta,
+      bookFaqTitle: fresh.website.bookFaqTitle,
+      bookFaq: fresh.website.bookFaq,
+      sections: fresh.website.sections,
+      sectionOrder: fresh.website.sectionOrder,
+      featuredProductId: fresh.website.featuredProductId,
+      heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
+      homeHeadline: stored.website?.homeHeadline || fresh.website.homeHeadline,
+      homeSubtext: stored.website?.homeSubtext || fresh.website.homeSubtext,
+      ctaLabel: stored.website?.ctaLabel || fresh.website.ctaLabel,
+      buyCtaLabel: stored.website?.buyCtaLabel || fresh.website.buyCtaLabel
+    },
+    socialPosts:
+      Array.isArray(stored.socialPosts) && stored.socialPosts.length
+        ? stored.socialPosts
+        : fresh.socialPosts
   };
 }

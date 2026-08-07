@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createDemoWorkspace } from '../../data/demoWorkspace';
+import { createDemoWorkspace, hydrateDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList } from '../../utils/services';
 import { normalizeProduct } from '../../utils/products';
@@ -30,7 +30,7 @@ function readInitialWorkspace() {
       return safeParse(localStorage.getItem(OWNER_KEY), createBlankWorkspace({ onboardingComplete: false }));
     }
     if (mode === 'demo') {
-      return safeParse(localStorage.getItem(DEMO_KEY), createDemoWorkspace());
+      return hydrateDemoWorkspace(safeParse(localStorage.getItem(DEMO_KEY), null));
     }
   } catch {
     /* ignore */
@@ -61,6 +61,23 @@ export function WorkspaceProvider({ children }) {
   useEffect(() => {
     persistWorkspace(workspace);
   }, [workspace]);
+
+  /** One-time upgrade for cached demo workspaces missing rich Home sections. */
+  useEffect(() => {
+    setWorkspace((prev) => {
+      if (!prev.isDemo) return prev;
+      const next = hydrateDemoWorkspace(prev);
+      if (
+        next.websiteSchema === prev.websiteSchema &&
+        next.website?.aboutBody === prev.website?.aboutBody &&
+        (next.website?.venueImages?.length || 0) === (prev.website?.venueImages?.length || 0)
+      ) {
+        return prev;
+      }
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (workspace.isDemo) cloudHydratedRef.current = false;
@@ -498,7 +515,7 @@ export function WorkspaceProvider({ children }) {
       },
       loadDemoWorkspace: ({ reset = false } = {}) => {
         const stored = !reset ? safeParse(localStorage.getItem(DEMO_KEY), null) : null;
-        const next = stored?.isDemo ? stored : createDemoWorkspace();
+        const next = reset ? createDemoWorkspace() : hydrateDemoWorkspace(stored);
         localStorage.setItem(MODE_KEY, 'demo');
         localStorage.setItem(DEMO_KEY, JSON.stringify(next));
         setWorkspace(next);

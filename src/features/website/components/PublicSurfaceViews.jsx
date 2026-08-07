@@ -183,7 +183,7 @@ export function PublicHomeView({
                 />
                 <EditableText
                   as="p"
-                  className="bb-muted m-0 text-sm leading-relaxed"
+                  className="bb-public-reason-body m-0"
                   editMode={editMode}
                   multiline
                   value={reason.body || ''}

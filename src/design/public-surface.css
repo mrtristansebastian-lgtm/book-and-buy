@@ -135,14 +135,17 @@
   line-height: 0.98;
   font-size: clamp(2.75rem, 7vw, 4.75rem);
   color: #fff;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
 
 .bb-public-home-support {
   margin: 0;
-  max-width: 28rem;
-  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.9);
+  max-width: 30rem;
+  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+  line-height: 1.5;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.4);
 }
 
 .bb-public-home-ctas {
@@ -150,6 +153,32 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   padding-top: 0.25rem;
+}
+
+.bb-public-home-ctas .bb-ghost-btn {
+  background: rgba(255, 255, 255, 0.94);
+  color: #101828;
+  border-color: transparent;
+}
+
+.bb-public-home-ctas .bb-ghost-btn:hover {
+  background: #fff;
+}
+
+/* Shared public body / lede (Home sections + page intros) */
+.bb-public-surface .bb-public-lede {
+  margin: 0;
+  max-width: 38rem;
+  font-size: 1.06rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #475467;
+}
+
+.bb-public-surface .bb-public-about-copy .bb-public-lede {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: #344054;
 }
 
 /* Page intros (Book / shared) */
@@ -703,6 +732,21 @@
   min-height: 14rem;
 }
 
+.bb-public-about-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-about-copy .bb-page-title {
+  letter-spacing: -0.03em;
+}
+
+.bb-public-visit .bb-page-title {
+  margin: 0;
+}
+
 .bb-public-reasons {
   display: grid;
   gap: 1rem;
@@ -722,6 +766,19 @@
   border-radius: 1rem;
   background: #fff;
   border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-public-reason .bb-page-title {
+  color: #101828;
+}
+
+.bb-public-reason-body,
+.bb-public-reason p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #475467;
 }
 
 .bb-public-venue-grid {
@@ -817,8 +874,10 @@
 
 .bb-public-review-quote {
   margin: 0;
-  font-size: 1.02rem;
-  line-height: 1.45;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #1d2939;
 }
 
 .bb-public-review-name {
@@ -841,12 +900,16 @@
 }
 
 .bb-public-book-strip .bb-page-title,
-.bb-public-book-strip .bb-public-lede {
+.bb-public-book-strip .bb-public-lede,
+.bb-public-book-strip p,
+.bb-public-book-strip h2,
+.bb-public-book-strip span {
   color: #fff;
 }
 
 .bb-public-book-strip .bb-public-lede {
-  opacity: 0.82;
+  opacity: 0.88;
+  max-width: 28rem;
 }
 
 .bb-public-book-layout {
@@ -920,4 +983,82 @@
 .bb-public-surface--edit .bb-public-home-ctas .bb-primary-btn,
 .bb-public-surface--edit .bb-public-home-ctas .bb-ghost-btn {
   pointer-events: auto;
+}
+
+/*
+ * Beat native-typography-consistency !important rules on public pages.
+ * Those rules force dark heading/body colors that break hero + book strip.
+ */
+html body .native-ui .bb-public-surface .bb-public-home-copy :where(h1, h2, h3, p, span),
+html body .native-ui .bb-public-surface .bb-public-home-brand,
+html body .native-ui .bb-public-surface .bb-public-home-support {
+  color: #fff !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-support {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-label,
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-coach,
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-badge {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-badge {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+html body .native-ui .bb-public-surface .bb-public-lede {
+  color: #475467 !important;
+  font-weight: 500 !important;
+  line-height: 1.55 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-about-copy .bb-public-lede {
+  color: #344054 !important;
+  line-height: 1.65 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-muted,
+html body .native-ui .bb-public-surface .bb-public-reason p,
+html body .native-ui .bb-public-surface .bb-public-reason-body {
+  color: #475467 !important;
+  font-weight: 500 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-review-quote {
+  color: #1d2939 !important;
+  font-weight: 500 !important;
+  line-height: 1.55 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-review-name,
+html body .native-ui .bb-public-surface .bb-public-venue-card figcaption,
+html body .native-ui .bb-public-surface .bb-public-venue-card figcaption span {
+  color: #667085 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-block .bb-page-title,
+html body .native-ui .bb-public-surface .bb-public-home-block :where(h2, h3) {
+  color: #101828 !important;
+}
+
+/* Dark panels last so they win over body/lede rules above */
+html body .native-ui .bb-public-surface .bb-public-book-strip :where(h1, h2, h3, p, span),
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-page-title,
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-public-lede {
+  color: #fff !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text.is-empty:before {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text.is-focused,
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
 }
