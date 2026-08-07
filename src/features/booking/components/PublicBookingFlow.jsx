@@ -7,7 +7,7 @@ import { formatServiceDuration, formatServicePrice } from '../../../utils/servic
 import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
 
 /**
- * Public Book catalog — same card chrome as Buy, shared cart with slot checkout.
+ * Public Book catalog — trading cards matching Buy, shared cart with slot checkout.
  */
 export function PublicBookingFlow({
   catalogWorkspace,
@@ -41,13 +41,13 @@ export function PublicBookingFlow({
         preview ? 'pointer-events-none' : ''
       }`}
     >
-      <div className={`${hideTitle ? '' : 'bb-public-measure'} grid gap-7`}>
+      <div className={`${hideTitle ? '' : 'bb-public-measure-wide'} grid gap-6`}>
         {hideTitle ? (
           <div className="flex justify-end">{cartButton}</div>
         ) : (
           <header className="bb-public-buy-header">
-            <div className="grid gap-2 max-w-2xl">
-              <h1 className="bb-page-title">Book</h1>
+            <div className="bb-public-catalog-intro">
+              <h1 className="bb-public-catalog-title">Book</h1>
               <p className="bb-public-lede m-0">
                 Add a service to your cart, then pick a date and time at checkout.
               </p>
@@ -68,35 +68,52 @@ export function PublicBookingFlow({
             {activeServices.map((item) => {
               const meta = getScheduleTypeMeta(item.scheduleType);
               const imageSrc = item.imageUrls?.[0] || item.image || '';
-              const priceLine = [formatServicePrice(item), formatServiceDuration(item.duration)]
-                .filter(Boolean)
-                .join(' · ');
+              const price = formatServicePrice(item);
+              const duration = formatServiceDuration(item.duration);
               const inCart = cart.items.some((row) => row.lineKey === `service:${item.id}`);
               return (
-                <article key={item.id} className="bb-public-product-card">
-                  <div className="bb-public-product-media">
-                    {imageSrc ? <img src={imageSrc} alt="" /> : null}
-                  </div>
-                  <div className="bb-public-product-body">
-                    <p className="bb-public-service-meta">{meta.singular}</p>
-                    <h2>{item.name}</h2>
-                    <p className="bb-public-product-desc">{item.description}</p>
-                    <p className="bb-public-product-price md:hidden">{priceLine}</p>
-                  </div>
-                  <div className="bb-public-product-aside">
-                    <p className="bb-public-product-price hidden md:block">{priceLine}</p>
-                    <button
-                      type="button"
-                      className="bb-primary-btn"
-                      disabled={inCart}
-                      onClick={() => {
-                        cart.addService(item);
-                        setPanel('cart');
-                      }}
+                <article
+                  key={item.id}
+                  className={`bb-public-product-card${inCart ? ' is-in-cart' : ''}`}
+                >
+                  <div className="bb-public-product-surface">
+                    <div className="bb-public-product-media">
+                      {imageSrc ? <img src={imageSrc} alt="" /> : null}
+                    </div>
+                    <div className="bb-public-product-body">
+                      <p className="bb-public-service-meta">{meta.singular}</p>
+                      <h2>{item.name}</h2>
+                      {item.description ? (
+                        <p className="bb-public-product-desc">{item.description}</p>
+                      ) : null}
+                    </div>
+                    <div
+                      className={`bb-public-product-stats${duration ? ' has-duration' : ''}`}
                     >
-                      {inCart ? 'In cart' : 'Add to cart'}
-                    </button>
+                      <div className="bb-public-product-stat">
+                        <span className="bb-public-product-stat-label">Price</span>
+                        <span className="bb-public-product-stat-value">{price || '—'}</span>
+                      </div>
+                      {duration ? (
+                        <div className="bb-public-product-stat">
+                          <span className="bb-public-product-stat-label">Duration</span>
+                          <span className="bb-public-product-stat-value">{duration}</span>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    className="bb-public-product-cart-btn"
+                    disabled={inCart}
+                    onClick={() => {
+                      cart.addService(item);
+                      setPanel('cart');
+                    }}
+                  >
+                    <ShoppingBag size={15} strokeWidth={2.35} />
+                    <span>{inCart ? 'In cart' : 'Add to cart'}</span>
+                  </button>
                 </article>
               );
             })}

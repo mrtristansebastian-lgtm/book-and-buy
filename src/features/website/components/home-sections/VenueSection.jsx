@@ -53,7 +53,14 @@ export function VenueSection({
           <header className="bb-public-venue-head">
             <p className="bb-public-section-eyebrow">
               <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              The space
+              <EditableText
+                as="span"
+                className="bb-public-section-eyebrow-text"
+                editMode={editMode}
+                value={website.venueEyebrow || 'The space'}
+                placeholder="Eyebrow"
+                onChange={(value) => patchWebsite({ venueEyebrow: value })}
+              />
             </p>
             <div className="bb-public-section-heading">
               <EditableText

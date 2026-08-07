@@ -15,7 +15,14 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
           <div className="bb-public-about-copy">
             <p className="bb-public-section-eyebrow">
               <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              About
+              <EditableText
+                as="span"
+                className="bb-public-section-eyebrow-text"
+                editMode={editMode}
+                value={website.aboutEyebrow || 'About'}
+                placeholder="Eyebrow"
+                onChange={(value) => patchWebsite({ aboutEyebrow: value })}
+              />
             </p>
             <div className="bb-public-section-heading">
               <EditableText

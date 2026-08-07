@@ -3,7 +3,7 @@ import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 9;
+export const DEMO_WEBSITE_SCHEMA = 10;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 2;
@@ -613,10 +613,12 @@ export function createDemoWorkspace() {
       socialHeadline: 'From the studio',
       socialSubtext: 'Posts, clips, and notes from Flour & Flame.',
       aboutTitle: 'A working teaching kitchen',
+      aboutEyebrow: 'About',
       aboutBody:
         'Flour & Flame is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
       aboutImageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
       reasonsTitle: 'Why cook with us',
+      reasonsEyebrow: 'The craft',
       reasons: [
         {
           id: 'r1',
@@ -635,6 +637,7 @@ export function createDemoWorkspace() {
         }
       ],
       venueTitle: 'Inside the studio',
+      venueEyebrow: 'The space',
       venueImages: [
         {
           id: 'v1',
@@ -658,10 +661,13 @@ export function createDemoWorkspace() {
         }
       ],
       address: '12 Woodstock Kitchen Lane, Cape Town',
+      mapTitle: 'Visit',
+      mapEyebrow: 'Find us',
       mapEmbedUrl:
         'https://maps.google.com/maps?q=Woodstock%2C%20Cape%20Town&t=&z=14&ie=UTF8&iwloc=&output=embed',
       mapLinkUrl: 'https://maps.google.com/?q=Woodstock,+Cape+Town',
       reviewsTitle: 'From the table',
+      reviewsEyebrow: 'Reviews',
       reviews: [
         {
           id: 'rev1',
@@ -867,16 +873,22 @@ export function hydrateDemoWorkspace(stored) {
         ...fresh.website,
         ...(stored.website || {}),
         aboutTitle: fresh.website.aboutTitle,
+        aboutEyebrow: fresh.website.aboutEyebrow,
         aboutBody: fresh.website.aboutBody,
         aboutImageUrl: fresh.website.aboutImageUrl,
         reasonsTitle: fresh.website.reasonsTitle,
+        reasonsEyebrow: fresh.website.reasonsEyebrow,
         reasons: fresh.website.reasons,
         venueTitle: fresh.website.venueTitle,
+        venueEyebrow: fresh.website.venueEyebrow,
         venueImages: fresh.website.venueImages,
         address: fresh.website.address,
+        mapTitle: fresh.website.mapTitle,
+        mapEyebrow: fresh.website.mapEyebrow,
         mapEmbedUrl: fresh.website.mapEmbedUrl,
         mapLinkUrl: fresh.website.mapLinkUrl,
         reviewsTitle: fresh.website.reviewsTitle,
+        reviewsEyebrow: fresh.website.reviewsEyebrow,
         reviews: fresh.website.reviews,
         bookStripTitle: fresh.website.bookStripTitle,
         bookStripBody: fresh.website.bookStripBody,

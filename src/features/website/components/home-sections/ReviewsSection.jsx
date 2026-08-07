@@ -72,7 +72,14 @@ export function ReviewsSection({
           <header className="bb-public-reviews-head">
             <p className="bb-public-section-eyebrow">
               <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              Reviews
+              <EditableText
+                as="span"
+                className="bb-public-section-eyebrow-text"
+                editMode={editMode}
+                value={website.reviewsEyebrow || 'Reviews'}
+                placeholder="Eyebrow"
+                onChange={(value) => patchWebsite({ reviewsEyebrow: value })}
+              />
             </p>
             <div className="bb-public-section-heading">
               <EditableText

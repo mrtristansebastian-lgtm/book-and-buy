@@ -15,7 +15,14 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
           <div className="bb-public-visit-copy">
             <p className="bb-public-section-eyebrow">
               <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              Find us
+              <EditableText
+                as="span"
+                className="bb-public-section-eyebrow-text"
+                editMode={editMode}
+                value={website.mapEyebrow || 'Find us'}
+                placeholder="Eyebrow"
+                onChange={(value) => patchWebsite({ mapEyebrow: value })}
+              />
             </p>
             <div className="bb-public-section-heading">
               <EditableText

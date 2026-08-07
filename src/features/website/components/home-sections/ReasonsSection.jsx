@@ -16,13 +16,19 @@ export function ReasonsSection({
       hidden={hidden}
       className="bb-public-home-block bb-public-reasons-block"
     >
-      <div className="bb-public-reasons-band bb-public-native-fill" aria-hidden="true" />
       <div className="bb-public-gutter">
         <div className="bb-public-measure-wide bb-public-reasons-shell">
           <header className="bb-public-reasons-head">
             <p className="bb-public-section-eyebrow">
               <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              The craft
+              <EditableText
+                as="span"
+                className="bb-public-section-eyebrow-text"
+                editMode={editMode}
+                value={website.reasonsEyebrow || 'The craft'}
+                placeholder="Eyebrow"
+                onChange={(value) => patchWebsite({ reasonsEyebrow: value })}
+              />
             </p>
             <div className="bb-public-section-heading">
               <EditableText

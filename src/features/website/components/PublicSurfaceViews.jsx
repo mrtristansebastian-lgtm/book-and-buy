@@ -143,7 +143,7 @@ export function PublicBookView({
         <div className="bb-public-measure grid gap-2">
           <EditableText
             as="h1"
-            className="bb-page-title"
+            className="bb-public-catalog-title"
             editMode={editMode}
             value={title}
             placeholder="Book headline"
@@ -160,62 +160,107 @@ export function PublicBookView({
           />
         </div>
       </div>
-      <div className="bb-public-book-layout bb-public-gutter">
-        <div className="bb-public-book-main">
-          <PublicBookingFlow
-            catalogWorkspace={workspace}
-            workspaceName={workspace.brandName}
-            hideTitle
-            preview={preview || editMode}
-            publicMode={publicMode}
-          />
-        </div>
-        <aside className="bb-public-book-aside">
-          <EditableText
-            as="h2"
-            className="bb-page-title text-xl m-0"
-            editMode={editMode}
-            value={website.bookFaqTitle || 'What to expect'}
-            placeholder="FAQ title"
-            onChange={(value) => onUpdateWebsite?.({ bookFaqTitle: value })}
-          />
-          <div className="grid gap-4 mt-4">
-            {faq.map((item) => (
-              <div key={item.id} className="grid gap-1">
-                <EditableText
-                  as="strong"
-                  className="text-sm"
-                  editMode={editMode}
-                  value={item.q || ''}
-                  placeholder="Question"
-                  onChange={(value) =>
-                    onUpdateWebsite?.({
-                      bookFaq: faq.map((row) =>
-                        row.id === item.id ? { ...row, q: value } : row
-                      )
-                    })
-                  }
-                />
-                <EditableText
-                  as="p"
-                  className="bb-muted m-0 text-sm leading-relaxed"
-                  editMode={editMode}
-                  multiline
-                  value={item.a || ''}
-                  placeholder="Answer"
-                  onChange={(value) =>
-                    onUpdateWebsite?.({
-                      bookFaq: faq.map((row) =>
-                        row.id === item.id ? { ...row, a: value } : row
-                      )
-                    })
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </aside>
+
+      <div className="bb-public-book-main bb-public-gutter">
+        <PublicBookingFlow
+          catalogWorkspace={workspace}
+          workspaceName={workspace.brandName}
+          hideTitle
+          preview={preview || editMode}
+          publicMode={publicMode}
+        />
       </div>
+
+      <section className="bb-public-book-faq bb-public-gutter">
+        <div className="bb-public-measure bb-public-book-faq-shell">
+          <header className="bb-public-book-faq-head">
+            <p className="bb-public-section-eyebrow">
+              <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
+              <EditableText
+                as="span"
+                className="bb-public-section-eyebrow-text"
+                editMode={editMode}
+                value={website.bookFaqEyebrow || 'FAQ'}
+                placeholder="Eyebrow"
+                onChange={(value) => onUpdateWebsite?.({ bookFaqEyebrow: value })}
+              />
+            </p>
+            <div className="bb-public-section-heading">
+              <EditableText
+                as="h2"
+                className="bb-public-book-faq-title"
+                editMode={editMode}
+                value={website.bookFaqTitle || 'What to expect'}
+                placeholder="FAQ title"
+                onChange={(value) => onUpdateWebsite?.({ bookFaqTitle: value })}
+              />
+              <span className="bb-public-section-accent bb-public-native-fill" aria-hidden="true" />
+            </div>
+          </header>
+
+          <div className="bb-public-faq-list">
+            {faq.map((item) =>
+              editMode ? (
+                <div key={item.id} className="bb-public-faq-item is-edit">
+                  <div className="bb-public-faq-q">
+                    <EditableText
+                      as="span"
+                      editMode
+                      value={item.q || ''}
+                      placeholder="Question"
+                      onChange={(value) =>
+                        onUpdateWebsite?.({
+                          bookFaq: faq.map((row) =>
+                            row.id === item.id ? { ...row, q: value } : row
+                          )
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="bb-public-faq-a">
+                    <EditableText
+                      as="p"
+                      editMode
+                      multiline
+                      value={item.a || ''}
+                      placeholder="Answer"
+                      onChange={(value) =>
+                        onUpdateWebsite?.({
+                          bookFaq: faq.map((row) =>
+                            row.id === item.id ? { ...row, a: value } : row
+                          )
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              ) : (
+                <details key={item.id} className="bb-public-faq-item">
+                  <summary className="bb-public-faq-q">
+                    <span>{item.q || 'Question'}</span>
+                  </summary>
+                  <div className="bb-public-faq-a">
+                    <p>{item.a || ''}</p>
+                  </div>
+                </details>
+              )
+            )}
+            {editMode && faq.length < 8 ? (
+              <button
+                type="button"
+                className="bb-ghost-btn justify-self-start"
+                onClick={() =>
+                  onUpdateWebsite?.({
+                    bookFaq: [...faq, { id: `f-${Date.now()}`, q: '', a: '' }]
+                  })
+                }
+              >
+                Add FAQ item
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -242,7 +287,7 @@ export function PublicBuyView({
           <div className="bb-public-measure grid gap-3 mb-2">
             <EditableText
               as="h1"
-              className="bb-page-title text-4xl m-0"
+              className="bb-public-catalog-title"
               editMode
               value={title}
               placeholder="Buy headline"
