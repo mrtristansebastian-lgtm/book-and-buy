@@ -530,6 +530,7 @@ export function PublicBookView({
   workspace,
   preview = false,
   editMode = false,
+  publicMode = false,
   onUpdateWebsite
 }) {
   const website = workspace.website || {};
@@ -565,9 +566,11 @@ export function PublicBookView({
       <div className="bb-public-book-layout bb-public-gutter">
         <div className="bb-public-book-main">
           <PublicBookingFlow
+            catalogWorkspace={workspace}
             workspaceName={workspace.brandName}
             hideTitle
             preview={preview || editMode}
+            publicMode={publicMode}
           />
         </div>
         <aside className="bb-public-book-aside">
@@ -624,6 +627,7 @@ export function PublicBuyView({
   workspace,
   preview = false,
   editMode = false,
+  publicMode = false,
   onUpdateWebsite
 }) {
   const website = workspace.website || {};
@@ -677,12 +681,14 @@ export function PublicBuyView({
         </div>
       ) : null}
       <PublicStorefront
+        catalogWorkspace={workspace}
         workspaceName={workspace.brandName}
         title={title}
         subtext={subtext}
         preview={preview || editMode}
         hideIntro={editMode}
         featuredProductId={website.featuredProductId}
+        publicMode={publicMode}
       />
     </div>
   );

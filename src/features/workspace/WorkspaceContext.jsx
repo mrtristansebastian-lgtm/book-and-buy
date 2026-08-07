@@ -1,9 +1,14 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList } from '../../utils/services';
 import { normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
+import { useAuth } from '../auth/AuthContext';
+import {
+  loadOwnerWorkspaceFromFirestore,
+  saveOwnerWorkspaceToFirestore
+} from '../../shared/firebase/ownerWorkspace';
 
 const WorkspaceContext = createContext(null);
 const MODE_KEY = 'book-and-buy.workspace-mode';
@@ -48,11 +53,82 @@ function persistWorkspace(next) {
 }
 
 export function WorkspaceProvider({ children }) {
+  const { user, configured } = useAuth();
   const [workspace, setWorkspace] = useState(() => readInitialWorkspace());
+  const cloudHydratedRef = useRef(false);
+  const skipNextCloudSaveRef = useRef(false);
 
   useEffect(() => {
     persistWorkspace(workspace);
   }, [workspace]);
+
+  useEffect(() => {
+    if (workspace.isDemo) cloudHydratedRef.current = false;
+  }, [workspace.isDemo]);
+
+  /** Bind ownerId + hydrate owner settings from Firestore when signed in. */
+  useEffect(() => {
+    let cancelled = false;
+    async function hydrateOwner() {
+      if (!configured || !user?.uid) {
+        cloudHydratedRef.current = false;
+        return;
+      }
+      if (workspace.isDemo) return;
+
+      setWorkspace((prev) => {
+        if (prev.isDemo) return prev;
+        if (prev.ownerId === user.uid) return prev;
+        return { ...prev, ownerId: user.uid, isDemo: false };
+      });
+
+      if (cloudHydratedRef.current) return;
+      cloudHydratedRef.current = true;
+      try {
+        const remote = await loadOwnerWorkspaceFromFirestore(user.uid);
+        if (cancelled || !remote) return;
+        skipNextCloudSaveRef.current = true;
+        setWorkspace((prev) => {
+          if (prev.isDemo) return prev;
+          return {
+            ...prev,
+            ...remote,
+            ownerId: user.uid,
+            isDemo: false,
+            website: {
+              ...prev.website,
+              ...(remote.website || {})
+            }
+          };
+        });
+      } catch {
+        /* keep local cache */
+      }
+    }
+    hydrateOwner();
+    return () => {
+      cancelled = true;
+    };
+    // Only re-run on auth identity; workspace.isDemo checked inside.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configured, user?.uid, workspace.isDemo]);
+
+  /** Debounced owner settings write-through. */
+  useEffect(() => {
+    if (!configured || !user?.uid || workspace.isDemo) return;
+    if (workspace.ownerId && workspace.ownerId !== user.uid) return;
+    if (skipNextCloudSaveRef.current) {
+      skipNextCloudSaveRef.current = false;
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      saveOwnerWorkspaceToFirestore(user.uid, {
+        ...workspace,
+        ownerId: user.uid
+      }).catch(() => {});
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [configured, user?.uid, workspace]);
 
   const api = useMemo(() => {
     const updateBooking = (id, patch) => {
@@ -174,6 +250,7 @@ export function WorkspaceProvider({ children }) {
         setWorkspace((prev) => {
           snapshot = {
             ...prev,
+            ownerId: user?.uid || prev.ownerId,
             publishedAt: Date.now(),
             website: { ...prev.website, published: true }
           };
@@ -444,7 +521,11 @@ export function WorkspaceProvider({ children }) {
         return owner;
       },
       startOwnerOnboarding: () => {
-        const next = createBlankWorkspace({ onboardingComplete: false });
+        const next = createBlankWorkspace({
+          onboardingComplete: false,
+          ownerId: user?.uid || undefined,
+          isDemo: false
+        });
         localStorage.setItem(MODE_KEY, 'owner');
         localStorage.setItem(OWNER_KEY, JSON.stringify(next));
         setWorkspace(next);
@@ -456,6 +537,7 @@ export function WorkspaceProvider({ children }) {
             ...createBlankWorkspace({
               ...prev,
               ...patch,
+              ownerId: user?.uid || prev.ownerId || patch.ownerId,
               website: {
                 ...prev.website,
                 ...(patch.website || {}),
@@ -470,11 +552,20 @@ export function WorkspaceProvider({ children }) {
           };
           localStorage.setItem(MODE_KEY, 'owner');
           localStorage.setItem(OWNER_KEY, JSON.stringify(next));
+          if (user?.uid) {
+            saveOwnerWorkspaceToFirestore(user.uid, { ...next, ownerId: user.uid }).catch(() => {});
+          }
           return next;
         });
+      },
+      bindOwnerId: (ownerId) => {
+        if (!ownerId) return;
+        setWorkspace((prev) =>
+          prev.isDemo ? prev : { ...prev, ownerId, isDemo: false }
+        );
       }
     };
-  }, [workspace]);
+  }, [workspace, user?.uid]);
 
   return <WorkspaceContext.Provider value={api}>{children}</WorkspaceContext.Provider>;
 }

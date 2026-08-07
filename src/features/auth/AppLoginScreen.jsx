@@ -5,7 +5,7 @@ import { useWorkspace } from '../workspace/WorkspaceContext';
 import { useAuth } from './AuthContext';
 
 export function AppLoginScreen() {
-  const { loadDemoWorkspace, startOwnerOnboarding, workspace } = useWorkspace();
+  const { loadDemoWorkspace, startOwnerOnboarding, exitDemoMode, workspace } = useWorkspace();
   const { configured, signInEmail, signUpEmail, signInGoogle, user } = useAuth();
   const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
@@ -18,10 +18,13 @@ export function AppLoginScreen() {
     setError('');
     try {
       await action();
-      if (workspace.onboardingComplete && !workspace.isDemo) {
+      const owner = workspace.isDemo ? exitDemoMode() : workspace;
+      if (owner?.onboardingComplete) {
         navigate('/dashboard/overview');
-      } else {
+      } else if (!owner || owner.isDemo) {
         startOwnerOnboarding();
+        navigate('/onboarding');
+      } else {
         navigate('/onboarding');
       }
     } catch (err) {

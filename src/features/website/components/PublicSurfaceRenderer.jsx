@@ -22,6 +22,7 @@ export function PublicSurfaceRenderer({
   preview = false,
   editMode = false,
   showHeader = true,
+  publicMode = false,
   onUpdateWebsite,
   onUpdateProfile,
   onUpdateSocialPost,
@@ -50,6 +51,7 @@ export function PublicSurfaceRenderer({
         workspace={workspace}
         preview={preview}
         editMode={editMode}
+        publicMode={publicMode}
         onUpdateWebsite={onUpdateWebsite}
         onUpdateProfile={onUpdateProfile}
         onUpdateSocialPost={onUpdateSocialPost}

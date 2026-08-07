@@ -4,12 +4,28 @@ import { formatServiceDuration, formatServicePrice } from '../../../utils/servic
 import { getDaySlots } from '../../../utils/availability';
 import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
 import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
-import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
+import {
+  buildBookingCalendarUrl
+} from '../../../shared/firebase/integrations';
+import { isFirebaseConfigured } from '../../../shared/firebase/client';
+import { firebaseCallables } from '../../../shared/firebase/callables';
 
 const STEPS = ['service', 'datetime', 'details', 'done'];
 
-export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = false }) {
-  const { services, bookings, addBooking, workspace } = useWorkspace();
+export function PublicBookingFlow({
+  catalogWorkspace,
+  workspaceName,
+  hideTitle = false,
+  preview = false,
+  publicMode = false
+}) {
+  const ctx = useWorkspace();
+  const workspace = catalogWorkspace || ctx.workspace;
+  const services = workspace.services || [];
+  const bookings =
+    catalogWorkspace && catalogWorkspace !== ctx.workspace
+      ? catalogWorkspace.bookings || []
+      : ctx.bookings;
   const activeServices = services.filter((service) => service.active !== false);
   const [step, setStep] = useState('service');
   const [serviceId, setServiceId] = useState('');
@@ -23,6 +39,7 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
     clientNote: ''
   });
   const [created, setCreated] = useState(null);
+  const [submitNote, setSubmitNote] = useState('');
 
   const service = activeServices.find((item) => item.id === serviceId);
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
@@ -38,9 +55,14 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
     [dateKey, bookings, serviceId, workspace.availabilityRules]
   );
 
-  const submit = () => {
+  const sameOwnerContext =
+    !publicMode ||
+    workspace.slug === ctx.workspace.slug ||
+    (workspace.ownerId && workspace.ownerId === ctx.workspace.ownerId);
+
+  const submit = async () => {
     if (!service || !dateKey || !time || !details.clientName.trim()) return;
-    const booking = addBooking({
+    const payload = {
       serviceId: service.id,
       serviceName: service.name,
       scheduleType: service.scheduleType,
@@ -56,8 +78,35 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
       source: 'public',
       workspaceSlug: workspace.slug,
       workspaceName: workspaceName || workspace.brandName
-    });
-    setCreated(booking);
+    };
+
+    setSubmitNote('');
+
+    if (publicMode && isFirebaseConfigured() && workspace.slug) {
+      try {
+        const result = await firebaseCallables.createPublicBookingRequest({
+          slug: workspace.slug,
+          ...payload
+        });
+        setCreated({ ...payload, id: result?.id || `bk-${Date.now()}`, ...(result || {}) });
+        setStep('done');
+        return;
+      } catch {
+        /* fall through to local owner inbox when possible */
+      }
+    }
+
+    if (sameOwnerContext) {
+      const booking = ctx.addBooking(payload);
+      setCreated(booking);
+      setStep('done');
+      return;
+    }
+
+    setCreated({ ...payload, id: `bk-local-${Date.now()}` });
+    setSubmitNote(
+      'Request saved on this device. Deploy booking Functions so the owner receives live requests.'
+    );
     setStep('done');
   };
 
@@ -83,6 +132,7 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
             {created.serviceName} on {formatDisplayDate(created.dateKey)} at {created.time}.{' '}
             {workspaceName || 'The business'} will review and confirm.
           </p>
+          {submitNote ? <p className="bb-muted m-0 text-sm">{submitNote}</p> : null}
           <div className="flex flex-wrap gap-2">
             <a className="bb-ghost-btn" href={calendarUrl} target="_blank" rel="noreferrer">
               Add to Google Calendar
@@ -97,6 +147,7 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
                 setTime('');
                 setDetails({ clientName: '', clientEmail: '', clientPhone: '', clientNote: '' });
                 setCreated(null);
+                setSubmitNote('');
               }}
             >
               Book another
@@ -162,6 +213,9 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
               );
             })}
           </div>
+          {activeServices.length === 0 ? (
+            <p className="bb-muted m-0">No bookable services published yet.</p>
+          ) : null}
           <button
             type="button"
             className="bb-primary-btn justify-self-start"

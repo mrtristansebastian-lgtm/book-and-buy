@@ -36,6 +36,7 @@ Without `VITE_FIREBASE_CONFIG`, the app runs in **local mode** (localStorage wor
 8. Live E-Business studio — shared public renderer, polished Home/Book/Buy/Social, Shopify-style live device mockups — done
 9. Inline E-Business editor — View/Edit on-canvas editing, rich Home (about/why/venue/map/reviews), section tray — done
 10. Firebase track — Storage image upload (with local fallback), Firestore publish on Publish, Google Calendar link after booking, Places Place ID + import stub; full Places callable still needs API key deploy
+11. Live public slug loop — ownerId bind, owner settings Firestore cache, public-safe Publish, `#/w/:slug` prefers Firestore, Book/Buy catalogs from public snapshot (booking/order Functions still needed for cross-device intake)
 
 See `docs/book-and-buy-vision.md`.
 

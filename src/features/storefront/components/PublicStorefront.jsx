@@ -4,18 +4,27 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { useCart } from '../hooks/useCart';
 import { formatCents, formatProductPrice, formatStockNote } from '../../../utils/products';
 import { getPublicPaymentOptions } from '../../../utils/payments';
+import { isFirebaseConfigured } from '../../../shared/firebase/client';
+import { firebaseCallables } from '../../../shared/firebase/callables';
+import { createPublicProductOrder } from '../../../utils/orders';
 
 export function PublicStorefront({
+  catalogWorkspace,
   workspaceName,
   title = 'Buy',
   subtext,
   preview = false,
   featuredProductId = '',
-  hideIntro = false
+  hideIntro = false,
+  publicMode = false
 }) {
-  const { products, placeProductOrder, workspace, paymentGateways } = useWorkspace();
+  const ctx = useWorkspace();
+  const workspace = catalogWorkspace || ctx.workspace;
+  const products = workspace.products || [];
+  const paymentGateways = workspace.paymentGateways || ctx.paymentGateways;
   const cart = useCart();
   const [panel, setPanel] = useState('shop');
+  const [submitNote, setSubmitNote] = useState('');
   const paymentOptions = useMemo(
     () => getPublicPaymentOptions({ paymentGateways }).options,
     [paymentGateways]
@@ -38,15 +47,67 @@ export function PublicStorefront({
     ? catalog.filter((product) => product.id !== featured?.id)
     : catalog;
 
-  const submit = () => {
+  const sameOwnerContext =
+    !publicMode ||
+    workspace.slug === ctx.workspace.slug ||
+    (workspace.ownerId && workspace.ownerId === ctx.workspace.ownerId);
+
+  const submit = async () => {
     if (!cart.items.length || !details.clientName.trim()) return;
-    const order = placeProductOrder({
-      items: cart.items,
+    setSubmitNote('');
+    const items = cart.items;
+
+    if (publicMode && isFirebaseConfigured() && workspace.slug) {
+      try {
+        const result = await firebaseCallables.createPublicProductOrder({
+          slug: workspace.slug,
+          items,
+          client: details,
+          paymentMethod
+        });
+        cart.clear();
+        setPlaced(
+          result && typeof result === 'object'
+            ? result
+            : createPublicProductOrder({
+                workspaceSlug: workspace.slug,
+                workspaceName: workspaceName || workspace.brandName,
+                items,
+                client: details,
+                paymentMethod
+              })
+        );
+        setPanel('done');
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+
+    if (sameOwnerContext) {
+      const order = ctx.placeProductOrder({
+        items,
+        client: details,
+        paymentMethod
+      });
+      cart.clear();
+      setPlaced(order);
+      setPanel('done');
+      return;
+    }
+
+    const order = createPublicProductOrder({
+      workspaceSlug: workspace.slug,
+      workspaceName: workspaceName || workspace.brandName,
+      items,
       client: details,
       paymentMethod
     });
     cart.clear();
     setPlaced(order);
+    setSubmitNote(
+      'Order saved on this device. Deploy order Functions so the owner receives live orders.'
+    );
     setPanel('done');
   };
 
@@ -59,11 +120,13 @@ export function PublicStorefront({
             {workspaceName || workspace.brandName} will confirm fulfilment. Total{' '}
             {formatCents(placed.amountInCents, placed.currency)} via {placed.paymentMethod}.
           </p>
+          {submitNote ? <p className="bb-muted m-0 text-sm">{submitNote}</p> : null}
           <button
             type="button"
             className="bb-primary-btn justify-self-start"
             onClick={() => {
               setPlaced(null);
+              setSubmitNote('');
               setPanel('shop');
               setDetails({ clientName: '', clientEmail: '', clientPhone: '', clientNote: '' });
             }}

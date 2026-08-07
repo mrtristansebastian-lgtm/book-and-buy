@@ -2,7 +2,9 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from './client';
+import { saveOwnerWorkspaceToFirestore } from './ownerWorkspace';
 import { publicWorkspacePath } from './paths';
+import { buildPublicWorkspaceSnapshot } from './publicSnapshot';
 
 const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
@@ -111,8 +113,7 @@ export function buildGoogleCalendarUrl({
   startIso: string;
   endIso: string;
 }) {
-  const toGCal = (iso: string) =>
-    iso.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const toGCal = (iso: string) => iso.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: title,
@@ -154,10 +155,16 @@ export function buildBookingCalendarUrl({
   });
 }
 
-/** Publish a public workspace snapshot to Firestore (local-only without config). */
+/**
+ * Publish a public-safe workspace snapshot to Firestore.
+ * Requires signed-in owner; also refreshes owner settings doc.
+ */
 export async function publishWorkspaceToFirestore(workspace: Record<string, unknown>) {
   const firebase = getFirebase();
+  const uid = firebase?.auth.currentUser?.uid || '';
+  const ownerId = String(workspace.ownerId || uid || '');
   const slug = String(workspace.slug || '');
+
   if (!firebase || !slug) {
     return {
       ok: false as const,
@@ -165,15 +172,45 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
       reason: 'Published locally. Connect Firebase to sync the public slug.'
     };
   }
+  if (!uid || !ownerId) {
+    return {
+      ok: false as const,
+      localOnly: true,
+      reason: 'Sign in as the owner to publish to the live public slug.'
+    };
+  }
+  if (ownerId !== uid) {
+    return {
+      ok: false as const,
+      localOnly: true,
+      reason: 'Only the workspace owner can publish this site.'
+    };
+  }
+
+  const snapshot = buildPublicWorkspaceSnapshot({
+    ...workspace,
+    ownerId
+  });
+
+  if (!snapshot.ownerId) {
+    return {
+      ok: false as const,
+      localOnly: true,
+      reason: 'Missing ownerId — sign in and try Publish again.'
+    };
+  }
+
   const path = publicWorkspacePath(APP_ID, slug);
-  await setDoc(
-    doc(firebase.db, ...path),
-    {
-      ...workspace,
-      publishedAt: Date.now(),
+  await setDoc(doc(firebase.db, ...path), snapshot, { merge: true });
+  await saveOwnerWorkspaceToFirestore(ownerId, {
+    ...workspace,
+    ownerId,
+    publishedAt: snapshot.publishedAt,
+    website: {
+      ...(workspace.website as object),
       published: true
-    },
-    { merge: true }
-  );
+    }
+  });
+
   return { ok: true as const, localOnly: false, reason: 'Published to Firestore.' };
 }
