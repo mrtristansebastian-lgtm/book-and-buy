@@ -58,7 +58,7 @@ export const createDefaultSettings = () => ({
     bookSubtext: 'Choose a service and request a time.',
     buyHeadline: 'Buy',
     buySubtext: 'Order products from this business.',
-    socialHeadline: 'Social',
+    socialHeadline: 'Business Blog',
     socialSubtext: 'Updates from the business.',
     aboutTitle: 'About us',
     aboutEyebrow: 'About',

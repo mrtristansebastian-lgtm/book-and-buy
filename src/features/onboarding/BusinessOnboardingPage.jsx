@@ -127,7 +127,7 @@ export function BusinessOnboardingPage() {
             {[
               ['enableBook', 'Book — services and appointments'],
               ['enableBuy', 'Buy — products and orders'],
-              ['enableSocial', 'Social — posts and updates']
+              ['enableSocial', 'Business Blog — posts and updates']
             ].map(([key, label]) => (
               <label key={key} className="flex items-center gap-2 text-sm font-semibold">
                 <input
@@ -162,7 +162,7 @@ export function BusinessOnboardingPage() {
               <li>Home is always on</li>
               {form.enableBook ? <li>Book page enabled</li> : null}
               {form.enableBuy ? <li>Buy page enabled</li> : null}
-              {form.enableSocial ? <li>Social page enabled</li> : null}
+              {form.enableSocial ? <li>Business Blog enabled</li> : null}
             </ul>
             <div className="flex flex-wrap gap-2">
               <button type="button" className="bb-ghost-btn" onClick={() => setStep('pages')}>

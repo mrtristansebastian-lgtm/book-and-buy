@@ -42,10 +42,10 @@ export function SocialStudioPage() {
             <p className="m-0 text-xs font-bold uppercase tracking-[0.08em] text-black/35">
               {E_BUSINESS_PLATFORM_NAME}
             </p>
-            <h1 className="bb-page-title text-2xl md:text-3xl m-0">Social</h1>
+            <h1 className="bb-page-title text-2xl md:text-3xl m-0">Business Blog</h1>
             <p className="bb-muted m-0 text-sm">
               Create posts, upload videos, and write text updates. Publish when you’re ready for the
-              live Social page.
+              live Business Blog.
             </p>
           </div>
           <button
@@ -59,7 +59,7 @@ export function SocialStudioPage() {
 
         <div className="bb-social-studio-tabs">
           <PeriodSegmentedControl
-            ariaLabel="Social content type"
+            ariaLabel="Business Blog content type"
             value={tab}
             onChange={setTab}
             options={tabOptions}

@@ -38,7 +38,7 @@ export function parseAppRoute(path = getLocationPath()) {
   if (parts[0] === 'w' && parts[1]) {
     const page = normalizePublicPage(parts[2] || 'home');
     const itemId =
-      (page === 'book' || page === 'buy') && parts[3]
+      (page === 'book' || page === 'buy' || page === 'social') && parts[3]
         ? decodeURIComponent(String(parts[3]))
         : '';
     return {
@@ -71,7 +71,7 @@ export function parseAppRoute(path = getLocationPath()) {
     if (['home', 'book', 'buy', 'shop', 'social'].includes(parts[1])) {
       const page = normalizePublicPage(parts[1]);
       const itemId =
-        (page === 'book' || page === 'buy') && parts[2]
+        (page === 'book' || page === 'buy' || page === 'social') && parts[2]
           ? decodeURIComponent(String(parts[2]))
           : '';
       return {
@@ -98,11 +98,11 @@ export function publicPagePath(slug, page = 'home') {
   return `/w/${slug}/${normalized}`;
 }
 
-/** Product (`buy`) or service (`book`) detail path. */
+/** Product (`buy`), service (`book`), or social post (`social`) detail path. */
 export function publicItemPath(slug, page, itemId) {
   const normalized = normalizePublicPage(page);
   const id = String(itemId || '').trim();
-  if (!id || (normalized !== 'book' && normalized !== 'buy')) {
+  if (!id || (normalized !== 'book' && normalized !== 'buy' && normalized !== 'social')) {
     return publicPagePath(slug, normalized);
   }
   return `/w/${slug}/${normalized}/${encodeURIComponent(id)}`;

@@ -4,6 +4,8 @@ import { formatSocialTime } from '../utils/socialPostType';
 export function SocialTextTimeline({
   posts,
   brandName = 'Business',
+  slug = '',
+  logoUrl = '',
   editMode = false,
   onUpdateSocialPost
 }) {
@@ -15,7 +17,10 @@ export function SocialTextTimeline({
     );
   }
 
-  const initial = String(brandName || 'B')
+  const username = String(slug || '')
+    .trim()
+    .replace(/^@/, '');
+  const initial = String(brandName || username || 'B')
     .trim()
     .charAt(0)
     .toUpperCase();
@@ -24,13 +29,21 @@ export function SocialTextTimeline({
     <div className="bb-social-text-stream">
       {posts.map((post) => (
         <article key={post.id} className="bb-social-text-item">
-          <div className="bb-social-text-avatar" aria-hidden="true">
-            {initial}
-          </div>
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="bb-social-text-avatar bb-social-text-avatar--img" />
+          ) : (
+            <div className="bb-social-text-avatar" aria-hidden="true">
+              {initial}
+            </div>
+          )}
           <div className="bb-social-text-body">
             <header className="bb-social-text-head">
               <strong>{brandName}</strong>
-              <span className="bb-social-text-time">{formatSocialTime(post.createdAt)}</span>
+              <span className="bb-social-text-handle">@{username || 'business'}</span>
+              <span className="bb-social-text-dot" aria-hidden="true">
+                ·
+              </span>
+              <span className="bb-social-text-time">{formatSocialTime(post.createdAt) || 'now'}</span>
               {editMode && post.published === false ? (
                 <span className="bb-edit-section-badge">Draft</span>
               ) : null}

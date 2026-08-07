@@ -1,19 +1,29 @@
-import { useMemo, useState } from 'react';
-import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
-import { EditableText } from '../../website/components/editable';
+import { useEffect, useMemo, useState } from 'react';
+import { navigate, publicItemPath, publicPagePath } from '../../../app/routing';
+import { PublicPageIntro } from '../../public-surface/PublicPageIntro';
 import { getSocialPostKind } from '../utils/socialPostType';
 import { SocialPostsGrid } from './SocialPostsGrid';
-import { SocialVideosPanel } from './SocialVideosPanel';
+import { SocialPostFeed } from './SocialPostFeed';
+import { SOCIAL_PROFILE_TABS, SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
+import { SocialVideosPanel } from './SocialVideosPanel';
 
-const TABS = [
-  { id: 'posts', label: 'Posts', kind: 'image' },
-  { id: 'videos', label: 'Videos', kind: 'video' },
-  { id: 'text', label: 'Text', kind: 'text' }
-];
+function sortPosts(posts) {
+  return [...posts].sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0) || (b.createdAt || 0) - (a.createdAt || 0)
+  );
+}
+
+function tabForKind(kind) {
+  if (kind === 'video') return 'videos';
+  if (kind === 'text') return 'text';
+  return 'posts';
+}
 
 export function SocialFeed({
   workspace,
+  itemId = '',
+  preview = false,
   editMode = false,
   showDrafts = false,
   onUpdateWebsite,
@@ -21,35 +31,61 @@ export function SocialFeed({
   onAddSocialPost
 }) {
   const website = workspace.website || {};
+  const slug = workspace.slug || '';
   const [tab, setTab] = useState('posts');
+  const [localPostId, setLocalPostId] = useState('');
 
-  const allPosts = useMemo(
+  const visiblePosts = useMemo(
     () =>
-      [...(workspace.socialPosts || [])]
-        .filter((post) => (editMode && showDrafts ? true : post.published !== false))
-        .sort(
-          (a, b) =>
-            (a.order ?? 0) - (b.order ?? 0) || (b.createdAt || 0) - (a.createdAt || 0)
-        ),
+      sortPosts(
+        (workspace.socialPosts || []).filter((post) =>
+          editMode && showDrafts ? true : post.published !== false
+        )
+      ),
     [workspace.socialPosts, editMode, showDrafts]
   );
 
-  const counts = useMemo(() => {
-    const next = { image: 0, video: 0, text: 0 };
-    for (const post of allPosts) {
-      next[getSocialPostKind(post)] += 1;
+  const postsByKind = useMemo(() => {
+    const next = { image: [], video: [], text: [] };
+    for (const post of visiblePosts) {
+      const kind = getSocialPostKind(post);
+      if (next[kind]) next[kind].push(post);
     }
     return next;
-  }, [allPosts]);
+  }, [visiblePosts]);
 
-  const tabOptions = TABS.map((item) => ({
-    id: item.id,
-    label: item.label,
-    count: counts[item.kind]
-  }));
+  const useLocalNav = preview || editMode;
+  const routePostId = useLocalNav ? localPostId : String(itemId || '').trim();
+  const routePost = visiblePosts.find((post) => post.id === routePostId) || null;
+  const routeKind = routePost ? getSocialPostKind(routePost) : null;
 
-  const activeKind = TABS.find((item) => item.id === tab)?.kind || 'image';
-  const filtered = allPosts.filter((post) => getSocialPostKind(post) === activeKind);
+  useEffect(() => {
+    if (!routePost) return;
+    setTab(tabForKind(routeKind));
+  }, [routePost, routeKind]);
+
+  const activeTab = SOCIAL_PROFILE_TABS.find((item) => item.id === tab) || SOCIAL_PROFILE_TABS[0];
+  const tabPosts = postsByKind[activeTab.kind] || [];
+
+  // Only photo posts use the Instagram-style vertical feed.
+  const feedMode = Boolean(routePost && routeKind === 'image');
+  const feedPosts = postsByKind.image || [];
+
+  const openPost = (postId) => {
+    if (useLocalNav) {
+      setLocalPostId(postId);
+      return;
+    }
+    navigate(publicItemPath(slug, 'social', postId));
+  };
+
+  const closeFeed = () => {
+    if (useLocalNav) {
+      setLocalPostId('');
+      return;
+    }
+    navigate(publicPagePath(slug, 'social'));
+  };
 
   const addForTab = () => {
     if (tab === 'videos') {
@@ -84,63 +120,72 @@ export function SocialFeed({
   const addLabel =
     tab === 'videos' ? 'Add video' : tab === 'text' ? 'Add text' : 'Add photo';
 
+  if (feedMode) {
+    return (
+      <section className="bb-public-social bb-public-social--feed bb-public-gutter">
+        <div className="bb-public-measure-wide">
+          <SocialPostFeed
+            posts={feedPosts}
+            initialPostId={routePost.id}
+            brandName={workspace.brandName}
+            slug={slug}
+            logoUrl={website.logoUrl || ''}
+            editMode={editMode}
+            onBack={closeFeed}
+            onUpdateSocialPost={onUpdateSocialPost}
+          />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bb-public-social bb-public-gutter">
-      <div className="bb-public-measure-wide grid gap-6">
-        <header className="bb-public-social-header grid gap-3">
-          <EditableText
-            as="h1"
-            className="bb-page-title"
-            editMode={editMode}
-            value={website.socialHeadline || 'Social'}
-            placeholder="Social headline"
-            onChange={(value) => onUpdateWebsite?.({ socialHeadline: value })}
-          />
-          <EditableText
-            as="p"
-            className="bb-public-lede m-0"
-            editMode={editMode}
-            multiline
-            value={website.socialSubtext || `Updates from ${workspace.brandName}.`}
-            placeholder="Social supporting line"
-            onChange={(value) => onUpdateWebsite?.({ socialSubtext: value })}
-          />
-        </header>
+      <div className="bb-public-measure-wide grid gap-5">
+        <PublicPageIntro
+          title={website.socialHeadline || 'Business Blog'}
+          body={website.socialSubtext || ''}
+          editMode={editMode}
+          titlePlaceholder="Blog title"
+          bodyPlaceholder="Blog supporting text"
+          onTitleChange={(value) => onUpdateWebsite?.({ socialHeadline: value })}
+          onBodyChange={(value) => onUpdateWebsite?.({ socialSubtext: value })}
+        />
 
-        <div className="bb-social-toolbar">
-          <div className="bb-social-tabs">
-            <PeriodSegmentedControl
-              ariaLabel="Social feed type"
-              value={tab}
-              onChange={setTab}
-              options={tabOptions}
-            />
-          </div>
+        <div className="bb-social-blog-head">
           {editMode ? (
-            <button type="button" className="bb-primary-btn" onClick={addForTab}>
-              {addLabel}
-            </button>
+            <div className="bb-social-profile-actions">
+              <button type="button" className="bb-primary-btn" onClick={addForTab}>
+                {addLabel}
+              </button>
+            </div>
           ) : null}
+          <SocialProfileTabs value={tab} onChange={setTab} />
         </div>
 
         {tab === 'posts' ? (
           <SocialPostsGrid
-            posts={filtered}
+            posts={tabPosts}
             editMode={editMode}
             onUpdateSocialPost={onUpdateSocialPost}
+            onOpenPost={openPost}
+            emptyLabel={editMode ? 'Add a photo to fill the grid.' : 'No photos published yet.'}
           />
         ) : null}
         {tab === 'videos' ? (
           <SocialVideosPanel
-            posts={filtered}
+            posts={tabPosts}
             editMode={editMode}
             onUpdateSocialPost={onUpdateSocialPost}
+            initialActiveId={routeKind === 'video' ? routePostId : ''}
           />
         ) : null}
         {tab === 'text' ? (
           <SocialTextTimeline
-            posts={filtered}
+            posts={tabPosts}
             brandName={workspace.brandName}
+            slug={slug}
+            logoUrl={website.logoUrl || ''}
             editMode={editMode}
             onUpdateSocialPost={onUpdateSocialPost}
           />

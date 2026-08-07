@@ -1,50 +1,57 @@
-import { EditableImage, EditableText } from '../../website/components/editable';
+import { Play } from 'lucide-react';
+import { getSocialPostKind } from '../utils/socialPostType';
 
 export function SocialPostsGrid({
   posts,
   editMode = false,
-  onUpdateSocialPost
+  onUpdateSocialPost,
+  onOpenPost,
+  emptyLabel
 }) {
   if (!posts.length) {
     return (
       <div className="bb-public-empty">
-        {editMode ? 'Add a photo to fill the Posts grid.' : 'No photos published yet.'}
+        {emptyLabel ||
+          (editMode ? 'Add a photo or video to fill the grid.' : 'No posts published yet.')}
       </div>
     );
   }
 
   return (
-    <div className="bb-social-posts-grid">
-      {posts.map((post) => (
-        <article key={post.id} className="bb-social-post-cell">
-          {editMode && post.published === false ? (
-            <div className="bb-edit-section-badge bb-social-draft-badge">Draft</div>
-          ) : null}
-          <EditableImage
-            editMode={editMode}
-            src={post.mediaUrl || ''}
-            className="bb-social-post-media"
-            imgClassName="w-full h-full object-cover"
-            storageFolder="social"
-            placeholderLabel="Add photo"
-            onChange={(url) =>
-              onUpdateSocialPost?.(post.id, { mediaUrl: url, type: 'image' })
-            }
-          />
-          <div className="bb-social-post-meta">
-            <EditableText
-              as="p"
-              className="bb-social-post-caption"
-              editMode={editMode}
-              multiline
-              value={post.caption || ''}
-              placeholder="Caption"
-              onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-            />
+    <div className="bb-social-posts-grid" role="list">
+      {posts.map((post) => {
+        const kind = getSocialPostKind(post);
+        const isVideo = kind === 'video';
+        const src = isVideo ? post.posterUrl || post.mediaUrl || '' : post.mediaUrl || '';
+
+        return (
+          <article key={post.id} className="bb-social-post-cell" role="listitem">
+            {editMode && post.published === false ? (
+              <div className="bb-edit-section-badge bb-social-draft-badge">Draft</div>
+            ) : null}
+            <button
+              type="button"
+              className="bb-social-post-hit"
+              onClick={() => onOpenPost?.(post.id)}
+              aria-label="Open post"
+            >
+              <div className="bb-social-post-media">
+                {src ? (
+                  <img src={src} alt="" className="bb-social-post-media-img" />
+                ) : (
+                  <div className="bb-social-post-media-empty" aria-hidden="true" />
+                )}
+                {isVideo ? (
+                  <span className="bb-social-post-play" aria-hidden="true">
+                    <Play size={14} fill="currentColor" strokeWidth={0} />
+                  </span>
+                ) : null}
+              </div>
+            </button>
             {editMode ? (
               <button
                 type="button"
-                className="bb-ghost-btn py-1 px-2.5 text-xs"
+                className="bb-ghost-btn bb-social-post-publish py-1 px-2 text-xs"
                 onClick={() =>
                   onUpdateSocialPost?.(post.id, { published: post.published === false })
                 }
@@ -52,9 +59,9 @@ export function SocialPostsGrid({
                 {post.published !== false ? 'Unpublish' : 'Publish'}
               </button>
             ) : null}
-          </div>
-        </article>
-      ))}
+          </article>
+        );
+      })}
     </div>
   );
 }

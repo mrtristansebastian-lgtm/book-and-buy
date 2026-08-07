@@ -1,6 +1,6 @@
 import { E_BUSINESS_PLATFORM_NAME } from './eBusinessPlatform';
 
-/** Owner workspace tabs — Website (Pages) and Social under E-Business Platform. */
+/** Owner workspace tabs — Website (Pages) and Business Blog under E-Business Platform. */
 export const workspaceTabIds = [
   'overview',
   'services',
@@ -64,7 +64,7 @@ export const workspaceTabLabels = {
   products: 'Products',
   orders: 'Orders',
   website: 'Pages',
-  social: 'Social',
+  social: 'Business Blog',
   communications: 'Support',
   finance: 'Finance',
   clients: 'Clients',

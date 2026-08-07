@@ -5,7 +5,7 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { PublicCartCheckout } from './PublicCartCheckout';
 import { CatalogCategoryTabs } from './CatalogCategoryTabs';
-import { formatProductPrice } from '../../../utils/products';
+import { formatProductPrice, formatStockNote } from '../../../utils/products';
 import {
   buildCatalogCategoryTabs,
   filterCatalogByCategory,
@@ -15,11 +15,8 @@ import {
 export function PublicStorefront({
   catalogWorkspace,
   workspaceName,
-  title = 'Buy',
-  subtext,
   preview = false,
   featuredProductId = '',
-  hideIntro = false,
   publicMode = false
 }) {
   const ctx = useWorkspace();
@@ -81,6 +78,7 @@ export function PublicStorefront({
     const quote = product.quoteBased || product.priceType === 'quote';
     const imageSrc = product.imageUrls?.[0] || product.image || '';
     const price = formatProductPrice(product);
+    const stock = formatStockNote(product);
     const category = getCatalogCategory(
       product,
       featuredCard ? 'Featured' : 'Product'
@@ -102,6 +100,11 @@ export function PublicStorefront({
             {category ? (
               <span className="bb-public-product-sticker">{category}</span>
             ) : null}
+            {stock ? (
+              <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
+                {stock}
+              </span>
+            ) : null}
           </div>
           <div className="bb-public-product-body">
             <h2>{product.name}</h2>
@@ -109,11 +112,9 @@ export function PublicStorefront({
               <p className="bb-public-product-desc">{product.description}</p>
             ) : null}
           </div>
-          <div className="bb-public-product-stats">
-            <div className="bb-public-product-stat">
-              <span className="bb-public-product-stat-label">Price</span>
-              <span className="bb-public-product-stat-value">{price || '—'}</span>
-            </div>
+          <div className="bb-public-product-price-row">
+            <span className="bb-public-product-price-label">Price</span>
+            <span className="bb-public-product-price-value">{price || '—'}</span>
           </div>
         </button>
         <button
@@ -138,20 +139,7 @@ export function PublicStorefront({
       className={`bb-public-buy-section bb-public-gutter ${preview ? 'pointer-events-none' : ''}`}
     >
       <div className="bb-public-measure-wide grid gap-6">
-        {hideIntro ? (
-          catalogTools
-        ) : (
-          <header className="bb-public-buy-header">
-            <div className="bb-public-catalog-intro">
-              <h1 className="bb-public-catalog-title">{title}</h1>
-              <p className="bb-public-lede m-0">
-                {subtext ||
-                  `Kitchen goods and take-home sets from ${workspaceName || workspace.brandName}.`}
-              </p>
-            </div>
-            {catalogTools}
-          </header>
-        )}
+        {catalogTools}
 
         {panel === 'cart' ? (
           <PublicCartCheckout

@@ -3,6 +3,7 @@ import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
 import { SocialFeed } from '../../social/components/SocialFeed';
 import { PublicCatalogDetail } from '../../storefront/components/PublicCatalogDetail';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
+import { PublicPageIntro } from '../../public-surface/PublicPageIntro';
 import { EditableText } from './editable';
 import {
   AboutSection,
@@ -145,10 +146,6 @@ export function PublicBookView({
   onUpdateWebsite
 }) {
   const website = workspace.website || {};
-  const title = website.bookHeadline || 'Book';
-  const subtext =
-    website.bookSubtext ||
-    `Choose a service and request a time with ${workspace.brandName || 'us'}.`;
   const faq = website.bookFaq || [];
 
   if (itemId) {
@@ -171,36 +168,25 @@ export function PublicBookView({
 
   return (
     <div className={`bb-public-book ${preview || editMode ? 'bb-public-preview-flow' : ''}`}>
-      <div className="bb-public-page-intro bb-public-gutter">
-        <div className="bb-public-measure grid gap-2">
-          <EditableText
-            as="h1"
-            className="bb-public-catalog-title"
+      <div className="bb-public-book-main bb-public-gutter">
+        <div className="bb-public-measure-wide grid gap-6">
+          <PublicPageIntro
+            title={website.bookHeadline || 'Book'}
+            body={website.bookSubtext || ''}
             editMode={editMode}
-            value={title}
-            placeholder="Book headline"
-            onChange={(value) => onUpdateWebsite?.({ bookHeadline: value })}
+            titlePlaceholder="Book title"
+            bodyPlaceholder="Book supporting text"
+            onTitleChange={(value) => onUpdateWebsite?.({ bookHeadline: value })}
+            onBodyChange={(value) => onUpdateWebsite?.({ bookSubtext: value })}
           />
-          <EditableText
-            as="p"
-            className="bb-public-lede"
-            editMode={editMode}
-            multiline
-            value={subtext}
-            placeholder="Book supporting line"
-            onChange={(value) => onUpdateWebsite?.({ bookSubtext: value })}
+          <PublicBookingFlow
+            catalogWorkspace={workspace}
+            workspaceName={workspace.brandName}
+            hideTitle
+            preview={preview || editMode}
+            publicMode={publicMode}
           />
         </div>
-      </div>
-
-      <div className="bb-public-book-main bb-public-gutter">
-        <PublicBookingFlow
-          catalogWorkspace={workspace}
-          workspaceName={workspace.brandName}
-          hideTitle
-          preview={preview || editMode}
-          publicMode={publicMode}
-        />
       </div>
 
       <section className="bb-public-book-faq bb-public-gutter">
@@ -306,11 +292,6 @@ export function PublicBuyView({
   onUpdateWebsite
 }) {
   const website = workspace.website || {};
-  const title = website.buyHeadline || 'Buy';
-  const subtext =
-    website.buySubtext ||
-    `Kitchen goods and take-home sets from ${workspace.brandName || 'this business'}.`;
-
   const products = workspace.products || [];
 
   if (itemId) {
@@ -331,26 +312,18 @@ export function PublicBuyView({
 
   return (
     <div className={`bb-public-buy ${preview || editMode ? 'bb-public-preview-flow' : ''}`}>
-      {editMode ? (
-        <div className="bb-public-gutter pt-6">
-          <div className="bb-public-measure grid gap-3 mb-2">
-            <EditableText
-              as="h1"
-              className="bb-public-catalog-title"
-              editMode
-              value={title}
-              placeholder="Buy headline"
-              onChange={(value) => onUpdateWebsite?.({ buyHeadline: value })}
-            />
-            <EditableText
-              as="p"
-              className="bb-public-lede m-0"
-              editMode
-              multiline
-              value={subtext}
-              placeholder="Buy supporting line"
-              onChange={(value) => onUpdateWebsite?.({ buySubtext: value })}
-            />
+      <div className="bb-public-gutter">
+        <div className="bb-public-measure-wide grid gap-6">
+          <PublicPageIntro
+            title={website.buyHeadline || 'Buy'}
+            body={website.buySubtext || ''}
+            editMode={editMode}
+            titlePlaceholder="Buy title"
+            bodyPlaceholder="Buy supporting text"
+            onTitleChange={(value) => onUpdateWebsite?.({ buyHeadline: value })}
+            onBodyChange={(value) => onUpdateWebsite?.({ buySubtext: value })}
+          />
+          {editMode ? (
             <label className="grid gap-1 text-xs font-semibold max-w-md">
               Featured product
               <select
@@ -368,16 +341,13 @@ export function PublicBuyView({
                 ))}
               </select>
             </label>
-          </div>
+          ) : null}
         </div>
-      ) : null}
+      </div>
       <PublicStorefront
         catalogWorkspace={workspace}
         workspaceName={workspace.brandName}
-        title={title}
-        subtext={subtext}
         preview={preview || editMode}
-        hideIntro={editMode}
         featuredProductId={website.featuredProductId}
         publicMode={publicMode}
       />

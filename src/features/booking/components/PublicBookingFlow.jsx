@@ -78,19 +78,7 @@ export function PublicBookingFlow({
       }`}
     >
       <div className={`${hideTitle ? '' : 'bb-public-measure-wide'} grid gap-6`}>
-        {hideTitle ? (
-          catalogTools
-        ) : (
-          <header className="bb-public-buy-header">
-            <div className="bb-public-catalog-intro">
-              <h1 className="bb-public-catalog-title">Book</h1>
-              <p className="bb-public-lede m-0">
-                Add a service to your cart, then pick a date and time at checkout.
-              </p>
-            </div>
-            {catalogTools}
-          </header>
-        )}
+        {catalogTools}
 
         {panel === 'cart' ? (
           <PublicCartCheckout
@@ -123,6 +111,11 @@ export function PublicBookingFlow({
                       {category ? (
                         <span className="bb-public-product-sticker">{category}</span>
                       ) : null}
+                      {duration ? (
+                        <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
+                          {duration}
+                        </span>
+                      ) : null}
                     </div>
                     <div className="bb-public-product-body">
                       <h2>{item.name}</h2>
@@ -130,19 +123,9 @@ export function PublicBookingFlow({
                         <p className="bb-public-product-desc">{item.description}</p>
                       ) : null}
                     </div>
-                    <div
-                      className={`bb-public-product-stats${duration ? ' has-duration' : ''}`}
-                    >
-                      <div className="bb-public-product-stat">
-                        <span className="bb-public-product-stat-label">Price</span>
-                        <span className="bb-public-product-stat-value">{price || '—'}</span>
-                      </div>
-                      {duration ? (
-                        <div className="bb-public-product-stat">
-                          <span className="bb-public-product-stat-label">Duration</span>
-                          <span className="bb-public-product-stat-value">{duration}</span>
-                        </div>
-                      ) : null}
+                    <div className="bb-public-product-price-row">
+                      <span className="bb-public-product-price-label">Price</span>
+                      <span className="bb-public-product-price-value">{price || '—'}</span>
                     </div>
                   </button>
                   <button

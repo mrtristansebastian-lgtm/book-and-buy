@@ -113,7 +113,7 @@ export function OverviewPage({ pendingRequests = 0, pendingOrders = 0, unreadSup
         <div>
           <h2 className="bb-page-title text-xl m-0">{E_BUSINESS_PLATFORM_NAME}</h2>
           <p className="bb-muted m-0 mt-1 text-sm">
-            Share Home, Book, Buy, and Social — or open the live public page.
+            Share Home, Book, Buy, and Business Blog — or open the live public page.
           </p>
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
