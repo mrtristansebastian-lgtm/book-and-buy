@@ -1,0 +1,429 @@
+/* Owner Services desk — catalog cards + editor sheet */
+
+.bb-services-desk {
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.bb-services-desk-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.bb-services-desk-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.bb-services-desk-eyebrow {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-services-desk-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.55rem, 2.8vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: #101828;
+}
+
+.bb-services-desk-lede {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 550;
+  color: #667085;
+}
+
+.bb-services-catalog-empty {
+  padding: 1.5rem 1.15rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  background: #fff;
+  color: #98a2b3;
+  font-weight: 600;
+}
+
+/* Under-card actions — match public cart bar slot */
+.bb-services-catalog-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.bb-services-catalog-edit,
+.bb-services-catalog-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  color: #101828;
+  font-size: 0.78rem;
+  font-weight: 740;
+  cursor: pointer;
+}
+
+.bb-services-catalog-edit {
+  width: 100%;
+}
+
+.bb-services-catalog-edit:hover,
+.bb-services-catalog-remove:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #fafafa;
+}
+
+.bb-services-catalog-card.is-hidden .bb-public-product-surface {
+  opacity: 0.72;
+}
+
+/* Editor sheet */
+
+.bb-services-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.bb-services-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.bb-services-sheet-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(34rem, 100%);
+  max-height: min(44rem, calc(100vh - 2rem));
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 1.05rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
+}
+
+.bb-services-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.05rem 0.85rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-services-sheet-eyebrow {
+  margin: 0 0 0.15rem;
+  font-size: 0.64rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-services-sheet-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #101828;
+}
+
+.bb-services-sheet-lede {
+  margin: 0.3rem 0 0;
+  font-size: 0.74rem;
+  font-weight: 550;
+  line-height: 1.35;
+  color: #667085;
+}
+
+.bb-services-sheet-close {
+  padding: 0.35rem;
+}
+
+.bb-services-sheet-body {
+  display: grid;
+  gap: 1.15rem;
+  padding: 1rem 1.05rem;
+  overflow: auto;
+  min-width: 0;
+}
+
+.bb-services-section {
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.bb-services-section-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #667085;
+}
+
+.bb-services-section-lede {
+  margin: -0.25rem 0 0;
+  font-size: 0.74rem;
+  color: #98a2b3;
+}
+
+.bb-services-fields {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.bb-services-field-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.bb-services-field {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.bb-services-field > span,
+.bb-services-field-label {
+  font-size: 0.7rem;
+  font-weight: 720;
+  color: #667085;
+}
+
+.bb-services-field-label-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.bb-services-field-hint {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: #98a2b3;
+}
+
+.bb-services-control,
+.bb-services-sheet .native-control-input {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.bb-services-textarea {
+  min-height: 4.5rem;
+  resize: vertical;
+}
+
+.bb-services-photo {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 11rem;
+  border-radius: 0.85rem;
+  border: 1px dashed rgba(15, 23, 42, 0.16);
+  background: #f8fafc;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+}
+
+.bb-services-photo.has-media {
+  border-style: solid;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.bb-services-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-services-photo-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  color: #667085;
+}
+
+.bb-services-photo-empty strong {
+  font-size: 0.84rem;
+  font-weight: 740;
+  color: #101828;
+}
+
+.bb-services-photo-empty span {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #98a2b3;
+}
+
+.bb-services-photo-replace {
+  justify-self: start;
+  gap: 0.35rem;
+}
+
+.bb-services-chip,
+.bb-services-duration-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  color: #667085;
+  font-size: 0.72rem;
+  font-weight: 720;
+  cursor: pointer;
+}
+
+.bb-services-chip.is-active,
+.bb-services-duration-chip.is-active {
+  color: #050505;
+  border-color: transparent;
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+}
+
+.bb-services-chip--add {
+  border-style: dashed;
+}
+
+.bb-services-category-chips,
+.bb-services-staff-chips,
+.bb-services-duration-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.bb-services-category-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.bb-services-staff {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.bb-services-empty-note {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #98a2b3;
+}
+
+.bb-services-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: #101828;
+  cursor: pointer;
+}
+
+.bb-services-duration {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.bb-services-error {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #b42318;
+}
+
+.bb-services-sheet-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.8rem 1.05rem 0.95rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-services-sheet-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+html body .native-ui .bb-services-desk .bb-services-desk-lede,
+html body .native-ui .bb-services-sheet .bb-services-sheet-lede,
+html body .native-ui .bb-services-sheet .bb-services-section-lede,
+html body .native-ui .bb-services-sheet .bb-services-field-hint {
+  color: #667085 !important;
+}
+
+html body .native-ui .bb-services-desk .bb-services-desk-title,
+html body .native-ui .bb-services-sheet .bb-services-sheet-title {
+  color: #101828 !important;
+  font-weight: 800 !important;
+}
+
+@media (max-width: 640px) {
+  .bb-services-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-services-category-add {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-services-sheet {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .bb-services-sheet-panel {
+    width: 100%;
+    max-height: min(92vh, 44rem);
+    border-radius: 1rem 1rem 0 0;
+  }
+}

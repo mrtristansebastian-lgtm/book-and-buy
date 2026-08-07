@@ -3,8 +3,34 @@ import { getServiceScheduleType } from './scheduleTypes';
 export const createServiceId = () =>
   `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+export const DURATION_PRESETS = [30, 45, 60, 90, 120];
+
+export const parseDurationMinutes = (value) => {
+  const n = Number(String(value ?? '').replace(/[^\d.]/g, ''));
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
+};
+
+/** Effective minutes used for schedule availability (fixed duration or minimum). */
+export const getServiceDurationMinutes = (service = {}) => {
+  if (service.fixedDuration === false) {
+    return (
+      parseDurationMinutes(service.minDuration) ||
+      parseDurationMinutes(service.duration) ||
+      60
+    );
+  }
+  return (
+    parseDurationMinutes(service.duration) ||
+    parseDurationMinutes(service.minDuration) ||
+    60
+  );
+};
+
 export const normalizeService = (service = {}, index = 0) => {
   const scheduleType = getServiceScheduleType(service);
+  const fixedDuration = service.fixedDuration !== false;
+  const duration = service.duration ?? '';
+  const minDuration = service.minDuration ?? '';
   return {
     ...service,
     id: service.id || createServiceId(),
@@ -14,7 +40,9 @@ export const normalizeService = (service = {}, index = 0) => {
     price: service.price ?? '',
     currency: service.currency || 'R',
     priceType: service.priceType || 'fixed',
-    duration: service.duration || '',
+    duration,
+    fixedDuration,
+    minDuration: fixedDuration ? minDuration || '' : minDuration || duration || '',
     active: service.active !== false,
     staffIds: Array.isArray(service.staffIds) ? service.staffIds : [],
     imageUrls: Array.isArray(service.imageUrls)
@@ -33,6 +61,20 @@ export const normalizeServiceList = (services = []) =>
     .map(normalizeService)
     .filter((service) => service.name?.trim());
 
+export const collectServiceCategories = (services = [], existing = []) => {
+  const seen = new Set();
+  const out = [];
+  for (const label of [...(Array.isArray(existing) ? existing : []), ...services.map((s) => s.category)]) {
+    const value = String(label || '').trim();
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
+  }
+  return out;
+};
+
 export const formatServicePrice = (service = {}) => {
   const priceText = String(service.price ?? '').trim();
   if (service.priceType === 'free') return 'Free';
@@ -50,6 +92,15 @@ export const formatServiceDuration = (duration = '') => {
   if (!value) return '';
   if (/[a-z]/i.test(value)) return value;
   return `${value} min`;
+};
+
+/** Catalog / card label for fixed or minimum duration. */
+export const formatServiceDurationLabel = (service = {}) => {
+  if (service.fixedDuration === false) {
+    const min = parseDurationMinutes(service.minDuration);
+    return min ? `Min ${min} min` : '';
+  }
+  return formatServiceDuration(service.duration);
 };
 
 export const getServiceUnitPriceCents = (service = {}) => {

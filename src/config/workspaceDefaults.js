@@ -99,6 +99,7 @@ export const createDefaultSettings = () => ({
   },
   socialPosts: [],
   services: [],
+  serviceCategories: [],
   products: [],
   features: {
     waitlist: true,

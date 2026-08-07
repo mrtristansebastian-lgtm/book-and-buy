@@ -1,14 +1,16 @@
 import { useMemo } from 'react';
 import { getSocialPostKind } from '../utils/socialPostType';
+import { SocialProfileTabs } from './SocialProfileTabs';
+import { SocialStudioArticleTiles } from './SocialStudioArticleTiles';
 import { SocialStudioPostTiles } from './SocialStudioPostTiles';
 import { SocialStudioVideoTiles } from './SocialStudioVideoTiles';
-import { SocialTextTimeline } from './SocialTextTimeline';
 
 /**
  * Studio library — compact tiles for management (live content only).
  */
 export function SocialStudioLibrary({
   tab,
+  onTabChange,
   posts,
   onUpdateSocialPost,
   onRemoveSocialPost
@@ -23,7 +25,8 @@ export function SocialStudioLibrary({
     [posts, kind]
   );
 
-  const label = tab === 'videos' ? 'Videos' : tab === 'text' ? 'Articles' : 'Posts';
+  const label =
+    tab === 'videos' ? 'Videos' : tab === 'text' ? 'Text updates' : 'Posts';
 
   return (
     <section className={`bb-social-library${items.length ? '' : ' is-empty'}`}>
@@ -36,6 +39,10 @@ export function SocialStudioLibrary({
           <p className="bb-social-library-meta">{items.length} live</p>
         ) : null}
       </header>
+
+      <div className="bb-social-library-tabs">
+        <SocialProfileTabs value={tab} onChange={onTabChange} />
+      </div>
 
       <div className="bb-social-library-surface">
         {kind === 'image' ? (
@@ -55,10 +62,8 @@ export function SocialStudioLibrary({
         ) : null}
 
         {kind === 'text' ? (
-          <SocialTextTimeline
+          <SocialStudioArticleTiles
             posts={items}
-            editMode
-            showPublishToggle={false}
             onUpdateSocialPost={onUpdateSocialPost}
             onRemoveSocialPost={onRemoveSocialPost}
           />

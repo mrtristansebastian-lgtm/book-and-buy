@@ -14,15 +14,11 @@ function formatReceiptDate(ts) {
 export function TransactionReceiptCard({
   row,
   currency,
-  mode = 'transactions',
+  mode = 'bookings',
   brandName = '',
   onMarkPaid
 }) {
   const displayCurrency = currency || row.currency || 'R';
-  const invoiceNo = `INV-${String(row.reference || row.sourceId || '')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .slice(-8)
-    .toUpperCase()}`;
 
   return (
     <article className={`bb-finance-receipt bb-finance-receipt--${row.paymentStatus}`}>
@@ -32,7 +28,7 @@ export function TransactionReceiptCard({
           <div>
             <p className="bb-finance-receipt-brand">{row.brandName || brandName || 'Book and Buy'}</p>
             <p className="bb-finance-receipt-meta">
-              {mode === 'invoices' ? invoiceNo : row.source === 'booking' ? 'Booking' : 'Order'}
+              {row.source === 'booking' || mode === 'bookings' ? 'Booking' : 'Order'}
               {' · '}
               {formatReceiptDate(row.createdAt)}
             </p>

@@ -27,7 +27,9 @@ export function FinanceLedgerToolbar({
   return (
     <div className="bb-finance-ledger-head">
       <div className="bb-finance-ledger-title-row">
-        <h2 className="bb-finance-ledger-title">Transactions and invoices</h2>
+        <h2 className="bb-finance-ledger-title">
+          {tab === 'orders' ? 'Order receipts' : 'Booking receipts'}
+        </h2>
         <div className="bb-finance-ledger-actions">
           <button
             type="button"
@@ -45,24 +47,24 @@ export function FinanceLedgerToolbar({
           >
             <Download size={16} strokeWidth={2.2} />
           </button>
-          <div className="bb-finance-tab-toggle" role="tablist" aria-label="Ledger view">
+          <div className="bb-finance-tab-toggle" role="tablist" aria-label="Receipt source">
             <button
               type="button"
               role="tab"
-              aria-selected={tab === 'transactions'}
-              className={tab === 'transactions' ? 'is-active' : ''}
-              onClick={() => onTabChange?.('transactions')}
+              aria-selected={tab === 'bookings'}
+              className={tab === 'bookings' ? 'is-active' : ''}
+              onClick={() => onTabChange?.('bookings')}
             >
-              Transactions
+              Bookings
             </button>
             <button
               type="button"
               role="tab"
-              aria-selected={tab === 'invoices'}
-              className={tab === 'invoices' ? 'is-active' : ''}
-              onClick={() => onTabChange?.('invoices')}
+              aria-selected={tab === 'orders'}
+              className={tab === 'orders' ? 'is-active' : ''}
+              onClick={() => onTabChange?.('orders')}
             >
-              Invoices
+              Orders
             </button>
           </div>
           <button

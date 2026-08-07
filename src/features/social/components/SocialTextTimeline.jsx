@@ -72,7 +72,7 @@ export function SocialTextTimeline({
               editMode={editMode}
               multiline
               value={post.caption || ''}
-              placeholder="Write your article…"
+              placeholder="Write your update…"
               onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
             />
 

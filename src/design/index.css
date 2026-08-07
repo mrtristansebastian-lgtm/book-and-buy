@@ -9,6 +9,7 @@
 @import './support-inbox.css';
 @import './ops-desk.css';
 @import './finance.css';
+@import './services-studio.css';
 @import './image-crop.css';
 
 @tailwind base;

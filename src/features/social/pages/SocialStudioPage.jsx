@@ -3,7 +3,6 @@ import { ExternalLink, Radio } from 'lucide-react';
 import { E_BUSINESS_PLATFORM_NAME } from '../../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { SocialProfileTabs } from '../components/SocialProfileTabs';
 import { SocialStudioCompose } from '../components/SocialStudioCompose';
 import { SocialStudioLibrary } from '../components/SocialStudioLibrary';
 
@@ -23,7 +22,7 @@ export function SocialStudioPage() {
             </p>
             <h1 className="bb-social-studio-title">Business Blog</h1>
             <p className="bb-social-studio-lede">
-              Publish above. What you see below is exactly what customers see live.
+              Publish with the buttons below. What you see in history is exactly what customers see live.
             </p>
           </div>
           <button
@@ -36,16 +35,16 @@ export function SocialStudioPage() {
             <ExternalLink size={13} strokeWidth={2.2} />
           </button>
         </div>
-
-        <div className="bb-social-studio-tabs">
-          <SocialProfileTabs value={tab} onChange={setTab} />
-        </div>
       </header>
 
       <div className="bb-social-studio-body">
-        <SocialStudioCompose tab={tab} onAddSocialPost={addSocialPost} />
+        <SocialStudioCompose
+          onAddSocialPost={addSocialPost}
+          onOpenCreate={setTab}
+        />
         <SocialStudioLibrary
           tab={tab}
+          onTabChange={setTab}
           posts={posts}
           onUpdateSocialPost={updateSocialPost}
           onRemoveSocialPost={removeSocialPost}

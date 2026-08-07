@@ -95,8 +95,13 @@
 }
 
 .bb-finance-period-pill.is-active {
-  background: rgba(20, 167, 255, 0.14);
-  color: #101828;
+  color: #050505;
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
 }
 
 .bb-finance-custom-range {
@@ -172,6 +177,13 @@
   font-weight: 820;
   letter-spacing: -0.03em;
   color: #101828;
+}
+
+html body .native-ui .bb-finance .bb-finance-metric-value {
+  font-weight: 820 !important;
+  color: #101828 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.15 !important;
 }
 
 .bb-finance-chart {
@@ -323,8 +335,13 @@
 }
 
 .bb-finance-tab-toggle button.is-active {
-  background: #101828;
-  color: #fff;
+  color: #050505;
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
 }
 
 .bb-finance-status-chip {
@@ -398,12 +415,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
   gap: 1.15rem;
+  align-items: stretch;
 }
 
 /* Receipt slips with serrated edges */
 .bb-finance-receipt {
   display: grid;
-  filter: drop-shadow(0 10px 22px rgba(15, 23, 42, 0.08));
+  grid-template-rows: auto 1fr auto;
+  align-self: stretch;
+  height: 100%;
+  min-height: 100%;
+  filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.045));
 }
 
 .bb-finance-receipt-serration {
@@ -472,13 +494,6 @@
   gap: 0.7rem;
   padding: 0.95rem 1rem 1.05rem;
   background: #fff;
-  background-image: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 27px,
-    rgba(15, 23, 42, 0.035) 27px,
-    rgba(15, 23, 42, 0.035) 28px
-  );
   color: #101828;
 }
 
@@ -594,6 +609,17 @@
   font-size: 1.15rem;
   font-weight: 820;
   letter-spacing: -0.03em;
+}
+
+html body .native-ui .bb-finance .bb-finance-receipt-total {
+  font-weight: 820 !important;
+  color: #101828 !important;
+  line-height: 1.15 !important;
+}
+
+html body .native-ui .bb-finance .bb-finance-receipt-brand {
+  font-weight: 800 !important;
+  color: #101828 !important;
 }
 
 .bb-finance-receipt-pay {

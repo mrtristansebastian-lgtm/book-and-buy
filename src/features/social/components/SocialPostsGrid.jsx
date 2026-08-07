@@ -1,7 +1,5 @@
-import { EditableText } from '../../website/components/editable';
-
 /**
- * Photo posts: media-first gallery cards (Buy trading-card rhythm).
+ * Photo posts: equal square tile grid — click opens lightbox detail.
  */
 export function SocialPostsGrid({
   posts,
@@ -25,6 +23,7 @@ export function SocialPostsGrid({
     <div className="bb-social-post-cards" role="list">
       {posts.map((post) => {
         const src = post.mediaUrl || '';
+        const title = String(post.title || '').trim() || 'Untitled post';
 
         return (
           <article key={post.id} className="bb-social-post-card" role="listitem">
@@ -34,49 +33,23 @@ export function SocialPostsGrid({
               </div>
             ) : null}
 
-            <div className="bb-social-post-card-surface">
-              <button
-                type="button"
-                className="bb-social-post-card-media"
-                onClick={() => onOpenPost?.(post.id)}
-                aria-label={`View ${post.title || 'post'}`}
-              >
+            <button
+              type="button"
+              className="bb-social-square-tile"
+              onClick={() => onOpenPost?.(post.id)}
+              aria-label={`View ${title}`}
+            >
+              <span className="bb-social-square-tile-media">
                 {src ? (
-                  <img src={src} alt="" className="bb-social-post-card-img" />
+                  <img src={src} alt="" className="bb-social-square-tile-img" />
                 ) : (
-                  <div className="bb-social-post-card-empty">
-                    {editMode ? 'Add photo in studio' : 'No image'}
-                  </div>
+                  <span className="bb-social-square-tile-empty">
+                    {editMode ? 'Add photo' : 'No image'}
+                  </span>
                 )}
-              </button>
-
-              <div className="bb-social-post-card-body">
-                <header className="bb-social-post-card-head">
-                  <EditableText
-                    as="h2"
-                    className="bb-social-post-card-title"
-                    editMode={editMode}
-                    value={post.title || ''}
-                    placeholder="Post title"
-                    onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-                  />
-                  <span
-                    className="bb-social-post-card-underline bb-public-native-fill"
-                    aria-hidden="true"
-                  />
-                </header>
-
-                <EditableText
-                  as="p"
-                  className="bb-social-post-card-caption"
-                  editMode={editMode}
-                  multiline
-                  value={post.caption || ''}
-                  placeholder="Caption"
-                  onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-                />
-              </div>
-            </div>
+              </span>
+              <span className="bb-social-square-tile-title">{title}</span>
+            </button>
 
             {editMode ? (
               <div className="bb-social-edit-actions">

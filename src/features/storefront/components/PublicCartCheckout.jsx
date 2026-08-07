@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { formatCents } from '../../../utils/products';
-import { formatServicePrice, formatServiceDuration } from '../../../utils/services';
+import { formatServicePrice, formatServiceDuration, getServiceDurationMinutes } from '../../../utils/services';
 import { getPublicPaymentOptions } from '../../../utils/payments';
 import { getDaySlots } from '../../../utils/availability';
 import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
@@ -11,9 +11,13 @@ import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
 import { firebaseCallables } from '../../../shared/firebase/callables';
 
-function ServiceSlotPicker({ item, bookings, workspace, onSlot }) {
+function ServiceSlotPicker({ item, bookings, workspace, services, onSlot }) {
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
+  const service = useMemo(
+    () => (services || []).find((row) => row.id === item.serviceId),
+    [services, item.serviceId]
+  );
   const slots = useMemo(
     () =>
       getDaySlots({
@@ -21,9 +25,18 @@ function ServiceSlotPicker({ item, bookings, workspace, onSlot }) {
         bookings,
         serviceId: item.serviceId,
         openTime: workspace.availabilityRules?.businessOpenTime,
-        closeTime: workspace.availabilityRules?.businessCloseTime
+        closeTime: workspace.availabilityRules?.businessCloseTime,
+        services,
+        durationMinutes: service ? undefined : 60
       }),
-    [item.dateKey, item.serviceId, bookings, workspace.availabilityRules]
+    [
+      item.dateKey,
+      item.serviceId,
+      bookings,
+      workspace.availabilityRules,
+      services,
+      service
+    ]
   );
 
   return (
@@ -62,7 +75,8 @@ function ServiceSlotPicker({ item, bookings, workspace, onSlot }) {
               bookings,
               serviceId: item.serviceId,
               openTime: workspace.availabilityRules?.businessOpenTime,
-              closeTime: workspace.availabilityRules?.businessCloseTime
+              closeTime: workspace.availabilityRules?.businessCloseTime,
+              services
             }).length > 0;
           return (
             <button
@@ -127,6 +141,7 @@ export function PublicCartCheckout({
     catalogWorkspace && catalogWorkspace !== ctx.workspace
       ? catalogWorkspace.bookings || []
       : ctx.bookings;
+  const services = workspace.services || ctx.services || [];
   const paymentGateways = workspace.paymentGateways || ctx.paymentGateways;
   const paymentOptions = useMemo(
     () => getPublicPaymentOptions({ paymentGateways }).options,
@@ -157,6 +172,7 @@ export function PublicCartCheckout({
     !submitting;
 
   const submitBooking = async (item) => {
+    const service = services.find((row) => row.id === item.serviceId);
     const payload = {
       serviceId: item.serviceId,
       serviceName: item.name,
@@ -164,6 +180,7 @@ export function PublicCartCheckout({
       date: item.dateKey,
       dateKey: item.dateKey,
       time: item.time,
+      durationMinutes: service ? getServiceDurationMinutes(service) : 60,
       clientName: details.clientName.trim(),
       clientEmail: details.clientEmail.trim(),
       clientPhone: details.clientPhone.trim(),
@@ -291,13 +308,18 @@ export function PublicCartCheckout({
 
   if (result) {
     const firstBooking = result.bookings?.[0];
+    const calendarService = firstBooking
+      ? services.find((row) => row.id === firstBooking.serviceId)
+      : null;
     const calendarUrl = firstBooking
       ? buildBookingCalendarUrl({
           serviceName: firstBooking.serviceName,
           brandName: workspaceName || workspace.brandName,
           dateKey: firstBooking.dateKey,
           time: firstBooking.time,
-          durationMinutes: 60,
+          durationMinutes: calendarService
+            ? getServiceDurationMinutes(calendarService)
+            : 60,
           address: workspace.website?.address || '',
           note: firstBooking.clientNote || ''
         })
@@ -435,6 +457,7 @@ export function PublicCartCheckout({
                 item={item}
                 bookings={bookings}
                 workspace={workspace}
+                services={services}
                 onSlot={(slot) => cart.updateServiceSlot(item.lineKey, slot)}
               />
             </div>

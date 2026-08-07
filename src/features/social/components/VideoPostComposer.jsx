@@ -3,7 +3,7 @@ import { Film, ImagePlus, Replace } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
 
-export function VideoPostComposer({ onAddSocialPost }) {
+export function VideoPostComposer({ onAddSocialPost, embedded = false }) {
   const videoRef = useRef(null);
   const posterRef = useRef(null);
   const [mediaUrl, setMediaUrl] = useState('');
@@ -84,11 +84,13 @@ export function VideoPostComposer({ onAddSocialPost }) {
   const durableUrl = mediaUrl.startsWith('blob:') ? '' : mediaUrl;
 
   return (
-    <section className="bb-social-compose bb-social-compose--video">
-      <header className="bb-social-compose-head">
-        <h2 className="bb-social-compose-title">New video</h2>
-        <p className="bb-social-compose-lede">16:9 · goes live immediately</p>
-      </header>
+    <section className={`bb-social-compose bb-social-compose--video${embedded ? ' is-embedded' : ''}`}>
+      {embedded ? null : (
+        <header className="bb-social-compose-head">
+          <h2 className="bb-social-compose-title">New video</h2>
+          <p className="bb-social-compose-lede">16:9 · goes live immediately</p>
+        </header>
+      )}
 
       <div className="bb-social-compose-video-layout">
         <div className="bb-social-compose-video-preview">

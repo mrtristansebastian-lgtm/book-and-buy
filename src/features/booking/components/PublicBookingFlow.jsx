@@ -5,7 +5,7 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
 import { CatalogCategoryTabs } from '../../storefront/components/CatalogCategoryTabs';
-import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
+import { formatServiceDurationLabel, formatServicePrice } from '../../../utils/services';
 import {
   buildCatalogCategoryTabs,
   filterCatalogByCategory,
@@ -93,7 +93,7 @@ export function PublicBookingFlow({
               const category = getCatalogCategory(item, 'Service');
               const imageSrc = item.imageUrls?.[0] || item.image || '';
               const price = formatServicePrice(item);
-              const duration = formatServiceDuration(item.duration);
+              const duration = formatServiceDurationLabel(item);
               const inCart = cart.items.some((row) => row.lineKey === `service:${item.id}`);
               return (
                 <article

@@ -90,6 +90,18 @@ export function SocialFeed({
     }
   };
 
+  const openVideo = (postId) => {
+    if (!useLocalNav) {
+      navigate(publicItemPath(slug, 'social', postId));
+    }
+  };
+
+  const closeVideo = () => {
+    if (!useLocalNav && itemId) {
+      navigate(publicPagePath(slug, 'social'));
+    }
+  };
+
   const addForTab = () => {
     if (tab === 'videos') {
       onAddSocialPost?.({
@@ -106,8 +118,8 @@ export function SocialFeed({
     if (tab === 'text') {
       onAddSocialPost?.({
         type: 'text',
-        title: 'New article',
-        caption: 'Write the article…',
+        title: 'New text update',
+        caption: 'Write your update…',
         published: false
       });
       return;
@@ -122,7 +134,7 @@ export function SocialFeed({
   };
 
   const addLabel =
-    tab === 'videos' ? 'Add video' : tab === 'text' ? 'Add article' : 'Add photo';
+    tab === 'videos' ? 'Add video' : tab === 'text' ? 'Add text update' : 'Add photo';
 
   const lightboxOpen =
     Boolean(lightboxId) && imagePosts.some((post) => post.id === lightboxId);
@@ -166,6 +178,8 @@ export function SocialFeed({
             editMode={editMode}
             onUpdateSocialPost={onUpdateSocialPost}
             initialActiveId={routeKind === 'video' ? routePostId : ''}
+            onOpenVideo={openVideo}
+            onCloseVideo={closeVideo}
           />
         ) : null}
         {tab === 'text' ? (

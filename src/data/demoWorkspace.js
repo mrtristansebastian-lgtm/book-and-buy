@@ -1,4 +1,4 @@
-import { normalizeServiceList } from '../utils/services';
+import { collectServiceCategories, normalizeServiceList } from '../utils/services';
 import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
@@ -6,7 +6,7 @@ import { addDays, toDateKey } from '../utils/dates';
 export const DEMO_WEBSITE_SCHEMA = 12;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
-export const DEMO_SOCIAL_SCHEMA = 2;
+export const DEMO_SOCIAL_SCHEMA = 3;
 
 /** Stable sample MP4 for demo video player (no local video assets required). */
 export const DEMO_SAMPLE_VIDEO_URL =
@@ -1014,6 +1014,13 @@ export function createDemoWorkspace() {
       scheduleMode: 'time_slots'
     },
     services: DEMO_SERVICES,
+    serviceCategories: collectServiceCategories(DEMO_SERVICES, [
+      'Cooking',
+      'Bread',
+      'Pastry',
+      'Cape cuisine',
+      'Private lessons'
+    ]),
     staff: DEMO_STAFF,
     bookings: sampleBookings,
     products: DEMO_PRODUCTS,
@@ -1039,12 +1046,18 @@ export function hydrateDemoWorkspace(stored) {
 
   const hasVideo = (stored.socialPosts || []).some((post) => post?.type === 'video');
   const hasText = (stored.socialPosts || []).some((post) => post?.type === 'text');
+  const postsMissingTitles = (stored.socialPosts || []).some(
+    (post) =>
+      (post?.type === 'image' || post?.type === 'video' || post?.type === 'text') &&
+      !String(post?.title || '').trim()
+  );
   const staleSocial =
     Number(stored.socialSchema || 0) < DEMO_SOCIAL_SCHEMA ||
     !Array.isArray(stored.socialPosts) ||
     stored.socialPosts.length < 6 ||
     !hasVideo ||
-    !hasText;
+    !hasText ||
+    postsMissingTitles;
 
   const staleThreads =
     Number(stored.threadsSchema || 0) < DEMO_THREADS_SCHEMA ||

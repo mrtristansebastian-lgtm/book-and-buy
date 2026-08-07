@@ -42,6 +42,8 @@ export interface WorkspaceService {
   price?: string | number;
   priceType?: "fixed" | "from" | "free" | string;
   duration?: string | number;
+  fixedDuration?: boolean;
+  minDuration?: string | number;
   category?: string;
   active?: boolean;
   scheduleType?: ScheduleType | string;
@@ -191,6 +193,7 @@ export interface WorkspaceSettings {
   googleCalendar?: Record<string, unknown>;
   features?: WorkspaceFeatureFlags;
   services?: WorkspaceService[];
+  serviceCategories?: string[];
   products?: WorkspaceProduct[];
   publicStaff?: Array<{ id: string; name: string; color?: string; photoURL?: string }>;
   paymentOptions?: unknown[];

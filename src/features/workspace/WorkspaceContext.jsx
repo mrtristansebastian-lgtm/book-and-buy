@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createDemoWorkspace, hydrateDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
-import { normalizeService, normalizeServiceList } from '../../utils/services';
+import { normalizeService, normalizeServiceList, collectServiceCategories } from '../../utils/services';
 import { normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
 import { useAuth } from '../auth/AuthContext';
@@ -184,11 +184,16 @@ export function WorkspaceProvider({ children }) {
         setWorkspace((prev) => {
           const next = normalizeService(service);
           const exists = prev.services.some((item) => item.id === next.id);
+          const services = exists
+            ? prev.services.map((item) => (item.id === next.id ? next : item))
+            : [...prev.services, next];
           return {
             ...prev,
-            services: exists
-              ? prev.services.map((item) => (item.id === next.id ? next : item))
-              : [...prev.services, next]
+            services,
+            serviceCategories: collectServiceCategories(
+              services,
+              prev.serviceCategories || []
+            )
           };
         });
       },
@@ -197,6 +202,12 @@ export function WorkspaceProvider({ children }) {
           ...prev,
           services: prev.services.filter((service) => service.id !== id)
         })),
+      setServiceCategories: (categories) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          serviceCategories: collectServiceCategories(prev.services || [], categories || [])
+        }));
+      },
       upsertProduct: (product) => {
         setWorkspace((prev) => {
           const next = normalizeProduct(product);

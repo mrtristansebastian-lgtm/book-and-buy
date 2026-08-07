@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export function TextPostComposer({ onAddSocialPost }) {
+export function TextPostComposer({ onAddSocialPost, embedded = false }) {
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
   const [error, setError] = useState('');
@@ -26,11 +26,15 @@ export function TextPostComposer({ onAddSocialPost }) {
   };
 
   return (
-    <section className="bb-social-compose bb-social-compose--text">
-      <header className="bb-social-compose-head">
-        <h2 className="bb-social-compose-title">New article</h2>
-        <p className="bb-social-compose-lede">Goes live immediately</p>
-      </header>
+    <section
+      className={`bb-social-compose bb-social-compose--text${embedded ? ' is-embedded' : ''}`}
+    >
+      {embedded ? null : (
+        <header className="bb-social-compose-head">
+          <h2 className="bb-social-compose-title">New text update</h2>
+          <p className="bb-social-compose-lede">Goes live immediately</p>
+        </header>
+      )}
 
       <div className="bb-social-compose-fields">
         <label className="bb-social-field">
@@ -38,17 +42,17 @@ export function TextPostComposer({ onAddSocialPost }) {
           <input
             className="native-control-input bb-social-compose-control"
             value={title}
-            placeholder="Article title (optional)"
+            placeholder="Title (optional)"
             onChange={(event) => setTitle(event.target.value)}
           />
         </label>
         <label className="bb-social-field bb-social-field--grow">
-          <span>Article</span>
+          <span>Update</span>
           <textarea
             className="native-control-input bb-social-compose-control bb-social-compose-caption"
             rows={6}
             value={caption}
-            placeholder="Write your article…"
+            placeholder="Write your update…"
             onChange={(event) => setCaption(event.target.value)}
           />
         </label>

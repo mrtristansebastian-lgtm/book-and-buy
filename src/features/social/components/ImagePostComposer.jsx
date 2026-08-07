@@ -3,7 +3,7 @@ import { ImagePlus, Replace } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
 
-export function ImagePostComposer({ onAddSocialPost }) {
+export function ImagePostComposer({ onAddSocialPost, embedded = false }) {
   const fileRef = useRef(null);
   const [mediaUrl, setMediaUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -63,11 +63,13 @@ export function ImagePostComposer({ onAddSocialPost }) {
   };
 
   return (
-    <section className="bb-social-compose bb-social-compose--image">
-      <header className="bb-social-compose-head">
-        <h2 className="bb-social-compose-title">New post</h2>
-        <p className="bb-social-compose-lede">Instagram 4:5 · goes live immediately</p>
-      </header>
+    <section className={`bb-social-compose bb-social-compose--image${embedded ? ' is-embedded' : ''}`}>
+      {embedded ? null : (
+        <header className="bb-social-compose-head">
+          <h2 className="bb-social-compose-title">New post</h2>
+          <p className="bb-social-compose-lede">Instagram 4:5 · goes live immediately</p>
+        </header>
+      )}
 
       <div className="bb-social-compose-image-layout">
         <div className="bb-social-compose-media-col">

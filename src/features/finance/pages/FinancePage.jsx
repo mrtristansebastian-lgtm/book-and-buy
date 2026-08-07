@@ -30,7 +30,7 @@ export function FinancePage() {
   const [periodId, setPeriodId] = useState('all');
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
   const [currency, setCurrency] = useState('R');
-  const [tab, setTab] = useState('transactions');
+  const [tab, setTab] = useState('bookings');
   const [status, setStatus] = useState('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('newest');
@@ -63,12 +63,10 @@ export function FinancePage() {
   );
 
   const visibleRows = useMemo(() => {
-    const base =
-      tab === 'invoices'
-        ? periodLedger.filter((row) => row.paymentStatus === 'paid')
-        : periodLedger;
+    const source = tab === 'orders' ? 'order' : 'booking';
+    const base = periodLedger.filter((row) => row.source === source);
     return filterLedgerRows(base, {
-      status: tab === 'invoices' ? 'paid' : status,
+      status,
       query,
       sort
     });
@@ -109,10 +107,7 @@ export function FinancePage() {
       <section className="bb-finance-ledger">
         <FinanceLedgerToolbar
           tab={tab}
-          onTabChange={(next) => {
-            setTab(next);
-            if (next === 'invoices') setStatus('paid');
-          }}
+          onTabChange={setTab}
           status={status}
           onStatusChange={setStatus}
           query={query}
@@ -125,9 +120,9 @@ export function FinancePage() {
 
         {visibleRows.length === 0 ? (
           <div className="bb-finance-empty">
-            {tab === 'invoices'
-              ? 'No paid invoices in this period.'
-              : 'No transactions match these filters.'}
+            {tab === 'orders'
+              ? 'No order receipts match these filters.'
+              : 'No booking receipts match these filters.'}
           </div>
         ) : (
           <div className="bb-finance-receipts">

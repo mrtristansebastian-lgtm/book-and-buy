@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getDaySlots } from '../../../utils/availability';
 import { toDateKey } from '../../../utils/dates';
+import { getServiceDurationMinutes } from '../../../utils/services';
 
 export function ManualBookingSheet({ onClose }) {
-  const { services, staff, bookings, addBooking } = useWorkspace();
+  const { services, staff, bookings, addBooking, workspace } = useWorkspace();
   const [form, setForm] = useState({
     serviceId: services[0]?.id || '',
     staffId: '',
@@ -16,17 +17,27 @@ export function ManualBookingSheet({ onClose }) {
     status: 'confirmed'
   });
 
+  const service = services.find((item) => item.id === form.serviceId);
+
   const slots = useMemo(
     () =>
       getDaySlots({
         dateKey: form.date,
         bookings,
-        serviceId: form.serviceId
+        serviceId: form.serviceId,
+        openTime: workspace.availabilityRules?.businessOpenTime,
+        closeTime: workspace.availabilityRules?.businessCloseTime,
+        services
       }),
-    [form.date, form.serviceId, bookings]
+    [
+      form.date,
+      form.serviceId,
+      bookings,
+      services,
+      workspace.availabilityRules
+    ]
   );
 
-  const service = services.find((item) => item.id === form.serviceId);
   const selectedStaff = staff.find((item) => item.id === form.staffId);
 
   const submit = () => {
@@ -40,6 +51,7 @@ export function ManualBookingSheet({ onClose }) {
       date: form.date,
       dateKey: form.date,
       time: form.time,
+      durationMinutes: getServiceDurationMinutes(service),
       clientName: form.clientName.trim(),
       clientEmail: form.clientEmail.trim(),
       clientPhone: form.clientPhone.trim(),
