@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   BriefcaseBusiness,
   CalendarDays,
@@ -5,12 +6,14 @@ import {
   CreditCard,
   Home,
   Inbox,
+  Menu,
   MessageSquare,
   Package,
   Share2,
   Users,
   UserRound,
-  Globe2
+  Globe2,
+  X
 } from 'lucide-react';
 import {
   mobilePrimaryTabs,
@@ -51,6 +54,7 @@ function groupTabs() {
 
 export function OwnerWorkspaceShell({ tab, children }) {
   const groups = groupTabs();
+  const [navOpen, setNavOpen] = useState(false);
   const { workspace, threads, bookings, orders, exitDemoMode, resetDemoWorkspace, startOwnerOnboarding } =
     useWorkspace();
   const unreadSupport = (threads || []).filter((thread) => thread.unread).length;
@@ -61,6 +65,19 @@ export function OwnerWorkspaceShell({ tab, children }) {
     ['pending', 'accepted', 'shipped'].includes(order.status)
   ).length;
 
+  useEffect(() => {
+    setNavOpen(false);
+  }, [tab]);
+
+  useEffect(() => {
+    if (!navOpen) return undefined;
+    const onKey = (event) => {
+      if (event.key === 'Escape') setNavOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [navOpen]);
+
   const badgeFor = (id) => {
     if (id === 'communications' && unreadSupport > 0) return unreadSupport;
     if (id === 'requests' && pendingRequests > 0) return pendingRequests;
@@ -68,10 +85,17 @@ export function OwnerWorkspaceShell({ tab, children }) {
     return 0;
   };
 
+  const go = (id) => {
+    setNavOpen(false);
+    navigate(`/dashboard/${id}`);
+  };
+
   return (
-    <div className="bb-shell native-ui min-h-screen">
+    <div
+      className={`bb-shell native-ui ${tab === 'communications' ? 'is-support-flush' : 'min-h-screen'} ${navOpen ? 'is-nav-open' : ''}`}
+    >
       {workspace.isDemo ? (
-        <div className="sticky top-0 z-40 border-b border-black/8 bg-white/95 backdrop-blur px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="bb-demo-banner sticky top-0 z-40 border-b border-black/8 bg-white/95 backdrop-blur px-4 py-2 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-sm">
             <span className="bb-primary-btn py-1 px-3 text-xs pointer-events-none">Demo mode</span>
             <span className="bb-muted">
@@ -106,17 +130,35 @@ export function OwnerWorkspaceShell({ tab, children }) {
         </div>
       ) : null}
 
-      <div
-        className="bb-owner-layout mx-auto max-w-[1400px] grid gap-0 min-h-screen"
-        style={{ gridTemplateColumns: '240px 1fr' }}
-      >
-        <aside className="bb-owner-sidebar border-r border-black/5 bg-white/70 px-3 py-5 flex flex-col gap-5">
-          <div className="px-2">
-            <div className="bb-brand-mark text-xl">{APP_NAME}</div>
-            <p className="bb-muted text-xs m-0 mt-1 truncate">{workspace.brandName || 'Owner workspace'}</p>
+      <div className="bb-owner-layout">
+        {navOpen ? (
+          <button
+            type="button"
+            className="bb-owner-nav-backdrop"
+            aria-label="Close menu"
+            onClick={() => setNavOpen(false)}
+          />
+        ) : null}
+
+        <aside className={`bb-owner-sidebar ${navOpen ? 'is-open' : ''}`} aria-hidden={false}>
+          <div className="bb-owner-sidebar-top">
+            <div className="px-2 min-w-0">
+              <div className="bb-brand-mark text-xl">{APP_NAME}</div>
+              <p className="bb-muted text-xs m-0 mt-1 truncate">
+                {workspace.brandName || 'Owner workspace'}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="bb-owner-nav-close"
+              aria-label="Close menu"
+              onClick={() => setNavOpen(false)}
+            >
+              <X size={18} strokeWidth={2.2} />
+            </button>
           </div>
 
-          <nav className="grid gap-4">
+          <nav className="bb-owner-sidebar-nav grid gap-4">
             {Object.entries(groups).map(([groupId, tabs]) => (
               <div key={groupId} className="grid gap-1">
                 <div className="px-2 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-black/35">
@@ -132,7 +174,7 @@ export function OwnerWorkspaceShell({ tab, children }) {
                       type="button"
                       className={`bb-nav-item ${nested ? 'is-nested' : ''}`}
                       aria-current={tab === id ? 'page' : undefined}
-                      onClick={() => navigate(`/dashboard/${id}`)}
+                      onClick={() => go(id)}
                     >
                       <Icon size={nested ? 15 : 17} strokeWidth={2.2} />
                       <span>{workspaceTabLabels[id]}</span>
@@ -147,7 +189,27 @@ export function OwnerWorkspaceShell({ tab, children }) {
           </nav>
         </aside>
 
-        <main className="px-4 py-5 md:px-7 md:py-7 pb-24 md:pb-7">{children}</main>
+        <div className="bb-owner-content">
+          <div className="bb-owner-mobile-bar">
+            <button
+              type="button"
+              className="bb-owner-nav-toggle"
+              aria-label={navOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={navOpen}
+              onClick={() => setNavOpen((open) => !open)}
+            >
+              {navOpen ? <X size={18} strokeWidth={2.2} /> : <Menu size={18} strokeWidth={2.2} />}
+              <span>Menu</span>
+            </button>
+            <div className="bb-owner-mobile-bar-brand truncate">
+              {workspaceTabLabels[tab] || APP_NAME}
+            </div>
+          </div>
+
+          <main className={`bb-owner-main ${tab === 'communications' ? 'is-flush' : ''}`}>
+            {children}
+          </main>
+        </div>
       </div>
 
       <nav className="bb-mobile-dock hidden fixed bottom-0 inset-x-0 z-30 border-t border-black/8 bg-white/92 backdrop-blur px-2 py-2 justify-around">
@@ -159,7 +221,7 @@ export function OwnerWorkspaceShell({ tab, children }) {
               type="button"
               className="bb-nav-item flex-col gap-1 py-2 px-2 text-[0.68rem]"
               aria-current={tab === id ? 'page' : undefined}
-              onClick={() => navigate(`/dashboard/${id}`)}
+              onClick={() => go(id)}
             >
               <Icon size={18} strokeWidth={2.2} />
               <span>{workspaceTabLabels[id]}</span>

@@ -156,10 +156,10 @@ export function BookingRequestsDesk() {
                 </div>
 
                 <div className="bb-ops-when">
-                  <p className="bb-ops-when-primary">{booking.time || '—'}</p>
-                  <p className="bb-ops-when-secondary">
+                  <strong className="bb-ops-when-primary">{booking.time || '—'}</strong>
+                  <span className="bb-ops-when-secondary">
                     {formatOpsDayLabel(booking.dateKey || booking.date)}
-                  </p>
+                  </span>
                 </div>
 
                 <OpsAssignSelect
@@ -190,9 +190,12 @@ export function BookingRequestsDesk() {
                   )}
                   {needsApprove ? (
                     <div className="bb-ops-action-cluster">
-                      <OpsAction tone="primary" onClick={() => confirmBooking(booking.id)}>
-                        <Check size={14} strokeWidth={2.6} />
-                        Approve
+                      <OpsAction
+                        tone="primary"
+                        ariaLabel="Approve"
+                        onClick={() => confirmBooking(booking.id)}
+                      >
+                        <Check size={15} strokeWidth={2.75} />
                       </OpsAction>
                       <OpsDeclineAction onClick={() => declineBooking(booking.id)} />
                     </div>

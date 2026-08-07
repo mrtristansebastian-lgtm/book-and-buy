@@ -1,17 +1,25 @@
-/* Support inbox — owner messaging surface */
+/* Support inbox — owner messaging surface (viewport-locked) */
 
 .bb-support-page {
-  display: grid;
-  gap: 1rem;
-  min-height: min(72vh, 780px);
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  gap: 0;
+  overflow: hidden;
 }
 
 .bb-support-stage {
   display: grid;
   gap: 0;
-  min-height: min(68vh, 720px);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 1.25rem;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
   background: #fff;
   overflow: hidden;
 }
@@ -24,10 +32,12 @@
 
 .bb-support-list {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   border-right: 1px solid rgba(15, 23, 42, 0.06);
   background: #fbfbfb;
   min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .bb-support-list-head {
@@ -146,9 +156,11 @@
 
 .bb-support-pane {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   min-height: 0;
   min-width: 0;
+  height: 100%;
+  overflow: hidden;
   background: #fff;
 }
 
@@ -160,6 +172,7 @@
   gap: 0.75rem;
   padding: 0.85rem 1.1rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  flex-shrink: 0;
 }
 
 .bb-support-header-main {
@@ -357,7 +370,8 @@
 }
 
 .bb-support-timeline {
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   min-height: 0;
   padding: 1.1rem 1.15rem 1.25rem;
   display: grid;
@@ -607,6 +621,9 @@
   gap: 0.4rem;
   background: #fff;
   transition: background 0.15s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .bb-support-composer-wrap.is-dragover {
@@ -962,6 +979,8 @@
   text-align: center;
   color: #667085;
   gap: 0.4rem;
+  height: 100%;
+  min-height: 0;
 }
 
 @media (max-width: 1023px) {

@@ -197,16 +197,224 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   padding: 1.5rem;
 }
 
+.bb-owner-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  min-height: 100dvh;
+}
+
+.bb-owner-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100dvh;
+  overflow: auto;
+  border-right: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 1.15rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  z-index: 20;
+}
+
+.bb-owner-sidebar-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bb-owner-nav-close {
+  display: none;
+}
+
+.bb-owner-content {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-owner-mobile-bar {
+  display: none;
+}
+
+.bb-owner-nav-backdrop {
+  display: none;
+}
+
+.bb-owner-main {
+  padding: 1.25rem 1rem 6rem;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (min-width: 768px) {
+  .bb-owner-main {
+    padding: 1.75rem 1.75rem 1.75rem;
+  }
+}
+
+.bb-owner-main.is-flush {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  flex: 1 1 auto;
+}
+
+/* Support: lock shell to viewport — no page scroll; panes scroll internally */
+.bb-shell.is-support-flush {
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bb-shell.is-support-flush .bb-demo-banner {
+  flex: 0 0 auto;
+}
+
+.bb-shell.is-support-flush .bb-owner-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  overflow: hidden;
+  align-content: stretch;
+}
+
+.bb-shell.is-support-flush .bb-owner-sidebar {
+  height: auto;
+  max-height: 100%;
+  align-self: stretch;
+  position: relative;
+  overflow: auto;
+}
+
+.bb-shell.is-support-flush .bb-owner-content {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.bb-shell.is-support-flush .bb-owner-main.is-flush {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 @media (max-width: 900px) {
+  .bb-shell.is-support-flush {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
   .bb-owner-layout {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+
+  .bb-owner-mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    flex-shrink: 0;
+  }
+
+  .bb-shell.is-support-flush .bb-owner-mobile-bar {
+    position: relative;
+  }
+
+  .bb-owner-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.15rem;
+    padding: 0 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.65rem;
+    background: #fff;
+    color: #101828;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .bb-owner-mobile-bar-brand {
+    font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 740;
+    color: #101828;
+    letter-spacing: -0.02em;
+  }
+
+  .bb-owner-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    border: 0;
+    background: rgba(15, 23, 42, 0.35);
+    cursor: pointer;
   }
 
   .bb-owner-sidebar {
-    display: none !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(18.5rem, 86vw);
+    height: 100dvh;
+    z-index: 50;
+    transform: translateX(-105%);
+    transition: transform 180ms ease;
+    box-shadow: none;
+    padding-top: 1rem;
+    align-self: auto;
+  }
+
+  .bb-owner-sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: 12px 0 40px rgba(15, 23, 42, 0.18);
+  }
+
+  .bb-owner-nav-close {
+    display: grid;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border: 0;
+    border-radius: 0.55rem;
+    background: rgba(15, 23, 42, 0.05);
+    color: #344054;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .bb-owner-main.is-flush {
+    padding-bottom: 4.25rem;
   }
 
   .bb-mobile-dock {
     display: flex !important;
+  }
+
+  .bb-shell.is-nav-open {
+    overflow: hidden;
   }
 }

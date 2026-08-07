@@ -1,12 +1,17 @@
-/* Ops desk — table-aligned triage rows (match reference screenshot) */
+/* Ops desk — strictly column-aligned triage rows */
 
 .bb-ops-desk {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.25rem;
   background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1rem;
+  padding: 1rem 1.35rem 0.65rem;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
-/* —— Filter tabs (filled active pill + icons) —— */
+/* —— Filter tabs —— */
 .bb-ops-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -14,7 +19,7 @@
   gap: 0.35rem;
   padding: 0.15rem 0 0.85rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.2rem;
 }
 
 .bb-ops-tab {
@@ -43,8 +48,14 @@
 }
 
 .bb-ops-tab.is-active {
-  color: #fff;
-  background: #101828;
+  color: #050505 !important;
+  border: 0;
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
 }
 
 .bb-ops-tab-icon {
@@ -68,11 +79,14 @@
 }
 
 .bb-ops-tab.is-active .bb-ops-tab-count {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: rgba(5, 5, 5, 0.12);
+  color: #050505;
 }
 
-/* —— Rows: fixed tracks so every column lines up —— */
+/*
+  Fixed tracks — times, assigned, and actions share the same
+  left edge on every row so columns read as one vertical stack.
+*/
 .bb-ops-rows {
   display: grid;
 }
@@ -80,15 +94,16 @@
 .bb-ops-row {
   display: grid;
   grid-template-columns:
-    minmax(0, 1fr)
-    7.25rem
-    12.75rem
-    max-content;
-  column-gap: 1.35rem;
+    minmax(12rem, 1fr)
+    5.75rem
+    13.5rem
+    13rem;
+  column-gap: 1.5rem;
   align-items: center;
-  min-height: 4.75rem;
-  padding: 1rem 0;
+  min-height: 4.85rem;
+  padding: 0.95rem 0;
   border-bottom: 1px solid rgba(15, 23, 42, 0.045);
+  overflow: visible;
 }
 
 .bb-ops-row:last-child {
@@ -189,7 +204,7 @@
 }
 
 .bb-ops-badge.is-paid {
-  display: none; /* keep row chrome clean like screenshot */
+  display: none;
 }
 
 .bb-ops-meta {
@@ -203,39 +218,43 @@
   text-overflow: ellipsis;
 }
 
-/* Col 2 — time (fixed width, left-aligned in its track) */
+/* Col 2 — time: fixed track, left edge shared across rows */
 .bb-ops-when {
   display: grid;
-  gap: 0.1rem;
+  gap: 0.12rem;
   justify-items: start;
+  align-content: center;
   width: 100%;
+  min-width: 0;
 }
 
 .bb-ops-when-primary {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 1.2rem;
-  font-weight: 760;
+  font-weight: 800 !important;
   letter-spacing: -0.03em;
-  color: #101828;
+  color: #050505 !important;
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  line-height: 1.1 !important;
+  min-width: 4.25rem;
 }
 
 .bb-ops-when-secondary {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 560;
   color: #98a2b3;
   white-space: nowrap;
 }
 
-/* Col 3 — assigned */
+/* Col 3 — assigned / payment: same width every row */
 .bb-ops-assign {
   display: grid;
   gap: 0.28rem;
   width: 100%;
   min-width: 0;
+  align-content: center;
 }
 
 .bb-ops-assign-label {
@@ -252,15 +271,17 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  width: 100%;
   min-width: 0;
 }
 
 .bb-ops-assign-control select {
-  flex: 1;
+  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
-  height: 2.05rem;
+  height: 2rem;
   padding: 0 1.75rem 0 0.65rem;
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(15, 23, 42, 0.14);
   border-radius: 0.5rem;
   background-color: #fff;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2398a2b3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
@@ -271,6 +292,7 @@
   font-weight: 620;
   color: #101828;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .bb-ops-assign-hint {
@@ -292,64 +314,86 @@
   color: #667085;
 }
 
-/* Col 4 — actions in a compact 2×N stack (matches screenshot) */
+/* Col 4 — compact 2-col action stack, fixed width so it never crowds assign */
 .bb-ops-actions {
   display: grid;
-  grid-template-columns: max-content max-content;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.35rem;
+  width: 100%;
   align-content: center;
-  justify-content: end;
-  width: max-content;
+  justify-items: stretch;
+  overflow: visible;
 }
 
 .bb-ops-action-cluster {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.35rem;
+  width: 100%;
 }
 
 .bb-ops-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  height: 1.85rem;
-  padding: 0 0.55rem;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 0.45rem;
+  gap: 0.28rem;
+  width: 100%;
+  min-width: 0;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 0.5rem;
   background: #fff;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.6rem;
   font-weight: 760;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.035em;
   text-transform: uppercase;
   color: #344054;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bb-ops-action:hover {
   background: #f8f9fb;
-  border-color: rgba(15, 23, 42, 0.18);
+  border-color: rgba(15, 23, 42, 0.2);
 }
 
+/* Native accent fill (same system as .bb-primary-btn) — icon-only check */
 .bb-ops-action.is-primary {
-  border-color: transparent;
-  background: #2e90fa;
-  color: #fff;
-  padding: 0 0.65rem;
+  width: 2rem;
+  min-width: 2rem;
+  max-width: 2rem;
+  padding: 0;
+  border: 1px solid transparent;
+  color: #050505 !important;
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
 }
 
 .bb-ops-action.is-primary:hover {
-  background: #1570ef;
+  filter: brightness(0.98);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
 }
 
 .bb-ops-action.is-danger {
-  width: 1.85rem;
+  width: 2rem;
+  min-width: 2rem;
+  max-width: 2rem;
   padding: 0;
   color: #d92d20;
   border-color: rgba(217, 45, 32, 0.28);
+  background: #fff;
 }
 
 .bb-ops-action.is-danger:hover {
@@ -359,6 +403,8 @@
 .bb-ops-action.is-ghost-slot {
   visibility: hidden;
   pointer-events: none;
+  border-color: transparent;
+  background: transparent;
 }
 
 .bb-ops-empty {
@@ -372,17 +418,17 @@
 @media (max-width: 1180px) {
   .bb-ops-row {
     grid-template-columns:
-      minmax(0, 1fr)
-      6.5rem
-      11.5rem
-      max-content;
+      minmax(10rem, 1fr)
+      5.25rem
+      12rem
+      12rem;
     column-gap: 1rem;
   }
 }
 
 @media (max-width: 980px) {
   .bb-ops-row {
-    grid-template-columns: minmax(0, 1fr) 6.5rem;
+    grid-template-columns: minmax(0, 1fr) 5.5rem;
     row-gap: 0.85rem;
   }
 
@@ -392,8 +438,8 @@
   }
 
   .bb-ops-actions {
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    max-width: 14rem;
+    justify-self: start;
   }
 }
 

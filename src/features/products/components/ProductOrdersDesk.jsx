@@ -154,8 +154,8 @@ export function ProductOrdersDesk() {
                 </div>
 
                 <div className="bb-ops-when">
-                  <p className="bb-ops-when-primary">{placed.time}</p>
-                  <p className="bb-ops-when-secondary">{placed.day}</p>
+                  <strong className="bb-ops-when-primary">{placed.time}</strong>
+                  <span className="bb-ops-when-secondary">{placed.day}</span>
                 </div>
 
                 <div className="bb-ops-assign">
@@ -190,9 +190,12 @@ export function ProductOrdersDesk() {
                   )}
                   {status === 'pending' ? (
                     <div className="bb-ops-action-cluster">
-                      <OpsAction tone="primary" onClick={() => acceptOrder(order.id)}>
-                        <Check size={14} strokeWidth={2.6} />
-                        Accept
+                      <OpsAction
+                        tone="primary"
+                        ariaLabel="Accept order"
+                        onClick={() => acceptOrder(order.id)}
+                      >
+                        <Check size={15} strokeWidth={2.75} />
                       </OpsAction>
                       <OpsDeclineAction label="Cancel order" onClick={() => cancelOrder(order.id)} />
                     </div>
