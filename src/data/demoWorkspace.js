@@ -3,7 +3,7 @@ import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 4;
+export const DEMO_WEBSITE_SCHEMA = 5;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 2;
@@ -454,17 +454,6 @@ export function createDemoWorkspace() {
         bookStrip: true
       },
       sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews', 'bookStrip'],
-      sectionLayouts: {
-        hero: 0,
-        about: 0,
-        reasons: 0,
-        venue: 0,
-        map: 0,
-        reviews: 0,
-        bookStrip: 0
-      },
-      homeLayoutId: 'classic',
-      homeLayoutTemplates: [],
       headline: 'Bake with us.',
       subcopy: 'Hands-on classes, private sessions, and kitchen goods.',
       ctaLabel: 'Book a class',
@@ -741,13 +730,6 @@ export function hydrateDemoWorkspace(stored) {
         bookFaq: fresh.website.bookFaq,
         sections: fresh.website.sections,
         sectionOrder: fresh.website.sectionOrder,
-        sectionLayouts: {
-          ...fresh.website.sectionLayouts,
-          ...(stored.website?.sectionLayouts || {})
-        },
-        homeLayoutId: stored.website?.homeLayoutId || fresh.website.homeLayoutId,
-        homeLayoutTemplates:
-          stored.website?.homeLayoutTemplates || fresh.website.homeLayoutTemplates,
         featuredProductId: fresh.website.featuredProductId,
         heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
         homeHeadline: stored.website?.homeHeadline || fresh.website.homeHeadline,
@@ -755,17 +737,18 @@ export function hydrateDemoWorkspace(stored) {
         ctaLabel: stored.website?.ctaLabel || fresh.website.ctaLabel,
         buyCtaLabel: stored.website?.buyCtaLabel || fresh.website.buyCtaLabel
       }
-    : {
-        ...fresh.website,
-        ...(stored.website || {}),
-        sectionLayouts: {
-          ...fresh.website.sectionLayouts,
-          ...(stored.website?.sectionLayouts || {})
-        },
-        homeLayoutId: stored.website?.homeLayoutId || fresh.website.homeLayoutId,
-        homeLayoutTemplates:
-          stored.website?.homeLayoutTemplates || fresh.website.homeLayoutTemplates || []
-      };
+    : (() => {
+        const {
+          sectionLayouts: _sectionLayouts,
+          homeLayoutId: _homeLayoutId,
+          homeLayoutTemplates: _homeLayoutTemplates,
+          ...storedWebsite
+        } = stored.website || {};
+        return {
+          ...fresh.website,
+          ...storedWebsite
+        };
+      })();
 
   return {
     ...fresh,

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { fetchGooglePlaceReviews } from '../../../../shared/firebase/integrations';
 import { EditableText, EditSection } from '../editable';
-import { sectionLayoutClass } from './sectionLayout';
 
 function Stars({ rating = 5 }) {
   const n = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
@@ -13,36 +12,10 @@ function Stars({ rating = 5 }) {
   );
 }
 
-function ReviewCard({ review, editMode, patchReview, featured = false }) {
-  return (
-    <article className={`bb-public-review${featured ? ' is-featured' : ''}`}>
-      <Stars rating={review.rating} />
-      <EditableText
-        as="p"
-        className="bb-public-review-quote"
-        editMode={editMode}
-        multiline
-        value={review.quote || ''}
-        placeholder="Review quote"
-        onChange={(value) => patchReview(review.id, 'quote', value)}
-      />
-      <EditableText
-        as="p"
-        className="bb-public-review-name"
-        editMode={editMode}
-        value={review.name || ''}
-        placeholder="Client name"
-        onChange={(value) => patchReview(review.id, 'name', value)}
-      />
-    </article>
-  );
-}
-
 export function ReviewsSection({
   website,
   reviews,
   editMode,
-  layout,
   hidden,
   patchReview,
   patchWebsite
@@ -79,18 +52,15 @@ export function ReviewsSection({
     }
   };
 
-  const [featured, ...rest] = reviews;
-
   return (
     <EditSection
       editMode={editMode}
       title="Reviews"
       sectionId="reviews"
-      layout={layout}
       hidden={hidden}
-      className={`bb-public-home-block bb-public-gutter ${sectionLayoutClass(layout)}`}
+      className="bb-public-home-block bb-public-gutter"
     >
-      <div key={layout} className="bb-sec-layout-stage bb-public-measure grid gap-6">
+      <div className="bb-public-measure grid gap-6">
         <EditableText
           as="h2"
           className="bb-page-title text-3xl md:text-4xl m-0"
@@ -99,45 +69,30 @@ export function ReviewsSection({
           placeholder="Reviews title"
           onChange={(value) => patchWebsite({ reviewsTitle: value })}
         />
-
-        {layout === 1 && featured ? (
-          <div className="bb-public-reviews bb-public-reviews--featured">
-            <ReviewCard
-              review={featured}
-              editMode={editMode}
-              patchReview={patchReview}
-              featured
-            />
-            <div className="bb-public-reviews-side">
-              {rest.map((review) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  editMode={editMode}
-                  patchReview={patchReview}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div
-            className={
-              layout === 2
-                ? 'bb-public-reviews bb-public-reviews--stream'
-                : 'bb-public-reviews'
-            }
-          >
-            {reviews.map((review) => (
-              <ReviewCard
-                key={review.id}
-                review={review}
+        <div className="bb-public-reviews">
+          {reviews.map((review) => (
+            <article key={review.id} className="bb-public-review">
+              <Stars rating={review.rating} />
+              <EditableText
+                as="p"
+                className="bb-public-review-quote"
                 editMode={editMode}
-                patchReview={patchReview}
+                multiline
+                value={review.quote || ''}
+                placeholder="Review quote"
+                onChange={(value) => patchReview(review.id, 'quote', value)}
               />
-            ))}
-          </div>
-        )}
-
+              <EditableText
+                as="p"
+                className="bb-public-review-name"
+                editMode={editMode}
+                value={review.name || ''}
+                placeholder="Client name"
+                onChange={(value) => patchReview(review.id, 'name', value)}
+              />
+            </article>
+          ))}
+        </div>
         {editMode ? (
           <div className="flex flex-wrap gap-2">
             {reviews.length < 6 ? (

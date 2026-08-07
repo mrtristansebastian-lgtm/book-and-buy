@@ -9,7 +9,6 @@ import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { DevicePreviewFrame } from '../components/DevicePreviewFrame';
-import { HomeLayoutPicker } from '../components/HomeLayoutPicker';
 
 export function WebsiteStudioPage() {
   const {
@@ -27,7 +26,6 @@ export function WebsiteStudioPage() {
   const [savedFlash, setSavedFlash] = useState(false);
   const [publishNote, setPublishNote] = useState('');
   const [publishing, setPublishing] = useState(false);
-  const [layoutMenuOpen, setLayoutMenuOpen] = useState(false);
 
   const editMode = mode === 'edit';
 
@@ -67,11 +65,7 @@ export function WebsiteStudioPage() {
 
   return (
     <div className="bb-studio-canvas grid gap-4">
-      <header
-        className={`bb-studio-toolbar bb-panel px-4 py-3 grid gap-3${
-          layoutMenuOpen ? ' bb-studio-toolbar--menu-open' : ''
-        }`}
-      >
+      <header className="bb-studio-toolbar bb-panel px-4 py-3 grid gap-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="grid gap-1">
             <p className="m-0 text-xs font-bold uppercase tracking-[0.08em] text-black/35">
@@ -79,7 +73,7 @@ export function WebsiteStudioPage() {
             </p>
             <h1 className="bb-page-title text-2xl md:text-3xl m-0">Pages</h1>
             <p className="bb-muted m-0 text-sm">
-              View to scroll. Edit to change copy, images, and layouts.
+              View to scroll. Edit to change copy and images on the page.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -126,13 +120,6 @@ export function WebsiteStudioPage() {
               { id: 'desktop', label: 'Desktop' }
             ]}
           />
-          {editMode && surface === 'home' ? (
-            <HomeLayoutPicker
-              website={website}
-              onUpdateWebsite={updateWebsite}
-              onOpenChange={setLayoutMenuOpen}
-            />
-          ) : null}
           <label className="flex items-center gap-2 text-sm font-semibold ml-auto">
             <input
               type="checkbox"
@@ -149,7 +136,7 @@ export function WebsiteStudioPage() {
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>
         {editMode ? (
           <p className="bb-studio-edit-hint">
-            Edit mode — pick an overall Layout preset, then edit copy and images on the page.
+            Edit mode — click text or images on the page to change them.
           </p>
         ) : null}
         <DevicePreviewFrame

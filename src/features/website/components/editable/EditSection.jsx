@@ -5,12 +5,9 @@ export function EditSection({
   className = '',
   hidden = false,
   coach,
-  sectionId,
-  layout = 0
+  sectionId
 }) {
   if (hidden && !editMode) return null;
-
-  const layoutIndex = Number.isFinite(Number(layout)) ? Number(layout) : 0;
 
   return (
     <section
@@ -18,7 +15,6 @@ export function EditSection({
         hidden ? 'bb-edit-section--hidden' : ''
       } ${className}`}
       data-section={title || sectionId || undefined}
-      data-layout={layoutIndex}
       data-section-id={sectionId || undefined}
     >
       {editMode && title ? (

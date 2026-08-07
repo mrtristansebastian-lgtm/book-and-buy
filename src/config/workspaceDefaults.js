@@ -18,16 +18,6 @@ export const createDefaultHomeSections = () => ({
 
 export const createDefaultHomeSectionOrder = () => [...DEFAULT_HOME_SECTION_ORDER];
 
-export const createDefaultSectionLayouts = () => ({
-  hero: 0,
-  about: 0,
-  reasons: 0,
-  venue: 0,
-  map: 0,
-  reviews: 0,
-  bookStrip: 0
-});
-
 export const createDefaultSettings = () => ({
   slug: 'your-business',
   brandName: 'Your Business',
@@ -55,9 +45,6 @@ export const createDefaultSettings = () => ({
     },
     sections: createDefaultHomeSections(),
     sectionOrder: createDefaultHomeSectionOrder(),
-    sectionLayouts: createDefaultSectionLayouts(),
-    homeLayoutId: 'classic',
-    homeLayoutTemplates: [],
     headline: 'Welcome in.',
     subcopy: 'Book a service or buy products from one place.',
     ctaLabel: 'Book now',

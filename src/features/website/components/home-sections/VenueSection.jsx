@@ -1,33 +1,23 @@
 import { EditableText, EditableImage, EditSection } from '../editable';
-import { sectionLayoutClass } from './sectionLayout';
 
 export function VenueSection({
   website,
   venueImages,
   editMode,
-  layout,
   hidden,
   patchVenue,
   patchWebsite
 }) {
-  const gridClass =
-    layout === 1
-      ? 'bb-public-venue-grid bb-public-venue-grid--mosaic'
-      : layout === 2
-        ? 'bb-public-venue-grid bb-public-venue-grid--strip'
-        : 'bb-public-venue-grid';
-
   return (
     <EditSection
       editMode={editMode}
       title="Venue"
       sectionId="venue"
-      layout={layout}
       hidden={hidden}
       coach="Add 2–4 venue photos."
-      className={`bb-public-home-block bb-public-gutter ${sectionLayoutClass(layout)}`}
+      className="bb-public-home-block bb-public-gutter"
     >
-      <div key={layout} className="bb-sec-layout-stage bb-public-measure grid gap-5">
+      <div className="bb-public-measure grid gap-5">
         <EditableText
           as="h2"
           className="bb-page-title text-3xl md:text-4xl m-0"
@@ -36,15 +26,12 @@ export function VenueSection({
           placeholder="Venue title"
           onChange={(value) => patchWebsite({ venueTitle: value })}
         />
-        <div className={gridClass}>
+        <div className="bb-public-venue-grid">
           {venueImages.length === 0 && editMode ? (
             <p className="bb-edit-section-coach m-0">Add a venue photo to show your space.</p>
           ) : null}
-          {venueImages.map((image, index) => (
-            <figure
-              key={image.id}
-              className={`bb-public-venue-card${index === 0 && layout === 1 ? ' is-feature' : ''}`}
-            >
+          {venueImages.map((image) => (
+            <figure key={image.id} className="bb-public-venue-card">
               <EditableImage
                 editMode={editMode}
                 src={image.url || ''}

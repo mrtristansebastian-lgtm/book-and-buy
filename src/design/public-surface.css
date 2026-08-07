@@ -119,29 +119,33 @@
 .bb-public-home-copy {
   position: relative;
   z-index: 10;
-  display: grid;
-  gap: 1rem;
-  max-width: 40rem;
-  padding-bottom: clamp(2.5rem, 8vh, 4.5rem);
-  padding-top: 4rem;
+  max-width: 38rem;
+  padding-bottom: clamp(2.75rem, 9vh, 5rem);
+  padding-top: clamp(3.5rem, 10vh, 5.5rem);
   color: #fff;
+}
+
+.bb-public-home-copy-inner {
+  display: grid;
+  gap: 0.95rem;
+  max-width: 34rem;
 }
 
 .bb-public-home-brand {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-weight: 820;
-  letter-spacing: -0.03em;
-  line-height: 0.98;
-  font-size: clamp(2.75rem, 7vw, 4.75rem);
+  letter-spacing: -0.035em;
+  line-height: 0.96;
+  font-size: clamp(2.6rem, 6.8vw, 4.6rem);
   color: #fff;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
 
 .bb-public-home-support {
   margin: 0;
-  max-width: 30rem;
-  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+  max-width: 28rem;
+  font-size: clamp(1.02rem, 2.1vw, 1.22rem);
   line-height: 1.5;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.92);
@@ -151,8 +155,8 @@
 .bb-public-home-ctas {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  padding-top: 0.25rem;
+  gap: 0.7rem;
+  padding-top: 0.45rem;
 }
 
 .bb-public-home-ctas .bb-ghost-btn {
@@ -786,15 +790,52 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-device-preview--phone .bb-public-home {
-  min-height: 460px;
+  min-height: 440px;
+}
+
+.bb-device-preview--phone .bb-public-home-copy {
+  padding-top: 3rem;
+  padding-bottom: 2.25rem;
 }
 
 .bb-device-preview--phone .bb-public-home-brand {
-  font-size: 2rem;
+  font-size: 1.95rem;
 }
 
 .bb-device-preview--phone .bb-public-home-support {
-  font-size: 0.95rem;
+  font-size: 0.94rem;
+}
+
+.bb-device-preview--phone .bb-public-home-block {
+  padding-top: 1.85rem;
+  padding-bottom: 1.85rem;
+}
+
+.bb-device-preview--phone .bb-public-about,
+.bb-device-preview--phone .bb-public-visit,
+.bb-device-preview--phone .bb-public-reasons,
+.bb-device-preview--phone .bb-public-reviews {
+  grid-template-columns: 1fr !important;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.bb-device-preview--phone .bb-public-book-strip {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 1.35rem 1.25rem;
+}
+
+.bb-device-preview--phone .bb-public-book-strip .bb-primary-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.bb-device-preview--phone .bb-page-title.text-3xl {
+  font-size: 1.55rem;
 }
 
 .bb-studio-split {
@@ -817,12 +858,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-studio-toolbar {
   position: sticky;
   top: 0.5rem;
-  z-index: 20;
-  overflow: visible;
-}
-
-.bb-studio-toolbar--menu-open {
-  z-index: 50;
+  z-index: 5;
 }
 
 .bb-studio-stage {
@@ -964,12 +1000,12 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-home-block {
-  padding-top: clamp(2.5rem, 6vw, 4rem);
-  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+  padding-top: clamp(2.75rem, 6.5vw, 4.25rem);
+  padding-bottom: clamp(2.75rem, 6.5vw, 4.25rem);
 }
 
 .bb-public-home-block--soft {
-  background: #f7f7f8;
+  background: linear-gradient(180deg, #f8f8f9 0%, #f4f5f6 100%);
 }
 
 .bb-public-about {
@@ -1022,11 +1058,11 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-reason {
   display: grid;
-  gap: 0.45rem;
-  padding: 1.15rem 1.2rem;
-  border-radius: 1rem;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  gap: 0.5rem;
+  padding: 0.15rem 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
 }
 
 .bb-public-reason .bb-page-title {
@@ -1044,25 +1080,25 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-venue-grid {
   display: grid;
-  gap: 0.75rem;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(12rem, 70%);
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-  scroll-snap-type: x mandatory;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .bb-public-venue-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 900px) {
   .bb-public-venue-grid {
-    grid-auto-flow: dense;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    overflow: visible;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
   }
 }
 
 .bb-public-venue-card {
   margin: 0;
-  scroll-snap-align: start;
   display: grid;
   gap: 0.4rem;
 }
@@ -1153,11 +1189,16 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1.25rem;
-  padding: 1.5rem 1.6rem;
-  border-radius: 1.25rem;
-  background: #050505;
+  gap: 1.35rem;
+  padding: 1.65rem 1.7rem;
+  border-radius: 1.35rem;
+  background: #0c0a09;
   color: #fff;
+}
+
+.bb-public-book-strip-copy {
+  min-width: 0;
+  flex: 1 1 16rem;
 }
 
 .bb-public-book-strip .bb-page-title,
@@ -1168,8 +1209,12 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-book-strip .bb-public-lede {
-  opacity: 0.88;
+  opacity: 0.86;
   max-width: 28rem;
+}
+
+.bb-public-book-strip .bb-primary-btn {
+  flex-shrink: 0;
 }
 
 .bb-public-book-layout {

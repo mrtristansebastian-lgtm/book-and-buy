@@ -10,8 +10,7 @@ import {
   MapSection,
   ReasonsSection,
   ReviewsSection,
-  VenueSection,
-  resolveSectionLayout
+  VenueSection
 } from './home-sections';
 
 function sectionOn(website, key) {
@@ -61,7 +60,6 @@ export function PublicHomeView({
         key="about"
         website={website}
         editMode={editMode}
-        layout={resolveSectionLayout(website, 'about')}
         hidden={!sectionOn(website, 'about')}
         patchWebsite={patchWebsite}
       />
@@ -72,7 +70,6 @@ export function PublicHomeView({
         website={website}
         reasons={reasons}
         editMode={editMode}
-        layout={resolveSectionLayout(website, 'reasons')}
         hidden={!sectionOn(website, 'reasons')}
         patchReason={patchReason}
         patchWebsite={patchWebsite}
@@ -84,7 +81,6 @@ export function PublicHomeView({
         website={website}
         venueImages={venueImages}
         editMode={editMode}
-        layout={resolveSectionLayout(website, 'venue')}
         hidden={!sectionOn(website, 'venue')}
         patchVenue={patchVenue}
         patchWebsite={patchWebsite}
@@ -96,7 +92,6 @@ export function PublicHomeView({
         website={website}
         editMode={editMode}
         preview={preview}
-        layout={resolveSectionLayout(website, 'map')}
         hidden={!sectionOn(website, 'map')}
         patchWebsite={patchWebsite}
       />
@@ -107,7 +102,6 @@ export function PublicHomeView({
         website={website}
         reviews={reviews}
         editMode={editMode}
-        layout={resolveSectionLayout(website, 'reviews')}
         hidden={!sectionOn(website, 'reviews')}
         patchReview={patchReview}
         patchWebsite={patchWebsite}
@@ -120,7 +114,6 @@ export function PublicHomeView({
         website={website}
         editMode={editMode}
         preview={preview}
-        layout={resolveSectionLayout(website, 'bookStrip')}
         hidden={!sectionOn(website, 'bookStrip')}
         patchWebsite={patchWebsite}
       />
@@ -134,7 +127,6 @@ export function PublicHomeView({
         website={website}
         editMode={editMode}
         preview={preview}
-        layout={resolveSectionLayout(website, 'hero')}
         onUpdateProfile={onUpdateProfile}
         patchWebsite={patchWebsite}
       />
