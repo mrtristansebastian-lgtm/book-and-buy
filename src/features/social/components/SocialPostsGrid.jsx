@@ -6,6 +6,7 @@ import { EditableText } from '../../website/components/editable';
 export function SocialPostsGrid({
   posts,
   editMode = false,
+  showPublishToggle = true,
   onUpdateSocialPost,
   onRemoveSocialPost,
   onOpenPost,
@@ -27,7 +28,7 @@ export function SocialPostsGrid({
 
         return (
           <article key={post.id} className="bb-social-post-card" role="listitem">
-            {editMode && post.published === false ? (
+            {editMode && showPublishToggle && post.published === false ? (
               <div className="bb-social-post-card-meta">
                 <span className="bb-edit-section-badge">Draft</span>
               </div>
@@ -79,15 +80,17 @@ export function SocialPostsGrid({
 
             {editMode ? (
               <div className="bb-social-edit-actions">
-                <button
-                  type="button"
-                  className="bb-ghost-btn py-1 px-2.5 text-xs"
-                  onClick={() =>
-                    onUpdateSocialPost?.(post.id, { published: post.published === false })
-                  }
-                >
-                  {post.published !== false ? 'Unpublish' : 'Publish'}
-                </button>
+                {showPublishToggle ? (
+                  <button
+                    type="button"
+                    className="bb-ghost-btn py-1 px-2.5 text-xs"
+                    onClick={() =>
+                      onUpdateSocialPost?.(post.id, { published: post.published === false })
+                    }
+                  >
+                    {post.published !== false ? 'Unpublish' : 'Publish'}
+                  </button>
+                ) : null}
                 {onRemoveSocialPost ? (
                   <button
                     type="button"

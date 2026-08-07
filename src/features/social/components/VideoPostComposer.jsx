@@ -64,7 +64,7 @@ export function VideoPostComposer({ onAddSocialPost }) {
     }
   };
 
-  const submit = (published) => {
+  const publish = () => {
     if (!mediaUrl.trim()) {
       setError('Add a video file or URL.');
       return;
@@ -76,7 +76,7 @@ export function VideoPostComposer({ onAddSocialPost }) {
       title: title.trim() || 'Untitled video',
       caption: caption.trim(),
       duration: duration.trim(),
-      published
+      published: true
     });
     reset();
   };
@@ -86,10 +86,8 @@ export function VideoPostComposer({ onAddSocialPost }) {
   return (
     <section className="bb-social-compose bb-social-compose--video">
       <header className="bb-social-compose-head">
-        <h2 className="bb-social-compose-title">Upload video</h2>
-        <p className="bb-social-compose-lede">
-          Preview locally, then publish into the same Videos stage clients see live.
-        </p>
+        <h2 className="bb-social-compose-title">New video</h2>
+        <p className="bb-social-compose-lede">16:9 · goes live immediately</p>
       </header>
 
       <div className="bb-social-compose-video-layout">
@@ -109,7 +107,7 @@ export function VideoPostComposer({ onAddSocialPost }) {
                 onClick={() => videoRef.current?.click()}
               >
                 <Replace size={14} />
-                Replace video
+                Replace
               </button>
             </>
           ) : (
@@ -120,10 +118,10 @@ export function VideoPostComposer({ onAddSocialPost }) {
             >
               <span className="bb-social-dropzone-empty">
                 <span className="bb-social-dropzone-icon" aria-hidden="true">
-                  <Film size={22} />
+                  <Film size={20} />
                 </span>
                 <span className="bb-social-dropzone-label">Choose video</span>
-                <span className="bb-social-dropzone-hint">MP4 or WebM · 16:9</span>
+                <span className="bb-social-dropzone-hint">MP4 or WebM</span>
               </span>
             </button>
           )}
@@ -134,7 +132,7 @@ export function VideoPostComposer({ onAddSocialPost }) {
           <label className="bb-social-field">
             <span>Title</span>
             <input
-              className="native-control-input px-4"
+              className="native-control-input bb-social-compose-control"
               value={title}
               placeholder="Video title"
               onChange={(event) => setTitle(event.target.value)}
@@ -143,63 +141,55 @@ export function VideoPostComposer({ onAddSocialPost }) {
           <label className="bb-social-field">
             <span>Description</span>
             <textarea
-              className="native-control-input bb-social-compose-caption"
+              className="native-control-input bb-social-compose-control bb-social-compose-caption"
               rows={3}
               value={caption}
-              placeholder="Tell viewers what this is about…"
+              placeholder="What is this video about?"
               onChange={(event) => setCaption(event.target.value)}
             />
           </label>
+          <label className="bb-social-field">
+            <span>Video URL</span>
+            <input
+              className="native-control-input bb-social-compose-control"
+              value={durableUrl}
+              placeholder="https://…/video.mp4"
+              onChange={(event) => setMediaUrl(event.target.value)}
+            />
+          </label>
+          <label className="bb-social-field">
+            <span>Duration</span>
+            <input
+              className="native-control-input bb-social-compose-control"
+              value={duration}
+              placeholder="3:42"
+              onChange={(event) => setDuration(event.target.value)}
+            />
+          </label>
 
-          <div className="bb-social-compose-meta-grid">
-            <label className="bb-social-field">
-              <span>Video URL</span>
-              <input
-                className="native-control-input px-4"
-                value={durableUrl}
-                placeholder="https://…/video.mp4"
-                onChange={(event) => setMediaUrl(event.target.value)}
-              />
-            </label>
-            <label className="bb-social-field bb-social-field--short">
-              <span>Duration</span>
-              <input
-                className="native-control-input px-4"
-                value={duration}
-                placeholder="3:42"
-                onChange={(event) => setDuration(event.target.value)}
-              />
-            </label>
-          </div>
-
-          <div className="bb-social-compose-poster">
-            <button
-              type="button"
-              className="bb-social-compose-poster-pick"
-              onClick={() => posterRef.current?.click()}
-              disabled={busy}
-            >
-              {posterUrl ? (
-                <img src={posterUrl} alt="" className="bb-social-compose-poster-thumb" />
-              ) : (
-                <span className="bb-social-compose-poster-empty" aria-hidden="true">
-                  <ImagePlus size={16} />
-                </span>
-              )}
-              <span className="bb-social-compose-poster-copy">
-                <strong>{posterUrl ? 'Change poster' : 'Add poster'}</strong>
-                <span>16:9 thumbnail · cropped before save</span>
+          <button
+            type="button"
+            className="bb-social-compose-poster-pick"
+            onClick={() => posterRef.current?.click()}
+            disabled={busy}
+          >
+            {posterUrl ? (
+              <img src={posterUrl} alt="" className="bb-social-compose-poster-thumb" />
+            ) : (
+              <span className="bb-social-compose-poster-empty" aria-hidden="true">
+                <ImagePlus size={16} />
               </span>
-            </button>
-            <input ref={posterRef} type="file" accept="image/*" className="hidden" onChange={onPoster} />
-          </div>
+            )}
+            <span className="bb-social-compose-poster-copy">
+              <strong>{posterUrl ? 'Change poster' : 'Add poster'}</strong>
+              <span>16:9 crop</span>
+            </span>
+          </button>
+          <input ref={posterRef} type="file" accept="image/*" className="hidden" onChange={onPoster} />
 
           {error ? <p className="bb-social-compose-error">{error}</p> : null}
           <div className="bb-social-compose-actions">
-            <button type="button" className="bb-ghost-btn" onClick={() => submit(false)} disabled={busy}>
-              Save draft
-            </button>
-            <button type="button" className="bb-primary-btn" onClick={() => submit(true)} disabled={busy}>
+            <button type="button" className="bb-primary-btn" onClick={publish} disabled={busy}>
               Publish
             </button>
           </div>

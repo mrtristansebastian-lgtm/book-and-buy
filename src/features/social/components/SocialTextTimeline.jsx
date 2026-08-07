@@ -22,6 +22,7 @@ function formatStamp(createdAt) {
 export function SocialTextTimeline({
   posts,
   editMode = false,
+  showPublishToggle = true,
   onUpdateSocialPost,
   onRemoveSocialPost
 }) {
@@ -49,7 +50,7 @@ export function SocialTextTimeline({
                 </time>
               ) : null}
               <span className="bb-social-note-mark bb-public-native-fill" aria-hidden="true" />
-              {editMode && post.published === false ? (
+              {editMode && showPublishToggle && post.published === false ? (
                 <span className="bb-edit-section-badge">Draft</span>
               ) : null}
             </header>
@@ -77,15 +78,17 @@ export function SocialTextTimeline({
 
             {editMode ? (
               <div className="bb-social-edit-actions">
-                <button
-                  type="button"
-                  className="bb-ghost-btn py-1 px-2.5 text-xs"
-                  onClick={() =>
-                    onUpdateSocialPost?.(post.id, { published: post.published === false })
-                  }
-                >
-                  {post.published !== false ? 'Unpublish' : 'Publish'}
-                </button>
+                {showPublishToggle ? (
+                  <button
+                    type="button"
+                    className="bb-ghost-btn py-1 px-2.5 text-xs"
+                    onClick={() =>
+                      onUpdateSocialPost?.(post.id, { published: post.published === false })
+                    }
+                  >
+                    {post.published !== false ? 'Unpublish' : 'Publish'}
+                  </button>
+                ) : null}
                 {onRemoveSocialPost ? (
                   <button
                     type="button"

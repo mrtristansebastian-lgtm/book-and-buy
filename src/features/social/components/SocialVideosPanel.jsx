@@ -5,6 +5,7 @@ import { BbVideoPlayer } from './BbVideoPlayer';
 export function SocialVideosPanel({
   posts,
   editMode = false,
+  showPublishToggle = true,
   onUpdateSocialPost,
   onRemoveSocialPost,
   initialActiveId = ''
@@ -111,72 +112,76 @@ export function SocialVideosPanel({
 
                 {editMode ? (
                   <div className="bb-social-video-edit">
-                    {post.published === false ? (
+                    {showPublishToggle && post.published === false ? (
                       <div className="bb-edit-section-badge">Draft</div>
                     ) : null}
-                    <EditableImage
-                      editMode
-                      src={post.posterUrl || ''}
-                      className="bb-social-video-poster-edit"
-                      imgClassName="w-full h-full object-cover"
-                      storageFolder="social"
-                      preset="videoPoster"
-                      placeholderLabel="Poster image"
-                      onChange={(url) =>
-                        onUpdateSocialPost?.(post.id, { posterUrl: url, type: 'video' })
-                      }
-                    />
-                    <label className="grid gap-1 text-xs font-semibold">
-                      Video URL
-                      <input
-                        className="native-control-input px-3 py-2 text-sm"
-                        value={post.mediaUrl || ''}
-                        placeholder="https://…/video.mp4"
-                        onChange={(event) =>
-                          onUpdateSocialPost?.(post.id, {
-                            mediaUrl: event.target.value,
-                            type: 'video'
-                          })
-                        }
-                      />
-                    </label>
-                    <label className="grid gap-1 text-xs font-semibold max-w-[8rem]">
-                      Duration
-                      <input
-                        className="native-control-input px-3 py-2 text-sm"
-                        value={post.duration || ''}
-                        placeholder="3:42"
-                        onChange={(event) =>
-                          onUpdateSocialPost?.(post.id, { duration: event.target.value })
-                        }
-                      />
-                    </label>
-                    <EditableText
-                      as="p"
-                      className="bb-page-title text-base m-0"
-                      editMode
-                      value={post.title || ''}
-                      placeholder="Title"
-                      onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-                    />
-                    <EditableText
-                      as="p"
-                      className="bb-muted m-0 text-sm"
-                      editMode
-                      multiline
-                      value={post.caption || ''}
-                      placeholder="Description"
-                      onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-                    />
-                    <button
-                      type="button"
-                      className="bb-ghost-btn py-1.5 px-3 text-xs justify-self-start"
-                      onClick={() =>
-                        onUpdateSocialPost?.(post.id, { published: post.published === false })
-                      }
-                    >
-                      {post.published !== false ? 'Unpublish' : 'Publish'}
-                    </button>
+                    {showPublishToggle ? (
+                      <>
+                        <EditableImage
+                          editMode
+                          src={post.posterUrl || ''}
+                          className="bb-social-video-poster-edit"
+                          imgClassName="w-full h-full object-cover"
+                          storageFolder="social"
+                          preset="videoPoster"
+                          placeholderLabel="Poster image"
+                          onChange={(url) =>
+                            onUpdateSocialPost?.(post.id, { posterUrl: url, type: 'video' })
+                          }
+                        />
+                        <label className="bb-social-video-edit-field">
+                          Video URL
+                          <input
+                            className="native-control-input bb-social-compose-control"
+                            value={post.mediaUrl || ''}
+                            placeholder="https://…/video.mp4"
+                            onChange={(event) =>
+                              onUpdateSocialPost?.(post.id, {
+                                mediaUrl: event.target.value,
+                                type: 'video'
+                              })
+                            }
+                          />
+                        </label>
+                        <label className="bb-social-video-edit-field bb-social-video-edit-field--short">
+                          Duration
+                          <input
+                            className="native-control-input bb-social-compose-control"
+                            value={post.duration || ''}
+                            placeholder="3:42"
+                            onChange={(event) =>
+                              onUpdateSocialPost?.(post.id, { duration: event.target.value })
+                            }
+                          />
+                        </label>
+                        <EditableText
+                          as="p"
+                          className="bb-page-title text-base m-0"
+                          editMode
+                          value={post.title || ''}
+                          placeholder="Title"
+                          onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
+                        />
+                        <EditableText
+                          as="p"
+                          className="bb-muted m-0 text-sm"
+                          editMode
+                          multiline
+                          value={post.caption || ''}
+                          placeholder="Description"
+                          onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+                        />
+                        <button
+                          type="button"
+                          className="bb-ghost-btn py-1.5 px-3 text-xs justify-self-start"
+                          onClick={() =>
+                            onUpdateSocialPost?.(post.id, { published: post.published === false })
+                          }
+                        >
+                          {post.published !== false ? 'Unpublish' : 'Publish'}
+                        </button>
+                      </>
+                    ) : null}
                     {onRemoveSocialPost ? (
                       <button
                         type="button"

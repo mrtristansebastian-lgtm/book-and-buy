@@ -47,7 +47,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
     }
   };
 
-  const submit = (published) => {
+  const publish = () => {
     if (!mediaUrl.trim()) {
       setError('Add a photo first.');
       return;
@@ -57,7 +57,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
       mediaUrl: mediaUrl.trim(),
       title: title.trim(),
       caption: caption.trim(),
-      published
+      published: true
     });
     reset();
   };
@@ -66,9 +66,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
     <section className="bb-social-compose bb-social-compose--image">
       <header className="bb-social-compose-head">
         <h2 className="bb-social-compose-title">New post</h2>
-        <p className="bb-social-compose-lede">
-          Crop to Instagram 4:5, then publish into the same gallery clients see live.
-        </p>
+        <p className="bb-social-compose-lede">Instagram 4:5 · goes live immediately</p>
       </header>
 
       <div className="bb-social-compose-image-layout">
@@ -84,10 +82,10 @@ export function ImagePostComposer({ onAddSocialPost }) {
             ) : (
               <span className="bb-social-dropzone-empty">
                 <span className="bb-social-dropzone-icon" aria-hidden="true">
-                  <ImagePlus size={22} />
+                  <ImagePlus size={20} />
                 </span>
                 <span className="bb-social-dropzone-label">{busy ? 'Uploading…' : 'Add photo'}</span>
-                <span className="bb-social-dropzone-hint">JPG or PNG · 4:5 portrait</span>
+                <span className="bb-social-dropzone-hint">Fill or Fit</span>
               </span>
             )}
           </button>
@@ -99,7 +97,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
               disabled={busy}
             >
               <Replace size={14} />
-              Replace photo
+              Replace
             </button>
           ) : null}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPick} />
@@ -109,17 +107,17 @@ export function ImagePostComposer({ onAddSocialPost }) {
           <label className="bb-social-field">
             <span>Title</span>
             <input
-              className="native-control-input"
+              className="native-control-input bb-social-compose-control"
               value={title}
               placeholder="Post title"
               onChange={(event) => setTitle(event.target.value)}
             />
           </label>
-          <label className="bb-social-field">
+          <label className="bb-social-field bb-social-field--grow">
             <span>Caption</span>
             <textarea
-              className="native-control-input bb-social-compose-caption"
-              rows={6}
+              className="native-control-input bb-social-compose-control bb-social-compose-caption"
+              rows={4}
               value={caption}
               placeholder="Write a caption…"
               onChange={(event) => setCaption(event.target.value)}
@@ -127,10 +125,7 @@ export function ImagePostComposer({ onAddSocialPost }) {
           </label>
           {error ? <p className="bb-social-compose-error">{error}</p> : null}
           <div className="bb-social-compose-actions">
-            <button type="button" className="bb-ghost-btn" onClick={() => submit(false)} disabled={busy}>
-              Save draft
-            </button>
-            <button type="button" className="bb-primary-btn" onClick={() => submit(true)} disabled={busy}>
+            <button type="button" className="bb-primary-btn" onClick={publish} disabled={busy}>
               Publish
             </button>
           </div>
