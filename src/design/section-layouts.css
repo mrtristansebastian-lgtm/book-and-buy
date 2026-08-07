@@ -1,69 +1,11 @@
-/* Home section layout templates + edit-mode cycle chrome */
-
-/* ——— Edit chrome ——— */
-
-.bb-edit-section-label {
-  justify-content: flex-start;
-}
-
-.bb-edit-section-layout-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-left: auto;
-}
-
-.bb-edit-section-layout-index {
-  font-size: 0.65rem;
-  font-weight: 720;
-  letter-spacing: 0.04em;
-  color: rgba(15, 23, 42, 0.38);
-  text-transform: none;
-}
-
-.bb-edit-section-layout-next {
-  display: inline-grid;
-  place-items: center;
-  width: 1.7rem;
-  height: 1.7rem;
-  border-radius: 999px;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  background: #fff;
-  color: #101828;
-  cursor: pointer;
-  padding: 0;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-}
-
-.bb-edit-section-layout-next:hover {
-  border-color: rgba(15, 23, 42, 0.28);
-  background: #f4f5f7;
-}
-
-.bb-edit-section-layout-next:active {
-  transform: translateX(1px);
-}
-
-html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-layout-index {
-  color: rgba(255, 255, 255, 0.55) !important;
-}
-
-html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-layout-next {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-color: rgba(255, 255, 255, 0.35) !important;
-  color: #101828 !important;
-}
-
-html body .native-ui .bb-public-surface .bb-public-home.bb-sec-layout--1 .bb-edit-section-layout-index {
-  color: rgba(15, 23, 42, 0.4) !important;
-}
+/* Home section layout packs (driven by overall Layout presets) */
 
 html body .native-ui .bb-public-surface .bb-public-home.bb-sec-layout--1 .bb-edit-section-label,
 html body .native-ui .bb-public-surface .bb-public-home.bb-sec-layout--1 .bb-edit-section-coach {
   color: rgba(15, 23, 42, 0.45) !important;
 }
 
-/* ——— Slide stage ——— */
+/* ——— Stage motion when overall pack changes ——— */
 
 @keyframes bb-sec-layout-slide {
   from {
@@ -514,25 +456,166 @@ html body .native-ui .bb-public-surface .bb-public-book-strip--minimal .bb-publi
   color: #667085 !important;
 }
 
-/* Phone preview tweaks */
+/*
+ * Phone mockup overrides.
+ * Viewport media queries still see the desktop browser width, so force
+ * single-column / stacked compositions inside the narrow bezel.
+ */
+.bb-device-preview--phone .bb-public-home,
+.bb-device-preview--phone .bb-public-home.bb-sec-layout--1 {
+  min-height: 420px;
+}
+
+.bb-device-preview--phone .bb-hero-split {
+  grid-template-columns: 1fr !important;
+}
+
+.bb-device-preview--phone .bb-hero-split-panel {
+  padding-top: 2.25rem;
+  padding-bottom: 1.75rem;
+}
+
+.bb-device-preview--phone .bb-hero-split-panel .bb-public-home-brand {
+  font-size: 1.85rem;
+}
+
+.bb-device-preview--phone .bb-hero-split-panel .bb-public-home-support {
+  font-size: 0.92rem;
+}
+
 .bb-device-preview--phone .bb-hero-split-media {
+  min-height: 12.5rem;
+  aspect-ratio: 4 / 3;
+}
+
+.bb-device-preview--phone .bb-public-home.bb-sec-layout--2 .bb-public-home-copy {
+  padding-top: 3rem;
+  padding-bottom: 2.25rem;
+  justify-items: start;
+  text-align: left;
+}
+
+.bb-device-preview--phone .bb-public-home.bb-sec-layout--2 .bb-public-home-copy-inner {
+  justify-items: start;
+}
+
+.bb-device-preview--phone .bb-public-home.bb-sec-layout--2 .bb-public-home-brand {
+  font-size: 1.9rem;
+}
+
+.bb-device-preview--phone .bb-public-home.bb-sec-layout--2 .bb-public-home-ctas {
+  justify-content: flex-start;
+}
+
+.bb-device-preview--phone .bb-public-about,
+.bb-device-preview--phone .bb-sec-layout--1 .bb-public-about,
+.bb-device-preview--phone .bb-sec-layout--2 .bb-public-about {
+  grid-template-columns: 1fr !important;
+  gap: 1.1rem;
+}
+
+.bb-device-preview--phone .bb-sec-layout--2 .bb-public-about-band .bb-public-about-media {
+  aspect-ratio: 16 / 10;
+  min-height: 9rem;
+}
+
+.bb-device-preview--phone .bb-public-about-stack-copy {
+  text-align: left;
+  max-width: none;
+}
+
+.bb-device-preview--phone .bb-public-about-stack-copy .bb-public-about-copy {
+  justify-items: start;
+}
+
+.bb-device-preview--phone .bb-public-reasons,
+.bb-device-preview--phone .bb-public-reasons--numbered {
+  grid-template-columns: 1fr !important;
+  gap: 0.85rem;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid,
+.bb-device-preview--phone .bb-public-venue-grid--mosaic {
+  grid-template-columns: 1fr !important;
+  grid-template-rows: none !important;
+  gap: 0.75rem;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid--mosaic .bb-public-venue-card.is-feature {
+  grid-row: auto;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid--mosaic .bb-public-venue-card.is-feature .bb-public-venue-media {
+  aspect-ratio: 4 / 3;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid--strip {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid--strip .bb-public-venue-card {
+  flex: 0 0 88%;
+}
+
+.bb-device-preview--phone .bb-public-visit,
+.bb-device-preview--phone .bb-public-visit--overlay,
+.bb-device-preview--phone .bb-public-visit--stack {
+  grid-template-columns: 1fr !important;
+  gap: 1rem;
+}
+
+.bb-device-preview--phone .bb-public-visit--overlay .bb-public-map-frame {
   min-height: 14rem;
 }
 
 .bb-device-preview--phone .bb-public-visit-float {
-  margin-top: -3rem;
+  position: static;
+  margin: 0;
   max-width: none;
+  box-shadow: none;
 }
 
-.bb-device-preview--phone .bb-public-venue-grid--strip .bb-public-venue-card {
-  flex-basis: 85%;
+.bb-device-preview--phone .bb-public-reviews,
+.bb-device-preview--phone .bb-public-reviews--featured {
+  grid-template-columns: 1fr !important;
+  gap: 1rem;
+}
+
+.bb-device-preview--phone .bb-public-reviews--featured .bb-public-review.is-featured .bb-public-review-quote {
+  font-size: 1.15rem;
+}
+
+.bb-device-preview--phone .bb-public-book-strip,
+.bb-device-preview--phone .bb-public-book-strip--split,
+.bb-device-preview--phone .bb-public-book-strip--minimal {
+  grid-template-columns: 1fr !important;
+  display: grid !important;
+  justify-items: stretch;
+  gap: 1rem;
+}
+
+.bb-device-preview--phone .bb-public-book-strip .bb-primary-btn,
+.bb-device-preview--phone .bb-public-book-strip--split .bb-primary-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.bb-device-preview--phone .bb-public-home-block {
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
+}
+
+.bb-device-preview--phone .bb-page-title.text-3xl,
+.bb-device-preview--phone .bb-page-title.md\:text-4xl {
+  font-size: 1.55rem;
 }
 
 /* ——— Overall layout picker (studio toolbar) ——— */
 
 .bb-home-layout-picker {
   position: relative;
-  z-index: 6;
+  z-index: 30;
 }
 
 .bb-home-layout-picker-trigger {
@@ -572,6 +655,7 @@ html body .native-ui .bb-public-surface .bb-public-book-strip--minimal .bb-publi
   position: absolute;
   top: calc(100% + 0.4rem);
   left: 0;
+  z-index: 40;
   min-width: 15.5rem;
   padding: 0.45rem;
   border-radius: 1rem;
@@ -637,11 +721,6 @@ html body .native-ui .bb-public-surface .bb-public-book-strip--minimal .bb-publi
 
 .bb-home-layout-picker-save:hover:not(:disabled) {
   background: #f4f5f7;
-}
-
-.bb-home-layout-picker-save:disabled {
-  color: #98a2b3;
-  cursor: not-allowed;
 }
 
 .bb-home-layout-picker-save-form {

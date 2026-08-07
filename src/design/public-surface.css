@@ -817,7 +817,12 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-studio-toolbar {
   position: sticky;
   top: 0.5rem;
-  z-index: 5;
+  z-index: 20;
+  overflow: visible;
+}
+
+.bb-studio-toolbar--menu-open {
+  z-index: 50;
 }
 
 .bb-studio-stage {

@@ -6,7 +6,6 @@ export function ReasonsSection({
   reasons,
   editMode,
   layout,
-  onCycleLayout,
   hidden,
   patchReason,
   patchWebsite
@@ -17,7 +16,6 @@ export function ReasonsSection({
       title="Why choose us"
       sectionId="reasons"
       layout={layout}
-      onCycleLayout={onCycleLayout}
       hidden={hidden}
       className={`bb-public-home-block bb-public-gutter bb-public-home-block--soft ${sectionLayoutClass(layout)}`}
     >

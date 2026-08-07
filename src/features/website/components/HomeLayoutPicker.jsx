@@ -9,7 +9,7 @@ import {
   saveHomeLayoutTemplate
 } from './home-sections/homeLayoutPacks';
 
-export function HomeLayoutPicker({ website, onUpdateWebsite }) {
+export function HomeLayoutPicker({ website, onUpdateWebsite, onOpenChange }) {
   const [open, setOpen] = useState(false);
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState('');
@@ -24,18 +24,28 @@ export function HomeLayoutPicker({ website, onUpdateWebsite }) {
   const label = getHomeLayoutLabel(website);
   const canSave = isUniqueLayoutCombo(website);
 
+  const setMenuOpen = (next) => {
+    setOpen(next);
+    onOpenChange?.(next);
+  };
+
+  useEffect(() => {
+    onOpenChange?.(open);
+    return () => onOpenChange?.(false);
+  }, [open, onOpenChange]);
+
   useEffect(() => {
     if (!open) return undefined;
     const onPointer = (event) => {
       if (!rootRef.current?.contains(event.target)) {
-        setOpen(false);
+        setMenuOpen(false);
         setNaming(false);
         setError('');
       }
     };
     const onKey = (event) => {
       if (event.key === 'Escape') {
-        setOpen(false);
+        setMenuOpen(false);
         setNaming(false);
         setError('');
       }
@@ -50,7 +60,7 @@ export function HomeLayoutPicker({ website, onUpdateWebsite }) {
 
   const applyPack = (id) => {
     onUpdateWebsite?.(applyHomeLayoutPack(id, website));
-    setOpen(false);
+    setMenuOpen(false);
     setNaming(false);
     setError('');
   };
@@ -61,7 +71,7 @@ export function HomeLayoutPicker({ website, onUpdateWebsite }) {
       setName('');
       setNaming(false);
       setError('');
-      setOpen(false);
+      setMenuOpen(false);
     } catch (err) {
       setError(err?.message || 'Could not save template.');
     }
@@ -76,7 +86,7 @@ export function HomeLayoutPicker({ website, onUpdateWebsite }) {
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => {
-          setOpen((prev) => !prev);
+          setMenuOpen(!open);
           setNaming(false);
           setError('');
         }}
@@ -124,68 +134,58 @@ export function HomeLayoutPicker({ website, onUpdateWebsite }) {
             </>
           ) : null}
 
-          <div className="bb-home-layout-picker-footer">
-            {naming ? (
-              <div className="bb-home-layout-picker-save-form">
-                <input
-                  className="native-control-input px-3"
-                  value={name}
-                  placeholder="Template name"
-                  autoFocus
-                  onChange={(event) => setName(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault();
-                      saveTemplate();
-                    }
-                  }}
-                />
-                <div className="bb-home-layout-picker-save-actions">
-                  <button
-                    type="button"
-                    className="bb-ghost-btn py-1.5 px-3 text-sm"
-                    onClick={() => {
-                      setNaming(false);
-                      setError('');
+          {canSave || naming ? (
+            <div className="bb-home-layout-picker-footer">
+              {naming ? (
+                <div className="bb-home-layout-picker-save-form">
+                  <input
+                    className="native-control-input px-3"
+                    value={name}
+                    placeholder="Template name"
+                    autoFocus
+                    onChange={(event) => setName(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        saveTemplate();
+                      }
                     }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="bb-primary-btn py-1.5 px-3 text-sm"
-                    onClick={saveTemplate}
-                  >
-                    Save
-                  </button>
+                  />
+                  <div className="bb-home-layout-picker-save-actions">
+                    <button
+                      type="button"
+                      className="bb-ghost-btn py-1.5 px-3 text-sm"
+                      onClick={() => {
+                        setNaming(false);
+                        setError('');
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="bb-primary-btn py-1.5 px-3 text-sm"
+                      onClick={saveTemplate}
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="bb-home-layout-picker-save"
-                disabled={!canSave}
-                title={
-                  canSave
-                    ? 'Save this mix as a reusable template'
-                    : 'Mix sections to create a unique layout first'
-                }
-                onClick={() => {
-                  if (!canSave) return;
-                  setNaming(true);
-                  setError('');
-                }}
-              >
-                Save as template…
-              </button>
-            )}
-            {error ? <p className="bb-home-layout-picker-error">{error}</p> : null}
-            {!canSave && !naming ? (
-              <p className="bb-home-layout-picker-hint">
-                Mix section layouts to unlock a new template.
-              </p>
-            ) : null}
-          </div>
+              ) : (
+                <button
+                  type="button"
+                  className="bb-home-layout-picker-save"
+                  onClick={() => {
+                    setNaming(true);
+                    setError('');
+                  }}
+                >
+                  Save as template…
+                </button>
+              )}
+              {error ? <p className="bb-home-layout-picker-error">{error}</p> : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

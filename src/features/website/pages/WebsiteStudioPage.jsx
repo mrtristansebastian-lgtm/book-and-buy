@@ -27,6 +27,7 @@ export function WebsiteStudioPage() {
   const [savedFlash, setSavedFlash] = useState(false);
   const [publishNote, setPublishNote] = useState('');
   const [publishing, setPublishing] = useState(false);
+  const [layoutMenuOpen, setLayoutMenuOpen] = useState(false);
 
   const editMode = mode === 'edit';
 
@@ -66,7 +67,11 @@ export function WebsiteStudioPage() {
 
   return (
     <div className="bb-studio-canvas grid gap-4">
-      <header className="bb-studio-toolbar bb-panel px-4 py-3 grid gap-3">
+      <header
+        className={`bb-studio-toolbar bb-panel px-4 py-3 grid gap-3${
+          layoutMenuOpen ? ' bb-studio-toolbar--menu-open' : ''
+        }`}
+      >
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="grid gap-1">
             <p className="m-0 text-xs font-bold uppercase tracking-[0.08em] text-black/35">
@@ -122,7 +127,11 @@ export function WebsiteStudioPage() {
             ]}
           />
           {editMode && surface === 'home' ? (
-            <HomeLayoutPicker website={website} onUpdateWebsite={updateWebsite} />
+            <HomeLayoutPicker
+              website={website}
+              onUpdateWebsite={updateWebsite}
+              onOpenChange={setLayoutMenuOpen}
+            />
           ) : null}
           <label className="flex items-center gap-2 text-sm font-semibold ml-auto">
             <input
@@ -140,7 +149,7 @@ export function WebsiteStudioPage() {
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>
         {editMode ? (
           <p className="bb-studio-edit-hint">
-            Edit mode — pick an overall Layout, or use each section arrow to mix styles.
+            Edit mode — pick an overall Layout preset, then edit copy and images on the page.
           </p>
         ) : null}
         <DevicePreviewFrame

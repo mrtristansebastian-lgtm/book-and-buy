@@ -11,9 +11,6 @@ import {
   ReasonsSection,
   ReviewsSection,
   VenueSection,
-  findMatchingLayoutId,
-  nextSectionLayout,
-  normalizeSectionLayouts,
   resolveSectionLayout
 } from './home-sections';
 
@@ -40,18 +37,6 @@ export function PublicHomeView({
 
   const patchWebsite = (patch) => onUpdateWebsite?.(patch);
 
-  const cycleLayout = (sectionId) => {
-    const nextLayouts = normalizeSectionLayouts({
-      ...(website.sectionLayouts || {}),
-      [sectionId]: nextSectionLayout(website, sectionId)
-    });
-    const nextWebsite = { ...website, sectionLayouts: nextLayouts };
-    patchWebsite({
-      sectionLayouts: nextLayouts,
-      homeLayoutId: findMatchingLayoutId(nextWebsite) || 'custom'
-    });
-  };
-
   const patchReason = (id, field, value) => {
     patchWebsite({
       reasons: reasons.map((item) => (item.id === id ? { ...item, [field]: value } : item))
@@ -77,7 +62,6 @@ export function PublicHomeView({
         website={website}
         editMode={editMode}
         layout={resolveSectionLayout(website, 'about')}
-        onCycleLayout={() => cycleLayout('about')}
         hidden={!sectionOn(website, 'about')}
         patchWebsite={patchWebsite}
       />
@@ -89,7 +73,6 @@ export function PublicHomeView({
         reasons={reasons}
         editMode={editMode}
         layout={resolveSectionLayout(website, 'reasons')}
-        onCycleLayout={() => cycleLayout('reasons')}
         hidden={!sectionOn(website, 'reasons')}
         patchReason={patchReason}
         patchWebsite={patchWebsite}
@@ -102,7 +85,6 @@ export function PublicHomeView({
         venueImages={venueImages}
         editMode={editMode}
         layout={resolveSectionLayout(website, 'venue')}
-        onCycleLayout={() => cycleLayout('venue')}
         hidden={!sectionOn(website, 'venue')}
         patchVenue={patchVenue}
         patchWebsite={patchWebsite}
@@ -115,7 +97,6 @@ export function PublicHomeView({
         editMode={editMode}
         preview={preview}
         layout={resolveSectionLayout(website, 'map')}
-        onCycleLayout={() => cycleLayout('map')}
         hidden={!sectionOn(website, 'map')}
         patchWebsite={patchWebsite}
       />
@@ -127,7 +108,6 @@ export function PublicHomeView({
         reviews={reviews}
         editMode={editMode}
         layout={resolveSectionLayout(website, 'reviews')}
-        onCycleLayout={() => cycleLayout('reviews')}
         hidden={!sectionOn(website, 'reviews')}
         patchReview={patchReview}
         patchWebsite={patchWebsite}
@@ -141,7 +121,6 @@ export function PublicHomeView({
         editMode={editMode}
         preview={preview}
         layout={resolveSectionLayout(website, 'bookStrip')}
-        onCycleLayout={() => cycleLayout('bookStrip')}
         hidden={!sectionOn(website, 'bookStrip')}
         patchWebsite={patchWebsite}
       />
@@ -156,7 +135,6 @@ export function PublicHomeView({
         editMode={editMode}
         preview={preview}
         layout={resolveSectionLayout(website, 'hero')}
-        onCycleLayout={() => cycleLayout('hero')}
         onUpdateProfile={onUpdateProfile}
         patchWebsite={patchWebsite}
       />

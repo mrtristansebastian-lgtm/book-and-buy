@@ -5,7 +5,6 @@ export function AboutSection({
   website,
   editMode,
   layout,
-  onCycleLayout,
   hidden,
   patchWebsite
 }) {
@@ -49,7 +48,6 @@ export function AboutSection({
       title="About"
       sectionId="about"
       layout={layout}
-      onCycleLayout={onCycleLayout}
       hidden={hidden}
       coach="Tell clients who you are."
       className={`bb-public-home-block bb-public-gutter ${sectionLayoutClass(layout)}`}

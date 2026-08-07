@@ -10,7 +10,6 @@ export {
   HOME_SECTION_IDS,
   createDefaultSectionLayouts,
   resolveSectionLayout,
-  nextSectionLayout,
   sectionLayoutClass
 } from './sectionLayout';
 export {

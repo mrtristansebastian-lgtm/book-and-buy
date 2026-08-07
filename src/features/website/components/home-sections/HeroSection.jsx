@@ -15,7 +15,6 @@ export function HeroSection({
   editMode,
   preview,
   layout,
-  onCycleLayout,
   onUpdateProfile,
   patchWebsite
 }) {
@@ -87,7 +86,6 @@ export function HeroSection({
       title="Hero"
       sectionId="hero"
       layout={layout}
-      onCycleLayout={onCycleLayout}
       className={`bb-public-home relative ${sectionLayoutClass(layout)}`}
     >
       <div key={layout} className="bb-sec-layout-stage">

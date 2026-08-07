@@ -13,7 +13,6 @@ export function BookStripSection({
   editMode,
   preview,
   layout,
-  onCycleLayout,
   hidden,
   patchWebsite
 }) {
@@ -61,7 +60,6 @@ export function BookStripSection({
       title="Book strip"
       sectionId="bookStrip"
       layout={layout}
-      onCycleLayout={onCycleLayout}
       hidden={hidden}
       className={`bb-public-home-block bb-public-gutter ${sectionLayoutClass(layout)}`}
     >

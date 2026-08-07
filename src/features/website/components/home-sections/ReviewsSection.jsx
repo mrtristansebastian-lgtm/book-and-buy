@@ -43,7 +43,6 @@ export function ReviewsSection({
   reviews,
   editMode,
   layout,
-  onCycleLayout,
   hidden,
   patchReview,
   patchWebsite
@@ -88,7 +87,6 @@ export function ReviewsSection({
       title="Reviews"
       sectionId="reviews"
       layout={layout}
-      onCycleLayout={onCycleLayout}
       hidden={hidden}
       className={`bb-public-home-block bb-public-gutter ${sectionLayoutClass(layout)}`}
     >

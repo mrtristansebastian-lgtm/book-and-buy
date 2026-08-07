@@ -6,7 +6,6 @@ export function VenueSection({
   venueImages,
   editMode,
   layout,
-  onCycleLayout,
   hidden,
   patchVenue,
   patchWebsite
@@ -24,7 +23,6 @@ export function VenueSection({
       title="Venue"
       sectionId="venue"
       layout={layout}
-      onCycleLayout={onCycleLayout}
       hidden={hidden}
       coach="Add 2–4 venue photos."
       className={`bb-public-home-block bb-public-gutter ${sectionLayoutClass(layout)}`}

@@ -6,7 +6,6 @@ export function MapSection({
   editMode,
   preview,
   layout,
-  onCycleLayout,
   hidden,
   patchWebsite
 }) {
@@ -83,7 +82,6 @@ export function MapSection({
       title="Visit / Map"
       sectionId="map"
       layout={layout}
-      onCycleLayout={onCycleLayout}
       hidden={hidden}
       coach="Paste a Google Maps embed URL."
       className={`bb-public-home-block bb-public-gutter bb-public-home-block--soft ${sectionLayoutClass(layout)}`}
