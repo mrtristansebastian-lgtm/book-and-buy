@@ -1,0 +1,529 @@
+/* Home section layout templates + edit-mode cycle chrome */
+
+/* ——— Edit chrome ——— */
+
+.bb-edit-section-label {
+  justify-content: flex-start;
+}
+
+.bb-edit-section-layout-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.bb-edit-section-layout-index {
+  font-size: 0.65rem;
+  font-weight: 720;
+  letter-spacing: 0.04em;
+  color: rgba(15, 23, 42, 0.38);
+  text-transform: none;
+}
+
+.bb-edit-section-layout-next {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: #101828;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.bb-edit-section-layout-next:hover {
+  border-color: rgba(15, 23, 42, 0.28);
+  background: #f4f5f7;
+}
+
+.bb-edit-section-layout-next:active {
+  transform: translateX(1px);
+}
+
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-layout-index {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-layout-next {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #101828 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home.bb-sec-layout--1 .bb-edit-section-layout-index {
+  color: rgba(15, 23, 42, 0.4) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home.bb-sec-layout--1 .bb-edit-section-label,
+html body .native-ui .bb-public-surface .bb-public-home.bb-sec-layout--1 .bb-edit-section-coach {
+  color: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* ——— Slide stage ——— */
+
+@keyframes bb-sec-layout-slide {
+  from {
+    opacity: 0;
+    transform: translateX(1.1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.bb-sec-layout-stage {
+  animation: bb-sec-layout-slide 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-sec-layout-stage {
+    animation: none;
+  }
+}
+
+/* ——— Hero ——— */
+
+.bb-public-home.bb-sec-layout--1 {
+  min-height: calc(100dvh - var(--bb-public-header-h));
+  align-items: stretch;
+  background: #fbfbfb;
+}
+
+.bb-public-home.bb-sec-layout--1 .bb-sec-layout-stage {
+  display: grid;
+  min-height: inherit;
+}
+
+.bb-hero-split {
+  display: grid;
+  min-height: inherit;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .bb-hero-split {
+    grid-template-columns: minmax(18rem, 0.95fr) minmax(0, 1.15fr);
+  }
+}
+
+.bb-hero-split-panel {
+  display: grid;
+  align-content: center;
+  gap: 1rem;
+  background: #0c0a09;
+  color: #fff;
+  padding-top: clamp(3rem, 8vh, 5rem);
+  padding-bottom: clamp(3rem, 8vh, 5rem);
+  z-index: 2;
+}
+
+.bb-hero-split-panel .bb-public-home-copy-inner {
+  display: grid;
+  gap: 1rem;
+  max-width: 28rem;
+}
+
+.bb-hero-split-panel .bb-public-home-brand {
+  font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+  color: #fff;
+  text-shadow: none;
+}
+
+.bb-hero-split-panel .bb-public-home-support {
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: none;
+}
+
+.bb-hero-split-panel .bb-public-home-ctas .bb-ghost-btn,
+.bb-hero-split-panel .bb-public-home-ghost {
+  background: rgba(255, 255, 255, 0.94);
+  color: #101828;
+  border-color: transparent;
+}
+
+.bb-hero-split-media {
+  position: relative;
+  min-height: 18rem;
+  background: #1c1917;
+}
+
+.bb-hero-split-image,
+.bb-hero-split-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-home.bb-sec-layout--2 {
+  align-items: center;
+}
+
+.bb-public-home.bb-sec-layout--2 .bb-public-home-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.18) 50%,
+    rgba(0, 0, 0, 0.22) 100%
+  );
+}
+
+.bb-public-home.bb-sec-layout--2 .bb-public-home-copy {
+  justify-items: center;
+  text-align: center;
+  max-width: 46rem;
+  margin-inline: auto;
+  width: 100%;
+  padding-bottom: clamp(3.5rem, 12vh, 6rem);
+  padding-top: clamp(5rem, 14vh, 8rem);
+}
+
+.bb-public-home.bb-sec-layout--2 .bb-public-home-copy-inner {
+  display: grid;
+  gap: 1.1rem;
+  justify-items: center;
+}
+
+.bb-public-home.bb-sec-layout--2 .bb-public-home-brand {
+  font-size: clamp(3.2rem, 9vw, 5.75rem);
+  letter-spacing: -0.04em;
+}
+
+.bb-public-home.bb-sec-layout--2 .bb-public-home-support {
+  max-width: 26rem;
+}
+
+.bb-public-home.bb-sec-layout--2 .bb-public-home-ctas {
+  justify-content: center;
+  padding-top: 0.85rem;
+}
+
+.bb-public-home-copy-inner {
+  display: grid;
+  gap: 1rem;
+}
+
+html body .native-ui .bb-public-surface .bb-hero-split-panel :where(h1, h2, h3, p),
+html body .native-ui .bb-public-surface .bb-hero-split-panel .bb-public-home-brand,
+html body .native-ui .bb-public-surface .bb-hero-split-panel .bb-public-home-support {
+  color: #fff !important;
+}
+
+html body .native-ui .bb-public-surface .bb-hero-split-panel .bb-public-home-support {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-hero-split-panel .bb-primary-btn,
+html body .native-ui .bb-public-surface .bb-hero-split-panel .bb-primary-btn :where(span, strong, small) {
+  color: #050505 !important;
+}
+
+/* ——— About ——— */
+
+.bb-public-about.bb-sec-layout--1,
+.bb-sec-layout--1 .bb-public-about {
+  /* media-first DOM: media | copy */
+}
+
+@media (min-width: 900px) {
+  .bb-sec-layout--1 .bb-public-about {
+    grid-template-columns: 0.95fr 1.1fr;
+  }
+}
+
+.bb-sec-layout--2 .bb-public-about {
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+  max-width: none;
+}
+
+.bb-public-about-band {
+  width: 100%;
+}
+
+.bb-sec-layout--2 .bb-public-about-band .bb-public-about-media {
+  aspect-ratio: 21 / 9;
+  min-height: 12rem;
+  border-radius: 1.25rem;
+}
+
+.bb-public-about-stack-copy {
+  max-width: 38rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.bb-public-about-stack-copy .bb-public-about-copy {
+  justify-items: center;
+}
+
+.bb-public-about-stack-copy .bb-public-lede {
+  margin-inline: auto;
+}
+
+/* ——— Reasons ——— */
+
+.bb-public-reasons--numbered {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 800px) {
+  .bb-public-reasons--numbered {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.bb-public-reasons--numbered .bb-public-reason {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.bb-public-reason-index {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 2rem;
+  font-weight: 780;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #101828;
+  opacity: 0.2;
+}
+
+.bb-public-reasons--stack {
+  display: grid;
+  gap: 0;
+}
+
+.bb-public-reasons--stack .bb-public-reason {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.45rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.bb-public-reasons--stack .bb-public-reason:last-child {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-reason-copy {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* ——— Venue ——— */
+
+@media (min-width: 800px) {
+  .bb-public-venue-grid--mosaic {
+    grid-template-columns: 1.35fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.85rem;
+  }
+
+  .bb-public-venue-grid--mosaic .bb-public-venue-card.is-feature {
+    grid-row: span 2;
+  }
+
+  .bb-public-venue-grid--mosaic .bb-public-venue-card.is-feature .bb-public-venue-media {
+    min-height: 100%;
+    aspect-ratio: 4 / 5;
+  }
+}
+
+.bb-public-venue-grid--strip {
+  display: flex;
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bb-public-venue-grid--strip .bb-public-venue-card {
+  flex: 0 0 min(78%, 22rem);
+  scroll-snap-align: start;
+}
+
+.bb-public-venue-grid--strip .bb-public-venue-media {
+  aspect-ratio: 16 / 10;
+}
+
+/* ——— Map / Visit ——— */
+
+.bb-public-visit--overlay {
+  position: relative;
+  display: grid;
+  gap: 0;
+  max-width: none;
+  grid-template-columns: 1fr !important;
+}
+
+.bb-public-visit--overlay .bb-public-map-frame {
+  min-height: 22rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+.bb-public-visit-float {
+  position: relative;
+  z-index: 2;
+  margin-top: -4.5rem;
+  margin-left: var(--bb-public-gutter);
+  margin-right: var(--bb-public-gutter);
+  max-width: 22rem;
+  padding: 1.25rem 1.35rem;
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.35);
+}
+
+@media (min-width: 900px) {
+  .bb-public-visit-float {
+    position: absolute;
+    left: var(--bb-public-gutter);
+    bottom: 1.5rem;
+    margin: 0;
+  }
+}
+
+.bb-public-visit--stack {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+.bb-public-visit--stack .bb-public-map-frame {
+  min-height: 18rem;
+}
+
+/* ——— Reviews ——— */
+
+.bb-public-reviews--featured {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .bb-public-reviews--featured {
+    grid-template-columns: 1.35fr 0.9fr;
+    gap: 2rem;
+    align-items: start;
+  }
+}
+
+.bb-public-reviews--featured .bb-public-review.is-featured {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.bb-public-reviews--featured .bb-public-review.is-featured .bb-public-review-quote {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  font-weight: 560;
+}
+
+.bb-public-reviews-side {
+  display: grid;
+  gap: 1rem;
+}
+
+.bb-public-reviews--stream {
+  display: grid;
+  gap: 0;
+}
+
+.bb-public-reviews--stream .bb-public-review {
+  padding: 1.35rem 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.bb-public-reviews--stream .bb-public-review:last-child {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.09);
+}
+
+/* ——— Book strip ——— */
+
+.bb-public-book-strip--split {
+  display: grid !important;
+  gap: 1.25rem;
+  align-items: center;
+  text-align: left;
+  justify-items: stretch;
+}
+
+@media (min-width: 800px) {
+  .bb-public-book-strip--split {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2rem;
+  }
+}
+
+.bb-public-book-strip--minimal {
+  display: grid !important;
+  background: transparent;
+  color: #101828;
+  box-shadow: none;
+  border: 0;
+  padding: 0.5rem 0;
+  text-align: left;
+  justify-items: start;
+  gap: 1rem;
+}
+
+.bb-public-book-strip--minimal .bb-page-title,
+.bb-public-book-strip--minimal .bb-public-lede,
+.bb-public-book-strip--minimal p,
+.bb-public-book-strip--minimal h2 {
+  color: #101828;
+}
+
+.bb-public-book-strip--minimal .bb-public-lede {
+  color: #667085;
+  max-width: 32rem;
+}
+
+html body .native-ui .bb-public-surface .bb-public-book-strip--minimal :where(h1, h2, h3, p),
+html body .native-ui .bb-public-surface .bb-public-book-strip--minimal .bb-page-title {
+  color: #101828 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-book-strip--minimal .bb-public-lede {
+  color: #667085 !important;
+}
+
+/* Phone preview tweaks */
+.bb-device-preview--phone .bb-hero-split-media {
+  min-height: 14rem;
+}
+
+.bb-device-preview--phone .bb-public-visit-float {
+  margin-top: -3rem;
+  max-width: none;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid--strip .bb-public-venue-card {
+  flex-basis: 85%;
+}

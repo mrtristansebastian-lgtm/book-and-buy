@@ -139,6 +139,8 @@ export interface WebsiteSettings {
   featuredProductId?: string;
   sections?: Record<string, boolean>;
   sectionOrder?: string[];
+  /** Per-section Home layout index (0–2). */
+  sectionLayouts?: Record<string, 0 | 1 | 2 | number>;
   ctaPrimary?: "book" | "shop" | "social" | string;
   pages?: WebsitePageVisibility;
   featuredServiceIds?: string[];

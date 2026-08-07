@@ -259,6 +259,10 @@ export function WorkspaceProvider({ children }) {
             sections: {
               ...prev.website?.sections,
               ...(patch.sections || {})
+            },
+            sectionLayouts: {
+              ...prev.website?.sectionLayouts,
+              ...(patch.sectionLayouts || {})
             }
           },
           publishedAt: patch.publish ? Date.now() : prev.publishedAt

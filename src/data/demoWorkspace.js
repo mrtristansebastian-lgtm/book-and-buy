@@ -3,7 +3,7 @@ import { normalizeProductList } from '../utils/products';
 import { addDays, toDateKey } from '../utils/dates';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 2;
+export const DEMO_WEBSITE_SCHEMA = 3;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 2;
@@ -454,6 +454,15 @@ export function createDemoWorkspace() {
         bookStrip: true
       },
       sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews', 'bookStrip'],
+      sectionLayouts: {
+        hero: 0,
+        about: 0,
+        reasons: 0,
+        venue: 0,
+        map: 0,
+        reviews: 0,
+        bookStrip: 0
+      },
       headline: 'Bake with us.',
       subcopy: 'Hands-on classes, private sessions, and kitchen goods.',
       ctaLabel: 'Book a class',
@@ -730,6 +739,10 @@ export function hydrateDemoWorkspace(stored) {
         bookFaq: fresh.website.bookFaq,
         sections: fresh.website.sections,
         sectionOrder: fresh.website.sectionOrder,
+        sectionLayouts: {
+          ...fresh.website.sectionLayouts,
+          ...(stored.website?.sectionLayouts || {})
+        },
         featuredProductId: fresh.website.featuredProductId,
         heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
         homeHeadline: stored.website?.homeHeadline || fresh.website.homeHeadline,
@@ -739,7 +752,11 @@ export function hydrateDemoWorkspace(stored) {
       }
     : {
         ...fresh.website,
-        ...(stored.website || {})
+        ...(stored.website || {}),
+        sectionLayouts: {
+          ...fresh.website.sectionLayouts,
+          ...(stored.website?.sectionLayouts || {})
+        }
       };
 
   return {

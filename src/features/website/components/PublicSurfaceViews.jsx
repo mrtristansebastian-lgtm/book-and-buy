@@ -1,44 +1,27 @@
-import { useState } from 'react';
-import { navigate, publicPagePath } from '../../../app/routing';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
-import { fetchGooglePlaceReviews } from '../../../shared/firebase/integrations';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
 import { SocialFeed } from '../../social/components/SocialFeed';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
-import { EditableText, EditableImage, EditSection } from './editable';
-
-const DEFAULT_HERO = '/example/flour-and-flame/hero.webp';
-
-function go(preview, editMode, path) {
-  if (preview || editMode) return;
-  navigate(path);
-}
+import { EditableText } from './editable';
+import {
+  AboutSection,
+  BookStripSection,
+  HeroSection,
+  MapSection,
+  ReasonsSection,
+  ReviewsSection,
+  VenueSection,
+  nextSectionLayout,
+  resolveSectionLayout
+} from './home-sections';
 
 function sectionOn(website, key) {
   return website.sections?.[key] !== false;
 }
 
-function resolveSectionOrder(website) {
-  const defaults = createDefaultHomeSectionOrder();
-  const custom = Array.isArray(website.sectionOrder) ? website.sectionOrder : [];
-  const seen = new Set();
-  const ordered = [];
-  for (const id of [...custom, ...defaults]) {
-    if (!defaults.includes(id) || seen.has(id)) continue;
-    seen.add(id);
-    ordered.push(id);
-  }
-  return ordered;
-}
-
-function Stars({ rating = 5 }) {
-  const n = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
-  return (
-    <span className="bb-public-stars" aria-label={`${n} out of 5`}>
-      {'★'.repeat(n)}
-      <span className="opacity-25">{'★'.repeat(5 - n)}</span>
-    </span>
-  );
+/** Fixed Home order — sectionOrder kept in data for compatibility only. */
+function resolveSectionOrder() {
+  return createDefaultHomeSectionOrder();
 }
 
 export function PublicHomeView({
@@ -49,51 +32,21 @@ export function PublicHomeView({
   onUpdateProfile
 }) {
   const website = workspace.website || {};
-  const brand = workspace.brandName || 'Business';
-  const support =
-    website.homeHeadline ||
-    website.homeSubtext ||
-    website.headline ||
-    website.subcopy ||
-    workspace.tagline ||
-    '';
-  const heroSrc = website.heroImageUrl || website.heroImage || DEFAULT_HERO;
   const reasons = website.reasons || [];
   const venueImages = website.venueImages || [];
   const reviews = website.reviews || [];
 
-  const [placesNote, setPlacesNote] = useState('');
-  const [placesBusy, setPlacesBusy] = useState(false);
-
   const patchWebsite = (patch) => onUpdateWebsite?.(patch);
-  const importPlaceReviews = async () => {
-    if (placesBusy) return;
-    setPlacesBusy(true);
-    setPlacesNote('');
-    try {
-      const result = await fetchGooglePlaceReviews(website.googlePlaceId || '');
-      if (result.ok && result.reviews?.length) {
-        patchWebsite({
-          reviews: [
-            ...reviews,
-            ...result.reviews.map((item, index) => ({
-              id: item.id || `grev-${Date.now()}-${index}`,
-              quote: item.quote || item.text || '',
-              name: item.name || item.author || '',
-              rating: item.rating || 5
-            }))
-          ].slice(0, 6)
-        });
-        setPlacesNote('Imported reviews from Google Places.');
-      } else {
-        setPlacesNote(result.reason || 'Could not import reviews yet.');
+
+  const cycleLayout = (sectionId) => {
+    patchWebsite({
+      sectionLayouts: {
+        ...(website.sectionLayouts || {}),
+        [sectionId]: nextSectionLayout(website, sectionId)
       }
-    } catch (error) {
-      setPlacesNote(error?.message || 'Could not import reviews.');
-    } finally {
-      setPlacesBusy(false);
-    }
+    });
   };
+
   const patchReason = (id, field, value) => {
     patchWebsite({
       reasons: reasons.map((item) => (item.id === id ? { ...item, [field]: value } : item))
@@ -114,415 +67,95 @@ export function PublicHomeView({
 
   const sectionBlocks = {
     about: (
-      <EditSection
+      <AboutSection
         key="about"
+        website={website}
         editMode={editMode}
-        title="About"
+        layout={resolveSectionLayout(website, 'about')}
+        onCycleLayout={() => cycleLayout('about')}
         hidden={!sectionOn(website, 'about')}
-        coach="Tell clients who you are."
-        className="bb-public-home-block bb-public-gutter"
-      >
-        <div className="bb-public-measure bb-public-about">
-          <div className="bb-public-about-copy grid gap-3">
-            <EditableText
-              as="h2"
-              className="bb-page-title text-3xl md:text-4xl m-0"
-              editMode={editMode}
-              value={website.aboutTitle || 'About us'}
-              placeholder="About title"
-              onChange={(value) => patchWebsite({ aboutTitle: value })}
-            />
-            <EditableText
-              as="p"
-              className="bb-public-lede m-0"
-              editMode={editMode}
-              multiline
-              value={website.aboutBody || ''}
-              placeholder="About your business"
-              onChange={(value) => patchWebsite({ aboutBody: value })}
-            />
-          </div>
-          <EditableImage
-            editMode={editMode}
-            src={website.aboutImageUrl || ''}
-            className="bb-public-about-media"
-            imgClassName="w-full h-full object-cover"
-            storageFolder="venue"
-            onChange={(url) => patchWebsite({ aboutImageUrl: url })}
-            placeholderLabel="About image URL"
-          />
-        </div>
-      </EditSection>
+        patchWebsite={patchWebsite}
+      />
     ),
     reasons: (
-      <EditSection
+      <ReasonsSection
         key="reasons"
+        website={website}
+        reasons={reasons}
         editMode={editMode}
-        title="Why choose us"
+        layout={resolveSectionLayout(website, 'reasons')}
+        onCycleLayout={() => cycleLayout('reasons')}
         hidden={!sectionOn(website, 'reasons')}
-        className="bb-public-home-block bb-public-gutter bb-public-home-block--soft"
-      >
-        <div className="bb-public-measure grid gap-6">
-          <EditableText
-            as="h2"
-            className="bb-page-title text-3xl md:text-4xl m-0"
-            editMode={editMode}
-            value={website.reasonsTitle || 'Why choose us'}
-            placeholder="Section title"
-            onChange={(value) => patchWebsite({ reasonsTitle: value })}
-          />
-          <div className="bb-public-reasons">
-            {reasons.map((reason) => (
-              <article key={reason.id} className="bb-public-reason">
-                <EditableText
-                  as="h3"
-                  className="bb-page-title text-xl m-0"
-                  editMode={editMode}
-                  value={reason.title || ''}
-                  placeholder="Reason title"
-                  onChange={(value) => patchReason(reason.id, 'title', value)}
-                />
-                <EditableText
-                  as="p"
-                  className="bb-public-reason-body m-0"
-                  editMode={editMode}
-                  multiline
-                  value={reason.body || ''}
-                  placeholder="Short reason"
-                  onChange={(value) => patchReason(reason.id, 'body', value)}
-                />
-              </article>
-            ))}
-          </div>
-        </div>
-      </EditSection>
+        patchReason={patchReason}
+        patchWebsite={patchWebsite}
+      />
     ),
     venue: (
-      <EditSection
+      <VenueSection
         key="venue"
+        website={website}
+        venueImages={venueImages}
         editMode={editMode}
-        title="Venue"
+        layout={resolveSectionLayout(website, 'venue')}
+        onCycleLayout={() => cycleLayout('venue')}
         hidden={!sectionOn(website, 'venue')}
-        coach="Add 2–4 venue photos."
-        className="bb-public-home-block bb-public-gutter"
-      >
-        <div className="bb-public-measure grid gap-5">
-          <EditableText
-            as="h2"
-            className="bb-page-title text-3xl md:text-4xl m-0"
-            editMode={editMode}
-            value={website.venueTitle || 'Our space'}
-            placeholder="Venue title"
-            onChange={(value) => patchWebsite({ venueTitle: value })}
-          />
-          <div className="bb-public-venue-grid">
-            {venueImages.length === 0 && editMode ? (
-              <p className="bb-edit-section-coach m-0">Add a venue photo to show your space.</p>
-            ) : null}
-            {venueImages.map((image) => (
-              <figure key={image.id} className="bb-public-venue-card">
-                <EditableImage
-                  editMode={editMode}
-                  src={image.url || ''}
-                  className="bb-public-venue-media"
-                  imgClassName="w-full h-full object-cover"
-                  storageFolder="venue"
-                  onChange={(url) => patchVenue(image.id, 'url', url)}
-                />
-                <figcaption>
-                  <EditableText
-                    as="span"
-                    editMode={editMode}
-                    value={image.caption || ''}
-                    placeholder="Caption"
-                    onChange={(value) => patchVenue(image.id, 'caption', value)}
-                  />
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-          {editMode && venueImages.length < 4 ? (
-            <button
-              type="button"
-              className="bb-ghost-btn justify-self-start"
-              onClick={() =>
-                patchWebsite({
-                  venueImages: [
-                    ...venueImages,
-                    { id: `v-${Date.now()}`, url: '', caption: '' }
-                  ]
-                })
-              }
-            >
-              Add venue photo
-            </button>
-          ) : null}
-        </div>
-      </EditSection>
+        patchVenue={patchVenue}
+        patchWebsite={patchWebsite}
+      />
     ),
     map: (
-      <EditSection
+      <MapSection
         key="map"
+        website={website}
         editMode={editMode}
-        title="Visit / Map"
+        preview={preview}
+        layout={resolveSectionLayout(website, 'map')}
+        onCycleLayout={() => cycleLayout('map')}
         hidden={!sectionOn(website, 'map')}
-        coach="Paste a Google Maps embed URL."
-        className="bb-public-home-block bb-public-gutter bb-public-home-block--soft"
-      >
-        <div className="bb-public-measure bb-public-visit">
-          <div className="grid gap-3 content-start">
-            <h2 className="bb-page-title text-3xl m-0">Visit</h2>
-            <EditableText
-              as="p"
-              className="bb-public-lede m-0"
-              editMode={editMode}
-              multiline
-              value={website.address || ''}
-              placeholder="Street address"
-              onChange={(value) => patchWebsite({ address: value })}
-            />
-            {editMode ? (
-              <div className="grid gap-3 max-w-xl">
-                <label className="grid gap-1 text-xs font-semibold">
-                  Map embed URL
-                  <input
-                    className="native-control-input px-3 py-2 text-sm"
-                    value={website.mapEmbedUrl || ''}
-                    placeholder="https://maps.google.com/maps?...&output=embed"
-                    onChange={(event) => patchWebsite({ mapEmbedUrl: event.target.value })}
-                  />
-                </label>
-                <label className="grid gap-1 text-xs font-semibold">
-                  Google Place ID (optional)
-                  <input
-                    className="native-control-input px-3 py-2 text-sm"
-                    value={website.googlePlaceId || ''}
-                    placeholder="ChIJ…"
-                    onChange={(event) => patchWebsite({ googlePlaceId: event.target.value })}
-                  />
-                </label>
-              </div>
-            ) : null}
-            {website.mapLinkUrl || website.mapEmbedUrl ? (
-              <a
-                className="bb-ghost-btn justify-self-start"
-                href={website.mapLinkUrl || website.mapEmbedUrl}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(event) => {
-                  if (editMode || preview) event.preventDefault();
-                }}
-              >
-                Open in Maps
-              </a>
-            ) : null}
-          </div>
-          <div className="bb-public-map-frame">
-            {website.mapEmbedUrl ? (
-              <iframe
-                title="Map"
-                src={website.mapEmbedUrl}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            ) : (
-              <div className="bb-public-empty h-full grid place-items-center">
-                {editMode ? 'Add a Google Maps embed URL' : 'Map coming soon'}
-              </div>
-            )}
-          </div>
-        </div>
-      </EditSection>
+        patchWebsite={patchWebsite}
+      />
     ),
     reviews: (
-      <EditSection
+      <ReviewsSection
         key="reviews"
+        website={website}
+        reviews={reviews}
         editMode={editMode}
-        title="Reviews"
+        layout={resolveSectionLayout(website, 'reviews')}
+        onCycleLayout={() => cycleLayout('reviews')}
         hidden={!sectionOn(website, 'reviews')}
-        className="bb-public-home-block bb-public-gutter"
-      >
-        <div className="bb-public-measure grid gap-6">
-          <EditableText
-            as="h2"
-            className="bb-page-title text-3xl md:text-4xl m-0"
-            editMode={editMode}
-            value={website.reviewsTitle || 'What clients say'}
-            placeholder="Reviews title"
-            onChange={(value) => patchWebsite({ reviewsTitle: value })}
-          />
-          <div className="bb-public-reviews">
-            {reviews.map((review) => (
-              <article key={review.id} className="bb-public-review">
-                <Stars rating={review.rating} />
-                <EditableText
-                  as="p"
-                  className="bb-public-review-quote"
-                  editMode={editMode}
-                  multiline
-                  value={review.quote || ''}
-                  placeholder="Review quote"
-                  onChange={(value) => patchReview(review.id, 'quote', value)}
-                />
-                <EditableText
-                  as="p"
-                  className="bb-public-review-name"
-                  editMode={editMode}
-                  value={review.name || ''}
-                  placeholder="Client name"
-                  onChange={(value) => patchReview(review.id, 'name', value)}
-                />
-              </article>
-            ))}
-          </div>
-          {editMode ? (
-            <div className="flex flex-wrap gap-2">
-              {reviews.length < 6 ? (
-                <button
-                  type="button"
-                  className="bb-ghost-btn justify-self-start"
-                  onClick={() =>
-                    patchWebsite({
-                      reviews: [
-                        ...reviews,
-                        {
-                          id: `rev-${Date.now()}`,
-                          quote: '',
-                          name: '',
-                          rating: 5
-                        }
-                      ]
-                    })
-                  }
-                >
-                  Add review
-                </button>
-              ) : null}
-              <button
-                type="button"
-                className="bb-ghost-btn"
-                disabled={placesBusy || !website.googlePlaceId}
-                onClick={importPlaceReviews}
-              >
-                {placesBusy ? 'Importing…' : 'Import Google reviews'}
-              </button>
-            </div>
-          ) : null}
-          {editMode && placesNote ? <p className="bb-muted m-0 text-xs">{placesNote}</p> : null}
-        </div>
-      </EditSection>
+        patchReview={patchReview}
+        patchWebsite={patchWebsite}
+      />
     ),
     bookStrip: (
-      <EditSection
+      <BookStripSection
         key="bookStrip"
+        workspace={workspace}
+        website={website}
         editMode={editMode}
-        title="Book strip"
+        preview={preview}
+        layout={resolveSectionLayout(website, 'bookStrip')}
+        onCycleLayout={() => cycleLayout('bookStrip')}
         hidden={!sectionOn(website, 'bookStrip')}
-        className="bb-public-home-block bb-public-gutter"
-      >
-        <div className="bb-public-measure bb-public-book-strip">
-          <div className="grid gap-2">
-            <EditableText
-              as="h2"
-              className="bb-page-title text-3xl m-0"
-              editMode={editMode}
-              value={website.bookStripTitle || 'Ready to book?'}
-              placeholder="Strip title"
-              onChange={(value) => patchWebsite({ bookStripTitle: value })}
-            />
-            <EditableText
-              as="p"
-              className="bb-public-lede m-0"
-              editMode={editMode}
-              multiline
-              value={website.bookStripBody || ''}
-              placeholder="Strip supporting line"
-              onChange={(value) => patchWebsite({ bookStripBody: value })}
-            />
-          </div>
-          <button
-            type="button"
-            className="bb-primary-btn"
-            onClick={() => go(preview, editMode, publicPagePath(workspace.slug, 'book'))}
-          >
-            <EditableText
-              as="span"
-              editMode={editMode}
-              value={website.bookStripCta || 'See availability'}
-              placeholder="CTA"
-              onChange={(value) => patchWebsite({ bookStripCta: value })}
-            />
-          </button>
-        </div>
-      </EditSection>
+        patchWebsite={patchWebsite}
+      />
     )
   };
 
   return (
     <div className="bb-public-home-stack">
-      <EditSection editMode={editMode} title="Hero" className="bb-public-home relative">
-        <div className="absolute inset-0 bb-public-home-atmosphere" aria-hidden="true" />
-        <EditableImage
-          editMode={editMode}
-          src={heroSrc}
-          className="absolute inset-0"
-          imgClassName="absolute inset-0 w-full h-full object-cover"
-          storageFolder="brand"
-          onChange={(url) => patchWebsite({ heroImageUrl: url })}
-          placeholderLabel="Add hero image URL"
-        />
-        <div className="absolute inset-0 bb-public-home-scrim" aria-hidden="true" />
-        <div className="bb-public-home-copy bb-public-gutter">
-          <EditableText
-            as="h1"
-            className="bb-public-home-brand"
-            editMode={editMode}
-            value={brand}
-            placeholder="Business name"
-            onChange={(value) => onUpdateProfile?.({ brandName: value })}
-          />
-          <EditableText
-            as="p"
-            className="bb-public-home-support"
-            editMode={editMode}
-            multiline
-            value={support}
-            placeholder="Short supporting line"
-            onChange={(value) =>
-              patchWebsite({ homeHeadline: value, headline: value, homeSubtext: value })
-            }
-          />
-          <div className="bb-public-home-ctas">
-            <button
-              type="button"
-              className="bb-primary-btn"
-              onClick={() => go(preview, editMode, publicPagePath(workspace.slug, 'book'))}
-            >
-              <EditableText
-                as="span"
-                editMode={editMode}
-                value={website.ctaLabel || 'Book now'}
-                placeholder="Book CTA"
-                onChange={(value) => patchWebsite({ ctaLabel: value })}
-              />
-            </button>
-            <button
-              type="button"
-              className="bb-ghost-btn bg-white/92"
-              onClick={() => go(preview, editMode, publicPagePath(workspace.slug, 'buy'))}
-            >
-              <EditableText
-                as="span"
-                editMode={editMode}
-                value={website.buyCtaLabel || 'Buy'}
-                placeholder="Buy CTA"
-                onChange={(value) => patchWebsite({ buyCtaLabel: value })}
-              />
-            </button>
-          </div>
-        </div>
-      </EditSection>
-      {resolveSectionOrder(website).map((id) => sectionBlocks[id])}
+      <HeroSection
+        workspace={workspace}
+        website={website}
+        editMode={editMode}
+        preview={preview}
+        layout={resolveSectionLayout(website, 'hero')}
+        onCycleLayout={() => cycleLayout('hero')}
+        onUpdateProfile={onUpdateProfile}
+        patchWebsite={patchWebsite}
+      />
+      {resolveSectionOrder().map((id) => sectionBlocks[id])}
     </div>
   );
 }

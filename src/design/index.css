@@ -5,6 +5,7 @@
 @import './native-booking-theme.css';
 @import './app-shell.css';
 @import './public-surface.css';
+@import './section-layouts.css';
 @import './social-studio.css';
 
 @tailwind base;
