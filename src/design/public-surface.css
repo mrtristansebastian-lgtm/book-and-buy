@@ -96,8 +96,9 @@
   position: relative;
   display: grid;
   align-items: end;
+  justify-items: center;
   overflow: hidden;
-  min-height: calc(100dvh - var(--bb-public-header-h));
+  min-height: clamp(28rem, calc(100dvh - var(--bb-public-header-h) - 5.5rem), 46rem);
 }
 
 .bb-public-home-atmosphere {
@@ -110,8 +111,9 @@
 .bb-public-home-scrim {
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.72) 0%,
-    rgba(0, 0, 0, 0.28) 42%,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.34) 42%,
+    rgba(0, 0, 0, 0.16) 72%,
     rgba(0, 0, 0, 0.08) 100%
   );
 }
@@ -119,16 +121,22 @@
 .bb-public-home-copy {
   position: relative;
   z-index: 10;
-  max-width: 38rem;
-  padding-bottom: clamp(2.75rem, 9vh, 5rem);
-  padding-top: clamp(3.5rem, 10vh, 5.5rem);
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  padding-top: clamp(2.5rem, 6vh, 4rem);
+  padding-bottom: clamp(2.75rem, 8vh, 4.5rem);
   color: #fff;
+  text-align: center;
+  justify-items: center;
 }
 
 .bb-public-home-copy-inner {
   display: grid;
-  gap: 0.95rem;
+  gap: 0.9rem;
   max-width: 34rem;
+  margin-inline: auto;
+  justify-items: center;
 }
 
 .bb-public-home-brand {
@@ -137,26 +145,29 @@
   font-weight: 820;
   letter-spacing: -0.035em;
   line-height: 0.96;
-  font-size: clamp(2.6rem, 6.8vw, 4.6rem);
+  font-size: clamp(2.4rem, 5.8vw, 4rem);
   color: #fff;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+  text-align: center;
 }
 
 .bb-public-home-support {
   margin: 0;
   max-width: 28rem;
-  font-size: clamp(1.02rem, 2.1vw, 1.22rem);
+  font-size: clamp(1rem, 2vw, 1.18rem);
   line-height: 1.5;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.92);
   text-shadow: 0 1px 14px rgba(0, 0, 0, 0.4);
+  text-align: center;
 }
 
 .bb-public-home-ctas {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.7rem;
-  padding-top: 0.45rem;
+  padding-top: 0.35rem;
 }
 
 .bb-public-home-ctas .bb-ghost-btn {
@@ -781,6 +792,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   border-radius: 1.35rem;
   max-height: min(68vh, 640px);
   border: 0;
+  overflow-x: hidden;
 }
 
 .bb-device-screen .bb-public-surface {
@@ -789,21 +801,75 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   --bb-public-header-h: 3.25rem;
 }
 
+/*
+ * Phone mockup is ~340px but the browser viewport is still desktop-wide, so
+ * @media / Tailwind md: rules keep applying. Force mobile layouts here.
+ */
+.bb-device-preview--phone .bb-public-surface {
+  --bb-public-gutter: 0.95rem;
+  --bb-public-header-h: auto;
+}
+
+.bb-device-preview--phone .bb-public-header {
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+  align-items: flex-start;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+.bb-device-preview--phone .bb-public-header .bb-brand-mark {
+  font-size: 1.15rem;
+  max-width: 100%;
+  text-align: left;
+}
+
+.bb-device-preview--phone .bb-public-nav {
+  width: 100%;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+}
+
+.bb-device-preview--phone .bb-public-nav a {
+  font-size: 0.72rem;
+  padding: 0.32rem 0.5rem;
+}
+
+.bb-device-preview--phone .bb-public-page-intro {
+  padding-top: 1.25rem;
+  padding-bottom: 0.9rem;
+}
+
+.bb-device-preview--phone .bb-public-page-intro h1,
+.bb-device-preview--phone .bb-public-buy-header h1,
+.bb-device-preview--phone .bb-public-social-header h1,
+.bb-device-preview--phone .bb-page-title.text-4xl,
+.bb-device-preview--phone .bb-page-title.text-3xl {
+  font-size: 1.55rem;
+  line-height: 1.12;
+}
+
+.bb-device-preview--phone .bb-public-lede {
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
 .bb-device-preview--phone .bb-public-home {
-  min-height: 440px;
+  min-height: 22rem;
 }
 
 .bb-device-preview--phone .bb-public-home-copy {
-  padding-top: 3rem;
-  padding-bottom: 2.25rem;
+  padding-top: 2rem;
+  padding-bottom: 1.85rem;
 }
 
 .bb-device-preview--phone .bb-public-home-brand {
-  font-size: 1.95rem;
+  font-size: 1.85rem;
 }
 
 .bb-device-preview--phone .bb-public-home-support {
-  font-size: 0.94rem;
+  font-size: 0.92rem;
 }
 
 .bb-device-preview--phone .bb-public-home-block {
@@ -834,8 +900,191 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   justify-content: center;
 }
 
-.bb-device-preview--phone .bb-page-title.text-3xl {
-  font-size: 1.55rem;
+/* Book */
+.bb-device-preview--phone .bb-public-book-layout {
+  grid-template-columns: 1fr !important;
+  gap: 1.1rem;
+  padding-bottom: 1.5rem;
+}
+
+.bb-device-preview--phone .bb-public-book-main .bb-public-gutter {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0.85rem;
+  padding-bottom: 1rem;
+}
+
+.bb-device-preview--phone .bb-public-book-aside {
+  padding: 1rem;
+}
+
+.bb-device-preview--phone .bb-public-service-row,
+.bb-device-preview--phone .bb-public-product-card {
+  grid-template-columns: 4.25rem minmax(0, 1fr) !important;
+  gap: 0.7rem;
+  align-items: start;
+  padding: 0.45rem 0.55rem 0.45rem 0.4rem;
+}
+
+.bb-device-preview--phone .bb-public-service-media,
+.bb-device-preview--phone .bb-public-product-media {
+  width: 4.25rem;
+  height: 4.25rem;
+}
+
+.bb-device-preview--phone .bb-public-service-copy .bb-public-service-price,
+.bb-device-preview--phone .bb-public-product-body .bb-public-product-price {
+  display: block !important;
+}
+
+.bb-device-preview--phone .bb-public-service-row > .bb-public-service-price,
+.bb-device-preview--phone .bb-public-product-aside > .bb-public-product-price {
+  display: none !important;
+}
+
+.bb-device-preview--phone .bb-public-product-aside {
+  grid-column: 1 / -1;
+  min-width: 0 !important;
+  justify-items: stretch;
+  width: 100%;
+}
+
+.bb-device-preview--phone .bb-public-product-aside .bb-primary-btn,
+.bb-device-preview--phone .bb-public-product-aside .bb-ghost-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.bb-device-preview--phone .bb-public-service-copy strong,
+.bb-device-preview--phone .bb-public-product-body h2 {
+  font-size: 0.92rem;
+}
+
+.bb-device-preview--phone .bb-public-service-desc,
+.bb-device-preview--phone .bb-public-product-desc {
+  font-size: 0.8rem;
+  -webkit-line-clamp: 2;
+}
+
+.bb-device-preview--phone .bb-public-cal-grid {
+  gap: 0.22rem;
+}
+
+.bb-device-preview--phone .bb-public-cal-grid > button {
+  min-width: 0;
+  width: 100%;
+  padding: 0.45rem 0.1rem !important;
+  font-size: 0.7rem !important;
+  border-radius: 0.55rem;
+  line-height: 1.1;
+}
+
+.bb-device-preview--phone .bb-public-book .bb-ghost-btn,
+.bb-device-preview--phone .bb-public-book .bb-primary-btn {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.8rem;
+}
+
+.bb-device-preview--phone .bb-public-cal-grid > .bb-ghost-btn,
+.bb-device-preview--phone .bb-public-cal-grid > .bb-primary-btn {
+  padding: 0.45rem 0.1rem !important;
+  font-size: 0.7rem !important;
+}
+
+/* Buy */
+.bb-device-preview--phone .bb-public-buy-section {
+  padding-top: 1.25rem;
+  padding-bottom: 1.75rem;
+  gap: 1.15rem;
+}
+
+.bb-device-preview--phone .bb-public-buy-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.bb-device-preview--phone .bb-public-cart-row {
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  padding: 0.65rem !important;
+}
+
+.bb-device-preview--phone .bb-public-cart-row > .bb-public-product-aside,
+.bb-device-preview--phone .bb-public-cart-row > :last-child {
+  grid-column: auto;
+  width: auto;
+  font-size: 0.85rem;
+}
+
+/* Social */
+.bb-device-preview--phone .bb-public-social {
+  padding-top: 1.25rem;
+  padding-bottom: 1.75rem;
+  gap: 1.1rem;
+}
+
+.bb-device-preview--phone .bb-social-toolbar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.65rem;
+}
+
+.bb-device-preview--phone .bb-social-tabs .bb-segment {
+  width: 100%;
+  justify-content: stretch;
+}
+
+.bb-device-preview--phone .bb-social-tabs .bb-segment button {
+  flex: 1 1 0;
+  padding: 0.4rem 0.45rem;
+  font-size: 0.72rem;
+}
+
+.bb-device-preview--phone .bb-social-posts-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.45rem;
+}
+
+.bb-device-preview--phone .bb-social-post-media {
+  border-radius: 0.65rem;
+}
+
+.bb-device-preview--phone .bb-social-post-caption {
+  font-size: 0.8rem;
+}
+
+.bb-device-preview--phone .bb-social-videos {
+  grid-template-columns: 1fr !important;
+  gap: 1rem;
+}
+
+.bb-device-preview--phone .bb-social-video-row-hit {
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  gap: 0.55rem;
+}
+
+.bb-device-preview--phone .bb-social-video-row-copy strong {
+  font-size: 0.86rem;
+}
+
+.bb-device-preview--phone .bb-social-text-item {
+  grid-template-columns: 2.2rem minmax(0, 1fr);
+  gap: 0.65rem;
+  padding: 0.85rem 0;
+}
+
+.bb-device-preview--phone .bb-social-text-avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 0.85rem;
+}
+
+.bb-public-cart-slot .bb-ghost-btn,
+.bb-public-cart-slot .bb-primary-btn {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.8rem;
 }
 
 .bb-studio-split {
@@ -1279,10 +1528,6 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   .bb-public-home-block {
     animation: none;
   }
-}
-
-.bb-device-preview--phone .bb-public-home {
-  min-height: 420px;
 }
 
 .bb-public-surface--edit .bb-public-home-ctas .bb-primary-btn,

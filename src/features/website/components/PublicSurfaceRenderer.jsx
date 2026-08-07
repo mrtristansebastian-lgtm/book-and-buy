@@ -1,4 +1,5 @@
 import { PublicBusinessHeader } from '../../public-surface/PublicBusinessHeader';
+import { PublicCartProvider } from '../../storefront/PublicCartContext';
 import {
   PublicBookView,
   PublicBuyView,
@@ -32,32 +33,34 @@ export function PublicSurfaceRenderer({
   const View = VIEWS[page] || PublicHomeView;
 
   return (
-    <div
-      className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''} ${
-        editMode ? 'bb-public-surface--edit' : ''
-      }`}
-      data-page={page}
-    >
-      {showHeader ? (
-        <PublicBusinessHeader
-          slug={workspace.slug}
-          page={page}
-          brandName={workspace.brandName}
-          pages={workspace.website?.pages}
-          preview={preview || editMode}
+    <PublicCartProvider>
+      <div
+        className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''} ${
+          editMode ? 'bb-public-surface--edit' : ''
+        }`}
+        data-page={page}
+      >
+        {showHeader ? (
+          <PublicBusinessHeader
+            slug={workspace.slug}
+            page={page}
+            brandName={workspace.brandName}
+            pages={workspace.website?.pages}
+            preview={preview || editMode}
+          />
+        ) : null}
+        <View
+          workspace={workspace}
+          preview={preview}
+          editMode={editMode}
+          publicMode={publicMode}
+          onUpdateWebsite={onUpdateWebsite}
+          onUpdateProfile={onUpdateProfile}
+          onUpdateSocialPost={onUpdateSocialPost}
+          onAddSocialPost={onAddSocialPost}
+          showDrafts={showDrafts}
         />
-      ) : null}
-      <View
-        workspace={workspace}
-        preview={preview}
-        editMode={editMode}
-        publicMode={publicMode}
-        onUpdateWebsite={onUpdateWebsite}
-        onUpdateProfile={onUpdateProfile}
-        onUpdateSocialPost={onUpdateSocialPost}
-        onAddSocialPost={onAddSocialPost}
-        showDrafts={showDrafts}
-      />
-    </div>
+      </div>
+    </PublicCartProvider>
   );
 }

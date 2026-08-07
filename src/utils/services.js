@@ -51,3 +51,11 @@ export const formatServiceDuration = (duration = '') => {
   if (/[a-z]/i.test(value)) return value;
   return `${value} min`;
 };
+
+export const getServiceUnitPriceCents = (service = {}) => {
+  if (service.priceType === 'quote' || service.priceType === 'free') return 0;
+  const digits = String(service.price ?? '').replace(/[^\d.]/g, '');
+  const value = Number(digits);
+  if (!Number.isFinite(value)) return 0;
+  return Math.round(value * 100);
+};
