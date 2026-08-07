@@ -38,6 +38,8 @@ export function WebsiteStudioPage() {
   const [mode, setMode] = useState('view');
   const [trayOpen, setTrayOpen] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [publishNote, setPublishNote] = useState('');
+  const [publishing, setPublishing] = useState(false);
 
   const editMode = mode === 'edit';
   const sections = { ...createDefaultHomeSections(), ...(website.sections || {}) };
@@ -59,10 +61,22 @@ export function WebsiteStudioPage() {
     []
   );
 
-  const publishFlash = () => {
-    publishWebsite();
-    setSavedFlash(true);
-    window.setTimeout(() => setSavedFlash(false), 1600);
+  const publishFlash = async () => {
+    if (publishing) return;
+    setPublishing(true);
+    try {
+      const result = await publishWebsite();
+      setSavedFlash(true);
+      setPublishNote(
+        result?.reason ||
+          (result?.localOnly
+            ? 'Published locally. Connect Firebase to sync the live slug.'
+            : 'Published.')
+      );
+      window.setTimeout(() => setSavedFlash(false), 1800);
+    } finally {
+      setPublishing(false);
+    }
   };
 
   const togglePage = (pageId) => {
@@ -123,8 +137,13 @@ export function WebsiteStudioPage() {
             >
               <ExternalLink size={15} /> Open live
             </button>
-            <button type="button" className="bb-primary-btn" onClick={publishFlash}>
-              {savedFlash ? 'Published' : 'Publish'}
+            <button
+              type="button"
+              className="bb-primary-btn"
+              disabled={publishing}
+              onClick={publishFlash}
+            >
+              {publishing ? 'Publishing…' : savedFlash ? 'Published' : 'Publish'}
             </button>
           </div>
         </div>
@@ -219,7 +238,11 @@ export function WebsiteStudioPage() {
               Last published {new Date(workspace.publishedAt).toLocaleString()}
             </p>
           ) : null}
+          {publishNote ? <p className="bb-muted m-0 text-xs">{publishNote}</p> : null}
         </aside>
+      ) : null}
+      {!trayOpen && publishNote ? (
+        <p className="bb-muted m-0 text-xs px-1">{publishNote}</p>
       ) : null}
 
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>

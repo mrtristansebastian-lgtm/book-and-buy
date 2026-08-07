@@ -4,6 +4,7 @@ import { formatServiceDuration, formatServicePrice } from '../../../utils/servic
 import { getDaySlots } from '../../../utils/availability';
 import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
 import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
+import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
 
 const STEPS = ['service', 'datetime', 'details', 'done'];
 
@@ -64,6 +65,16 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
   const stepTotal = STEPS.length - 1;
 
   if (step === 'done' && created) {
+    const calendarUrl = buildBookingCalendarUrl({
+      serviceName: created.serviceName,
+      brandName: workspaceName || workspace.brandName,
+      dateKey: created.dateKey,
+      time: created.time,
+      durationMinutes: service?.duration || 60,
+      address: workspace.website?.address || '',
+      note: created.clientNote || ''
+    });
+
     return (
       <section className="bb-public-gutter py-10">
         <div className="bb-public-measure grid gap-4">
@@ -72,20 +83,25 @@ export function PublicBookingFlow({ workspaceName, hideTitle = false, preview = 
             {created.serviceName} on {formatDisplayDate(created.dateKey)} at {created.time}.{' '}
             {workspaceName || 'The business'} will review and confirm.
           </p>
-          <button
-            type="button"
-            className="bb-primary-btn justify-self-start"
-            onClick={() => {
-              setStep('service');
-              setServiceId('');
-              setDateKey('');
-              setTime('');
-              setDetails({ clientName: '', clientEmail: '', clientPhone: '', clientNote: '' });
-              setCreated(null);
-            }}
-          >
-            Book another
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <a className="bb-ghost-btn" href={calendarUrl} target="_blank" rel="noreferrer">
+              Add to Google Calendar
+            </a>
+            <button
+              type="button"
+              className="bb-primary-btn"
+              onClick={() => {
+                setStep('service');
+                setServiceId('');
+                setDateKey('');
+                setTime('');
+                setDetails({ clientName: '', clientEmail: '', clientPhone: '', clientNote: '' });
+                setCreated(null);
+              }}
+            >
+              Book another
+            </button>
+          </div>
         </div>
       </section>
     );

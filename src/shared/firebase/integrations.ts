@@ -1,27 +1,100 @@
-import { getFirebase, isFirebaseConfigured } from './client';
-import { APP_ID } from '../../config/appConfig';
-import { publicWorkspacePath } from './paths';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
+import { APP_ID } from '../../config/appConfig';
+import { getFirebase, isFirebaseConfigured } from './client';
+import { publicWorkspacePath } from './paths';
 
-/**
- * Phase 5 integration stubs — ready to wire when Firebase env and APIs are available.
- */
+const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
-export async function uploadPublicImage(_file: File, _pathHint = 'media') {
-  if (!isFirebaseConfigured()) {
-    throw new Error('Firebase Storage is not configured. Paste an image URL in Edit mode for now.');
-  }
-  throw new Error('Storage upload will land with Firebase Storage rules + bucket wiring.');
+function sanitizeFolder(pathHint: string) {
+  const allowed = new Set(['brand', 'venue', 'services', 'website', 'social', 'account-avatars']);
+  const folder = String(pathHint || 'website')
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '');
+  return allowed.has(folder) ? folder : 'website';
 }
 
-export async function fetchGooglePlaceReviews(_placeId: string) {
+function sanitizeFileName(name: string) {
+  return String(name || 'image')
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
+}
+
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Could not read image file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Upload a public site image to Firebase Storage when configured + signed in.
+ * Falls back to a local data URL so Pages studio still works offline/demo.
+ */
+export async function uploadPublicImage(file: File, pathHint = 'website') {
+  if (!(file instanceof File)) {
+    throw new Error('Choose an image file.');
+  }
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Choose an image file (PNG, JPG, or WebP).');
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    throw new Error('Image must be under 6MB.');
+  }
+
+  const firebase = getFirebase();
+  if (!firebase) {
+    const url = await fileToDataUrl(file);
+    return {
+      ok: true as const,
+      localOnly: true,
+      url,
+      reason: 'Saved locally until Firebase Storage is configured.'
+    };
+  }
+
+  const ownerId = firebase.auth.currentUser?.uid;
+  if (!ownerId) {
+    const url = await fileToDataUrl(file);
+    return {
+      ok: true as const,
+      localOnly: true,
+      url,
+      reason: 'Sign in to upload to Storage. Saved locally for now.'
+    };
+  }
+
+  const storage = getStorage(firebase.app);
+  const folder = sanitizeFolder(pathHint);
+  const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'image.jpg')}`;
+  const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
+  const storageRef = ref(storage, objectPath);
+  await uploadBytes(storageRef, file, { contentType: file.type });
+  const url = await getDownloadURL(storageRef);
+  return { ok: true as const, localOnly: false, url };
+}
+
+/** Placeholder until a Places callable + API key ship. */
+export async function fetchGooglePlaceReviews(placeId: string) {
+  const id = String(placeId || '').trim();
+  if (!id) {
+    return { ok: false as const, reviews: [], reason: 'Add a Google Place ID first.' };
+  }
   if (!isFirebaseConfigured()) {
-    return { ok: false, reviews: [], reason: 'Firebase not configured' };
+    return {
+      ok: false as const,
+      reviews: [],
+      reason: 'Google Places reviews need Firebase + a Places API key (next deploy).'
+    };
   }
   return {
-    ok: false,
+    ok: false as const,
     reviews: [],
-    reason: 'Google Places reviews require a callable + API key (next deploy).'
+    reason: 'Places reviews callable is not deployed yet. Keep curated reviews for now.'
   };
 }
 
@@ -38,24 +111,59 @@ export function buildGoogleCalendarUrl({
   startIso: string;
   endIso: string;
 }) {
+  const toGCal = (iso: string) =>
+    iso.replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: title,
     details: details || '',
     location: location || '',
-    dates: `${startIso.replace(/[-:]/g, '').replace(/\.\d{3}/, '')}/${endIso
-      .replace(/[-:]/g, '')
-      .replace(/\.\d{3}/, '')}`
+    dates: `${toGCal(startIso)}/${toGCal(endIso)}`
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-/** Publish a public workspace snapshot to Firestore (no-op locally without config). */
+/** Build a Calendar URL from a booking request (local times → ISO). */
+export function buildBookingCalendarUrl({
+  serviceName,
+  brandName,
+  dateKey,
+  time,
+  durationMinutes = 60,
+  address = '',
+  note = ''
+}: {
+  serviceName: string;
+  brandName?: string;
+  dateKey: string;
+  time: string;
+  durationMinutes?: number;
+  address?: string;
+  note?: string;
+}) {
+  const [year, month, day] = String(dateKey).split('-').map(Number);
+  const [hour, minute] = String(time).split(':').map(Number);
+  const start = new Date(year, (month || 1) - 1, day || 1, hour || 0, minute || 0, 0);
+  const end = new Date(start.getTime() + Math.max(15, Number(durationMinutes) || 60) * 60_000);
+  return buildGoogleCalendarUrl({
+    title: brandName ? `${serviceName} · ${brandName}` : serviceName,
+    details: note || 'Booking request via Book and Buy',
+    location: address,
+    startIso: start.toISOString(),
+    endIso: end.toISOString()
+  });
+}
+
+/** Publish a public workspace snapshot to Firestore (local-only without config). */
 export async function publishWorkspaceToFirestore(workspace: Record<string, unknown>) {
   const firebase = getFirebase();
   const slug = String(workspace.slug || '');
   if (!firebase || !slug) {
-    return { ok: false, localOnly: true, reason: 'Using local publish until Firebase is configured.' };
+    return {
+      ok: false as const,
+      localOnly: true,
+      reason: 'Published locally. Connect Firebase to sync the public slug.'
+    };
   }
   const path = publicWorkspacePath(APP_ID, slug);
   await setDoc(
@@ -67,5 +175,5 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
     },
     { merge: true }
   );
-  return { ok: true, localOnly: false };
+  return { ok: true as const, localOnly: false, reason: 'Published to Firestore.' };
 }

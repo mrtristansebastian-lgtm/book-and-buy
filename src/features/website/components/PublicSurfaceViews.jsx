@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
+import { fetchGooglePlaceReviews } from '../../../shared/firebase/integrations';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
 import { EditableText, EditableImage, EditSection } from './editable';
@@ -59,7 +61,38 @@ export function PublicHomeView({
   const venueImages = website.venueImages || [];
   const reviews = website.reviews || [];
 
+  const [placesNote, setPlacesNote] = useState('');
+  const [placesBusy, setPlacesBusy] = useState(false);
+
   const patchWebsite = (patch) => onUpdateWebsite?.(patch);
+  const importPlaceReviews = async () => {
+    if (placesBusy) return;
+    setPlacesBusy(true);
+    setPlacesNote('');
+    try {
+      const result = await fetchGooglePlaceReviews(website.googlePlaceId || '');
+      if (result.ok && result.reviews?.length) {
+        patchWebsite({
+          reviews: [
+            ...reviews,
+            ...result.reviews.map((item, index) => ({
+              id: item.id || `grev-${Date.now()}-${index}`,
+              quote: item.quote || item.text || '',
+              name: item.name || item.author || '',
+              rating: item.rating || 5
+            }))
+          ].slice(0, 6)
+        });
+        setPlacesNote('Imported reviews from Google Places.');
+      } else {
+        setPlacesNote(result.reason || 'Could not import reviews yet.');
+      }
+    } catch (error) {
+      setPlacesNote(error?.message || 'Could not import reviews.');
+    } finally {
+      setPlacesBusy(false);
+    }
+  };
   const patchReason = (id, field, value) => {
     patchWebsite({
       reasons: reasons.map((item) => (item.id === id ? { ...item, [field]: value } : item))
@@ -113,6 +146,7 @@ export function PublicHomeView({
             src={website.aboutImageUrl || ''}
             className="bb-public-about-media"
             imgClassName="w-full h-full object-cover"
+            storageFolder="venue"
             onChange={(url) => patchWebsite({ aboutImageUrl: url })}
             placeholderLabel="About image URL"
           />
@@ -191,6 +225,7 @@ export function PublicHomeView({
                   src={image.url || ''}
                   className="bb-public-venue-media"
                   imgClassName="w-full h-full object-cover"
+                  storageFolder="venue"
                   onChange={(url) => patchVenue(image.id, 'url', url)}
                 />
                 <figcaption>
@@ -246,15 +281,26 @@ export function PublicHomeView({
               onChange={(value) => patchWebsite({ address: value })}
             />
             {editMode ? (
-              <label className="grid gap-1 text-xs font-semibold max-w-xl">
-                Map embed URL
-                <input
-                  className="native-control-input px-3 py-2 text-sm"
-                  value={website.mapEmbedUrl || ''}
-                  placeholder="https://maps.google.com/maps?...&output=embed"
-                  onChange={(event) => patchWebsite({ mapEmbedUrl: event.target.value })}
-                />
-              </label>
+              <div className="grid gap-3 max-w-xl">
+                <label className="grid gap-1 text-xs font-semibold">
+                  Map embed URL
+                  <input
+                    className="native-control-input px-3 py-2 text-sm"
+                    value={website.mapEmbedUrl || ''}
+                    placeholder="https://maps.google.com/maps?...&output=embed"
+                    onChange={(event) => patchWebsite({ mapEmbedUrl: event.target.value })}
+                  />
+                </label>
+                <label className="grid gap-1 text-xs font-semibold">
+                  Google Place ID (optional)
+                  <input
+                    className="native-control-input px-3 py-2 text-sm"
+                    value={website.googlePlaceId || ''}
+                    placeholder="ChIJ…"
+                    onChange={(event) => patchWebsite({ googlePlaceId: event.target.value })}
+                  />
+                </label>
+              </div>
             ) : null}
             {website.mapLinkUrl || website.mapEmbedUrl ? (
               <a
@@ -328,27 +374,40 @@ export function PublicHomeView({
               </article>
             ))}
           </div>
-          {editMode && reviews.length < 3 ? (
-            <button
-              type="button"
-              className="bb-ghost-btn justify-self-start"
-              onClick={() =>
-                patchWebsite({
-                  reviews: [
-                    ...reviews,
-                    {
-                      id: `rev-${Date.now()}`,
-                      quote: '',
-                      name: '',
-                      rating: 5
-                    }
-                  ]
-                })
-              }
-            >
-              Add review
-            </button>
+          {editMode ? (
+            <div className="flex flex-wrap gap-2">
+              {reviews.length < 6 ? (
+                <button
+                  type="button"
+                  className="bb-ghost-btn justify-self-start"
+                  onClick={() =>
+                    patchWebsite({
+                      reviews: [
+                        ...reviews,
+                        {
+                          id: `rev-${Date.now()}`,
+                          quote: '',
+                          name: '',
+                          rating: 5
+                        }
+                      ]
+                    })
+                  }
+                >
+                  Add review
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="bb-ghost-btn"
+                disabled={placesBusy || !website.googlePlaceId}
+                onClick={importPlaceReviews}
+              >
+                {placesBusy ? 'Importing…' : 'Import Google reviews'}
+              </button>
+            </div>
           ) : null}
+          {editMode && placesNote ? <p className="bb-muted m-0 text-xs">{placesNote}</p> : null}
         </div>
       </EditSection>
     ),
@@ -407,6 +466,7 @@ export function PublicHomeView({
           src={heroSrc}
           className="absolute inset-0"
           imgClassName="absolute inset-0 w-full h-full object-cover"
+          storageFolder="brand"
           onChange={(url) => patchWebsite({ heroImageUrl: url })}
           placeholderLabel="Add hero image URL"
         />
@@ -707,6 +767,7 @@ export function PublicSocialView({
                       src={post.mediaUrl || ''}
                       className="bb-public-social-media"
                       imgClassName="w-full h-full object-cover"
+                      storageFolder="social"
                       onChange={(url) =>
                         onUpdateSocialPost?.(post.id, { mediaUrl: url, type: 'image' })
                       }

@@ -169,18 +169,26 @@ export function WorkspaceProvider({ children }) {
           publishedAt: patch.publish ? Date.now() : prev.publishedAt
         }));
       },
-      publishWebsite: () => {
+      publishWebsite: async () => {
+        let snapshot = null;
         setWorkspace((prev) => {
-          const next = {
+          snapshot = {
             ...prev,
             publishedAt: Date.now(),
             website: { ...prev.website, published: true }
           };
-          import('../../shared/firebase/integrations').then(({ publishWorkspaceToFirestore }) => {
-            publishWorkspaceToFirestore(next).catch(() => {});
-          });
-          return next;
+          return snapshot;
         });
+        const { publishWorkspaceToFirestore } = await import('../../shared/firebase/integrations');
+        try {
+          return await publishWorkspaceToFirestore(snapshot || {});
+        } catch (error) {
+          return {
+            ok: false,
+            localOnly: true,
+            reason: error?.message || 'Cloud publish failed. Kept local publish.'
+          };
+        }
       },
       addSocialPost: (post) => {
         const record = {

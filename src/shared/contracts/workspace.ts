@@ -128,6 +128,7 @@ export interface WebsiteSettings {
   address?: string;
   mapEmbedUrl?: string;
   mapLinkUrl?: string;
+  googlePlaceId?: string;
   reviewsTitle?: string;
   reviews?: WebsiteReview[];
   bookStripTitle?: string;

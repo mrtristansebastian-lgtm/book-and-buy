@@ -73,6 +73,7 @@ export const createDefaultSettings = () => ({
     address: '',
     mapEmbedUrl: '',
     mapLinkUrl: '',
+    googlePlaceId: '',
     reviewsTitle: 'What clients say',
     reviews: [],
     bookStripTitle: 'Ready to book?',

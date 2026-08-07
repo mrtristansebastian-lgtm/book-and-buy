@@ -47,7 +47,7 @@ service firebase.storage {
     }
 
     function isPublicWorkspaceFolder(folder) {
-      return folder in ['brand', 'venue', 'services', 'account-avatars'];
+      return folder in ['brand', 'venue', 'services', 'website', 'social', 'account-avatars'];
     }
 
     function validImageUpload() {
