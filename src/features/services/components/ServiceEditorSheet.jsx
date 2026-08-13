@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, ImagePlus, Plus, Replace, X } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
+import { TimeField } from '../../../shared/ui/TimeField';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
   DURATION_PRESETS,
@@ -517,15 +518,13 @@ export function ServiceEditorSheet({
                         }}
                       />
                     </label>
-                    <label className="bb-services-field">
-                      <span>Start time</span>
-                      <input
-                        type="time"
-                        className="native-control-input bb-services-control"
+                    <div className="bb-services-field">
+                      <TimeField
+                        label="Start time"
                         value={draft.sessionStartTime || ''}
-                        onChange={(event) => patch({ sessionStartTime: event.target.value })}
+                        onChange={(next) => patch({ sessionStartTime: next })}
                       />
-                    </label>
+                    </div>
                   </div>
                   <div className="bb-services-field-row bb-services-field-row--2">
                     <label className="bb-services-field">
@@ -538,15 +537,13 @@ export function ServiceEditorSheet({
                         onChange={(event) => patch({ sessionEndDate: event.target.value })}
                       />
                     </label>
-                    <label className="bb-services-field">
-                      <span>End time</span>
-                      <input
-                        type="time"
-                        className="native-control-input bb-services-control"
+                    <div className="bb-services-field">
+                      <TimeField
+                        label="End time"
                         value={draft.sessionEndTime || ''}
-                        onChange={(event) => patch({ sessionEndTime: event.target.value })}
+                        onChange={(next) => patch({ sessionEndTime: next })}
                       />
-                    </label>
+                    </div>
                   </div>
                 </div>
               </section>

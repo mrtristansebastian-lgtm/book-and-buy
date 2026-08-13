@@ -18,12 +18,42 @@ const normalizeRange = (range = {}) => {
   return { start, end };
 };
 
-const normalizeRanges = (ranges, fallbackOpen = DEFAULT_OPEN, fallbackClose = DEFAULT_CLOSE) => {
+const normalizeRanges = (
+  ranges,
+  fallbackOpen = DEFAULT_OPEN,
+  fallbackClose = DEFAULT_CLOSE,
+  { allowEmpty = false } = {}
+) => {
   const list = Array.isArray(ranges) ? ranges : [];
   const cleaned = list.map(normalizeRange).filter(Boolean);
   if (cleaned.length) return cleaned;
+  if (allowEmpty) return [];
   const fallback = normalizeRange({ start: fallbackOpen, end: fallbackClose });
   return fallback ? [fallback] : [];
+};
+
+const subtractRangeFromList = (windows = [], exclusion = null) => {
+  if (!exclusion) return windows;
+  const out = [];
+  for (const window of windows) {
+    if (exclusion.end <= window.start || exclusion.start >= window.end) {
+      out.push(window);
+      continue;
+    }
+    const before = normalizeRange({ start: window.start, end: exclusion.start });
+    const after = normalizeRange({ start: exclusion.end, end: window.end });
+    if (before) out.push(before);
+    if (after) out.push(after);
+  }
+  return out;
+};
+
+const subtractRangesFromList = (windows = [], exclusions = []) => {
+  let next = [...windows];
+  for (const exclusion of exclusions) {
+    next = subtractRangeFromList(next, exclusion);
+  }
+  return next;
 };
 
 export const weekdayKeyFromDate = (date) => {
@@ -78,10 +108,16 @@ export const normalizeStaffDay = (
   const open = status === 'open';
   const source =
     day?.source === 'template' || day?.source === 'status' ? day.source : 'manual';
+  const ranges =
+    open
+      ? normalizeRanges(day?.ranges, openTime, closeTime)
+      : status === 'break'
+        ? normalizeRanges(day?.ranges, openTime, closeTime, { allowEmpty: true })
+        : [];
   return {
     status,
     open,
-    ranges: open ? normalizeRanges(day?.ranges, openTime, closeTime) : [],
+    ranges,
     note: String(day?.note || '').trim(),
     source
   };
@@ -199,7 +235,19 @@ export const getStaffDayWindows = (
 
   const explicit = entry.days?.[dateKey];
   if (explicit) {
-    if (explicit.status === 'break' || explicit.status === 'off' || !explicit.open) return [];
+    if (explicit.status === 'off' || (!explicit.open && explicit.status !== 'break')) return [];
+    if (explicit.status === 'break') {
+      const breakRanges = explicit.ranges || [];
+      if (!breakRanges.length) return [];
+      const weekday = weekdayKeyFromDate(dateKey);
+      const template = entry.weekTemplate?.[weekday];
+      const base =
+        template?.open && template.ranges?.length
+          ? template.ranges
+          : [{ start: rules.businessOpenTime, end: rules.businessCloseTime }];
+      return subtractRangesFromList(base, breakRanges);
+    }
+    if (!explicit.open) return [];
     return explicit.ranges || [];
   }
 
@@ -267,6 +315,18 @@ export const applyStatusToRange = (
             : [{ start: openTime, end: closeTime }];
       days[key] = normalizeStaffDay(
         { status: 'open', open: true, ranges: nextRanges, source: 'status' },
+        openTime,
+        closeTime
+      );
+    } else if (nextStatus === 'break') {
+      const breakRanges =
+        Array.isArray(ranges) && ranges.length
+          ? ranges
+          : existing?.status === 'break' && Array.isArray(existing.ranges) && existing.ranges.length
+            ? existing.ranges
+            : [{ start: openTime, end: closeTime }];
+      days[key] = normalizeStaffDay(
+        { status: 'break', open: false, ranges: breakRanges, source: 'status' },
         openTime,
         closeTime
       );

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { TimeField } from '../../../shared/ui/TimeField';
 import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
 import {
   canEditAvailabilityRules,
@@ -35,12 +36,6 @@ const STATUS_OPTIONS = [
   { id: 'break', label: 'Break' },
   { id: 'off', label: 'Off day' },
   { id: 'business-closed', label: 'Business closed' }
-];
-
-const DURATION_CHIPS = [
-  { label: '2h', hours: 2 },
-  { label: '4h', hours: 4 },
-  { label: '8h', hours: 8 }
 ];
 
 function staffInitials(name = '') {
@@ -87,16 +82,6 @@ export function StaffAvailabilitySwitcher({ staff = [], staffId = '', onSelect }
   );
 }
 
-function addHoursToTime(hhmm, hours) {
-  const [h, m] = String(hhmm || '09:00')
-    .split(':')
-    .map(Number);
-  const total = Math.min(23 * 60 + 59, h * 60 + (m || 0) + hours * 60);
-  const nh = Math.floor(total / 60);
-  const nm = total % 60;
-  return `${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`;
-}
-
 function AvailabilityStatusSheet({
   staffName,
   openTime,
@@ -116,7 +101,8 @@ function AvailabilityStatusSheet({
   const [endTime, setEndTime] = useState(closeTime);
 
   const datesValid = Boolean(startDate && endDate && endDate >= startDate);
-  const timesValid = status !== 'open' || (startTime && endTime && endTime > startTime);
+  const needsTimes = status === 'open' || status === 'break';
+  const timesValid = !needsTimes || (startTime && endTime && endTime > startTime);
   const canApply = datesValid && timesValid;
 
   return (
@@ -176,26 +162,18 @@ function AvailabilityStatusSheet({
               onChange={(event) => setEndDate(event.target.value)}
             />
           </label>
-          {status === 'open' ? (
+          {status === 'open' || status === 'break' ? (
             <>
-              <label>
-                <span>Start time</span>
-                <input
-                  type="time"
-                  className="native-control-input bb-services-control"
-                  value={startTime}
-                  onChange={(event) => setStartTime(event.target.value)}
-                />
-              </label>
-              <label>
-                <span>End time</span>
-                <input
-                  type="time"
-                  className="native-control-input bb-services-control"
-                  value={endTime}
-                  onChange={(event) => setEndTime(event.target.value)}
-                />
-              </label>
+              <TimeField
+                label="Start time"
+                value={startTime}
+                onChange={setStartTime}
+              />
+              <TimeField
+                label="End time"
+                value={endTime}
+                onChange={setEndTime}
+              />
             </>
           ) : null}
         </div>
@@ -203,6 +181,11 @@ function AvailabilityStatusSheet({
         {status === 'open' ? (
           <p className="bb-schedule-avail-hint m-0">
             Open days get this shift window. You can refine shifts per day on the calendar.
+          </p>
+        ) : status === 'break' ? (
+          <p className="bb-schedule-avail-hint m-0">
+            Break hours when {staffName || 'this staff member'} cannot be booked. Set the start and
+            end time for the break window.
           </p>
         ) : status === 'business-closed' ? (
           <p className="bb-schedule-avail-hint m-0">
@@ -350,7 +333,9 @@ export function ScheduleAvailabilityEditor({
     }
     if (!staffId) return;
     const ranges =
-      status === 'open' ? [{ start: startTime || openTime, end: endTime || closeTime }] : null;
+      status === 'open' || status === 'break'
+        ? [{ start: startTime || openTime, end: endTime || closeTime }]
+        : null;
     const next = applyStatusToRange(
       entry,
       startDate,
@@ -395,15 +380,6 @@ export function ScheduleAvailabilityEditor({
     );
   };
 
-  const applyDurationChip = (index, hours) => {
-    if (!canEditSelected) return;
-    setDraftShifts((prev) =>
-      prev.map((row, i) =>
-        i === index ? { ...row, end: addHoursToTime(row.start, hours) } : row
-      )
-    );
-  };
-
   if (!visibleStaff.length) {
     return (
       <div className="bb-schedule-avail">
@@ -424,8 +400,8 @@ export function ScheduleAvailabilityEditor({
               <h3 className="bb-schedule-avail-status-cta-title">Statuses</h3>
               <p className="bb-schedule-avail-status-cta-body">
                 {isOwner
-                  ? 'Set open, break, off, or business-closed for any period you choose — pick the dates (and hours when open) in a short setup.'
-                  : 'Set your open, break, or off periods — pick the dates (and hours when open) in a short setup.'}
+                  ? 'Set open, break, off, or business-closed for any period you choose — pick the dates and hours in a short setup.'
+                  : 'Set your open, break, or off periods — pick the dates and hours in a short setup.'}
               </p>
             </div>
             <button
@@ -556,39 +532,19 @@ export function ScheduleAvailabilityEditor({
               {draftShifts.map((shift, index) => (
                 <div key={index} className="bb-schedule-avail-shift-row">
                   <div className="bb-schedule-avail-shift-times">
-                    <label>
-                      <span>Start</span>
-                      <input
-                        type="time"
-                        className="native-control-input bb-services-control"
-                        value={shift.start}
-                        onChange={(event) => updateShift(index, { start: event.target.value })}
-                      />
-                    </label>
-                    <label>
-                      <span>End</span>
-                      <input
-                        type="time"
-                        className="native-control-input bb-services-control"
-                        value={shift.end}
-                        onChange={(event) => updateShift(index, { end: event.target.value })}
-                      />
-                    </label>
+                    <TimeField
+                      label="Start"
+                      value={shift.start}
+                      onChange={(next) => updateShift(index, { start: next })}
+                    />
+                    <TimeField
+                      label="End"
+                      value={shift.end}
+                      onChange={(next) => updateShift(index, { end: next })}
+                    />
                   </div>
-                  <div className="bb-schedule-avail-shift-tools">
-                    <div className="bb-schedule-avail-duration-chips">
-                      {DURATION_CHIPS.map((chip) => (
-                        <button
-                          key={chip.label}
-                          type="button"
-                          className="bb-schedule-avail-duration-chip"
-                          onClick={() => applyDurationChip(index, chip.hours)}
-                        >
-                          {chip.label}
-                        </button>
-                      ))}
-                    </div>
-                    {draftShifts.length > 1 ? (
+                  {draftShifts.length > 1 ? (
+                    <div className="bb-schedule-avail-shift-tools">
                       <button
                         type="button"
                         className="bb-ghost-btn bb-schedule-avail-shift-remove"
@@ -599,8 +555,8 @@ export function ScheduleAvailabilityEditor({
                       >
                         <Trash2 size={15} strokeWidth={2.2} />
                       </button>
-                    ) : null}
-                  </div>
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>

@@ -1,23 +1,42 @@
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Info, Pencil, Settings2, X } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { SortField } from '../../../shared/ui/SortField';
+import { TimeField } from '../../../shared/ui/TimeField';
 import {
-  addDays,
   buildMonthGrid,
   formatDisplayDate,
   parseDateKey,
   toDateKey
 } from '../../../utils/dates';
 import {
+  formatPeriodLabel,
+  getPeriodRange,
+  PERIOD_OPTIONS,
+  shiftPeriod
+} from '../../../utils/periodFilters';
+import {
   countServiceSpotBookings,
   getServiceOpenSpots,
   getSpotSessionStatus
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
-import { getEffectiveStaffWindows } from '../../../utils/staffAvailability';
+import { formatTimeValue, parseTimeValue } from '../../../utils/time';
 
 const ACTIVE = new Set(['pending', 'confirmed', 'waitlist']);
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const SORT_OPTIONS = [
+  { id: 'latest', label: 'Latest' },
+  { id: 'oldest', label: 'Oldest' },
+  { id: 'client', label: 'Client A-Z' },
+  { id: 'service', label: 'Service A-Z' }
+];
+
+const SPOT_SORT_OPTIONS = [
+  { id: 'latest', label: 'Latest' },
+  { id: 'oldest', label: 'Oldest' },
+  { id: 'service', label: 'Name A-Z' }
+];
 
 function statusLabel(status) {
   if (status === 'upcoming') return 'Upcoming';
@@ -34,6 +53,22 @@ function formatSessionPart(dateKey, time) {
   return datePart || timePart || '—';
 }
 
+function formatBookingWindow(booking) {
+  const start = String(booking?.time || '').trim();
+  if (!start) return '—';
+  const minutes = Number(booking?.durationMinutes) || 0;
+  if (!minutes) return start;
+  const parts = parseTimeValue(start, start);
+  const total = parts.hour * 60 + parts.minute + minutes;
+  const endHour = Math.floor(total / 60) % 24;
+  const endMinute = total % 60;
+  return `${start}–${formatTimeValue(endHour, endMinute)}`;
+}
+
+function bookingDateKey(booking) {
+  return String(booking?.dateKey || booking?.date || '').trim();
+}
+
 function resolveStaffNames(service, staffList = []) {
   const ids = Array.isArray(service?.staffIds) ? service.staffIds : [];
   if (!ids.length) return [];
@@ -42,56 +77,37 @@ function resolveStaffNames(service, staffList = []) {
     .filter(Boolean);
 }
 
-function startOfWeek(date) {
-  return addDays(date, -((date.getDay() + 6) % 7));
-}
-
-function getPeriodRange(dayKey, period = 'day') {
-  const date = parseDateKey(dayKey) || new Date();
-  if (period === 'week') {
-    const start = startOfWeek(date);
-    return { start: toDateKey(start), end: toDateKey(addDays(start, 6)) };
-  }
-  if (period === 'month') {
-    const start = new Date(date.getFullYear(), date.getMonth(), 1);
-    const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    return { start: toDateKey(start), end: toDateKey(end) };
-  }
-  const key = toDateKey(date);
-  return { start: key, end: key };
-}
-
-function formatPeriodLabel(dayKey, period = 'day') {
-  const date = parseDateKey(dayKey) || new Date();
-  if (period === 'month') {
-    return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-  }
-  if (period === 'week') {
-    const { start, end } = getPeriodRange(dayKey, 'week');
-    const startDate = parseDateKey(start);
-    const endDate = parseDateKey(end);
-    if (!startDate || !endDate) return formatDisplayDate(dayKey);
-    const sameMonth = startDate.getMonth() === endDate.getMonth();
-    const left = startDate.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric'
+function compareAgendaBookings(a, b, sort = 'oldest') {
+  const dateCompare = bookingDateKey(a).localeCompare(bookingDateKey(b));
+  const timeCompare = String(a.time || '').localeCompare(String(b.time || ''));
+  const chronoCompare = dateCompare || timeCompare;
+  if (sort === 'latest') return -chronoCompare || String(b.id || '').localeCompare(String(a.id || ''));
+  if (sort === 'client') {
+    const byClient = String(a.clientName || '').localeCompare(String(b.clientName || ''), undefined, {
+      sensitivity: 'base'
     });
-    const right = endDate.toLocaleDateString(undefined, {
-      month: sameMonth ? undefined : 'short',
-      day: 'numeric'
-    });
-    return `${left} – ${right}`;
+    return byClient || chronoCompare;
   }
-  return formatDisplayDate(dayKey);
+  if (sort === 'service') {
+    const byService = String(a.serviceName || '').localeCompare(String(b.serviceName || ''), undefined, {
+      sensitivity: 'base'
+    });
+    return byService || chronoCompare;
+  }
+  return chronoCompare;
 }
 
-function shiftPeriod(dayKey, period, direction) {
-  const date = parseDateKey(dayKey) || new Date();
-  if (period === 'week') return toDateKey(addDays(date, direction * 7));
-  if (period === 'month') {
-    return toDateKey(new Date(date.getFullYear(), date.getMonth() + direction, 1));
+function compareSpotServices(a, b, sort = 'oldest') {
+  const startCompare = String(a.sessionStartDate || '').localeCompare(String(b.sessionStartDate || ''));
+  const timeCompare = String(a.sessionStartTime || '').localeCompare(String(b.sessionStartTime || ''));
+  const chronoCompare = startCompare || timeCompare;
+  if (sort === 'latest') return -chronoCompare;
+  if (sort === 'service') {
+    return String(a.name || '').localeCompare(String(b.name || ''), undefined, {
+      sensitivity: 'base'
+    });
   }
-  return toDateKey(addDays(date, direction));
+  return chronoCompare;
 }
 
 function serviceOverlapsRange(service, startKey, endKey) {
@@ -101,33 +117,29 @@ function serviceOverlapsRange(service, startKey, endKey) {
   return sessionStart <= endKey && sessionEnd >= startKey;
 }
 
-function ScheduleDatePicker({ day, period, allowPeriod = true, onApply, onClose }) {
+function ScheduleDatePicker({ day, onApply, onClose }) {
   const selected = parseDateKey(day) || new Date();
   const [draftDay, setDraftDay] = useState(() => toDateKey(selected));
-  const [draftPeriod, setDraftPeriod] = useState(allowPeriod ? period || 'day' : 'day');
   const [monthAnchor, setMonthAnchor] = useState(
     () => new Date(selected.getFullYear(), selected.getMonth(), 1)
   );
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
   const todayKey = toDateKey(new Date());
-  const effectivePeriod = allowPeriod ? draftPeriod : 'day';
 
   return (
     <div
       className="bb-services-sheet"
       role="dialog"
       aria-modal="true"
-      aria-label="Pick schedule date"
+      aria-label="Pick day"
     >
       <div className="bb-services-sheet-backdrop" onClick={onClose} />
       <div className="bb-services-sheet-panel bb-schedule-picker-sheet">
         <header className="bb-services-sheet-head">
           <div>
             <p className="bb-services-sheet-eyebrow">Calendar</p>
-            <h2 className="bb-services-sheet-title">Pick day or period</h2>
-            <p className="bb-services-sheet-lede">
-              Jump to a date, or view a whole week or month.
-            </p>
+            <h2 className="bb-services-sheet-title">Pick day</h2>
+            <p className="bb-services-sheet-lede">Jump to a date.</p>
           </div>
           <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose}>
             <X size={16} />
@@ -135,36 +147,13 @@ function ScheduleDatePicker({ day, period, allowPeriod = true, onApply, onClose 
         </header>
 
         <div className="bb-services-sheet-body bb-schedule-picker-body">
-          {allowPeriod ? (
-            <div className="bb-schedule-period" role="tablist" aria-label="Period">
-              {[
-                { id: 'day', label: 'Day' },
-                { id: 'week', label: 'Week' },
-                { id: 'month', label: 'Month' }
-              ].map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={draftPeriod === option.id}
-                  className={`bb-schedule-period-btn${draftPeriod === option.id ? ' is-active' : ''}`}
-                  onClick={() => setDraftPeriod(option.id)}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
           <div className="bb-schedule-picker-month-nav">
             <button
               type="button"
               className="bb-ghost-btn px-3"
               aria-label="Previous month"
               onClick={() =>
-                setMonthAnchor(
-                  (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
-                )
+                setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
               }
             >
               <ChevronLeft size={18} />
@@ -177,9 +166,7 @@ function ScheduleDatePicker({ day, period, allowPeriod = true, onApply, onClose 
               className="bb-ghost-btn px-3"
               aria-label="Next month"
               onClick={() =>
-                setMonthAnchor(
-                  (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
-                )
+                setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
               }
             >
               <ChevronRight size={18} />
@@ -213,9 +200,7 @@ function ScheduleDatePicker({ day, period, allowPeriod = true, onApply, onClose 
             })}
           </div>
 
-          <p className="bb-schedule-picker-summary">
-            {formatPeriodLabel(draftDay, effectivePeriod)}
-          </p>
+          <p className="bb-schedule-picker-summary">{formatDisplayDate(draftDay)}</p>
         </div>
 
         <footer className="bb-services-sheet-footer">
@@ -234,11 +219,7 @@ function ScheduleDatePicker({ day, period, allowPeriod = true, onApply, onClose 
             <button type="button" className="bb-ghost-btn" onClick={onClose}>
               Cancel
             </button>
-            <button
-              type="button"
-              className="bb-primary-btn"
-              onClick={() => onApply?.({ day: draftDay, period: effectivePeriod })}
-            >
+            <button type="button" className="bb-primary-btn" onClick={() => onApply?.({ day: draftDay })}>
               Apply
             </button>
           </div>
@@ -247,7 +228,6 @@ function ScheduleDatePicker({ day, period, allowPeriod = true, onApply, onClose 
     </div>
   );
 }
-
 function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) {
   if (!service) return null;
 
@@ -367,10 +347,10 @@ export function SchedulePage() {
     updateAvailabilityRules
   } = useWorkspace();
   const [mode, setMode] = useState('slots');
-  const [lens, setLens] = useState('overview');
-  const [focusStaffId, setFocusStaffId] = useState(() => staff[0]?.id || '');
+  const [focusStaffId, setFocusStaffId] = useState('');
   const [day, setDay] = useState(() => toDateKey(new Date()));
   const [period, setPeriod] = useState('day');
+  const [sortBy, setSortBy] = useState('latest');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hoursOpen, setHoursOpen] = useState(false);
   const [infoSpotId, setInfoSpotId] = useState('');
@@ -381,7 +361,6 @@ export function SchedulePage() {
 
   const periodRange = useMemo(() => getPeriodRange(day, period), [day, period]);
   const periodLabel = useMemo(() => formatPeriodLabel(day, period), [day, period]);
-  const navPeriod = mode === 'slots' ? 'day' : period;
 
   const slotBookings = useMemo(
     () =>
@@ -393,53 +372,37 @@ export function SchedulePage() {
     [bookings, services]
   );
 
-  const dayBookings = useMemo(
-    () =>
-      slotBookings
-        .filter((booking) => (booking.dateKey || booking.date) === day)
-        .filter((booking) => !['declined', 'cancelled'].includes(booking.status))
-        .sort((a, b) => String(a.time).localeCompare(String(b.time))),
-    [slotBookings, day]
-  );
+  const agendaBookings = useMemo(() => {
+    const { start, end } = periodRange;
+    return slotBookings
+      .filter((booking) => booking.status === 'confirmed')
+      .filter((booking) => {
+        const key = bookingDateKey(booking);
+        return key && key >= start && key <= end;
+      })
+      .filter((booking) => (focusStaffId ? booking.staffId === focusStaffId : true))
+      .sort((a, b) => compareAgendaBookings(a, b, sortBy));
+  }, [slotBookings, periodRange, focusStaffId, sortBy]);
 
-  const lanes = useMemo(() => {
-    const roster =
-      lens === 'staff' && focusStaffId
-        ? staff.filter((member) => member.id === focusStaffId)
-        : staff;
-    const named = roster.map((member) => {
-      const windows = getEffectiveStaffWindows(
-        member.id,
-        day,
-        workspace.staffAvailability || {},
-        workspace.availabilityRules || {}
-      );
-      return {
-        ...member,
-        windows,
-        closed: windows.length === 0,
-        items: dayBookings.filter((booking) => booking.staffId === member.id)
-      };
-    });
-    const unassigned =
-      lens === 'overview'
-        ? dayBookings.filter((booking) => !booking.staffId)
-        : [];
-    return [
-      ...named,
-      ...(unassigned.length
-        ? [{ id: 'unassigned', name: 'Unassigned', color: '#667085', items: unassigned, closed: false }]
-        : [])
-    ];
-  }, [
-    staff,
-    dayBookings,
-    lens,
-    focusStaffId,
-    day,
-    workspace.staffAvailability,
-    workspace.availabilityRules
-  ]);
+  const agendaGroups = useMemo(() => {
+    const groupByDate = sortBy === 'oldest' || sortBy === 'latest';
+    if (!groupByDate) {
+      return [{ dateKey: '', items: agendaBookings }];
+    }
+    const groups = [];
+    const map = new Map();
+    for (const booking of agendaBookings) {
+      const key = bookingDateKey(booking);
+      if (!map.has(key)) {
+        const group = { dateKey: key, items: [] };
+        map.set(key, group);
+        groups.push(group);
+      }
+      map.get(key).items.push(booking);
+    }
+    if (sortBy === 'latest') groups.reverse();
+    return groups;
+  }, [agendaBookings, sortBy]);
 
   const allSpotServices = useMemo(
     () =>
@@ -456,13 +419,13 @@ export function SchedulePage() {
     let list = allSpotServices.filter((service) =>
       serviceOverlapsRange(service, periodRange.start, periodRange.end)
     );
-    if (lens === 'staff' && focusStaffId) {
+    if (focusStaffId) {
       list = list.filter((service) =>
         (Array.isArray(service.staffIds) ? service.staffIds : []).includes(focusStaffId)
       );
     }
-    return list;
-  }, [allSpotServices, periodRange, lens, focusStaffId]);
+    return [...list].sort((a, b) => compareSpotServices(a, b, sortBy === 'client' ? 'oldest' : sortBy));
+  }, [allSpotServices, periodRange, focusStaffId, sortBy]);
 
   const spotStats = useMemo(() => {
     let openSeats = 0;
@@ -507,44 +470,20 @@ export function SchedulePage() {
           <p className="bb-schedule-desk-eyebrow">Operations</p>
           <h1 className="bb-schedule-desk-title">Schedule</h1>
           <p className="bb-schedule-desk-lede">
-            {mode === 'slots'
-              ? lens === 'staff'
-                ? `Staff schedule · ${
-                    staff.find((member) => member.id === focusStaffId)?.name || 'Select staff'
-                  }`
-                : `Business overview · open ${
-                    workspace.availabilityRules?.businessOpenTime || '09:00'
-                  }–${workspace.availabilityRules?.businessCloseTime || '17:00'}`
-              : `Programmes in view · ${periodLabel}`}
+            Agenda and programmes for the period you select.
           </p>
         </div>
 
         <div className="bb-schedule-desk-tools">
-          <div className="bb-schedule-mode" role="tablist" aria-label="Schedule lens">
-            {[
-              { id: 'overview', label: 'Overview' },
-              { id: 'staff', label: 'By staff' }
-            ].map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                role="tab"
-                aria-selected={lens === option.id}
-                className={`bb-schedule-mode-btn${lens === option.id ? ' is-active' : ''}`}
-                onClick={() => setLens(option.id)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-
           <div className="bb-schedule-mode" role="tablist" aria-label="Schedule mode">
             <button
               type="button"
               role="tab"
               aria-selected={mode === 'slots'}
               className={`bb-schedule-mode-btn${mode === 'slots' ? ' is-active' : ''}`}
-              onClick={() => setMode('slots')}
+              onClick={() => {
+                setMode('slots');
+              }}
             >
               Slots
             </button>
@@ -553,7 +492,10 @@ export function SchedulePage() {
               role="tab"
               aria-selected={mode === 'spots'}
               className={`bb-schedule-mode-btn${mode === 'spots' ? ' is-active' : ''}`}
-              onClick={() => setMode('spots')}
+              onClick={() => {
+                setMode('spots');
+                if (sortBy === 'client') setSortBy('oldest');
+              }}
             >
               Spots
             </button>
@@ -576,24 +518,51 @@ export function SchedulePage() {
               <Settings2 size={16} /> Hours
             </button>
           ) : null}
+        </div>
+      </header>
+
+      <section className="bb-schedule-period-filter" aria-label="Period filter">
+        <div className="bb-schedule-period" role="tablist" aria-label="Period">
+          {PERIOD_OPTIONS.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              aria-selected={period === option.id}
+              className={`bb-schedule-period-btn${period === option.id ? ' is-active' : ''}`}
+              onClick={() => setPeriod(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="bb-schedule-period-filter-tools">
+          <SortField
+            value={mode === 'spots' && sortBy === 'client' ? 'oldest' : sortBy}
+            onChange={setSortBy}
+            options={mode === 'slots' ? SORT_OPTIONS : SPOT_SORT_OPTIONS}
+            pickerTitle="Sort schedule"
+            pickerHint={mode === 'slots' ? 'Order appointments in this period.' : 'Order programmes in this period.'}
+          />
 
           <div className="bb-schedule-day-nav">
             <button
               type="button"
               className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, navPeriod, -1))}
+              onClick={() => setDay(shiftPeriod(day, period, -1))}
               aria-label="Previous period"
+              disabled={period === 'all'}
             >
               <ChevronLeft size={18} />
             </button>
-            <div className="bb-schedule-day-label">
-              {mode === 'slots' ? formatDisplayDate(day) : periodLabel}
-            </div>
+            <div className="bb-schedule-day-label">{periodLabel}</div>
             <button
               type="button"
               className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, navPeriod, 1))}
+              onClick={() => setDay(shiftPeriod(day, period, 1))}
               aria-label="Next period"
+              disabled={period === 'all'}
             >
               <ChevronRight size={18} />
             </button>
@@ -611,124 +580,132 @@ export function SchedulePage() {
               className="bb-ink-btn"
               onClick={() => {
                 setDay(toDateKey(new Date()));
-                if (mode === 'slots') setPeriod('day');
+                setPeriod('day');
               }}
             >
               Today
             </button>
           </div>
         </div>
-      </header>
+      </section>
 
-      <div className="bb-schedule-stage" key={`${lens}-${mode}`}>
+      <div className="bb-schedule-stage" key={`${mode}-${period}-${day}`}>
         {mode === 'slots' ? (
           <>
-            {lens === 'staff' ? (
-              <div className="bb-schedule-staff-chips" role="tablist" aria-label="Staff member">
-                {staff.map((member) => (
-                  <button
-                    key={member.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={focusStaffId === member.id}
-                    className={`bb-schedule-staff-chip${
-                      focusStaffId === member.id ? ' is-active' : ''
-                    }`}
-                    onClick={() => setFocusStaffId(member.id)}
-                  >
-                    <span
-                      className="bb-schedule-lane-dot"
-                      style={{ background: member.color || '#050505' }}
-                    />
-                    {member.name}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            <div className="bb-schedule-staff-chips" role="tablist" aria-label="Staff filter">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={!focusStaffId}
+                className={`bb-schedule-staff-chip${!focusStaffId ? ' is-active' : ''}`}
+                onClick={() => setFocusStaffId('')}
+              >
+                All staff
+              </button>
+              {staff.map((member) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={focusStaffId === member.id}
+                  className={`bb-schedule-staff-chip${
+                    focusStaffId === member.id ? ' is-active' : ''
+                  }`}
+                  onClick={() => setFocusStaffId(member.id)}
+                >
+                  <span
+                    className="bb-schedule-lane-dot"
+                    style={{ background: member.color || '#050505' }}
+                  />
+                  {member.name}
+                </button>
+              ))}
+            </div>
 
-            {dayBookings.length === 0 ? (
+            {agendaBookings.length === 0 ? (
               <div className="bb-schedule-empty">
-                <p className="bb-schedule-empty-title">Quiet day</p>
+                <p className="bb-schedule-empty-title">No confirmed bookings</p>
                 <p className="bb-schedule-empty-copy">
-                  No slot bookings on this date. Appointment requests land here once clients
-                  book a time.
+                  {focusStaffId
+                    ? 'No confirmed appointments for this staff member in the selected period.'
+                    : 'No confirmed appointments in this period. Pending requests stay in Requests until confirmed.'}
                 </p>
               </div>
-            ) : null}
-
-            <section className="bb-schedule-lanes">
-              {lanes.map((lane) => (
-                <div
-                  key={lane.id}
-                  className={`bb-schedule-lane${lane.closed ? ' is-closed' : ''}`}
-                >
-                  <div className="bb-schedule-lane-head">
-                    <span
-                      className="bb-schedule-lane-dot"
-                      style={{ background: lane.color || '#050505' }}
-                    />
-                    <h2 className="bb-schedule-lane-title">{lane.name}</h2>
-                    <span className="bb-schedule-lane-count">
-                      {lane.closed
-                        ? 'Closed'
-                        : lane.windows?.length
-                          ? lane.windows.map((w) => `${w.start}–${w.end}`).join(', ')
-                          : lane.items.length}
-                    </span>
+            ) : (
+              <section className="bb-schedule-agenda" aria-label="Confirmed appointments">
+                {agendaGroups.map((group) => (
+                  <div key={group.dateKey || 'flat'} className="bb-schedule-agenda-group">
+                    {group.dateKey && period !== 'day' ? (
+                      <h3 className="bb-schedule-agenda-day">
+                        {formatDisplayDate(group.dateKey)}
+                      </h3>
+                    ) : null}
+                    <div className="bb-schedule-agenda-list">
+                      {group.items.map((booking) => {
+                        const member = staff.find((row) => row.id === booking.staffId);
+                        return (
+                          <article key={booking.id} className="bb-schedule-agenda-row">
+                            <div className="bb-schedule-agenda-time">
+                              <strong>{formatBookingWindow(booking)}</strong>
+                              {period !== 'day' || sortBy === 'client' || sortBy === 'service' ? (
+                                <span>{formatDisplayDate(bookingDateKey(booking))}</span>
+                              ) : null}
+                            </div>
+                            <div className="bb-schedule-agenda-main">
+                              <h4 className="bb-schedule-agenda-client">
+                                {booking.clientName || 'Client'}
+                              </h4>
+                              <p className="bb-schedule-agenda-service">
+                                {booking.serviceName || 'Service'}
+                              </p>
+                              <p className="bb-schedule-agenda-meta">
+                                {member?.name || booking.staffName || 'Unassigned'}
+                                {booking.clientEmail || booking.clientPhone
+                                  ? ` · ${booking.clientEmail || booking.clientPhone}`
+                                  : ''}
+                              </p>
+                            </div>
+                            <span className="bb-schedule-agenda-badge">Confirmed</span>
+                          </article>
+                        );
+                      })}
+                    </div>
                   </div>
-                  {lane.closed ? (
-                    <p className="bb-schedule-lane-empty">Not available this day</p>
-                  ) : lane.items.length === 0 ? (
-                    <p className="bb-schedule-lane-empty">Open lane</p>
-                  ) : (
-                    lane.items.map((booking) => (
-                      <article key={booking.id} className="bb-schedule-booking">
-                        <div className="bb-schedule-booking-top">
-                          <strong>{booking.time}</strong>
-                          <span className="bb-schedule-booking-status">{booking.status}</span>
-                        </div>
-                        <div className="bb-schedule-booking-service">{booking.serviceName}</div>
-                        <div className="bb-schedule-booking-client">{booking.clientName}</div>
-                        {booking.status === 'pending' ? (
-                          <button
-                            type="button"
-                            className="bb-primary-btn text-sm py-2"
-                            onClick={() => confirmBooking(booking.id)}
-                          >
-                            Confirm
-                          </button>
-                        ) : null}
-                      </article>
-                    ))
-                  )}
-                </div>
-              ))}
-            </section>
+                ))}
+              </section>
+            )}
           </>
         ) : (
           <>
-            {lens === 'staff' ? (
-              <div className="bb-schedule-staff-chips" role="tablist" aria-label="Staff member">
-                {staff.map((member) => (
-                  <button
-                    key={member.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={focusStaffId === member.id}
-                    className={`bb-schedule-staff-chip${
-                      focusStaffId === member.id ? ' is-active' : ''
-                    }`}
-                    onClick={() => setFocusStaffId(member.id)}
-                  >
-                    <span
-                      className="bb-schedule-lane-dot"
-                      style={{ background: member.color || '#050505' }}
-                    />
-                    {member.name}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            <div className="bb-schedule-staff-chips" role="tablist" aria-label="Staff filter">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={!focusStaffId}
+                className={`bb-schedule-staff-chip${!focusStaffId ? ' is-active' : ''}`}
+                onClick={() => setFocusStaffId('')}
+              >
+                All staff
+              </button>
+              {staff.map((member) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={focusStaffId === member.id}
+                  className={`bb-schedule-staff-chip${
+                    focusStaffId === member.id ? ' is-active' : ''
+                  }`}
+                  onClick={() => setFocusStaffId(member.id)}
+                >
+                  <span
+                    className="bb-schedule-lane-dot"
+                    style={{ background: member.color || '#050505' }}
+                  />
+                  {member.name}
+                </button>
+              ))}
+            </div>
 
             <div className="bb-schedule-spot-stats">
               <div className="bb-schedule-spot-stat">
@@ -753,9 +730,9 @@ export function SchedulePage() {
                 <p className="bb-schedule-empty-copy">
                   {allSpotServices.length === 0
                     ? 'Add a service with type “Book a Spot” to run classes and programmes with fixed dates and capacity.'
-                    : lens === 'staff'
+                    : focusStaffId
                       ? 'No programmes assigned to this staff member in the selected period.'
-                      : 'No programmes overlap this date range. Use the edit control to pick another day, week, or month.'}
+                      : 'No programmes overlap this date range. Pick another day, week, or month.'}
                 </p>
               </div>
             ) : (
@@ -846,12 +823,12 @@ export function SchedulePage() {
       {pickerOpen ? (
         <ScheduleDatePicker
           day={day}
-          period={mode === 'slots' ? 'day' : period}
-          allowPeriod={mode === 'spots'}
+          period={period}
+          allowPeriod
           onClose={() => setPickerOpen(false)}
           onApply={({ day: nextDay, period: nextPeriod }) => {
             setDay(nextDay);
-            setPeriod(mode === 'slots' ? 'day' : nextPeriod);
+            setPeriod(nextPeriod);
             setPickerOpen(false);
           }}
         />
@@ -871,28 +848,20 @@ export function SchedulePage() {
               </div>
             </header>
             <div className="bb-services-sheet-body">
-              <label className="bb-services-field">
-                <span>Opens</span>
-                <input
-                  type="time"
-                  className="native-control-input bb-services-control"
-                  value={hoursDraft.businessOpenTime}
-                  onChange={(event) =>
-                    setHoursDraft((prev) => ({ ...prev, businessOpenTime: event.target.value }))
-                  }
-                />
-              </label>
-              <label className="bb-services-field">
-                <span>Closes</span>
-                <input
-                  type="time"
-                  className="native-control-input bb-services-control"
-                  value={hoursDraft.businessCloseTime}
-                  onChange={(event) =>
-                    setHoursDraft((prev) => ({ ...prev, businessCloseTime: event.target.value }))
-                  }
-                />
-              </label>
+              <TimeField
+                label="Opens"
+                value={hoursDraft.businessOpenTime}
+                onChange={(next) =>
+                  setHoursDraft((prev) => ({ ...prev, businessOpenTime: next }))
+                }
+              />
+              <TimeField
+                label="Closes"
+                value={hoursDraft.businessCloseTime}
+                onChange={(next) =>
+                  setHoursDraft((prev) => ({ ...prev, businessCloseTime: next }))
+                }
+              />
             </div>
             <footer className="bb-services-sheet-footer">
               <span />
@@ -911,3 +880,5 @@ export function SchedulePage() {
     </div>
   );
 }
+
+

@@ -1,7 +1,17 @@
 import { useMemo, useState } from 'react';
-import { Check, DollarSign, PackageCheck, Truck } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, DollarSign, PackageCheck, Truck } from 'lucide-react';
 import { navigate } from '../../../app/routing';
+import { toDateKey } from '../../../utils/dates';
+import {
+  formatPeriodLabel,
+  getPeriodRange,
+  isDateKeyInPeriod,
+  PERIOD_OPTIONS,
+  shiftPeriod
+} from '../../../utils/periodFilters';
 import { formatCents } from '../../../utils/products';
+import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { SortField } from '../../../shared/ui/SortField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
 import {
@@ -20,6 +30,13 @@ const STATUS_LABELS = {
   fulfilled: 'Fulfilled',
   cancelled: 'Cancelled'
 };
+
+const SORT_OPTIONS = [
+  { id: 'latest', label: 'Latest' },
+  { id: 'oldest', label: 'Oldest' },
+  { id: 'client', label: 'Client A-Z' },
+  { id: 'total', label: 'Total high-low' }
+];
 
 function matchesFilter(order, filter) {
   const status = order.status || 'pending';
@@ -55,6 +72,30 @@ function formatPlacedAt(timestamp) {
   return { time, day: `${weekday}, ${day} ${month}` };
 }
 
+function orderDateKey(order) {
+  return toDateKey(new Date(Number(order?.timestamp) || Date.now()));
+}
+
+function compareOrders(a, b, sortBy) {
+  const timeA = Number(a.timestamp) || 0;
+  const timeB = Number(b.timestamp) || 0;
+  const chronoCompare = timeA - timeB;
+
+  if (sortBy === 'oldest') return chronoCompare;
+  if (sortBy === 'client') {
+    return (
+      String(a.clientName || '').localeCompare(String(b.clientName || ''), undefined, {
+        sensitivity: 'base'
+      }) || -chronoCompare
+    );
+  }
+  if (sortBy === 'total') {
+    return (Number(b.amountInCents) || 0) - (Number(a.amountInCents) || 0) || -chronoCompare;
+  }
+
+  return -chronoCompare;
+}
+
 export function ProductOrdersDesk() {
   const {
     orders,
@@ -66,6 +107,11 @@ export function ProductOrdersDesk() {
     startThreadFromOrder
   } = useWorkspace();
   const [filter, setFilter] = useState('new');
+  const [period, setPeriod] = useState('week');
+  const [day, setDay] = useState(() => toDateKey(new Date()));
+  const [sortBy, setSortBy] = useState('latest');
+  const periodRange = useMemo(() => getPeriodRange(day, period), [day, period]);
+  const periodLabel = useMemo(() => formatPeriodLabel(day, period), [day, period]);
 
   const counts = useMemo(() => {
     const next = {
@@ -91,9 +137,10 @@ export function ProductOrdersDesk() {
     () =>
       orders
         .filter((order) => matchesFilter(order, filter))
+        .filter((order) => isDateKeyInPeriod(orderDateKey(order), periodRange))
         .slice()
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)),
-    [orders, filter]
+        .sort((a, b) => compareOrders(a, b, sortBy)),
+    [orders, filter, periodRange, sortBy]
   );
 
   const openChat = (order) => {
@@ -117,6 +164,57 @@ export function ProductOrdersDesk() {
           { id: 'all', label: 'All', count: counts.all }
         ]}
       />
+
+      <div className="bb-ops-toolbar" aria-label="Product order period and sort">
+        <PeriodSegmentedControl
+          ariaLabel="Product order period"
+          value={period}
+          onChange={setPeriod}
+          options={PERIOD_OPTIONS}
+        />
+
+        <div className="bb-ops-toolbar-tools">
+          <SortField
+            value={sortBy}
+            onChange={setSortBy}
+            options={SORT_OPTIONS}
+            pickerTitle="Sort orders"
+            pickerHint="Order product orders in the selected period."
+          />
+
+          <div className="bb-schedule-day-nav">
+            <button
+              type="button"
+              className="bb-ghost-btn px-3"
+              onClick={() => setDay(shiftPeriod(day, period, -1))}
+              aria-label="Previous period"
+              disabled={period === 'all'}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div className="bb-schedule-day-label">{periodLabel}</div>
+            <button
+              type="button"
+              className="bb-ghost-btn px-3"
+              onClick={() => setDay(shiftPeriod(day, period, 1))}
+              aria-label="Next period"
+              disabled={period === 'all'}
+            >
+              <ChevronRight size={18} />
+            </button>
+            <button
+              type="button"
+              className="bb-ink-btn"
+              onClick={() => {
+                setDay(toDateKey(new Date()));
+                setPeriod('day');
+              }}
+            >
+              Today
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div className="bb-ops-rows">
         {rows.length === 0 ? (

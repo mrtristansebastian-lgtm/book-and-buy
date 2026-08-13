@@ -1,8 +1,17 @@
 import { useMemo, useState } from 'react';
-import { Check, DollarSign, Hourglass } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, DollarSign, Hourglass } from 'lucide-react';
 import { navigate } from '../../../app/routing';
 import { toDateKey } from '../../../utils/dates';
+import {
+  formatPeriodLabel,
+  getPeriodRange,
+  isDateKeyInPeriod,
+  PERIOD_OPTIONS,
+  shiftPeriod
+} from '../../../utils/periodFilters';
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
+import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { SortField } from '../../../shared/ui/SortField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
 import {
@@ -23,6 +32,13 @@ const STATUS_LABELS = {
   declined: 'Declined',
   cancelled: 'Cancelled'
 };
+
+const SORT_OPTIONS = [
+  { id: 'latest', label: 'Latest' },
+  { id: 'oldest', label: 'Oldest' },
+  { id: 'client', label: 'Client A-Z' },
+  { id: 'service', label: 'Service A-Z' }
+];
 
 function isPastBooking(booking, todayKey) {
   const key = booking.dateKey || booking.date || '';
@@ -53,6 +69,34 @@ function matchesFilter(booking, filter, todayKey) {
   }
 }
 
+function bookingDateKey(booking) {
+  return String(booking?.dateKey || booking?.date || '').trim();
+}
+
+function compareBookings(a, b, sortBy) {
+  const dateA = `${bookingDateKey(a)} ${a.time || ''}`;
+  const dateB = `${bookingDateKey(b)} ${b.time || ''}`;
+  const chronoCompare = dateA.localeCompare(dateB);
+
+  if (sortBy === 'latest') return -chronoCompare || String(b.id || '').localeCompare(String(a.id || ''));
+  if (sortBy === 'client') {
+    return (
+      String(a.clientName || '').localeCompare(String(b.clientName || ''), undefined, {
+        sensitivity: 'base'
+      }) || chronoCompare
+    );
+  }
+  if (sortBy === 'service') {
+    return (
+      String(a.serviceName || '').localeCompare(String(b.serviceName || ''), undefined, {
+        sensitivity: 'base'
+      }) || chronoCompare
+    );
+  }
+
+  return chronoCompare;
+}
+
 export function BookingRequestsDesk() {
   const {
     bookings,
@@ -66,7 +110,12 @@ export function BookingRequestsDesk() {
     startThreadFromBooking
   } = useWorkspace();
   const [filter, setFilter] = useState('upcoming');
+  const [period, setPeriod] = useState('week');
+  const [day, setDay] = useState(() => toDateKey(new Date()));
+  const [sortBy, setSortBy] = useState('latest');
   const todayKey = toDateKey(new Date());
+  const periodRange = useMemo(() => getPeriodRange(day, period), [day, period]);
+  const periodLabel = useMemo(() => formatPeriodLabel(day, period), [day, period]);
 
   const counts = useMemo(() => {
     const next = {
@@ -91,13 +140,10 @@ export function BookingRequestsDesk() {
     () =>
       bookings
         .filter((booking) => matchesFilter(booking, filter, todayKey))
+        .filter((booking) => isDateKeyInPeriod(bookingDateKey(booking), periodRange))
         .slice()
-        .sort((a, b) => {
-          const dateA = `${a.dateKey || a.date || ''} ${a.time || ''}`;
-          const dateB = `${b.dateKey || b.date || ''} ${b.time || ''}`;
-          return dateA.localeCompare(dateB);
-        }),
-    [bookings, filter, todayKey]
+        .sort((a, b) => compareBookings(a, b, sortBy)),
+    [bookings, filter, periodRange, sortBy, todayKey]
   );
 
   const openChat = (booking) => {
@@ -124,6 +170,57 @@ export function BookingRequestsDesk() {
           { id: 'all', label: 'All', count: counts.all }
         ]}
       />
+
+      <div className="bb-ops-toolbar" aria-label="Booking request period and sort">
+        <PeriodSegmentedControl
+          ariaLabel="Booking request period"
+          value={period}
+          onChange={setPeriod}
+          options={PERIOD_OPTIONS}
+        />
+
+        <div className="bb-ops-toolbar-tools">
+          <SortField
+            value={sortBy}
+            onChange={setSortBy}
+            options={SORT_OPTIONS}
+            pickerTitle="Sort requests"
+            pickerHint="Order booking requests in the selected period."
+          />
+
+          <div className="bb-schedule-day-nav">
+            <button
+              type="button"
+              className="bb-ghost-btn px-3"
+              onClick={() => setDay(shiftPeriod(day, period, -1))}
+              aria-label="Previous period"
+              disabled={period === 'all'}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div className="bb-schedule-day-label">{periodLabel}</div>
+            <button
+              type="button"
+              className="bb-ghost-btn px-3"
+              onClick={() => setDay(shiftPeriod(day, period, 1))}
+              aria-label="Next period"
+              disabled={period === 'all'}
+            >
+              <ChevronRight size={18} />
+            </button>
+            <button
+              type="button"
+              className="bb-ink-btn"
+              onClick={() => {
+                setDay(toDateKey(new Date()));
+                setPeriod('day');
+              }}
+            >
+              Today
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div className="bb-ops-rows">
         {rows.length === 0 ? (

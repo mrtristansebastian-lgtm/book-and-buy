@@ -1,0 +1,229 @@
+/* In-house time field + digital clock picker */
+
+.bb-time-field {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.bb-time-field.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.bb-time-field-label {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-time-field-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.bb-time-field-value {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  min-height: 2.65rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  color: #101828;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.bb-time-field-value .is-placeholder {
+  color: #98a2b3;
+  font-weight: 620;
+}
+
+.bb-time-field-value:hover:not(:disabled) {
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+.bb-time-field-value:focus-visible {
+  outline: 2px solid #101828;
+  outline-offset: 1px;
+}
+
+.bb-time-field-pick {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.65rem;
+  padding: 0.55rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 780;
+  letter-spacing: -0.01em;
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset, 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.bb-time-field-pick:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.bb-time-field-pick:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.bb-time-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: end center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.32);
+}
+
+@media (min-width: 768px) {
+  .bb-time-picker-backdrop {
+    place-items: center;
+  }
+}
+
+.bb-time-picker-sheet {
+  width: min(100%, 22rem);
+  display: grid;
+  gap: 1.15rem;
+  padding: 1.25rem 1.25rem 1.3rem;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.bb-time-picker-head {
+  display: grid;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.bb-time-picker-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #101828;
+}
+
+.bb-time-picker-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #667085;
+}
+
+.bb-time-clock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.85rem 0.75rem 0.55rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.bb-time-clock-segment {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  min-width: 5.5rem;
+}
+
+.bb-time-clock-step {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 2.4rem;
+  height: 1.85rem;
+  display: grid;
+  place-items: center;
+  color: #667085;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.bb-time-clock-step:hover {
+  color: #101828;
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.bb-time-clock-digit {
+  appearance: none;
+  width: 4.6rem;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(2.4rem, 7vw, 3.1rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: #050505;
+  padding: 0.15rem 0;
+  border-radius: 0.65rem;
+}
+
+.bb-time-clock-digit:focus {
+  outline: 2px solid #101828;
+  outline-offset: 2px;
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.bb-time-clock-colon {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(2.2rem, 6.5vw, 2.9rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  color: #101828;
+  line-height: 1;
+  padding-bottom: 1.15rem;
+  user-select: none;
+}
+
+.bb-time-clock-caption {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.64rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-time-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  padding-top: 0.1rem;
+}
