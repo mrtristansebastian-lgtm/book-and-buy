@@ -204,7 +204,10 @@ export function SettingsShell({ section: sectionProp }) {
 
       <div className="bb-settings-main">
         <header className="bb-settings-main-head">
-          <h1 className="bb-page-title">{copy.title}</h1>
+          <div className="bb-page-title-wrap">
+            <div className="bb-page-header-glow" aria-hidden="true" />
+            <h1 className="bb-page-title">{copy.title}</h1>
+          </div>
           <p className="bb-muted">{copy.lede}</p>
         </header>
         {body}

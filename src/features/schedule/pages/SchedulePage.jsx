@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Info, Pencil, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, ChevronLeft, ChevronRight, Info, Pencil, X } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
+import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { SortField } from '../../../shared/ui/SortField';
 import {
   buildMonthGrid,
@@ -364,12 +366,29 @@ export function SchedulePage() {
   const [focusStaffId, setFocusStaffId] = useState('');
   const [day, setDay] = useState(() => toDateKey(new Date()));
   const [period, setPeriod] = useState('day');
+  const [customRange, setCustomRange] = useState({ from: '', to: '' });
+  const [customPickerOpen, setCustomPickerOpen] = useState(false);
   const [sortBy, setSortBy] = useState('latest');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [infoSpotId, setInfoSpotId] = useState('');
+  const [expandedDayKeys, setExpandedDayKeys] = useState(() => new Set([toDateKey(new Date())]));
 
-  const periodRange = useMemo(() => getPeriodRange(day, period), [day, period]);
-  const periodLabel = useMemo(() => formatPeriodLabel(day, period), [day, period]);
+  useEffect(() => {
+    if (sortBy === 'client' || sortBy === 'service') {
+      setExpandedDayKeys(new Set(['flat']));
+      return;
+    }
+    setExpandedDayKeys(new Set([day]));
+  }, [day, period, sortBy]);
+
+  const periodRange = useMemo(
+    () => getPeriodRange(day, period, customRange),
+    [day, period, customRange]
+  );
+  const periodLabel = useMemo(
+    () => formatPeriodLabel(day, period, customRange),
+    [day, period, customRange]
+  );
 
   const slotBookings = useMemo(
     () =>
@@ -422,6 +441,7 @@ export function SchedulePage() {
 
   const showAgendaMeters =
     period === 'day' ||
+    period === 'custom' ||
     ((period === 'week' || period === 'month' || period === 'all') &&
       (sortBy === 'oldest' || sortBy === 'latest'));
 
@@ -474,26 +494,15 @@ export function SchedulePage() {
     [day, workspace.availabilityRules]
   );
 
-  const dayBoardTimeline = useMemo(() => {
-    if (mode !== 'slots' || period !== 'day') return null;
-    return getScheduleDayTimeline({
-      staffId: focusStaffId || '',
-      dateKey: day,
-      staffAvailability: workspace.staffAvailability || {},
-      availabilityRules: workspace.availabilityRules || {},
-      bookings: agendaBookings
+  const toggleAgendaDay = (key) => {
+    const id = key || 'flat';
+    setExpandedDayKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
-  }, [
-    mode,
-    period,
-    focusStaffId,
-    day,
-    workspace.staffAvailability,
-    workspace.availabilityRules,
-    agendaBookings
-  ]);
-
-  const isDayBoard = mode === 'slots' && period === 'day';
+  };
 
   const renderStaffFilter = () => (
     <div className="bb-schedule-staff-filter" role="tablist" aria-label="Staff filter">
@@ -537,11 +546,10 @@ export function SchedulePage() {
     <div className="bb-schedule-desk">
       <header className="bb-schedule-desk-header">
         <div className="bb-schedule-desk-copy">
-          <p className="bb-schedule-desk-eyebrow">Operations</p>
-          <h1 className="bb-schedule-desk-title">Schedule</h1>
-          <p className="bb-schedule-desk-lede">
-            See appointments and programmes for the period you pick.
-          </p>
+          <div className="bb-page-title-wrap">
+            <div className="bb-page-header-glow" aria-hidden="true" />
+            <h1 className="bb-page-title bb-schedule-desk-title">Schedule</h1>
+          </div>
         </div>
 
         <div className="bb-schedule-desk-tools">
@@ -572,20 +580,14 @@ export function SchedulePage() {
       </header>
 
       <section className="bb-schedule-toolbar" aria-label="Schedule tools">
-        <div className="bb-schedule-period" role="tablist" aria-label="Period">
-          {PERIOD_OPTIONS.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              role="tab"
-              aria-selected={period === option.id}
-              className={`bb-schedule-period-btn${period === option.id ? ' is-active' : ''}`}
-              onClick={() => setPeriod(option.id)}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <PeriodSegmentedControl
+          variant="period"
+          ariaLabel="Period"
+          value={period}
+          options={PERIOD_OPTIONS}
+          onChange={setPeriod}
+          onCustomSelect={() => setCustomPickerOpen(true)}
+        />
 
         <div className="bb-schedule-toolbar-end">
           <SortField
@@ -606,14 +608,17 @@ export function SchedulePage() {
               className="bb-ghost-btn px-3"
               onClick={() => setDay(shiftPeriod(day, period, -1))}
               aria-label="Previous period"
-              disabled={period === 'all'}
+              disabled={period === 'all' || period === 'custom'}
             >
               <ChevronLeft size={18} />
             </button>
             <button
               type="button"
               className="bb-schedule-day-label"
-              onClick={() => setPickerOpen(true)}
+              onClick={() => {
+                if (period === 'custom') setCustomPickerOpen(true);
+                else setPickerOpen(true);
+              }}
               aria-label="Pick day or period"
               title="Pick day or period"
             >
@@ -625,7 +630,7 @@ export function SchedulePage() {
               className="bb-ghost-btn px-3"
               onClick={() => setDay(shiftPeriod(day, period, 1))}
               aria-label="Next period"
-              disabled={period === 'all'}
+              disabled={period === 'all' || period === 'custom'}
             >
               <ChevronRight size={18} />
             </button>
@@ -647,98 +652,7 @@ export function SchedulePage() {
         {renderStaffFilter()}
 
         {mode === 'slots' ? (
-          isDayBoard ? (
-            <section className="bb-schedule-board" aria-label="Day board">
-              <div className="bb-schedule-board-hero">
-                <div className="bb-schedule-board-hero-copy">
-                  <p className="bb-schedule-board-kicker">Day board</p>
-                  <h2 className="bb-schedule-board-title">{formatDisplayDate(day)}</h2>
-                  <p className="bb-schedule-board-hours">
-                    {dayHours.open
-                      ? `${dayHours.openTime} – ${dayHours.closeTime}`
-                      : 'Business closed'}
-                    {focusStaffId
-                      ? ` · ${staff.find((row) => row.id === focusStaffId)?.name || 'Staff'}`
-                      : ' · All staff'}
-                  </p>
-                </div>
-                {dayBoardTimeline ? (
-                  <div className="bb-schedule-board-meter">
-                    <DayTimelineMeter
-                      segments={dayBoardTimeline.segments}
-                      status={dayBoardTimeline.status}
-                      dayStart={dayBoardTimeline.dayStart}
-                      dayEnd={dayBoardTimeline.dayEnd}
-                    />
-                    <div className="bb-schedule-day-meter-legend" aria-hidden="true">
-                      {dayBoardTimeline.segments.some((segment) => segment.kind === 'open') ? (
-                        <span className="bb-schedule-day-meter-legend-item is-open">
-                          <i /> Working
-                        </span>
-                      ) : null}
-                      {dayBoardTimeline.segments.some((segment) => segment.kind === 'break') ? (
-                        <span className="bb-schedule-day-meter-legend-item is-break">
-                          <i /> Break
-                        </span>
-                      ) : null}
-                      {dayBoardTimeline.status === 'off' ? (
-                        <span className="bb-schedule-day-meter-legend-item is-off">
-                          <i /> Off day
-                        </span>
-                      ) : null}
-                      {dayBoardTimeline.status === 'leave' ? (
-                        <span className="bb-schedule-day-meter-legend-item is-leave">
-                          <i /> Leave
-                        </span>
-                      ) : null}
-                      {dayBoardTimeline.segments.some((segment) => segment.kind === 'booking') ? (
-                        <span className="bb-schedule-day-meter-legend-item is-booking">
-                          <i /> Booking
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-
-              {agendaBookings.length === 0 ? (
-                <div className="bb-schedule-board-empty">
-                  <p className="bb-schedule-empty-title">No confirmed bookings</p>
-                  <p className="bb-schedule-empty-copy">
-                    {focusStaffId
-                      ? 'No confirmed appointments for this staff member today.'
-                      : 'No confirmed appointments today. Pending requests stay in Requests until confirmed.'}
-                  </p>
-                </div>
-              ) : (
-                <ol className="bb-schedule-rail">
-                  {agendaBookings.map((booking) => {
-                    const member = staff.find((row) => row.id === booking.staffId);
-                    return (
-                      <li key={booking.id} className="bb-schedule-rail-item">
-                        <div className="bb-schedule-rail-time">
-                          <strong>{formatBookingWindow(booking)}</strong>
-                        </div>
-                        <article className="bb-schedule-rail-card">
-                          <div className="bb-schedule-rail-card-main">
-                            <h3>{booking.clientName || 'Client'}</h3>
-                            <p>{booking.serviceName || 'Service'}</p>
-                            <span>
-                              {member?.name || booking.staffName || 'Unassigned'}
-                              {booking.clientEmail || booking.clientPhone
-                                ? ` · ${booking.clientEmail || booking.clientPhone}`
-                                : ''}
-                            </span>
-                          </div>
-                          <span className="bb-schedule-status-chip is-confirmed">Confirmed</span>
-                        </article>
-                      </li>
-                    );
-                  })}
-                </ol>
-              )}
-            </section>
-          ) : agendaBookings.length === 0 ? (
+          period !== 'day' && agendaBookings.length === 0 ? (
             <div className="bb-schedule-empty">
               <p className="bb-schedule-empty-title">No confirmed bookings</p>
               <p className="bb-schedule-empty-copy">
@@ -750,6 +664,8 @@ export function SchedulePage() {
           ) : (
             <section className="bb-schedule-agenda" aria-label="Confirmed appointments">
               {slotAgendaGroups.map((group) => {
+                const groupKey = group.dateKey || 'flat';
+                const expanded = expandedDayKeys.has(groupKey);
                 const meterDateKey = showAgendaMeters ? group.dateKey : '';
                 const timeline = meterDateKey
                   ? getScheduleDayTimeline({
@@ -765,83 +681,137 @@ export function SchedulePage() {
                 const hasBooking = timeline?.segments?.some(
                   (segment) => segment.kind === 'booking'
                 );
+                const hoursLabel =
+                  group.dateKey === day
+                    ? dayHours.open
+                      ? `${dayHours.openTime} – ${dayHours.closeTime}`
+                      : 'Business closed'
+                    : null;
+                const countLabel =
+                  group.items.length === 1
+                    ? '1 booking'
+                    : `${group.items.length} bookings`;
 
                 return (
-                  <div key={group.dateKey || 'flat'} className="bb-schedule-agenda-group">
-                    {group.dateKey ? (
-                      <h3 className="bb-schedule-agenda-day">
-                        {formatDisplayDate(group.dateKey)}
-                      </h3>
-                    ) : null}
-                    {timeline ? (
-                      <div className="bb-schedule-agenda-meter">
-                        <DayTimelineMeter
-                          segments={timeline.segments}
-                          status={timeline.status}
-                          dayStart={timeline.dayStart}
-                          dayEnd={timeline.dayEnd}
-                        />
-                        {hasOpen || hasBreak || hasBooking ? (
-                          <div className="bb-schedule-day-meter-legend" aria-hidden="true">
-                            {hasOpen ? (
-                              <span className="bb-schedule-day-meter-legend-item is-open">
-                                <i /> Working
-                              </span>
-                            ) : null}
-                            {hasBreak ? (
-                              <span className="bb-schedule-day-meter-legend-item is-break">
-                                <i /> Break
-                              </span>
-                            ) : null}
-                            {timeline.status === 'off' ? (
-                              <span className="bb-schedule-day-meter-legend-item is-off">
-                                <i /> Off day
-                              </span>
-                            ) : null}
-                            {timeline.status === 'leave' ? (
-                              <span className="bb-schedule-day-meter-legend-item is-leave">
-                                <i /> Leave
-                              </span>
-                            ) : null}
-                            {hasBooking ? (
-                              <span className="bb-schedule-day-meter-legend-item is-booking">
-                                <i /> Booking
-                              </span>
+                  <div
+                    key={groupKey}
+                    className={`bb-schedule-agenda-group${expanded ? ' is-open' : ''}`}
+                  >
+                    <button
+                      type="button"
+                      className="bb-schedule-agenda-day-toggle"
+                      aria-expanded={expanded}
+                      onClick={() => toggleAgendaDay(groupKey)}
+                    >
+                      <span className="bb-schedule-agenda-day-toggle-copy">
+                        <strong>
+                          {group.dateKey
+                            ? formatDisplayDate(group.dateKey)
+                            : periodLabel || 'Appointments'}
+                        </strong>
+                        <span>
+                          {countLabel}
+                          {hoursLabel ? ` · ${hoursLabel}` : ''}
+                          {focusStaffId
+                            ? ` · ${staff.find((row) => row.id === focusStaffId)?.name || 'Staff'}`
+                            : ''}
+                        </span>
+                      </span>
+                      <ChevronDown
+                        size={18}
+                        strokeWidth={2.2}
+                        className="bb-schedule-agenda-day-chevron"
+                        aria-hidden="true"
+                      />
+                    </button>
+
+                    {expanded ? (
+                      <div className="bb-schedule-agenda-day-panel">
+                        {timeline ? (
+                          <div className="bb-schedule-agenda-meter">
+                            <DayTimelineMeter
+                              segments={timeline.segments}
+                              status={timeline.status}
+                              dayStart={timeline.dayStart}
+                              dayEnd={timeline.dayEnd}
+                            />
+                            {hasOpen || hasBreak || hasBooking || timeline.status === 'off' || timeline.status === 'leave' ? (
+                              <div className="bb-schedule-day-meter-legend" aria-hidden="true">
+                                {hasOpen ? (
+                                  <span className="bb-schedule-day-meter-legend-item is-open">
+                                    <i /> Working
+                                  </span>
+                                ) : null}
+                                {hasBreak ? (
+                                  <span className="bb-schedule-day-meter-legend-item is-break">
+                                    <i /> Break
+                                  </span>
+                                ) : null}
+                                {timeline.status === 'off' ? (
+                                  <span className="bb-schedule-day-meter-legend-item is-off">
+                                    <i /> Off day
+                                  </span>
+                                ) : null}
+                                {timeline.status === 'leave' ? (
+                                  <span className="bb-schedule-day-meter-legend-item is-leave">
+                                    <i /> Leave
+                                  </span>
+                                ) : null}
+                                {hasBooking ? (
+                                  <span className="bb-schedule-day-meter-legend-item is-booking">
+                                    <i /> Booking
+                                  </span>
+                                ) : null}
+                              </div>
                             ) : null}
                           </div>
                         ) : null}
+
+                        {group.items.length === 0 ? (
+                          <div className="bb-schedule-agenda-day-empty">
+                            <p className="bb-schedule-empty-title">No confirmed bookings</p>
+                            <p className="bb-schedule-empty-copy">
+                              {focusStaffId
+                                ? 'No confirmed appointments for this staff member today.'
+                                : 'No confirmed appointments today. Pending requests stay in Requests until confirmed.'}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="bb-schedule-agenda-list">
+                            {group.items.map((booking) => {
+                              const member = staff.find((row) => row.id === booking.staffId);
+                              return (
+                                <article key={booking.id} className="bb-schedule-agenda-row">
+                                  <div className="bb-schedule-agenda-time">
+                                    <strong>{formatBookingWindow(booking)}</strong>
+                                    {sortBy === 'client' || sortBy === 'service' ? (
+                                      <span>{formatDisplayDate(bookingDateKey(booking))}</span>
+                                    ) : null}
+                                  </div>
+                                  <div className="bb-schedule-agenda-main">
+                                    <h4 className="bb-schedule-agenda-client">
+                                      {booking.clientName || 'Client'}
+                                    </h4>
+                                    <p className="bb-schedule-agenda-service">
+                                      {booking.serviceName || 'Service'}
+                                    </p>
+                                    <p className="bb-schedule-agenda-meta">
+                                      {member?.name || booking.staffName || 'Unassigned'}
+                                      {booking.clientEmail || booking.clientPhone
+                                        ? ` · ${booking.clientEmail || booking.clientPhone}`
+                                        : ''}
+                                    </p>
+                                  </div>
+                                  <span className="bb-schedule-status-chip is-confirmed">
+                                    Confirmed
+                                  </span>
+                                </article>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     ) : null}
-                    <div className="bb-schedule-agenda-list">
-                      {group.items.map((booking) => {
-                        const member = staff.find((row) => row.id === booking.staffId);
-                        return (
-                          <article key={booking.id} className="bb-schedule-agenda-row">
-                            <div className="bb-schedule-agenda-time">
-                              <strong>{formatBookingWindow(booking)}</strong>
-                              {sortBy === 'client' || sortBy === 'service' ? (
-                                <span>{formatDisplayDate(bookingDateKey(booking))}</span>
-                              ) : null}
-                            </div>
-                            <div className="bb-schedule-agenda-main">
-                              <h4 className="bb-schedule-agenda-client">
-                                {booking.clientName || 'Client'}
-                              </h4>
-                              <p className="bb-schedule-agenda-service">
-                                {booking.serviceName || 'Service'}
-                              </p>
-                              <p className="bb-schedule-agenda-meta">
-                                {member?.name || booking.staffName || 'Unassigned'}
-                                {booking.clientEmail || booking.clientPhone
-                                  ? ` · ${booking.clientEmail || booking.clientPhone}`
-                                  : ''}
-                              </p>
-                            </div>
-                            <span className="bb-schedule-status-chip is-confirmed">Confirmed</span>
-                          </article>
-                        );
-                      })}
-                    </div>
                   </div>
                 );
               })}
@@ -965,16 +935,26 @@ export function SchedulePage() {
       {pickerOpen ? (
         <ScheduleDatePicker
           day={day}
-          period={period}
-          allowPeriod
           onClose={() => setPickerOpen(false)}
-          onApply={({ day: nextDay, period: nextPeriod }) => {
+          onApply={({ day: nextDay }) => {
             setDay(nextDay);
-            setPeriod(nextPeriod);
             setPickerOpen(false);
           }}
         />
       ) : null}
+
+      <PeriodCustomPicker
+        open={customPickerOpen}
+        from={customRange.from || day}
+        to={customRange.to || customRange.from || day}
+        onClose={() => setCustomPickerOpen(false)}
+        onApply={({ from, to }) => {
+          setCustomRange({ from, to });
+          setDay(from);
+          setPeriod('custom');
+          setCustomPickerOpen(false);
+        }}
+      />
     </div>
   );
 }

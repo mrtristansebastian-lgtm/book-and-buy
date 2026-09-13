@@ -8,9 +8,9 @@ export function RequestsPage() {
   return (
     <div className="grid gap-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="bb-page-title text-3xl m-0">Requests</h1>
-          <p className="bb-muted m-0">Triage booking requests for Book.</p>
+        <div className="bb-page-title-wrap">
+          <div className="bb-page-header-glow" aria-hidden="true" />
+          <h1 className="bb-page-title">Requests</h1>
         </div>
         <button type="button" className="bb-ink-btn" onClick={() => setManualOpen(true)}>
           Manual booking

@@ -1,6 +1,5 @@
 import { ExternalLink, Radio } from 'lucide-react';
 import { useState } from 'react';
-import { E_BUSINESS_PLATFORM_NAME } from '../../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { BlogComposerSheet } from '../components/BlogComposerSheet';
@@ -34,14 +33,10 @@ export function SocialStudioPage() {
       <header className="bb-social-studio-header">
         <div className="bb-social-studio-header-row">
           <div className="bb-social-studio-header-copy">
-            <p className="bb-social-studio-eyebrow">
-              {E_BUSINESS_PLATFORM_NAME} · Studio
-            </p>
-            <h1 className="bb-social-studio-title">Business Blog</h1>
-            <p className="bb-social-studio-lede">
-              Compose with a live preview, then publish. What you see in history is
-              what customers see live.
-            </p>
+            <div className="bb-page-title-wrap">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title bb-social-studio-title">Business Blog</h1>
+            </div>
           </div>
           <button
             type="button"

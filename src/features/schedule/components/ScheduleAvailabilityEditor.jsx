@@ -1059,39 +1059,18 @@ export function ScheduleAvailabilityEditor({
         </div>
 
         {activeEdit ? (
-          <div className="bb-schedule-avail-paint-bar" role="toolbar" aria-label="Paint status">
-            <p className="bb-schedule-avail-paint-bar-hint">
-              {activeEdit.dragging
-                ? 'Move across days, then click to apply the range'
-                : 'Click a day to cycle status · Double-click, then drag to paint a range'}
-            </p>
-            <div className="bb-schedule-avail-status bb-schedule-avail-paint-brushes" role="tablist">
-              {paintBrushOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeEdit.brush === option.id}
-                  className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
-                    activeEdit.brush === option.id ? ' is-active' : ''
-                  }`}
-                  onClick={() =>
-                    setActiveEdit((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            brush: option.id,
-                            dragStart: null,
-                            dragHover: null,
-                            dragging: false
-                          }
-                        : prev
-                    )
-                  }
-                >
-                  {option.label}
-                </button>
-              ))}
+          <div className="bb-schedule-avail-paint-bar" role="status">
+            <div className="bb-schedule-avail-paint-bar-copy">
+              <p className="bb-schedule-avail-paint-bar-title">
+                {activeEdit.dragging ? 'Pick the end of your range' : 'Click days to toggle status'}
+              </p>
+              <p className="bb-schedule-avail-paint-bar-hint">
+                {activeEdit.dragging
+                  ? 'Move to the last day, then click once to fill the range.'
+                  : isBusinessFocus
+                    ? 'Each click switches a day between Available and Closed. Need a longer stretch? Use Select range above.'
+                    : 'Each click switches a day through Working, Off day, and Leave. Need a longer stretch? Use Select range above.'}
+              </p>
             </div>
           </div>
         ) : null}
@@ -1202,11 +1181,6 @@ export function ScheduleAvailabilityEditor({
                 onPointerEnter={() => handlePaintDayEnter(key)}
               >
                 {date.getDate()}
-                {activeEdit ? (
-                  <span className="bb-schedule-picker-day-status">
-                    {statusTileLabel(displayStatus, isBusinessFocus)}
-                  </span>
-                ) : null}
               </button>
             );
           })}

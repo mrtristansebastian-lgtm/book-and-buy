@@ -92,8 +92,7 @@ export const workspaceGroupLabels = {
 /** Nested under a parent catalog tab within the same nav group. */
 export const workspaceTabParents = {
   requests: 'services',
-  orders: 'products',
-  stock: 'products'
+  orders: 'products'
 };
 
 export const mobilePrimaryTabs = ['overview', 'services', 'staff', 'products', 'website'];

@@ -45,16 +45,6 @@
   color: #98a2b3;
 }
 
-.bb-social-studio-title {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.55rem, 2.8vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
-  color: #101828;
-}
-
 .bb-social-studio-lede {
   margin: 0;
   max-width: 34rem;

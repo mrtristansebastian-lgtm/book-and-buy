@@ -208,11 +208,10 @@ export function ProductsPage() {
     <div className="bb-services-desk">
       <header className="bb-services-desk-header">
         <div className="bb-services-desk-copy">
-          <p className="bb-services-desk-eyebrow">Buy</p>
-          <h1 className="bb-services-desk-title">Products</h1>
-          <p className="bb-services-desk-lede">
-            Your Buy catalog — same card language clients see on the public site.
-          </p>
+          <div className="bb-page-title-wrap">
+            <div className="bb-page-header-glow" aria-hidden="true" />
+            <h1 className="bb-page-title bb-services-desk-title">Products</h1>
+          </div>
         </div>
         <button type="button" className="bb-primary-btn" onClick={openCreate}>
           <Plus size={16} /> Add product

@@ -46,9 +46,11 @@ export function AvailabilityPage() {
     <div className="bb-schedule-desk">
       <header className="bb-schedule-desk-header bb-schedule-avail-page-header">
         <div className="bb-schedule-desk-copy">
-          <p className="bb-schedule-desk-eyebrow">Book</p>
           <div className="bb-schedule-avail-title-row">
-            <h1 className="bb-schedule-desk-title">Availability Studio</h1>
+            <div className="bb-page-title-wrap">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title bb-schedule-desk-title">Availability Studio</h1>
+            </div>
             {canEditRules ? (
               <button
                 type="button"
@@ -61,7 +63,6 @@ export function AvailabilityPage() {
               </button>
             ) : null}
           </div>
-          <p className="bb-schedule-desk-lede">Manage availability statuses and shifts.</p>
         </div>
         <div className="bb-schedule-desk-tools bb-schedule-avail-header-tools">
           <StaffAvailabilitySwitcher

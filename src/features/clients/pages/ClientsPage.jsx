@@ -120,9 +120,10 @@ export function ClientsPage() {
     <div className="bb-clients">
       <header className="bb-clients-header">
         <div className="bb-clients-header-copy">
-          <p className="bb-clients-eyebrow">Directory</p>
-          <h1 className="bb-clients-title">Clients</h1>
-          <p className="bb-clients-lede">Your phonebook for people who book and buy.</p>
+          <div className="bb-page-title-wrap">
+            <div className="bb-page-header-glow" aria-hidden="true" />
+            <h1 className="bb-page-title bb-clients-title">Clients</h1>
+          </div>
         </div>
         <div className="bb-clients-tools">
           <label className="bb-clients-search bb-search-field">

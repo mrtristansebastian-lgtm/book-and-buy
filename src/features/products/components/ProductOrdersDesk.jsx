@@ -10,6 +10,7 @@ import {
   shiftPeriod
 } from '../../../utils/periodFilters';
 import { formatCents } from '../../../utils/products';
+import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { SortField } from '../../../shared/ui/SortField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -109,9 +110,17 @@ export function ProductOrdersDesk() {
   const [filter, setFilter] = useState('new');
   const [period, setPeriod] = useState('week');
   const [day, setDay] = useState(() => toDateKey(new Date()));
+  const [customRange, setCustomRange] = useState({ from: '', to: '' });
+  const [customPickerOpen, setCustomPickerOpen] = useState(false);
   const [sortBy, setSortBy] = useState('latest');
-  const periodRange = useMemo(() => getPeriodRange(day, period), [day, period]);
-  const periodLabel = useMemo(() => formatPeriodLabel(day, period), [day, period]);
+  const periodRange = useMemo(
+    () => getPeriodRange(day, period, customRange),
+    [day, period, customRange]
+  );
+  const periodLabel = useMemo(
+    () => formatPeriodLabel(day, period, customRange),
+    [day, period, customRange]
+  );
 
   const counts = useMemo(() => {
     const next = {
@@ -167,10 +176,12 @@ export function ProductOrdersDesk() {
 
       <div className="bb-ops-toolbar" aria-label="Product order period and sort">
         <PeriodSegmentedControl
+          variant="period"
           ariaLabel="Product order period"
           value={period}
           onChange={setPeriod}
           options={PERIOD_OPTIONS}
+          onCustomSelect={() => setCustomPickerOpen(true)}
         />
 
         <div className="bb-ops-toolbar-tools">
@@ -188,7 +199,7 @@ export function ProductOrdersDesk() {
               className="bb-ghost-btn px-3"
               onClick={() => setDay(shiftPeriod(day, period, -1))}
               aria-label="Previous period"
-              disabled={period === 'all'}
+              disabled={period === 'all' || period === 'custom'}
             >
               <ChevronLeft size={18} />
             </button>
@@ -198,7 +209,7 @@ export function ProductOrdersDesk() {
               className="bb-ghost-btn px-3"
               onClick={() => setDay(shiftPeriod(day, period, 1))}
               aria-label="Next period"
-              disabled={period === 'all'}
+              disabled={period === 'all' || period === 'custom'}
             >
               <ChevronRight size={18} />
             </button>
@@ -325,6 +336,19 @@ export function ProductOrdersDesk() {
           })
         )}
       </div>
+
+      <PeriodCustomPicker
+        open={customPickerOpen}
+        from={customRange.from || day}
+        to={customRange.to || customRange.from || day}
+        onClose={() => setCustomPickerOpen(false)}
+        onApply={({ from, to }) => {
+          setCustomRange({ from, to });
+          setDay(from);
+          setPeriod('custom');
+          setCustomPickerOpen(false);
+        }}
+      />
     </section>
   );
 }

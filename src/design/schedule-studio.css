@@ -31,15 +31,6 @@
   color: #98a2b3;
 }
 
-.bb-schedule-desk-title {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.55rem, 2.8vw, 2rem);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  color: #101828;
-}
-
 .bb-schedule-desk-lede {
   margin: 0;
   font-size: 0.88rem;
@@ -214,12 +205,95 @@
 
 .bb-schedule-agenda {
   display: grid;
-  gap: 1.15rem;
+  gap: 0.75rem;
 }
 
 .bb-schedule-agenda-group {
   display: grid;
-  gap: 0.55rem;
+  gap: 0;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  overflow: hidden;
+}
+
+.bb-schedule-agenda-day-toggle {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.95rem 1.05rem;
+  border: 0;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  color: #101828;
+  transition: background 140ms ease;
+}
+
+.bb-schedule-agenda-day-toggle:hover {
+  background: #fafbfc;
+}
+
+.bb-schedule-agenda-group.is-open .bb-schedule-agenda-day-toggle {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  background: #fbfcfd;
+}
+
+.bb-schedule-agenda-day-toggle-copy {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.bb-schedule-agenda-day-toggle-copy strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.bb-schedule-agenda-day-toggle-copy span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #667085;
+}
+
+.bb-schedule-agenda-day-chevron {
+  flex: 0 0 auto;
+  color: #98a2b3;
+  transition: transform 180ms ease, color 140ms ease;
+}
+
+.bb-schedule-agenda-group.is-open .bb-schedule-agenda-day-chevron {
+  transform: rotate(180deg);
+  color: #475467;
+}
+
+.bb-schedule-agenda-day-panel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 1.05rem 1.05rem;
+  background: #fff;
+  animation: bb-schedule-agenda-panel-in 180ms ease;
+}
+
+@keyframes bb-schedule-agenda-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-schedule-agenda-day-empty {
+  padding: 0.35rem 0 0.15rem;
 }
 
 .bb-schedule-agenda-day {
@@ -234,7 +308,7 @@
 
 .bb-schedule-agenda-list {
   display: grid;
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
   overflow: hidden;
@@ -2406,20 +2480,34 @@
 
 .bb-schedule-avail-paint-bar {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.65rem;
   margin: 0 0 0.75rem;
-  padding: 0.7rem 0.8rem;
-  border-radius: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.95rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fafafa;
+  background: linear-gradient(180deg, #f8fafc 0%, #fafafa 100%);
   animation: bb-avail-paint-bar-in 200ms ease;
+}
+
+.bb-schedule-avail-paint-bar-copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.bb-schedule-avail-paint-bar-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  color: #101828;
 }
 
 .bb-schedule-avail-paint-bar-hint {
   margin: 0;
-  font-size: 0.74rem;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 0.78rem;
+  font-weight: 580;
+  line-height: 1.45;
   color: #667085;
 }
 
@@ -2427,29 +2515,10 @@
   flex-wrap: wrap;
 }
 
-/* Keep tile size identical — status is an overlay only in active edit */
+/* Keep tile size identical in active edit */
 .bb-schedule-avail.is-active-edit .bb-schedule-picker-day {
   position: relative;
   overflow: hidden;
-}
-
-.bb-schedule-avail.is-active-edit .bb-schedule-picker-day-status {
-  position: absolute;
-  left: 0.15rem;
-  right: 0.15rem;
-  bottom: 0.12rem;
-  font-size: 0.5rem;
-  font-weight: 740;
-  letter-spacing: 0.01em;
-  line-height: 1;
-  text-transform: uppercase;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
-  opacity: 0.9;
-  animation: bb-avail-status-label-in 160ms ease;
 }
 
 .bb-schedule-picker-grid.is-painting {
@@ -2500,15 +2569,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes bb-avail-status-label-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 0.9;
   }
 }
 

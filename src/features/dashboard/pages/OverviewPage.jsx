@@ -40,7 +40,6 @@ export function OverviewPage({ pendingRequests = 0, pendingOrders = 0, unreadSup
   const { workspace, bookings, staff } = useWorkspace();
   const [copied, setCopied] = useState(false);
   const todayKey = toDateKey(new Date());
-  const brandName = workspace.brandName || 'Your business';
   const publicHomePath = publicPagePath(workspace.slug || 'your-business', 'home');
   const personName = resolvePersonName({ user, staff, workspace });
   const greeting = `${greetingForHour(new Date().getHours())}, ${personName}`;
@@ -91,15 +90,11 @@ export function OverviewPage({ pendingRequests = 0, pendingOrders = 0, unreadSup
 
   return (
     <div className="bb-home">
-      <div className="bb-home-atmosphere" aria-hidden="true">
-        <span className="bb-home-orb bb-home-orb-a" />
-        <span className="bb-home-orb bb-home-orb-b" />
-        <span className="bb-home-orb bb-home-orb-c" />
-      </div>
-
       <header className="bb-home-header bb-home-enter">
-        <p className="bb-home-kicker m-0">{brandName}</p>
-        <h1 className="bb-page-title bb-home-title m-0">{greeting}</h1>
+        <div className="bb-page-title-wrap">
+          <div className="bb-page-header-glow" aria-hidden="true" />
+          <h1 className="bb-page-title bb-home-title">{greeting}</h1>
+        </div>
         <p className="bb-muted bb-home-lede m-0">Today · {formatDisplayDate(todayKey)}</p>
       </header>
 

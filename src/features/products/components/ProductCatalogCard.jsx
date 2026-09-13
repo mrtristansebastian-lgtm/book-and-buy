@@ -19,57 +19,39 @@ export function ProductCatalogCard({ product, onEdit, onRemove }) {
     status === 'draft' ? 'Draft' : status === 'archived' ? 'Archived' : '';
 
   return (
-    <article
-      className={`bb-public-product-card bb-services-catalog-card${
-        notLive ? ' is-hidden' : ''
-      }`}
-    >
-      <button
-        type="button"
-        className="bb-public-product-surface"
-        onClick={() => onEdit?.(product)}
-        aria-label={`Edit ${product.name}`}
-      >
-        <div className="bb-public-product-media">
-          {imageSrc ? <img src={imageSrc} alt="" /> : null}
-          {category ? (
-            <span className="bb-public-product-sticker">{category}</span>
-          ) : null}
-          {notLive ? (
-            <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
-              {statusLabel || 'Hidden'}
-            </span>
-          ) : stock ? (
-            <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
-              {stock}
-            </span>
-          ) : null}
-        </div>
-        <div className="bb-public-product-body">
-          <h2>{product.name}</h2>
-          {product.description ? (
-            <p className="bb-public-product-desc">{product.description}</p>
+    <article className={`bb-catalog-card${notLive ? ' is-hidden' : ''}`}>
+      <div className="bb-catalog-card-media">
+        {imageSrc ? <img src={imageSrc} alt="" /> : <span className="bb-catalog-card-media-empty" />}
+        {category ? <span className="bb-catalog-card-badge">{category}</span> : null}
+        {notLive ? (
+          <span className="bb-catalog-card-badge is-ink is-end">{statusLabel || 'Hidden'}</span>
+        ) : stock ? (
+          <span className="bb-catalog-card-badge is-ink is-end">{stock}</span>
+        ) : null}
+      </div>
+
+      <div className="bb-catalog-card-copy">
+        <h2 className="bb-catalog-card-title">{product.name}</h2>
+        <p className="bb-catalog-card-desc">{product.description || 'Product'}</p>
+      </div>
+
+      <div className="bb-catalog-card-price">
+        <span className="bb-catalog-card-price-label">Price</span>
+        <span className="bb-catalog-card-price-value">
+          {compareAt && price ? (
+            <>
+              <s className="bb-products-compare-at">{compareAt}</s> {price}
+            </>
           ) : (
-            <p className="bb-public-product-desc">Product</p>
+            price || '—'
           )}
-        </div>
-        <div className="bb-public-product-price-row">
-          <span className="bb-public-product-price-label">Price</span>
-          <span className="bb-public-product-price-value">
-            {compareAt && price ? (
-              <>
-                <s className="bb-products-compare-at">{compareAt}</s> {price}
-              </>
-            ) : (
-              price || '—'
-            )}
-          </span>
-        </div>
-      </button>
-      <div className="bb-services-catalog-actions">
+        </span>
+      </div>
+
+      <div className="bb-catalog-card-actions">
         <button
           type="button"
-          className="bb-services-catalog-edit"
+          className="bb-catalog-card-action is-edit"
           onClick={() => onEdit?.(product)}
         >
           <Pencil size={15} strokeWidth={2.2} />
@@ -78,7 +60,7 @@ export function ProductCatalogCard({ product, onEdit, onRemove }) {
         {onRemove ? (
           <button
             type="button"
-            className="bb-services-catalog-remove"
+            className="bb-catalog-card-action is-danger"
             aria-label={`Remove ${product.name}`}
             onClick={() => onRemove(product)}
           >

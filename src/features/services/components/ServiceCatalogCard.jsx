@@ -16,59 +16,45 @@ export function ServiceCatalogCard({ service, bookings = [], onEdit, onRemove })
   const meta = getScheduleTypeMeta(service.scheduleType);
   const hidden = service.active === false;
 
+  const endBadge = hidden
+    ? 'Hidden'
+    : spotsLeft != null
+      ? `${spotsLeft} ${spotsLeft === 1 ? 'spot left' : 'spots left'}`
+      : cardMeta || '';
+
   return (
-    <article className={`bb-public-product-card bb-services-catalog-card${hidden ? ' is-hidden' : ''}`}>
-      <button
-        type="button"
-        className="bb-public-product-surface"
-        onClick={() => onEdit?.(service)}
-        aria-label={`Edit ${service.name}`}
-      >
-        <div className="bb-public-product-media">
-          {imageSrc ? <img src={imageSrc} alt="" /> : null}
-          {category ? <span className="bb-public-product-sticker">{category}</span> : null}
-          {hidden ? (
-            <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
-              Hidden
-            </span>
-          ) : cardMeta || spotsLeft != null ? (
-            <div className="bb-public-product-sticker-stack">
-              {cardMeta ? (
-                <span className="bb-public-product-sticker bb-public-product-sticker--ink">
-                  {cardMeta}
-                </span>
-              ) : null}
-              {spotsLeft != null ? (
-                <span className="bb-public-product-sticker bb-public-product-sticker--spots">
-                  <strong>{spotsLeft}</strong>
-                  <span>{spotsLeft === 1 ? 'spot left' : 'spots left'}</span>
-                </span>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-        <div className="bb-public-product-body">
-          <h2>{service.name}</h2>
-          {service.description ? (
-            <p className="bb-public-product-desc">{service.description}</p>
-          ) : (
-            <p className="bb-public-product-desc">{meta.singular}</p>
-          )}
-        </div>
-        <div className="bb-public-product-price-row">
-          <span className="bb-public-product-price-label">Price</span>
-          <span className="bb-public-product-price-value">{price || '—'}</span>
-        </div>
-      </button>
-      <div className="bb-services-catalog-actions">
-        <button type="button" className="bb-services-catalog-edit" onClick={() => onEdit?.(service)}>
+    <article className={`bb-catalog-card${hidden ? ' is-hidden' : ''}`}>
+      <div className="bb-catalog-card-media">
+        {imageSrc ? <img src={imageSrc} alt="" /> : <span className="bb-catalog-card-media-empty" />}
+        {category ? <span className="bb-catalog-card-badge">{category}</span> : null}
+        {endBadge ? (
+          <span className="bb-catalog-card-badge is-ink is-end">{endBadge}</span>
+        ) : null}
+      </div>
+
+      <div className="bb-catalog-card-copy">
+        <h2 className="bb-catalog-card-title">{service.name}</h2>
+        <p className="bb-catalog-card-desc">{service.description || meta.singular}</p>
+      </div>
+
+      <div className="bb-catalog-card-price">
+        <span className="bb-catalog-card-price-label">Price</span>
+        <span className="bb-catalog-card-price-value">{price || '—'}</span>
+      </div>
+
+      <div className="bb-catalog-card-actions">
+        <button
+          type="button"
+          className="bb-catalog-card-action is-edit"
+          onClick={() => onEdit?.(service)}
+        >
           <Pencil size={15} strokeWidth={2.2} />
           <span>Edit</span>
         </button>
         {onRemove ? (
           <button
             type="button"
-            className="bb-services-catalog-remove"
+            className="bb-catalog-card-action is-danger"
             aria-label={`Remove ${service.name}`}
             onClick={() => onRemove(service)}
           >

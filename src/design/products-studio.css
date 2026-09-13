@@ -338,68 +338,160 @@
   cursor: not-allowed;
 }
 
-/* Stock desk */
+/* Stock desk — cards with extruded 3D box depth */
 .bb-stock-toolbar {
   display: grid;
   gap: 0.75rem;
 }
 
-.bb-stock-list {
+.bb-stock-room {
   display: grid;
-  gap: 0.65rem;
+  gap: 1.25rem 1.1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  padding: 0.45rem 0.35rem 1.35rem;
 }
 
-.bb-stock-row {
+@media (min-width: 560px) {
+  .bb-stock-room {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .bb-stock-room {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-stock-room {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.bb-stock-crate {
+  position: relative;
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.bb-stock-crate-scene {
+  --box-depth: 0.72rem;
+  position: relative;
+  width: 100%;
+  padding: 0.1rem 0.55rem 0.55rem 0.1rem;
+  transform-style: preserve-3d;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-stock-crate:hover .bb-stock-crate-scene {
+  transform: translate(-0.12rem, -0.16rem);
+}
+
+.bb-stock-crate-body {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: 0.65rem;
+  min-height: 12.5rem;
+  padding: 0.75rem;
   border-radius: 1rem;
+  background:
+    linear-gradient(165deg, #ffffff 0%, #f8fafc 100%);
   border: 1px solid rgba(15, 23, 42, 0.08);
-  background: linear-gradient(180deg, #fff 0%, #fafbfc 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 10px 24px rgba(15, 23, 42, 0.06);
+  color: #101828;
   overflow: hidden;
 }
 
-.bb-stock-row-head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  gap: 0.75rem;
-  align-items: center;
-  width: 100%;
-  padding: 0.75rem 0.85rem;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
+.bb-stock-crate-side {
+  position: absolute;
+  z-index: 1;
+  top: var(--box-depth);
+  right: calc(var(--box-depth) * -1);
+  bottom: 0;
+  width: var(--box-depth);
+  border-radius: 0 0.85rem 0.85rem 0;
+  background: linear-gradient(180deg, #d7dee8 0%, #b8c2d0 100%);
+  transform: skewY(-45deg);
+  transform-origin: left top;
+  box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.25);
 }
 
-.bb-stock-thumb {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.65rem;
+.bb-stock-crate-bottom {
+  position: absolute;
+  z-index: 1;
+  left: var(--box-depth);
+  right: 0;
+  bottom: calc(var(--box-depth) * -1);
+  height: var(--box-depth);
+  border-radius: 0 0 0.85rem 0.85rem;
+  background: linear-gradient(90deg, #c5ceda 0%, #9aa7b8 100%);
+  transform: skewX(-45deg);
+  transform-origin: left top;
+  box-shadow: inset 0 -2px 0 rgba(15, 23, 42, 0.06);
+}
+
+.bb-stock-crate:hover .bb-stock-crate-side {
+  background: linear-gradient(180deg, #c9d3e0 0%, #a8b4c6 100%);
+}
+
+.bb-stock-crate:hover .bb-stock-crate-bottom {
+  background: linear-gradient(90deg, #b4bfce 0%, #8796aa 100%);
+}
+
+.bb-stock-crate-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 0.72rem;
   overflow: hidden;
   background: #eef2f6;
   border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-.bb-stock-thumb img {
+.bb-stock-crate-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.bb-stock-row-copy {
+.bb-stock-crate-media-empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.8), transparent 55%),
+    linear-gradient(145deg, #f2f4f7, #e4e7ec);
+}
+
+.bb-stock-crate-stamp {
   display: grid;
-  gap: 0.15rem;
+  gap: 0.2rem;
   min-width: 0;
+  padding: 0 0.1rem;
 }
 
-.bb-stock-row-copy strong {
+.bb-stock-crate-stamp strong {
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.92rem;
-  font-weight: 780;
-  letter-spacing: -0.02em;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
   color: #101828;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.bb-stock-row-copy span {
+.bb-stock-crate-stamp > span {
   font-size: 0.72rem;
   font-weight: 550;
   color: #667085;
@@ -408,49 +500,193 @@
   text-overflow: ellipsis;
 }
 
-.bb-stock-badge {
-  padding: 0.22rem 0.5rem;
+.bb-stock-crate-qty {
+  justify-self: start;
+  padding: 0.28rem 0.55rem;
   border-radius: 999px;
-  font-size: 0.66rem;
-  font-weight: 720;
-  white-space: nowrap;
+  font-size: 0.68rem;
+  font-weight: 740;
+  background: #f2f4f7;
+  color: #475467;
 }
 
-.bb-stock-badge.is-ok {
-  background: rgba(18, 110, 84, 0.1);
+.bb-stock-crate-qty.is-ok {
+  background: rgba(15, 118, 110, 0.1);
   color: #0f766e;
 }
 
-.bb-stock-badge.is-warn {
-  background: rgba(180, 83, 9, 0.12);
+.bb-stock-crate-qty.is-warn {
+  background: rgba(154, 52, 18, 0.1);
   color: #9a3412;
 }
 
-.bb-stock-badge.is-muted {
+.bb-stock-crate-qty.is-muted {
   background: #f2f4f7;
   color: #667085;
 }
 
-.bb-stock-chevron {
-  color: #98a2b3;
-  transition: transform 0.15s ease;
+.bb-stock-crate.is-low .bb-stock-crate-body {
+  border-color: rgba(154, 52, 18, 0.16);
 }
 
-.bb-stock-row.is-open .bb-stock-chevron {
-  transform: rotate(180deg);
-}
-
-.bb-stock-row-body {
+.bb-stock-crate-actions {
   display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-stock-crate-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #f8fafc;
+  color: #101828;
+  font-size: 0.76rem;
+  font-weight: 740;
+  cursor: pointer;
+}
+
+.bb-stock-crate-action:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #fafafa;
+}
+
+.bb-stock-crate-action.is-edit {
+  background: #101828;
+  border-color: #101828;
+  color: #fff;
+}
+
+.bb-stock-crate-action.is-edit:hover {
+  background: #1d2939;
+  border-color: #1d2939;
+  color: #fff;
+}
+
+.bb-stock-info {
+  display: grid;
+  gap: 1rem;
+}
+
+.bb-stock-info-hero {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
   gap: 0.85rem;
-  padding: 0 0.85rem 0.9rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  align-items: center;
+}
+
+.bb-stock-info-media {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #eef2f6;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-stock-info-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-stock-info-copy {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
+}
+
+.bb-stock-info-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.bb-stock-info-facts div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-stock-info-facts dt {
+  margin: 0;
+  font-size: 0.64rem;
+  font-weight: 740;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-stock-info-facts dd {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #101828;
+  word-break: break-word;
+}
+
+.bb-stock-info-variants {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bb-stock-info-variant-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bb-stock-info-variant-list li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.bb-stock-info-variant-list strong {
+  font-size: 0.86rem;
+  font-weight: 760;
+  color: #101828;
+}
+
+.bb-stock-info-variant-list span {
+  font-size: 0.74rem;
+  color: #667085;
+}
+
+@media (max-width: 480px) {
+  .bb-stock-info-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-stock-crate-scene {
+    transition: none !important;
+  }
 }
 
 .bb-stock-editor {
   display: grid;
   gap: 0.85rem;
-  padding-top: 0.85rem;
+  padding-top: 0.15rem;
 }
 
 .bb-stock-section {
@@ -558,20 +794,4 @@
   font-weight: 720;
   text-decoration: underline;
   cursor: pointer;
-}
-
-@media (max-width: 560px) {
-  .bb-stock-row-head {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-  }
-
-  .bb-stock-badge {
-    grid-column: 2;
-    justify-self: start;
-  }
-
-  .bb-stock-chevron {
-    grid-row: 1 / span 2;
-    grid-column: 3;
-  }
 }
