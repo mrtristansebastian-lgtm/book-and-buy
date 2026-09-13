@@ -13,28 +13,16 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
       <div className="bb-public-gutter">
         <div className="bb-public-measure-wide bb-public-about">
           <div className="bb-public-about-copy">
-            <p className="bb-public-section-eyebrow">
-              <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              <EditableText
-                as="span"
-                className="bb-public-section-eyebrow-text"
-                editMode={editMode}
-                value={website.aboutEyebrow || 'About'}
-                placeholder="Eyebrow"
-                onChange={(value) => patchWebsite({ aboutEyebrow: value })}
-              />
-            </p>
-            <div className="bb-public-section-heading">
+            <header className="bb-public-profile-section-head">
               <EditableText
                 as="h2"
-                className="bb-public-about-title"
+                className="bb-public-profile-section-title bb-public-about-title"
                 editMode={editMode}
-                value={website.aboutTitle || 'About us'}
+                value={website.aboutTitle || 'About'}
                 placeholder="About title"
                 onChange={(value) => patchWebsite({ aboutTitle: value })}
               />
-              <span className="bb-public-section-accent bb-public-native-fill" aria-hidden="true" />
-            </div>
+            </header>
             <EditableText
               as="p"
               className="bb-public-about-body"
@@ -46,7 +34,6 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
             />
           </div>
           <div className="bb-public-about-media-wrap">
-            <span className="bb-public-about-media-frame bb-public-native-fill" aria-hidden="true" />
             <EditableImage
               editMode={editMode}
               src={website.aboutImageUrl || ''}
@@ -55,7 +42,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
               storageFolder="venue"
               preset="about"
               onChange={(url) => patchWebsite({ aboutImageUrl: url })}
-              placeholderLabel="About image URL"
+              placeholderLabel="About image"
             />
           </div>
         </div>

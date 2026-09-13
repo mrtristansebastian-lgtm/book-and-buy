@@ -69,29 +69,15 @@ export function ReviewsSection({
     >
       <div className="bb-public-gutter">
         <div className="bb-public-measure-wide bb-public-reviews-shell">
-          <header className="bb-public-reviews-head">
-            <p className="bb-public-section-eyebrow">
-              <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              <EditableText
-                as="span"
-                className="bb-public-section-eyebrow-text"
-                editMode={editMode}
-                value={website.reviewsEyebrow || 'Reviews'}
-                placeholder="Eyebrow"
-                onChange={(value) => patchWebsite({ reviewsEyebrow: value })}
-              />
-            </p>
-            <div className="bb-public-section-heading">
-              <EditableText
-                as="h2"
-                className="bb-public-reviews-title"
-                editMode={editMode}
-                value={website.reviewsTitle || 'What clients say'}
-                placeholder="Reviews title"
-                onChange={(value) => patchWebsite({ reviewsTitle: value })}
-              />
-              <span className="bb-public-section-accent bb-public-native-fill" aria-hidden="true" />
-            </div>
+          <header className="bb-public-profile-section-head">
+            <EditableText
+              as="h2"
+              className="bb-public-profile-section-title bb-public-reviews-title"
+              editMode={editMode}
+              value={website.reviewsTitle || 'Reviews'}
+              placeholder="Reviews title"
+              onChange={(value) => patchWebsite({ reviewsTitle: value })}
+            />
           </header>
 
           <div className="bb-public-reviews">

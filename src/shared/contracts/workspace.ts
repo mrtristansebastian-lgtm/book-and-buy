@@ -191,6 +191,10 @@ export interface WebsiteFaqItem {
 export interface WebsiteSettings {
   homeHeadline?: string;
   homeSubtext?: string;
+  /** Instagram-style business category under the profile name. */
+  profileCategory?: string;
+  /** Short location line under the profile name (e.g. city). */
+  profileLocation?: string;
   headline?: string;
   subcopy?: string;
   bookHeadline?: string;
@@ -233,7 +237,9 @@ export interface WebsiteSettings {
   bookFaqEyebrow?: string;
   bookFaq?: WebsiteFaqItem[];
   featuredProductId?: string;
+  /** Home profile modules: about, gallery, reviews, map, faq (legacy: reasons, venue, offer). */
   sections?: Record<string, boolean>;
+  /** Preferred order; Home currently uses createDefaultHomeSectionOrder(). */
   sectionOrder?: string[];
   ctaPrimary?: "book" | "shop" | "social" | string;
   pages?: WebsitePageVisibility;

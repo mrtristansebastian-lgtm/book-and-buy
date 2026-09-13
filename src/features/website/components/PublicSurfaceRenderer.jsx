@@ -41,7 +41,7 @@ export function PublicSurfaceRenderer({
         }`}
         data-page={page}
       >
-        {showHeader ? (
+        {showHeader && page !== 'home' ? (
           <PublicBusinessHeader
             slug={workspace.slug}
             page={page}

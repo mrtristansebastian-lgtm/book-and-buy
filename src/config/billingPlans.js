@@ -49,7 +49,7 @@ export const BILLING_PLANS = {
     features: [
       'Everything in Starter',
       'Full Buy: catalog + orders',
-      'Pages + Business Blog',
+      'Pages + Content',
       'Up to 10 staff',
       'All payment gateways',
       'Booking policies & advance window',

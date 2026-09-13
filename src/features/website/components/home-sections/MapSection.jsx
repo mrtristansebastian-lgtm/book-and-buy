@@ -4,7 +4,7 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
   return (
     <EditSection
       editMode={editMode}
-      title="Visit / Map"
+      title="Location"
       sectionId="map"
       hidden={hidden}
       coach="Paste a Google Maps embed URL."
@@ -13,28 +13,16 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
       <div className="bb-public-gutter">
         <div className="bb-public-measure-wide bb-public-visit">
           <div className="bb-public-visit-copy">
-            <p className="bb-public-section-eyebrow">
-              <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              <EditableText
-                as="span"
-                className="bb-public-section-eyebrow-text"
-                editMode={editMode}
-                value={website.mapEyebrow || 'Find us'}
-                placeholder="Eyebrow"
-                onChange={(value) => patchWebsite({ mapEyebrow: value })}
-              />
-            </p>
-            <div className="bb-public-section-heading">
+            <header className="bb-public-profile-section-head">
               <EditableText
                 as="h2"
-                className="bb-public-visit-title"
+                className="bb-public-profile-section-title bb-public-visit-title"
                 editMode={editMode}
-                value={website.mapTitle || 'Visit'}
-                placeholder="Visit title"
+                value={website.mapTitle || 'Location'}
+                placeholder="Location title"
                 onChange={(value) => patchWebsite({ mapTitle: value })}
               />
-              <span className="bb-public-section-accent bb-public-native-fill" aria-hidden="true" />
-            </div>
+            </header>
             <EditableText
               as="p"
               className="bb-public-visit-body"
@@ -81,7 +69,6 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
             ) : null}
           </div>
           <div className="bb-public-map-wrap">
-            <span className="bb-public-map-frame-accent bb-public-native-fill" aria-hidden="true" />
             <div className="bb-public-map-frame">
               {website.mapEmbedUrl ? (
                 <iframe

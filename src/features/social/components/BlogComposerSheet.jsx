@@ -30,7 +30,7 @@ const META = {
     eyebrowCreate: 'New text update',
     eyebrowEdit: 'Edit text update',
     titleCreate: 'Compose a note',
-    lede: 'Short update · shows on your live blog timeline',
+    lede: 'Short update · shows on your live Content timeline',
     Icon: Type
   }
 };
@@ -128,7 +128,7 @@ function BlogPreview({
 }
 
 /**
- * Unified create/edit composer for Business Blog posts.
+ * Unified create/edit composer for Content posts.
  * Publishes immediately — no draft workflow.
  */
 export function BlogComposerSheet({

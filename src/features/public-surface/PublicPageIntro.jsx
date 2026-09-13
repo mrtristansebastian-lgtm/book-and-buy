@@ -1,6 +1,6 @@
 import { EditableText } from '../website/components/editable';
 
-/** Simple page title + body for Book, Buy, and Business Blog. */
+/** Simple page title + body for Book, Buy, and Content. */
 export function PublicPageIntro({
   title = '',
   body = '',

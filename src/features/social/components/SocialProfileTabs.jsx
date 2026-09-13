@@ -8,7 +8,7 @@ const TABS = [
 
 export function SocialProfileTabs({ value = 'posts', onChange }) {
   return (
-    <div className="bb-social-profile-tabs" role="tablist" aria-label="Business Blog">
+    <div className="bb-social-profile-tabs" role="tablist" aria-label="Content">
       {TABS.map(({ id, label, Icon }) => {
         const active = value === id;
         return (

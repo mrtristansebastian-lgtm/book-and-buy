@@ -26,6 +26,7 @@ export function SocialFeed({
   preview = false,
   editMode = false,
   showDrafts = false,
+  embedded = false,
   onUpdateWebsite,
   onUpdateSocialPost,
   onAddSocialPost
@@ -140,17 +141,21 @@ export function SocialFeed({
     Boolean(lightboxId) && imagePosts.some((post) => post.id === lightboxId);
 
   return (
-    <section className="bb-public-social bb-public-gutter">
+    <section
+      className={`bb-public-social${embedded ? ' bb-public-social--embedded' : ''} bb-public-gutter`}
+    >
       <div className="bb-public-measure-wide grid gap-5">
-        <PublicPageIntro
-          title={website.socialHeadline || 'Business Blog'}
-          body={website.socialSubtext || ''}
-          editMode={editMode}
-          titlePlaceholder="Blog title"
-          bodyPlaceholder="Blog supporting text"
-          onTitleChange={(value) => onUpdateWebsite?.({ socialHeadline: value })}
-          onBodyChange={(value) => onUpdateWebsite?.({ socialSubtext: value })}
-        />
+        {embedded ? null : (
+          <PublicPageIntro
+            title={website.socialHeadline || 'Content'}
+            body={website.socialSubtext || ''}
+            editMode={editMode}
+            titlePlaceholder="Blog title"
+            bodyPlaceholder="Blog supporting text"
+            onTitleChange={(value) => onUpdateWebsite?.({ socialHeadline: value })}
+            onBodyChange={(value) => onUpdateWebsite?.({ socialSubtext: value })}
+          />
+        )}
 
         <div className="bb-social-blog-head">
           {editMode ? (

@@ -1,3 +1,4 @@
+export { ProfileIdentitySection } from './ProfileIdentitySection';
 export { HeroSection } from './HeroSection';
 export { AboutSection } from './AboutSection';
 export { ReasonsSection } from './ReasonsSection';
@@ -6,3 +7,4 @@ export { MapSection } from './MapSection';
 export { ReviewsSection } from './ReviewsSection';
 export { OfferSection } from './OfferSection';
 export { BookStripSection } from './BookStripSection';
+export { FaqSection } from './FaqSection';

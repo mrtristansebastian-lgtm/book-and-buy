@@ -46,7 +46,7 @@ export function SocialStudioLibrary({
     <section className={`bb-social-library${items.length ? '' : ' is-empty'}`}>
       <header className="bb-social-library-head">
         <div className="bb-social-library-head-copy">
-          <p className="bb-social-library-eyebrow">On your live blog</p>
+          <p className="bb-social-library-eyebrow">On your live Content page</p>
           <h2 className="bb-social-library-title">{label}</h2>
         </div>
         {items.length ? (

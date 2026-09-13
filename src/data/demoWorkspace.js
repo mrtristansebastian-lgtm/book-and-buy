@@ -955,22 +955,26 @@ export function createDemoWorkspace() {
       pages: { home: true, book: true, buy: true, social: true },
       sections: {
         about: true,
-        reasons: true,
-        venue: true,
-        map: true,
+        gallery: true,
         reviews: true,
-        offer: true,
+        map: true,
+        faq: true,
+        reasons: false,
+        venue: true,
+        offer: false,
         bookStrip: false
       },
-      sectionOrder: ['about', 'reasons', 'venue', 'map', 'reviews', 'offer'],
+      sectionOrder: ['about', 'gallery', 'reviews', 'map', 'faq'],
       headline: 'Cook Bold. Bake Beautifully.',
       subcopy:
         'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
       ctaLabel: 'Book a class',
       buyCtaLabel: 'Buy',
-      homeHeadline: 'Cook Bold. Bake Beautifully.',
+      homeHeadline: 'Flour & Flame',
       homeSubtext:
         'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
+      profileCategory: 'Cooking Studio',
+      profileLocation: 'Cape Town',
       heroImageUrl: '/example/flour-and-flame/hero.webp',
       logoUrl: '/example/flour-and-flame/flame-and-flour-logo.webp',
       bookHeadline: 'Book a class or private lesson',
@@ -1003,8 +1007,8 @@ export function createDemoWorkspace() {
           body: 'Bread boxes, pasta kits, and notes so the craft continues at home.'
         }
       ],
-      venueTitle: 'Inside the studio',
-      venueEyebrow: 'The space',
+      venueTitle: 'Gallery',
+      venueEyebrow: 'Gallery',
       venueImages: [
         {
           id: 'v1',
@@ -1028,12 +1032,12 @@ export function createDemoWorkspace() {
         }
       ],
       address: '12 Woodstock Kitchen Lane, Cape Town',
-      mapTitle: 'Visit',
+      mapTitle: 'Location',
       mapEyebrow: 'Find us',
       mapEmbedUrl:
         'https://maps.google.com/maps?q=Woodstock%2C%20Cape%20Town&t=&z=14&ie=UTF8&iwloc=&output=embed',
       mapLinkUrl: 'https://maps.google.com/?q=Woodstock,+Cape+Town',
-      reviewsTitle: 'From the table',
+      reviewsTitle: 'Reviews',
       reviewsEyebrow: 'Reviews',
       reviews: [
         {
@@ -1061,7 +1065,7 @@ export function createDemoWorkspace() {
       bookStripTitle: 'Reserve a class',
       bookStripBody: 'See open times on the Book page and send a request in minutes.',
       bookStripCta: 'See availability',
-      bookFaqTitle: 'What to expect',
+      bookFaqTitle: 'FAQ',
       bookFaq: [
         {
           id: 'f1',
@@ -1340,6 +1344,8 @@ export function hydrateDemoWorkspace(stored) {
         heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
         homeHeadline: fresh.website.homeHeadline,
         homeSubtext: fresh.website.homeSubtext,
+        profileCategory: fresh.website.profileCategory,
+        profileLocation: fresh.website.profileLocation,
         headline: fresh.website.headline,
         subcopy: fresh.website.subcopy,
         ctaLabel: stored.website?.ctaLabel || fresh.website.ctaLabel,

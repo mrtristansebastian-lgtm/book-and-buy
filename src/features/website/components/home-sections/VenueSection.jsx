@@ -42,42 +42,28 @@ export function VenueSection({
   return (
     <EditSection
       editMode={editMode}
-      title="Venue"
-      sectionId="venue"
+      title="Gallery"
+      sectionId="gallery"
       hidden={hidden}
-      coach="Add 2–4 venue photos."
-      className="bb-public-home-block bb-public-venue-block"
+      coach="Add photos of your space and work."
+      className="bb-public-home-block bb-public-venue-block bb-public-gallery-block"
     >
       <div className="bb-public-gutter">
         <div className="bb-public-measure-wide bb-public-venue-shell">
-          <header className="bb-public-venue-head">
-            <p className="bb-public-section-eyebrow">
-              <span className="bb-public-section-eyebrow-mark bb-public-native-fill" aria-hidden="true" />
-              <EditableText
-                as="span"
-                className="bb-public-section-eyebrow-text"
-                editMode={editMode}
-                value={website.venueEyebrow || 'The space'}
-                placeholder="Eyebrow"
-                onChange={(value) => patchWebsite({ venueEyebrow: value })}
-              />
-            </p>
-            <div className="bb-public-section-heading">
-              <EditableText
-                as="h2"
-                className="bb-public-venue-title"
-                editMode={editMode}
-                value={website.venueTitle || 'Our space'}
-                placeholder="Venue title"
-                onChange={(value) => patchWebsite({ venueTitle: value })}
-              />
-              <span className="bb-public-section-accent bb-public-native-fill" aria-hidden="true" />
-            </div>
+          <header className="bb-public-profile-section-head">
+            <EditableText
+              as="h2"
+              className="bb-public-profile-section-title bb-public-venue-title"
+              editMode={editMode}
+              value={website.venueTitle || 'Gallery'}
+              placeholder="Gallery title"
+              onChange={(value) => patchWebsite({ venueTitle: value })}
+            />
           </header>
 
           <div className="bb-public-venue-grid">
             {venueImages.length === 0 && editMode ? (
-              <p className="bb-edit-section-coach m-0">Add a venue photo to show your space.</p>
+              <p className="bb-edit-section-coach m-0">Add photos to your gallery.</p>
             ) : null}
             {venueImages.map((image, index) => {
               const canOpen = !editMode && Boolean(image.url);
@@ -120,7 +106,7 @@ export function VenueSection({
             })}
           </div>
 
-          {editMode && venueImages.length < 4 ? (
+          {editMode && venueImages.length < 8 ? (
             <button
               type="button"
               className="bb-ghost-btn justify-self-start"
@@ -130,7 +116,7 @@ export function VenueSection({
                 })
               }
             >
-              Add venue photo
+              Add photo
             </button>
           ) : null}
         </div>
@@ -141,7 +127,7 @@ export function VenueSection({
           className="bb-public-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label="Venue photo"
+          aria-label="Gallery photo"
           onClick={() => setViewerIndex(null)}
         >
           <button

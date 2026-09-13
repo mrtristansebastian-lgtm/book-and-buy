@@ -29,7 +29,7 @@ export function SocialStudioCompose({ onOpenCreate }) {
     <section className="bb-social-studio-create" aria-label="Create">
       <div className="bb-social-studio-create-copy">
         <p className="bb-social-studio-create-eyebrow">Publish</p>
-        <h2 className="bb-social-studio-create-title">Add to your blog</h2>
+        <h2 className="bb-social-studio-create-title">Add to Content</h2>
         <p className="bb-social-studio-create-lede">
           Pick a format — compose with a live preview, then publish straight to your site.
         </p>

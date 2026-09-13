@@ -35,7 +35,7 @@ export function SocialStudioPage() {
           <div className="bb-social-studio-header-copy">
             <div className="bb-page-title-wrap">
               <div className="bb-page-header-glow" aria-hidden="true" />
-              <h1 className="bb-page-title bb-social-studio-title">Business Blog</h1>
+              <h1 className="bb-page-title bb-social-studio-title">Content</h1>
             </div>
           </div>
           <button
