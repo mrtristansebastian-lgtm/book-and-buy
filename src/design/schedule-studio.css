@@ -1012,66 +1012,31 @@
   transform: translateY(-2px) scale(1.04);
 }
 
-.bb-schedule-avail-status-cta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1.25rem;
-  width: 100%;
-  padding: 0.9rem 1rem;
-  border-radius: 1rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fff;
+.bb-schedule-avail-setup-panel {
+  display: grid;
+  gap: 0.85rem;
 }
 
-.bb-schedule-avail-status-cta-copy {
+.bb-schedule-avail-setup-copy {
   display: grid;
   gap: 0.22rem;
-  flex: 1 1 14rem;
   min-width: 0;
-  max-width: 44rem;
 }
 
-.bb-schedule-avail-status-cta-title {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #101828;
-  text-align: left;
-}
-
-.bb-schedule-avail-status-cta-body {
-  margin: 0;
-  font-size: 0.84rem;
-  line-height: 1.45;
-  color: #475467;
-  max-width: none;
-  text-align: left;
-}
-
-.bb-schedule-avail-advance-panel {
+.bb-schedule-avail-setup-tools {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 0.85rem 1.25rem;
-}
-
-.bb-schedule-avail-advance-copy {
-  display: grid;
-  gap: 0.22rem;
-  flex: 1 1 14rem;
-  min-width: 0;
+  gap: 0.75rem 1rem;
 }
 
 .bb-advance-field {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+  display: grid;
+  gap: 0.28rem;
   min-width: 0;
+  flex: 1 1 14rem;
+  max-width: 22rem;
 }
 
 .bb-advance-field.is-disabled {
@@ -1086,7 +1051,6 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #98a2b3;
-  white-space: nowrap;
 }
 
 .bb-advance-field-value {
@@ -1095,8 +1059,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem;
+  width: 100%;
   min-height: 2.55rem;
-  min-width: 9.5rem;
+  min-width: 0;
   padding: 0.5rem 0.75rem 0.5rem 0.9rem;
   border-radius: 0.85rem;
   border: 1px solid rgba(15, 23, 42, 0.1);
@@ -1239,7 +1204,7 @@
   justify-content: center;
   gap: 0.45rem;
   flex: 0 0 auto;
-  margin-left: auto;
+  margin-left: 0;
   min-height: 2.65rem;
   padding: 0.65rem 1.15rem;
   border: 0;
@@ -1381,6 +1346,31 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+}
+
+.bb-schedule-avail-day-panel {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.bb-schedule-avail-day-status-block,
+.bb-schedule-avail-day-times-block {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.bb-schedule-avail-day-section-label {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-schedule-avail-day-panel .bb-schedule-avail-status {
+  width: 100%;
 }
 
 .bb-schedule-avail-shifts-badge {

@@ -9,15 +9,13 @@ import { buildMonthGrid, formatDisplayDate, parseDateKey, toDateKey } from '../.
 import {
   canEditAvailabilityRules,
   canEditStaffAvailability,
-  getVisibleStaffForAvailability,
-  isWorkspaceOwnerViewer
+  getVisibleStaffForAvailability
 } from '../../../utils/staffAccess';
 import {
   WEEKDAY_KEYS,
   applyBusinessClosedToRange,
   applyStatusToRange,
   getEffectiveStaffWindows,
-  isBusinessOpenOnDate,
   normalizeStaffAvailabilityEntry,
   resolveCalendarDayStatus,
   setStaffDayOverride
@@ -68,6 +66,35 @@ function clampMonthAnchor(anchor, todayKey, maxBookableDateKey) {
     }
   }
   return next;
+}
+
+function mapCalendarStatusToDraft(status) {
+  if (status === 'business-closed') return 'business-closed';
+  if (status === 'break') return 'break';
+  if (status === 'leave') return 'off';
+  return 'open';
+}
+
+function rangesAreValid(ranges = []) {
+  return (ranges || []).some(
+    (range) => range?.start && range?.end && String(range.end) > String(range.start)
+  );
+}
+
+function seedDraftRangesForStatus(status, explicit, openTime, closeTime) {
+  if (status === 'open') {
+    if (explicit?.status === 'open' && Array.isArray(explicit.ranges) && explicit.ranges.length) {
+      return explicit.ranges.map((range) => ({ ...range }));
+    }
+    return [{ start: openTime, end: closeTime }];
+  }
+  if (status === 'break') {
+    if (explicit?.status === 'break' && Array.isArray(explicit.ranges) && explicit.ranges.length) {
+      return explicit.ranges.map((range) => ({ ...range }));
+    }
+    return [{ start: '12:00', end: '13:00' }];
+  }
+  return [];
 }
 
 function staffInitials(name = '') {
@@ -265,7 +292,6 @@ export function ScheduleAvailabilityEditor({
   const openTime = availabilityRules.businessOpenTime || '09:00';
   const closeTime = availabilityRules.businessCloseTime || '17:00';
 
-  const isOwner = isWorkspaceOwnerViewer({ user, workspace });
   const visibleStaff = useMemo(
     () => getVisibleStaffForAvailability({ user, workspace, staff }),
     [user, workspace, staff]
@@ -282,6 +308,7 @@ export function ScheduleAvailabilityEditor({
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(() => toDateKey(new Date()));
   const [statusSheetOpen, setStatusSheetOpen] = useState(false);
+  const [dayDraftStatus, setDayDraftStatus] = useState('open');
   const [draftShifts, setDraftShifts] = useState([{ start: openTime, end: closeTime }]);
 
   useEffect(() => {
@@ -321,8 +348,8 @@ export function ScheduleAvailabilityEditor({
     [availabilityRules, todayKey]
   );
   const bookableWindowLabel = useMemo(() => {
-    if (!maxBookableDateKey) return 'Bookable window · no limit';
-    return `Bookable window · ${formatWindowDate(todayKey)} – ${formatWindowDate(maxBookableDateKey)}`;
+    if (!maxBookableDateKey) return 'Availability period · no limit';
+    return `Availability period · ${formatWindowDate(todayKey)} – ${formatWindowDate(maxBookableDateKey)}`;
   }, [todayKey, maxBookableDateKey]);
   const canGoPrevMonth = useMemo(() => {
     const today = parseDateKey(todayKey) || new Date();
@@ -346,34 +373,79 @@ export function ScheduleAvailabilityEditor({
     [staffId, selectedDay, entry, availabilityRules]
   );
 
-  const canEditShifts = canEditSelected && selectedDayStatus === 'open';
+  const dayStatusOptions = canEditRules
+    ? STATUS_OPTIONS
+    : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
+
+  const dayLockedByBusinessClose =
+    selectedDayStatus === 'business-closed' && !canEditRules;
+
+  const canEditDayTimes =
+    canEditSelected &&
+    !dayLockedByBusinessClose &&
+    (dayDraftStatus === 'open' || dayDraftStatus === 'break');
+
+  const dayTimesValid =
+    dayDraftStatus === 'off' ||
+    dayDraftStatus === 'business-closed' ||
+    rangesAreValid(draftShifts);
+
+  const canSaveDay =
+    Boolean(staffId && selectedDay) &&
+    dayTimesValid &&
+    (dayDraftStatus === 'business-closed'
+      ? canEditRules
+      : canEditSelected && !dayLockedByBusinessClose);
 
   useEffect(() => {
     if (!staffId || !selectedDay) return;
-    const windows = getEffectiveStaffWindows(
-      staffId,
-      selectedDay,
-      { [staffId]: entry },
-      availabilityRules
-    );
+    const mapped = mapCalendarStatusToDraft(selectedDayStatus);
+    setDayDraftStatus(mapped);
     const explicit = entry.days?.[selectedDay];
-    if (
-      explicit?.status === 'open' ||
-      (explicit?.open && explicit?.status !== 'break' && explicit?.status !== 'off')
-    ) {
-      setDraftShifts(
-        explicit.ranges?.length
-          ? explicit.ranges.map((range) => ({ ...range }))
-          : [{ start: openTime, end: closeTime }]
+    if (mapped === 'open') {
+      const windows = getEffectiveStaffWindows(
+        staffId,
+        selectedDay,
+        { [staffId]: entry },
+        availabilityRules
       );
+      if (
+        explicit?.status === 'open' ||
+        (explicit?.open && explicit?.status !== 'break' && explicit?.status !== 'off')
+      ) {
+        setDraftShifts(
+          explicit.ranges?.length
+            ? explicit.ranges.map((range) => ({ ...range }))
+            : [{ start: openTime, end: closeTime }]
+        );
+        return;
+      }
+      if (windows.length) {
+        setDraftShifts(windows.map((range) => ({ ...range })));
+        return;
+      }
+      setDraftShifts([{ start: openTime, end: closeTime }]);
       return;
     }
-    if (windows.length) {
-      setDraftShifts(windows.map((range) => ({ ...range })));
-      return;
-    }
-    setDraftShifts([{ start: openTime, end: closeTime }]);
-  }, [staffId, selectedDay, entry, availabilityRules, openTime, closeTime]);
+    setDraftShifts(seedDraftRangesForStatus(mapped, explicit, openTime, closeTime));
+  }, [
+    staffId,
+    selectedDay,
+    selectedDayStatus,
+    entry,
+    availabilityRules,
+    openTime,
+    closeTime
+  ]);
+
+  const changeDayStatus = (nextStatus) => {
+    if (!canEditSelected && nextStatus !== 'business-closed') return;
+    if (nextStatus === 'business-closed' && !canEditRules) return;
+    if (dayLockedByBusinessClose) return;
+    setDayDraftStatus(nextStatus);
+    const explicit = entry.days?.[selectedDay];
+    setDraftShifts(seedDraftRangesForStatus(nextStatus, explicit, openTime, closeTime));
+  };
 
   const applyStatusFromSheet = ({ status, startDate, endDate, startTime, endTime }) => {
     if (!canEditSelected && status !== 'business-closed') return;
@@ -409,24 +481,83 @@ export function ScheduleAvailabilityEditor({
   };
 
   const saveDay = () => {
-    if (!staffId || !selectedDay || !canEditShifts) return;
-    const next = setStaffDayOverride(
-      entry,
-      selectedDay,
-      {
-        status: 'open',
-        open: true,
-        ranges: draftShifts,
-        source: 'manual'
-      },
-      openTime,
-      closeTime
+    if (!staffId || !selectedDay || !canSaveDay) return;
+
+    if (dayDraftStatus === 'business-closed') {
+      if (!canEditRules) return;
+      onUpdateRules?.(
+        applyBusinessClosedToRange(availabilityRules, selectedDay, selectedDay, true)
+      );
+      return;
+    }
+
+    if (!canEditSelected) return;
+
+    if (canEditRules && selectedDayStatus === 'business-closed') {
+      onUpdateRules?.(
+        applyBusinessClosedToRange(availabilityRules, selectedDay, selectedDay, false)
+      );
+    }
+
+    if (dayDraftStatus === 'open') {
+      if (!rangesAreValid(draftShifts)) return;
+      onSaveEntry?.(
+        staffId,
+        setStaffDayOverride(
+          entry,
+          selectedDay,
+          {
+            status: 'open',
+            open: true,
+            ranges: draftShifts,
+            source: 'manual'
+          },
+          openTime,
+          closeTime
+        )
+      );
+      return;
+    }
+
+    if (dayDraftStatus === 'break') {
+      if (!rangesAreValid(draftShifts)) return;
+      onSaveEntry?.(
+        staffId,
+        setStaffDayOverride(
+          entry,
+          selectedDay,
+          {
+            status: 'break',
+            open: false,
+            ranges: draftShifts,
+            source: 'manual'
+          },
+          openTime,
+          closeTime
+        )
+      );
+      return;
+    }
+
+    onSaveEntry?.(
+      staffId,
+      setStaffDayOverride(
+        entry,
+        selectedDay,
+        {
+          status: 'off',
+          open: false,
+          ranges: [],
+          source: 'manual'
+        },
+        openTime,
+        closeTime
+      )
     );
-    onSaveEntry?.(staffId, next);
   };
 
   const updateShift = (index, patch) => {
-    if (!canEditSelected) return;
+    if (!canEditDayTimes) return;
     setDraftShifts((prev) =>
       prev.map((row, i) => (i === index ? { ...row, ...patch } : row))
     );
@@ -445,48 +576,41 @@ export function ScheduleAvailabilityEditor({
 
   return (
     <div className="bb-schedule-avail">
-      <div className="bb-schedule-avail-toolbar">
-        {canEditSelected ? (
-          <div className="bb-schedule-avail-status-cta">
-            <div className="bb-schedule-avail-status-cta-copy">
-              <h3 className="bb-schedule-avail-status-cta-title">Statuses</h3>
-              <p className="bb-schedule-avail-status-cta-body">
-                {isOwner
-                  ? 'Set open, break, off, or business-closed for any period you choose — pick the dates and hours in a short setup.'
-                  : 'Set your open, break, or off periods — pick the dates and hours in a short setup.'}
-              </p>
-            </div>
-            <button
-              type="button"
-              className="bb-schedule-avail-manage-btn"
-              onClick={() => setStatusSheetOpen(true)}
-            >
-              <CalendarRange size={17} strokeWidth={2.2} aria-hidden="true" />
-              Manage status
-            </button>
-          </div>
-        ) : (
-          <p className="bb-schedule-avail-hint">
-            Only you and the owner can edit this staff member&apos;s availability.
-          </p>
-        )}
-      </div>
-
-      {canEditRules ? (
-        <section className="bb-schedule-avail-panel bb-schedule-avail-advance-panel">
-          <div className="bb-schedule-avail-advance-copy">
-            <h3 className="bb-schedule-avail-title">Advance booking</h3>
+      {canEditSelected || canEditRules ? (
+        <section className="bb-schedule-avail-panel bb-schedule-avail-setup-panel">
+          <div className="bb-schedule-avail-setup-copy">
+            <h3 className="bb-schedule-avail-title">Availability setup</h3>
             <p className="bb-schedule-avail-hint m-0">
-              Clients can book up to this far ahead on your public Book page.
+              {canEditRules
+                ? 'Set how far ahead clients can book, then manage open, break, off, or closed days.'
+                : 'Manage open, break, or off days on your calendar.'}
             </p>
           </div>
-          <AdvanceBookingField
-            days={availabilityRules.maxAdvanceBookingDays ?? 90}
-            until={availabilityRules.maxAdvanceBookingUntil || ''}
-            onChange={(patch) => onUpdateRules?.(patch)}
-          />
+          <div className="bb-schedule-avail-setup-tools">
+            {canEditRules ? (
+              <AdvanceBookingField
+                days={availabilityRules.maxAdvanceBookingDays ?? 90}
+                until={availabilityRules.maxAdvanceBookingUntil || ''}
+                onChange={(patch) => onUpdateRules?.(patch)}
+              />
+            ) : null}
+            {canEditSelected ? (
+              <button
+                type="button"
+                className="bb-schedule-avail-manage-btn"
+                onClick={() => setStatusSheetOpen(true)}
+              >
+                <CalendarRange size={17} strokeWidth={2.2} aria-hidden="true" />
+                Manage status
+              </button>
+            ) : null}
+          </div>
         </section>
-      ) : null}
+      ) : (
+        <p className="bb-schedule-avail-hint">
+          Only you and the owner can edit this staff member&apos;s availability.
+        </p>
+      )}
 
       <section className="bb-schedule-avail-panel">
         <div className="bb-schedule-avail-cal-head">
@@ -598,89 +722,131 @@ export function ScheduleAvailabilityEditor({
         </div>
       </section>
 
-      <section className="bb-schedule-avail-panel bb-schedule-avail-shifts-panel">
+      <section className="bb-schedule-avail-panel bb-schedule-avail-day-panel">
         <div className="bb-schedule-avail-shifts-head">
           <h3 className="bb-schedule-avail-title">
-            {formatDisplayDate(selectedDay)} · Shifts
+            {formatDisplayDate(selectedDay)} · Day
           </h3>
-          {!canEditShifts && selectedDayStatus !== 'open' ? (
-            <span className="bb-schedule-avail-shifts-badge">
-              {selectedDayStatus === 'business-closed'
-                ? 'Business closed'
-                : selectedDayStatus === 'break'
-                  ? 'Break'
-                  : 'Off day'}
-            </span>
-          ) : null}
         </div>
 
-        {!canEditSelected ? (
+        {!canEditSelected && !canEditRules ? (
           <p className="bb-schedule-avail-hint">
             Only you and the owner can edit this staff member&apos;s availability.
           </p>
-        ) : canEditShifts ? (
+        ) : dayLockedByBusinessClose ? (
+          <p className="bb-schedule-avail-hint">
+            Business is closed this day. Ask the owner to reopen it before editing staff availability.
+          </p>
+        ) : (
           <>
-            <div className="bb-schedule-avail-shifts">
-              {draftShifts.map((shift, index) => (
-                <div key={index} className="bb-schedule-avail-shift-row">
-                  <div className="bb-schedule-avail-shift-times">
-                    <TimeField
-                      label="Start"
-                      value={shift.start}
-                      onChange={(next) => updateShift(index, { start: next })}
-                    />
-                    <TimeField
-                      label="End"
-                      value={shift.end}
-                      onChange={(next) => updateShift(index, { end: next })}
-                    />
-                  </div>
-                  {draftShifts.length > 1 ? (
-                    <div className="bb-schedule-avail-shift-tools">
-                      <button
-                        type="button"
-                        className="bb-ghost-btn bb-schedule-avail-shift-remove"
-                        aria-label={`Remove shift ${index + 1}`}
-                        onClick={() =>
-                          setDraftShifts((prev) => prev.filter((_, i) => i !== index))
-                        }
-                      >
-                        <Trash2 size={15} strokeWidth={2.2} />
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              ))}
+            <div className="bb-schedule-avail-day-status-block">
+              <p className="bb-schedule-avail-day-section-label">Day status</p>
+              <div className="bb-schedule-avail-status" role="tablist" aria-label="Day status">
+                {dayStatusOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={dayDraftStatus === option.id}
+                    className={`bb-schedule-avail-status-btn${
+                      dayDraftStatus === option.id ? ' is-active' : ''
+                    }`}
+                    onClick={() => changeDayStatus(option.id)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <button
-              type="button"
-              className="bb-schedule-avail-add-shift"
-              onClick={() =>
-                setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])
-              }
-            >
-              <Plus size={16} strokeWidth={2.3} />
-              Add shift
-            </button>
+            {canEditDayTimes ? (
+              <div className="bb-schedule-avail-day-times-block">
+                <p className="bb-schedule-avail-day-section-label">
+                  {dayDraftStatus === 'break' ? 'Break hours' : 'Shifts'}
+                </p>
+                <div className="bb-schedule-avail-shifts">
+                  {draftShifts.map((shift, index) => (
+                    <div key={index} className="bb-schedule-avail-shift-row">
+                      <div className="bb-schedule-avail-shift-times">
+                        <TimeField
+                          label="Start"
+                          value={shift.start}
+                          onChange={(next) => updateShift(index, { start: next })}
+                        />
+                        <TimeField
+                          label="End"
+                          value={shift.end}
+                          onChange={(next) => updateShift(index, { end: next })}
+                        />
+                      </div>
+                      {draftShifts.length > 1 ? (
+                        <div className="bb-schedule-avail-shift-tools">
+                          <button
+                            type="button"
+                            className="bb-ghost-btn bb-schedule-avail-shift-remove"
+                            aria-label={`Remove ${dayDraftStatus === 'break' ? 'break' : 'shift'} ${
+                              index + 1
+                            }`}
+                            onClick={() =>
+                              setDraftShifts((prev) => prev.filter((_, i) => i !== index))
+                            }
+                          >
+                            <Trash2 size={15} strokeWidth={2.2} />
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="bb-schedule-avail-add-shift"
+                  onClick={() =>
+                    setDraftShifts((prev) => [
+                      ...prev,
+                      dayDraftStatus === 'break'
+                        ? { start: '12:00', end: '13:00' }
+                        : { start: openTime, end: closeTime }
+                    ])
+                  }
+                >
+                  <Plus size={16} strokeWidth={2.3} />
+                  {dayDraftStatus === 'break' ? 'Add break' : 'Add shift'}
+                </button>
+
+                <p className="bb-schedule-avail-hint m-0">
+                  {dayDraftStatus === 'break'
+                    ? 'Break hours when this staff member cannot be booked.'
+                    : 'Shifts set when clients can book this staff member.'}
+                </p>
+              </div>
+            ) : (
+              <p className="bb-schedule-avail-hint">
+                {dayDraftStatus === 'business-closed'
+                  ? 'Marks the whole business closed on this date for every staff member.'
+                  : 'Whole-day off — no bookable hours for this staff member.'}
+              </p>
+            )}
 
             <div className="bb-schedule-avail-day-actions">
               <span className="bb-schedule-avail-hint">
-                {isBusinessOpenOnDate(selectedDay, availabilityRules)
-                  ? 'Shifts set when clients can book this staff member.'
-                  : canEditRules
-                    ? 'Business is closed this day — use Manage status to reopen.'
-                    : 'Business is closed this day. Ask the owner to reopen it.'}
+                {dayDraftStatus === 'open'
+                  ? 'Save to apply this day’s status and shifts.'
+                  : dayDraftStatus === 'break'
+                    ? 'Save to apply this day’s break hours.'
+                    : 'Save to apply this day’s status.'}
               </span>
-              <button type="button" className="bb-primary-btn" onClick={saveDay}>
+              <button
+                type="button"
+                className="bb-primary-btn"
+                disabled={!canSaveDay}
+                onClick={saveDay}
+              >
                 Save day
               </button>
             </div>
           </>
-        ) : (
-          <p className="bb-schedule-avail-hint">
-            Use <strong>Manage status</strong> to set this day to Open before adding shifts.
-          </p>
         )}
       </section>
 

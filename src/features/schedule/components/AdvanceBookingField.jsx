@@ -103,7 +103,7 @@ export function AdvanceBookingField({
   return (
     <>
       <div className={`bb-advance-field${disabled ? ' is-disabled' : ''}`}>
-        <span className="bb-advance-field-label">Book ahead</span>
+        <span className="bb-advance-field-label">Future calendar availability period</span>
         <button
           type="button"
           className="bb-advance-field-value"
@@ -134,10 +134,10 @@ export function AdvanceBookingField({
           >
             <header className="bb-advance-picker-head">
               <h2 id="advance-booking-title" className="bb-advance-picker-title">
-                Book ahead
+                Future calendar availability period
               </h2>
               <p className="bb-advance-picker-hint">
-                How far into the future clients can schedule on your public Book page.
+                How far into the future the calendar stays open for public bookings.
               </p>
             </header>
 
