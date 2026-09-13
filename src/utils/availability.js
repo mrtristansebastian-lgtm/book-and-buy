@@ -2,6 +2,7 @@ import { addDays, parseDateKey, toDateKey } from './dates';
 import { getServiceDurationMinutes, parseDurationMinutes } from './services';
 import { getServiceScheduleType } from './scheduleTypes';
 import {
+  getBusinessDayWindows,
   getEffectiveStaffWindows,
   isBusinessOpenOnDate,
   normalizeAvailabilityRules
@@ -139,7 +140,7 @@ export function getDaySlots({
     ? collectCandidateStaffIds(service, staff, staffId)
     : [];
 
-  let windows = [{ start: rules.businessOpenTime, end: rules.businessCloseTime }];
+  let windows = getBusinessDayWindows(dateKey, rules);
   if (useStaffWindows) {
     if (!candidateIds.length) return [];
     const merged = [];

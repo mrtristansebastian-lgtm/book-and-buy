@@ -43,11 +43,12 @@ export function DayTimelineMeter({
   segments = [],
   status = 'open',
   dayStart = 9 * 60,
-  dayEnd = 17 * 60
+  dayEnd = 17 * 60,
+  showAxis = true
 }) {
   const axisMarks = useMemo(
-    () => buildTimelineAxisMarks(dayStart, dayEnd),
-    [dayStart, dayEnd]
+    () => (showAxis ? buildTimelineAxisMarks(dayStart, dayEnd) : []),
+    [dayStart, dayEnd, showAxis]
   );
 
   const meterBody =
@@ -75,7 +76,7 @@ export function DayTimelineMeter({
     );
 
   return (
-    <div className="bb-schedule-day-meter-wrap">
+    <div className={`bb-schedule-day-meter-wrap${showAxis ? '' : ' is-track-only'}`}>
       {meterBody}
       {axisMarks.length ? (
         <div className="bb-schedule-day-meter-axis" aria-hidden="true">

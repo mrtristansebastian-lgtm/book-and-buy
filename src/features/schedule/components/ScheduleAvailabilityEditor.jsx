@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { CalendarRange, ChevronLeft, ChevronRight, Clock, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { DateField } from '../../../shared/ui/DateField';
@@ -13,16 +13,23 @@ import {
 } from '../../../utils/staffAccess';
 import {
   WEEKDAY_KEYS,
+  BUSINESS_AVAILABILITY_ID,
   applyBusinessClosedToRange,
   applyStatusToRange,
   getEffectiveStaffWindows,
   normalizeStaffAvailabilityEntry,
   resolveCalendarDayStatus,
   getStaffDayTimeline,
+  getBusinessDayTimeline,
+  getBusinessHoursForDate,
+  isBusinessOpenOnDate,
   setStaffDayOverride
 } from '../../../utils/staffAvailability';
 import { AdvanceBookingField } from './AdvanceBookingField';
-import { DayTimelineMeter } from './DayTimelineMeter';
+import { BusinessHoursSheet } from './BusinessHoursSheet';
+import { DayTimelineMeter, buildTimelineAxisMarks } from './DayTimelineMeter';
+
+export { BUSINESS_AVAILABILITY_ID };
 
 const WEEKDAY_LABELS = {
   mon: 'Mon',
@@ -39,6 +46,11 @@ const STATUS_OPTIONS = [
   { id: 'break', label: 'Break' },
   { id: 'off', label: 'Off day' },
   { id: 'business-closed', label: 'Business closed' }
+];
+
+const BUSINESS_STATUS_OPTIONS = [
+  { id: 'open', label: 'Available' },
+  { id: 'business-closed', label: 'Closed' }
 ];
 
 function formatWindowDate(dateKey = '') {
@@ -113,10 +125,40 @@ function staffPhoto(member) {
   return member?.photoURL || member?.imageUrl || '';
 }
 
-export function StaffAvailabilitySwitcher({ staff = [], staffId = '', onSelect }) {
-  if (!staff.length) return null;
+export function StaffAvailabilitySwitcher({
+  staff = [],
+  staffId = '',
+  onSelect,
+  businessName = 'Business',
+  businessLogoUrl = '',
+  showBusiness = true
+}) {
+  if (!showBusiness && !staff.length) return null;
   return (
-    <div className="bb-schedule-avail-avatars" role="tablist" aria-label="Staff member">
+    <div className="bb-schedule-avail-avatars" role="tablist" aria-label="Availability profile">
+      {showBusiness ? (
+        <button
+          type="button"
+          role="tab"
+          aria-selected={staffId === BUSINESS_AVAILABILITY_ID}
+          aria-label={businessName || 'Business'}
+          title={businessName || 'Business'}
+          className={`bb-schedule-avail-avatar is-business${
+            staffId === BUSINESS_AVAILABILITY_ID ? ' is-active' : ''
+          }`}
+          style={{ '--staff-color': '#0f766e' }}
+          onClick={() => onSelect?.(BUSINESS_AVAILABILITY_ID)}
+        >
+          <span className="bb-schedule-avail-avatar-face">
+            {businessLogoUrl ? (
+              <img src={businessLogoUrl} alt="" />
+            ) : (
+              staffInitials(businessName || 'Business')
+            )}
+          </span>
+          <span className="bb-schedule-avail-avatar-name">{businessName || 'Business'}</span>
+        </button>
+      ) : null}
       {staff.map((member) => {
         const photo = staffPhoto(member);
         const active = member.id === staffId;
@@ -149,12 +191,15 @@ function AvailabilityStatusSheet({
   closeTime,
   initialDay,
   allowBusinessClosed = false,
+  businessOnly = false,
   onClose,
   onApply
 }) {
-  const statusOptions = allowBusinessClosed
-    ? STATUS_OPTIONS
-    : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
+  const statusOptions = businessOnly
+    ? BUSINESS_STATUS_OPTIONS
+    : allowBusinessClosed
+      ? STATUS_OPTIONS
+      : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
   const [status, setStatus] = useState('open');
   const [startDate, setStartDate] = useState(initialDay);
   const [endDate, setEndDate] = useState(initialDay);
@@ -162,7 +207,7 @@ function AvailabilityStatusSheet({
   const [endTime, setEndTime] = useState(closeTime);
 
   const datesValid = Boolean(startDate && endDate && endDate >= startDate);
-  const needsTimes = status === 'open' || status === 'break';
+  const needsTimes = !businessOnly && (status === 'open' || status === 'break');
   const timesValid = !needsTimes || (startTime && endTime && endTime > startTime);
   const canApply = datesValid && timesValid;
 
@@ -184,7 +229,9 @@ function AvailabilityStatusSheet({
             Manage status
           </h2>
           <p className="bb-schedule-avail-hint m-0">
-            Applies to {staffName || 'staff'} for every day in the range.
+            {businessOnly
+              ? 'Marks the whole business available or closed for every day in the range.'
+              : `Applies to ${staffName || 'staff'} for every day in the range.`}
           </p>
         </div>
 
@@ -218,23 +265,21 @@ function AvailabilityStatusSheet({
             min={startDate || undefined}
             onChange={setEndDate}
           />
-          {status === 'open' || status === 'break' ? (
+          {needsTimes ? (
             <>
-              <TimeField
-                label="Start time"
-                value={startTime}
-                onChange={setStartTime}
-              />
-              <TimeField
-                label="End time"
-                value={endTime}
-                onChange={setEndTime}
-              />
+              <TimeField label="Start time" value={startTime} onChange={setStartTime} />
+              <TimeField label="End time" value={endTime} onChange={setEndTime} />
             </>
           ) : null}
         </div>
 
-        {status === 'open' ? (
+        {businessOnly ? (
+          <p className="bb-schedule-avail-hint m-0">
+            {status === 'business-closed'
+              ? 'Closed days override weekly open days for the whole business.'
+              : 'Available clears closed dates in this range. Weekly open days still apply.'}
+          </p>
+        ) : status === 'open' ? (
           <p className="bb-schedule-avail-hint m-0">
             Open days get this shift window. You can refine shifts per day on the calendar.
           </p>
@@ -299,47 +344,66 @@ export function ScheduleAvailabilityEditor({
     [user, workspace, staff]
   );
 
+  const canEditRules = canEditAvailabilityRules({ user, workspace });
+
   const [staffIdInternal, setStaffIdInternal] = useState(
-    () => staffIdProp || visibleStaff[0]?.id || staff[0]?.id || ''
+    () =>
+      staffIdProp ||
+      (canEditRules
+        ? BUSINESS_AVAILABILITY_ID
+        : visibleStaff[0]?.id || staff[0]?.id || '')
   );
   const staffId = staffIdProp ?? staffIdInternal;
   const setStaffId = (nextId) => {
     if (onStaffIdChange) onStaffIdChange(nextId);
     else setStaffIdInternal(nextId);
   };
+  const isBusinessFocus = staffId === BUSINESS_AVAILABILITY_ID;
+
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(() => toDateKey(new Date()));
   const [statusSheetOpen, setStatusSheetOpen] = useState(false);
+  const [hoursSheetOpen, setHoursSheetOpen] = useState(false);
   const [dayDraftStatus, setDayDraftStatus] = useState('open');
   const [draftShifts, setDraftShifts] = useState([{ start: openTime, end: closeTime }]);
 
   useEffect(() => {
+    if (isBusinessFocus) {
+      if (!canEditRules && visibleStaff.length) {
+        setStaffId(visibleStaff[0].id);
+      }
+      return;
+    }
     if (!visibleStaff.length) {
-      setStaffId('');
+      if (canEditRules) setStaffId(BUSINESS_AVAILABILITY_ID);
+      else setStaffId('');
       return;
     }
     if (!visibleStaff.some((member) => member.id === staffId)) {
       setStaffId(visibleStaff[0].id);
     }
-  }, [visibleStaff, staffId]);
+  }, [visibleStaff, staffId, isBusinessFocus, canEditRules]);
 
-  const canEditSelected = canEditStaffAvailability({
-    user,
-    workspace,
-    staff,
-    staffId
-  });
-  const canEditRules = canEditAvailabilityRules({ user, workspace });
+  const canEditSelected =
+    !isBusinessFocus &&
+    canEditStaffAvailability({
+      user,
+      workspace,
+      staff,
+      staffId
+    });
 
   const entry = useMemo(
     () =>
-      normalizeStaffAvailabilityEntry(
-        staffAvailability[staffId] || { staffId },
-        staffId,
-        openTime,
-        closeTime
-      ),
-    [staffAvailability, staffId, openTime, closeTime]
+      isBusinessFocus
+        ? null
+        : normalizeStaffAvailabilityEntry(
+            staffAvailability[staffId] || { staffId },
+            staffId,
+            openTime,
+            closeTime
+          ),
+    [staffAvailability, staffId, openTime, closeTime, isBusinessFocus]
   );
 
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
@@ -370,27 +434,57 @@ export function ScheduleAvailabilityEditor({
     });
   }, [todayKey, maxBookableDateKey]);
 
-  const selectedDayStatus = useMemo(
-    () => resolveCalendarDayStatus(staffId, selectedDay, { [staffId]: entry }, availabilityRules),
-    [staffId, selectedDay, entry, availabilityRules]
+  const selectedDayStatus = useMemo(() => {
+    if (isBusinessFocus) {
+      return isBusinessOpenOnDate(selectedDay, availabilityRules) ? 'open' : 'business-closed';
+    }
+    return resolveCalendarDayStatus(staffId, selectedDay, { [staffId]: entry }, availabilityRules);
+  }, [isBusinessFocus, staffId, selectedDay, entry, availabilityRules]);
+
+  const selectedTimeline = useMemo(() => {
+    if (isBusinessFocus) {
+      return getBusinessDayTimeline(selectedDay, availabilityRules);
+    }
+    return getStaffDayTimeline(staffId, selectedDay, { [staffId]: entry }, availabilityRules);
+  }, [isBusinessFocus, staffId, selectedDay, entry, availabilityRules]);
+
+  const businessStaffDayMeters = useMemo(() => {
+    if (!isBusinessFocus) return [];
+    return (staff || []).map((member) => ({
+      member,
+      timeline: getStaffDayTimeline(
+        member.id,
+        selectedDay,
+        staffAvailability,
+        availabilityRules
+      )
+    }));
+  }, [isBusinessFocus, staff, selectedDay, staffAvailability, availabilityRules]);
+
+  const businessTeamAxisMarks = useMemo(() => {
+    if (!isBusinessFocus) return [];
+    const sample = businessStaffDayMeters[0]?.timeline || selectedTimeline;
+    return buildTimelineAxisMarks(sample.dayStart, sample.dayEnd);
+  }, [isBusinessFocus, businessStaffDayMeters, selectedTimeline]);
+
+  const selectedDayHours = useMemo(
+    () => getBusinessHoursForDate(selectedDay, availabilityRules),
+    [selectedDay, availabilityRules]
   );
+  const openTimeLabel = selectedDayHours.openTime || '09:00';
+  const closeTimeLabel = selectedDayHours.closeTime || '17:00';
 
-  const selectedTimeline = useMemo(
-    () => getStaffDayTimeline(staffId, selectedDay, { [staffId]: entry }, availabilityRules),
-    [staffId, selectedDay, entry, availabilityRules]
-  );
-
-  const openTimeLabel = availabilityRules?.businessOpenTime || '09:00';
-  const closeTimeLabel = availabilityRules?.businessCloseTime || '17:00';
-
-  const dayStatusOptions = canEditRules
-    ? STATUS_OPTIONS
-    : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
+  const dayStatusOptions = isBusinessFocus
+    ? BUSINESS_STATUS_OPTIONS
+    : canEditRules
+      ? STATUS_OPTIONS
+      : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
 
   const dayLockedByBusinessClose =
-    selectedDayStatus === 'business-closed' && !canEditRules;
+    !isBusinessFocus && selectedDayStatus === 'business-closed' && !canEditRules;
 
   const canEditDayTimes =
+    !isBusinessFocus &&
     canEditSelected &&
     !dayLockedByBusinessClose &&
     (dayDraftStatus === 'open' || dayDraftStatus === 'break');
@@ -400,17 +494,25 @@ export function ScheduleAvailabilityEditor({
     dayDraftStatus === 'business-closed' ||
     rangesAreValid(draftShifts);
 
-  const canSaveDay =
-    Boolean(staffId && selectedDay) &&
-    dayTimesValid &&
-    (dayDraftStatus === 'business-closed'
-      ? canEditRules
-      : canEditSelected && !dayLockedByBusinessClose);
+  const canSaveDay = isBusinessFocus
+    ? Boolean(selectedDay) &&
+      canEditRules &&
+      (dayDraftStatus === 'open' || dayDraftStatus === 'business-closed')
+    : Boolean(staffId && selectedDay) &&
+      dayTimesValid &&
+      (dayDraftStatus === 'business-closed'
+        ? canEditRules
+        : canEditSelected && !dayLockedByBusinessClose);
 
   useEffect(() => {
-    if (!staffId || !selectedDay) return;
+    if (!selectedDay) return;
     const mapped = mapCalendarStatusToDraft(selectedDayStatus);
     setDayDraftStatus(mapped);
+    if (isBusinessFocus) {
+      setDraftShifts([]);
+      return;
+    }
+    if (!staffId || !entry) return;
     const explicit = entry.days?.[selectedDay];
     if (mapped === 'open') {
       const windows = getEffectiveStaffWindows(
@@ -445,19 +547,37 @@ export function ScheduleAvailabilityEditor({
     entry,
     availabilityRules,
     openTime,
-    closeTime
+    closeTime,
+    isBusinessFocus
   ]);
 
   const changeDayStatus = (nextStatus) => {
+    if (isBusinessFocus) {
+      if (!canEditRules) return;
+      if (nextStatus !== 'open' && nextStatus !== 'business-closed') return;
+      setDayDraftStatus(nextStatus);
+      return;
+    }
     if (!canEditSelected && nextStatus !== 'business-closed') return;
     if (nextStatus === 'business-closed' && !canEditRules) return;
     if (dayLockedByBusinessClose) return;
     setDayDraftStatus(nextStatus);
-    const explicit = entry.days?.[selectedDay];
+    const explicit = entry?.days?.[selectedDay];
     setDraftShifts(seedDraftRangesForStatus(nextStatus, explicit, openTime, closeTime));
   };
 
   const applyStatusFromSheet = ({ status, startDate, endDate, startTime, endTime }) => {
+    if (isBusinessFocus) {
+      if (!canEditRules) return;
+      if (status === 'business-closed') {
+        onUpdateRules?.(applyBusinessClosedToRange(availabilityRules, startDate, endDate, true));
+      } else {
+        onUpdateRules?.(applyBusinessClosedToRange(availabilityRules, startDate, endDate, false));
+      }
+      setSelectedDay(startDate);
+      setStatusSheetOpen(false);
+      return;
+    }
     if (!canEditSelected && status !== 'business-closed') return;
     if (status === 'business-closed') {
       if (!canEditRules) return;
@@ -465,7 +585,7 @@ export function ScheduleAvailabilityEditor({
       setStatusSheetOpen(false);
       return;
     }
-    if (!staffId) return;
+    if (!staffId || !entry) return;
     const ranges =
       status === 'open' || status === 'break'
         ? [{ start: startTime || openTime, end: endTime || closeTime }]
@@ -491,7 +611,22 @@ export function ScheduleAvailabilityEditor({
   };
 
   const saveDay = () => {
-    if (!staffId || !selectedDay || !canSaveDay) return;
+    if (!selectedDay || !canSaveDay) return;
+
+    if (isBusinessFocus) {
+      if (!canEditRules) return;
+      onUpdateRules?.(
+        applyBusinessClosedToRange(
+          availabilityRules,
+          selectedDay,
+          selectedDay,
+          dayDraftStatus === 'business-closed'
+        )
+      );
+      return;
+    }
+
+    if (!staffId) return;
 
     if (dayDraftStatus === 'business-closed') {
       if (!canEditRules) return;
@@ -573,7 +708,7 @@ export function ScheduleAvailabilityEditor({
     );
   };
 
-  if (!visibleStaff.length) {
+  if (!visibleStaff.length && !canEditRules) {
     return (
       <div className="bb-schedule-avail">
         <p className="bb-schedule-avail-hint">
@@ -589,14 +724,28 @@ export function ScheduleAvailabilityEditor({
       {canEditSelected || canEditRules ? (
         <section className="bb-schedule-avail-panel bb-schedule-avail-setup-panel">
           <div className="bb-schedule-avail-setup-copy">
-            <h3 className="bb-schedule-avail-title">Availability setup</h3>
+            <h3 className="bb-schedule-avail-title">
+              {isBusinessFocus ? 'Business availability' : 'Availability setup'}
+            </h3>
             <p className="bb-schedule-avail-hint m-0">
-              {canEditRules
-                ? 'Set how far ahead clients can book, then manage open, break, off, or closed days.'
-                : 'Manage open, break, or off days on your calendar.'}
+              {isBusinessFocus
+                ? 'Set weekly business hours and mark available or closed dates.'
+                : canEditRules
+                  ? 'Set how far ahead clients can book, then manage open, break, off, or closed days.'
+                  : 'Manage open, break, or off days on your calendar.'}
             </p>
           </div>
           <div className="bb-schedule-avail-setup-tools">
+            {isBusinessFocus && canEditRules ? (
+              <button
+                type="button"
+                className="bb-schedule-avail-manage-btn"
+                onClick={() => setHoursSheetOpen(true)}
+              >
+                <Clock size={17} strokeWidth={2.2} aria-hidden="true" />
+                Business hours
+              </button>
+            ) : null}
             {canEditRules ? (
               <AdvanceBookingField
                 days={availabilityRules.maxAdvanceBookingDays ?? 90}
@@ -604,7 +753,7 @@ export function ScheduleAvailabilityEditor({
                 onChange={(patch) => onUpdateRules?.(patch)}
               />
             ) : null}
-            {canEditSelected ? (
+            {(isBusinessFocus ? canEditRules : canEditSelected) ? (
               <button
                 type="button"
                 className="bb-schedule-avail-manage-btn"
@@ -618,7 +767,9 @@ export function ScheduleAvailabilityEditor({
         </section>
       ) : (
         <p className="bb-schedule-avail-hint">
-          Only you and the owner can edit this staff member&apos;s availability.
+          {isBusinessFocus
+            ? 'Only the owner can edit overall business availability.'
+            : "Only you and the owner can edit this staff member's availability."}
         </p>
       )}
 
@@ -627,19 +778,25 @@ export function ScheduleAvailabilityEditor({
           <div className="bb-schedule-avail-cal-copy">
             <h3 className="bb-schedule-avail-title">
               Calendar
-              {selectedMember?.name ? ` · ${selectedMember.name}` : ''}
+              {isBusinessFocus
+                ? ' · Business'
+                : selectedMember?.name
+                  ? ` · ${selectedMember.name}`
+                  : ''}
             </h3>
             <p className="bb-schedule-avail-window-hint">{bookableWindowLabel}</p>
           </div>
           <div className="bb-schedule-avail-legend" aria-label="Day colors">
             <span className="bb-schedule-avail-legend-item is-open">
-              <i /> Open
+              <i /> {isBusinessFocus ? 'Available' : 'Open'}
             </span>
-            <span className="bb-schedule-avail-legend-item is-leave">
-              <i /> Off
-            </span>
+            {isBusinessFocus ? null : (
+              <span className="bb-schedule-avail-legend-item is-leave">
+                <i /> Off
+              </span>
+            )}
             <span className="bb-schedule-avail-legend-item is-biz-closed">
-              <i /> Business closed
+              <i /> {isBusinessFocus ? 'Closed' : 'Business closed'}
             </span>
           </div>
         </div>
@@ -695,12 +852,11 @@ export function ScheduleAvailabilityEditor({
             const key = toDateKey(date);
             const inMonth = date.getMonth() === monthAnchor.getMonth();
             const inWindow = isDateWithinAdvanceWindow(key, availabilityRules, { todayKey });
-            const status = resolveCalendarDayStatus(
-              staffId,
-              key,
-              { [staffId]: entry },
-              availabilityRules
-            );
+            const status = isBusinessFocus
+              ? isBusinessOpenOnDate(key, availabilityRules)
+                ? 'open'
+                : 'business-closed'
+              : resolveCalendarDayStatus(staffId, key, { [staffId]: entry }, availabilityRules);
             // Break days stay green on the month grid; breakdown lives in day view.
             const gridStatus = status === 'break' ? 'open' : status;
             const isFocusDay = key === selectedDay;
@@ -731,45 +887,119 @@ export function ScheduleAvailabilityEditor({
           })}
         </div>
 
-        <div className="bb-schedule-day-meter-block">
-          <div className="bb-schedule-day-meter-block-head">
-            <p className="bb-schedule-avail-day-section-label m-0">
-              {formatDisplayDate(selectedDay)} · Day timeline
-            </p>
-            <span className="bb-schedule-day-meter-hours">
-              {openTimeLabel} – {closeTimeLabel}
-            </span>
-          </div>
-          <DayTimelineMeter
-            segments={selectedTimeline.segments}
-            status={selectedTimeline.status}
-            dayStart={selectedTimeline.dayStart}
-            dayEnd={selectedTimeline.dayEnd}
-          />
-          {selectedTimeline.segments.some((segment) => segment.kind === 'open') ||
-          selectedTimeline.segments.some((segment) => segment.kind === 'break') ? (
-            <div className="bb-schedule-day-meter-legend" aria-hidden="true">
-              {selectedTimeline.segments.some((segment) => segment.kind === 'open') ? (
-                <span className="bb-schedule-day-meter-legend-item is-open">
-                  <i /> Shift
-                </span>
-              ) : null}
-              {selectedTimeline.segments.some((segment) => segment.kind === 'break') ? (
-                <span className="bb-schedule-day-meter-legend-item is-break">
-                  <i /> Break
-                </span>
-              ) : null}
+        {isBusinessFocus ? (
+          <div className="bb-schedule-day-meter-block bb-schedule-staff-meters">
+            <div className="bb-schedule-day-meter-block-head">
+              <p className="bb-schedule-avail-day-section-label m-0">
+                {formatDisplayDate(selectedDay)} · Team
+              </p>
+              <span className="bb-schedule-day-meter-hours">
+                {openTimeLabel} – {closeTimeLabel}
+              </span>
             </div>
-          ) : (
-            <p className="bb-schedule-avail-hint m-0 text-sm">
-              {selectedTimeline.status === 'leave'
-                ? 'Off — no bookable hours.'
-                : selectedTimeline.status === 'business-closed'
-                  ? 'Business closed this day.'
-                  : 'No shift windows on this day.'}
-            </p>
-          )}
-        </div>
+            {businessStaffDayMeters.length === 0 ? (
+              <p className="bb-schedule-avail-hint m-0 text-sm">No staff on the roster yet.</p>
+            ) : (
+              <>
+                <div className="bb-schedule-staff-meters-list">
+                  {businessStaffDayMeters.map(({ member, timeline }) => {
+                    const photo = staffPhoto(member);
+                    return (
+                      <div key={member.id} className="bb-schedule-staff-meter-row">
+                        <div className="bb-schedule-staff-meter-person">
+                          <span
+                            className="bb-schedule-staff-meter-avatar"
+                            style={{ '--staff-color': member.color || '#101828' }}
+                            aria-hidden="true"
+                          >
+                            {photo ? (
+                              <img src={photo} alt="" />
+                            ) : (
+                              staffInitials(member.name)
+                            )}
+                          </span>
+                          <span className="bb-schedule-staff-meter-name">{member.name}</span>
+                        </div>
+                        <DayTimelineMeter
+                          segments={timeline.segments}
+                          status={timeline.status}
+                          dayStart={timeline.dayStart}
+                          dayEnd={timeline.dayEnd}
+                          showAxis={false}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                {businessTeamAxisMarks.length ? (
+                  <div className="bb-schedule-staff-meters-axis-wrap" aria-hidden="true">
+                    <div className="bb-schedule-staff-meters-axis-spacer" />
+                    <div className="bb-schedule-day-meter-axis">
+                      {businessTeamAxisMarks.map((mark) => (
+                        <span
+                          key={`${mark.minutes}-${mark.edge}`}
+                          className={`bb-schedule-day-meter-tick is-${mark.edge}`}
+                          style={{ left: `${mark.leftPct}%` }}
+                        >
+                          <i />
+                          <em>{mark.label}</em>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+                <div className="bb-schedule-day-meter-legend" aria-hidden="true">
+                  <span className="bb-schedule-day-meter-legend-item is-open">
+                    <i /> Shift
+                  </span>
+                  <span className="bb-schedule-day-meter-legend-item is-break">
+                    <i /> Break
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="bb-schedule-day-meter-block">
+            <div className="bb-schedule-day-meter-block-head">
+              <p className="bb-schedule-avail-day-section-label m-0">
+                {formatDisplayDate(selectedDay)} · Day timeline
+              </p>
+              <span className="bb-schedule-day-meter-hours">
+                {openTimeLabel} – {closeTimeLabel}
+              </span>
+            </div>
+            <DayTimelineMeter
+              segments={selectedTimeline.segments}
+              status={selectedTimeline.status}
+              dayStart={selectedTimeline.dayStart}
+              dayEnd={selectedTimeline.dayEnd}
+            />
+            {selectedTimeline.segments.some((segment) => segment.kind === 'open') ||
+            selectedTimeline.segments.some((segment) => segment.kind === 'break') ? (
+              <div className="bb-schedule-day-meter-legend" aria-hidden="true">
+                {selectedTimeline.segments.some((segment) => segment.kind === 'open') ? (
+                  <span className="bb-schedule-day-meter-legend-item is-open">
+                    <i /> Shift
+                  </span>
+                ) : null}
+                {selectedTimeline.segments.some((segment) => segment.kind === 'break') ? (
+                  <span className="bb-schedule-day-meter-legend-item is-break">
+                    <i /> Break
+                  </span>
+                ) : null}
+              </div>
+            ) : (
+              <p className="bb-schedule-avail-hint m-0 text-sm">
+                {selectedTimeline.status === 'leave'
+                  ? 'Off — no bookable hours.'
+                  : selectedTimeline.status === 'business-closed'
+                    ? 'Business closed this day.'
+                    : 'No shift windows on this day.'}
+              </p>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="bb-schedule-avail-panel bb-schedule-avail-day-panel">
@@ -779,7 +1009,51 @@ export function ScheduleAvailabilityEditor({
           </h3>
         </div>
 
-        {!canEditSelected && !canEditRules ? (
+        {isBusinessFocus ? (
+          canEditRules ? (
+            <>
+              <div className="bb-schedule-avail-day-status-block">
+                <p className="bb-schedule-avail-day-section-label">Day status</p>
+                <div className="bb-schedule-avail-status" role="tablist" aria-label="Day status">
+                  {dayStatusOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={dayDraftStatus === option.id}
+                      className={`bb-schedule-avail-status-btn${
+                        dayDraftStatus === option.id ? ' is-active' : ''
+                      }`}
+                      onClick={() => changeDayStatus(option.id)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="bb-schedule-avail-hint">
+                {dayDraftStatus === 'business-closed'
+                  ? 'Marks the whole business closed on this date.'
+                  : 'Available follows weekly open days and overall business hours.'}
+              </p>
+              <div className="bb-schedule-avail-day-actions">
+                <span className="bb-schedule-avail-hint">Save to apply this day’s status.</span>
+                <button
+                  type="button"
+                  className="bb-primary-btn"
+                  disabled={!canSaveDay}
+                  onClick={saveDay}
+                >
+                  Save day
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="bb-schedule-avail-hint">
+              Only the owner can edit overall business availability.
+            </p>
+          )
+        ) : !canEditSelected && !canEditRules ? (
           <p className="bb-schedule-avail-hint">
             Only you and the owner can edit this staff member&apos;s availability.
           </p>
@@ -900,15 +1174,30 @@ export function ScheduleAvailabilityEditor({
         )}
       </section>
 
-      {statusSheetOpen && canEditSelected ? (
+      {statusSheetOpen && (isBusinessFocus ? canEditRules : canEditSelected) ? (
         <AvailabilityStatusSheet
-          staffName={selectedMember?.name}
+          staffName={isBusinessFocus ? 'Business' : selectedMember?.name}
           openTime={openTime}
           closeTime={closeTime}
           initialDay={selectedDay}
           allowBusinessClosed={canEditRules}
+          businessOnly={isBusinessFocus}
           onClose={() => setStatusSheetOpen(false)}
           onApply={applyStatusFromSheet}
+        />
+      ) : null}
+
+      {hoursSheetOpen && canEditRules ? (
+        <BusinessHoursSheet
+          availabilityRules={availabilityRules}
+          onClose={() => setHoursSheetOpen(false)}
+          onSave={(patch) => {
+            onUpdateRules?.({
+              ...availabilityRules,
+              ...patch
+            });
+            setHoursSheetOpen(false);
+          }}
         />
       ) : null}
     </div>

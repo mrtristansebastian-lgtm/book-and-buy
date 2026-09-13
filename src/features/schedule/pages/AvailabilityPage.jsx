@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { getVisibleStaffForAvailability } from '../../../utils/staffAccess';
 import {
+  canEditAvailabilityRules,
+  getVisibleStaffForAvailability
+} from '../../../utils/staffAccess';
+import {
+  BUSINESS_AVAILABILITY_ID,
   ScheduleAvailabilityEditor,
   StaffAvailabilitySwitcher
 } from '../components/ScheduleAvailabilityEditor';
@@ -14,17 +18,27 @@ export function AvailabilityPage() {
     () => getVisibleStaffForAvailability({ user, workspace, staff }),
     [user, workspace, staff]
   );
-  const [staffId, setStaffId] = useState(() => visibleStaff[0]?.id || staff[0]?.id || '');
+  const canEditRules = canEditAvailabilityRules({ user, workspace });
+  const [staffId, setStaffId] = useState(() =>
+    canEditRules
+      ? BUSINESS_AVAILABILITY_ID
+      : visibleStaff[0]?.id || staff[0]?.id || ''
+  );
 
   useEffect(() => {
+    if (staffId === BUSINESS_AVAILABILITY_ID) {
+      if (!canEditRules && visibleStaff.length) setStaffId(visibleStaff[0].id);
+      return;
+    }
     if (!visibleStaff.length) {
-      setStaffId('');
+      if (canEditRules) setStaffId(BUSINESS_AVAILABILITY_ID);
+      else setStaffId('');
       return;
     }
     if (!visibleStaff.some((member) => member.id === staffId)) {
       setStaffId(visibleStaff[0].id);
     }
-  }, [visibleStaff, staffId]);
+  }, [visibleStaff, staffId, canEditRules]);
 
   return (
     <div className="bb-schedule-desk">
@@ -39,6 +53,9 @@ export function AvailabilityPage() {
             staff={visibleStaff}
             staffId={staffId}
             onSelect={setStaffId}
+            businessName={workspace.brandName || 'Business'}
+            businessLogoUrl={workspace.website?.logoUrl || ''}
+            showBusiness
           />
         </div>
       </header>

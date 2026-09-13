@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Info, Pencil, Settings2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, Pencil, X } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { SortField } from '../../../shared/ui/SortField';
-import { TimeField } from '../../../shared/ui/TimeField';
 import {
   buildMonthGrid,
   formatDisplayDate,
@@ -345,8 +344,7 @@ export function SchedulePage() {
     staff,
     services,
     confirmBooking,
-    workspace,
-    updateAvailabilityRules
+    workspace
   } = useWorkspace();
   const [mode, setMode] = useState('slots');
   const [focusStaffId, setFocusStaffId] = useState('');
@@ -354,12 +352,7 @@ export function SchedulePage() {
   const [period, setPeriod] = useState('day');
   const [sortBy, setSortBy] = useState('latest');
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [hoursOpen, setHoursOpen] = useState(false);
   const [infoSpotId, setInfoSpotId] = useState('');
-  const [hoursDraft, setHoursDraft] = useState({
-    businessOpenTime: workspace.availabilityRules?.businessOpenTime || '09:00',
-    businessCloseTime: workspace.availabilityRules?.businessCloseTime || '17:00'
-  });
 
   const periodRange = useMemo(() => getPeriodRange(day, period), [day, period]);
   const periodLabel = useMemo(() => formatPeriodLabel(day, period), [day, period]);
@@ -462,21 +455,6 @@ export function SchedulePage() {
 
   const infoSpot = allSpotServices.find((service) => service.id === infoSpotId) || null;
 
-  const saveHours = () => {
-    updateAvailabilityRules({
-      ...hoursDraft,
-      openWeekdays: workspace.availabilityRules?.openWeekdays || [
-        'mon',
-        'tue',
-        'wed',
-        'thu',
-        'fri',
-        'sat'
-      ]
-    });
-    setHoursOpen(false);
-  };
-
   return (
     <div className="bb-schedule-desk">
       <header className="bb-schedule-desk-header">
@@ -514,24 +492,6 @@ export function SchedulePage() {
               Spots
             </button>
           </div>
-
-          {mode === 'slots' ? (
-            <button
-              type="button"
-              className="bb-ghost-btn"
-              onClick={() => {
-                setHoursDraft({
-                  businessOpenTime:
-                    workspace.availabilityRules?.businessOpenTime || '09:00',
-                  businessCloseTime:
-                    workspace.availabilityRules?.businessCloseTime || '17:00'
-                });
-                setHoursOpen(true);
-              }}
-            >
-              <Settings2 size={16} /> Hours
-            </button>
-          ) : null}
         </div>
       </header>
 
@@ -906,50 +866,6 @@ export function SchedulePage() {
             setPickerOpen(false);
           }}
         />
-      ) : null}
-
-      {hoursOpen ? (
-        <div className="bb-services-sheet" role="dialog" aria-modal="true" aria-label="Business hours">
-          <div className="bb-services-sheet-backdrop" onClick={() => setHoursOpen(false)} />
-          <div className="bb-services-sheet-panel" style={{ width: 'min(24rem, 100%)' }}>
-            <header className="bb-services-sheet-head">
-              <div>
-                <p className="bb-services-sheet-eyebrow">Slots</p>
-                <h2 className="bb-services-sheet-title">Business hours</h2>
-                <p className="bb-services-sheet-lede">
-                  Used for public appointment availability.
-                </p>
-              </div>
-            </header>
-            <div className="bb-services-sheet-body">
-              <TimeField
-                label="Opens"
-                value={hoursDraft.businessOpenTime}
-                onChange={(next) =>
-                  setHoursDraft((prev) => ({ ...prev, businessOpenTime: next }))
-                }
-              />
-              <TimeField
-                label="Closes"
-                value={hoursDraft.businessCloseTime}
-                onChange={(next) =>
-                  setHoursDraft((prev) => ({ ...prev, businessCloseTime: next }))
-                }
-              />
-            </div>
-            <footer className="bb-services-sheet-footer">
-              <span />
-              <div className="bb-services-sheet-footer-actions">
-                <button type="button" className="bb-ghost-btn" onClick={() => setHoursOpen(false)}>
-                  Cancel
-                </button>
-                <button type="button" className="bb-primary-btn" onClick={saveHours}>
-                  Save hours
-                </button>
-              </div>
-            </footer>
-          </div>
-        </div>
       ) : null}
     </div>
   );

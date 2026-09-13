@@ -520,31 +520,49 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 }
 
 .bb-finance-receipt-stamp {
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+  padding: 0.34rem 0.58rem;
+  border-radius: 0.45rem;
+  border: 1px solid transparent;
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  line-height: 1;
   text-transform: uppercase;
-  padding: 0.28rem 0.45rem;
-  border-radius: 0.35rem;
-  border: 1.5px dashed currentColor;
-  transform: rotate(-6deg);
+  white-space: nowrap;
+}
+
+.bb-finance-receipt-stamp::before {
+  content: '';
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
 }
 
 .bb-finance-receipt-stamp--paid {
-  color: #027a48;
-  background: rgba(2, 122, 72, 0.08);
+  color: #067647;
+  background: #ecfdf3;
+  border-color: rgba(6, 118, 71, 0.2);
 }
 
 .bb-finance-receipt-stamp--pending {
   color: #b54708;
-  background: rgba(181, 71, 8, 0.08);
+  background: #fffaeb;
+  border-color: rgba(181, 71, 8, 0.22);
 }
 
 .bb-finance-receipt-stamp--unpaid,
 .bb-finance-receipt-stamp--failed,
 .bb-finance-receipt-stamp--refunded {
-  color: #667085;
-  background: rgba(102, 112, 133, 0.1);
+  color: #475467;
+  background: #f2f4f7;
+  border-color: rgba(71, 84, 103, 0.16);
 }
 
 .bb-finance-receipt-rule {

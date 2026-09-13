@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Mail, MessageSquare, Pencil, Phone, Plus, Search, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
 import { navigate } from '../../../app/routing';
@@ -12,6 +12,21 @@ const emptyClient = () => ({
   phone: '',
   country: ''
 });
+
+function clientInitials(name = '') {
+  const parts = String(name)
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase();
+}
+
+function letterForName(name = '') {
+  const ch = String(name).trim().charAt(0).toUpperCase();
+  return ch >= 'A' && ch <= 'Z' ? ch : '#';
+}
 
 export function ClientsPage() {
   const {
@@ -30,15 +45,43 @@ export function ClientsPage() {
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return clients.filter((client) => {
+    const list = clients.filter((client) => {
       if (!needle) return true;
       return [client.name, client.email, client.phone, client.country]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
+    return [...list].sort((a, b) =>
+      String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' })
+    );
   }, [clients, query]);
 
-  const selected = filtered.find((client) => client.id === selectedId) || filtered[0] || null;
+  const letterGroups = useMemo(() => {
+    const groups = [];
+    const map = new Map();
+    for (const client of filtered) {
+      const letter = letterForName(client.name);
+      if (!map.has(letter)) {
+        const group = { letter, items: [] };
+        map.set(letter, group);
+        groups.push(group);
+      }
+      map.get(letter).items.push(client);
+    }
+    return groups;
+  }, [filtered]);
+
+  useEffect(() => {
+    if (!filtered.length) {
+      if (selectedId) setSelectedId('');
+      return;
+    }
+    if (!filtered.some((client) => client.id === selectedId)) {
+      setSelectedId(filtered[0].id);
+    }
+  }, [filtered, selectedId]);
+
+  const selected = filtered.find((client) => client.id === selectedId) || null;
 
   const history = useMemo(() => {
     if (!selected) return { bookings: [], orders: [] };
@@ -67,20 +110,31 @@ export function ClientsPage() {
     setDraft(emptyClient());
   };
 
+  const openMessage = (client) => {
+    const thread = startThreadFromClient(client);
+    if (thread?.id) setSupportFocusThread(thread.id);
+    navigate('/dashboard/communications');
+  };
+
   return (
-    <div className="grid gap-5">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-1">
-          <h1 className="bb-page-title text-3xl m-0">Clients</h1>
-          <p className="bb-muted m-0">Directory with booking and order history.</p>
+    <div className="bb-clients">
+      <header className="bb-clients-header">
+        <div className="bb-clients-header-copy">
+          <p className="bb-clients-eyebrow">Directory</p>
+          <h1 className="bb-clients-title">Clients</h1>
+          <p className="bb-clients-lede">Your phonebook for people who book and buy.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <input
-            className="native-control-input px-4 min-w-[200px]"
-            placeholder="Search clients"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
+        <div className="bb-clients-tools">
+          <label className="bb-clients-search">
+            <Search size={15} aria-hidden="true" />
+            <input
+              type="search"
+              placeholder="Search clients"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search clients"
+            />
+          </label>
           <button
             type="button"
             className="bb-primary-btn"
@@ -94,145 +148,240 @@ export function ClientsPage() {
         </div>
       </header>
 
-      <section className="grid gap-3 lg:grid-cols-[300px_1fr]">
-        <aside className="bb-panel overflow-hidden">
-          {filtered.length === 0 ? (
-            <p className="bb-muted p-4 m-0 text-sm">No clients match.</p>
-          ) : (
-            filtered.map((client) => (
-              <button
-                key={client.id}
-                type="button"
-                className={`w-full text-left px-4 py-3 border-0 border-b border-black/5 grid gap-0.5 ${
-                  selected?.id === client.id ? 'bg-black/[0.03]' : 'bg-transparent'
-                }`}
-                onClick={() => setSelectedId(client.id)}
-              >
-                <strong className="text-sm">{client.name}</strong>
-                <span className="bb-muted text-xs truncate">{client.email}</span>
-              </button>
-            ))
-          )}
-        </aside>
-
-        {selected ? (
-          <div className="bb-panel p-5 grid gap-5 content-start">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="grid gap-1">
-                <h2 className="bb-page-title text-2xl m-0">{selected.name}</h2>
-                <p className="bb-muted m-0 text-sm">
-                  {[selected.email, selected.phone, selected.country].filter(Boolean).join(' · ')}
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  className="bb-ghost-btn"
-                  onClick={() => {
-                    const thread = startThreadFromClient(selected);
-                    if (thread?.id) setSupportFocusThread(thread.id);
-                    navigate('/dashboard/communications');
-                  }}
-                >
-                  Message
-                </button>
-                <button
-                  type="button"
-                  className="bb-ghost-btn"
-                  onClick={() => {
-                    setDraft(selected);
-                    setDraftOpen(true);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  className="bb-ghost-btn"
-                  onClick={() => removeClient(selected.id)}
-                >
-                  Remove
-                </button>
-              </div>
+      <section className="bb-clients-bezel" aria-label="Client phonebook">
+        <div className="bb-clients-bezel-inner">
+          <aside className="bb-clients-directory">
+            <div className="bb-clients-directory-head">
+              <p className="bb-clients-directory-label">Contacts</p>
+              <p className="bb-clients-directory-count">
+                {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
+              </p>
             </div>
-
-            <div className="grid gap-2">
-              <h3 className="bb-page-title text-lg m-0">Bookings</h3>
-              {history.bookings.length === 0 ? (
-                <p className="bb-muted m-0 text-sm">No bookings.</p>
+            <div className="bb-clients-directory-scroll">
+              {filtered.length === 0 ? (
+                <div className="bb-clients-directory-empty">
+                  <p>
+                    {clients.length === 0
+                      ? 'No clients yet. Add your first contact.'
+                      : 'No clients match that search.'}
+                  </p>
+                </div>
               ) : (
-                history.bookings.map((booking) => (
-                  <div
-                    key={booking.id}
-                    className="rounded-xl border border-black/8 px-3 py-2 text-sm flex flex-wrap items-center justify-between gap-2"
-                  >
-                    <span>
-                      {booking.serviceName} · {formatDisplayDate(booking.dateKey || booking.date)} ·{' '}
-                      {booking.time} · {booking.status}
+                letterGroups.map((group) => (
+                  <div key={group.letter}>
+                    <p className="bb-clients-letter">{group.letter}</p>
+                    {group.items.map((client) => {
+                      const active = selected?.id === client.id;
+                      return (
+                        <button
+                          key={client.id}
+                          type="button"
+                          className={`bb-clients-row${active ? ' is-active' : ''}`}
+                          onClick={() => setSelectedId(client.id)}
+                          aria-current={active ? 'true' : undefined}
+                        >
+                          <span className="bb-clients-avatar" aria-hidden="true">
+                            {clientInitials(client.name)}
+                          </span>
+                          <span className="bb-clients-row-copy">
+                            <strong className="bb-clients-row-name">{client.name}</strong>
+                            <span className="bb-clients-row-meta">
+                              {client.email || client.phone || 'No contact details'}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))
+              )}
+            </div>
+          </aside>
+
+          {selected ? (
+            <div className="bb-clients-sheet" key={selected.id}>
+              <div className="bb-clients-sheet-scroll">
+                <div className="bb-clients-sheet-hero">
+                  <div className="bb-clients-sheet-identity">
+                    <span className="bb-clients-sheet-avatar" aria-hidden="true">
+                      {clientInitials(selected.name)}
                     </span>
+                    <div>
+                      <h2 className="bb-clients-sheet-name">{selected.name}</h2>
+                      <p className="bb-clients-sheet-sub">
+                        {selected.country || 'Client'}
+                        {history.bookings.length || history.orders.length
+                          ? ` · ${history.bookings.length + history.orders.length} records`
+                          : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bb-clients-actions">
                     <button
                       type="button"
-                      className="bb-ghost-btn py-1 px-2 text-xs"
+                      className="bb-clients-action"
+                      onClick={() => openMessage(selected)}
+                    >
+                      <MessageSquare size={14} /> Message
+                    </button>
+                    <button
+                      type="button"
+                      className="bb-clients-action"
                       onClick={() => {
-                        const thread = startThreadFromBooking(booking);
-                        if (thread?.id) setSupportFocusThread(thread.id);
-                        navigate('/dashboard/communications');
+                        setDraft(selected);
+                        setDraftOpen(true);
                       }}
                     >
-                      Message
+                      <Pencil size={14} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="bb-clients-action is-danger"
+                      onClick={() => removeClient(selected.id)}
+                    >
+                      <Trash2 size={14} /> Remove
                     </button>
                   </div>
-                ))
-              )}
-            </div>
+                </div>
 
-            <div className="grid gap-2">
-              <h3 className="bb-page-title text-lg m-0">Orders</h3>
-              {history.orders.length === 0 ? (
-                <p className="bb-muted m-0 text-sm">No orders.</p>
-              ) : (
-                history.orders.map((order) => (
-                  <div key={order.id} className="rounded-xl border border-black/8 px-3 py-2 text-sm">
-                    {(order.items || []).map((item) => item.name).join(', ')} · {order.status}
+                <div className="bb-clients-fields">
+                  <div className="bb-clients-field">
+                    <p className="bb-clients-field-label">Email</p>
+                    <p className="bb-clients-field-value">
+                      {selected.email ? (
+                        <a href={`mailto:${selected.email}`}>
+                          <Mail size={13} aria-hidden="true" />
+                          {selected.email}
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </p>
                   </div>
-                ))
-              )}
+                  <div className="bb-clients-field">
+                    <p className="bb-clients-field-label">Phone</p>
+                    <p className="bb-clients-field-value">
+                      {selected.phone ? (
+                        <a href={`tel:${selected.phone.replace(/\s+/g, '')}`}>
+                          <Phone size={13} aria-hidden="true" />
+                          {selected.phone}
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </p>
+                  </div>
+                  <div className="bb-clients-field">
+                    <p className="bb-clients-field-label">Country</p>
+                    <p className="bb-clients-field-value">{selected.country || '—'}</p>
+                  </div>
+                </div>
+
+                <section className="bb-clients-history" aria-label="Bookings">
+                  <h3 className="bb-clients-history-title">Bookings</h3>
+                  {history.bookings.length === 0 ? (
+                    <p className="bb-clients-history-empty">No bookings yet.</p>
+                  ) : (
+                    <div className="bb-clients-history-list">
+                      {history.bookings.map((booking) => (
+                        <div key={booking.id} className="bb-clients-history-item">
+                          <div>
+                            {booking.serviceName}
+                            <span>
+                              {' '}
+                              · {formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}{' '}
+                              · {booking.status}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="bb-clients-action"
+                            onClick={() => {
+                              const thread = startThreadFromBooking(booking);
+                              if (thread?.id) setSupportFocusThread(thread.id);
+                              navigate('/dashboard/communications');
+                            }}
+                          >
+                            Message
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                <section className="bb-clients-history" aria-label="Orders">
+                  <h3 className="bb-clients-history-title">Orders</h3>
+                  {history.orders.length === 0 ? (
+                    <p className="bb-clients-history-empty">No orders yet.</p>
+                  ) : (
+                    <div className="bb-clients-history-list">
+                      {history.orders.map((order) => (
+                        <div key={order.id} className="bb-clients-history-item">
+                          <div>
+                            {(order.items || []).map((item) => item.name).join(', ') || 'Order'}
+                            <span> · {order.status}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="bb-panel p-8 bb-muted">Select or add a client.</div>
-        )}
+          ) : (
+            <div className="bb-clients-sheet">
+              <div className="bb-clients-sheet-empty">
+                <strong>No contact selected</strong>
+                <p className="bb-clients-history-empty">
+                  {clients.length === 0
+                    ? 'Add a client to start your directory.'
+                    : 'Pick someone from the list, or clear your search.'}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       {draftOpen ? (
-        <div className="fixed inset-0 z-40 bg-black/30 grid place-items-center p-4">
-          <div className="bb-panel w-full max-w-md p-5 grid gap-3">
-            <h2 className="bb-page-title text-2xl m-0">{draft.id ? 'Edit client' : 'New client'}</h2>
-            <input
-              className="native-control-input px-4"
-              placeholder="Name"
-              value={draft.name}
-              onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
-            />
-            <input
-              className="native-control-input px-4"
-              placeholder="Email"
-              value={draft.email}
-              onChange={(event) => setDraft((prev) => ({ ...prev, email: event.target.value }))}
-            />
-            <input
-              className="native-control-input px-4"
-              placeholder="Phone"
-              value={draft.phone}
-              onChange={(event) => setDraft((prev) => ({ ...prev, phone: event.target.value }))}
-            />
-            <input
-              className="native-control-input px-4"
-              placeholder="Country"
-              value={draft.country}
-              onChange={(event) => setDraft((prev) => ({ ...prev, country: event.target.value }))}
-            />
-            <div className="flex gap-2 justify-end">
+        <div
+          className="bb-clients-modal-overlay"
+          onClick={() => setDraftOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="bb-clients-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={draft.id ? 'Edit client' : 'New client'}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 className="bb-clients-modal-title">{draft.id ? 'Edit client' : 'New client'}</h2>
+            <div className="bb-clients-modal-fields">
+              <input
+                placeholder="Name"
+                value={draft.name}
+                onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
+                autoFocus
+              />
+              <input
+                placeholder="Email"
+                value={draft.email}
+                onChange={(event) => setDraft((prev) => ({ ...prev, email: event.target.value }))}
+              />
+              <input
+                placeholder="Phone"
+                value={draft.phone}
+                onChange={(event) => setDraft((prev) => ({ ...prev, phone: event.target.value }))}
+              />
+              <input
+                placeholder="Country"
+                value={draft.country}
+                onChange={(event) => setDraft((prev) => ({ ...prev, country: event.target.value }))}
+              />
+            </div>
+            <div className="bb-clients-modal-actions">
               <button type="button" className="bb-ghost-btn" onClick={() => setDraftOpen(false)}>
                 Cancel
               </button>

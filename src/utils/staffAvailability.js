@@ -188,9 +188,26 @@ const clampAdvanceBookingDays = (value) => {
 export const normalizeAvailabilityRules = (rules = {}) => {
   const openTime = normalizeTime(rules.businessOpenTime, DEFAULT_OPEN);
   const closeTime = normalizeTime(rules.businessCloseTime, DEFAULT_CLOSE);
-  const weekdays = Array.isArray(rules.openWeekdays)
+  const legacyWeekdays = Array.isArray(rules.openWeekdays)
     ? rules.openWeekdays.filter((key) => WEEKDAY_KEYS.includes(key))
     : ['mon', 'tue', 'wed', 'thu', 'fri'];
+  const legacyOpenSet = new Set(legacyWeekdays.length ? legacyWeekdays : ['mon', 'tue', 'wed', 'thu', 'fri']);
+  const rawWeekdayHours =
+    rules.weekdayHours && typeof rules.weekdayHours === 'object' ? rules.weekdayHours : {};
+
+  const weekdayHours = {};
+  WEEKDAY_KEYS.forEach((key) => {
+    const row = rawWeekdayHours[key] || {};
+    const open = row.open != null ? Boolean(row.open) : legacyOpenSet.has(key);
+    weekdayHours[key] = {
+      open,
+      openTime: normalizeTime(row.openTime, openTime),
+      closeTime: normalizeTime(row.closeTime, closeTime)
+    };
+  });
+
+  const openWeekdays = WEEKDAY_KEYS.filter((key) => weekdayHours[key].open);
+  const seedDay = openWeekdays[0] || 'mon';
   const closedDates = (Array.isArray(rules.closedDates) ? rules.closedDates : [])
     .map((key) => String(key || '').trim())
     .filter((key) => /^\d{4}-\d{2}-\d{2}$/.test(key));
@@ -207,9 +224,10 @@ export const normalizeAvailabilityRules = (rules = {}) => {
 
   return {
     ...rules,
-    businessOpenTime: openTime,
-    businessCloseTime: closeTime,
-    openWeekdays: weekdays.length ? weekdays : ['mon', 'tue', 'wed', 'thu', 'fri'],
+    businessOpenTime: weekdayHours[seedDay].openTime,
+    businessCloseTime: weekdayHours[seedDay].closeTime,
+    openWeekdays: openWeekdays.length ? openWeekdays : ['mon', 'tue', 'wed', 'thu', 'fri'],
+    weekdayHours,
     closedDates: [...new Set(closedDates)].sort(),
     maxAdvanceBookingDays,
     maxAdvanceBooking: String(maxAdvanceBookingDays),
@@ -217,16 +235,30 @@ export const normalizeAvailabilityRules = (rules = {}) => {
   };
 };
 
-/** Business open on dateKey? */
-export const isBusinessOpenOnDate = (dateKey, availabilityRules = {}) => {
+/** Hours for a specific calendar date (closed dates + weekday schedule). */
+export const getBusinessHoursForDate = (dateKey, availabilityRules = {}) => {
   const rules = normalizeAvailabilityRules(availabilityRules);
-  if (!dateKey) return false;
-  if ((rules.closedDates || []).includes(dateKey)) return false;
+  const fallback = {
+    open: false,
+    openTime: rules.businessOpenTime,
+    closeTime: rules.businessCloseTime
+  };
+  if (!dateKey) return fallback;
+  if ((rules.closedDates || []).includes(dateKey)) return fallback;
   const date = parseDateKey(dateKey);
-  if (!date) return false;
+  if (!date) return fallback;
   const weekday = weekdayKeyFromDate(date);
-  return (rules.openWeekdays || []).includes(weekday);
+  const row = rules.weekdayHours?.[weekday] || fallback;
+  return {
+    open: Boolean(row.open),
+    openTime: row.openTime || rules.businessOpenTime,
+    closeTime: row.closeTime || rules.businessCloseTime
+  };
 };
+
+/** Business open on dateKey? */
+export const isBusinessOpenOnDate = (dateKey, availabilityRules = {}) =>
+  getBusinessHoursForDate(dateKey, availabilityRules).open;
 
 /** Resolve effective ranges for a staff member on a date (explicit day overrides template). */
 export const getStaffDayWindows = (
@@ -326,8 +358,9 @@ export const getStaffDayTimeline = (
     availabilityRules
   );
   const rules = normalizeAvailabilityRules(availabilityRules);
-  let dayStart = timeToMinutes(rules.businessOpenTime) ?? 9 * 60;
-  let dayEnd = timeToMinutes(rules.businessCloseTime) ?? 17 * 60;
+  const hours = getBusinessHoursForDate(dateKey, rules);
+  let dayStart = timeToMinutes(hours.openTime) ?? 9 * 60;
+  let dayEnd = timeToMinutes(hours.closeTime) ?? 17 * 60;
   if (dayEnd <= dayStart) {
     dayStart = 0;
     dayEnd = 24 * 60;
@@ -357,8 +390,8 @@ export const getStaffDayTimeline = (
   const entry = normalizeStaffAvailabilityEntry(
     staffAvailability?.[staffId] || { staffId },
     staffId,
-    rules.businessOpenTime,
-    rules.businessCloseTime
+    hours.openTime,
+    hours.closeTime
   );
   const explicit = entry.days?.[dateKey];
   const bookable = getStaffDayWindows(
@@ -384,6 +417,40 @@ export const getStaffDayTimeline = (
   return { status, segments, dayStart, dayEnd };
 };
 
+/** Sentinel focus id for overall business availability (not a staff member). */
+export const BUSINESS_AVAILABILITY_ID = 'business';
+
+/** Day meter for overall business open hours (no staff shifts/breaks). */
+export const getBusinessDayTimeline = (dateKey, availabilityRules = {}) => {
+  const rules = normalizeAvailabilityRules(availabilityRules);
+  const hours = getBusinessHoursForDate(dateKey, rules);
+  let dayStart = timeToMinutes(hours.openTime) ?? 9 * 60;
+  let dayEnd = timeToMinutes(hours.closeTime) ?? 17 * 60;
+  if (dayEnd <= dayStart) {
+    dayStart = 0;
+    dayEnd = 24 * 60;
+  }
+
+  if (!hours.open) {
+    return { status: 'business-closed', segments: [], dayStart, dayEnd };
+  }
+
+  return {
+    status: 'open',
+    segments: [
+      {
+        kind: 'open',
+        start: hours.openTime,
+        end: hours.closeTime,
+        leftPct: 0,
+        widthPct: 100
+      }
+    ],
+    dayStart,
+    dayEnd
+  };
+};
+
 const minutesToHHMM = (totalMinutes) => {
   const hours = Math.floor(totalMinutes / 60) % 24;
   const mins = totalMinutes % 60;
@@ -401,8 +468,9 @@ export const getScheduleDayTimeline = ({
   bookings = []
 } = {}) => {
   const rules = normalizeAvailabilityRules(availabilityRules);
-  let dayStart = timeToMinutes(rules.businessOpenTime) ?? 9 * 60;
-  let dayEnd = timeToMinutes(rules.businessCloseTime) ?? 17 * 60;
+  const hours = getBusinessHoursForDate(dateKey, rules);
+  let dayStart = timeToMinutes(hours.openTime) ?? 9 * 60;
+  let dayEnd = timeToMinutes(hours.closeTime) ?? 17 * 60;
   if (dayEnd <= dayStart) {
     dayStart = 0;
     dayEnd = 24 * 60;
@@ -412,7 +480,7 @@ export const getScheduleDayTimeline = ({
   const base = staffId
     ? getStaffDayTimeline(staffId, dateKey, staffAvailability, availabilityRules)
     : {
-        status: isBusinessOpenOnDate(dateKey, rules) ? 'open' : 'business-closed',
+        status: hours.open ? 'open' : 'business-closed',
         segments: [],
         dayStart,
         dayEnd
@@ -567,9 +635,9 @@ export const intersectWindowLists = (listA = [], listB = []) => {
 };
 
 export const getBusinessDayWindows = (dateKey, availabilityRules = {}) => {
-  const rules = normalizeAvailabilityRules(availabilityRules);
-  if (!isBusinessOpenOnDate(dateKey, rules)) return [];
-  return [{ start: rules.businessOpenTime, end: rules.businessCloseTime }];
+  const hours = getBusinessHoursForDate(dateKey, availabilityRules);
+  if (!hours.open) return [];
+  return [{ start: hours.openTime, end: hours.closeTime }];
 };
 
 /** Effective bookable windows for staff on a day = business ∩ staff. */
