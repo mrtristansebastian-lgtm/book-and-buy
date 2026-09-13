@@ -149,8 +149,8 @@ export function ClientsPage() {
         </div>
       </header>
 
-      <section className="bb-clients-bezel" aria-label="Client phonebook">
-        <div className="bb-clients-bezel-inner">
+      <section className="bb-clients-board" aria-label="Client phonebook">
+        <div className="bb-clients-board-inner">
           <aside className="bb-clients-directory">
             <div className="bb-clients-directory-head">
               <p className="bb-clients-directory-label">Contacts</p>

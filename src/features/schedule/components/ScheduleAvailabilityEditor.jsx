@@ -990,51 +990,53 @@ export function ScheduleAvailabilityEditor({
       <section className="bb-schedule-avail-panel">
         <div className="bb-schedule-avail-cal-head">
           <div className="bb-schedule-avail-cal-copy">
-            <h3 className="bb-schedule-avail-title">
-              Calendar
-              {isBusinessFocus
-                ? ' · Business'
-                : selectedMember?.name
-                  ? ` · ${selectedMember.name}`
-                  : ''}
-            </h3>
+            <div className="bb-schedule-avail-cal-title-row">
+              <h3 className="bb-schedule-avail-title">
+                Calendar
+                {isBusinessFocus
+                  ? ' · Business'
+                  : selectedMember?.name
+                    ? ` · ${selectedMember.name}`
+                    : ''}
+              </h3>
+              {canUseActiveEdit ? (
+                <div className="bb-schedule-avail-edit-tools">
+                  <button
+                    type="button"
+                    className={`bb-schedule-avail-edit-toggle${activeEdit ? ' is-on' : ''}`}
+                    role="switch"
+                    aria-checked={Boolean(activeEdit)}
+                    aria-label="Active edit mode"
+                    onClick={() => {
+                      if (activeEdit) {
+                        setSelectRangeOpen(false);
+                        exitActiveEdit();
+                      } else {
+                        enterActiveEdit('open');
+                      }
+                    }}
+                  >
+                    <span className="bb-schedule-avail-edit-toggle-label">Active edit</span>
+                    <span className="bb-schedule-avail-edit-toggle-track" aria-hidden="true">
+                      <span className="bb-schedule-avail-edit-toggle-knob" />
+                    </span>
+                  </button>
+                  {activeEdit ? (
+                    <button
+                      type="button"
+                      className="bb-schedule-avail-select-range-btn"
+                      onClick={() => setSelectRangeOpen(true)}
+                    >
+                      <CalendarRange size={16} strokeWidth={2.2} aria-hidden="true" />
+                      Select range
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
             <p className="bb-schedule-avail-window-hint">{bookableWindowLabel}</p>
           </div>
           <div className="bb-schedule-avail-cal-side">
-            {canUseActiveEdit ? (
-              <div className="bb-schedule-avail-edit-tools">
-                <button
-                  type="button"
-                  className={`bb-schedule-avail-edit-toggle${activeEdit ? ' is-on' : ''}`}
-                  role="switch"
-                  aria-checked={Boolean(activeEdit)}
-                  aria-label="Active edit mode"
-                  onClick={() => {
-                    if (activeEdit) {
-                      setSelectRangeOpen(false);
-                      exitActiveEdit();
-                    } else {
-                      enterActiveEdit('open');
-                    }
-                  }}
-                >
-                  <span className="bb-schedule-avail-edit-toggle-label">Active edit</span>
-                  <span className="bb-schedule-avail-edit-toggle-track" aria-hidden="true">
-                    <span className="bb-schedule-avail-edit-toggle-knob" />
-                  </span>
-                </button>
-                {activeEdit ? (
-                  <button
-                    type="button"
-                    className="bb-schedule-avail-select-range-btn"
-                    onClick={() => setSelectRangeOpen(true)}
-                  >
-                    <CalendarRange size={16} strokeWidth={2.2} aria-hidden="true" />
-                    Select range
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
             <div className="bb-schedule-avail-legend" aria-label="Day colors">
               <span className="bb-schedule-avail-legend-item is-open">
                 <i /> {isBusinessFocus ? 'Available' : 'Working'}
