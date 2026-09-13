@@ -303,6 +303,165 @@ export const resolveCalendarDayStatus = (
   return windows.length ? 'open' : 'leave';
 };
 
+const timeToMinutes = (hhmm = '') => {
+  const match = String(hhmm || '').match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+};
+
+/**
+ * Mini day meter segments for Availability calendar cells.
+ * Domain is business open→close. Open = bookable; break = exclusion windows.
+ */
+export const getStaffDayTimeline = (
+  staffId,
+  dateKey,
+  staffAvailability = {},
+  availabilityRules = {}
+) => {
+  const status = resolveCalendarDayStatus(
+    staffId,
+    dateKey,
+    staffAvailability,
+    availabilityRules
+  );
+  const rules = normalizeAvailabilityRules(availabilityRules);
+  let dayStart = timeToMinutes(rules.businessOpenTime) ?? 9 * 60;
+  let dayEnd = timeToMinutes(rules.businessCloseTime) ?? 17 * 60;
+  if (dayEnd <= dayStart) {
+    dayStart = 0;
+    dayEnd = 24 * 60;
+  }
+  const span = Math.max(1, dayEnd - dayStart);
+
+  const toSegment = (range, kind) => {
+    const start = timeToMinutes(range?.start);
+    const end = timeToMinutes(range?.end);
+    if (start == null || end == null || end <= start) return null;
+    const clippedStart = Math.max(dayStart, start);
+    const clippedEnd = Math.min(dayEnd, end);
+    if (clippedEnd <= clippedStart) return null;
+    return {
+      kind,
+      start: range.start,
+      end: range.end,
+      leftPct: ((clippedStart - dayStart) / span) * 100,
+      widthPct: ((clippedEnd - clippedStart) / span) * 100
+    };
+  };
+
+  if (status === 'business-closed' || status === 'leave') {
+    return { status, segments: [], dayStart, dayEnd };
+  }
+
+  const entry = normalizeStaffAvailabilityEntry(
+    staffAvailability?.[staffId] || { staffId },
+    staffId,
+    rules.businessOpenTime,
+    rules.businessCloseTime
+  );
+  const explicit = entry.days?.[dateKey];
+  const bookable = getStaffDayWindows(
+    staffId,
+    dateKey,
+    staffAvailability,
+    availabilityRules
+  );
+  const segments = [];
+
+  bookable.forEach((range) => {
+    const seg = toSegment(range, 'open');
+    if (seg) segments.push(seg);
+  });
+
+  if (status === 'break' && Array.isArray(explicit?.ranges)) {
+    explicit.ranges.forEach((range) => {
+      const seg = toSegment(range, 'break');
+      if (seg) segments.push(seg);
+    });
+  }
+
+  return { status, segments, dayStart, dayEnd };
+};
+
+const minutesToHHMM = (totalMinutes) => {
+  const hours = Math.floor(totalMinutes / 60) % 24;
+  const mins = totalMinutes % 60;
+  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+};
+
+/**
+ * Schedule agenda day meter: optional staff open/break + confirmed booking segments.
+ */
+export const getScheduleDayTimeline = ({
+  staffId = '',
+  dateKey,
+  staffAvailability = {},
+  availabilityRules = {},
+  bookings = []
+} = {}) => {
+  const rules = normalizeAvailabilityRules(availabilityRules);
+  let dayStart = timeToMinutes(rules.businessOpenTime) ?? 9 * 60;
+  let dayEnd = timeToMinutes(rules.businessCloseTime) ?? 17 * 60;
+  if (dayEnd <= dayStart) {
+    dayStart = 0;
+    dayEnd = 24 * 60;
+  }
+  const span = Math.max(1, dayEnd - dayStart);
+
+  const base = staffId
+    ? getStaffDayTimeline(staffId, dateKey, staffAvailability, availabilityRules)
+    : {
+        status: isBusinessOpenOnDate(dateKey, rules) ? 'open' : 'business-closed',
+        segments: [],
+        dayStart,
+        dayEnd
+      };
+
+  const segments = [...(base.segments || [])];
+
+  const dayBookings = (bookings || []).filter((booking) => {
+    const key = String(booking?.dateKey || booking?.date || '').trim();
+    if (key !== dateKey) return false;
+    if (staffId && booking.staffId && booking.staffId !== staffId) return false;
+    return true;
+  });
+
+  dayBookings.forEach((booking) => {
+    const start = timeToMinutes(booking.time);
+    if (start == null) return;
+    const duration = Math.max(15, Number(booking.durationMinutes) || 60);
+    const end = start + duration;
+    const clippedStart = Math.max(dayStart, start);
+    const clippedEnd = Math.min(dayEnd, end);
+    if (clippedEnd <= clippedStart) return;
+    const startLabel = minutesToHHMM(start);
+    const endLabel = minutesToHHMM(end);
+    segments.push({
+      kind: 'booking',
+      id: booking.id,
+      start: startLabel,
+      end: endLabel,
+      leftPct: ((clippedStart - dayStart) / span) * 100,
+      widthPct: ((clippedEnd - clippedStart) / span) * 100,
+      title: `${startLabel}–${endLabel} · ${booking.clientName || 'Client'} · ${
+        booking.serviceName || 'Service'
+      }`
+    });
+  });
+
+  return {
+    status:
+      segments.some((segment) => segment.kind === 'booking') &&
+      (base.status === 'leave' || base.status === 'business-closed')
+        ? 'open'
+        : base.status,
+    segments,
+    dayStart: base.dayStart ?? dayStart,
+    dayEnd: base.dayEnd ?? dayEnd
+  };
+};
+
 /** Apply open / break / off across an inclusive date range (staff days only). */
 export const applyStatusToRange = (
   entry,

@@ -21,7 +21,9 @@ import {
   getSpotSessionStatus
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
+import { getScheduleDayTimeline } from '../../../utils/staffAvailability';
 import { formatTimeValue, parseTimeValue } from '../../../utils/time';
+import { DayTimelineMeter } from '../components/DayTimelineMeter';
 
 const ACTIVE = new Set(['pending', 'confirmed', 'waitlist']);
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -404,6 +406,18 @@ export function SchedulePage() {
     return groups;
   }, [agendaBookings, sortBy]);
 
+  const slotAgendaGroups = useMemo(() => {
+    if (period === 'day') {
+      return [{ dateKey: day, items: agendaBookings }];
+    }
+    return agendaGroups;
+  }, [period, day, agendaBookings, agendaGroups]);
+
+  const showAgendaMeters =
+    period === 'day' ||
+    ((period === 'week' || period === 'month' || period === 'all') &&
+      (sortBy === 'oldest' || sortBy === 'latest'));
+
   const allSpotServices = useMemo(
     () =>
       (services || [])
@@ -622,7 +636,7 @@ export function SchedulePage() {
               ))}
             </div>
 
-            {agendaBookings.length === 0 ? (
+            {agendaBookings.length === 0 && period !== 'day' ? (
               <div className="bb-schedule-empty">
                 <p className="bb-schedule-empty-title">No confirmed bookings</p>
                 <p className="bb-schedule-empty-copy">
@@ -633,45 +647,105 @@ export function SchedulePage() {
               </div>
             ) : (
               <section className="bb-schedule-agenda" aria-label="Confirmed appointments">
-                {agendaGroups.map((group) => (
-                  <div key={group.dateKey || 'flat'} className="bb-schedule-agenda-group">
-                    {group.dateKey && period !== 'day' ? (
-                      <h3 className="bb-schedule-agenda-day">
-                        {formatDisplayDate(group.dateKey)}
-                      </h3>
-                    ) : null}
-                    <div className="bb-schedule-agenda-list">
-                      {group.items.map((booking) => {
-                        const member = staff.find((row) => row.id === booking.staffId);
-                        return (
-                          <article key={booking.id} className="bb-schedule-agenda-row">
-                            <div className="bb-schedule-agenda-time">
-                              <strong>{formatBookingWindow(booking)}</strong>
-                              {period !== 'day' || sortBy === 'client' || sortBy === 'service' ? (
-                                <span>{formatDisplayDate(bookingDateKey(booking))}</span>
+                {slotAgendaGroups.map((group) => {
+                  const meterDateKey = showAgendaMeters ? group.dateKey : '';
+                  const timeline = meterDateKey
+                    ? getScheduleDayTimeline({
+                        staffId: focusStaffId || '',
+                        dateKey: meterDateKey,
+                        staffAvailability: workspace.staffAvailability || {},
+                        availabilityRules: workspace.availabilityRules || {},
+                        bookings: agendaBookings
+                      })
+                    : null;
+                  const hasOpen = timeline?.segments?.some((segment) => segment.kind === 'open');
+                  const hasBreak = timeline?.segments?.some((segment) => segment.kind === 'break');
+                  const hasBooking = timeline?.segments?.some(
+                    (segment) => segment.kind === 'booking'
+                  );
+
+                  return (
+                    <div key={group.dateKey || 'flat'} className="bb-schedule-agenda-group">
+                      {group.dateKey && period !== 'day' ? (
+                        <h3 className="bb-schedule-agenda-day">
+                          {formatDisplayDate(group.dateKey)}
+                        </h3>
+                      ) : null}
+                      {timeline ? (
+                        <div className="bb-schedule-agenda-meter">
+                          <DayTimelineMeter
+                            segments={timeline.segments}
+                            status={timeline.status}
+                            dayStart={timeline.dayStart}
+                            dayEnd={timeline.dayEnd}
+                          />
+                          {hasOpen || hasBreak || hasBooking ? (
+                            <div className="bb-schedule-day-meter-legend" aria-hidden="true">
+                              {hasOpen ? (
+                                <span className="bb-schedule-day-meter-legend-item is-open">
+                                  <i /> Shift
+                                </span>
+                              ) : null}
+                              {hasBreak ? (
+                                <span className="bb-schedule-day-meter-legend-item is-break">
+                                  <i /> Break
+                                </span>
+                              ) : null}
+                              {hasBooking ? (
+                                <span className="bb-schedule-day-meter-legend-item is-booking">
+                                  <i /> Booking
+                                </span>
                               ) : null}
                             </div>
-                            <div className="bb-schedule-agenda-main">
-                              <h4 className="bb-schedule-agenda-client">
-                                {booking.clientName || 'Client'}
-                              </h4>
-                              <p className="bb-schedule-agenda-service">
-                                {booking.serviceName || 'Service'}
-                              </p>
-                              <p className="bb-schedule-agenda-meta">
-                                {member?.name || booking.staffName || 'Unassigned'}
-                                {booking.clientEmail || booking.clientPhone
-                                  ? ` · ${booking.clientEmail || booking.clientPhone}`
-                                  : ''}
-                              </p>
-                            </div>
-                            <span className="bb-schedule-agenda-badge">Confirmed</span>
-                          </article>
-                        );
-                      })}
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {group.items.length ? (
+                        <div className="bb-schedule-agenda-list">
+                          {group.items.map((booking) => {
+                            const member = staff.find((row) => row.id === booking.staffId);
+                            return (
+                              <article key={booking.id} className="bb-schedule-agenda-row">
+                                <div className="bb-schedule-agenda-time">
+                                  <strong>{formatBookingWindow(booking)}</strong>
+                                  {period !== 'day' ||
+                                  sortBy === 'client' ||
+                                  sortBy === 'service' ? (
+                                    <span>{formatDisplayDate(bookingDateKey(booking))}</span>
+                                  ) : null}
+                                </div>
+                                <div className="bb-schedule-agenda-main">
+                                  <h4 className="bb-schedule-agenda-client">
+                                    {booking.clientName || 'Client'}
+                                  </h4>
+                                  <p className="bb-schedule-agenda-service">
+                                    {booking.serviceName || 'Service'}
+                                  </p>
+                                  <p className="bb-schedule-agenda-meta">
+                                    {member?.name || booking.staffName || 'Unassigned'}
+                                    {booking.clientEmail || booking.clientPhone
+                                      ? ` · ${booking.clientEmail || booking.clientPhone}`
+                                      : ''}
+                                  </p>
+                                </div>
+                                <span className="bb-schedule-agenda-badge">Confirmed</span>
+                              </article>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="bb-schedule-empty is-compact">
+                          <p className="bb-schedule-empty-title">No confirmed bookings</p>
+                          <p className="bb-schedule-empty-copy">
+                            {focusStaffId
+                              ? 'No confirmed appointments for this staff member today.'
+                              : 'No confirmed appointments today. Pending requests stay in Requests until confirmed.'}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </section>
             )}
           </>

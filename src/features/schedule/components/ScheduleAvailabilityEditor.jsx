@@ -18,9 +18,11 @@ import {
   getEffectiveStaffWindows,
   normalizeStaffAvailabilityEntry,
   resolveCalendarDayStatus,
+  getStaffDayTimeline,
   setStaffDayOverride
 } from '../../../utils/staffAvailability';
 import { AdvanceBookingField } from './AdvanceBookingField';
+import { DayTimelineMeter } from './DayTimelineMeter';
 
 const WEEKDAY_LABELS = {
   mon: 'Mon',
@@ -373,6 +375,14 @@ export function ScheduleAvailabilityEditor({
     [staffId, selectedDay, entry, availabilityRules]
   );
 
+  const selectedTimeline = useMemo(
+    () => getStaffDayTimeline(staffId, selectedDay, { [staffId]: entry }, availabilityRules),
+    [staffId, selectedDay, entry, availabilityRules]
+  );
+
+  const openTimeLabel = availabilityRules?.businessOpenTime || '09:00';
+  const closeTimeLabel = availabilityRules?.businessCloseTime || '17:00';
+
   const dayStatusOptions = canEditRules
     ? STATUS_OPTIONS
     : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
@@ -625,9 +635,6 @@ export function ScheduleAvailabilityEditor({
             <span className="bb-schedule-avail-legend-item is-open">
               <i /> Open
             </span>
-            <span className="bb-schedule-avail-legend-item is-break">
-              <i /> Break
-            </span>
             <span className="bb-schedule-avail-legend-item is-leave">
               <i /> Off
             </span>
@@ -694,14 +701,17 @@ export function ScheduleAvailabilityEditor({
               { [staffId]: entry },
               availabilityRules
             );
+            // Break days stay green on the month grid; breakdown lives in day view.
+            const gridStatus = status === 'break' ? 'open' : status;
             const isFocusDay = key === selectedDay;
             return (
               <button
                 key={key}
                 type="button"
-                className={`bb-schedule-picker-day is-${status}${
+                className={`bb-schedule-picker-day is-${gridStatus}${
                   isFocusDay ? ' is-selected' : ''
                 }${inMonth ? '' : ' is-outside'}${inWindow ? '' : ' is-outside-window'}`}
+                aria-label={`${formatDisplayDate(key)}, ${status}`}
                 onClick={() => {
                   setSelectedDay(key);
                   if (date.getMonth() !== monthAnchor.getMonth()) {
@@ -719,6 +729,46 @@ export function ScheduleAvailabilityEditor({
               </button>
             );
           })}
+        </div>
+
+        <div className="bb-schedule-day-meter-block">
+          <div className="bb-schedule-day-meter-block-head">
+            <p className="bb-schedule-avail-day-section-label m-0">
+              {formatDisplayDate(selectedDay)} · Day timeline
+            </p>
+            <span className="bb-schedule-day-meter-hours">
+              {openTimeLabel} – {closeTimeLabel}
+            </span>
+          </div>
+          <DayTimelineMeter
+            segments={selectedTimeline.segments}
+            status={selectedTimeline.status}
+            dayStart={selectedTimeline.dayStart}
+            dayEnd={selectedTimeline.dayEnd}
+          />
+          {selectedTimeline.segments.some((segment) => segment.kind === 'open') ||
+          selectedTimeline.segments.some((segment) => segment.kind === 'break') ? (
+            <div className="bb-schedule-day-meter-legend" aria-hidden="true">
+              {selectedTimeline.segments.some((segment) => segment.kind === 'open') ? (
+                <span className="bb-schedule-day-meter-legend-item is-open">
+                  <i /> Shift
+                </span>
+              ) : null}
+              {selectedTimeline.segments.some((segment) => segment.kind === 'break') ? (
+                <span className="bb-schedule-day-meter-legend-item is-break">
+                  <i /> Break
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <p className="bb-schedule-avail-hint m-0 text-sm">
+              {selectedTimeline.status === 'leave'
+                ? 'Off — no bookable hours.'
+                : selectedTimeline.status === 'business-closed'
+                  ? 'Business closed this day.'
+                  : 'No shift windows on this day.'}
+            </p>
+          )}
         </div>
       </section>
 

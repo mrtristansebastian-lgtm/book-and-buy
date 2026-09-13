@@ -1,14 +1,49 @@
 import { useMemo, useState } from 'react';
-import { Check, Copy, ExternalLink } from 'lucide-react';
+import { Check, ChevronRight, Copy, ExternalLink } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
-import { E_BUSINESS_PAGES, E_BUSINESS_PLATFORM_NAME } from '../../../config/eBusinessPlatform';
+import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 
+const TODAY_CAP = 8;
+
+function greetingForHour(hour) {
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+function firstNameFrom(value = '') {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (raw.includes('@')) return raw.split('@')[0].split(/[._-]/)[0] || '';
+  return raw.split(/\s+/)[0] || '';
+}
+
+function resolvePersonName({ user, staff = [], workspace }) {
+  const email = String(user?.email || '').trim().toLowerCase();
+  if (email) {
+    const match = (staff || []).find(
+      (member) => String(member.email || '').trim().toLowerCase() === email
+    );
+    if (match?.name) return firstNameFrom(match.name);
+  }
+  const owner = (staff || []).find((member) => member.accessRole === 'Owner');
+  if (owner?.name) return firstNameFrom(owner.name);
+  if (user?.displayName) return firstNameFrom(user.displayName);
+  if (email) return firstNameFrom(email);
+  return firstNameFrom(workspace?.brandName) || 'there';
+}
+
 export function OverviewPage({ pendingRequests = 0, pendingOrders = 0, unreadSupport = 0 }) {
-  const { workspace, bookings } = useWorkspace();
-  const [copied, setCopied] = useState('');
+  const { user } = useAuth();
+  const { workspace, bookings, staff } = useWorkspace();
+  const [copied, setCopied] = useState(false);
   const todayKey = toDateKey(new Date());
+  const brandName = workspace.brandName || 'Your business';
+  const publicHomePath = publicPagePath(workspace.slug || 'your-business', 'home');
+  const personName = resolvePersonName({ user, staff, workspace });
+  const greeting = `${greetingForHour(new Date().getHours())}, ${personName}`;
 
   const todayBookings = useMemo(
     () =>
@@ -19,136 +54,158 @@ export function OverviewPage({ pendingRequests = 0, pendingOrders = 0, unreadSup
     [bookings, todayKey]
   );
 
-  const copyLink = async (pageId) => {
-    const path = publicPagePath(workspace.slug, pageId);
-    const url = `${window.location.origin}${window.location.pathname}#${path}`;
+  const attentionItems = [
+    {
+      id: 'requests',
+      label: 'Booking requests',
+      count: pendingRequests,
+      href: '/dashboard/requests'
+    },
+    {
+      id: 'orders',
+      label: 'Product orders',
+      count: pendingOrders,
+      href: '/dashboard/orders'
+    },
+    {
+      id: 'support',
+      label: 'Support',
+      count: unreadSupport,
+      href: '/dashboard/communications'
+    }
+  ].filter((item) => item.count > 0);
+
+  const copyPublicLink = async () => {
+    const url = `${window.location.origin}${window.location.pathname}#${publicHomePath}`;
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(pageId);
-      window.setTimeout(() => setCopied(''), 1600);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
     } catch {
-      navigate(path);
+      navigate(publicHomePath);
     }
   };
 
+  const visibleToday = todayBookings.slice(0, TODAY_CAP);
+  const hasMoreToday = todayBookings.length > TODAY_CAP;
+
   return (
-    <div className="grid gap-6">
-      <header className="grid gap-2">
-        <h1 className="bb-page-title text-3xl md:text-4xl m-0">Mission control</h1>
-        <p className="bb-muted m-0 max-w-2xl">
-          Queues and share links for {workspace.brandName} — not a fake analytics wall.
-        </p>
+    <div className="bb-home">
+      <div className="bb-home-atmosphere" aria-hidden="true">
+        <span className="bb-home-orb bb-home-orb-a" />
+        <span className="bb-home-orb bb-home-orb-b" />
+        <span className="bb-home-orb bb-home-orb-c" />
+      </div>
+
+      <header className="bb-home-header bb-home-enter">
+        <p className="bb-home-kicker m-0">{brandName}</p>
+        <h1 className="bb-page-title bb-home-title m-0">{greeting}</h1>
+        <p className="bb-muted bb-home-lede m-0">Today · {formatDisplayDate(todayKey)}</p>
       </header>
 
-      <section className="grid gap-3 md:grid-cols-3">
-        {[
-          {
-            label: 'Booking requests',
-            value: String(pendingRequests),
-            href: '/dashboard/requests',
-            hint: 'Needs triage'
-          },
-          {
-            label: 'Product orders',
-            value: String(pendingOrders),
-            href: '/dashboard/orders',
-            hint: 'Awaiting fulfilment'
-          },
-          {
-            label: 'Support threads',
-            value: String(unreadSupport),
-            href: '/dashboard/communications',
-            hint: 'Unread'
-          }
-        ].map((item) => (
-          <button
-            key={item.label}
-            type="button"
-            className="bb-panel text-left p-5 grid gap-2"
-            onClick={() => navigate(item.href)}
-          >
-            <span className="bb-muted text-sm">{item.label}</span>
-            <span className="bb-page-title text-3xl">{item.value}</span>
-            <span className="text-xs font-semibold text-black/40">{item.hint}</span>
-          </button>
-        ))}
-      </section>
-
-      <section className="bb-panel p-5 grid gap-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="bb-page-title text-xl m-0">Today on Schedule</h2>
-            <p className="bb-muted m-0 mt-1 text-sm">{formatDisplayDate(todayKey)}</p>
-          </div>
-          <button type="button" className="bb-ghost-btn" onClick={() => navigate('/dashboard/staff')}>
-            Open Schedule
-          </button>
-        </div>
-        {todayBookings.length === 0 ? (
-          <p className="bb-muted m-0 text-sm">No bookings on the board for today.</p>
+      <section className="bb-home-block bb-home-enter" style={{ animationDelay: '40ms' }}>
+        <h2 className="bb-home-block-title">Needs attention</h2>
+        {attentionItems.length === 0 ? (
+          <p className="bb-home-clear m-0">You’re clear — nothing waiting.</p>
         ) : (
-          <div className="grid gap-2">
-            {todayBookings.slice(0, 6).map((booking) => (
-              <div
-                key={booking.id}
-                className="rounded-xl border border-black/8 px-3 py-2.5 flex flex-wrap items-center justify-between gap-2 text-sm"
+          <div className="bb-home-attention">
+            {attentionItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="bb-home-attention-row"
+                onClick={() => navigate(item.href)}
               >
-                <div className="grid gap-0.5">
-                  <strong>
-                    {booking.time} · {booking.serviceName}
-                  </strong>
-                  <span className="bb-muted">
-                    {booking.clientName}
-                    {booking.staffName ? ` · ${booking.staffName}` : ''}
-                  </span>
-                </div>
-                <span className="text-xs font-bold uppercase tracking-wide">{booking.status}</span>
-              </div>
+                <span className="bb-home-attention-label">{item.label}</span>
+                <span className="bb-home-attention-count">{item.count}</span>
+                <ChevronRight size={16} strokeWidth={2.2} className="bb-home-attention-chevron" />
+              </button>
             ))}
           </div>
         )}
       </section>
 
-      <section className="bb-panel p-5 grid gap-4">
-        <div>
-          <h2 className="bb-page-title text-xl m-0">{E_BUSINESS_PLATFORM_NAME}</h2>
-          <p className="bb-muted m-0 mt-1 text-sm">
-            Share Home, Book, Buy, and Business Blog — or open the live public page.
-          </p>
+      <section className="bb-home-block bb-home-enter" style={{ animationDelay: '80ms' }}>
+        <div className="bb-home-block-head">
+          <h2 className="bb-home-block-title m-0">Today</h2>
+          <button
+            type="button"
+            className="bb-ghost-btn bb-home-inline-btn"
+            onClick={() => navigate('/dashboard/staff')}
+          >
+            Open Schedule
+          </button>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {E_BUSINESS_PAGES.map((page) => (
-            <div
-              key={page.id}
-              className="rounded-xl border border-black/8 px-3 py-3 flex items-center justify-between gap-2"
-            >
-              <div className="grid gap-0.5 min-w-0">
-                <strong className="text-sm">{page.label}</strong>
-                <span className="bb-muted text-xs truncate">
-                  #{publicPagePath(workspace.slug, page.id)}
+
+        {todayBookings.length === 0 ? (
+          <div className="bb-home-empty">
+            <p className="bb-muted m-0">Nothing on the schedule today.</p>
+          </div>
+        ) : (
+          <ul className="bb-home-today-list">
+            {visibleToday.map((booking) => (
+              <li key={booking.id} className="bb-home-today-row">
+                <span className="bb-home-today-time">{booking.time || '—'}</span>
+                <div className="bb-home-today-copy">
+                  <strong>{booking.serviceName || 'Booking'}</strong>
+                  <span className="bb-muted">
+                    {[booking.clientName, booking.staffName].filter(Boolean).join(' · ') ||
+                      'No client name'}
+                  </span>
+                </div>
+                <span className={`bb-home-status is-${String(booking.status || 'pending')}`}>
+                  {booking.status || 'pending'}
                 </span>
-              </div>
-              <div className="flex gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  className="bb-ghost-btn px-3 py-2"
-                  aria-label={`Copy ${page.label} link`}
-                  onClick={() => copyLink(page.id)}
-                >
-                  {copied === page.id ? <Check size={15} /> : <Copy size={15} />}
-                </button>
-                <button
-                  type="button"
-                  className="bb-ghost-btn px-3 py-2"
-                  aria-label={`Open ${page.label}`}
-                  onClick={() => navigate(publicPagePath(workspace.slug, page.id))}
-                >
-                  <ExternalLink size={15} />
-                </button>
-              </div>
-            </div>
-          ))}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {hasMoreToday ? (
+          <button
+            type="button"
+            className="bb-home-more"
+            onClick={() => navigate('/dashboard/staff')}
+          >
+            View all on Schedule ({todayBookings.length})
+          </button>
+        ) : null}
+      </section>
+
+      <section className="bb-home-block bb-home-enter" style={{ animationDelay: '120ms' }}>
+        <h2 className="bb-home-block-title">Live site</h2>
+        <div className="bb-home-live">
+          <div className="bb-home-live-copy min-w-0">
+            <strong>Public site</strong>
+            <span className="bb-muted truncate">#{publicHomePath}</span>
+          </div>
+          <div className="bb-home-live-actions">
+            <button
+              type="button"
+              className="bb-ghost-btn"
+              onClick={copyPublicLink}
+              aria-label="Copy public site link"
+            >
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+            <button
+              type="button"
+              className="bb-primary-btn"
+              onClick={() => navigate(publicHomePath)}
+            >
+              <ExternalLink size={15} />
+              Open
+            </button>
+          </div>
         </div>
+        <button
+          type="button"
+          className="bb-home-edit-pages"
+          onClick={() => navigate('/dashboard/website')}
+        >
+          Edit pages
+        </button>
       </section>
     </div>
   );

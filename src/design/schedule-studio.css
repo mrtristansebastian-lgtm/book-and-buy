@@ -386,6 +386,188 @@
   cursor: pointer;
 }
 
+.bb-schedule-avail .bb-schedule-picker-day {
+  display: grid;
+  place-items: center;
+  min-height: 2.35rem;
+  padding: 0.25rem;
+}
+
+.bb-schedule-day-meter-wrap {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bb-schedule-day-meter {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 0.78rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.07);
+  overflow: hidden;
+}
+
+.bb-schedule-day-meter.is-empty {
+  opacity: 0.4;
+}
+
+.bb-schedule-day-meter.is-leave {
+  background: linear-gradient(90deg, #fde68a, #facc15);
+}
+
+.bb-schedule-day-meter.is-closed {
+  background: linear-gradient(90deg, #fecaca, #f87171);
+}
+
+.bb-schedule-day-meter-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  min-width: 4px;
+}
+
+.bb-schedule-day-meter-seg.is-open {
+  background: #22c55e;
+}
+
+.bb-schedule-day-meter-seg.is-break {
+  background: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(180, 83, 9, 0.28);
+  z-index: 1;
+}
+
+.bb-schedule-day-meter-seg.is-booking {
+  top: -1px;
+  bottom: -1px;
+  background: #1e293b;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
+  z-index: 2;
+}
+
+.bb-schedule-day-meter-axis {
+  position: relative;
+  height: 1.35rem;
+  width: 100%;
+}
+
+.bb-schedule-day-meter-tick {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  color: #98a2b3;
+}
+
+.bb-schedule-day-meter-tick.is-start {
+  align-items: flex-start;
+  transform: translateX(0);
+}
+
+.bb-schedule-day-meter-tick.is-end {
+  align-items: flex-end;
+  transform: translateX(-100%);
+}
+
+.bb-schedule-day-meter-tick i {
+  display: block;
+  width: 1px;
+  height: 0.35rem;
+  background: rgba(152, 162, 179, 0.85);
+}
+
+.bb-schedule-day-meter-tick em {
+  margin-top: 0.15rem;
+  font-style: normal;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  color: #98a2b3;
+}
+
+.bb-schedule-day-meter-block {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-schedule-day-meter-block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem 0.75rem;
+}
+
+.bb-schedule-day-meter-hours {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.bb-schedule-day-meter-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.bb-schedule-day-meter-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 680;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.bb-schedule-day-meter-legend-item i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  display: block;
+}
+
+.bb-schedule-day-meter-legend-item.is-open i {
+  background: #22c55e;
+}
+
+.bb-schedule-day-meter-legend-item.is-break i {
+  background: #f59e0b;
+}
+
+.bb-schedule-day-meter-legend-item.is-booking i {
+  background: #1e293b;
+}
+
+.bb-schedule-agenda-meter {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.1rem 0 0.15rem;
+}
+
+.bb-schedule-empty.is-compact {
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.bb-schedule-empty.is-compact .bb-schedule-empty-title {
+  font-size: 0.95rem;
+}
+
+.bb-schedule-empty.is-compact .bb-schedule-empty-copy {
+  margin-top: 0.25rem;
+  font-size: 0.86rem;
+}
+
 .bb-schedule-picker-day.is-outside {
   opacity: 0.38;
 }
@@ -415,23 +597,27 @@
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-selected.is-open {
-  background: #c9ffd8;
-  color: #0b8f52;
+  background: #ecfdf3;
+  color: #166534;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-selected.is-leave {
-  background: #ffe566;
+  background: #fffbeb;
   color: #a16207;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-selected.is-business-closed {
-  background: #ffb4b4;
+  background: #fef2f2;
   color: #c81e1e;
 }
 
 .bb-schedule-picker-day:hover:not(.is-selected) {
   background: #fafafa;
   border-color: rgba(15, 23, 42, 0.16);
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-open:hover:not(.is-selected) {
+  background: #eafaf0;
 }
 
 .bb-schedule-picker-summary {
@@ -1476,19 +1662,19 @@
 }
 
 .bb-schedule-avail-legend-item.is-break i {
-  background: #ffc14d;
+  background: #f59e0b;
   border-color: rgba(217, 119, 6, 0.55);
 }
 
-.bb-schedule-picker-day.is-break:not(.is-selected) {
-  border-color: rgba(217, 119, 6, 0.5);
-  background: #ffc14d;
-  color: #9a3412;
+.bb-schedule-avail .bb-schedule-picker-day.is-open:not(.is-selected) {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: #f3fdf6;
+  color: #166534;
 }
 
-.bb-schedule-avail .bb-schedule-picker-day.is-selected.is-break {
-  background: #ffc14d;
-  color: #9a3412;
+.bb-schedule-avail .bb-schedule-picker-day.is-selected.is-open {
+  background: #ecfdf3;
+  color: #166534;
 }
 
 .bb-schedule-avail-template-bar {
@@ -1734,22 +1920,16 @@
   border-color: rgba(239, 68, 68, 0.55);
 }
 
-.bb-schedule-picker-day.is-open:not(.is-selected) {
-  border-color: rgba(34, 197, 94, 0.45);
-  background: #c9ffd8;
-  color: #0b8f52;
-}
-
-.bb-schedule-picker-day.is-leave:not(.is-selected) {
-  border-color: rgba(234, 179, 8, 0.55);
-  background: #ffe566;
+.bb-schedule-avail .bb-schedule-picker-day.is-leave:not(.is-selected) {
+  border-color: rgba(234, 179, 8, 0.4);
+  background: #fffbeb;
   color: #a16207;
 }
 
-.bb-schedule-picker-day.is-business-closed:not(.is-selected) {
-  border-color: rgba(239, 68, 68, 0.5);
-  background: #ffb4b4;
-  color: #c81e1e;
+.bb-schedule-avail .bb-schedule-picker-day.is-business-closed:not(.is-selected) {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 .bb-schedule-picker-day.is-closed-day:not(.is-selected) {
