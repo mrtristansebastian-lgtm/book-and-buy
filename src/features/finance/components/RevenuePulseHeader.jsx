@@ -1,3 +1,4 @@
+import { DateField } from '../../../shared/ui/DateField';
 import { CURRENCY_OPTIONS, FINANCE_PERIODS, periodTitle } from '../utils/financeLedger';
 
 export function RevenuePulseHeader({
@@ -51,26 +52,17 @@ export function RevenuePulseHeader({
 
       {periodId === 'custom' ? (
         <div className="bb-finance-custom-range">
-          <label>
-            From
-            <input
-              type="date"
-              value={customRange.from || ''}
-              onChange={(event) =>
-                onCustomRangeChange?.({ ...customRange, from: event.target.value })
-              }
-            />
-          </label>
-          <label>
-            To
-            <input
-              type="date"
-              value={customRange.to || ''}
-              onChange={(event) =>
-                onCustomRangeChange?.({ ...customRange, to: event.target.value })
-              }
-            />
-          </label>
+          <DateField
+            label="From"
+            value={customRange.from || ''}
+            onChange={(from) => onCustomRangeChange?.({ ...customRange, from })}
+          />
+          <DateField
+            label="To"
+            value={customRange.to || ''}
+            min={customRange.from || undefined}
+            onChange={(to) => onCustomRangeChange?.({ ...customRange, to })}
+          />
         </div>
       ) : null}
     </header>

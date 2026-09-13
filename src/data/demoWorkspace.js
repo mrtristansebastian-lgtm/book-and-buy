@@ -1050,7 +1050,8 @@ export function createDemoWorkspace() {
       businessCloseTime: '17:00',
       scheduleMode: 'time_slots',
       openWeekdays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
-      closedDates: []
+      closedDates: [],
+      maxAdvanceBookingDays: 90
     }),
     services: DEMO_SERVICES,
     serviceCategories: collectServiceCategories(DEMO_SERVICES, [

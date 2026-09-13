@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getDaySlots } from '../../../utils/availability';
 import { toDateKey } from '../../../utils/dates';
+import { DateField } from '../../../shared/ui/DateField';
 import {
   formatServiceSessionLabel,
   getServiceDurationMinutes
@@ -47,7 +48,8 @@ export function ManualBookingSheet({ onClose }) {
             services,
             staff,
             staffId: form.staffId || undefined,
-            staffAvailability: workspace.staffAvailability
+            staffAvailability: workspace.staffAvailability,
+            ignoreAdvanceLimit: true
           }),
     [
       isSpot,
@@ -121,13 +123,10 @@ export function ManualBookingSheet({ onClose }) {
           </p>
         ) : (
           <>
-            <input
-              type="date"
-              className="native-control-input px-4"
+            <DateField
+              label="Date"
               value={form.date}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, date: event.target.value, time: '' }))
-              }
+              onChange={(date) => setForm((prev) => ({ ...prev, date, time: '' }))}
             />
             <div className="flex flex-wrap gap-2">
               {slots.length === 0 ? (

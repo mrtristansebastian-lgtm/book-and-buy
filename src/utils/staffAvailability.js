@@ -177,6 +177,14 @@ export const normalizeStaffAvailabilityMap = (
   return next;
 };
 
+const clampAdvanceBookingDays = (value) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return null;
+  const rounded = Math.round(parsed);
+  if (rounded <= 0) return 0;
+  return Math.min(3650, rounded);
+};
+
 export const normalizeAvailabilityRules = (rules = {}) => {
   const openTime = normalizeTime(rules.businessOpenTime, DEFAULT_OPEN);
   const closeTime = normalizeTime(rules.businessCloseTime, DEFAULT_CLOSE);
@@ -187,12 +195,25 @@ export const normalizeAvailabilityRules = (rules = {}) => {
     .map((key) => String(key || '').trim())
     .filter((key) => /^\d{4}-\d{2}-\d{2}$/.test(key));
 
+  let maxAdvanceBookingDays = 90;
+  if (rules.maxAdvanceBookingDays != null && rules.maxAdvanceBookingDays !== '') {
+    maxAdvanceBookingDays = clampAdvanceBookingDays(rules.maxAdvanceBookingDays) ?? 90;
+  } else if (rules.maxAdvanceBooking != null && rules.maxAdvanceBooking !== '') {
+    maxAdvanceBookingDays = clampAdvanceBookingDays(rules.maxAdvanceBooking) ?? 90;
+  }
+
+  const untilRaw = String(rules.maxAdvanceBookingUntil || '').trim();
+  const maxAdvanceBookingUntil = /^\d{4}-\d{2}-\d{2}$/.test(untilRaw) ? untilRaw : '';
+
   return {
     ...rules,
     businessOpenTime: openTime,
     businessCloseTime: closeTime,
     openWeekdays: weekdays.length ? weekdays : ['mon', 'tue', 'wed', 'thu', 'fri'],
-    closedDates: [...new Set(closedDates)].sort()
+    closedDates: [...new Set(closedDates)].sort(),
+    maxAdvanceBookingDays,
+    maxAdvanceBooking: String(maxAdvanceBookingDays),
+    maxAdvanceBookingUntil
   };
 };
 

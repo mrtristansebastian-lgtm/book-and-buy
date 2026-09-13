@@ -56,6 +56,53 @@
   font-weight: 600;
 }
 
+/* Owner catalog grids — half-width cards vs public storefront */
+html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catalog-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catalog-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catalog-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.bb-services-catalog-grid .bb-public-product-body h2 {
+  font-size: 0.82rem !important;
+  max-width: 14ch;
+}
+
+.bb-services-catalog-grid .bb-public-product-desc {
+  font-size: 0.58rem;
+  max-width: 22ch;
+}
+
+.bb-services-catalog-grid .bb-public-product-price-label {
+  font-size: 0.48rem;
+}
+
+.bb-services-catalog-grid .bb-public-product-price-value {
+  font-size: 0.72rem;
+}
+
+.bb-services-catalog-grid .bb-services-catalog-edit,
+.bb-services-catalog-grid .bb-services-catalog-remove {
+  min-height: 2rem;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.68rem;
+}
+
+.bb-services-catalog-grid .bb-services-catalog-actions {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.28rem;
+}
+
 .bb-services-spots-meta {
   margin: 0 !important;
   font-size: 0.72rem !important;

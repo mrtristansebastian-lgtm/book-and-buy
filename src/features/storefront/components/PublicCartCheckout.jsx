@@ -11,7 +11,7 @@ import {
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import { getPublicPaymentOptions } from '../../../utils/payments';
-import { getDaySlots } from '../../../utils/availability';
+import { getDaySlots, getMaxBookableDateKey } from '../../../utils/availability';
 import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
 import { createPublicProductOrder } from '../../../utils/orders';
 import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
@@ -21,6 +21,16 @@ import { firebaseCallables } from '../../../shared/firebase/callables';
 function ServiceSlotPicker({ item, bookings, workspace, services, onSlot }) {
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
+  const todayKey = toDateKey(new Date());
+  const maxBookableDateKey = useMemo(
+    () => getMaxBookableDateKey(workspace.availabilityRules, todayKey),
+    [workspace.availabilityRules, todayKey]
+  );
+  const canGoNextMonth = useMemo(() => {
+    if (!maxBookableDateKey) return true;
+    const nextMonthStart = new Date(monthAnchor.getFullYear(), monthAnchor.getMonth() + 1, 1);
+    return toDateKey(nextMonthStart) <= maxBookableDateKey;
+  }, [monthAnchor, maxBookableDateKey]);
   const service = useMemo(
     () => (services || []).find((row) => row.id === item.serviceId),
     [services, item.serviceId]
@@ -69,6 +79,7 @@ function ServiceSlotPicker({ item, bookings, workspace, services, onSlot }) {
         <button
           type="button"
           className="bb-ghost-btn"
+          disabled={!canGoNextMonth}
           onClick={() =>
             setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
           }

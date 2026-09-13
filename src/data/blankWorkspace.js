@@ -23,7 +23,8 @@ export function createBlankWorkspace(overrides = {}) {
       businessCloseTime: '17:00',
       scheduleMode: 'time_slots',
       openWeekdays: ['mon', 'tue', 'wed', 'thu', 'fri'],
-      closedDates: []
+      closedDates: [],
+      maxAdvanceBookingDays: 90
     }
   );
   return {

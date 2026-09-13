@@ -33,7 +33,11 @@ export interface AvailabilityRules {
   staffAssignmentMode?: "auto" | "client" | "later";
   holdMode?: "pending_confirmed" | "pending_only" | "confirmed_only" | "confirmed";
   bookingNotice?: string;
+  /** Days from today clients can book ahead; 0 = no limit (when no until date). */
+  maxAdvanceBookingDays?: number;
   maxAdvanceBooking?: string;
+  /** Absolute last bookable date (YYYY-MM-DD) for custom windows. */
+  maxAdvanceBookingUntil?: string;
   cancellationWindow?: string;
   reschedulingAllowed?: boolean;
   repeatBookingsAllowed?: boolean;

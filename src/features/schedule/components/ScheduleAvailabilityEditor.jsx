@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { DateField } from '../../../shared/ui/DateField';
 import { TimeField } from '../../../shared/ui/TimeField';
-import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
+import { getMaxBookableDateKey, isDateWithinAdvanceWindow } from '../../../utils/availability';
+import { buildMonthGrid, formatDisplayDate, parseDateKey, toDateKey } from '../../../utils/dates';
 import {
   canEditAvailabilityRules,
   canEditStaffAvailability,
@@ -20,6 +22,7 @@ import {
   resolveCalendarDayStatus,
   setStaffDayOverride
 } from '../../../utils/staffAvailability';
+import { AdvanceBookingField } from './AdvanceBookingField';
 
 const WEEKDAY_LABELS = {
   mon: 'Mon',
@@ -37,6 +40,35 @@ const STATUS_OPTIONS = [
   { id: 'off', label: 'Off day' },
   { id: 'business-closed', label: 'Business closed' }
 ];
+
+function formatWindowDate(dateKey = '') {
+  const date = parseDateKey(dateKey);
+  if (!date) return dateKey;
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function startOfMonth(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function sameMonth(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+}
+
+function clampMonthAnchor(anchor, todayKey, maxBookableDateKey) {
+  const today = parseDateKey(todayKey) || new Date();
+  const minMonth = startOfMonth(today);
+  let next = startOfMonth(anchor instanceof Date ? anchor : new Date());
+  if (next < minMonth) next = minMonth;
+  if (maxBookableDateKey) {
+    const maxDate = parseDateKey(maxBookableDateKey);
+    if (maxDate) {
+      const maxMonth = startOfMonth(maxDate);
+      if (next > maxMonth) next = maxMonth;
+    }
+  }
+  return next;
+}
 
 function staffInitials(name = '') {
   const parts = String(name || '')
@@ -143,25 +175,20 @@ function AvailabilityStatusSheet({
         </div>
 
         <div className="bb-schedule-avail-status-sheet-fields">
-          <label>
-            <span>Start date</span>
-            <input
-              type="date"
-              className="native-control-input bb-services-control"
-              value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
-            />
-          </label>
-          <label>
-            <span>End date</span>
-            <input
-              type="date"
-              className="native-control-input bb-services-control"
-              value={endDate}
-              min={startDate || undefined}
-              onChange={(event) => setEndDate(event.target.value)}
-            />
-          </label>
+          <DateField
+            label="Start date"
+            value={startDate}
+            onChange={(next) => {
+              setStartDate(next);
+              if (endDate && endDate < next) setEndDate(next);
+            }}
+          />
+          <DateField
+            label="End date"
+            value={endDate}
+            min={startDate || undefined}
+            onChange={setEndDate}
+          />
           {status === 'open' || status === 'break' ? (
             <>
               <TimeField
@@ -288,6 +315,31 @@ export function ScheduleAvailabilityEditor({
 
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
   const selectedMember = staff.find((member) => member.id === staffId);
+  const todayKey = toDateKey(new Date());
+  const maxBookableDateKey = useMemo(
+    () => getMaxBookableDateKey(availabilityRules, todayKey),
+    [availabilityRules, todayKey]
+  );
+  const bookableWindowLabel = useMemo(() => {
+    if (!maxBookableDateKey) return 'Bookable window · no limit';
+    return `Bookable window · ${formatWindowDate(todayKey)} – ${formatWindowDate(maxBookableDateKey)}`;
+  }, [todayKey, maxBookableDateKey]);
+  const canGoPrevMonth = useMemo(() => {
+    const today = parseDateKey(todayKey) || new Date();
+    return !sameMonth(monthAnchor, today);
+  }, [monthAnchor, todayKey]);
+  const canGoNextMonth = useMemo(() => {
+    if (!maxBookableDateKey) return true;
+    const nextMonthStart = new Date(monthAnchor.getFullYear(), monthAnchor.getMonth() + 1, 1);
+    return toDateKey(nextMonthStart) <= maxBookableDateKey;
+  }, [monthAnchor, maxBookableDateKey]);
+
+  useEffect(() => {
+    setMonthAnchor((prev) => {
+      const clamped = clampMonthAnchor(prev, todayKey, maxBookableDateKey);
+      return sameMonth(prev, clamped) ? prev : clamped;
+    });
+  }, [todayKey, maxBookableDateKey]);
 
   const selectedDayStatus = useMemo(
     () => resolveCalendarDayStatus(staffId, selectedDay, { [staffId]: entry }, availabilityRules),
@@ -420,12 +472,31 @@ export function ScheduleAvailabilityEditor({
         )}
       </div>
 
+      {canEditRules ? (
+        <section className="bb-schedule-avail-panel bb-schedule-avail-advance-panel">
+          <div className="bb-schedule-avail-advance-copy">
+            <h3 className="bb-schedule-avail-title">Advance booking</h3>
+            <p className="bb-schedule-avail-hint m-0">
+              Clients can book up to this far ahead on your public Book page.
+            </p>
+          </div>
+          <AdvanceBookingField
+            days={availabilityRules.maxAdvanceBookingDays ?? 90}
+            until={availabilityRules.maxAdvanceBookingUntil || ''}
+            onChange={(patch) => onUpdateRules?.(patch)}
+          />
+        </section>
+      ) : null}
+
       <section className="bb-schedule-avail-panel">
         <div className="bb-schedule-avail-cal-head">
-          <h3 className="bb-schedule-avail-title">
-            Calendar
-            {selectedMember?.name ? ` · ${selectedMember.name}` : ''}
-          </h3>
+          <div className="bb-schedule-avail-cal-copy">
+            <h3 className="bb-schedule-avail-title">
+              Calendar
+              {selectedMember?.name ? ` · ${selectedMember.name}` : ''}
+            </h3>
+            <p className="bb-schedule-avail-window-hint">{bookableWindowLabel}</p>
+          </div>
           <div className="bb-schedule-avail-legend" aria-label="Day colors">
             <span className="bb-schedule-avail-legend-item is-open">
               <i /> Open
@@ -447,8 +518,15 @@ export function ScheduleAvailabilityEditor({
             type="button"
             className="bb-ghost-btn px-3"
             aria-label="Previous month"
+            disabled={!canGoPrevMonth}
             onClick={() =>
-              setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+              setMonthAnchor((prev) =>
+                clampMonthAnchor(
+                  new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                  todayKey,
+                  maxBookableDateKey
+                )
+              )
             }
           >
             <ChevronLeft size={18} />
@@ -460,8 +538,15 @@ export function ScheduleAvailabilityEditor({
             type="button"
             className="bb-ghost-btn px-3"
             aria-label="Next month"
+            disabled={!canGoNextMonth}
             onClick={() =>
-              setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+              setMonthAnchor((prev) =>
+                clampMonthAnchor(
+                  new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                  todayKey,
+                  maxBookableDateKey
+                )
+              )
             }
           >
             <ChevronRight size={18} />
@@ -478,6 +563,7 @@ export function ScheduleAvailabilityEditor({
           {monthDays.map((date) => {
             const key = toDateKey(date);
             const inMonth = date.getMonth() === monthAnchor.getMonth();
+            const inWindow = isDateWithinAdvanceWindow(key, availabilityRules, { todayKey });
             const status = resolveCalendarDayStatus(
               staffId,
               key,
@@ -491,11 +577,17 @@ export function ScheduleAvailabilityEditor({
                 type="button"
                 className={`bb-schedule-picker-day is-${status}${
                   isFocusDay ? ' is-selected' : ''
-                }${inMonth ? '' : ' is-outside'}`}
+                }${inMonth ? '' : ' is-outside'}${inWindow ? '' : ' is-outside-window'}`}
                 onClick={() => {
                   setSelectedDay(key);
                   if (date.getMonth() !== monthAnchor.getMonth()) {
-                    setMonthAnchor(new Date(date.getFullYear(), date.getMonth(), 1));
+                    setMonthAnchor(
+                      clampMonthAnchor(
+                        new Date(date.getFullYear(), date.getMonth(), 1),
+                        todayKey,
+                        maxBookableDateKey
+                      )
+                    );
                   }
                 }}
               >

@@ -1,4 +1,4 @@
-import { toDateKey } from './dates';
+import { addDays, parseDateKey, toDateKey } from './dates';
 import { getServiceDurationMinutes, parseDurationMinutes } from './services';
 import { getServiceScheduleType } from './scheduleTypes';
 import {
@@ -60,6 +60,32 @@ function collectCandidateStaffIds(service, staffList = [], staffId) {
   return (staffList || []).map((member) => member.id).filter(Boolean);
 }
 
+/** Last bookable date key; null when no limit. Prefers absolute until date when set. */
+export function getMaxBookableDateKey(availabilityRules = {}, todayKey = toDateKey(new Date())) {
+  const rules = normalizeAvailabilityRules(availabilityRules);
+  const until = String(rules.maxAdvanceBookingUntil || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(until)) {
+    return until;
+  }
+  const maxDays = Number(rules.maxAdvanceBookingDays) || 0;
+  if (!maxDays) return null;
+  const today = parseDateKey(todayKey);
+  if (!today) return null;
+  return toDateKey(addDays(today, maxDays));
+}
+
+export function isDateWithinAdvanceWindow(
+  dateKey,
+  availabilityRules = {},
+  { todayKey = toDateKey(new Date()), ignoreAdvanceLimit = false } = {}
+) {
+  if (!dateKey || ignoreAdvanceLimit) return true;
+  if (dateKey < todayKey) return false;
+  const maxKey = getMaxBookableDateKey(availabilityRules, todayKey);
+  if (!maxKey) return true;
+  return dateKey <= maxKey;
+}
+
 /**
  * Build bookable start times for a date.
  * When staffAvailability is provided, slots are the union of free starts across
@@ -77,7 +103,8 @@ export function getDaySlots({
   staff = [],
   staffId,
   staffAvailability,
-  availabilityRules
+  availabilityRules,
+  ignoreAdvanceLimit = false
 } = {}) {
   if (!dateKey) return [];
   const todayKey = toDateKey(new Date());
@@ -88,6 +115,10 @@ export function getDaySlots({
     businessOpenTime: openTime || availabilityRules?.businessOpenTime || DEFAULT_OPEN,
     businessCloseTime: closeTime || availabilityRules?.businessCloseTime || DEFAULT_CLOSE
   });
+
+  if (!isDateWithinAdvanceWindow(dateKey, rules, { todayKey, ignoreAdvanceLimit })) {
+    return [];
+  }
 
   if (!isBusinessOpenOnDate(dateKey, rules)) return [];
 

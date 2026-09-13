@@ -352,6 +352,11 @@
   color: #101828;
 }
 
+.bb-schedule-picker-month-nav .bb-ghost-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .bb-schedule-picker-weekdays,
 .bb-schedule-picker-grid {
   display: grid;
@@ -1047,6 +1052,186 @@
   text-align: left;
 }
 
+.bb-schedule-avail-advance-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
+}
+
+.bb-schedule-avail-advance-copy {
+  display: grid;
+  gap: 0.22rem;
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.bb-advance-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.bb-advance-field.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.bb-advance-field-label {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #98a2b3;
+  white-space: nowrap;
+}
+
+.bb-advance-field-value {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-height: 2.55rem;
+  min-width: 9.5rem;
+  padding: 0.5rem 0.75rem 0.5rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  color: #101828;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 740;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.bb-advance-field-value svg {
+  flex: 0 0 auto;
+  color: #98a2b3;
+}
+
+.bb-advance-field-value:hover:not(:disabled) {
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+.bb-advance-field-value:focus-visible {
+  outline: 2px solid #101828;
+  outline-offset: 1px;
+}
+
+.bb-advance-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: end center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.32);
+}
+
+@media (min-width: 768px) {
+  .bb-advance-picker-backdrop {
+    place-items: center;
+  }
+}
+
+.bb-advance-picker-sheet {
+  width: min(100%, 22rem);
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 1.15rem;
+  overflow: auto;
+  max-height: min(90vh, 40rem);
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1.1rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+.bb-advance-picker-head {
+  display: grid;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.bb-advance-picker-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #101828;
+}
+
+.bb-advance-picker-hint {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #667085;
+}
+
+.bb-advance-picker-presets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.bb-advance-picker-preset,
+.bb-advance-picker-custom-toggle {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 2.65rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  color: #101828;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-advance-picker-preset:hover:not(.is-active),
+.bb-advance-picker-custom-toggle:hover:not(.is-active) {
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #fafafa;
+}
+
+.bb-advance-picker-preset.is-active,
+.bb-advance-picker-custom-toggle.is-active {
+  border-color: transparent;
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+}
+
+.bb-advance-picker-custom {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.bb-advance-picker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  padding-top: 0.1rem;
+}
+
 .bb-schedule-avail-manage-btn {
   appearance: none;
   display: inline-flex;
@@ -1498,6 +1683,28 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.65rem;
+}
+
+.bb-schedule-avail-cal-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.bb-schedule-avail-window-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 620;
+  color: #667085;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-outside-window:not(.is-selected) {
+  opacity: 0.34;
+  filter: grayscale(0.35);
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-outside-window.is-selected {
+  opacity: 0.72;
 }
 
 .bb-schedule-avail-legend {

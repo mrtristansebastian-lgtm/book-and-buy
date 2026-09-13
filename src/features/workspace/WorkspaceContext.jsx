@@ -13,6 +13,7 @@ import {
   canEditAvailabilityRules,
   canEditStaffAvailability
 } from '../../utils/staffAccess';
+import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 
 const WorkspaceContext = createContext(null);
 const MODE_KEY = 'book-and-buy.workspace-mode';
@@ -366,7 +367,10 @@ export function WorkspaceProvider({ children }) {
         if (!canEditAvailabilityRules({ user, workspace })) return;
         setWorkspace((prev) => ({
           ...prev,
-          availabilityRules: { ...prev.availabilityRules, ...patch }
+          availabilityRules: normalizeAvailabilityRules({
+            ...prev.availabilityRules,
+            ...patch
+          })
         }));
       },
       upsertStaffAvailability: (staffId, entry) => {

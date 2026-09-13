@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, ImagePlus, Plus, Replace, X } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
+import { DateField } from '../../../shared/ui/DateField';
 import { TimeField } from '../../../shared/ui/TimeField';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
@@ -500,14 +501,11 @@ export function ServiceEditorSheet({
                 </p>
                 <div className="bb-services-fields">
                   <div className="bb-services-field-row bb-services-field-row--2">
-                    <label className="bb-services-field">
-                      <span>Start date</span>
-                      <input
-                        type="date"
-                        className="native-control-input bb-services-control"
+                    <div className="bb-services-field">
+                      <DateField
+                        label="Start date"
                         value={draft.sessionStartDate || ''}
-                        onChange={(event) => {
-                          const sessionStartDate = event.target.value;
+                        onChange={(sessionStartDate) => {
                           patch({
                             sessionStartDate,
                             sessionEndDate:
@@ -517,7 +515,7 @@ export function ServiceEditorSheet({
                           });
                         }}
                       />
-                    </label>
+                    </div>
                     <div className="bb-services-field">
                       <TimeField
                         label="Start time"
@@ -527,16 +525,14 @@ export function ServiceEditorSheet({
                     </div>
                   </div>
                   <div className="bb-services-field-row bb-services-field-row--2">
-                    <label className="bb-services-field">
-                      <span>End date</span>
-                      <input
-                        type="date"
-                        className="native-control-input bb-services-control"
+                    <div className="bb-services-field">
+                      <DateField
+                        label="End date"
                         value={draft.sessionEndDate || ''}
                         min={draft.sessionStartDate || undefined}
-                        onChange={(event) => patch({ sessionEndDate: event.target.value })}
+                        onChange={(sessionEndDate) => patch({ sessionEndDate })}
                       />
-                    </label>
+                    </div>
                     <div className="bb-services-field">
                       <TimeField
                         label="End time"
