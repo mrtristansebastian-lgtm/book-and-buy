@@ -54,7 +54,7 @@ export default function App() {
     if (!workspace.onboardingComplete && !workspace.isDemo) {
       return <BusinessOnboardingPage />;
     }
-    return <OwnerWorkspaceApp tab={route.tab} />;
+    return <OwnerWorkspaceApp tab={route.tab} rest={route.rest || []} />;
   }
 
   return <AppLoginScreen />;

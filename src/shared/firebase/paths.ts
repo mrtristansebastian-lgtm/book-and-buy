@@ -25,6 +25,8 @@ export const callableNames = {
   getPublicPaymentOptions: "getPublicPaymentOptions",
   getPublicServiceAvailability: "getPublicServiceAvailability",
   initiatePayment: "initiatePayment",
+  confirmPaymentReturn: "confirmPaymentReturn",
+  disconnectPaymentGateway: "disconnectPaymentGateway",
   markManualBookingPaid: "markManualBookingPaid",
   savePaymentGatewaySettings: "savePaymentGatewaySettings"
 } as const;

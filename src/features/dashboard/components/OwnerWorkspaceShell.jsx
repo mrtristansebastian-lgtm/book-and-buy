@@ -12,7 +12,7 @@ import {
   Package,
   Share2,
   Users,
-  UserRound,
+  Settings,
   Globe2,
   X
 } from 'lucide-react';
@@ -41,7 +41,7 @@ const ICONS = {
   communications: MessageSquare,
   finance: CreditCard,
   clients: Users,
-  profile: UserRound
+  settings: Settings
 };
 
 function groupTabs() {

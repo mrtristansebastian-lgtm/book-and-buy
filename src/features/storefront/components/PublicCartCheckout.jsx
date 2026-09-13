@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { formatCents } from '../../../utils/products';
@@ -10,13 +10,41 @@ import {
   getServiceOpenSpots
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
-import { getPublicPaymentOptions } from '../../../utils/payments';
+import { getPublicPaymentOptions, ONLINE_GATEWAYS } from '../../../utils/payments';
 import { getDaySlots, getMaxBookableDateKey } from '../../../utils/availability';
 import { buildMonthGrid, formatDisplayDate, toDateKey } from '../../../utils/dates';
 import { createPublicProductOrder } from '../../../utils/orders';
 import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
 import { firebaseCallables } from '../../../shared/firebase/callables';
+import { APP_ID } from '../../../config/appConfig';
+import { publicPagePath } from '../../../app/routing';
+
+function readCheckoutReturnParams() {
+  const hash = window.location.hash || '';
+  const hashQuery = hash.includes('?') ? hash.slice(hash.indexOf('?') + 1) : '';
+  const fromHash = new URLSearchParams(hashQuery);
+  const fromSearch = new URLSearchParams(window.location.search || '');
+  const get = (key) => fromHash.get(key) || fromSearch.get(key) || '';
+  return {
+    paid: get('paid'),
+    cancelled: get('cancelled'),
+    attemptId: get('attemptId'),
+    gateway: get('gateway'),
+    session_id: get('session_id'),
+    token: get('token'),
+    reference: get('reference')
+  };
+}
+
+function buildReturnUrls(slug, page = 'buy') {
+  const base = `${window.location.origin}${window.location.pathname || '/'}`;
+  const path = publicPagePath(slug, page);
+  return {
+    successUrl: `${base}#${path}?paid=1`,
+    cancelUrl: `${base}#${path}?cancelled=1`
+  };
+}
 
 function ServiceSlotPicker({ item, bookings, workspace, services, onSlot }) {
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
@@ -185,6 +213,56 @@ export function PublicCartCheckout({
   const [submitNote, setSubmitNote] = useState('');
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [returnState, setReturnState] = useState(null);
+
+  useEffect(() => {
+    const params = readCheckoutReturnParams();
+    if (!params.paid && !params.cancelled) return undefined;
+    let cancelled = false;
+
+    const run = async () => {
+      if (params.cancelled) {
+        setReturnState({ kind: 'cancelled' });
+        return;
+      }
+      if (!params.attemptId || !isFirebaseConfigured()) {
+        setReturnState({
+          kind: 'paid_local',
+          note: 'Payment return received. Confirm in Finance if the studio uses cloud payments.'
+        });
+        return;
+      }
+      setReturnState({ kind: 'confirming' });
+      try {
+        const confirmed = await firebaseCallables.confirmPaymentReturn({
+          appId: APP_ID,
+          slug: workspace.slug,
+          attemptId: params.attemptId,
+          gatewayType: params.gateway || undefined,
+          providerRef: params.session_id || params.token || params.reference || undefined,
+          session_id: params.session_id || undefined,
+          token: params.token || undefined,
+          reference: params.reference || undefined
+        });
+        if (cancelled) return;
+        setReturnState({
+          kind: confirmed?.paid ? 'paid' : 'pending',
+          note: confirmed?.reason || ''
+        });
+      } catch (error) {
+        if (cancelled) return;
+        setReturnState({
+          kind: 'error',
+          note: error?.message || 'Could not confirm payment yet.'
+        });
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [workspace.slug]);
 
   const sameOwnerContext =
     !publicMode ||
@@ -224,6 +302,14 @@ export function PublicCartCheckout({
       status: 'pending',
       paymentStatus: 'unpaid',
       paymentMethod,
+      amountInCents: (() => {
+        const price = Number(service?.price ?? item.unitPriceCents ?? item.price);
+        if (item.unitPriceCents != null) return Math.round(Number(item.unitPriceCents) || 0);
+        if (Number.isFinite(price) && price > 50) return Math.round(price);
+        if (Number.isFinite(price)) return Math.round(price * 100);
+        return 0;
+      })(),
+      currency: workspace.currency || item.currency || 'R',
       source: 'public',
       workspaceSlug: workspace.slug,
       workspaceName: workspaceName || workspace.brandName
@@ -322,6 +408,53 @@ export function PublicCartCheckout({
 
       if (productsOk && servicesOk) {
         cart.clear();
+
+        const online = ONLINE_GATEWAYS.includes(paymentMethod);
+        if (online && publicMode && isFirebaseConfigured() && workspace.slug) {
+          const { successUrl, cancelUrl } = buildReturnUrls(
+            workspace.slug,
+            hadProducts ? 'buy' : 'book'
+          );
+          const paySource = order
+            ? { sourceType: 'order', sourceId: order.id }
+            : bookingsCreated[0]
+              ? { sourceType: 'booking', sourceId: bookingsCreated[0].id }
+              : null;
+
+          if (paySource?.sourceId) {
+            try {
+              const initiated = await firebaseCallables.initiatePayment({
+                appId: APP_ID,
+                slug: workspace.slug,
+                gatewayType: paymentMethod,
+                sourceType: paySource.sourceType,
+                sourceId: paySource.sourceId,
+                customerEmail: details.clientEmail.trim(),
+                customerName: details.clientName.trim(),
+                successUrl,
+                cancelUrl
+              });
+              if (initiated?.redirectUrl) {
+                window.location.assign(initiated.redirectUrl);
+                return;
+              }
+              notes.push(
+                initiated?.reason ||
+                  'Online payment could not start — request saved as unpaid.'
+              );
+            } catch (error) {
+              notes.push(
+                error?.message ||
+                  'Online payment could not start — request saved as unpaid. Try again or choose EFT/cash.'
+              );
+            }
+          }
+        } else if (online && !isFirebaseConfigured()) {
+          notes.push(
+            'Online card/PayPal checkout needs Firebase payments. Request saved unpaid — connect gateways when cloud is enabled.'
+          );
+        }
+
         setResult({ order, bookings: bookingsCreated });
       } else if (order || bookingsCreated.length) {
         notes.push('Part of your cart went through — check the summary below.');
@@ -341,6 +474,48 @@ export function PublicCartCheckout({
       setSubmitting(false);
     }
   };
+
+  if (returnState) {
+    return (
+      <div className="grid gap-5 max-w-2xl">
+        <div className="grid gap-3">
+          <h2 className="bb-page-title text-3xl m-0">
+            {returnState.kind === 'cancelled'
+              ? 'Payment cancelled'
+              : returnState.kind === 'confirming'
+                ? 'Confirming payment…'
+                : returnState.kind === 'paid' || returnState.kind === 'paid_local'
+                  ? 'Payment received'
+                  : returnState.kind === 'pending'
+                    ? 'Payment pending'
+                    : 'Payment status'}
+          </h2>
+          <p className="bb-muted m-0">
+            {returnState.kind === 'cancelled'
+              ? 'No charge was completed. You can try again from checkout.'
+              : returnState.kind === 'confirming'
+                ? 'Checking with the payment provider…'
+                : returnState.kind === 'paid'
+                  ? `${workspaceName || workspace.brandName} will see this as paid.`
+                  : returnState.note || 'Thanks — the studio will confirm shortly.'}
+          </p>
+          {returnState.note && returnState.kind !== 'paid' ? (
+            <p className="bb-muted m-0 text-sm">{returnState.note}</p>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          className="bb-primary-btn justify-self-start"
+          onClick={() => {
+            setReturnState(null);
+            onBack?.();
+          }}
+        >
+          Continue browsing
+        </button>
+      </div>
+    );
+  }
 
   if (result) {
     const firstBooking = result.bookings?.[0];
@@ -574,6 +749,10 @@ export function PublicCartCheckout({
         />
         <div className="grid gap-2">
           <span className="text-sm font-semibold">Payment method</span>
+          {paymentOptions.some((option) => option.mode === 'test') &&
+          ONLINE_GATEWAYS.includes(paymentMethod) ? (
+            <p className="bb-pay-test-banner">Test mode — no live charges.</p>
+          ) : null}
           <div className="bb-segment flex-wrap">
             {(paymentOptions.length
               ? paymentOptions
@@ -595,11 +774,11 @@ export function PublicCartCheckout({
             if (selected?.instructions) {
               return <p className="bb-muted m-0 text-xs">{selected.instructions}</p>;
             }
-            if (['stripe', 'paystack', 'card'].includes(paymentMethod)) {
+            if (ONLINE_GATEWAYS.includes(paymentMethod)) {
               return (
                 <p className="bb-muted m-0 text-xs">
-                  Card checkout via {selected?.name || paymentMethod}. The studio confirms the
-                  order; online capture lands with Firebase payments.
+                  You will finish payment on {selected?.name || paymentMethod}’s secure page. Card
+                  details never touch Book and Buy.
                 </p>
               );
             }

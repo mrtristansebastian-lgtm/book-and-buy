@@ -1,4 +1,5 @@
 import { createDefaultSettings } from '../config/workspaceDefaults';
+import { createDefaultPlanFields } from '../config/billingPlans';
 import { DEMO_PAYMENT_GATEWAYS } from './demoWorkspace';
 import {
   createStaffAvailabilityForRoster,
@@ -7,6 +8,7 @@ import {
 
 export function createBlankWorkspace(overrides = {}) {
   const defaults = createDefaultSettings();
+  const planFields = createDefaultPlanFields({ isDemo: Boolean(overrides.isDemo) });
   const staff = overrides.staff || [
     {
       id: 'owner',
@@ -29,6 +31,7 @@ export function createBlankWorkspace(overrides = {}) {
   );
   return {
     ...defaults,
+    ...planFields,
     ...overrides,
     website: {
       ...defaults.website,
@@ -39,6 +42,14 @@ export function createBlankWorkspace(overrides = {}) {
       emailProductOrders: true,
       emailSupportMessages: true,
       ...(overrides.notifications || {})
+    },
+    policies: {
+      ...defaults.policies,
+      ...(overrides.policies || {})
+    },
+    features: {
+      ...defaults.features,
+      ...(overrides.features || {})
     },
     paymentGateways: (overrides.paymentGateways || DEMO_PAYMENT_GATEWAYS).map((gateway) => ({
       ...gateway,

@@ -372,7 +372,24 @@ export const DEMO_PAYMENT_GATEWAYS = [
     mode: 'test',
     configured: true,
     providerName: 'Stripe',
-    credentialSummary: { publicKeyLast4: '4242', webhookConfigured: true }
+    credentialSummary: {
+      publicKeyLast4: '4242',
+      secretKeyConfigured: true,
+      webhookConfigured: true,
+      demoConfigured: true
+    }
+  },
+  {
+    gatewayType: 'paypal',
+    enabled: true,
+    mode: 'test',
+    configured: true,
+    providerName: 'PayPal',
+    credentialSummary: {
+      publicKeyLast4: 'PP01',
+      secretKeyConfigured: true,
+      demoConfigured: true
+    }
   },
   {
     gatewayType: 'paystack',
@@ -380,7 +397,12 @@ export const DEMO_PAYMENT_GATEWAYS = [
     mode: 'test',
     configured: true,
     providerName: 'Paystack',
-    credentialSummary: { publicKeyLast4: '9911', webhookConfigured: true }
+    credentialSummary: {
+      publicKeyLast4: '9911',
+      secretKeyConfigured: true,
+      webhookConfigured: true,
+      demoConfigured: true
+    }
   },
   {
     gatewayType: 'manual_eft',
@@ -781,6 +803,25 @@ export function createDemoWorkspace() {
     phone: '+27 21 555 0100',
     onboardingComplete: true,
     isDemo: true,
+    currency: 'R',
+    timezone: 'Africa/Johannesburg',
+    planId: 'business',
+    billingInterval: 'month',
+    planStatus: 'active',
+    trialEndsAt: null,
+    policies: {
+      cancellation: 'Cancel or reschedule at least 24 hours before your session.',
+      terms: 'By booking or ordering you agree to studio house rules and payment terms.',
+      privacy: 'We use your contact details only to confirm bookings, orders, and support.'
+    },
+    features: {
+      waitlist: true,
+      faqEnabled: true,
+      collectClientName: true,
+      collectClientPhone: true,
+      collectClientEmail: true,
+      collectClientNotes: true
+    },
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
     servicesSchema: DEMO_SERVICES_SCHEMA,

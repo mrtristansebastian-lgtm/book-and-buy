@@ -65,6 +65,7 @@ export function parseAppRoute(path = getLocationPath()) {
       return {
         kind: 'owner',
         tab: resolveWorkspaceTab(parts[2] || 'overview'),
+        rest: parts.slice(3),
         demo: true
       };
     }
@@ -85,6 +86,7 @@ export function parseAppRoute(path = getLocationPath()) {
     return {
       kind: 'owner',
       tab: resolveWorkspaceTab(parts[1] || 'overview'),
+      rest: parts.slice(2),
       demo: true
     };
   }

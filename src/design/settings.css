@@ -1,0 +1,340 @@
+.bb-settings {
+  --bb-settings-rail: 15.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, var(--bb-settings-rail)) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+  min-height: min(70vh, 52rem);
+}
+
+.bb-settings-rail {
+  position: sticky;
+  top: 0.75rem;
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  border-radius: 1.15rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78)),
+    radial-gradient(120% 80% at 0% 0%, rgba(185, 227, 255, 0.28), transparent 55%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.bb-settings-search-wrap {
+  position: relative;
+}
+
+.bb-settings-search {
+  width: 100%;
+  min-height: 2.4rem;
+  padding: 0.55rem 0.85rem 0.55rem 2.15rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.88rem;
+}
+
+.bb-settings-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.bb-settings-nav {
+  display: grid;
+  gap: 0.2rem;
+  max-height: min(58vh, 36rem);
+  overflow: auto;
+  padding-right: 0.15rem;
+}
+
+.bb-settings-nav-item {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bb-settings-nav-item:hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.bb-settings-nav-item.is-active {
+  background: rgba(15, 23, 42, 0.08);
+  color: #050505;
+}
+
+.bb-settings-nav-icon {
+  flex: 0 0 auto;
+  opacity: 0.72;
+}
+
+.bb-settings-rail-foot {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-settings-avatar {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 0.7rem;
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: #0f172a;
+}
+
+.bb-settings-rail-foot strong {
+  display: block;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+.bb-settings-rail-foot span {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(15, 23, 42, 0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-settings-main {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.bb-settings-main-head {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bb-settings-main-head h1 {
+  margin: 0;
+  font-size: clamp(1.55rem, 2.4vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.bb-settings-main-head p {
+  margin: 0;
+  max-width: 40rem;
+}
+
+.bb-settings-mobile-select {
+  display: none;
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  font-weight: 650;
+}
+
+.bb-settings-gateways {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.bb-settings-flash {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.bb-settings-preview-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.bb-settings-preview-chips span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.bb-pay-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.bb-pay-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.55rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+  background: rgba(15, 23, 42, 0.06);
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.bb-pay-status.is-test {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.bb-pay-status.is-live {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+}
+
+.bb-pay-status.is-demo {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+}
+
+.bb-pay-status.is-off {
+  background: rgba(15, 23, 42, 0.05);
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.bb-pay-connect {
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-pay-secret-row {
+  position: relative;
+  display: grid;
+}
+
+.bb-pay-secret-row .native-control-input {
+  padding-right: 2.75rem;
+}
+
+.bb-pay-eye {
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: rgba(15, 23, 42, 0.55);
+  cursor: pointer;
+  padding: 0.35rem;
+  display: grid;
+  place-items: center;
+}
+
+.bb-pay-error {
+  color: #b91c1c;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.bb-pay-test-banner {
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e3a8a;
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
+.bb-settings-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.bb-settings-plan-card {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  padding: 1.1rem;
+}
+
+.bb-settings-plan-card.is-current {
+  outline: 2px solid rgba(15, 23, 42, 0.85);
+  outline-offset: 0;
+}
+
+.bb-settings-plan-price {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.bb-settings-plan-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+  color: rgba(15, 23, 42, 0.72);
+  font-size: 0.86rem;
+}
+
+.bb-settings-stub {
+  padding: 0.85rem 1rem;
+  border-radius: 0.85rem;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  font-size: 0.88rem;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+@media (max-width: 960px) {
+  .bb-settings {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-settings-rail {
+    position: static;
+  }
+
+  .bb-settings-nav,
+  .bb-settings-search-wrap,
+  .bb-settings-rail-foot {
+    display: none;
+  }
+
+  .bb-settings-mobile-select {
+    display: block;
+  }
+
+  .bb-settings-plan-grid {
+    grid-template-columns: 1fr;
+  }
+}

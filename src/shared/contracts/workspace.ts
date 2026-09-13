@@ -214,12 +214,24 @@ export interface SocialPost {
   order?: number;
 }
 
+export interface WorkspacePolicies {
+  cancellation?: string;
+  terms?: string;
+  privacy?: string;
+}
+
 export interface WorkspaceSettings {
   slug: string;
   brandName: string;
   welcomeMessage?: string;
   tagline?: string;
   currency?: string;
+  timezone?: string;
+  planId?: "starter" | "studio" | "business" | string;
+  billingInterval?: "month" | "year" | string;
+  planStatus?: "trialing" | "active" | "past_due" | "canceled" | string;
+  trialEndsAt?: number | null;
+  policies?: WorkspacePolicies;
   primaryColor?: string;
   headingColor?: string;
   bodyColor?: string;

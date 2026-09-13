@@ -14,7 +14,7 @@ export const workspaceTabIds = [
   'communications',
   'finance',
   'clients',
-  'profile'
+  'settings'
 ];
 
 export const workspaceTabAliases = {
@@ -41,7 +41,8 @@ export const workspaceTabAliases = {
   'product-orders': 'orders',
   shop: 'products',
   buy: 'products',
-  payments: 'finance'
+  payments: 'finance',
+  profile: 'settings'
 };
 
 export const workspaceTabGroups = {
@@ -57,7 +58,7 @@ export const workspaceTabGroups = {
   communications: 'run',
   finance: 'run',
   clients: 'run',
-  profile: 'run'
+  settings: 'run'
 };
 
 export const workspaceTabLabels = {
@@ -73,7 +74,7 @@ export const workspaceTabLabels = {
   communications: 'Support',
   finance: 'Finance',
   clients: 'Clients',
-  profile: 'Profile'
+  settings: 'Settings'
 };
 
 export const workspaceGroupLabels = {

@@ -27,6 +27,10 @@ export const firebaseCallables = {
   createOwnerBookingRequest: (payload: object) =>
     callCallable(callableNames.createOwnerBookingRequest, payload),
   initiatePayment: (payload: object) => callCallable(callableNames.initiatePayment, payload),
+  confirmPaymentReturn: (payload: object) =>
+    callCallable(callableNames.confirmPaymentReturn, payload),
+  disconnectPaymentGateway: (payload: object) =>
+    callCallable(callableNames.disconnectPaymentGateway, payload),
   markManualBookingPaid: (payload: object) =>
     callCallable(callableNames.markManualBookingPaid, payload),
   savePaymentGatewaySettings: (payload: object) =>

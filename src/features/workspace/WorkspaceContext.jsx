@@ -403,6 +403,24 @@ export function WorkspaceProvider({ children }) {
           notifications: { ...prev.notifications, ...patch }
         }));
       },
+      updatePolicies: (patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          policies: { ...(prev.policies || {}), ...patch }
+        }));
+      },
+      updatePlan: (patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          ...patch
+        }));
+      },
+      updateFeatures: (patch) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          features: { ...(prev.features || {}), ...patch }
+        }));
+      },
       upsertStaff: (member) => {
         setWorkspace((prev) => {
           const next = {
@@ -699,22 +717,28 @@ export function WorkspaceProvider({ children }) {
         }));
       },
       updatePaymentGateway: (gatewayType, patch) => {
-        setWorkspace((prev) => ({
-          ...prev,
-          paymentGateways: (prev.paymentGateways || []).map((gateway) =>
-            gateway.gatewayType === gatewayType
-              ? {
-                  ...gateway,
-                  ...patch,
-                  credentialSummary: {
-                    ...gateway.credentialSummary,
-                    ...(patch.credentialSummary || {})
-                  },
-                  updatedAt: Date.now()
-                }
-              : gateway
-          )
-        }));
+        setWorkspace((prev) => {
+          const list = [...(prev.paymentGateways || [])];
+          const idx = list.findIndex((gateway) => gateway.gatewayType === gatewayType);
+          const next = {
+            gatewayType,
+            enabled: false,
+            mode: 'test',
+            configured: false,
+            credentialSummary: {},
+            ...(idx >= 0 ? list[idx] : {}),
+            ...patch,
+            gatewayType,
+            credentialSummary: {
+              ...(idx >= 0 ? list[idx].credentialSummary || {} : {}),
+              ...(patch.credentialSummary || {})
+            },
+            updatedAt: Date.now()
+          };
+          if (idx >= 0) list[idx] = next;
+          else list.push(next);
+          return { ...prev, paymentGateways: list };
+        });
       },
       loadDemoWorkspace: ({ reset = false } = {}) => {
         const stored = !reset ? safeParse(localStorage.getItem(DEMO_KEY), null) : null;

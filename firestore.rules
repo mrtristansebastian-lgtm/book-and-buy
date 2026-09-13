@@ -219,25 +219,8 @@ service cloud.firestore {
     }
 
     match /artifacts/{appId}/users/{userId}/payment_settings/{gatewayId} {
-      allow read: if canPaymentAdmin(appId, userId) ||
-        (isManualPublicGateway(gatewayId) && resource.data.enabled == true);
-      allow create, update: if canPaymentAdmin(appId, userId) &&
-        gatewayId in ['stripe', 'payfast', 'yoco', 'paystack', 'manual_eft', 'cash'] &&
-        request.resource.data.keys().hasOnly([
-          'gatewayType',
-          'enabled',
-          'mode',
-          'providerName',
-          'credentialSummary',
-          'configured',
-          'updatedBy',
-          'updatedAt'
-        ]) &&
-        request.resource.data.gatewayType == gatewayId &&
-        request.resource.data.enabled is bool &&
-        request.resource.data.mode in ['test', 'live'] &&
-        request.resource.data.updatedBy == request.auth.uid;
-      allow delete: if false;
+      // Secrets are written only by Cloud Functions (Admin SDK). Clients never read/write here.
+      allow read, write: if false;
     }
 
     match /artifacts/{appId}/users/{userId}/private/{document=**} {

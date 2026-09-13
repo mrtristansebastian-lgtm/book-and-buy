@@ -1,8 +1,6 @@
-/**
- * Backend mirror of src/utils/payments.js#getPublicPaymentOptions
- */
 const NAMES = {
   stripe: 'Stripe',
+  paypal: 'PayPal',
   paystack: 'Paystack',
   manual_eft: 'Manual EFT',
   cash: 'Cash'
@@ -29,4 +27,19 @@ export function getPublicPaymentOptions({ paymentGateways = [] } = {}) {
       ['manual_eft', 'cash'].includes(option.gatewayType)
     )
   };
+}
+
+export function toIsoCurrency(currency = 'R') {
+  const raw = String(currency || 'R').trim().toUpperCase();
+  if (raw === 'R' || raw === 'ZAR') return 'zar';
+  if (raw === '$' || raw === 'USD') return 'usd';
+  if (raw === '€' || raw === 'EUR') return 'eur';
+  if (raw === '£' || raw === 'GBP') return 'gbp';
+  if (raw === 'NGN') return 'ngn';
+  if (raw.length === 3) return raw.toLowerCase();
+  return 'zar';
+}
+
+export function pathJoin(...parts) {
+  return parts.filter(Boolean).join('/');
 }

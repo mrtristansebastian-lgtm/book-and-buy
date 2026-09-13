@@ -102,9 +102,24 @@ export const createDefaultSettings = () => ({
   serviceCategories: [],
   products: [],
   productCategories: [],
+  currency: 'R',
+  timezone: 'Africa/Johannesburg',
+  planId: 'starter',
+  billingInterval: 'month',
+  planStatus: 'trialing',
+  trialEndsAt: null,
+  policies: {
+    cancellation: '',
+    terms: '',
+    privacy: ''
+  },
   features: {
     waitlist: true,
-    faq: true
+    faqEnabled: true,
+    collectClientName: true,
+    collectClientPhone: true,
+    collectClientEmail: true,
+    collectClientNotes: true
   }
 });
 

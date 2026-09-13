@@ -8,12 +8,29 @@ type AnyRecord = Record<string, unknown>;
 function publicPaymentGateways(gateways: unknown) {
   if (!Array.isArray(gateways)) return [];
   return gateways
-    .filter((gateway): gateway is AnyRecord => Boolean(gateway && typeof gateway === 'object' && (gateway as AnyRecord).enabled))
+    .filter(
+      (gateway): gateway is AnyRecord =>
+        Boolean(
+          gateway &&
+            typeof gateway === 'object' &&
+            (gateway as AnyRecord).enabled &&
+            (gateway as AnyRecord).configured !== false
+        )
+    )
     .map((gateway) => ({
       gatewayType: gateway.gatewayType,
       enabled: true,
+      configured: true,
       mode: gateway.mode || 'live',
-      label: gateway.label || gateway.gatewayType
+      providerName: gateway.providerName || gateway.label || gateway.gatewayType,
+      label: gateway.label || gateway.providerName || gateway.gatewayType,
+      credentialSummary: {
+        instructions: (gateway.credentialSummary as AnyRecord | undefined)?.instructions,
+        accountHolder: (gateway.credentialSummary as AnyRecord | undefined)?.accountHolder,
+        bankName: (gateway.credentialSummary as AnyRecord | undefined)?.bankName,
+        accountNumber: (gateway.credentialSummary as AnyRecord | undefined)?.accountNumber,
+        branchCode: (gateway.credentialSummary as AnyRecord | undefined)?.branchCode
+      }
     }));
 }
 

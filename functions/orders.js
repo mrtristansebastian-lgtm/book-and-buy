@@ -30,7 +30,9 @@ export function createPublicProductOrder({
   });
 
   const amountInCents = lineItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
-  const method = ['card', 'stripe', 'paystack', 'manual_eft', 'cash'].includes(paymentMethod)
+  const method = ['card', 'stripe', 'paypal', 'paystack', 'manual_eft', 'cash'].includes(
+    paymentMethod
+  )
     ? paymentMethod === 'card'
       ? 'stripe'
       : paymentMethod

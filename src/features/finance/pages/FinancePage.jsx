@@ -5,7 +5,7 @@ import { RevenueMetricCards } from '../components/RevenueMetricCards';
 import { RevenueChart } from '../components/RevenueChart';
 import { FinanceLedgerToolbar } from '../components/FinanceLedgerToolbar';
 import { TransactionReceiptCard } from '../components/TransactionReceiptCard';
-import { FinanceSettingsSheet } from '../components/FinanceSettingsSheet';
+import { navigate } from '../../../app/routing';
 import {
   buildFinanceLedger,
   buildRevenueSeries,
@@ -21,20 +21,18 @@ export function FinancePage() {
     bookings,
     orders,
     services,
-    paymentGateways,
-    updatePaymentGateway,
     markPaid,
-    markOrderPaid
+    markOrderPaid,
+    updateProfile
   } = useWorkspace();
 
   const [periodId, setPeriodId] = useState('all');
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
-  const [currency, setCurrency] = useState('R');
+  const currency = workspace.currency || 'R';
   const [tab, setTab] = useState('bookings');
   const [status, setStatus] = useState('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('newest');
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const ledger = useMemo(
     () =>
@@ -94,7 +92,7 @@ export function FinancePage() {
         periodId={periodId}
         onPeriodChange={setPeriodId}
         currency={currency}
-        onCurrencyChange={setCurrency}
+        onCurrencyChange={(next) => updateProfile({ currency: next })}
         customRange={customRange}
         onCustomRangeChange={setCustomRange}
       />
@@ -114,7 +112,7 @@ export function FinancePage() {
           onQueryChange={setQuery}
           sort={sort}
           onSortChange={setSort}
-          onOpenSettings={() => setSettingsOpen(true)}
+          onOpenSettings={() => navigate('/dashboard/settings/payments')}
           onDownload={downloadCsv}
         />
 
@@ -139,14 +137,6 @@ export function FinancePage() {
           </div>
         )}
       </section>
-
-      <FinanceSettingsSheet
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        paymentGateways={paymentGateways}
-        brandName={workspace.brandName}
-        onSaveGateway={updatePaymentGateway}
-      />
     </div>
   );
 }

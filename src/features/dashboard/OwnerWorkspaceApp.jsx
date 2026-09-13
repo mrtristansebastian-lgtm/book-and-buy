@@ -11,10 +11,10 @@ import { SocialStudioPage } from '../social/pages/SocialStudioPage';
 import { SupportInboxPage } from '../support/pages/SupportInboxPage';
 import { FinancePage } from '../finance/pages/FinancePage';
 import { ClientsPage } from '../clients/pages/ClientsPage';
-import { ProfilePage } from '../profile/pages/ProfilePage';
+import { SettingsShell } from '../settings/SettingsShell';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 
-export function OwnerWorkspaceApp({ tab }) {
+export function OwnerWorkspaceApp({ tab, rest = [] }) {
   const { bookings, orders, threads } = useWorkspace();
   const pending = bookings.filter((booking) => ['pending', 'waitlist'].includes(booking.status)).length;
   const pendingOrders = orders.filter((order) =>
@@ -52,8 +52,8 @@ export function OwnerWorkspaceApp({ tab }) {
         <FinancePage />
       ) : tab === 'clients' ? (
         <ClientsPage />
-      ) : tab === 'profile' ? (
-        <ProfilePage />
+      ) : tab === 'settings' ? (
+        <SettingsShell section={rest?.[0]} />
       ) : null}
     </OwnerWorkspaceShell>
   );
