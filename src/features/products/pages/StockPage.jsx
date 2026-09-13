@@ -47,96 +47,169 @@ function InventoryFields({
   showLabel = false,
   showAvailable = false
 }) {
+  const dimUnit = values.dimensionUnit || 'cm';
+
   return (
-    <div className="bb-stock-fields">
-      <label className="bb-products-field">
-        <span>SKU</span>
-        <input
-          className="native-control-input bb-services-control"
-          value={values.sku || ''}
-          placeholder="SKU"
-          onChange={(event) => onChange({ sku: event.target.value })}
-        />
-      </label>
-      <label className="bb-products-field">
-        <span>Qty</span>
-        <input
-          className="native-control-input bb-services-control"
-          inputMode="numeric"
-          value={values.stockAvailable ?? ''}
-          placeholder="0"
-          onChange={(event) =>
-            onChange({
-              stockAvailable: event.target.value.replace(/[^\d]/g, '')
-            })
-          }
-        />
-      </label>
-      <label className="bb-products-field bb-stock-weight-field">
-        <span>Weight</span>
-        <div className="bb-stock-weight">
-          <input
-            className="native-control-input bb-services-control"
-            inputMode="decimal"
-            value={values.weight ?? ''}
-            placeholder="0"
-            onChange={(event) =>
-              onChange({
-                weight: event.target.value.replace(/[^\d.]/g, '')
-              })
-            }
-          />
-          <select
-            className="native-control-input bb-services-control"
-            value={values.weightUnit || 'g'}
-            onChange={(event) => onChange({ weightUnit: event.target.value })}
-          >
-            <option value="g">g</option>
-            <option value="kg">kg</option>
-          </select>
+    <div className="bb-stock-editor">
+      <div className="bb-stock-section">
+        <p className="bb-stock-section-label">Inventory</p>
+        <div className="bb-stock-grid bb-stock-grid--2">
+          <label className="bb-products-field">
+            <span>SKU</span>
+            <input
+              className="native-control-input bb-services-control"
+              value={values.sku || ''}
+              placeholder="SKU-001"
+              onChange={(event) => onChange({ sku: event.target.value })}
+            />
+          </label>
+          <label className="bb-products-field">
+            <span>Quantity</span>
+            <input
+              className="native-control-input bb-services-control"
+              inputMode="numeric"
+              value={values.stockAvailable ?? ''}
+              placeholder="0"
+              onChange={(event) =>
+                onChange({
+                  stockAvailable: event.target.value.replace(/[^\d]/g, '')
+                })
+              }
+            />
+          </label>
         </div>
-      </label>
-      <label className="bb-products-field">
-        <span>Size</span>
-        <input
-          className="native-control-input bb-services-control"
-          value={values.size || ''}
-          placeholder="e.g. 30×20×5 cm"
-          onChange={(event) => onChange({ size: event.target.value })}
-        />
-      </label>
-      {showLabel ? (
-        <label className="bb-products-field bb-stock-span">
-          <span>Custom stock label</span>
-          <input
-            className="native-control-input bb-services-control"
-            value={values.stockLabel || ''}
-            placeholder="e.g. By arrangement"
-            onChange={(event) => onChange({ stockLabel: event.target.value })}
-          />
-        </label>
-      ) : null}
-      {showLabel ? (
-        <label className="bb-products-check bb-stock-span">
-          <input
-            type="checkbox"
-            checked={Boolean(values.hideStockOnCard)}
-            onChange={(event) =>
-              onChange({ hideStockOnCard: event.target.checked })
-            }
-          />
-          <span>Hide stock on Buy card</span>
-        </label>
-      ) : null}
-      {showAvailable ? (
-        <label className="bb-products-check">
-          <input
-            type="checkbox"
-            checked={values.available !== false}
-            onChange={(event) => onChange({ available: event.target.checked })}
-          />
-          <span>Available</span>
-        </label>
+      </div>
+
+      <div className="bb-stock-section">
+        <p className="bb-stock-section-label">Shipping</p>
+        <div className="bb-stock-grid bb-stock-grid--shipping">
+          <label className="bb-products-field">
+            <span>Weight</span>
+            <div className="bb-stock-unit-field">
+              <input
+                className="native-control-input bb-services-control native-control-nest"
+                inputMode="decimal"
+                value={values.weight ?? ''}
+                placeholder="0"
+                onChange={(event) =>
+                  onChange({
+                    weight: event.target.value.replace(/[^\d.]/g, '')
+                  })
+                }
+              />
+              <select
+                className="native-control-input bb-services-control bb-stock-unit-select native-control-nest"
+                value={values.weightUnit || 'g'}
+                aria-label="Weight unit"
+                onChange={(event) =>
+                  onChange({ weightUnit: event.target.value })
+                }
+              >
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+              </select>
+            </div>
+          </label>
+          <label className="bb-products-field">
+            <span>Length</span>
+            <input
+              className="native-control-input bb-services-control"
+              inputMode="decimal"
+              value={values.length ?? ''}
+              placeholder="0"
+              onChange={(event) =>
+                onChange({
+                  length: event.target.value.replace(/[^\d.]/g, '')
+                })
+              }
+            />
+          </label>
+          <label className="bb-products-field">
+            <span>Width</span>
+            <input
+              className="native-control-input bb-services-control"
+              inputMode="decimal"
+              value={values.width ?? ''}
+              placeholder="0"
+              onChange={(event) =>
+                onChange({
+                  width: event.target.value.replace(/[^\d.]/g, '')
+                })
+              }
+            />
+          </label>
+          <label className="bb-products-field">
+            <span>Height</span>
+            <div className="bb-stock-unit-field">
+              <input
+                className="native-control-input bb-services-control native-control-nest"
+                inputMode="decimal"
+                value={values.height ?? ''}
+                placeholder="0"
+                onChange={(event) =>
+                  onChange({
+                    height: event.target.value.replace(/[^\d.]/g, '')
+                  })
+                }
+              />
+              <select
+                className="native-control-input bb-services-control bb-stock-unit-select native-control-nest"
+                value={dimUnit}
+                aria-label="Dimension unit"
+                onChange={(event) =>
+                  onChange({ dimensionUnit: event.target.value })
+                }
+              >
+                <option value="cm">cm</option>
+                <option value="mm">mm</option>
+                <option value="in">in</option>
+              </select>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      {showLabel || showAvailable ? (
+        <div className="bb-stock-section">
+          <p className="bb-stock-section-label">Display</p>
+          {showLabel ? (
+            <div className="bb-stock-grid">
+              <label className="bb-products-field bb-stock-span">
+                <span>Custom stock label</span>
+                <input
+                  className="native-control-input bb-services-control"
+                  value={values.stockLabel || ''}
+                  placeholder="e.g. By arrangement"
+                  onChange={(event) =>
+                    onChange({ stockLabel: event.target.value })
+                  }
+                />
+              </label>
+              <label className="bb-products-check bb-stock-span">
+                <input
+                  type="checkbox"
+                  checked={Boolean(values.hideStockOnCard)}
+                  onChange={(event) =>
+                    onChange({ hideStockOnCard: event.target.checked })
+                  }
+                />
+                <span>Hide stock on Buy card</span>
+              </label>
+            </div>
+          ) : null}
+          {showAvailable ? (
+            <label className="bb-products-check">
+              <input
+                type="checkbox"
+                checked={values.available !== false}
+                onChange={(event) =>
+                  onChange({ available: event.target.checked })
+                }
+              />
+              <span>Available to buy</span>
+            </label>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );
@@ -278,8 +351,8 @@ export function StockPage() {
           <p className="bb-services-desk-eyebrow">Buy</p>
           <h1 className="bb-services-desk-title">Stock</h1>
           <p className="bb-services-desk-lede">
-            Quantities, SKUs, weight, and size — keep Buy inventory tidy without
-            cluttering product setup.
+            Quantities, SKUs, weight, and dimensions — keep Buy inventory tidy
+            without cluttering product setup.
           </p>
         </div>
       </header>
@@ -299,10 +372,11 @@ export function StockPage() {
       ) : (
         <>
           <div className="bb-stock-toolbar">
-            <label className="bb-stock-search">
-              <Search size={15} aria-hidden="true" />
+            <label className="bb-stock-search bb-search-field">
+              <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
               <input
-                className="native-control-input bb-services-control"
+                type="search"
+                className="native-search-input"
                 value={query}
                 placeholder="Search products or SKUs"
                 onChange={(event) => setQuery(event.target.value)}

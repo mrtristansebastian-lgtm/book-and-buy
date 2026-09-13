@@ -29,12 +29,14 @@
             --app-control-chevron: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237d8594' stroke-width='2.35' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
         }
 
-        /* Text fields — grey rounded idle; animated accent gradient on the border only when focused */
+        /* Text fields — grey rounded idle; animated accent gradient on the border only when focused.
+           Keep exclusions inside :where() so stacked :not() classes cannot outrank compound/search overrides.
+           Nested compound controls use .native-control-nest; icon search inputs use .native-search-input. */
         .native-ui :where(
-            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
-            textarea,
-            select
-        ):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.bb-social-compose-tweet-input) {
+            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.bb-social-compose-tweet-input):not(.native-control-nest):not(.native-search-input),
+            textarea:not(.booking-desk-native-select):not(.bb-social-compose-tweet-input):not(.native-control-nest),
+            select:not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.native-control-nest)
+        ) {
             box-sizing: border-box !important;
             border: 1px solid var(--app-control-border) !important;
             border-radius: var(--app-control-radius) !important;
@@ -51,9 +53,9 @@
         }
 
         .native-ui :where(
-            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
-            select
-        ):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input) {
+            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.native-control-nest):not(.native-search-input),
+            select:not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.native-control-nest)
+        ) {
             height: var(--app-control-height) !important;
             min-height: var(--app-control-height) !important;
             max-height: var(--app-control-height) !important;
@@ -63,7 +65,7 @@
             padding-right: 0.95rem !important;
         }
 
-        .native-ui :where(textarea):not(.booking-desk-native-select):not(.bb-social-compose-tweet-input) {
+        .native-ui :where(textarea:not(.booking-desk-native-select):not(.bb-social-compose-tweet-input):not(.native-control-nest)) {
             height: auto !important;
             min-height: 6.5rem !important;
             max-height: none !important;
@@ -73,10 +75,10 @@
         }
 
         .native-ui :where(
-            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]),
-            textarea,
-            select
-        ):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.bb-social-compose-tweet-input):focus {
+            input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.bb-social-compose-tweet-input):not(.native-control-nest):not(.native-search-input),
+            textarea:not(.booking-desk-native-select):not(.bb-social-compose-tweet-input):not(.native-control-nest),
+            select:not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.native-control-nest)
+        ):focus {
             border-color: transparent !important;
             background-color: transparent !important;
             background-image:
@@ -104,18 +106,29 @@
             transition: background-color 99999s ease-out;
         }
 
-        .native-ui .native-control-pill {
+        .native-ui .native-control-pill,
+        .native-ui .native-control-shell,
+        .native-ui .bb-products-money,
+        .native-ui .bb-stock-unit-field {
+            display: grid;
+            align-items: stretch;
+            box-sizing: border-box !important;
             border-width: 1px !important;
             border-style: solid !important;
             border-color: var(--app-control-border) !important;
             border-radius: var(--app-control-radius) !important;
             background: var(--app-control-bg-focus) !important;
+            background-image: none !important;
             background-clip: padding-box !important;
             box-shadow: none !important;
+            overflow: hidden;
             transition: border-color 160ms ease, background 160ms ease !important;
         }
 
-        .native-ui .native-control-pill:focus-within {
+        .native-ui .native-control-pill:focus-within,
+        .native-ui .native-control-shell:focus-within,
+        .native-ui .bb-products-money:focus-within,
+        .native-ui .bb-stock-unit-field:focus-within {
             border-color: transparent !important;
             background-image:
                 linear-gradient(var(--app-control-bg-focus), var(--app-control-bg-focus)),
@@ -128,26 +141,106 @@
             box-shadow: none !important;
         }
 
-        .native-ui .native-control-pill :where(input, textarea).native-control-input,
-        .native-ui .native-control-pill :where(input, textarea).native-control-input:focus {
-            height: auto !important;
-            min-height: auto !important;
-            max-height: none !important;
+        .native-ui .native-control-pill :where(input, textarea, select),
+        .native-ui .native-control-pill :where(input, textarea, select):focus,
+        .native-ui .native-control-shell :where(input, textarea, select),
+        .native-ui .native-control-shell :where(input, textarea, select):focus,
+        .native-ui .bb-products-money :where(input, textarea, select),
+        .native-ui .bb-products-money :where(input, textarea, select):focus,
+        .native-ui .bb-stock-unit-field :where(input, textarea, select),
+        .native-ui .bb-stock-unit-field :where(input, textarea, select):focus {
+            height: var(--app-control-height) !important;
+            min-height: var(--app-control-height) !important;
+            max-height: var(--app-control-height) !important;
+            width: 100% !important;
             border: 0 !important;
             border-radius: 0 !important;
             background: transparent !important;
             background-image: none !important;
             background-clip: border-box !important;
+            box-shadow: none !important;
+            outline: none !important;
             color: var(--app-control-text) !important;
             font-size: 0.9rem !important;
-            font-weight: 500 !important;
+            font-weight: 520 !important;
             line-height: 1.35 !important;
-            box-shadow: none !important;
+        }
+
+        .native-ui .native-control-pill :where(input, textarea).native-control-input,
+        .native-ui .native-control-pill :where(input, textarea).native-control-input:focus {
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
             padding-left: 0 !important;
             padding-right: 0 !important;
         }
 
-        .native-ui select:not(.booking-desk-native-select) {
+        .native-ui .bb-products-money {
+            grid-template-columns: 2.4rem minmax(0, 1fr);
+        }
+
+        .native-ui .bb-products-money-prefix {
+            display: grid;
+            place-items: center;
+            border: 0 !important;
+            border-right: 1px solid rgba(15, 23, 42, 0.1) !important;
+            border-radius: 0 !important;
+            background: rgba(15, 23, 42, 0.03) !important;
+            color: #667085;
+            font-size: 0.76rem;
+            font-weight: 720;
+        }
+
+        .native-ui .bb-stock-unit-field {
+            grid-template-columns: minmax(0, 1fr) 4.35rem;
+        }
+
+        .native-ui .bb-stock-unit-field .bb-stock-unit-select,
+        .native-ui .bb-stock-unit-field select.native-control-nest,
+        .native-ui .bb-stock-unit-field select {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: inset 1px 0 0 rgba(15, 23, 42, 0.12) !important;
+            background-color: rgba(15, 23, 42, 0.03) !important;
+            background-image: var(--app-control-chevron) !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.4rem center !important;
+            background-size: 0.7rem 0.7rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 1.35rem !important;
+            font-weight: 720 !important;
+            cursor: pointer;
+        }
+
+        .native-ui .bb-stock-unit-field .bb-stock-unit-select:focus,
+        .native-ui .bb-stock-unit-field select.native-control-nest:focus,
+        .native-ui .bb-stock-unit-field select:focus {
+            border: 0 !important;
+            background-image: var(--app-control-chevron) !important;
+            background-color: rgba(15, 23, 42, 0.03) !important;
+            box-shadow: inset 1px 0 0 rgba(15, 23, 42, 0.12) !important;
+        }
+
+        .native-ui .bb-products-money input.native-control-nest,
+        .native-ui .bb-products-money input {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+
+        .native-ui .bb-stock-unit-field input.native-control-nest,
+        .native-ui .bb-stock-unit-field input {
+            padding-left: 0.75rem !important;
+            padding-right: 0.65rem !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            background-image: none !important;
+        }
+
+        .native-ui :where(select:not(.booking-desk-native-select):not(.native-control-nest)) {
             appearance: none !important;
             -webkit-appearance: none !important;
             background-image: var(--app-control-chevron) !important;
@@ -157,7 +250,7 @@
             padding-right: 2.35rem !important;
         }
 
-        .native-ui select:not(.booking-desk-native-select):focus {
+        .native-ui :where(select:not(.booking-desk-native-select):not(.native-control-nest)):focus {
             background-image:
                 var(--app-control-chevron),
                 linear-gradient(var(--app-control-bg-focus), var(--app-control-bg-focus)),
@@ -213,6 +306,107 @@
 
         .native-ui .text-\[\#39FF14\] {
             color: var(--native-accent-border) !important;
+        }
+
+        /* Universal search fields — icon never overlaps typed text */
+        html body .native-ui :is(
+            .bb-search-field,
+            .bb-settings-search-wrap,
+            .bb-clients-search,
+            .bb-finance-search,
+            .bb-stock-search
+        ) {
+            position: relative !important;
+            display: block !important;
+            width: 100%;
+            min-width: 0;
+            margin: 0;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        html body .native-ui :is(
+            .bb-search-field-icon,
+            .bb-settings-search-icon,
+            .bb-clients-search > svg,
+            .bb-finance-search > svg,
+            .bb-stock-search > svg
+        ) {
+            position: absolute !important;
+            left: 0.9rem !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: 0.95rem !important;
+            height: 0.95rem !important;
+            color: #98a2b3 !important;
+            opacity: 0.95;
+            pointer-events: none !important;
+            z-index: 3 !important;
+        }
+
+        html body .native-ui :is(
+            .bb-search-field input,
+            .bb-settings-search,
+            .bb-clients-search input,
+            .bb-finance-search input,
+            .bb-stock-search input,
+            input.native-search-input
+        ),
+        html body .native-ui :is(
+            .bb-search-field input,
+            .bb-settings-search,
+            .bb-clients-search input,
+            .bb-finance-search input,
+            .bb-stock-search input,
+            input.native-search-input
+        ):focus {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+            height: var(--app-control-height) !important;
+            min-height: var(--app-control-height) !important;
+            max-height: var(--app-control-height) !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            padding-left: 2.55rem !important;
+            padding-right: 0.95rem !important;
+            text-indent: 0 !important;
+            border: 1px solid var(--app-control-border) !important;
+            border-radius: var(--app-control-radius) !important;
+            background-color: var(--app-control-bg) !important;
+            background-image: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            color: var(--app-control-text) !important;
+            font-size: 0.9rem !important;
+            font-weight: 520 !important;
+        }
+
+        html body .native-ui :is(
+            .bb-search-field input,
+            .bb-settings-search,
+            .bb-clients-search input,
+            .bb-finance-search input,
+            .bb-stock-search input,
+            input.native-search-input
+        ):focus {
+            border-color: transparent !important;
+            background-color: transparent !important;
+            background-image:
+                linear-gradient(var(--app-control-bg-focus), var(--app-control-bg-focus)),
+                var(--native-accent-gradient) !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+            background-size: 100% 100%, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x) 50% !important;
+            background-repeat: no-repeat !important;
+        }
+
+        html body .native-ui .bb-settings-search {
+            border-radius: 999px !important;
         }
 
         .native-ui .border-\[\#39FF14\],

@@ -57,6 +57,10 @@ const toDraft = (product = {}) => {
     hideStockOnCard: Boolean(normalized.hideStockOnCard),
     weight: String(normalized.weight ?? ''),
     weightUnit: normalized.weightUnit || 'g',
+    length: String(normalized.length ?? ''),
+    width: String(normalized.width ?? ''),
+    height: String(normalized.height ?? ''),
+    dimensionUnit: normalized.dimensionUnit || 'cm',
     size: normalized.size || ''
   };
 };
@@ -71,6 +75,10 @@ const mergeInventoryFromExisting = (draft, existing) => {
       hideStockOnCard: Boolean(draft.hideStockOnCard),
       weight: draft.weight ?? '',
       weightUnit: draft.weightUnit || 'g',
+      length: draft.length ?? '',
+      width: draft.width ?? '',
+      height: draft.height ?? '',
+      dimensionUnit: draft.dimensionUnit || 'cm',
       size: draft.size || ''
     };
   }
@@ -103,6 +111,20 @@ const mergeInventoryFromExisting = (draft, existing) => {
           ? variant.weight
           : prior.weight ?? '',
       weightUnit: variant.weightUnit || prior.weightUnit || 'g',
+      length:
+        variant.length !== '' && variant.length != null
+          ? variant.length
+          : prior.length ?? '',
+      width:
+        variant.width !== '' && variant.width != null
+          ? variant.width
+          : prior.width ?? '',
+      height:
+        variant.height !== '' && variant.height != null
+          ? variant.height
+          : prior.height ?? '',
+      dimensionUnit:
+        variant.dimensionUnit || prior.dimensionUnit || 'cm',
       size: variant.size || prior.size || ''
     };
   });
@@ -118,6 +140,10 @@ const mergeInventoryFromExisting = (draft, existing) => {
         : Boolean(existing.hideStockOnCard),
     weight: existing.weight ?? draft.weight ?? '',
     weightUnit: existing.weightUnit || draft.weightUnit || 'g',
+    length: existing.length ?? draft.length ?? '',
+    width: existing.width ?? draft.width ?? '',
+    height: existing.height ?? draft.height ?? '',
+    dimensionUnit: existing.dimensionUnit || draft.dimensionUnit || 'cm',
     size: existing.size || draft.size || '',
     variants: productHasVariants({ ...draft, variants })
       ? variants

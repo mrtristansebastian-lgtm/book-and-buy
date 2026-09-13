@@ -144,10 +144,10 @@ export function SettingsShell({ section: sectionProp }) {
   return (
     <div className="bb-settings">
       <aside className="bb-settings-rail" aria-label="Settings categories">
-        <div className="bb-settings-search-wrap">
-          <Search size={14} className="bb-settings-search-icon" aria-hidden />
+        <div className="bb-settings-search-wrap bb-search-field">
+          <Search size={14} className="bb-settings-search-icon bb-search-field-icon" aria-hidden />
           <input
-            className="bb-settings-search"
+            className="bb-settings-search native-search-input"
             type="search"
             placeholder="Search"
             value={query}

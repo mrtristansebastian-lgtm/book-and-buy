@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Check,
   ChevronDown,
   ChevronUp,
   ImagePlus,
@@ -11,23 +12,45 @@ import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
   buildVariantMatrix,
+  formatProductPrice,
   normalizeProductOption
 } from '../../../utils/products';
 
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'archived', label: 'Archived' }
+const SETUP_STEPS = [
+  {
+    id: 'details',
+    label: 'Details',
+    lede: 'Name it, describe it, and set the price.'
+  },
+  {
+    id: 'media',
+    label: 'Media',
+    lede: 'Add catalog photos — first one is the cover.'
+  },
+  {
+    id: 'category',
+    label: 'Category',
+    lede: 'Optional — helps clients browse your Buy page.'
+  },
+  {
+    id: 'variants',
+    label: 'Variants',
+    lede: 'Optional size or colour options. SKUs and stock live on Stock.'
+  },
+  {
+    id: 'review',
+    label: 'Review',
+    lede: 'Check everything, then save to your Buy catalog.'
+  }
 ];
 
-function ChipList({
-  values = [],
-  selected,
-  onSelect,
-  onRemove,
-  onAdd,
-  addLabel = 'Add'
-}) {
+const STATUS_OPTIONS = [
+  { value: 'active', label: 'Active — visible on Buy' },
+  { value: 'draft', label: 'Draft — owner only' },
+  { value: 'archived', label: 'Archived — hidden' }
+];
+
+function ChipList({ values = [], selected, onSelect, onAdd, addLabel = 'Add' }) {
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('');
 
@@ -41,45 +64,25 @@ function ChipList({
 
   return (
     <div className="bb-products-chips">
-      {typeof selected !== 'undefined' ? (
+      <button
+        type="button"
+        className={`bb-products-chip${!selected ? ' is-active' : ''}`}
+        onClick={() => onSelect?.('')}
+      >
+        None
+      </button>
+      {values.map((label) => (
         <button
+          key={label}
           type="button"
-          className={`bb-products-chip${!selected ? ' is-active' : ''}`}
-          onClick={() => onSelect?.('')}
+          className={`bb-products-chip${selected === label ? ' is-active' : ''}`}
+          onClick={() => onSelect?.(label)}
         >
-          None
+          {label}
         </button>
-      ) : null}
-      {values.map((label) => {
-        const active =
-          typeof selected === 'undefined' ? true : selected === label;
-        return (
-          <span
-            key={label}
-            className={`bb-products-chip${active ? ' is-active' : ''}`}
-          >
-            <button
-              type="button"
-              className="bb-products-chip-label"
-              onClick={() => onSelect?.(label)}
-            >
-              {label}
-            </button>
-            {onRemove ? (
-              <button
-                type="button"
-                className="bb-products-chip-remove"
-                aria-label={`Remove ${label}`}
-                onClick={() => onRemove(label)}
-              >
-                ×
-              </button>
-            ) : null}
-          </span>
-        );
-      })}
+      ))}
       {adding ? (
-        <div className="bb-products-inline-add" style={{ width: '100%' }}>
+        <div className="bb-products-inline-add">
           <input
             className="native-control-input bb-services-control"
             value={draft}
@@ -94,7 +97,7 @@ function ChipList({
             }}
           />
           <button type="button" className="bb-primary-btn" onClick={commit}>
-            Save
+            Add
           </button>
           <button
             type="button"
@@ -113,7 +116,7 @@ function ChipList({
           className="bb-products-chip bb-products-chip--add"
           onClick={() => setAdding(true)}
         >
-          <Plus size={14} />
+          <Plus size={13} />
           {addLabel}
         </button>
       )}
@@ -131,6 +134,7 @@ export function ProductEditorSheet({
   categories = []
 }) {
   const fileRef = useRef(null);
+  const [step, setStep] = useState('details');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [cropSource, setCropSource] = useState(null);
@@ -140,6 +144,7 @@ export function ProductEditorSheet({
 
   useEffect(() => {
     if (!open) return;
+    setStep('details');
     setError('');
     setValueDrafts({});
   }, [open, draft?.id]);
@@ -161,21 +166,32 @@ export function ProductEditorSheet({
   );
 
   const hasVariants = options.some((option) => option.values.length > 0);
+  const stepIndex = Math.max(
+    0,
+    SETUP_STEPS.findIndex((item) => item.id === step)
+  );
+  const activeStep = SETUP_STEPS[stepIndex] || SETUP_STEPS[0];
+  const isLast = step === 'review';
   const isEdit = Boolean(draft?.id);
 
   if (!open) return null;
 
   const patch = (partial) => onChange?.({ ...draft, ...partial });
 
-  const syncVariants = (nextOptions, existing = draft.variants, defaults) => {
-    const matrix = buildVariantMatrix(nextOptions, existing || [], {
-      price: defaults?.price ?? draft.price,
-      compareAtPrice: defaults?.compareAtPrice ?? draft.compareAtPrice,
-      sku: defaults?.sku ?? draft.sku,
-      stockAvailable: defaults?.stockAvailable ?? draft.stockAvailable
+  const syncVariants = (nextOptions, existing = draft.variants) =>
+    buildVariantMatrix(nextOptions, existing || [], {
+      price: draft.price,
+      compareAtPrice: draft.compareAtPrice,
+      sku: draft.sku,
+      stockAvailable: draft.stockAvailable,
+      weight: draft.weight,
+      weightUnit: draft.weightUnit,
+      length: draft.length,
+      width: draft.width,
+      height: draft.height,
+      dimensionUnit: draft.dimensionUnit,
+      size: draft.size
     });
-    return matrix;
-  };
 
   const onPick = (event) => {
     const file = event.target.files?.[0];
@@ -227,28 +243,19 @@ export function ProductEditorSheet({
       ...options,
       { id: `option-${Date.now()}`, name: '', values: [] }
     ];
-    patch({
-      options: nextOptions,
-      variants: syncVariants(nextOptions)
-    });
+    patch({ options: nextOptions, variants: syncVariants(nextOptions) });
   };
 
   const updateOption = (index, partial) => {
     const nextOptions = options.map((option, i) =>
       i === index ? normalizeProductOption({ ...option, ...partial }, i) : option
     );
-    patch({
-      options: nextOptions,
-      variants: syncVariants(nextOptions)
-    });
+    patch({ options: nextOptions, variants: syncVariants(nextOptions) });
   };
 
   const removeOption = (index) => {
     const nextOptions = options.filter((_, i) => i !== index);
-    patch({
-      options: nextOptions,
-      variants: syncVariants(nextOptions)
-    });
+    patch({ options: nextOptions, variants: syncVariants(nextOptions) });
   };
 
   const addOptionValue = (index, raw) => {
@@ -278,21 +285,47 @@ export function ProductEditorSheet({
     });
   };
 
-  const toggleListValue = (field, label, selected = true) => {
-    const list = Array.isArray(draft[field]) ? draft[field] : [];
-    if (selected) {
-      if (list.some((item) => item.toLowerCase() === label.toLowerCase())) return;
-      patch({ [field]: [...list, label] });
-      return;
+  const validateStep = (id) => {
+    if (id === 'details') {
+      if (!String(draft.name || '').trim()) {
+        setError('Add a product name.');
+        return false;
+      }
     }
-    patch({
-      [field]: list.filter((item) => item.toLowerCase() !== label.toLowerCase())
-    });
+    setError('');
+    return true;
+  };
+
+  const goToStep = (id) => {
+    const target = SETUP_STEPS.findIndex((item) => item.id === id);
+    if (target < 0) return;
+    if (target > stepIndex) {
+      for (let i = 0; i < target; i += 1) {
+        if (!validateStep(SETUP_STEPS[i].id)) {
+          setStep(SETUP_STEPS[i].id);
+          return;
+        }
+      }
+    }
+    setError('');
+    setStep(id);
+  };
+
+  const goBack = () => {
+    if (stepIndex <= 0) return;
+    setError('');
+    setStep(SETUP_STEPS[stepIndex - 1].id);
+  };
+
+  const goContinue = () => {
+    if (!validateStep(step)) return;
+    if (stepIndex >= SETUP_STEPS.length - 1) return;
+    setStep(SETUP_STEPS[stepIndex + 1].id);
   };
 
   const save = () => {
-    if (!String(draft.name || '').trim()) {
-      setError('Add a product name.');
+    if (!validateStep('details')) {
+      setStep('details');
       return;
     }
     setError('');
@@ -311,6 +344,15 @@ export function ProductEditorSheet({
     return list;
   })();
 
+  const priceLabel = formatProductPrice({
+    price: draft.price,
+    quoteBased: draft.quoteBased,
+    priceType: draft.quoteBased ? 'quote' : 'fixed',
+    currency: draft.currency || 'R',
+    variants: draft.variants,
+    options: draft.options
+  });
+
   return (
     <div
       className="bb-services-sheet"
@@ -319,18 +361,16 @@ export function ProductEditorSheet({
       aria-label={isEdit ? 'Edit product' : 'New product'}
     >
       <div className="bb-services-sheet-backdrop" onClick={onClose} />
-      <div className="bb-services-sheet-panel bb-products-sheet-panel">
+      <div className="bb-services-sheet-panel bb-services-sheet-panel--setup">
         <header className="bb-services-sheet-head">
           <div>
             <p className="bb-services-sheet-eyebrow">
-              {isEdit ? 'Edit product' : 'Add product'}
+              {isEdit ? 'Edit product' : 'New product'}
             </p>
             <h2 className="bb-services-sheet-title">
               {String(draft.name || '').trim() || 'Untitled product'}
             </h2>
-            <p className="bb-services-sheet-lede">
-              Title, media, pricing, and options — ready for Buy.
-            </p>
+            <p className="bb-services-sheet-lede">{activeStep.lede}</p>
           </div>
           <button
             type="button"
@@ -341,27 +381,67 @@ export function ProductEditorSheet({
           </button>
         </header>
 
-        <div className="bb-products-sheet-body">
-          <div className="bb-products-layout">
-            <div className="bb-products-main">
-              <section className="bb-products-card">
-                <h3 className="bb-products-card-title">Details</h3>
-                <div className="bb-products-fields">
-                  <label className="bb-products-field">
-                    <span>Title</span>
+        <div className="bb-services-sheet-body bb-services-setup">
+          <p className="bb-services-setup-mobile" aria-live="polite">
+            Step {stepIndex + 1} of {SETUP_STEPS.length}
+            <span>{activeStep.label}</span>
+          </p>
+
+          <nav className="bb-services-setup-rail" aria-label="Setup steps">
+            <ol className="bb-services-setup-rail-list">
+              {SETUP_STEPS.map((item, index) => {
+                const done = index < stepIndex;
+                const current = index === stepIndex;
+                const state = current ? 'current' : done ? 'done' : 'upcoming';
+                const clickable = done || current;
+                return (
+                  <li
+                    key={item.id}
+                    className={`bb-services-setup-rail-item is-${state}`}
+                  >
+                    <button
+                      type="button"
+                      className="bb-services-setup-rail-btn"
+                      disabled={!clickable}
+                      aria-current={current ? 'step' : undefined}
+                      onClick={() => goToStep(item.id)}
+                    >
+                      <span
+                        className="bb-services-setup-rail-dot"
+                        aria-hidden="true"
+                      >
+                        {done ? <Check size={12} strokeWidth={2.6} /> : index + 1}
+                      </span>
+                      <span className="bb-services-setup-rail-label">
+                        {item.label}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
+
+          <div className="bb-services-setup-stage" key={step}>
+            {step === 'details' ? (
+              <section className="bb-services-section">
+                <h3 className="bb-services-section-title">Details</h3>
+                <div className="bb-services-fields">
+                  <label className="bb-services-field">
+                    <span>Name</span>
                     <input
                       className="native-control-input bb-services-control"
                       value={draft.name || ''}
-                      placeholder="Short sleeve t-shirt"
+                      placeholder="Product name"
                       autoFocus
                       onChange={(event) => patch({ name: event.target.value })}
                     />
                   </label>
-                  <label className="bb-products-field">
+                  <label className="bb-services-field">
                     <span>Description</span>
                     <textarea
-                      className="native-control-input bb-services-control bb-products-textarea"
-                      rows={5}
+                      className="native-control-input bb-services-control bb-services-textarea"
+                      rows={4}
                       value={draft.description || ''}
                       placeholder="What clients should know…"
                       onChange={(event) =>
@@ -369,114 +449,35 @@ export function ProductEditorSheet({
                       }
                     />
                   </label>
-                </div>
-              </section>
-
-              <section className="bb-products-card">
-                <h3 className="bb-products-card-title">Media</h3>
-                <p className="bb-products-card-lede">
-                  First image is the catalog cover. Accepts images.
-                </p>
-                <div className="bb-products-gallery">
-                  <div className="bb-products-gallery-grid">
-                    {imageUrls.map((src, index) => (
-                      <div
-                        key={`${src}-${index}`}
-                        className={`bb-products-gallery-item${
-                          index === 0 ? ' is-cover' : ''
-                        }`}
-                      >
-                        <img src={src} alt="" />
-                        <div className="bb-products-gallery-actions">
-                          <button
-                            type="button"
-                            aria-label="Move earlier"
-                            disabled={index === 0}
-                            onClick={() => moveImage(index, -1)}
-                          >
-                            <ChevronUp size={12} />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Move later"
-                            disabled={index === imageUrls.length - 1}
-                            onClick={() => moveImage(index, 1)}
-                          >
-                            <ChevronDown size={12} />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Remove image"
-                            onClick={() => removeImage(index)}
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      className="bb-products-gallery-add"
-                      disabled={busy}
-                      onClick={() => fileRef.current?.click()}
-                    >
-                      <ImagePlus size={18} />
-                      <strong>Upload</strong>
-                    </button>
-                  </div>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={onPick}
-                  />
-                </div>
-              </section>
-
-              <section className="bb-products-card">
-                <h3 className="bb-products-card-title">Category</h3>
-                <ChipList
-                  values={categoryOptions}
-                  selected={draft.category || ''}
-                  onSelect={(label) => patch({ category: label })}
-                  onAdd={(label) => patch({ category: label })}
-                  addLabel="Add category"
-                />
-              </section>
-
-              <section className="bb-products-card">
-                <h3 className="bb-products-card-title">Pricing</h3>
-                <div className="bb-products-fields">
-                  <div className="bb-products-fields bb-products-fields--2">
-                    <label className="bb-products-field">
+                  <div className="bb-products-price-row">
+                    <label className="bb-services-field">
                       <span>Price</span>
                       <div className="bb-products-money">
                         <span className="bb-products-money-prefix">
                           {draft.currency || 'R'}
                         </span>
                         <input
-                          className="native-control-input bb-services-control"
+                          className="native-control-input bb-services-control native-control-nest"
                           value={draft.price || ''}
                           placeholder="0.00"
-                          disabled={draft.quoteBased || hasVariants}
+                          disabled={draft.quoteBased}
                           onChange={(event) =>
                             patch({ price: event.target.value })
                           }
                         />
                       </div>
                     </label>
-                    <label className="bb-products-field">
-                      <span>Compare-at price</span>
+                    <label className="bb-services-field">
+                      <span>Compare-at</span>
                       <div className="bb-products-money">
                         <span className="bb-products-money-prefix">
                           {draft.currency || 'R'}
                         </span>
                         <input
-                          className="native-control-input bb-services-control"
+                          className="native-control-input bb-services-control native-control-nest"
                           value={draft.compareAtPrice || ''}
                           placeholder="0.00"
-                          disabled={draft.quoteBased || hasVariants}
+                          disabled={draft.quoteBased}
                           onChange={(event) =>
                             patch({ compareAtPrice: event.target.value })
                           }
@@ -484,13 +485,7 @@ export function ProductEditorSheet({
                       </div>
                     </label>
                   </div>
-                  {hasVariants ? (
-                    <p className="bb-products-side-note">
-                      Base price fields are defaults for new variants. Edit each
-                      variant row below for live Buy pricing.
-                    </p>
-                  ) : null}
-                  <label className="bb-products-check">
+                  <label className="bb-services-check">
                     <input
                       type="checkbox"
                       checked={Boolean(draft.quoteBased)}
@@ -507,14 +502,90 @@ export function ProductEditorSheet({
                   </label>
                 </div>
               </section>
+            ) : null}
 
-              <section className="bb-products-card">
-                <div className="bb-products-option-head">
+            {step === 'media' ? (
+              <section className="bb-services-section">
+                <h3 className="bb-services-section-title">Media</h3>
+                <p className="bb-services-section-lede">
+                  First image is the catalog cover.
+                </p>
+                <div className="bb-products-gallery-grid">
+                  {imageUrls.map((src, index) => (
+                    <div
+                      key={`${src}-${index}`}
+                      className={`bb-products-gallery-item${
+                        index === 0 ? ' is-cover' : ''
+                      }`}
+                    >
+                      <img src={src} alt="" />
+                      <div className="bb-products-gallery-actions">
+                        <button
+                          type="button"
+                          aria-label="Move earlier"
+                          disabled={index === 0}
+                          onClick={() => moveImage(index, -1)}
+                        >
+                          <ChevronUp size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Move later"
+                          disabled={index === imageUrls.length - 1}
+                          onClick={() => moveImage(index, 1)}
+                        >
+                          <ChevronDown size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Remove image"
+                          onClick={() => removeImage(index)}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="bb-products-gallery-add"
+                    disabled={busy}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    <ImagePlus size={18} />
+                    <strong>Upload</strong>
+                  </button>
+                </div>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={onPick}
+                />
+              </section>
+            ) : null}
+
+            {step === 'category' ? (
+              <section className="bb-services-section">
+                <h3 className="bb-services-section-title">Category</h3>
+                <ChipList
+                  values={categoryOptions}
+                  selected={draft.category || ''}
+                  onSelect={(label) => patch({ category: label })}
+                  onAdd={(label) => patch({ category: label })}
+                  addLabel="Add category"
+                />
+              </section>
+            ) : null}
+
+            {step === 'variants' ? (
+              <section className="bb-services-section">
+                <div className="bb-products-step-head">
                   <div>
-                    <h3 className="bb-products-card-title">Variants</h3>
-                    <p className="bb-products-card-lede">
-                      Add up to 3 options (Size, Color…) to generate a variant
-                      matrix. Set SKUs, stock, weight, and size on Stock.
+                    <h3 className="bb-services-section-title">Variants</h3>
+                    <p className="bb-services-section-lede">
+                      Add up to 3 options. Manage SKU and quantity on Stock.
                     </p>
                   </div>
                   <button
@@ -529,14 +600,16 @@ export function ProductEditorSheet({
                 </div>
 
                 {options.length === 0 ? (
-                  <p className="bb-products-side-note">
-                    No options yet — this product sells as a single item. Manage
-                    SKU and quantity on Stock.
+                  <p className="bb-services-section-lede">
+                    No options yet — this product sells as a single item.
                   </p>
                 ) : (
-                  <div className="bb-products-fields">
+                  <div className="bb-products-option-list">
                     {options.map((option, index) => (
-                      <div key={option.id || index} className="bb-products-option">
+                      <div
+                        key={option.id || index}
+                        className="bb-products-option"
+                      >
                         <div className="bb-products-option-head">
                           <input
                             className="native-control-input bb-services-control"
@@ -557,7 +630,10 @@ export function ProductEditorSheet({
                         </div>
                         <div className="bb-products-chips">
                           {option.values.map((value) => (
-                            <span key={value} className="bb-products-chip is-active">
+                            <span
+                              key={value}
+                              className="bb-products-chip is-active"
+                            >
                               {value}
                               <button
                                 type="button"
@@ -671,15 +747,57 @@ export function ProductEditorSheet({
                   </div>
                 ) : null}
               </section>
-            </div>
+            ) : null}
 
-            <aside className="bb-products-side">
-              <section className="bb-products-card">
-                <h3 className="bb-products-card-title">Status</h3>
-                <label className="bb-products-field">
-                  <span>Visibility</span>
+            {step === 'review' ? (
+              <section className="bb-services-section">
+                <h3 className="bb-services-section-title">Review</h3>
+                <div className="bb-services-review">
+                  <div className="bb-services-review-media">
+                    {imageUrls[0] ? (
+                      <img src={imageUrls[0]} alt="" />
+                    ) : (
+                      <span>No photo</span>
+                    )}
+                  </div>
+                  <dl className="bb-services-review-list">
+                    <div>
+                      <dt>Name</dt>
+                      <dd>{String(draft.name || '').trim() || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt>Price</dt>
+                      <dd>{priceLabel || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt>Category</dt>
+                      <dd>{String(draft.category || '').trim() || 'None'}</dd>
+                    </div>
+                    <div>
+                      <dt>Variants</dt>
+                      <dd>
+                        {hasVariants
+                          ? `${draft.variants?.length || 0} options`
+                          : 'Single item'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Photos</dt>
+                      <dd>{imageUrls.length || 0}</dd>
+                    </div>
+                    {String(draft.description || '').trim() ? (
+                      <div className="bb-services-review-desc">
+                        <dt>Description</dt>
+                        <dd>{draft.description}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                </div>
+
+                <label className="bb-services-field">
+                  <span>Status</span>
                   <select
-                    className="native-control-input bb-services-control bb-products-status-select"
+                    className="native-control-input bb-services-control"
                     value={draft.status || 'active'}
                     onChange={(event) => setStatus(event.target.value)}
                   >
@@ -690,87 +808,56 @@ export function ProductEditorSheet({
                     ))}
                   </select>
                 </label>
-                <p className="bb-products-side-note">
-                  Active products appear on your public Buy page. Draft and
-                  archived stay owner-only.
-                </p>
               </section>
+            ) : null}
 
-              <section className="bb-products-card">
-                <h3 className="bb-products-card-title">Organization</h3>
-                <div className="bb-products-fields">
-                  <label className="bb-products-field">
-                    <span>Type</span>
-                    <input
-                      className="native-control-input bb-services-control"
-                      value={draft.productType || ''}
-                      placeholder="e.g. Apparel"
-                      onChange={(event) =>
-                        patch({ productType: event.target.value })
-                      }
-                    />
-                  </label>
-                  <label className="bb-products-field">
-                    <span>Vendor</span>
-                    <input
-                      className="native-control-input bb-services-control"
-                      value={draft.vendor || ''}
-                      placeholder="e.g. Studio"
-                      onChange={(event) => patch({ vendor: event.target.value })}
-                    />
-                  </label>
-                  <div className="bb-products-field">
-                    <span>Collections</span>
-                    <ChipList
-                      values={draft.collections || []}
-                      onAdd={(label) =>
-                        toggleListValue('collections', label, true)
-                      }
-                      onRemove={(label) =>
-                        toggleListValue('collections', label, false)
-                      }
-                      addLabel="Add collection"
-                    />
-                  </div>
-                  <div className="bb-products-field">
-                    <span>Tags</span>
-                    <ChipList
-                      values={draft.tags || []}
-                      onAdd={(label) => toggleListValue('tags', label, true)}
-                      onRemove={(label) =>
-                        toggleListValue('tags', label, false)
-                      }
-                      addLabel="Add tag"
-                    />
-                  </div>
-                </div>
-              </section>
-            </aside>
+            {error ? <p className="bb-services-error">{error}</p> : null}
           </div>
-
-          {error ? <p className="bb-products-error">{error}</p> : null}
         </div>
 
         <footer className="bb-services-sheet-footer">
-          {isEdit && onDelete ? (
-            <button type="button" className="bb-ghost-btn" onClick={onDelete}>
-              Delete
-            </button>
-          ) : (
-            <span />
-          )}
+          <button
+            type="button"
+            className="bb-ghost-btn"
+            onClick={goBack}
+            disabled={stepIndex === 0}
+          >
+            Back
+          </button>
           <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="bb-primary-btn"
-              onClick={save}
-              disabled={busy}
-            >
-              {isEdit ? 'Save changes' : 'Save product'}
-            </button>
+            {isLast ? (
+              <>
+                {isEdit && onDelete ? (
+                  <button
+                    type="button"
+                    className="bb-ghost-btn"
+                    onClick={onDelete}
+                  >
+                    Delete
+                  </button>
+                ) : null}
+                <button type="button" className="bb-ghost-btn" onClick={onClose}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="bb-primary-btn"
+                  onClick={save}
+                  disabled={busy}
+                >
+                  {isEdit ? 'Save changes' : 'Save product'}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="bb-primary-btn"
+                onClick={goContinue}
+                disabled={busy}
+              >
+                Continue
+              </button>
+            )}
           </div>
         </footer>
       </div>

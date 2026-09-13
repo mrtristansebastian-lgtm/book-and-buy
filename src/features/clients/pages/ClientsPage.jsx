@@ -125,10 +125,11 @@ export function ClientsPage() {
           <p className="bb-clients-lede">Your phonebook for people who book and buy.</p>
         </div>
         <div className="bb-clients-tools">
-          <label className="bb-clients-search">
-            <Search size={15} aria-hidden="true" />
+          <label className="bb-clients-search bb-search-field">
+            <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
             <input
               type="search"
+              className="native-search-input"
               placeholder="Search clients"
               value={query}
               onChange={(event) => setQuery(event.target.value)}

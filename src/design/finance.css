@@ -371,24 +371,12 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 }
 
 .bb-finance-search {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0 0.9rem;
-  min-height: 2.65rem;
-  border-radius: 0.95rem;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  background: #fff;
-  color: #98a2b3;
+  min-width: 0;
 }
 
 .bb-finance-search input {
-  flex: 1;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: #101828;
   min-width: 0;
+  color: #101828;
 }
 
 .bb-finance-ledger-filters select {

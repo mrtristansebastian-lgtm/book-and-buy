@@ -80,10 +80,11 @@ export function FinanceLedgerToolbar({
       </div>
 
       <div className="bb-finance-ledger-filters">
-        <label className="bb-finance-search">
-          <Search size={16} strokeWidth={2.2} aria-hidden="true" />
+        <label className="bb-finance-search bb-search-field">
+          <Search size={16} strokeWidth={2.2} className="bb-search-field-icon" aria-hidden="true" />
           <input
             type="search"
+            className="native-search-input"
             placeholder="Search client, title, reference…"
             value={query}
             onChange={(event) => onQueryChange?.(event.target.value)}

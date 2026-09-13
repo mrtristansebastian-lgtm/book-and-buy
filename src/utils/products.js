@@ -39,6 +39,59 @@ export const variantOptionKey = (optionValues = {}) =>
     .map((key) => `${key}:${String(optionValues[key] || '').trim()}`)
     .join('|');
 
+export const normalizeWeightUnit = (unit) => {
+  const value = String(unit || 'g').toLowerCase();
+  return value === 'kg' ? 'kg' : 'g';
+};
+
+export const normalizeDimensionUnit = (unit) => {
+  const value = String(unit || 'cm').toLowerCase();
+  if (value === 'mm' || value === 'in') return value;
+  return 'cm';
+};
+
+const parseLegacySize = (size = '') => {
+  const text = String(size || '').trim();
+  const match = text.match(
+    /(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*(cm|mm|in)?/i
+  );
+  if (!match) {
+    return { length: '', width: '', height: '', dimensionUnit: 'cm' };
+  }
+  return {
+    length: match[1],
+    width: match[2],
+    height: match[3],
+    dimensionUnit: normalizeDimensionUnit(match[4] || 'cm')
+  };
+};
+
+export const formatProductDimensions = (item = {}) => {
+  const length = String(item.length ?? '').trim();
+  const width = String(item.width ?? '').trim();
+  const height = String(item.height ?? '').trim();
+  const unit = normalizeDimensionUnit(item.dimensionUnit);
+  if (length || width || height) {
+    return `${[length || '—', width || '—', height || '—'].join('×')} ${unit}`;
+  }
+  return String(item.size || '').trim();
+};
+
+const normalizeDimensions = (source = {}) => {
+  const legacy = parseLegacySize(source.size);
+  const length = String(source.length ?? '').trim() || legacy.length;
+  const width = String(source.width ?? '').trim() || legacy.width;
+  const height = String(source.height ?? '').trim() || legacy.height;
+  const dimensionUnit = normalizeDimensionUnit(
+    source.dimensionUnit || legacy.dimensionUnit || 'cm'
+  );
+  const size =
+    length || width || height
+      ? `${[length || '0', width || '0', height || '0'].join('×')} ${dimensionUnit}`
+      : String(source.size || '').trim();
+  return { length, width, height, dimensionUnit, size };
+};
+
 export const normalizeProductVariant = (variant = {}, index = 0) => {
   const optionValues =
     variant.optionValues && typeof variant.optionValues === 'object'
@@ -49,7 +102,7 @@ export const normalizeProductVariant = (variant = {}, index = 0) => {
           ])
         )
       : {};
-  const weightUnit = String(variant.weightUnit || 'g').toLowerCase() === 'kg' ? 'kg' : 'g';
+  const dims = normalizeDimensions(variant);
   return {
     id: variant.id || createVariantId(),
     optionValues,
@@ -58,8 +111,8 @@ export const normalizeProductVariant = (variant = {}, index = 0) => {
     sku: String(variant.sku || '').trim(),
     stockAvailable: variant.stockAvailable ?? '',
     weight: variant.weight ?? '',
-    weightUnit,
-    size: String(variant.size || '').trim(),
+    weightUnit: normalizeWeightUnit(variant.weightUnit),
+    ...dims,
     imageUrl: String(variant.imageUrl || '').trim(),
     available: variant.available !== false,
     title:
@@ -128,6 +181,10 @@ export const buildVariantMatrix = (
         stockAvailable: defaults.stockAvailable ?? '',
         weight: defaults.weight ?? '',
         weightUnit: defaults.weightUnit ?? 'g',
+        length: defaults.length ?? '',
+        width: defaults.width ?? '',
+        height: defaults.height ?? '',
+        dimensionUnit: defaults.dimensionUnit ?? 'cm',
         size: defaults.size ?? '',
         available: true
       },
@@ -208,11 +265,15 @@ export const normalizeProduct = (product = {}, index = 0) => {
         stockAvailable: product.stockAvailable,
         weight: product.weight,
         weightUnit: product.weightUnit,
+        length: product.length,
+        width: product.width,
+        height: product.height,
+        dimensionUnit: product.dimensionUnit,
         size: product.size
       })
     : [];
 
-  const weightUnit = String(product.weightUnit || 'g').toLowerCase() === 'kg' ? 'kg' : 'g';
+  const dims = normalizeDimensions(product);
 
   return {
     ...product,
@@ -234,8 +295,8 @@ export const normalizeProduct = (product = {}, index = 0) => {
     stockLabel: product.stockLabel || '',
     hideStockOnCard: Boolean(product.hideStockOnCard),
     weight: product.weight ?? '',
-    weightUnit,
-    size: String(product.size || '').trim(),
+    weightUnit: normalizeWeightUnit(product.weightUnit),
+    ...dims,
     imageUrls: Array.isArray(product.imageUrls)
       ? product.imageUrls.map((url) => String(url || '').trim()).filter(Boolean)
       : product.image

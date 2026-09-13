@@ -114,6 +114,10 @@ export interface WorkspaceProductVariant {
   stockAvailable?: string | number;
   weight?: string | number;
   weightUnit?: "g" | "kg" | string;
+  length?: string | number;
+  width?: string | number;
+  height?: string | number;
+  dimensionUnit?: "cm" | "mm" | "in" | string;
   size?: string;
   imageUrl?: string;
   available?: boolean;
@@ -140,6 +144,10 @@ export interface WorkspaceProduct {
   hideStockOnCard?: boolean;
   weight?: string | number;
   weightUnit?: "g" | "kg" | string;
+  length?: string | number;
+  width?: string | number;
+  height?: string | number;
+  dimensionUnit?: "cm" | "mm" | "in" | string;
   size?: string;
   imageUrls?: string[];
   options?: WorkspaceProductOption[];

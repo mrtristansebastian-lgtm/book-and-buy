@@ -438,7 +438,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
     sku: 'BREAD-BOX',
     weight: 1.2,
     weightUnit: 'kg',
-    size: 'Box ~35×25×15 cm',
+    length: 35,
+    width: 25,
+    height: 15,
+    dimensionUnit: 'cm',
     description:
       'A mixed box of the day’s loaves — sourdough, seeded, and a soft milk loaf.\n\nBaked the morning of collection so the crust stays lively and the crumb stays open. Best enjoyed within two days, or freeze slices for later.',
     imageUrls: [
@@ -461,7 +464,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
     sku: 'PASTA-KIT',
     weight: 950,
     weightUnit: 'g',
-    size: '28×18×8 cm',
+    length: 28,
+    width: 18,
+    height: 8,
+    dimensionUnit: 'cm',
     description:
       'Flour blend, semolina, recipe cards, and a wooden paddle for home pasta nights.\n\nEverything you need for a first from-scratch batch, scaled for two generous plates.',
     imageUrls: [
@@ -500,7 +506,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
         stockAvailable: 6,
         weight: 380,
         weightUnit: 'g',
-        size: 'Folded 28×22×4 cm',
+        length: 28,
+        width: 22,
+        height: 4,
+        dimensionUnit: 'cm',
         available: true
       },
       {
@@ -512,7 +521,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
         stockAvailable: 4,
         weight: 380,
         weightUnit: 'g',
-        size: 'Folded 28×22×4 cm',
+        length: 28,
+        width: 22,
+        height: 4,
+        dimensionUnit: 'cm',
         available: true
       },
       {
@@ -524,7 +536,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
         stockAvailable: 5,
         weight: 420,
         weightUnit: 'g',
-        size: 'Folded 30×24×4 cm',
+        length: 30,
+        width: 24,
+        height: 4,
+        dimensionUnit: 'cm',
         available: true
       },
       {
@@ -536,7 +551,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
         stockAvailable: 3,
         weight: 420,
         weightUnit: 'g',
-        size: 'Folded 30×24×4 cm',
+        length: 30,
+        width: 24,
+        height: 4,
+        dimensionUnit: 'cm',
         available: true
       }
     ]
@@ -550,7 +568,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
     sku: 'BOOK-NOTES',
     weight: 320,
     weightUnit: 'g',
-    size: 'A5 softcover',
+    length: 21,
+    width: 14.8,
+    height: 1.5,
+    dimensionUnit: 'cm',
     productType: 'Book',
     vendor: 'Flour & Flame',
     tags: ['recipes'],
