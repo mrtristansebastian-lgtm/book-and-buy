@@ -52,9 +52,11 @@ export function DayTimelineMeter({
   );
 
   const meterBody =
-    status === 'leave' || status === 'business-closed' ? (
+    status === 'leave' || status === 'off' || status === 'business-closed' ? (
       <span
-        className={`bb-schedule-day-meter is-${status === 'leave' ? 'leave' : 'closed'}`}
+        className={`bb-schedule-day-meter is-${
+          status === 'leave' ? 'leave' : status === 'off' ? 'off' : 'closed'
+        }`}
         aria-hidden="true"
       />
     ) : !segments.length ? (

@@ -673,12 +673,22 @@ export function SchedulePage() {
                     <div className="bb-schedule-day-meter-legend" aria-hidden="true">
                       {dayBoardTimeline.segments.some((segment) => segment.kind === 'open') ? (
                         <span className="bb-schedule-day-meter-legend-item is-open">
-                          <i /> Shift
+                          <i /> Working
                         </span>
                       ) : null}
                       {dayBoardTimeline.segments.some((segment) => segment.kind === 'break') ? (
                         <span className="bb-schedule-day-meter-legend-item is-break">
                           <i /> Break
+                        </span>
+                      ) : null}
+                      {dayBoardTimeline.status === 'off' ? (
+                        <span className="bb-schedule-day-meter-legend-item is-off">
+                          <i /> Off day
+                        </span>
+                      ) : null}
+                      {dayBoardTimeline.status === 'leave' ? (
+                        <span className="bb-schedule-day-meter-legend-item is-leave">
+                          <i /> Leave
                         </span>
                       ) : null}
                       {dayBoardTimeline.segments.some((segment) => segment.kind === 'booking') ? (
@@ -775,12 +785,22 @@ export function SchedulePage() {
                           <div className="bb-schedule-day-meter-legend" aria-hidden="true">
                             {hasOpen ? (
                               <span className="bb-schedule-day-meter-legend-item is-open">
-                                <i /> Shift
+                                <i /> Working
                               </span>
                             ) : null}
                             {hasBreak ? (
                               <span className="bb-schedule-day-meter-legend-item is-break">
                                 <i /> Break
+                              </span>
+                            ) : null}
+                            {timeline.status === 'off' ? (
+                              <span className="bb-schedule-day-meter-legend-item is-off">
+                                <i /> Off day
+                              </span>
+                            ) : null}
+                            {timeline.status === 'leave' ? (
+                              <span className="bb-schedule-day-meter-legend-item is-leave">
+                                <i /> Leave
                               </span>
                             ) : null}
                             {hasBooking ? (

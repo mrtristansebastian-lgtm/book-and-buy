@@ -478,7 +478,11 @@
 }
 
 .bb-schedule-day-meter.is-leave {
-  background: linear-gradient(90deg, #fde68a, #facc15);
+  background: linear-gradient(90deg, #93c5fd, #3b82f6);
+}
+
+.bb-schedule-day-meter.is-off {
+  background: linear-gradient(90deg, #c084fc, #a855f7);
 }
 
 .bb-schedule-day-meter.is-closed {
@@ -498,8 +502,8 @@
 }
 
 .bb-schedule-day-meter-seg.is-break {
-  background: #f59e0b;
-  box-shadow: 0 0 0 1px rgba(180, 83, 9, 0.28);
+  background: #f97316;
+  box-shadow: 0 0 0 1px rgba(194, 65, 12, 0.28);
   z-index: 1;
 }
 
@@ -679,7 +683,15 @@
 }
 
 .bb-schedule-day-meter-legend-item.is-break i {
-  background: #f59e0b;
+  background: #f97316;
+}
+
+.bb-schedule-day-meter-legend-item.is-off i {
+  background: #a855f7;
+}
+
+.bb-schedule-day-meter-legend-item.is-leave i {
+  background: #3b82f6;
 }
 
 .bb-schedule-day-meter-legend-item.is-booking i {
@@ -737,18 +749,28 @@
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-selected.is-open {
-  background: #ecfdf3;
-  color: #166534;
+  background: #16a34a;
+  color: #fff;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-selected.is-leave {
-  background: #fffbeb;
-  color: #a16207;
+  background: #2563eb;
+  color: #fff;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-selected.is-off {
+  background: #9333ea;
+  color: #fff;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-selected.is-break {
+  background: #ea580c;
+  color: #fff;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-selected.is-business-closed {
-  background: #fef2f2;
-  color: #c81e1e;
+  background: #dc2626;
+  color: #fff;
 }
 
 .bb-schedule-picker-day:hover:not(.is-selected) {
@@ -757,7 +779,8 @@
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-open:hover:not(.is-selected) {
-  background: #eafaf0;
+  background: #16a34a;
+  color: #fff;
 }
 
 .bb-schedule-picker-summary {
@@ -2234,6 +2257,265 @@
   padding-top: 0.25rem;
 }
 
+.bb-schedule-avail-status-sheet-actions.is-stack,
+.bb-schedule-avail-settings-section-actions.is-stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.bb-schedule-avail-status-sheet-actions.is-stack .bb-primary-btn,
+.bb-schedule-avail-status-sheet-actions.is-stack .bb-ghost-btn,
+.bb-schedule-avail-settings-section-actions.is-stack .bb-primary-btn,
+.bb-schedule-avail-settings-section-actions.is-stack .bb-ghost-btn {
+  justify-content: center;
+  width: 100%;
+}
+
+/* ——— Active edit paint mode ——— */
+
+.bb-schedule-avail-cal-side {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: end;
+  align-content: start;
+}
+
+.bb-schedule-avail-edit-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.bb-schedule-avail-select-range-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: linear-gradient(115deg, #eef6ff 0%, #f3eefe 100%);
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.12);
+  cursor: pointer;
+  color: #1e293b;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 760;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  transition:
+    transform 140ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.bb-schedule-avail-select-range-btn:hover {
+  border-color: rgba(15, 23, 42, 0.16);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.16);
+  transform: translateY(-1px);
+}
+
+.bb-schedule-avail-select-range-btn:active {
+  transform: translateY(0);
+}
+
+.bb-schedule-avail-select-range-sheet .bb-schedule-avail-status-sheet-actions {
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.bb-schedule-avail-edit-toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.4rem 0.5rem 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+  color: #101828;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.bb-schedule-avail-edit-toggle:hover {
+  border-color: rgba(15, 23, 42, 0.22);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.bb-schedule-avail-edit-toggle.is-on {
+  border-color: #101828;
+  background: #101828;
+  color: #fff;
+}
+
+.bb-schedule-avail-edit-toggle-label {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 760;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.bb-schedule-avail-edit-toggle-track {
+  position: relative;
+  display: block;
+  width: 2.15rem;
+  height: 1.2rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.14);
+  transition: background 160ms ease;
+}
+
+.bb-schedule-avail-edit-toggle.is-on .bb-schedule-avail-edit-toggle-track {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.bb-schedule-avail-edit-toggle-knob {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-schedule-avail-edit-toggle.is-on .bb-schedule-avail-edit-toggle-knob {
+  transform: translateX(0.95rem);
+}
+
+.bb-schedule-avail-paint-bar {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 0 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fafafa;
+  animation: bb-avail-paint-bar-in 200ms ease;
+}
+
+.bb-schedule-avail-paint-bar-hint {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #667085;
+}
+
+.bb-schedule-avail-paint-brushes {
+  flex-wrap: wrap;
+}
+
+/* Keep tile size identical — status is an overlay only in active edit */
+.bb-schedule-avail.is-active-edit .bb-schedule-picker-day {
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-schedule-avail.is-active-edit .bb-schedule-picker-day-status {
+  position: absolute;
+  left: 0.15rem;
+  right: 0.15rem;
+  bottom: 0.12rem;
+  font-size: 0.5rem;
+  font-weight: 740;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0.9;
+  animation: bb-avail-status-label-in 160ms ease;
+}
+
+.bb-schedule-picker-grid.is-painting {
+  cursor: crosshair;
+}
+
+.bb-schedule-picker-day.is-paint-preview {
+  outline: 2px solid rgba(15, 23, 42, 0.22);
+  outline-offset: 0;
+  z-index: 1;
+}
+
+.bb-schedule-avail-status-btn.is-paint.is-open.is-active {
+  border-color: #16a34a;
+  background: #22c55e;
+  color: #fff;
+}
+
+.bb-schedule-avail-status-btn.is-paint.is-break.is-active {
+  border-color: #ea580c;
+  background: #f97316;
+  color: #fff;
+}
+
+.bb-schedule-avail-status-btn.is-paint.is-off.is-active {
+  border-color: #9333ea;
+  background: #a855f7;
+  color: #fff;
+}
+
+.bb-schedule-avail-status-btn.is-paint.is-leave.is-active {
+  border-color: #2563eb;
+  background: #3b82f6;
+  color: #fff;
+}
+
+.bb-schedule-avail-status-btn.is-paint.is-business-closed.is-active {
+  border-color: #dc2626;
+  background: #ef4444;
+  color: #fff;
+}
+
+@keyframes bb-avail-paint-bar-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bb-avail-status-label-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 720px) {
+  .bb-schedule-avail-cal-side {
+    justify-items: start;
+    width: 100%;
+  }
+
+  .bb-schedule-avail-edit-tools {
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 520px) {
   .bb-schedule-avail-status-sheet-fields {
     grid-template-columns: 1fr;
@@ -2251,6 +2533,125 @@
 .bb-schedule-avail-day-panel {
   display: grid;
   gap: 0.95rem;
+}
+
+.bb-schedule-avail-day-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 760;
+  letter-spacing: -0.01em;
+  color: #fff;
+  background: #22c55e;
+}
+
+.bb-schedule-avail-day-status-chip.is-off {
+  background: #a855f7;
+}
+
+.bb-schedule-avail-day-status-chip.is-leave {
+  background: #3b82f6;
+}
+
+.bb-schedule-avail-day-status-chip.is-business-closed {
+  background: #ef4444;
+}
+
+.bb-schedule-avail-day-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.bb-schedule-avail-day-tool-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.48rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: linear-gradient(115deg, #eef6ff 0%, #f3eefe 100%);
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.1);
+  cursor: pointer;
+  color: #1e293b;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 760;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  transition:
+    transform 140ms ease,
+    box-shadow 160ms ease;
+}
+
+.bb-schedule-avail-day-tool-btn:hover {
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.16);
+  transform: translateY(-1px);
+}
+
+.bb-schedule-avail-day-tool-btn.is-break {
+  background: linear-gradient(115deg, #fff7ed 0%, #ffedd5 100%);
+  box-shadow: 0 2px 10px rgba(249, 115, 22, 0.12);
+}
+
+.bb-schedule-avail-day-tool-btn.is-shift {
+  background: linear-gradient(115deg, #ecfdf3 0%, #dcfce7 100%);
+  box-shadow: 0 2px 10px rgba(34, 197, 94, 0.12);
+}
+
+.bb-schedule-avail-day-feed {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.bb-schedule-avail-day-feed-item {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.bb-schedule-avail-day-feed-item.is-shift {
+  border-color: rgba(34, 197, 94, 0.22);
+  background: linear-gradient(180deg, #f7fdf9 0%, #fff 70%);
+}
+
+.bb-schedule-avail-day-feed-item.is-break {
+  border-color: rgba(249, 115, 22, 0.22);
+  background: linear-gradient(180deg, #fffaf5 0%, #fff 70%);
+}
+
+.bb-schedule-avail-day-feed-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bb-schedule-avail-day-feed-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 780;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #166534;
+  background: #dcfce7;
+}
+
+.bb-schedule-avail-day-feed-item.is-break .bb-schedule-avail-day-feed-tag {
+  color: #c2410c;
+  background: #ffedd5;
 }
 
 .bb-schedule-avail-day-status-block,
@@ -2376,19 +2777,29 @@
 }
 
 .bb-schedule-avail-legend-item.is-break i {
-  background: #f59e0b;
-  border-color: rgba(217, 119, 6, 0.55);
+  background: #f97316;
+  border-color: #ea580c;
+}
+
+.bb-schedule-avail-legend-item.is-off i {
+  background: #a855f7;
+  border-color: #9333ea;
+}
+
+.bb-schedule-avail-legend-item.is-leave i {
+  background: #3b82f6;
+  border-color: #2563eb;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-open:not(.is-selected) {
-  border-color: rgba(34, 197, 94, 0.35);
-  background: #f3fdf6;
-  color: #166534;
+  border-color: #16a34a;
+  background: #22c55e;
+  color: #fff;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-selected.is-open {
-  background: #ecfdf3;
-  color: #166534;
+  background: #16a34a;
+  color: #fff;
 }
 
 .bb-schedule-avail-template-bar {
@@ -2620,30 +3031,57 @@
 }
 
 .bb-schedule-avail-legend-item.is-open i {
-  background: #c9ffd8;
-  border-color: rgba(34, 197, 94, 0.55);
+  background: #22c55e;
+  border-color: #16a34a;
 }
 
 .bb-schedule-avail-legend-item.is-leave i {
-  background: #ffe566;
-  border-color: rgba(234, 179, 8, 0.6);
+  background: #3b82f6;
+  border-color: #2563eb;
 }
 
 .bb-schedule-avail-legend-item.is-biz-closed i {
-  background: #ffb4b4;
-  border-color: rgba(239, 68, 68, 0.55);
+  background: #ef4444;
+  border-color: #dc2626;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-leave:not(.is-selected) {
-  border-color: rgba(234, 179, 8, 0.4);
-  background: #fffbeb;
-  color: #a16207;
+  border-color: #2563eb;
+  background: #3b82f6;
+  color: #fff;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-selected.is-leave {
+  background: #2563eb;
+  color: #fff;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-off:not(.is-selected) {
+  border-color: #9333ea;
+  background: #a855f7;
+  color: #fff;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-selected.is-off {
+  background: #9333ea;
+  color: #fff;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-break:not(.is-selected) {
+  border-color: #ea580c;
+  background: #f97316;
+  color: #fff;
+}
+
+.bb-schedule-avail .bb-schedule-picker-day.is-selected.is-break {
+  background: #ea580c;
+  color: #fff;
 }
 
 .bb-schedule-avail .bb-schedule-picker-day.is-business-closed:not(.is-selected) {
-  border-color: rgba(239, 68, 68, 0.4);
-  background: #fef2f2;
-  color: #b91c1c;
+  border-color: #dc2626;
+  background: #ef4444;
+  color: #fff;
 }
 
 .bb-schedule-picker-day.is-closed-day:not(.is-selected) {

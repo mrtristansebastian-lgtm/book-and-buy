@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarRange, Clock, CalendarDays, X } from 'lucide-react';
-import { DateField } from '../../../shared/ui/DateField';
+import { Clock, CalendarDays, X } from 'lucide-react';
 import { TimeField } from '../../../shared/ui/TimeField';
 import { WEEKDAY_KEYS, normalizeAvailabilityRules } from '../../../utils/staffAvailability';
 import { AdvanceBookingField } from './AdvanceBookingField';
@@ -17,20 +16,7 @@ const WEEKDAY_LABELS = {
 
 const SECTIONS = [
   { id: 'hours', label: 'Business hours', Icon: Clock },
-  { id: 'window', label: 'Booking window', Icon: CalendarDays },
-  { id: 'status', label: 'Manage status', Icon: CalendarRange }
-];
-
-const BUSINESS_STATUS_OPTIONS = [
-  { id: 'open', label: 'Available' },
-  { id: 'business-closed', label: 'Closed' }
-];
-
-const STAFF_STATUS_OPTIONS = [
-  { id: 'open', label: 'Open' },
-  { id: 'break', label: 'Break' },
-  { id: 'off', label: 'Off day' },
-  { id: 'business-closed', label: 'Business closed' }
+  { id: 'window', label: 'Booking window', Icon: CalendarDays }
 ];
 
 function seedWeekdayHours(availabilityRules = {}) {
@@ -135,125 +121,14 @@ function HoursSection({ availabilityRules, onUpdateRules }) {
   );
 }
 
-function StatusSection({
-  staffName,
-  openTime,
-  closeTime,
-  initialDay,
-  businessOnly = false,
-  allowBusinessClosed = false,
-  onApply
-}) {
-  const statusOptions = businessOnly
-    ? BUSINESS_STATUS_OPTIONS
-    : allowBusinessClosed
-      ? STAFF_STATUS_OPTIONS
-      : STAFF_STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
-  const [status, setStatus] = useState('open');
-  const [startDate, setStartDate] = useState(initialDay);
-  const [endDate, setEndDate] = useState(initialDay);
-  const [startTime, setStartTime] = useState(openTime);
-  const [endTime, setEndTime] = useState(closeTime);
-
-  useEffect(() => {
-    setStartDate(initialDay);
-    setEndDate(initialDay);
-    setStartTime(openTime);
-    setEndTime(closeTime);
-    setStatus('open');
-  }, [initialDay, openTime, closeTime]);
-
-  const datesValid = Boolean(startDate && endDate && endDate >= startDate);
-  const needsTimes = !businessOnly && (status === 'open' || status === 'break');
-  const timesValid = !needsTimes || (startTime && endTime && endTime > startTime);
-  const canApply = datesValid && timesValid;
-
-  return (
-    <div className="bb-schedule-avail-settings-section">
-      <p className="bb-schedule-avail-hint m-0">
-        {businessOnly
-          ? 'Marks the whole business available or closed for every day in the range.'
-          : `Applies to ${staffName || 'staff'} for every day in the range.`}
-      </p>
-
-      <div className="bb-schedule-avail-status" role="tablist" aria-label="Availability status">
-        {statusOptions.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            role="tab"
-            aria-selected={status === option.id}
-            className={`bb-schedule-avail-status-btn${status === option.id ? ' is-active' : ''}`}
-            onClick={() => setStatus(option.id)}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="bb-schedule-avail-status-sheet-fields">
-        <DateField
-          label="Start date"
-          value={startDate}
-          onChange={(next) => {
-            setStartDate(next);
-            if (endDate && endDate < next) setEndDate(next);
-          }}
-        />
-        <DateField
-          label="End date"
-          value={endDate}
-          min={startDate || undefined}
-          onChange={setEndDate}
-        />
-        {needsTimes ? (
-          <>
-            <TimeField label="Start time" value={startTime} onChange={setStartTime} />
-            <TimeField label="End time" value={endTime} onChange={setEndTime} />
-          </>
-        ) : null}
-      </div>
-
-      <div className="bb-schedule-avail-settings-section-actions">
-        <button
-          type="button"
-          className="bb-primary-btn"
-          disabled={!canApply}
-          onClick={() => {
-            if (!canApply) return;
-            onApply?.({
-              status,
-              startDate,
-              endDate,
-              startTime,
-              endTime
-            });
-          }}
-        >
-          Apply status
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export function AvailabilityStudioSettingsSheet({
   availabilityRules = {},
   onUpdateRules,
   onClose,
-  showBusinessHours = true,
-  showManageStatus = true,
-  staffName = '',
-  openTime = '09:00',
-  closeTime = '17:00',
-  initialDay = '',
-  businessOnly = false,
-  allowBusinessClosed = false,
-  onApplyStatus
+  showBusinessHours = true
 }) {
   const sections = SECTIONS.filter((section) => {
     if (section.id === 'hours') return showBusinessHours;
-    if (section.id === 'status') return showManageStatus;
     return true;
   });
   const [sectionId, setSectionId] = useState(sections[0]?.id || 'window');
@@ -264,17 +139,10 @@ export function AvailabilityStudioSettingsSheet({
           title: 'Business hours',
           lede: 'Set open days and hours for each weekday.'
         }
-      : active?.id === 'status'
-        ? {
-            title: 'Manage status',
-            lede: businessOnly
-              ? 'Mark the business available or closed across a date range.'
-              : `Update ${staffName || 'staff'} status across a date range.`
-          }
-        : {
-            title: 'Booking window',
-            lede: 'How far ahead clients can book on your calendar.'
-          };
+      : {
+          title: 'Booking window',
+          lede: 'How far ahead clients can book on your calendar.'
+        };
 
   return (
     <div
@@ -345,20 +213,6 @@ export function AvailabilityStudioSettingsSheet({
                   onChange={(patch) => onUpdateRules?.(patch)}
                 />
               </div>
-            ) : null}
-
-            {active?.id === 'status' ? (
-              <StatusSection
-                staffName={staffName}
-                openTime={openTime}
-                closeTime={closeTime}
-                initialDay={initialDay}
-                businessOnly={businessOnly}
-                allowBusinessClosed={allowBusinessClosed}
-                onApply={(payload) => {
-                  onApplyStatus?.(payload);
-                }}
-              />
             ) : null}
           </div>
         </div>

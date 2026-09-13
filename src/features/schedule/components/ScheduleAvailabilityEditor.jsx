@@ -1,11 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { DateField } from '../../../shared/ui/DateField';
 import { TimeField } from '../../../shared/ui/TimeField';
 import { getMaxBookableDateKey, isDateWithinAdvanceWindow } from '../../../utils/availability';
-import { buildMonthGrid, formatDisplayDate, parseDateKey, toDateKey } from '../../../utils/dates';
+import {
+  addDays,
+  buildMonthGrid,
+  formatDisplayDate,
+  parseDateKey,
+  toDateKey
+} from '../../../utils/dates';
 import {
   canEditAvailabilityRules,
   canEditStaffAvailability,
@@ -41,10 +47,16 @@ const WEEKDAY_LABELS = {
 };
 
 const STATUS_OPTIONS = [
-  { id: 'open', label: 'Open' },
-  { id: 'break', label: 'Break' },
+  { id: 'open', label: 'Working' },
   { id: 'off', label: 'Off day' },
-  { id: 'business-closed', label: 'Business closed' }
+  { id: 'leave', label: 'Leave' }
+];
+
+/** Paint / cycle statuses — break is day-specific only */
+const STAFF_PAINT_OPTIONS = [
+  { id: 'open', label: 'Working' },
+  { id: 'off', label: 'Off day' },
+  { id: 'leave', label: 'Leave' }
 ];
 
 const BUSINESS_STATUS_OPTIONS = [
@@ -83,8 +95,9 @@ function clampMonthAnchor(anchor, todayKey, maxBookableDateKey) {
 
 function mapCalendarStatusToDraft(status) {
   if (status === 'business-closed') return 'business-closed';
-  if (status === 'break') return 'break';
-  if (status === 'leave') return 'off';
+  if (status === 'leave') return 'leave';
+  if (status === 'off') return 'off';
+  // Legacy break days edit as Working + break rows in the feed
   return 'open';
 }
 
@@ -94,20 +107,29 @@ function rangesAreValid(ranges = []) {
   );
 }
 
-function seedDraftRangesForStatus(status, explicit, openTime, closeTime) {
-  if (status === 'open') {
-    if (explicit?.status === 'open' && Array.isArray(explicit.ranges) && explicit.ranges.length) {
-      return explicit.ranges.map((range) => ({ ...range }));
-    }
-    return [{ start: openTime, end: closeTime }];
+function statusTileLabel(status, businessFocus = false) {
+  if (status === 'business-closed') return 'Closed';
+  if (status === 'break') return 'Break';
+  if (status === 'leave') return 'Leave';
+  if (status === 'off') return 'Off';
+  return businessFocus ? 'Available' : 'Working';
+}
+
+function orderedDateSpan(startKey, endKey) {
+  let start = parseDateKey(startKey);
+  let end = parseDateKey(endKey || startKey);
+  if (!start) return { startKey: '', endKey: '', keys: [] };
+  if (!end) end = start;
+  if (start > end) {
+    const swap = start;
+    start = end;
+    end = swap;
   }
-  if (status === 'break') {
-    if (explicit?.status === 'break' && Array.isArray(explicit.ranges) && explicit.ranges.length) {
-      return explicit.ranges.map((range) => ({ ...range }));
-    }
-    return [{ start: '12:00', end: '13:00' }];
+  const keys = [];
+  for (let cursor = new Date(start); cursor <= end; cursor = addDays(cursor, 1)) {
+    keys.push(toDateKey(cursor));
   }
-  return [];
+  return { startKey: toDateKey(start), endKey: toDateKey(end), keys };
 }
 
 function staffInitials(name = '') {
@@ -184,31 +206,28 @@ export function StaffAvailabilitySwitcher({
   );
 }
 
-function AvailabilityStatusSheet({
+function SelectRangeSheet({
   staffName,
-  openTime,
-  closeTime,
   initialDay,
-  allowBusinessClosed = false,
   businessOnly = false,
+  openTime = '09:00',
+  closeTime = '17:00',
   onClose,
   onApply
 }) {
-  const statusOptions = businessOnly
-    ? BUSINESS_STATUS_OPTIONS
-    : allowBusinessClosed
-      ? STATUS_OPTIONS
-      : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
-  const [status, setStatus] = useState('open');
+  const statusOptions = businessOnly ? BUSINESS_STATUS_OPTIONS : STAFF_PAINT_OPTIONS;
+  const [status, setStatus] = useState(statusOptions[0]?.id || 'open');
   const [startDate, setStartDate] = useState(initialDay);
   const [endDate, setEndDate] = useState(initialDay);
-  const [startTime, setStartTime] = useState(openTime);
-  const [endTime, setEndTime] = useState(closeTime);
+
+  useEffect(() => {
+    setStartDate(initialDay);
+    setEndDate(initialDay);
+    setStatus(statusOptions[0]?.id || 'open');
+  }, [initialDay, businessOnly]);
 
   const datesValid = Boolean(startDate && endDate && endDate >= startDate);
-  const needsTimes = !businessOnly && (status === 'open' || status === 'break');
-  const timesValid = !needsTimes || (startTime && endTime && endTime > startTime);
-  const canApply = datesValid && timesValid;
+  const canApply = datesValid;
 
   return (
     <div
@@ -217,20 +236,20 @@ function AvailabilityStatusSheet({
       onClick={onClose}
     >
       <div
-        className="bb-panel bb-schedule-avail-status-sheet w-full max-w-lg p-5 grid gap-4 max-h-[90vh] overflow-auto"
+        className="bb-panel bb-schedule-avail-status-sheet bb-schedule-avail-select-range-sheet w-full max-w-md p-5 grid gap-4 max-h-[90vh] overflow-auto"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="avail-status-sheet-title"
+        aria-labelledby="avail-select-range-title"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="bb-schedule-avail-status-sheet-head">
-          <h2 id="avail-status-sheet-title" className="bb-page-title text-2xl m-0">
-            Manage status
+          <h2 id="avail-select-range-title" className="bb-page-title text-2xl m-0">
+            Select range
           </h2>
           <p className="bb-schedule-avail-hint m-0">
             {businessOnly
-              ? 'Marks the whole business available or closed for every day in the range.'
-              : `Applies to ${staffName || 'staff'} for every day in the range.`}
+              ? 'Choose dates and apply available or closed.'
+              : `Apply a status across dates for ${staffName || 'this staff member'}.`}
           </p>
         </div>
 
@@ -241,7 +260,9 @@ function AvailabilityStatusSheet({
               type="button"
               role="tab"
               aria-selected={status === option.id}
-              className={`bb-schedule-avail-status-btn${status === option.id ? ' is-active' : ''}`}
+              className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
+                status === option.id ? ' is-active' : ''
+              }`}
               onClick={() => setStatus(option.id)}
             >
               {option.label}
@@ -264,38 +285,19 @@ function AvailabilityStatusSheet({
             min={startDate || undefined}
             onChange={setEndDate}
           />
-          {needsTimes ? (
-            <>
-              <TimeField label="Start time" value={startTime} onChange={setStartTime} />
-              <TimeField label="End time" value={endTime} onChange={setEndTime} />
-            </>
-          ) : null}
         </div>
 
-        {businessOnly ? (
-          <p className="bb-schedule-avail-hint m-0">
-            {status === 'business-closed'
+        <p className="bb-schedule-avail-hint m-0">
+          {businessOnly
+            ? status === 'business-closed'
               ? 'Closed days override weekly open days for the whole business.'
-              : 'Available clears closed dates in this range. Weekly open days still apply.'}
-          </p>
-        ) : status === 'open' ? (
-          <p className="bb-schedule-avail-hint m-0">
-            Open days get this shift window. You can refine shifts per day on the calendar.
-          </p>
-        ) : status === 'break' ? (
-          <p className="bb-schedule-avail-hint m-0">
-            Break hours when {staffName || 'this staff member'} cannot be booked. Set the start and
-            end time for the break window.
-          </p>
-        ) : status === 'business-closed' ? (
-          <p className="bb-schedule-avail-hint m-0">
-            Marks the whole business closed on these dates for every staff member.
-          </p>
-        ) : (
-          <p className="bb-schedule-avail-hint m-0">
-            Whole-day status for {staffName || 'this staff member'} — no bookable hours.
-          </p>
-        )}
+              : 'Available clears closed dates in this range. Weekly open days still apply.'
+            : status === 'leave'
+              ? `Leave marks ${staffName || 'this staff member'} unavailable for the selected dates.`
+              : status === 'off'
+                ? `Off day marks ${staffName || 'this staff member'} as not working.`
+                : 'Working days use business hours. Refine shifts per day on the calendar.'}
+        </p>
 
         <div className="bb-schedule-avail-status-sheet-actions">
           <button type="button" className="bb-ghost-btn" onClick={onClose}>
@@ -311,9 +313,81 @@ function AvailabilityStatusSheet({
                 status,
                 startDate,
                 endDate,
-                startTime,
-                endTime
+                startTime: openTime,
+                endTime: closeTime
               });
+            }}
+          >
+            Apply range
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChangeDayStatusSheet({
+  businessOnly = false,
+  currentStatus = 'open',
+  onClose,
+  onApply
+}) {
+  const statusOptions = businessOnly ? BUSINESS_STATUS_OPTIONS : STATUS_OPTIONS;
+  const [status, setStatus] = useState(
+    statusOptions.some((option) => option.id === currentStatus)
+      ? currentStatus
+      : statusOptions[0]?.id || 'open'
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4"
+      role="presentation"
+      onClick={onClose}
+    >
+      <div
+        className="bb-panel bb-schedule-avail-status-sheet bb-schedule-avail-change-status-sheet w-full max-w-sm p-5 grid gap-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="avail-change-status-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="bb-schedule-avail-status-sheet-head">
+          <h2 id="avail-change-status-title" className="bb-page-title text-2xl m-0">
+            Change status
+          </h2>
+          <p className="bb-schedule-avail-hint m-0">
+            {businessOnly ? 'Set this business day.' : 'Set this staff day.'}
+          </p>
+        </div>
+
+        <div className="bb-schedule-avail-status" role="tablist" aria-label="Day status">
+          {statusOptions.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              aria-selected={status === option.id}
+              className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
+                status === option.id ? ' is-active' : ''
+              }`}
+              onClick={() => setStatus(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="bb-schedule-avail-status-sheet-actions">
+          <button type="button" className="bb-ghost-btn" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="bb-primary-btn"
+            onClick={() => {
+              onApply?.(status);
+              onClose?.();
             }}
           >
             Apply
@@ -363,9 +437,52 @@ export function ScheduleAvailabilityEditor({
 
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(() => toDateKey(new Date()));
-  const [statusSheetOpen, setStatusSheetOpen] = useState(false);
+  const [selectRangeOpen, setSelectRangeOpen] = useState(false);
   const [dayDraftStatus, setDayDraftStatus] = useState('open');
   const [draftShifts, setDraftShifts] = useState([{ start: openTime, end: closeTime }]);
+  const [draftBreaks, setDraftBreaks] = useState([]);
+  const [dayStatusSheetOpen, setDayStatusSheetOpen] = useState(false);
+  const [activeEdit, setActiveEdit] = useState(null);
+  const suppressPaintClickRef = useRef(false);
+  const paintPreviewKeys = useMemo(() => {
+    if (!activeEdit?.dragging || !activeEdit.dragStart) return new Set();
+    return new Set(
+      orderedDateSpan(activeEdit.dragStart, activeEdit.dragHover || activeEdit.dragStart).keys
+    );
+  }, [activeEdit]);
+
+  const paintBrushOptions = useMemo(() => {
+    if (isBusinessFocus) return BUSINESS_STATUS_OPTIONS;
+    return STAFF_PAINT_OPTIONS;
+  }, [isBusinessFocus]);
+
+  const exitActiveEdit = () => {
+    setSelectRangeOpen(false);
+    setActiveEdit(null);
+  };
+
+  useEffect(() => {
+    if (!activeEdit) return undefined;
+    const onKey = (event) => {
+      if (event.key === 'Escape') {
+        if (activeEdit.dragging) {
+          setActiveEdit((prev) =>
+            prev
+              ? { ...prev, dragStart: null, dragHover: null, dragging: false }
+              : null
+          );
+        } else {
+          exitActiveEdit();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeEdit]);
+
+  useEffect(() => {
+    setActiveEdit(null);
+  }, [staffId]);
 
   useEffect(() => {
     if (isBusinessFocus) {
@@ -392,6 +509,25 @@ export function ScheduleAvailabilityEditor({
       staff,
       staffId
     });
+
+  const canUseActiveEdit = Boolean(
+    (isBusinessFocus && canEditRules) || (!isBusinessFocus && (canEditSelected || canEditRules))
+  );
+
+  const enterActiveEdit = (brush = 'open') => {
+    if (!canUseActiveEdit) return;
+    const allowed = paintBrushOptions.some((option) => option.id === brush)
+      ? brush
+      : paintBrushOptions[0]?.id || 'open';
+    setActiveEdit({
+      brush: allowed,
+      dragStart: null,
+      dragHover: null,
+      dragging: false
+    });
+    setSelectRangeOpen(false);
+    onStudioSettingsOpenChange?.(false);
+  };
 
   const entry = useMemo(
     () =>
@@ -474,25 +610,21 @@ export function ScheduleAvailabilityEditor({
   const openTimeLabel = selectedDayHours.openTime || '09:00';
   const closeTimeLabel = selectedDayHours.closeTime || '17:00';
 
-  const dayStatusOptions = isBusinessFocus
-    ? BUSINESS_STATUS_OPTIONS
-    : canEditRules
-      ? STATUS_OPTIONS
-      : STATUS_OPTIONS.filter((option) => option.id !== 'business-closed');
-
   const dayLockedByBusinessClose =
-    !isBusinessFocus && selectedDayStatus === 'business-closed' && !canEditRules;
+    !isBusinessFocus && selectedDayStatus === 'business-closed';
 
   const canEditDayTimes =
     !isBusinessFocus &&
     canEditSelected &&
     !dayLockedByBusinessClose &&
-    (dayDraftStatus === 'open' || dayDraftStatus === 'break');
+    dayDraftStatus === 'open';
 
   const dayTimesValid =
     dayDraftStatus === 'off' ||
+    dayDraftStatus === 'leave' ||
     dayDraftStatus === 'business-closed' ||
-    rangesAreValid(draftShifts);
+    (rangesAreValid(draftShifts) &&
+      (draftBreaks.length === 0 || rangesAreValid(draftBreaks)));
 
   const canSaveDay = isBusinessFocus
     ? Boolean(selectedDay) &&
@@ -510,36 +642,62 @@ export function ScheduleAvailabilityEditor({
     setDayDraftStatus(mapped);
     if (isBusinessFocus) {
       setDraftShifts([]);
+      setDraftBreaks([]);
       return;
     }
     if (!staffId || !entry) return;
     const explicit = entry.days?.[selectedDay];
     if (mapped === 'open') {
-      const windows = getEffectiveStaffWindows(
-        staffId,
-        selectedDay,
-        { [staffId]: entry },
-        availabilityRules
-      );
+      if (explicit?.status === 'break') {
+        const date = parseDateKey(selectedDay);
+        const weekday = date ? WEEKDAY_KEYS[(date.getDay() + 6) % 7] : 'mon';
+        const template = entry.weekTemplate?.[weekday];
+        setDraftShifts(
+          template?.open && template.ranges?.length
+            ? template.ranges.map((range) => ({ ...range }))
+            : [{ start: openTime, end: closeTime }]
+        );
+        setDraftBreaks(
+          explicit.ranges?.length
+            ? explicit.ranges.map((range) => ({ ...range }))
+            : [{ start: '12:00', end: '13:00' }]
+        );
+        return;
+      }
       if (
         explicit?.status === 'open' ||
-        (explicit?.open && explicit?.status !== 'break' && explicit?.status !== 'off')
+        (explicit?.open &&
+          explicit?.status !== 'off' &&
+          explicit?.status !== 'leave')
       ) {
         setDraftShifts(
           explicit.ranges?.length
             ? explicit.ranges.map((range) => ({ ...range }))
             : [{ start: openTime, end: closeTime }]
         );
+        setDraftBreaks(
+          Array.isArray(explicit.breaks)
+            ? explicit.breaks.map((range) => ({ ...range }))
+            : []
+        );
         return;
       }
-      if (windows.length) {
-        setDraftShifts(windows.map((range) => ({ ...range })));
-        return;
-      }
-      setDraftShifts([{ start: openTime, end: closeTime }]);
+      const windows = getEffectiveStaffWindows(
+        staffId,
+        selectedDay,
+        { [staffId]: entry },
+        availabilityRules
+      );
+      setDraftShifts(
+        windows.length
+          ? windows.map((range) => ({ ...range }))
+          : [{ start: openTime, end: closeTime }]
+      );
+      setDraftBreaks([]);
       return;
     }
-    setDraftShifts(seedDraftRangesForStatus(mapped, explicit, openTime, closeTime));
+    setDraftShifts([]);
+    setDraftBreaks([]);
   }, [
     staffId,
     selectedDay,
@@ -558,12 +716,26 @@ export function ScheduleAvailabilityEditor({
       setDayDraftStatus(nextStatus);
       return;
     }
-    if (!canEditSelected && nextStatus !== 'business-closed') return;
-    if (nextStatus === 'business-closed' && !canEditRules) return;
+    if (!canEditSelected) return;
     if (dayLockedByBusinessClose) return;
     setDayDraftStatus(nextStatus);
-    const explicit = entry?.days?.[selectedDay];
-    setDraftShifts(seedDraftRangesForStatus(nextStatus, explicit, openTime, closeTime));
+    if (nextStatus === 'open') {
+      const explicit = entry?.days?.[selectedDay];
+      if (explicit?.status === 'open' && explicit.ranges?.length) {
+        setDraftShifts(explicit.ranges.map((range) => ({ ...range })));
+        setDraftBreaks(
+          Array.isArray(explicit.breaks)
+            ? explicit.breaks.map((range) => ({ ...range }))
+            : []
+        );
+      } else {
+        setDraftShifts([{ start: openTime, end: closeTime }]);
+        setDraftBreaks([]);
+      }
+      return;
+    }
+    setDraftShifts([]);
+    setDraftBreaks([]);
   };
 
   const applyStatusFromSheet = ({ status, startDate, endDate, startTime, endTime }) => {
@@ -575,14 +747,14 @@ export function ScheduleAvailabilityEditor({
         onUpdateRules?.(applyBusinessClosedToRange(availabilityRules, startDate, endDate, false));
       }
       setSelectedDay(startDate);
-      setStatusSheetOpen(false);
+      setSelectRangeOpen(false);
       return;
     }
     if (!canEditSelected && status !== 'business-closed') return;
     if (status === 'business-closed') {
       if (!canEditRules) return;
       onUpdateRules?.(applyBusinessClosedToRange(availabilityRules, startDate, endDate, true));
-      setStatusSheetOpen(false);
+      setSelectRangeOpen(false);
       return;
     }
     if (!staffId || !entry) return;
@@ -607,7 +779,78 @@ export function ScheduleAvailabilityEditor({
     }
     onSaveEntry?.(staffId, next);
     setSelectedDay(startDate);
-    setStatusSheetOpen(false);
+    setSelectRangeOpen(false);
+  };
+
+  const paintStatusRange = (startDate, endDate, status) => {
+    const brush = status || activeEdit?.brush || 'open';
+    const span = orderedDateSpan(startDate, endDate);
+    if (!span.startKey || !span.endKey) return;
+    applyStatusFromSheet({
+      status: brush,
+      startDate: span.startKey,
+      endDate: span.endKey,
+      startTime: brush === 'break' ? '12:00' : openTime,
+      endTime: brush === 'break' ? '13:00' : closeTime
+    });
+  };
+
+  const isDayPaintable = (dateKey) =>
+    Boolean(dateKey) &&
+    isDateWithinAdvanceWindow(dateKey, availabilityRules, { todayKey });
+
+  const resolveDayStatusForPaint = (dateKey) => {
+    if (isBusinessFocus) {
+      return isBusinessOpenOnDate(dateKey, availabilityRules) ? 'open' : 'business-closed';
+    }
+    return resolveCalendarDayStatus(
+      staffId,
+      dateKey,
+      { [staffId]: entry },
+      availabilityRules
+    );
+  };
+
+  const nextCycledStatus = (current) => {
+    const options = paintBrushOptions;
+    if (!options.length) return 'open';
+    const idx = options.findIndex((option) => option.id === current);
+    return options[(idx + 1) % options.length].id;
+  };
+
+  const handlePaintDayClick = (key) => {
+    if (!activeEdit || !isDayPaintable(key)) return;
+    if (suppressPaintClickRef.current) {
+      suppressPaintClickRef.current = false;
+      return;
+    }
+    if (activeEdit.dragging && activeEdit.dragStart) {
+      paintStatusRange(activeEdit.dragStart, key, activeEdit.brush);
+      setActiveEdit((prev) =>
+        prev ? { ...prev, dragStart: null, dragHover: null, dragging: false } : null
+      );
+      return;
+    }
+    const current = resolveDayStatusForPaint(key);
+    if (!isBusinessFocus && (current === 'business-closed' || current === 'break')) return;
+    const next = nextCycledStatus(current);
+    setActiveEdit((prev) => (prev ? { ...prev, brush: next } : null));
+    paintStatusRange(key, key, next);
+  };
+
+  const handlePaintDayDoubleClick = (key) => {
+    if (!activeEdit || !isDayPaintable(key)) return;
+    suppressPaintClickRef.current = true;
+    setActiveEdit((prev) =>
+      prev
+        ? { ...prev, dragStart: key, dragHover: key, dragging: true }
+        : null
+    );
+  };
+
+  const handlePaintDayEnter = (key) => {
+    if (!activeEdit?.dragging || !isDayPaintable(key)) return;
+    setActiveEdit((prev) => (prev ? { ...prev, dragHover: key } : null));
   };
 
   const saveDay = () => {
@@ -646,6 +889,7 @@ export function ScheduleAvailabilityEditor({
 
     if (dayDraftStatus === 'open') {
       if (!rangesAreValid(draftShifts)) return;
+      if (draftBreaks.length && !rangesAreValid(draftBreaks)) return;
       onSaveEntry?.(
         staffId,
         setStaffDayOverride(
@@ -655,6 +899,7 @@ export function ScheduleAvailabilityEditor({
             status: 'open',
             open: true,
             ranges: draftShifts,
+            breaks: draftBreaks,
             source: 'manual'
           },
           openTime,
@@ -664,17 +909,16 @@ export function ScheduleAvailabilityEditor({
       return;
     }
 
-    if (dayDraftStatus === 'break') {
-      if (!rangesAreValid(draftShifts)) return;
+    if (dayDraftStatus === 'leave') {
       onSaveEntry?.(
         staffId,
         setStaffDayOverride(
           entry,
           selectedDay,
           {
-            status: 'break',
+            status: 'leave',
             open: false,
-            ranges: draftShifts,
+            ranges: [],
             source: 'manual'
           },
           openTime,
@@ -708,6 +952,22 @@ export function ScheduleAvailabilityEditor({
     );
   };
 
+  const updateBreak = (index, patch) => {
+    if (!canEditDayTimes) return;
+    setDraftBreaks((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, ...patch } : row))
+    );
+  };
+
+  const statusLabelForDraft = (status) => {
+    if (isBusinessFocus) {
+      return status === 'business-closed' ? 'Closed' : 'Available';
+    }
+    if (status === 'leave') return 'Leave';
+    if (status === 'off') return 'Off day';
+    return 'Working';
+  };
+
   if (!visibleStaff.length && !canEditRules) {
     return (
       <div className="bb-schedule-avail">
@@ -720,33 +980,12 @@ export function ScheduleAvailabilityEditor({
   }
 
   return (
-    <div className="bb-schedule-avail">
-      {isBusinessFocus ? null : canEditSelected || canEditRules ? (
-        <section className="bb-schedule-avail-panel bb-schedule-avail-setup-panel">
-          <div className="bb-schedule-avail-setup-copy">
-            <h3 className="bb-schedule-avail-title">Availability setup</h3>
-            <p className="bb-schedule-avail-hint m-0">
-              Manage open, break, or off days on your calendar.
-            </p>
-          </div>
-          <div className="bb-schedule-avail-setup-tools">
-            {canEditSelected ? (
-              <button
-                type="button"
-                className="bb-schedule-avail-manage-btn"
-                onClick={() => setStatusSheetOpen(true)}
-              >
-                <CalendarRange size={17} strokeWidth={2.2} aria-hidden="true" />
-                Manage status
-              </button>
-            ) : null}
-          </div>
-        </section>
-      ) : (
+    <div className={`bb-schedule-avail${activeEdit ? ' is-active-edit' : ''}`}>
+      {!isBusinessFocus && !canEditSelected && !canEditRules ? (
         <p className="bb-schedule-avail-hint">
           Only you and the owner can edit this staff member&apos;s availability.
         </p>
-      )}
+      ) : null}
 
       <section className="bb-schedule-avail-panel">
         <div className="bb-schedule-avail-cal-head">
@@ -761,20 +1000,99 @@ export function ScheduleAvailabilityEditor({
             </h3>
             <p className="bb-schedule-avail-window-hint">{bookableWindowLabel}</p>
           </div>
-          <div className="bb-schedule-avail-legend" aria-label="Day colors">
-            <span className="bb-schedule-avail-legend-item is-open">
-              <i /> {isBusinessFocus ? 'Available' : 'Open'}
-            </span>
-            {isBusinessFocus ? null : (
-              <span className="bb-schedule-avail-legend-item is-leave">
-                <i /> Off
+          <div className="bb-schedule-avail-cal-side">
+            {canUseActiveEdit ? (
+              <div className="bb-schedule-avail-edit-tools">
+                <button
+                  type="button"
+                  className={`bb-schedule-avail-edit-toggle${activeEdit ? ' is-on' : ''}`}
+                  role="switch"
+                  aria-checked={Boolean(activeEdit)}
+                  aria-label="Active edit mode"
+                  onClick={() => {
+                    if (activeEdit) {
+                      setSelectRangeOpen(false);
+                      exitActiveEdit();
+                    } else {
+                      enterActiveEdit('open');
+                    }
+                  }}
+                >
+                  <span className="bb-schedule-avail-edit-toggle-label">Active edit</span>
+                  <span className="bb-schedule-avail-edit-toggle-track" aria-hidden="true">
+                    <span className="bb-schedule-avail-edit-toggle-knob" />
+                  </span>
+                </button>
+                {activeEdit ? (
+                  <button
+                    type="button"
+                    className="bb-schedule-avail-select-range-btn"
+                    onClick={() => setSelectRangeOpen(true)}
+                  >
+                    <CalendarRange size={16} strokeWidth={2.2} aria-hidden="true" />
+                    Select range
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            <div className="bb-schedule-avail-legend" aria-label="Day colors">
+              <span className="bb-schedule-avail-legend-item is-open">
+                <i /> {isBusinessFocus ? 'Available' : 'Working'}
               </span>
-            )}
-            <span className="bb-schedule-avail-legend-item is-biz-closed">
-              <i /> {isBusinessFocus ? 'Closed' : 'Business closed'}
-            </span>
+              {isBusinessFocus ? null : (
+                <>
+                  <span className="bb-schedule-avail-legend-item is-off">
+                    <i /> Off day
+                  </span>
+                  <span className="bb-schedule-avail-legend-item is-leave">
+                    <i /> Leave
+                  </span>
+                </>
+              )}
+              <span className="bb-schedule-avail-legend-item is-biz-closed">
+                <i /> {isBusinessFocus ? 'Closed' : 'Business closed'}
+              </span>
+            </div>
           </div>
         </div>
+
+        {activeEdit ? (
+          <div className="bb-schedule-avail-paint-bar" role="toolbar" aria-label="Paint status">
+            <p className="bb-schedule-avail-paint-bar-hint">
+              {activeEdit.dragging
+                ? 'Move across days, then click to apply the range'
+                : 'Click a day to cycle status · Double-click, then drag to paint a range'}
+            </p>
+            <div className="bb-schedule-avail-status bb-schedule-avail-paint-brushes" role="tablist">
+              {paintBrushOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeEdit.brush === option.id}
+                  className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
+                    activeEdit.brush === option.id ? ' is-active' : ''
+                  }`}
+                  onClick={() =>
+                    setActiveEdit((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            brush: option.id,
+                            dragStart: null,
+                            dragHover: null,
+                            dragging: false
+                          }
+                        : prev
+                    )
+                  }
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="bb-schedule-picker-month-nav">
           <button
@@ -822,7 +1140,11 @@ export function ScheduleAvailabilityEditor({
           ))}
         </div>
 
-        <div className="bb-schedule-picker-grid">
+        <div
+          className={`bb-schedule-picker-grid${activeEdit ? ' is-painting' : ''}${
+            activeEdit?.dragging ? ' is-dragging' : ''
+          }`}
+        >
           {monthDays.map((date) => {
             const key = toDateKey(date);
             const inMonth = date.getMonth() === monthAnchor.getMonth();
@@ -832,18 +1154,33 @@ export function ScheduleAvailabilityEditor({
                 ? 'open'
                 : 'business-closed'
               : resolveCalendarDayStatus(staffId, key, { [staffId]: entry }, availabilityRules);
-            // Break days stay green on the month grid; breakdown lives in day view.
-            const gridStatus = status === 'break' ? 'open' : status;
-            const isFocusDay = key === selectedDay;
+            const previewing = paintPreviewKeys.has(key);
+            const displayStatus = previewing
+              ? activeEdit.brush
+              : status === 'break'
+                ? 'open'
+                : status;
+            const isFocusDay = !activeEdit && key === selectedDay;
+            const paintable = Boolean(activeEdit) && inWindow;
             return (
               <button
                 key={key}
                 type="button"
-                className={`bb-schedule-picker-day is-${gridStatus}${
+                className={`bb-schedule-picker-day is-${displayStatus}${
                   isFocusDay ? ' is-selected' : ''
-                }${inMonth ? '' : ' is-outside'}${inWindow ? '' : ' is-outside-window'}`}
-                aria-label={`${formatDisplayDate(key)}, ${status}`}
+                }${inMonth ? '' : ' is-outside'}${inWindow ? '' : ' is-outside-window'}${
+                  previewing ? ' is-paint-preview' : ''
+                }${paintable ? ' is-paintable' : ''}`}
+                aria-label={`${formatDisplayDate(key)}, ${statusTileLabel(
+                  displayStatus,
+                  isBusinessFocus
+                )}`}
+                disabled={Boolean(activeEdit) && !inWindow}
                 onClick={() => {
+                  if (activeEdit) {
+                    handlePaintDayClick(key);
+                    return;
+                  }
                   setSelectedDay(key);
                   if (date.getMonth() !== monthAnchor.getMonth()) {
                     setMonthAnchor(
@@ -855,8 +1192,19 @@ export function ScheduleAvailabilityEditor({
                     );
                   }
                 }}
+                onDoubleClick={(event) => {
+                  if (!activeEdit) return;
+                  event.preventDefault();
+                  handlePaintDayDoubleClick(key);
+                }}
+                onPointerEnter={() => handlePaintDayEnter(key)}
               >
                 {date.getDate()}
+                {activeEdit ? (
+                  <span className="bb-schedule-picker-day-status">
+                    {statusTileLabel(displayStatus, isBusinessFocus)}
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -925,10 +1273,16 @@ export function ScheduleAvailabilityEditor({
                 ) : null}
                 <div className="bb-schedule-day-meter-legend" aria-hidden="true">
                   <span className="bb-schedule-day-meter-legend-item is-open">
-                    <i /> Shift
+                    <i /> Working
                   </span>
                   <span className="bb-schedule-day-meter-legend-item is-break">
                     <i /> Break
+                  </span>
+                  <span className="bb-schedule-day-meter-legend-item is-off">
+                    <i /> Off day
+                  </span>
+                  <span className="bb-schedule-day-meter-legend-item is-leave">
+                    <i /> Leave
                   </span>
                 </div>
               </>
@@ -955,7 +1309,7 @@ export function ScheduleAvailabilityEditor({
               <div className="bb-schedule-day-meter-legend" aria-hidden="true">
                 {selectedTimeline.segments.some((segment) => segment.kind === 'open') ? (
                   <span className="bb-schedule-day-meter-legend-item is-open">
-                    <i /> Shift
+                    <i /> Working
                   </span>
                 ) : null}
                 {selectedTimeline.segments.some((segment) => segment.kind === 'break') ? (
@@ -967,10 +1321,12 @@ export function ScheduleAvailabilityEditor({
             ) : (
               <p className="bb-schedule-avail-hint m-0 text-sm">
                 {selectedTimeline.status === 'leave'
-                  ? 'Off — no bookable hours.'
-                  : selectedTimeline.status === 'business-closed'
-                    ? 'Business closed this day.'
-                    : 'No shift windows on this day.'}
+                  ? 'Leave — no bookable hours.'
+                  : selectedTimeline.status === 'off'
+                    ? 'Off day — no bookable hours.'
+                    : selectedTimeline.status === 'business-closed'
+                      ? 'Business closed this day.'
+                      : 'No shift windows on this day.'}
               </p>
             )}
           </div>
@@ -982,29 +1338,24 @@ export function ScheduleAvailabilityEditor({
           <h3 className="bb-schedule-avail-title">
             {formatDisplayDate(selectedDay)} · Day
           </h3>
+          <span
+            className={`bb-schedule-avail-day-status-chip is-${dayDraftStatus}`}
+          >
+            {statusLabelForDraft(dayDraftStatus)}
+          </span>
         </div>
 
         {isBusinessFocus ? (
           canEditRules ? (
             <>
-              <div className="bb-schedule-avail-day-status-block">
-                <p className="bb-schedule-avail-day-section-label">Day status</p>
-                <div className="bb-schedule-avail-status" role="tablist" aria-label="Day status">
-                  {dayStatusOptions.map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={dayDraftStatus === option.id}
-                      className={`bb-schedule-avail-status-btn${
-                        dayDraftStatus === option.id ? ' is-active' : ''
-                      }`}
-                      onClick={() => changeDayStatus(option.id)}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="bb-schedule-avail-day-toolbar">
+                <button
+                  type="button"
+                  className="bb-schedule-avail-day-tool-btn"
+                  onClick={() => setDayStatusSheetOpen(true)}
+                >
+                  Change status
+                </button>
               </div>
               <p className="bb-schedule-avail-hint">
                 {dayDraftStatus === 'business-closed'
@@ -1038,103 +1389,124 @@ export function ScheduleAvailabilityEditor({
           </p>
         ) : (
           <>
-            <div className="bb-schedule-avail-day-status-block">
-              <p className="bb-schedule-avail-day-section-label">Day status</p>
-              <div className="bb-schedule-avail-status" role="tablist" aria-label="Day status">
-                {dayStatusOptions.map((option) => (
+            <div className="bb-schedule-avail-day-toolbar">
+              <button
+                type="button"
+                className="bb-schedule-avail-day-tool-btn"
+                onClick={() => setDayStatusSheetOpen(true)}
+              >
+                Change status
+              </button>
+              {canEditDayTimes ? (
+                <>
                   <button
-                    key={option.id}
                     type="button"
-                    role="tab"
-                    aria-selected={dayDraftStatus === option.id}
-                    className={`bb-schedule-avail-status-btn${
-                      dayDraftStatus === option.id ? ' is-active' : ''
-                    }`}
-                    onClick={() => changeDayStatus(option.id)}
+                    className="bb-schedule-avail-day-tool-btn is-break"
+                    onClick={() =>
+                      setDraftBreaks((prev) => [...prev, { start: '12:00', end: '13:00' }])
+                    }
                   >
-                    {option.label}
+                    <Plus size={15} strokeWidth={2.3} aria-hidden="true" />
+                    Add break
                   </button>
-                ))}
-              </div>
+                  <button
+                    type="button"
+                    className="bb-schedule-avail-day-tool-btn is-shift"
+                    onClick={() =>
+                      setDraftShifts((prev) => [
+                        ...prev,
+                        { start: openTime, end: closeTime }
+                      ])
+                    }
+                  >
+                    <Plus size={15} strokeWidth={2.3} aria-hidden="true" />
+                    Add shift
+                  </button>
+                </>
+              ) : null}
             </div>
 
             {canEditDayTimes ? (
-              <div className="bb-schedule-avail-day-times-block">
-                <p className="bb-schedule-avail-day-section-label">
-                  {dayDraftStatus === 'break' ? 'Break hours' : 'Shifts'}
-                </p>
-                <div className="bb-schedule-avail-shifts">
-                  {draftShifts.map((shift, index) => (
-                    <div key={index} className="bb-schedule-avail-shift-row">
-                      <div className="bb-schedule-avail-shift-times">
-                        <TimeField
-                          label="Start"
-                          value={shift.start}
-                          onChange={(next) => updateShift(index, { start: next })}
-                        />
-                        <TimeField
-                          label="End"
-                          value={shift.end}
-                          onChange={(next) => updateShift(index, { end: next })}
-                        />
-                      </div>
+              <div className="bb-schedule-avail-day-feed" aria-label="Shifts and breaks">
+                {draftShifts.map((shift, index) => (
+                  <div key={`shift-${index}`} className="bb-schedule-avail-day-feed-item is-shift">
+                    <div className="bb-schedule-avail-day-feed-item-head">
+                      <span className="bb-schedule-avail-day-feed-tag">Shift</span>
                       {draftShifts.length > 1 ? (
-                        <div className="bb-schedule-avail-shift-tools">
-                          <button
-                            type="button"
-                            className="bb-ghost-btn bb-schedule-avail-shift-remove"
-                            aria-label={`Remove ${dayDraftStatus === 'break' ? 'break' : 'shift'} ${
-                              index + 1
-                            }`}
-                            onClick={() =>
-                              setDraftShifts((prev) => prev.filter((_, i) => i !== index))
-                            }
-                          >
-                            <Trash2 size={15} strokeWidth={2.2} />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          className="bb-ghost-btn bb-schedule-avail-shift-remove"
+                          aria-label={`Remove shift ${index + 1}`}
+                          onClick={() =>
+                            setDraftShifts((prev) => prev.filter((_, i) => i !== index))
+                          }
+                        >
+                          <Trash2 size={15} strokeWidth={2.2} />
+                        </button>
                       ) : null}
                     </div>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  className="bb-schedule-avail-add-shift"
-                  onClick={() =>
-                    setDraftShifts((prev) => [
-                      ...prev,
-                      dayDraftStatus === 'break'
-                        ? { start: '12:00', end: '13:00' }
-                        : { start: openTime, end: closeTime }
-                    ])
-                  }
-                >
-                  <Plus size={16} strokeWidth={2.3} />
-                  {dayDraftStatus === 'break' ? 'Add break' : 'Add shift'}
-                </button>
-
-                <p className="bb-schedule-avail-hint m-0">
-                  {dayDraftStatus === 'break'
-                    ? 'Break hours when this staff member cannot be booked.'
-                    : 'Shifts set when clients can book this staff member.'}
-                </p>
+                    <div className="bb-schedule-avail-shift-times">
+                      <TimeField
+                        label="Start"
+                        value={shift.start}
+                        onChange={(next) => updateShift(index, { start: next })}
+                      />
+                      <TimeField
+                        label="End"
+                        value={shift.end}
+                        onChange={(next) => updateShift(index, { end: next })}
+                      />
+                    </div>
+                  </div>
+                ))}
+                {draftBreaks.map((row, index) => (
+                  <div key={`break-${index}`} className="bb-schedule-avail-day-feed-item is-break">
+                    <div className="bb-schedule-avail-day-feed-item-head">
+                      <span className="bb-schedule-avail-day-feed-tag">Break</span>
+                      <button
+                        type="button"
+                        className="bb-ghost-btn bb-schedule-avail-shift-remove"
+                        aria-label={`Remove break ${index + 1}`}
+                        onClick={() =>
+                          setDraftBreaks((prev) => prev.filter((_, i) => i !== index))
+                        }
+                      >
+                        <Trash2 size={15} strokeWidth={2.2} />
+                      </button>
+                    </div>
+                    <div className="bb-schedule-avail-shift-times">
+                      <TimeField
+                        label="Start"
+                        value={row.start}
+                        onChange={(next) => updateBreak(index, { start: next })}
+                      />
+                      <TimeField
+                        label="End"
+                        value={row.end}
+                        onChange={(next) => updateBreak(index, { end: next })}
+                      />
+                    </div>
+                  </div>
+                ))}
+                {!draftShifts.length && !draftBreaks.length ? (
+                  <p className="bb-schedule-avail-hint m-0">
+                    No shifts or breaks yet. Add a shift to open bookable hours.
+                  </p>
+                ) : null}
               </div>
             ) : (
               <p className="bb-schedule-avail-hint">
-                {dayDraftStatus === 'business-closed'
-                  ? 'Marks the whole business closed on this date for every staff member.'
-                  : 'Whole-day off — no bookable hours for this staff member.'}
+                {dayDraftStatus === 'leave'
+                  ? 'Leave — no bookable hours for this staff member.'
+                  : 'Off day — no bookable hours for this staff member.'}
               </p>
             )}
 
             <div className="bb-schedule-avail-day-actions">
               <span className="bb-schedule-avail-hint">
                 {dayDraftStatus === 'open'
-                  ? 'Save to apply this day’s status and shifts.'
-                  : dayDraftStatus === 'break'
-                    ? 'Save to apply this day’s break hours.'
-                    : 'Save to apply this day’s status.'}
+                  ? 'Save to apply this day’s shifts and breaks.'
+                  : 'Save to apply this day’s status.'}
               </span>
               <button
                 type="button"
@@ -1153,32 +1525,32 @@ export function ScheduleAvailabilityEditor({
         <AvailabilityStudioSettingsSheet
           availabilityRules={availabilityRules}
           onUpdateRules={onUpdateRules}
-          showBusinessHours
-          showManageStatus={isBusinessFocus ? canEditRules : canEditSelected}
+          showBusinessHours={isBusinessFocus}
+          onClose={() => onStudioSettingsOpenChange?.(false)}
+        />
+      ) : null}
+
+      {dayStatusSheetOpen ? (
+        <ChangeDayStatusSheet
+          businessOnly={isBusinessFocus}
+          currentStatus={dayDraftStatus}
+          onClose={() => setDayStatusSheetOpen(false)}
+          onApply={changeDayStatus}
+        />
+      ) : null}
+
+      {selectRangeOpen && activeEdit && canUseActiveEdit ? (
+        <SelectRangeSheet
           staffName={isBusinessFocus ? 'Business' : selectedMember?.name}
           openTime={openTime}
           closeTime={closeTime}
           initialDay={selectedDay}
           businessOnly={isBusinessFocus}
-          allowBusinessClosed={canEditRules}
-          onClose={() => onStudioSettingsOpenChange?.(false)}
-          onApplyStatus={(payload) => {
+          onClose={() => setSelectRangeOpen(false)}
+          onApply={(payload) => {
             applyStatusFromSheet(payload);
-            onStudioSettingsOpenChange?.(false);
+            setSelectRangeOpen(false);
           }}
-        />
-      ) : null}
-
-      {statusSheetOpen && !isBusinessFocus && canEditSelected ? (
-        <AvailabilityStatusSheet
-          staffName={selectedMember?.name}
-          openTime={openTime}
-          closeTime={closeTime}
-          initialDay={selectedDay}
-          allowBusinessClosed={canEditRules}
-          businessOnly={false}
-          onClose={() => setStatusSheetOpen(false)}
-          onApply={applyStatusFromSheet}
         />
       ) : null}
     </div>

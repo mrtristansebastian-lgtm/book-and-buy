@@ -102,7 +102,12 @@ export const normalizeStaffDay = (
   closeTime = DEFAULT_CLOSE
 ) => {
   let status = day?.status;
-  if (status !== 'open' && status !== 'break' && status !== 'off') {
+  if (
+    status !== 'open' &&
+    status !== 'break' &&
+    status !== 'off' &&
+    status !== 'leave'
+  ) {
     status = day?.open === false ? 'off' : 'open';
   }
   const open = status === 'open';
@@ -114,10 +119,14 @@ export const normalizeStaffDay = (
       : status === 'break'
         ? normalizeRanges(day?.ranges, openTime, closeTime, { allowEmpty: true })
         : [];
+  const breaks = open
+    ? normalizeRanges(day?.breaks, openTime, closeTime, { allowEmpty: true })
+    : [];
   return {
     status,
     open,
     ranges,
+    breaks,
     note: String(day?.note || '').trim(),
     source
   };
@@ -288,7 +297,13 @@ export const getStaffDayWindows = (
 
   const explicit = entry.days?.[dateKey];
   if (explicit) {
-    if (explicit.status === 'off' || (!explicit.open && explicit.status !== 'break')) return [];
+    if (
+      explicit.status === 'off' ||
+      explicit.status === 'leave' ||
+      (!explicit.open && explicit.status !== 'break')
+    ) {
+      return [];
+    }
     if (explicit.status === 'break') {
       const breakRanges = explicit.ranges || [];
       if (!breakRanges.length) return [];
@@ -301,7 +316,9 @@ export const getStaffDayWindows = (
       return subtractRangesFromList(base, breakRanges);
     }
     if (!explicit.open) return [];
-    return explicit.ranges || [];
+    const base = explicit.ranges || [];
+    const dayBreaks = explicit.breaks || [];
+    return dayBreaks.length ? subtractRangesFromList(base, dayBreaks) : base;
   }
 
   const weekday = weekdayKeyFromDate(dateKey);
@@ -328,11 +345,12 @@ export const resolveCalendarDayStatus = (
   const explicit = entry.days?.[dateKey];
   if (explicit) {
     if (explicit.status === 'break') return 'break';
-    if (explicit.status === 'off' || !explicit.open) return 'leave';
+    if (explicit.status === 'leave') return 'leave';
+    if (explicit.status === 'off' || !explicit.open) return 'off';
     return 'open';
   }
   const windows = getStaffDayWindows(staffId, dateKey, staffAvailability, availabilityRules);
-  return windows.length ? 'open' : 'leave';
+  return windows.length ? 'open' : 'off';
 };
 
 const timeToMinutes = (hhmm = '') => {
@@ -383,7 +401,7 @@ export const getStaffDayTimeline = (
     };
   };
 
-  if (status === 'business-closed' || status === 'leave') {
+  if (status === 'business-closed' || status === 'leave' || status === 'off') {
     return { status, segments: [], dayStart, dayEnd };
   }
 
@@ -409,6 +427,11 @@ export const getStaffDayTimeline = (
 
   if (status === 'break' && Array.isArray(explicit?.ranges)) {
     explicit.ranges.forEach((range) => {
+      const seg = toSegment(range, 'break');
+      if (seg) segments.push(seg);
+    });
+  } else if (Array.isArray(explicit?.breaks)) {
+    explicit.breaks.forEach((range) => {
       const seg = toSegment(range, 'break');
       if (seg) segments.push(seg);
     });
@@ -521,7 +544,9 @@ export const getScheduleDayTimeline = ({
   return {
     status:
       segments.some((segment) => segment.kind === 'booking') &&
-      (base.status === 'leave' || base.status === 'business-closed')
+      (base.status === 'leave' ||
+        base.status === 'off' ||
+        base.status === 'business-closed')
         ? 'open'
         : base.status,
     segments,
@@ -549,7 +574,8 @@ export const applyStatusToRange = (
     start = end;
     end = swap;
   }
-  const nextStatus = status === 'break' || status === 'off' ? status : 'open';
+  const nextStatus =
+    status === 'break' || status === 'off' || status === 'leave' ? status : 'open';
   const days = { ...normalized.days };
   for (let cursor = new Date(start); cursor <= end; cursor = addDays(cursor, 1)) {
     const key = toDateKey(cursor);
