@@ -1,16 +1,28 @@
 import { Pencil, Trash2 } from 'lucide-react';
-import { formatProductPrice, formatStockNote } from '../../../utils/products';
+import {
+  formatCompareAtPrice,
+  formatProductPrice,
+  formatStockNote,
+  normalizeProductStatus
+} from '../../../utils/products';
 
 export function ProductCatalogCard({ product, onEdit, onRemove }) {
   const imageSrc = product.imageUrls?.[0] || '';
   const category = String(product.category || '').trim();
   const stock = formatStockNote(product);
   const price = formatProductPrice(product);
-  const hidden = product.active === false;
+  const compareAt = formatCompareAtPrice(product);
+  const status = normalizeProductStatus(product);
+  const notLive = status !== 'active';
+
+  const statusLabel =
+    status === 'draft' ? 'Draft' : status === 'archived' ? 'Archived' : '';
 
   return (
     <article
-      className={`bb-public-product-card bb-services-catalog-card${hidden ? ' is-hidden' : ''}`}
+      className={`bb-public-product-card bb-services-catalog-card${
+        notLive ? ' is-hidden' : ''
+      }`}
     >
       <button
         type="button"
@@ -20,10 +32,12 @@ export function ProductCatalogCard({ product, onEdit, onRemove }) {
       >
         <div className="bb-public-product-media">
           {imageSrc ? <img src={imageSrc} alt="" /> : null}
-          {category ? <span className="bb-public-product-sticker">{category}</span> : null}
-          {hidden ? (
+          {category ? (
+            <span className="bb-public-product-sticker">{category}</span>
+          ) : null}
+          {notLive ? (
             <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
-              Hidden
+              {statusLabel || 'Hidden'}
             </span>
           ) : stock ? (
             <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
@@ -41,11 +55,23 @@ export function ProductCatalogCard({ product, onEdit, onRemove }) {
         </div>
         <div className="bb-public-product-price-row">
           <span className="bb-public-product-price-label">Price</span>
-          <span className="bb-public-product-price-value">{price || '—'}</span>
+          <span className="bb-public-product-price-value">
+            {compareAt && price ? (
+              <>
+                <s className="bb-products-compare-at">{compareAt}</s> {price}
+              </>
+            ) : (
+              price || '—'
+            )}
+          </span>
         </div>
       </button>
       <div className="bb-services-catalog-actions">
-        <button type="button" className="bb-services-catalog-edit" onClick={() => onEdit?.(product)}>
+        <button
+          type="button"
+          className="bb-services-catalog-edit"
+          onClick={() => onEdit?.(product)}
+        >
           <Pencil size={15} strokeWidth={2.2} />
           <span>Edit</span>
         </button>

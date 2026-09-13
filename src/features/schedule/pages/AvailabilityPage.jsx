@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Settings } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
@@ -24,6 +25,7 @@ export function AvailabilityPage() {
       ? BUSINESS_AVAILABILITY_ID
       : visibleStaff[0]?.id || staff[0]?.id || ''
   );
+  const [studioSettingsOpen, setStudioSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (staffId === BUSINESS_AVAILABILITY_ID) {
@@ -45,7 +47,20 @@ export function AvailabilityPage() {
       <header className="bb-schedule-desk-header bb-schedule-avail-page-header">
         <div className="bb-schedule-desk-copy">
           <p className="bb-schedule-desk-eyebrow">Book</p>
-          <h1 className="bb-schedule-desk-title">Availability Studio</h1>
+          <div className="bb-schedule-avail-title-row">
+            <h1 className="bb-schedule-desk-title">Availability Studio</h1>
+            {canEditRules ? (
+              <button
+                type="button"
+                className="bb-schedule-avail-studio-settings"
+                aria-label="Availability settings"
+                title="Settings"
+                onClick={() => setStudioSettingsOpen(true)}
+              >
+                <Settings size={18} strokeWidth={2.2} aria-hidden="true" />
+              </button>
+            ) : null}
+          </div>
           <p className="bb-schedule-desk-lede">Manage availability statuses and shifts.</p>
         </div>
         <div className="bb-schedule-desk-tools bb-schedule-avail-header-tools">
@@ -68,6 +83,8 @@ export function AvailabilityPage() {
         availabilityRules={workspace.availabilityRules || {}}
         onSaveEntry={(id, entry) => upsertStaffAvailability(id, entry)}
         onUpdateRules={updateAvailabilityRules}
+        studioSettingsOpen={studioSettingsOpen}
+        onStudioSettingsOpenChange={setStudioSettingsOpen}
       />
     </div>
   );

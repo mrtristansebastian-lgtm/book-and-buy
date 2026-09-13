@@ -435,6 +435,10 @@ export const DEMO_PRODUCTS = normalizeProductList([
     category: 'Baked goods',
     price: 320,
     stockAvailable: 12,
+    sku: 'BREAD-BOX',
+    weight: 1.2,
+    weightUnit: 'kg',
+    size: 'Box ~35×25×15 cm',
     description:
       'A mixed box of the day’s loaves — sourdough, seeded, and a soft milk loaf.\n\nBaked the morning of collection so the crust stays lively and the crumb stays open. Best enjoyed within two days, or freeze slices for later.',
     imageUrls: [
@@ -448,7 +452,16 @@ export const DEMO_PRODUCTS = normalizeProductList([
     name: 'Fresh Pasta Starter Set',
     category: 'Kits',
     price: 480,
+    compareAtPrice: 540,
     stockAvailable: 8,
+    productType: 'Kit',
+    vendor: 'Flour & Flame',
+    tags: ['pasta', 'weekend'],
+    collections: ['Home kitchen'],
+    sku: 'PASTA-KIT',
+    weight: 950,
+    weightUnit: 'g',
+    size: '28×18×8 cm',
     description:
       'Flour blend, semolina, recipe cards, and a wooden paddle for home pasta nights.\n\nEverything you need for a first from-scratch batch, scaled for two generous plates.',
     imageUrls: [
@@ -458,11 +471,90 @@ export const DEMO_PRODUCTS = normalizeProductList([
     ]
   },
   {
+    id: 'studio-apron',
+    name: 'Studio Apron',
+    category: 'Kits',
+    price: 420,
+    compareAtPrice: 480,
+    productType: 'Apparel',
+    vendor: 'Flour & Flame',
+    tags: ['apron', 'gift'],
+    collections: ['Wear in the kitchen'],
+    description:
+      'Heavyweight cotton apron with cross-back straps and a deep tool pocket — the same cut we wear on bake days.\n\nPick your size and colour; each piece is finished in the studio.',
+    imageUrls: [
+      '/example/flour-and-flame/products/fresh-pasta-starter-set.png',
+      '/example/flour-and-flame/venue/pastry-island.png'
+    ],
+    options: [
+      { id: 'opt-size', name: 'Size', values: ['S/M', 'L/XL'] },
+      { id: 'opt-color', name: 'Color', values: ['Natural', 'Ink'] }
+    ],
+    variants: [
+      {
+        id: 'apron-sm-natural',
+        optionValues: { Size: 'S/M', Color: 'Natural' },
+        price: 420,
+        compareAtPrice: 480,
+        sku: 'APR-SM-NAT',
+        stockAvailable: 6,
+        weight: 380,
+        weightUnit: 'g',
+        size: 'Folded 28×22×4 cm',
+        available: true
+      },
+      {
+        id: 'apron-sm-ink',
+        optionValues: { Size: 'S/M', Color: 'Ink' },
+        price: 420,
+        compareAtPrice: 480,
+        sku: 'APR-SM-INK',
+        stockAvailable: 4,
+        weight: 380,
+        weightUnit: 'g',
+        size: 'Folded 28×22×4 cm',
+        available: true
+      },
+      {
+        id: 'apron-lx-natural',
+        optionValues: { Size: 'L/XL', Color: 'Natural' },
+        price: 440,
+        compareAtPrice: 500,
+        sku: 'APR-LX-NAT',
+        stockAvailable: 5,
+        weight: 420,
+        weightUnit: 'g',
+        size: 'Folded 30×24×4 cm',
+        available: true
+      },
+      {
+        id: 'apron-lx-ink',
+        optionValues: { Size: 'L/XL', Color: 'Ink' },
+        price: 440,
+        compareAtPrice: 500,
+        sku: 'APR-LX-INK',
+        stockAvailable: 3,
+        weight: 420,
+        weightUnit: 'g',
+        size: 'Folded 30×24×4 cm',
+        available: true
+      }
+    ]
+  },
+  {
     id: 'kitchen-notes',
     name: 'Kitchen Notes',
     category: 'Books',
     price: 260,
     stockAvailable: 20,
+    sku: 'BOOK-NOTES',
+    weight: 320,
+    weightUnit: 'g',
+    size: 'A5 softcover',
+    productType: 'Book',
+    vendor: 'Flour & Flame',
+    tags: ['recipes'],
+    collections: ['Studio shelf'],
     description:
       'Studio recipes, fermentation notes, and plating ideas from the Flour & Flame team.\n\nA compact studio companion for weeknight bakes and weekend projects.',
     imageUrls: [

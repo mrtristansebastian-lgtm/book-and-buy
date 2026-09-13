@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
-import { formatProductPrice, formatStockNote } from '../../../utils/products';
+import {
+  findVariantBySelections,
+  formatCompareAtPrice,
+  formatProductPrice,
+  formatStockNote,
+  isVariantPurchasable,
+  normalizeProductOption,
+  productHasVariants
+} from '../../../utils/products';
 import {
   formatServiceCardMeta,
   formatServicePrice,
@@ -12,11 +20,14 @@ import {
 import { getCatalogCategory } from '../../../utils/catalogCategories';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 
-function collectImages(item = {}) {
+function collectImages(item = {}, variant = null) {
   const urls = Array.isArray(item.imageUrls)
     ? item.imageUrls.map((url) => String(url || '').trim()).filter(Boolean)
     : [];
-  if (urls.length) return [...new Set(urls)];
+  const list = [...urls];
+  const variantUrl = String(variant?.imageUrl || '').trim();
+  if (variantUrl) list.unshift(variantUrl);
+  if (list.length) return [...new Set(list)];
   const single = String(item.image || '').trim();
   return single ? [single] : [];
 }
@@ -36,6 +47,14 @@ export function PublicCatalogDetail({
 }) {
   const cart = usePublicCart();
   const [panel, setPanel] = useState('detail');
+  const [selections, setSelections] = useState({});
+
+  const options = useMemo(() => {
+    if (kind !== 'product' || !item) return [];
+    return (Array.isArray(item.options) ? item.options : [])
+      .map(normalizeProductOption)
+      .filter((option) => option.name && option.values.length);
+  }, [item, kind]);
 
   useEffect(() => {
     if (preview) return undefined;
@@ -43,9 +62,28 @@ export function PublicCatalogDetail({
     return undefined;
   }, [item?.id, preview]);
 
+  useEffect(() => {
+    if (kind !== 'product' || !item) {
+      setSelections({});
+      return;
+    }
+    const next = {};
+    options.forEach((option) => {
+      next[option.name] = option.values[0] || '';
+    });
+    setSelections(next);
+  }, [item?.id, kind, options]);
+
   const catalogPage = kind === 'service' ? 'book' : 'buy';
   const catalogLabel = kind === 'service' ? 'Book' : 'Buy';
-  const images = collectImages(item);
+
+  const selectedVariant = useMemo(() => {
+    if (kind !== 'product' || !item) return null;
+    if (!productHasVariants(item)) return null;
+    return findVariantBySelections(item, selections);
+  }, [item, kind, selections]);
+
+  const images = collectImages(item, selectedVariant);
 
   if (!item) {
     return (
@@ -75,21 +113,36 @@ export function PublicCatalogDetail({
       ? item.quoteBased || item.priceType === 'quote'
       : item.priceType === 'quote';
   const price =
-    kind === 'service' ? formatServicePrice(item) : formatProductPrice(item);
+    kind === 'service'
+      ? formatServicePrice(item)
+      : formatProductPrice(item, selectedVariant);
+  const compareAt =
+    kind === 'product' ? formatCompareAtPrice(item, selectedVariant) : '';
   const timingMeta = kind === 'service' ? formatServiceCardMeta(item) : '';
   const isSpotService =
     kind === 'service' && getServiceScheduleType(item) === 'class_session';
   const spotsLeft = isSpotService
     ? getServiceOpenSpots(item, workspace?.bookings || [])
     : null;
-  const stock = kind === 'product' ? formatStockNote(item) : '';
+  const stock =
+    kind === 'product' ? formatStockNote(item, selectedVariant) : '';
   const meta =
     kind === 'service'
       ? getCatalogCategory(item, 'Service')
       : getCatalogCategory(item, 'Product');
-  const lineKey = kind === 'service' ? `service:${item.id}` : `product:${item.id}`;
+
+  const needsVariant = kind === 'product' && productHasVariants(item);
+  const purchasable =
+    kind === 'service'
+      ? true
+      : !quote && isVariantPurchasable(item, selectedVariant);
+  const lineKey =
+    kind === 'service'
+      ? `service:${item.id}`
+      : `product:${item.id}:${selectedVariant?.id || 'base'}`;
   const inCart = cart.items.some((row) => row.lineKey === lineKey);
-  const cartDisabled = kind === 'service' ? inCart : quote;
+  const cartDisabled =
+    kind === 'service' ? inCart : !purchasable || (needsVariant && !selectedVariant);
 
   const cartButton = (
     <button
@@ -105,7 +158,7 @@ export function PublicCatalogDetail({
   const addToCart = () => {
     if (cartDisabled) return;
     if (kind === 'service') cart.addService(item);
-    else cart.addItem(item);
+    else cart.addItem(item, 1, selectedVariant);
     setPanel('cart');
   };
 
@@ -167,7 +220,16 @@ export function PublicCatalogDetail({
             <div className="bb-public-detail-facts">
               <div className="bb-public-detail-fact">
                 <span className="bb-public-product-stat-label">Price</span>
-                <span className="bb-public-detail-price">{price || '—'}</span>
+                <span className="bb-public-detail-price">
+                  {compareAt ? (
+                    <>
+                      <s className="bb-products-compare-at">{compareAt}</s>
+                      {price || '—'}
+                    </>
+                  ) : (
+                    price || '—'
+                  )}
+                </span>
               </div>
               {timingMeta ? (
                 <div className="bb-public-detail-fact">
@@ -191,6 +253,40 @@ export function PublicCatalogDetail({
               ) : null}
             </div>
 
+            {kind === 'product' && options.length ? (
+              <div className="bb-products-public-options">
+                {options.map((option) => (
+                  <div key={option.id || option.name} className="bb-products-public-option">
+                    <span className="bb-products-public-option-label">
+                      {option.name}
+                    </span>
+                    <div className="bb-products-public-values">
+                      {option.values.map((value) => {
+                        const active = selections[option.name] === value;
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            className={`bb-products-public-value${
+                              active ? ' is-active' : ''
+                            }`}
+                            onClick={() =>
+                              setSelections((prev) => ({
+                                ...prev,
+                                [option.name]: value
+                              }))
+                            }
+                          >
+                            {value}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
             {item.description ? (
               <div className="bb-public-detail-body">
                 <h2 className="bb-public-detail-section-label">About</h2>
@@ -212,7 +308,11 @@ export function PublicCatalogDetail({
                     : 'Add to cart'
                   : quote
                     ? 'Quote only'
-                    : 'Add to cart'}
+                    : needsVariant && !selectedVariant
+                      ? 'Select options'
+                      : !purchasable
+                        ? 'Unavailable'
+                        : 'Add to cart'}
               </span>
             </button>
           </aside>

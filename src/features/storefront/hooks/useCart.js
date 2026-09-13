@@ -1,21 +1,36 @@
 import { useMemo, useState } from 'react';
-import { getProductUnitPriceCents } from '../../../utils/products';
+import { getProductUnitPriceCents, isVariantPurchasable } from '../../../utils/products';
 import {
   formatServiceSessionLabel,
   getServiceUnitPriceCents
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 
-export const productLineKey = (id) => `product:${id}`;
+export const productLineKey = (id, variantId = '') =>
+  variantId ? `product:${id}:${variantId}` : `product:${id}:base`;
+
 export const serviceLineKey = (id) => `service:${id}`;
 
 export function useCart() {
   const [items, setItems] = useState([]);
 
-  const addItem = (product, quantity = 1) => {
+  const addItem = (product, quantity = 1, variant = null) => {
     if (!product?.id) return;
     if (product.quoteBased || product.priceType === 'quote') return;
-    const lineKey = productLineKey(product.id);
+    if (!isVariantPurchasable(product, variant)) return;
+
+    const variantId = variant?.id || '';
+    const lineKey = productLineKey(product.id, variantId);
+    const unitPriceCents = getProductUnitPriceCents(product, variant);
+    const imageUrl =
+      variant?.imageUrl || product.imageUrls?.[0] || product.image || '';
+    const variantLabel =
+      variant?.title ||
+      Object.values(variant?.optionValues || {})
+        .filter(Boolean)
+        .join(' / ') ||
+      '';
+
     setItems((prev) => {
       const existing = prev.find((item) => item.lineKey === lineKey);
       if (existing) {
@@ -31,10 +46,14 @@ export function useCart() {
           kind: 'product',
           lineKey,
           productId: product.id,
+          variantId,
+          variantLabel,
           id: product.id,
-          name: product.name,
-          imageUrl: product.imageUrls?.[0] || product.image || '',
-          unitPriceCents: getProductUnitPriceCents(product),
+          name: variantLabel
+            ? `${product.name} · ${variantLabel}`
+            : product.name,
+          imageUrl,
+          unitPriceCents,
           currency: product.currency || 'R',
           quantity
         }

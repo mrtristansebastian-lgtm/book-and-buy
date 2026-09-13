@@ -5,7 +5,7 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { PublicCartCheckout } from './PublicCartCheckout';
 import { CatalogCategoryTabs } from './CatalogCategoryTabs';
-import { formatProductPrice, formatStockNote } from '../../../utils/products';
+import { formatProductPrice, formatStockNote, isProductPubliclyVisible, productHasVariants } from '../../../utils/products';
 import {
   buildCatalogCategoryTabs,
   filterCatalogByCategory,
@@ -27,7 +27,7 @@ export function PublicStorefront({
   const [categoryId, setCategoryId] = useState('all');
 
   const catalog = useMemo(
-    () => products.filter((product) => product.active !== false),
+    () => products.filter((product) => isProductPubliclyVisible(product)),
     [products]
   );
   const categoryTabs = useMemo(() => buildCatalogCategoryTabs(catalog), [catalog]);
@@ -76,6 +76,7 @@ export function PublicStorefront({
 
   const renderCard = (product, featuredCard = false) => {
     const quote = product.quoteBased || product.priceType === 'quote';
+    const hasOptions = productHasVariants(product);
     const imageSrc = product.imageUrls?.[0] || product.image || '';
     const price = formatProductPrice(product);
     const stock = formatStockNote(product);
@@ -123,12 +124,18 @@ export function PublicStorefront({
           disabled={quote}
           onClick={() => {
             if (quote) return;
+            if (hasOptions) {
+              openDetail(product.id);
+              return;
+            }
             cart.addItem(product);
             setPanel('cart');
           }}
         >
           <ShoppingBag size={12} strokeWidth={2.4} />
-          <span>{quote ? 'Quote only' : 'Add to cart'}</span>
+          <span>
+            {quote ? 'Quote only' : hasOptions ? 'Choose options' : 'Add to cart'}
+          </span>
         </button>
       </article>
     );

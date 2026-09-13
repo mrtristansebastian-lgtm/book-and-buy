@@ -98,19 +98,53 @@ export interface WorkspaceService {
   photoURL?: string;
 }
 
+export interface WorkspaceProductOption {
+  id?: string;
+  name: string;
+  values: string[];
+}
+
+export interface WorkspaceProductVariant {
+  id: string;
+  optionValues?: Record<string, string>;
+  title?: string;
+  price?: string | number;
+  compareAtPrice?: string | number;
+  sku?: string;
+  stockAvailable?: string | number;
+  weight?: string | number;
+  weightUnit?: "g" | "kg" | string;
+  size?: string;
+  imageUrl?: string;
+  available?: boolean;
+}
+
 export interface WorkspaceProduct {
   id: string;
   name: string;
   description?: string;
   price?: string | number;
+  compareAtPrice?: string | number;
+  currency?: string;
   priceType?: "fixed" | "quote" | string;
   quoteBased?: boolean;
   category?: string;
   mainCategory?: string;
+  productType?: string;
+  vendor?: string;
+  tags?: string[];
+  collections?: string[];
+  sku?: string;
   stockAvailable?: string | number;
   stockLabel?: string;
   hideStockOnCard?: boolean;
+  weight?: string | number;
+  weightUnit?: "g" | "kg" | string;
+  size?: string;
   imageUrls?: string[];
+  options?: WorkspaceProductOption[];
+  variants?: WorkspaceProductVariant[];
+  status?: "draft" | "active" | "archived" | string;
   active?: boolean;
 }
 

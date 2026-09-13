@@ -20,7 +20,7 @@ import {
   getSpotSessionStatus
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
-import { getScheduleDayTimeline } from '../../../utils/staffAvailability';
+import { getScheduleDayTimeline, getBusinessHoursForDate } from '../../../utils/staffAvailability';
 import { formatTimeValue, parseTimeValue } from '../../../utils/time';
 import { DayTimelineMeter } from '../components/DayTimelineMeter';
 
@@ -38,6 +38,20 @@ const SPOT_SORT_OPTIONS = [
   { id: 'oldest', label: 'Oldest' },
   { id: 'service', label: 'Name A-Z' }
 ];
+
+function staffInitials(name = '') {
+  const parts = String(name || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase();
+}
+
+function staffPhoto(member) {
+  return member?.photoURL || member?.imageUrl || '';
+}
 
 function statusLabel(status) {
   if (status === 'upcoming') return 'Upcoming';
@@ -455,6 +469,70 @@ export function SchedulePage() {
 
   const infoSpot = allSpotServices.find((service) => service.id === infoSpotId) || null;
 
+  const dayHours = useMemo(
+    () => getBusinessHoursForDate(day, workspace.availabilityRules || {}),
+    [day, workspace.availabilityRules]
+  );
+
+  const dayBoardTimeline = useMemo(() => {
+    if (mode !== 'slots' || period !== 'day') return null;
+    return getScheduleDayTimeline({
+      staffId: focusStaffId || '',
+      dateKey: day,
+      staffAvailability: workspace.staffAvailability || {},
+      availabilityRules: workspace.availabilityRules || {},
+      bookings: agendaBookings
+    });
+  }, [
+    mode,
+    period,
+    focusStaffId,
+    day,
+    workspace.staffAvailability,
+    workspace.availabilityRules,
+    agendaBookings
+  ]);
+
+  const isDayBoard = mode === 'slots' && period === 'day';
+
+  const renderStaffFilter = () => (
+    <div className="bb-schedule-staff-filter" role="tablist" aria-label="Staff filter">
+      <button
+        type="button"
+        role="tab"
+        aria-selected={!focusStaffId}
+        className={`bb-schedule-staff-avatar${!focusStaffId ? ' is-active' : ''}`}
+        onClick={() => setFocusStaffId('')}
+      >
+        <span className="bb-schedule-staff-avatar-face is-all" aria-hidden="true">
+          All
+        </span>
+        <span className="bb-schedule-staff-avatar-name">All staff</span>
+      </button>
+      {staff.map((member) => {
+        const photo = staffPhoto(member);
+        const active = focusStaffId === member.id;
+        return (
+          <button
+            key={member.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            title={member.name}
+            className={`bb-schedule-staff-avatar${active ? ' is-active' : ''}`}
+            style={{ '--staff-color': member.color || '#101828' }}
+            onClick={() => setFocusStaffId(member.id)}
+          >
+            <span className="bb-schedule-staff-avatar-face" aria-hidden="true">
+              {photo ? <img src={photo} alt="" /> : staffInitials(member.name)}
+            </span>
+            <span className="bb-schedule-staff-avatar-name">{member.name}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="bb-schedule-desk">
       <header className="bb-schedule-desk-header">
@@ -462,7 +540,7 @@ export function SchedulePage() {
           <p className="bb-schedule-desk-eyebrow">Operations</p>
           <h1 className="bb-schedule-desk-title">Schedule</h1>
           <p className="bb-schedule-desk-lede">
-            Agenda and programmes for the period you select.
+            See appointments and programmes for the period you pick.
           </p>
         </div>
 
@@ -473,9 +551,7 @@ export function SchedulePage() {
               role="tab"
               aria-selected={mode === 'slots'}
               className={`bb-schedule-mode-btn${mode === 'slots' ? ' is-active' : ''}`}
-              onClick={() => {
-                setMode('slots');
-              }}
+              onClick={() => setMode('slots')}
             >
               Slots
             </button>
@@ -495,7 +571,7 @@ export function SchedulePage() {
         </div>
       </header>
 
-      <section className="bb-schedule-period-filter" aria-label="Period filter">
+      <section className="bb-schedule-toolbar" aria-label="Schedule tools">
         <div className="bb-schedule-period" role="tablist" aria-label="Period">
           {PERIOD_OPTIONS.map((option) => (
             <button
@@ -511,13 +587,17 @@ export function SchedulePage() {
           ))}
         </div>
 
-        <div className="bb-schedule-period-filter-tools">
+        <div className="bb-schedule-toolbar-end">
           <SortField
             value={mode === 'spots' && sortBy === 'client' ? 'oldest' : sortBy}
             onChange={setSortBy}
             options={mode === 'slots' ? SORT_OPTIONS : SPOT_SORT_OPTIONS}
             pickerTitle="Sort schedule"
-            pickerHint={mode === 'slots' ? 'Order appointments in this period.' : 'Order programmes in this period.'}
+            pickerHint={
+              mode === 'slots'
+                ? 'Order appointments in this period.'
+                : 'Order programmes in this period.'
+            }
           />
 
           <div className="bb-schedule-day-nav">
@@ -530,7 +610,16 @@ export function SchedulePage() {
             >
               <ChevronLeft size={18} />
             </button>
-            <div className="bb-schedule-day-label">{periodLabel}</div>
+            <button
+              type="button"
+              className="bb-schedule-day-label"
+              onClick={() => setPickerOpen(true)}
+              aria-label="Pick day or period"
+              title="Pick day or period"
+            >
+              {periodLabel}
+              <Pencil size={13} strokeWidth={2.2} aria-hidden="true" />
+            </button>
             <button
               type="button"
               className="bb-ghost-btn px-3"
@@ -542,16 +631,7 @@ export function SchedulePage() {
             </button>
             <button
               type="button"
-              className="bb-ghost-btn bb-schedule-day-edit"
-              aria-label="Pick day or period"
-              title="Pick day or period"
-              onClick={() => setPickerOpen(true)}
-            >
-              <Pencil size={15} strokeWidth={2.2} />
-            </button>
-            <button
-              type="button"
-              className="bb-ink-btn"
+              className="bb-schedule-today-btn"
               onClick={() => {
                 setDay(toDateKey(new Date()));
                 setPeriod('day');
@@ -564,183 +644,191 @@ export function SchedulePage() {
       </section>
 
       <div className="bb-schedule-stage" key={`${mode}-${period}-${day}`}>
+        {renderStaffFilter()}
+
         {mode === 'slots' ? (
-          <>
-            <div className="bb-schedule-staff-chips" role="tablist" aria-label="Staff filter">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!focusStaffId}
-                className={`bb-schedule-staff-chip${!focusStaffId ? ' is-active' : ''}`}
-                onClick={() => setFocusStaffId('')}
-              >
-                All staff
-              </button>
-              {staff.map((member) => (
-                <button
-                  key={member.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={focusStaffId === member.id}
-                  className={`bb-schedule-staff-chip${
-                    focusStaffId === member.id ? ' is-active' : ''
-                  }`}
-                  onClick={() => setFocusStaffId(member.id)}
-                >
-                  <span
-                    className="bb-schedule-lane-dot"
-                    style={{ background: member.color || '#050505' }}
-                  />
-                  {member.name}
-                </button>
-              ))}
-            </div>
-
-            {agendaBookings.length === 0 && period !== 'day' ? (
-              <div className="bb-schedule-empty">
-                <p className="bb-schedule-empty-title">No confirmed bookings</p>
-                <p className="bb-schedule-empty-copy">
-                  {focusStaffId
-                    ? 'No confirmed appointments for this staff member in the selected period.'
-                    : 'No confirmed appointments in this period. Pending requests stay in Requests until confirmed.'}
-                </p>
-              </div>
-            ) : (
-              <section className="bb-schedule-agenda" aria-label="Confirmed appointments">
-                {slotAgendaGroups.map((group) => {
-                  const meterDateKey = showAgendaMeters ? group.dateKey : '';
-                  const timeline = meterDateKey
-                    ? getScheduleDayTimeline({
-                        staffId: focusStaffId || '',
-                        dateKey: meterDateKey,
-                        staffAvailability: workspace.staffAvailability || {},
-                        availabilityRules: workspace.availabilityRules || {},
-                        bookings: agendaBookings
-                      })
-                    : null;
-                  const hasOpen = timeline?.segments?.some((segment) => segment.kind === 'open');
-                  const hasBreak = timeline?.segments?.some((segment) => segment.kind === 'break');
-                  const hasBooking = timeline?.segments?.some(
-                    (segment) => segment.kind === 'booking'
-                  );
-
-                  return (
-                    <div key={group.dateKey || 'flat'} className="bb-schedule-agenda-group">
-                      {group.dateKey && period !== 'day' ? (
-                        <h3 className="bb-schedule-agenda-day">
-                          {formatDisplayDate(group.dateKey)}
-                        </h3>
+          isDayBoard ? (
+            <section className="bb-schedule-board" aria-label="Day board">
+              <div className="bb-schedule-board-hero">
+                <div className="bb-schedule-board-hero-copy">
+                  <p className="bb-schedule-board-kicker">Day board</p>
+                  <h2 className="bb-schedule-board-title">{formatDisplayDate(day)}</h2>
+                  <p className="bb-schedule-board-hours">
+                    {dayHours.open
+                      ? `${dayHours.openTime} – ${dayHours.closeTime}`
+                      : 'Business closed'}
+                    {focusStaffId
+                      ? ` · ${staff.find((row) => row.id === focusStaffId)?.name || 'Staff'}`
+                      : ' · All staff'}
+                  </p>
+                </div>
+                {dayBoardTimeline ? (
+                  <div className="bb-schedule-board-meter">
+                    <DayTimelineMeter
+                      segments={dayBoardTimeline.segments}
+                      status={dayBoardTimeline.status}
+                      dayStart={dayBoardTimeline.dayStart}
+                      dayEnd={dayBoardTimeline.dayEnd}
+                    />
+                    <div className="bb-schedule-day-meter-legend" aria-hidden="true">
+                      {dayBoardTimeline.segments.some((segment) => segment.kind === 'open') ? (
+                        <span className="bb-schedule-day-meter-legend-item is-open">
+                          <i /> Shift
+                        </span>
                       ) : null}
-                      {timeline ? (
-                        <div className="bb-schedule-agenda-meter">
-                          <DayTimelineMeter
-                            segments={timeline.segments}
-                            status={timeline.status}
-                            dayStart={timeline.dayStart}
-                            dayEnd={timeline.dayEnd}
-                          />
-                          {hasOpen || hasBreak || hasBooking ? (
-                            <div className="bb-schedule-day-meter-legend" aria-hidden="true">
-                              {hasOpen ? (
-                                <span className="bb-schedule-day-meter-legend-item is-open">
-                                  <i /> Shift
-                                </span>
-                              ) : null}
-                              {hasBreak ? (
-                                <span className="bb-schedule-day-meter-legend-item is-break">
-                                  <i /> Break
-                                </span>
-                              ) : null}
-                              {hasBooking ? (
-                                <span className="bb-schedule-day-meter-legend-item is-booking">
-                                  <i /> Booking
-                                </span>
+                      {dayBoardTimeline.segments.some((segment) => segment.kind === 'break') ? (
+                        <span className="bb-schedule-day-meter-legend-item is-break">
+                          <i /> Break
+                        </span>
+                      ) : null}
+                      {dayBoardTimeline.segments.some((segment) => segment.kind === 'booking') ? (
+                        <span className="bb-schedule-day-meter-legend-item is-booking">
+                          <i /> Booking
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {agendaBookings.length === 0 ? (
+                <div className="bb-schedule-board-empty">
+                  <p className="bb-schedule-empty-title">No confirmed bookings</p>
+                  <p className="bb-schedule-empty-copy">
+                    {focusStaffId
+                      ? 'No confirmed appointments for this staff member today.'
+                      : 'No confirmed appointments today. Pending requests stay in Requests until confirmed.'}
+                  </p>
+                </div>
+              ) : (
+                <ol className="bb-schedule-rail">
+                  {agendaBookings.map((booking) => {
+                    const member = staff.find((row) => row.id === booking.staffId);
+                    return (
+                      <li key={booking.id} className="bb-schedule-rail-item">
+                        <div className="bb-schedule-rail-time">
+                          <strong>{formatBookingWindow(booking)}</strong>
+                        </div>
+                        <article className="bb-schedule-rail-card">
+                          <div className="bb-schedule-rail-card-main">
+                            <h3>{booking.clientName || 'Client'}</h3>
+                            <p>{booking.serviceName || 'Service'}</p>
+                            <span>
+                              {member?.name || booking.staffName || 'Unassigned'}
+                              {booking.clientEmail || booking.clientPhone
+                                ? ` · ${booking.clientEmail || booking.clientPhone}`
+                                : ''}
+                            </span>
+                          </div>
+                          <span className="bb-schedule-status-chip is-confirmed">Confirmed</span>
+                        </article>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+            </section>
+          ) : agendaBookings.length === 0 ? (
+            <div className="bb-schedule-empty">
+              <p className="bb-schedule-empty-title">No confirmed bookings</p>
+              <p className="bb-schedule-empty-copy">
+                {focusStaffId
+                  ? 'No confirmed appointments for this staff member in the selected period.'
+                  : 'No confirmed appointments in this period. Pending requests stay in Requests until confirmed.'}
+              </p>
+            </div>
+          ) : (
+            <section className="bb-schedule-agenda" aria-label="Confirmed appointments">
+              {slotAgendaGroups.map((group) => {
+                const meterDateKey = showAgendaMeters ? group.dateKey : '';
+                const timeline = meterDateKey
+                  ? getScheduleDayTimeline({
+                      staffId: focusStaffId || '',
+                      dateKey: meterDateKey,
+                      staffAvailability: workspace.staffAvailability || {},
+                      availabilityRules: workspace.availabilityRules || {},
+                      bookings: agendaBookings
+                    })
+                  : null;
+                const hasOpen = timeline?.segments?.some((segment) => segment.kind === 'open');
+                const hasBreak = timeline?.segments?.some((segment) => segment.kind === 'break');
+                const hasBooking = timeline?.segments?.some(
+                  (segment) => segment.kind === 'booking'
+                );
+
+                return (
+                  <div key={group.dateKey || 'flat'} className="bb-schedule-agenda-group">
+                    {group.dateKey ? (
+                      <h3 className="bb-schedule-agenda-day">
+                        {formatDisplayDate(group.dateKey)}
+                      </h3>
+                    ) : null}
+                    {timeline ? (
+                      <div className="bb-schedule-agenda-meter">
+                        <DayTimelineMeter
+                          segments={timeline.segments}
+                          status={timeline.status}
+                          dayStart={timeline.dayStart}
+                          dayEnd={timeline.dayEnd}
+                        />
+                        {hasOpen || hasBreak || hasBooking ? (
+                          <div className="bb-schedule-day-meter-legend" aria-hidden="true">
+                            {hasOpen ? (
+                              <span className="bb-schedule-day-meter-legend-item is-open">
+                                <i /> Shift
+                              </span>
+                            ) : null}
+                            {hasBreak ? (
+                              <span className="bb-schedule-day-meter-legend-item is-break">
+                                <i /> Break
+                              </span>
+                            ) : null}
+                            {hasBooking ? (
+                              <span className="bb-schedule-day-meter-legend-item is-booking">
+                                <i /> Booking
+                              </span>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <div className="bb-schedule-agenda-list">
+                      {group.items.map((booking) => {
+                        const member = staff.find((row) => row.id === booking.staffId);
+                        return (
+                          <article key={booking.id} className="bb-schedule-agenda-row">
+                            <div className="bb-schedule-agenda-time">
+                              <strong>{formatBookingWindow(booking)}</strong>
+                              {sortBy === 'client' || sortBy === 'service' ? (
+                                <span>{formatDisplayDate(bookingDateKey(booking))}</span>
                               ) : null}
                             </div>
-                          ) : null}
-                        </div>
-                      ) : null}
-                      {group.items.length ? (
-                        <div className="bb-schedule-agenda-list">
-                          {group.items.map((booking) => {
-                            const member = staff.find((row) => row.id === booking.staffId);
-                            return (
-                              <article key={booking.id} className="bb-schedule-agenda-row">
-                                <div className="bb-schedule-agenda-time">
-                                  <strong>{formatBookingWindow(booking)}</strong>
-                                  {period !== 'day' ||
-                                  sortBy === 'client' ||
-                                  sortBy === 'service' ? (
-                                    <span>{formatDisplayDate(bookingDateKey(booking))}</span>
-                                  ) : null}
-                                </div>
-                                <div className="bb-schedule-agenda-main">
-                                  <h4 className="bb-schedule-agenda-client">
-                                    {booking.clientName || 'Client'}
-                                  </h4>
-                                  <p className="bb-schedule-agenda-service">
-                                    {booking.serviceName || 'Service'}
-                                  </p>
-                                  <p className="bb-schedule-agenda-meta">
-                                    {member?.name || booking.staffName || 'Unassigned'}
-                                    {booking.clientEmail || booking.clientPhone
-                                      ? ` · ${booking.clientEmail || booking.clientPhone}`
-                                      : ''}
-                                  </p>
-                                </div>
-                                <span className="bb-schedule-agenda-badge">Confirmed</span>
-                              </article>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="bb-schedule-empty is-compact">
-                          <p className="bb-schedule-empty-title">No confirmed bookings</p>
-                          <p className="bb-schedule-empty-copy">
-                            {focusStaffId
-                              ? 'No confirmed appointments for this staff member today.'
-                              : 'No confirmed appointments today. Pending requests stay in Requests until confirmed.'}
-                          </p>
-                        </div>
-                      )}
+                            <div className="bb-schedule-agenda-main">
+                              <h4 className="bb-schedule-agenda-client">
+                                {booking.clientName || 'Client'}
+                              </h4>
+                              <p className="bb-schedule-agenda-service">
+                                {booking.serviceName || 'Service'}
+                              </p>
+                              <p className="bb-schedule-agenda-meta">
+                                {member?.name || booking.staffName || 'Unassigned'}
+                                {booking.clientEmail || booking.clientPhone
+                                  ? ` · ${booking.clientEmail || booking.clientPhone}`
+                                  : ''}
+                              </p>
+                            </div>
+                            <span className="bb-schedule-status-chip is-confirmed">Confirmed</span>
+                          </article>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </section>
-            )}
-          </>
+                  </div>
+                );
+              })}
+            </section>
+          )
         ) : (
           <>
-            <div className="bb-schedule-staff-chips" role="tablist" aria-label="Staff filter">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!focusStaffId}
-                className={`bb-schedule-staff-chip${!focusStaffId ? ' is-active' : ''}`}
-                onClick={() => setFocusStaffId('')}
-              >
-                All staff
-              </button>
-              {staff.map((member) => (
-                <button
-                  key={member.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={focusStaffId === member.id}
-                  className={`bb-schedule-staff-chip${
-                    focusStaffId === member.id ? ' is-active' : ''
-                  }`}
-                  onClick={() => setFocusStaffId(member.id)}
-                >
-                  <span
-                    className="bb-schedule-lane-dot"
-                    style={{ background: member.color || '#050505' }}
-                  />
-                  {member.name}
-                </button>
-              ))}
-            </div>
-
             <div className="bb-schedule-spot-stats">
               <div className="bb-schedule-spot-stat">
                 <span className="bb-schedule-spot-stat-label">Active programmes</span>
@@ -759,7 +847,9 @@ export function SchedulePage() {
             {spotServices.length === 0 ? (
               <div className="bb-schedule-empty">
                 <p className="bb-schedule-empty-title">
-                  {allSpotServices.length === 0 ? 'No spot programmes yet' : 'Nothing in this period'}
+                  {allSpotServices.length === 0
+                    ? 'No spot programmes yet'
+                    : 'Nothing in this period'}
                 </p>
                 <p className="bb-schedule-empty-copy">
                   {allSpotServices.length === 0
@@ -784,7 +874,7 @@ export function SchedulePage() {
                     <article key={service.id} className="bb-schedule-spot-card">
                       <div className={`bb-schedule-spot-media${imageSrc ? '' : ' is-empty'}`}>
                         {imageSrc ? <img src={imageSrc} alt="" /> : null}
-                        <span className={`bb-schedule-spot-pill is-${status}`}>
+                        <span className={`bb-schedule-status-chip is-${status}`}>
                           {statusLabel(status)}
                         </span>
                       </div>
@@ -811,9 +901,7 @@ export function SchedulePage() {
                         </dl>
 
                         <p className="bb-schedule-spot-staff">
-                          {staffNames.length
-                            ? staffNames.join(', ')
-                            : 'No staff assigned'}
+                          {staffNames.length ? staffNames.join(', ') : 'No staff assigned'}
                         </p>
 
                         <div className="bb-schedule-spot-capacity">

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarRange, ChevronLeft, ChevronRight, Clock, Plus, Trash2 } from 'lucide-react';
+import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { DateField } from '../../../shared/ui/DateField';
@@ -25,8 +25,7 @@ import {
   isBusinessOpenOnDate,
   setStaffDayOverride
 } from '../../../utils/staffAvailability';
-import { AdvanceBookingField } from './AdvanceBookingField';
-import { BusinessHoursSheet } from './BusinessHoursSheet';
+import { AvailabilityStudioSettingsSheet } from './AvailabilityStudioSettingsSheet';
 import { DayTimelineMeter, buildTimelineAxisMarks } from './DayTimelineMeter';
 
 export { BUSINESS_AVAILABILITY_ID };
@@ -332,7 +331,9 @@ export function ScheduleAvailabilityEditor({
   staffId: staffIdProp,
   onStaffIdChange,
   onSaveEntry,
-  onUpdateRules
+  onUpdateRules,
+  studioSettingsOpen = false,
+  onStudioSettingsOpenChange
 }) {
   const { user } = useAuth();
   const { workspace } = useWorkspace();
@@ -363,7 +364,6 @@ export function ScheduleAvailabilityEditor({
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState(() => toDateKey(new Date()));
   const [statusSheetOpen, setStatusSheetOpen] = useState(false);
-  const [hoursSheetOpen, setHoursSheetOpen] = useState(false);
   const [dayDraftStatus, setDayDraftStatus] = useState('open');
   const [draftShifts, setDraftShifts] = useState([{ start: openTime, end: closeTime }]);
 
@@ -721,39 +721,16 @@ export function ScheduleAvailabilityEditor({
 
   return (
     <div className="bb-schedule-avail">
-      {canEditSelected || canEditRules ? (
+      {isBusinessFocus ? null : canEditSelected || canEditRules ? (
         <section className="bb-schedule-avail-panel bb-schedule-avail-setup-panel">
           <div className="bb-schedule-avail-setup-copy">
-            <h3 className="bb-schedule-avail-title">
-              {isBusinessFocus ? 'Business availability' : 'Availability setup'}
-            </h3>
+            <h3 className="bb-schedule-avail-title">Availability setup</h3>
             <p className="bb-schedule-avail-hint m-0">
-              {isBusinessFocus
-                ? 'Set weekly business hours and mark available or closed dates.'
-                : canEditRules
-                  ? 'Set how far ahead clients can book, then manage open, break, off, or closed days.'
-                  : 'Manage open, break, or off days on your calendar.'}
+              Manage open, break, or off days on your calendar.
             </p>
           </div>
           <div className="bb-schedule-avail-setup-tools">
-            {isBusinessFocus && canEditRules ? (
-              <button
-                type="button"
-                className="bb-schedule-avail-manage-btn"
-                onClick={() => setHoursSheetOpen(true)}
-              >
-                <Clock size={17} strokeWidth={2.2} aria-hidden="true" />
-                Business hours
-              </button>
-            ) : null}
-            {canEditRules ? (
-              <AdvanceBookingField
-                days={availabilityRules.maxAdvanceBookingDays ?? 90}
-                until={availabilityRules.maxAdvanceBookingUntil || ''}
-                onChange={(patch) => onUpdateRules?.(patch)}
-              />
-            ) : null}
-            {(isBusinessFocus ? canEditRules : canEditSelected) ? (
+            {canEditSelected ? (
               <button
                 type="button"
                 className="bb-schedule-avail-manage-btn"
@@ -767,9 +744,7 @@ export function ScheduleAvailabilityEditor({
         </section>
       ) : (
         <p className="bb-schedule-avail-hint">
-          {isBusinessFocus
-            ? 'Only the owner can edit overall business availability.'
-            : "Only you and the owner can edit this staff member's availability."}
+          Only you and the owner can edit this staff member&apos;s availability.
         </p>
       )}
 
@@ -1174,30 +1149,36 @@ export function ScheduleAvailabilityEditor({
         )}
       </section>
 
-      {statusSheetOpen && (isBusinessFocus ? canEditRules : canEditSelected) ? (
-        <AvailabilityStatusSheet
+      {studioSettingsOpen && canEditRules ? (
+        <AvailabilityStudioSettingsSheet
+          availabilityRules={availabilityRules}
+          onUpdateRules={onUpdateRules}
+          showBusinessHours
+          showManageStatus={isBusinessFocus ? canEditRules : canEditSelected}
           staffName={isBusinessFocus ? 'Business' : selectedMember?.name}
           openTime={openTime}
           closeTime={closeTime}
           initialDay={selectedDay}
-          allowBusinessClosed={canEditRules}
           businessOnly={isBusinessFocus}
-          onClose={() => setStatusSheetOpen(false)}
-          onApply={applyStatusFromSheet}
+          allowBusinessClosed={canEditRules}
+          onClose={() => onStudioSettingsOpenChange?.(false)}
+          onApplyStatus={(payload) => {
+            applyStatusFromSheet(payload);
+            onStudioSettingsOpenChange?.(false);
+          }}
         />
       ) : null}
 
-      {hoursSheetOpen && canEditRules ? (
-        <BusinessHoursSheet
-          availabilityRules={availabilityRules}
-          onClose={() => setHoursSheetOpen(false)}
-          onSave={(patch) => {
-            onUpdateRules?.({
-              ...availabilityRules,
-              ...patch
-            });
-            setHoursSheetOpen(false);
-          }}
+      {statusSheetOpen && !isBusinessFocus && canEditSelected ? (
+        <AvailabilityStatusSheet
+          staffName={selectedMember?.name}
+          openTime={openTime}
+          closeTime={closeTime}
+          initialDay={selectedDay}
+          allowBusinessClosed={canEditRules}
+          businessOnly={false}
+          onClose={() => setStatusSheetOpen(false)}
+          onApply={applyStatusFromSheet}
         />
       ) : null}
     </div>

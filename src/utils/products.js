@@ -1,51 +1,148 @@
 export const createProductId = () =>
   `product-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-export const normalizeProduct = (product = {}, index = 0) => ({
-  ...product,
-  id: product.id || createProductId(),
-  name: product.name || `Product ${index + 1}`,
-  description: product.description || '',
-  price: product.price ?? '',
-  currency: product.currency || 'R',
-  priceType: product.quoteBased ? 'quote' : product.priceType || 'fixed',
-  quoteBased: Boolean(product.quoteBased || product.priceType === 'quote'),
-  category: product.category || product.mainCategory || '',
-  stockAvailable: product.stockAvailable ?? '',
-  stockLabel: product.stockLabel || '',
-  hideStockOnCard: Boolean(product.hideStockOnCard),
-  imageUrls: Array.isArray(product.imageUrls)
-    ? product.imageUrls
-    : product.image
-      ? [product.image]
-      : [],
-  active: product.active !== false
+export const createVariantId = () =>
+  `variant-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const PRODUCT_STATUSES = new Set(['draft', 'active', 'archived']);
+
+export const normalizeProductStatus = (product = {}) => {
+  const raw = String(product.status || '').trim().toLowerCase();
+  if (PRODUCT_STATUSES.has(raw)) return raw;
+  if (product.active === false) return 'draft';
+  return 'active';
+};
+
+const cleanStringList = (list = []) => {
+  const seen = new Set();
+  const out = [];
+  for (const item of Array.isArray(list) ? list : []) {
+    const value = String(item || '').trim();
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(value);
+  }
+  return out;
+};
+
+export const normalizeProductOption = (option = {}, index = 0) => ({
+  id: option.id || `option-${index + 1}`,
+  name: String(option.name || `Option ${index + 1}`).trim() || `Option ${index + 1}`,
+  values: cleanStringList(option.values)
 });
 
-export const normalizeProductList = (products = []) =>
-  (Array.isArray(products) ? products : [])
-    .map(normalizeProduct)
-    .filter((product) => product.name?.trim());
+export const variantOptionKey = (optionValues = {}) =>
+  Object.keys(optionValues || {})
+    .sort((a, b) => a.localeCompare(b))
+    .map((key) => `${key}:${String(optionValues[key] || '').trim()}`)
+    .join('|');
 
-export const formatProductPrice = (product = {}) => {
-  if (product.quoteBased || product.priceType === 'quote') return 'Quote on request';
-  const priceText = String(product.price ?? '').trim();
-  if (!priceText) return '';
-  if (/[^\d\s.,-]/.test(priceText)) return priceText;
-  return `${product.currency || 'R'}${priceText}`;
+export const normalizeProductVariant = (variant = {}, index = 0) => {
+  const optionValues =
+    variant.optionValues && typeof variant.optionValues === 'object'
+      ? Object.fromEntries(
+          Object.entries(variant.optionValues).map(([key, value]) => [
+            String(key || '').trim(),
+            String(value || '').trim()
+          ])
+        )
+      : {};
+  const weightUnit = String(variant.weightUnit || 'g').toLowerCase() === 'kg' ? 'kg' : 'g';
+  return {
+    id: variant.id || createVariantId(),
+    optionValues,
+    price: variant.price ?? '',
+    compareAtPrice: variant.compareAtPrice ?? '',
+    sku: String(variant.sku || '').trim(),
+    stockAvailable: variant.stockAvailable ?? '',
+    weight: variant.weight ?? '',
+    weightUnit,
+    size: String(variant.size || '').trim(),
+    imageUrl: String(variant.imageUrl || '').trim(),
+    available: variant.available !== false,
+    title:
+      String(variant.title || '').trim() ||
+      Object.values(optionValues).filter(Boolean).join(' / ') ||
+      `Variant ${index + 1}`
+  };
 };
 
-export const formatStockNote = (product = {}) => {
-  if (product.hideStockOnCard) return '';
-  if (product.stockLabel) return product.stockLabel;
-  const stock = String(product.stockAvailable ?? '').trim();
-  if (!stock) return '';
-  return `${stock} available`;
+const cartesian = (lists) => {
+  if (!lists.length) return [[]];
+  return lists.reduce(
+    (acc, list) => acc.flatMap((prefix) => list.map((item) => [...prefix, item])),
+    [[]]
+  );
 };
 
-export const getProductUnitPriceCents = (product = {}) => {
+/**
+ * Build / refresh the variant matrix from options, preserving existing
+ * price / SKU / stock when option value combos still match.
+ */
+export const buildVariantMatrix = (
+  options = [],
+  existingVariants = [],
+  defaults = {}
+) => {
+  const normalizedOptions = (Array.isArray(options) ? options : [])
+    .map(normalizeProductOption)
+    .filter((option) => option.name && option.values.length)
+    .slice(0, 3);
+
+  if (!normalizedOptions.length) return [];
+
+  const existingByKey = new Map(
+    (Array.isArray(existingVariants) ? existingVariants : []).map((variant) => {
+      const normalized = normalizeProductVariant(variant);
+      return [variantOptionKey(normalized.optionValues), normalized];
+    })
+  );
+
+  const combos = cartesian(
+    normalizedOptions.map((option) =>
+      option.values.map((value) => ({ name: option.name, value }))
+    )
+  );
+
+  return combos.map((combo, index) => {
+    const optionValues = Object.fromEntries(
+      combo.map((entry) => [entry.name, entry.value])
+    );
+    const key = variantOptionKey(optionValues);
+    const prior = existingByKey.get(key);
+    if (prior) {
+      return {
+        ...prior,
+        optionValues,
+        title: Object.values(optionValues).join(' / ')
+      };
+    }
+    return normalizeProductVariant(
+      {
+        optionValues,
+        price: defaults.price ?? '',
+        compareAtPrice: defaults.compareAtPrice ?? '',
+        sku: defaults.sku ?? '',
+        stockAvailable: defaults.stockAvailable ?? '',
+        weight: defaults.weight ?? '',
+        weightUnit: defaults.weightUnit ?? 'g',
+        size: defaults.size ?? '',
+        available: true
+      },
+      index
+    );
+  });
+};
+
+export const productHasVariants = (product = {}) =>
+  Array.isArray(product.variants) && product.variants.length > 0;
+
+export const getProductUnitPriceCents = (product = {}, variant = null) => {
   if (product.quoteBased || product.priceType === 'quote') return 0;
-  const digits = String(product.price ?? '').replace(/[^\d.]/g, '');
+  const source = variant?.price ?? product.price;
+  const digits = String(source ?? '').replace(/[^\d.]/g, '');
   const value = Number(digits);
   if (!Number.isFinite(value)) return 0;
   return Math.round(value * 100);
@@ -54,12 +151,212 @@ export const getProductUnitPriceCents = (product = {}) => {
 export const formatCents = (cents = 0, currency = 'R') =>
   `${currency}${(Number(cents || 0) / 100).toFixed(0)}`;
 
-export const collectProductCategories = (products = [], existing = []) => {
+export const findVariantBySelections = (product = {}, selections = {}) => {
+  const variants = Array.isArray(product.variants) ? product.variants : [];
+  if (!variants.length) return null;
+  const options = (Array.isArray(product.options) ? product.options : []).map(
+    normalizeProductOption
+  );
+  const needed = options.filter((option) => option.values.length);
+  if (!needed.length) return normalizeProductVariant(variants[0]);
+
+  return (
+    variants
+      .map(normalizeProductVariant)
+      .find((variant) =>
+        needed.every(
+          (option) =>
+            String(variant.optionValues?.[option.name] || '').trim() ===
+            String(selections?.[option.name] || '').trim()
+        )
+      ) || null
+  );
+};
+
+export const getProductPriceRangeCents = (product = {}) => {
+  if (product.quoteBased || product.priceType === 'quote') {
+    return { min: 0, max: 0, hasRange: false };
+  }
+  if (!productHasVariants(product)) {
+    const cents = getProductUnitPriceCents(product);
+    return { min: cents, max: cents, hasRange: false };
+  }
+  const amounts = product.variants
+    .map((variant) => getProductUnitPriceCents(product, variant))
+    .filter((cents) => cents > 0);
+  if (!amounts.length) {
+    const cents = getProductUnitPriceCents(product);
+    return { min: cents, max: cents, hasRange: false };
+  }
+  const min = Math.min(...amounts);
+  const max = Math.max(...amounts);
+  return { min, max, hasRange: min !== max };
+};
+
+export const normalizeProduct = (product = {}, index = 0) => {
+  const status = normalizeProductStatus(product);
+  const options = (Array.isArray(product.options) ? product.options : [])
+    .map(normalizeProductOption)
+    .filter((option) => option.name)
+    .slice(0, 3);
+  const hasOptionValues = options.some((option) => option.values.length);
+  const variants = hasOptionValues
+    ? buildVariantMatrix(options, product.variants || [], {
+        price: product.price,
+        compareAtPrice: product.compareAtPrice,
+        sku: product.sku,
+        stockAvailable: product.stockAvailable,
+        weight: product.weight,
+        weightUnit: product.weightUnit,
+        size: product.size
+      })
+    : [];
+
+  const weightUnit = String(product.weightUnit || 'g').toLowerCase() === 'kg' ? 'kg' : 'g';
+
+  return {
+    ...product,
+    id: product.id || createProductId(),
+    name: product.name || `Product ${index + 1}`,
+    description: product.description || '',
+    price: product.price ?? '',
+    compareAtPrice: product.compareAtPrice ?? '',
+    currency: product.currency || 'R',
+    priceType: product.quoteBased ? 'quote' : product.priceType || 'fixed',
+    quoteBased: Boolean(product.quoteBased || product.priceType === 'quote'),
+    category: product.category || product.mainCategory || '',
+    productType: String(product.productType || '').trim(),
+    vendor: String(product.vendor || '').trim(),
+    tags: cleanStringList(product.tags),
+    collections: cleanStringList(product.collections),
+    sku: String(product.sku || '').trim(),
+    stockAvailable: product.stockAvailable ?? '',
+    stockLabel: product.stockLabel || '',
+    hideStockOnCard: Boolean(product.hideStockOnCard),
+    weight: product.weight ?? '',
+    weightUnit,
+    size: String(product.size || '').trim(),
+    imageUrls: Array.isArray(product.imageUrls)
+      ? product.imageUrls.map((url) => String(url || '').trim()).filter(Boolean)
+      : product.image
+        ? [String(product.image).trim()].filter(Boolean)
+        : [],
+    options,
+    variants,
+    status,
+    active: status === 'active'
+  };
+};
+
+export const normalizeProductList = (products = []) =>
+  (Array.isArray(products) ? products : [])
+    .map(normalizeProduct)
+    .filter((product) => product.name?.trim());
+
+const formatMoney = (amount, currency = 'R') => {
+  const priceText = String(amount ?? '').trim();
+  if (!priceText) return '';
+  if (/[^\d\s.,-]/.test(priceText)) return priceText;
+  return `${currency || 'R'}${priceText}`;
+};
+
+export const formatProductPrice = (product = {}, variant = null) => {
+  if (product.quoteBased || product.priceType === 'quote') return 'Quote on request';
+  if (variant) {
+    return formatMoney(variant.price ?? product.price, product.currency);
+  }
+  if (productHasVariants(product)) {
+    const range = getProductPriceRangeCents(product);
+    if (range.hasRange) {
+      return `from ${formatCents(range.min, product.currency || 'R')}`;
+    }
+    if (range.min > 0) return formatCents(range.min, product.currency || 'R');
+  }
+  return formatMoney(product.price, product.currency);
+};
+
+export const formatCompareAtPrice = (product = {}, variant = null) => {
+  if (product.quoteBased || product.priceType === 'quote') return '';
+  const amount = variant?.compareAtPrice ?? product.compareAtPrice;
+  return formatMoney(amount, product.currency);
+};
+
+export const formatStockNote = (product = {}, variant = null) => {
+  if (product.hideStockOnCard) return '';
+  if (variant) {
+    if (variant.available === false) return 'Unavailable';
+    const stock = String(variant.stockAvailable ?? '').trim();
+    if (!stock) return '';
+    return `${stock} available`;
+  }
+  if (product.stockLabel) return product.stockLabel;
+  if (productHasVariants(product)) {
+    const stocks = product.variants
+      .filter((item) => item.available !== false)
+      .map((item) => Number(String(item.stockAvailable ?? '').replace(/[^\d]/g, '')))
+      .filter((n) => Number.isFinite(n));
+    if (!stocks.length) return '';
+    const total = stocks.reduce((sum, n) => sum + n, 0);
+    return total ? `${total} available` : '';
+  }
+  const stock = String(product.stockAvailable ?? '').trim();
+  if (!stock) return '';
+  return `${stock} available`;
+};
+
+export const getLineStockQty = (item = {}) => {
+  const raw = String(item.stockAvailable ?? '').trim();
+  if (!raw) return null;
+  const n = Number(raw.replace(/[^\d]/g, ''));
+  return Number.isFinite(n) ? n : null;
+};
+
+export const getProductTotalStockQty = (product = {}) => {
+  if (productHasVariants(product)) {
+    const qtys = (product.variants || [])
+      .filter((variant) => variant.available !== false)
+      .map(getLineStockQty)
+      .filter((n) => n != null);
+    if (!qtys.length) return null;
+    return qtys.reduce((sum, n) => sum + n, 0);
+  }
+  return getLineStockQty(product);
+};
+
+export const productMissingSku = (product = {}) => {
+  if (productHasVariants(product)) {
+    return (product.variants || []).some(
+      (variant) => !String(variant.sku || '').trim()
+    );
+  }
+  return !String(product.sku || '').trim();
+};
+
+export const isProductPubliclyVisible = (product = {}) => {
+  const status = normalizeProductStatus(product);
+  return status === 'active' && product.active !== false;
+};
+
+export const isVariantPurchasable = (product = {}, variant = null) => {
+  if (product.quoteBased || product.priceType === 'quote') return false;
+  if (productHasVariants(product)) {
+    if (!variant) return false;
+    if (variant.available === false) return false;
+    const stock = String(variant.stockAvailable ?? '').trim();
+    if (stock !== '' && Number(stock) <= 0) return false;
+    return true;
+  }
+  const stock = String(product.stockAvailable ?? '').trim();
+  if (stock !== '' && Number(stock) <= 0) return false;
+  return true;
+};
+
+const collectLabels = (products = [], existing = [], getter) => {
   const seen = new Set();
   const out = [];
   for (const label of [
     ...(Array.isArray(existing) ? existing : []),
-    ...products.map((product) => product.category)
+    ...products.flatMap((product) => getter(product) || [])
   ]) {
     const value = String(label || '').trim();
     if (!value) continue;
@@ -70,3 +367,12 @@ export const collectProductCategories = (products = [], existing = []) => {
   }
   return out;
 };
+
+export const collectProductCategories = (products = [], existing = []) =>
+  collectLabels(products, existing, (product) => [product.category]);
+
+export const collectProductTags = (products = [], existing = []) =>
+  collectLabels(products, existing, (product) => product.tags);
+
+export const collectProductCollections = (products = [], existing = []) =>
+  collectLabels(products, existing, (product) => product.collections);

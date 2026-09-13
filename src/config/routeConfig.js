@@ -9,6 +9,7 @@ export const workspaceTabIds = [
   'availability',
   'products',
   'orders',
+  'stock',
   'website',
   'social',
   'communications',
@@ -39,6 +40,7 @@ export const workspaceTabAliases = {
   'e-business': 'website',
   ebusiness: 'website',
   'product-orders': 'orders',
+  inventory: 'stock',
   shop: 'products',
   buy: 'products',
   payments: 'finance',
@@ -53,6 +55,7 @@ export const workspaceTabGroups = {
   availability: 'book',
   products: 'buy',
   orders: 'buy',
+  stock: 'buy',
   website: 'presence',
   social: 'presence',
   communications: 'run',
@@ -69,6 +72,7 @@ export const workspaceTabLabels = {
   availability: 'Availability',
   products: 'Products',
   orders: 'Orders',
+  stock: 'Stock',
   website: 'Pages',
   social: 'Business Blog',
   communications: 'Support',
@@ -88,7 +92,8 @@ export const workspaceGroupLabels = {
 /** Nested under a parent catalog tab within the same nav group. */
 export const workspaceTabParents = {
   requests: 'services',
-  orders: 'products'
+  orders: 'products',
+  stock: 'products'
 };
 
 export const mobilePrimaryTabs = ['overview', 'services', 'staff', 'products', 'website'];

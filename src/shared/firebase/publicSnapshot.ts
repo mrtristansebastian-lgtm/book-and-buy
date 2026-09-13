@@ -51,21 +51,42 @@ function publicServices(services: unknown) {
     }));
 }
 
+function isPublicProduct(product: AnyRecord) {
+  const status = String(product.status || '').toLowerCase();
+  if (status === 'draft' || status === 'archived') return false;
+  return product.active !== false;
+}
+
 function publicProducts(products: unknown) {
   if (!Array.isArray(products)) return [];
   return products
-    .filter((product): product is AnyRecord => Boolean(product && typeof product === 'object' && (product as AnyRecord).active !== false))
+    .filter((product): product is AnyRecord => Boolean(product && typeof product === 'object' && isPublicProduct(product as AnyRecord)))
     .map((product) => ({
       id: product.id,
       name: product.name,
       title: product.title,
       description: product.description || '',
       price: product.price,
+      compareAtPrice: product.compareAtPrice,
       priceInCents: product.priceInCents,
       currency: product.currency,
+      priceType: product.priceType,
+      quoteBased: product.quoteBased,
+      category: product.category || product.mainCategory || '',
+      productType: product.productType || '',
+      vendor: product.vendor || '',
+      tags: Array.isArray(product.tags) ? product.tags : [],
+      collections: Array.isArray(product.collections) ? product.collections : [],
+      sku: product.sku || '',
+      stockAvailable: product.stockAvailable,
+      stockLabel: product.stockLabel,
+      hideStockOnCard: product.hideStockOnCard,
       image: product.image,
       imageUrls: product.imageUrls || [],
+      options: Array.isArray(product.options) ? product.options : [],
+      variants: Array.isArray(product.variants) ? product.variants : [],
       stockNote: product.stockNote,
+      status: 'active',
       active: true
     }));
 }

@@ -6,6 +6,7 @@ import { SchedulePage } from '../schedule/pages/SchedulePage';
 import { AvailabilityPage } from '../schedule/pages/AvailabilityPage';
 import { ProductsPage } from '../products/pages/ProductsPage';
 import { OrdersPage } from '../products/pages/OrdersPage';
+import { StockPage } from '../products/pages/StockPage';
 import { WebsiteStudioPage } from '../website/pages/WebsiteStudioPage';
 import { SocialStudioPage } from '../social/pages/SocialStudioPage';
 import { SupportInboxPage } from '../support/pages/SupportInboxPage';
@@ -42,6 +43,8 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
         <ProductsPage />
       ) : tab === 'orders' ? (
         <OrdersPage />
+      ) : tab === 'stock' ? (
+        <StockPage />
       ) : tab === 'website' ? (
         <WebsiteStudioPage />
       ) : tab === 'social' ? (

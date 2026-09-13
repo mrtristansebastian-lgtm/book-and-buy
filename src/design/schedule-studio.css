@@ -77,12 +77,9 @@
 }
 
 .bb-schedule-mode-btn.is-active {
-  color: #050505;
-  background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
-    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  color: #101828;
+  background: #f2f4f7;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
 }
 
 .bb-schedule-day-nav {
@@ -93,21 +90,64 @@
 }
 
 .bb-schedule-day-label {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   min-width: 9.5rem;
   text-align: center;
   padding: 0.5rem 0.85rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
+  font: inherit;
   font-weight: 720;
   font-size: 0.88rem;
   color: #101828;
+  cursor: pointer;
 }
 
-.bb-schedule-day-edit {
-  width: 2.35rem;
-  height: 2.35rem;
-  padding: 0;
+.bb-schedule-day-label:hover {
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #f8fafc;
+}
+
+.bb-schedule-today-btn {
+  appearance: none;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: #101828;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 740;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+}
+
+.bb-schedule-today-btn:hover {
+  background: #f8fafc;
+}
+
+.bb-schedule-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.bb-schedule-toolbar-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
 }
 
 .bb-schedule-period-filter {
@@ -263,16 +303,43 @@
   text-overflow: ellipsis;
 }
 
-.bb-schedule-agenda-badge {
+.bb-schedule-agenda-badge,
+.bb-schedule-status-chip {
   justify-self: end;
-  padding: 0.28rem 0.55rem;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  height: 1.55rem;
+  padding: 0 0.55rem;
+  border-radius: 0.45rem;
+  border: 1px solid rgba(6, 118, 71, 0.2);
   background: #ecfdf3;
-  color: #027a48;
-  font-size: 0.68rem;
-  font-weight: 760;
-  letter-spacing: 0.04em;
+  color: #067647;
+  font-size: 0.64rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.bb-schedule-status-chip.is-live {
+  color: #b54708;
+  background: #fffaeb;
+  border-color: rgba(181, 71, 8, 0.22);
+}
+
+.bb-schedule-status-chip.is-ended,
+.bb-schedule-status-chip.is-draft {
+  color: #475467;
+  background: #f2f4f7;
+  border-color: rgba(71, 84, 103, 0.16);
+}
+
+.bb-schedule-status-chip.is-upcoming,
+.bb-schedule-status-chip.is-confirmed {
+  color: #067647;
+  background: #ecfdf3;
+  border-color: rgba(6, 118, 71, 0.2);
 }
 
 @media (max-width: 720px) {
@@ -291,7 +358,8 @@
     grid-area: main;
   }
 
-  .bb-schedule-agenda-badge {
+  .bb-schedule-agenda-badge,
+  .bb-schedule-status-chip {
     grid-area: badge;
   }
 }
@@ -329,12 +397,9 @@
 }
 
 .bb-schedule-period-btn.is-active {
-  color: #050505;
-  background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
-    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  color: #101828;
+  background: #f2f4f7;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
 }
 
 .bb-schedule-picker-month-nav {
@@ -720,6 +785,253 @@
   }
 }
 
+.bb-schedule-staff-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem 0.95rem;
+  padding: 0.15rem 0.1rem;
+}
+
+.bb-schedule-staff-avatar {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  cursor: pointer;
+  min-width: 3.4rem;
+  color: #667085;
+}
+
+.bb-schedule-staff-avatar-face {
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--staff-color, #101828);
+  border: 2px solid #fff;
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.08),
+    0 4px 10px rgba(15, 23, 42, 0.08);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.bb-schedule-staff-avatar-face.is-all {
+  background: #344054;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+.bb-schedule-staff-avatar-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-schedule-staff-avatar-name {
+  max-width: 4.5rem;
+  font-size: 0.66rem;
+  font-weight: 720;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bb-schedule-staff-avatar.is-active {
+  color: #101828;
+}
+
+.bb-schedule-staff-avatar.is-active .bb-schedule-staff-avatar-face {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow:
+    0 0 0 2px var(--staff-color, #101828),
+    0 0 0 4px #fff,
+    0 8px 16px rgba(15, 23, 42, 0.12);
+}
+
+.bb-schedule-staff-avatar.is-active .bb-schedule-staff-avatar-face.is-all {
+  box-shadow:
+    0 0 0 2px #0f766e,
+    0 0 0 4px #fff,
+    0 8px 16px rgba(15, 23, 42, 0.12);
+}
+
+.bb-schedule-board {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1.05rem 1.15rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f7f8fa 100%);
+  animation: bb-schedule-board-in 0.28s ease both;
+}
+
+@keyframes bb-schedule-board-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-schedule-board-hero {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.bb-schedule-board-kicker {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-schedule-board-title {
+  margin: 0.15rem 0 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #101828;
+}
+
+.bb-schedule-board-hours {
+  margin: 0.25rem 0 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #667085;
+}
+
+.bb-schedule-board-meter {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.bb-schedule-board-empty {
+  padding: 1.1rem 0.2rem 0.35rem;
+}
+
+.bb-schedule-rail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  position: relative;
+}
+
+.bb-schedule-rail::before {
+  content: '';
+  position: absolute;
+  left: 5.35rem;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 2px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.bb-schedule-rail-item {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  padding: 0.55rem 0;
+  position: relative;
+}
+
+.bb-schedule-rail-time {
+  text-align: right;
+  padding-top: 0.85rem;
+}
+
+.bb-schedule-rail-time strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 780;
+  letter-spacing: -0.01em;
+  color: #344054;
+}
+
+.bb-schedule-rail-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.bb-schedule-rail-card:hover {
+  border-color: rgba(15, 23, 42, 0.14);
+  transform: translateY(-1px);
+}
+
+.bb-schedule-rail-card-main {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.bb-schedule-rail-card-main h3 {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-schedule-rail-card-main p {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 650;
+  color: #344054;
+}
+
+.bb-schedule-rail-card-main span {
+  font-size: 0.78rem;
+  color: #667085;
+}
+
+@media (max-width: 640px) {
+  .bb-schedule-rail::before {
+    left: 0.35rem;
+  }
+
+  .bb-schedule-rail-item {
+    grid-template-columns: 1fr;
+    padding-left: 1.1rem;
+  }
+
+  .bb-schedule-rail-time {
+    text-align: left;
+    padding-top: 0;
+  }
+}
+
 .bb-schedule-empty {
   padding: 1.35rem 1.15rem;
   border-radius: 1rem;
@@ -898,7 +1210,8 @@
   display: block;
 }
 
-.bb-schedule-spot-media .bb-schedule-spot-pill {
+.bb-schedule-spot-media .bb-schedule-spot-pill,
+.bb-schedule-spot-media .bb-schedule-status-chip {
   position: absolute;
   top: 0.55rem;
   right: 0.55rem;
@@ -1153,13 +1466,9 @@
 }
 
 .bb-schedule-staff-chip.is-active {
-  color: #050505;
-  border-color: transparent;
-  background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
-    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  color: #101828;
+  border-color: rgba(15, 23, 42, 0.14);
+  background: #f2f4f7;
 }
 
 .bb-schedule-lane.is-closed {
@@ -1174,6 +1483,225 @@
 
 .bb-schedule-avail-page-header {
   align-items: center;
+}
+
+.bb-schedule-avail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.bb-schedule-avail-studio-settings {
+  appearance: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: #344054;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.bb-schedule-avail-studio-settings:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.18);
+  color: #101828;
+}
+
+.bb-schedule-avail-settings-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bb-schedule-avail-settings-panel {
+  width: min(52rem, 100%) !important;
+  max-height: min(46rem, calc(100vh - 2rem));
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.bb-schedule-avail-settings-layout {
+  display: grid;
+  grid-template-columns: 12.5rem minmax(0, 1fr);
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-schedule-avail-settings-rail {
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  background: #f8fafc;
+  padding: 0.75rem;
+  overflow: auto;
+}
+
+.bb-schedule-avail-settings-nav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.bb-schedule-avail-settings-nav-item {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.65rem 0.7rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: #475467;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-schedule-avail-settings-nav-item:hover {
+  background: rgba(15, 23, 42, 0.04);
+  color: #101828;
+}
+
+.bb-schedule-avail-settings-nav-item.is-active {
+  background: #fff;
+  color: #101828;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.bb-schedule-avail-settings-main {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 1rem 1.15rem 1.2rem;
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.bb-schedule-avail-settings-main-head h3 {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-schedule-avail-settings-main-head p {
+  margin: 0.25rem 0 0;
+  font-size: 0.86rem;
+  font-weight: 550;
+  color: #667085;
+}
+
+.bb-schedule-avail-settings-section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bb-schedule-avail-settings-section-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+  .bb-schedule-avail-settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-schedule-avail-settings-rail {
+    border-right: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  }
+
+  .bb-schedule-avail-settings-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .bb-schedule-avail-settings-nav-item {
+    width: auto;
+  }
+}
+
+.bb-schedule-avail-settings-row {
+  appearance: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bb-schedule-avail-settings-row:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+.bb-schedule-avail-settings-row-icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.7rem;
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.bb-schedule-avail-settings-row-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.bb-schedule-avail-settings-row-copy strong {
+  font-size: 0.92rem;
+  font-weight: 760;
+  color: #101828;
+}
+
+.bb-schedule-avail-settings-row-copy em {
+  font-style: normal;
+  font-size: 0.78rem;
+  font-weight: 550;
+  color: #667085;
+}
+
+.bb-schedule-avail-settings-block {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #f8fafc;
+}
+
+.bb-schedule-avail-settings-label {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #98a2b3;
 }
 
 .bb-schedule-avail-header-tools {
@@ -1274,7 +1802,7 @@
 }
 
 .bb-schedule-avail-avatar.is-business .bb-schedule-avail-avatar-face {
-  background: linear-gradient(145deg, #1f2937, #0f172a);
+  background: #1f2937;
 }
 
 .bb-schedule-avail-avatar.is-business.is-active .bb-schedule-avail-avatar-face {
@@ -1286,14 +1814,16 @@
 
 .bb-schedule-hours-rows {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.35rem;
 }
 
 .bb-schedule-hours-row {
   display: grid;
-  gap: 0.55rem;
-  padding: 0.75rem 0.85rem;
-  border-radius: 0.85rem;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  gap: 0.5rem 0.65rem;
+  align-items: center;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.6rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #f8fafc;
 }
@@ -1305,30 +1835,67 @@
 .bb-schedule-hours-day {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  font-size: 0.88rem;
-  font-weight: 740;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 720;
   color: #101828;
   cursor: pointer;
+  min-width: 0;
 }
 
 .bb-schedule-hours-day input {
-  width: 1rem;
-  height: 1rem;
+  width: 0.85rem;
+  height: 0.85rem;
   accent-color: #0f766e;
+  flex-shrink: 0;
 }
 
 .bb-schedule-hours-times {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
+  gap: 0.4rem;
+}
+
+.bb-schedule-hours-times .bb-time-field {
+  gap: 0.12rem;
+}
+
+.bb-schedule-hours-times .bb-time-field-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+}
+
+.bb-schedule-hours-times .bb-time-field-control {
+  gap: 0.3rem;
+}
+
+.bb-schedule-hours-times .bb-time-field-value {
+  min-height: 2rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.55rem;
+  font-size: 0.8rem;
+}
+
+.bb-schedule-hours-times .bb-time-field-pick {
+  min-height: 2rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  border-radius: 0.55rem;
 }
 
 .bb-schedule-hours-closed-label {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 650;
   color: #98a2b3;
+  justify-self: start;
+}
+
+@media (max-width: 560px) {
+  .bb-schedule-hours-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
 }
 
 .bb-schedule-avail-setup-panel {
@@ -1550,6 +2117,20 @@
 
 .bb-schedule-avail-manage-btn:active {
   transform: translateY(0);
+}
+
+.bb-schedule-avail-manage-btn.is-settings {
+  background: #fff;
+  background-image: none;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: none;
+}
+
+.bb-schedule-avail-manage-btn.is-settings:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.18);
+  box-shadow: none;
+  transform: none;
 }
 
 .bb-schedule-avail-hint {

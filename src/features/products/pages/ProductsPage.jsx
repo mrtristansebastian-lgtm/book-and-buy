@@ -4,7 +4,8 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
   collectProductCategories,
   createProductId,
-  normalizeProduct
+  normalizeProduct,
+  productHasVariants
 } from '../../../utils/products';
 import { ProductCatalogCard } from '../components/ProductCatalogCard';
 import { ProductEditorSheet } from '../components/ProductEditorSheet';
@@ -13,15 +14,116 @@ const emptyDraft = () => ({
   id: '',
   name: '',
   price: '',
+  compareAtPrice: '',
+  currency: 'R',
   category: '',
-  stockAvailable: '',
-  stockLabel: '',
-  hideStockOnCard: false,
+  productType: '',
+  vendor: '',
+  tags: [],
+  collections: [],
   description: '',
-  image: '',
+  imageUrls: [],
+  options: [],
+  variants: [],
   quoteBased: false,
+  status: 'active',
   active: true
 });
+
+const toDraft = (product = {}) => {
+  const normalized = normalizeProduct(product);
+  return {
+    id: normalized.id,
+    name: normalized.name || '',
+    price: String(normalized.price ?? ''),
+    compareAtPrice: String(normalized.compareAtPrice ?? ''),
+    currency: normalized.currency || 'R',
+    category: normalized.category || '',
+    productType: normalized.productType || '',
+    vendor: normalized.vendor || '',
+    tags: normalized.tags || [],
+    collections: normalized.collections || [],
+    description: normalized.description || '',
+    imageUrls: normalized.imageUrls || [],
+    options: normalized.options || [],
+    variants: normalized.variants || [],
+    quoteBased: Boolean(normalized.quoteBased),
+    status: normalized.status || 'active',
+    active: normalized.active !== false,
+    // Inventory fields travel with the draft so Stock edits survive catalog saves
+    sku: normalized.sku || '',
+    stockAvailable: String(normalized.stockAvailable ?? ''),
+    stockLabel: normalized.stockLabel || '',
+    hideStockOnCard: Boolean(normalized.hideStockOnCard),
+    weight: String(normalized.weight ?? ''),
+    weightUnit: normalized.weightUnit || 'g',
+    size: normalized.size || ''
+  };
+};
+
+const mergeInventoryFromExisting = (draft, existing) => {
+  if (!existing) {
+    return {
+      ...draft,
+      sku: draft.sku || '',
+      stockAvailable: draft.stockAvailable ?? '',
+      stockLabel: draft.stockLabel || '',
+      hideStockOnCard: Boolean(draft.hideStockOnCard),
+      weight: draft.weight ?? '',
+      weightUnit: draft.weightUnit || 'g',
+      size: draft.size || ''
+    };
+  }
+
+  const draftVariants = Array.isArray(draft.variants) ? draft.variants : [];
+  const existingById = new Map(
+    (existing.variants || []).map((variant) => [variant.id, variant])
+  );
+  const existingByTitle = new Map(
+    (existing.variants || []).map((variant) => [
+      String(variant.title || '').toLowerCase(),
+      variant
+    ])
+  );
+
+  const variants = draftVariants.map((variant) => {
+    const prior =
+      existingById.get(variant.id) ||
+      existingByTitle.get(String(variant.title || '').toLowerCase());
+    if (!prior) return variant;
+    return {
+      ...variant,
+      sku: variant.sku || prior.sku || '',
+      stockAvailable:
+        variant.stockAvailable !== '' && variant.stockAvailable != null
+          ? variant.stockAvailable
+          : prior.stockAvailable ?? '',
+      weight:
+        variant.weight !== '' && variant.weight != null
+          ? variant.weight
+          : prior.weight ?? '',
+      weightUnit: variant.weightUnit || prior.weightUnit || 'g',
+      size: variant.size || prior.size || ''
+    };
+  });
+
+  return {
+    ...draft,
+    sku: existing.sku || draft.sku || '',
+    stockAvailable: existing.stockAvailable ?? draft.stockAvailable ?? '',
+    stockLabel: existing.stockLabel || draft.stockLabel || '',
+    hideStockOnCard:
+      typeof draft.hideStockOnCard === 'boolean'
+        ? draft.hideStockOnCard
+        : Boolean(existing.hideStockOnCard),
+    weight: existing.weight ?? draft.weight ?? '',
+    weightUnit: existing.weightUnit || draft.weightUnit || 'g',
+    size: existing.size || draft.size || '',
+    variants: productHasVariants({ ...draft, variants })
+      ? variants
+      : []
+  };
+};
 
 export function ProductsPage() {
   const {
@@ -45,19 +147,7 @@ export function ProductsPage() {
   };
 
   const openEdit = (product) => {
-    setDraft({
-      id: product.id,
-      name: product.name || '',
-      price: String(product.price ?? ''),
-      category: product.category || '',
-      stockAvailable: String(product.stockAvailable ?? ''),
-      stockLabel: product.stockLabel || '',
-      hideStockOnCard: Boolean(product.hideStockOnCard),
-      description: product.description || '',
-      image: product.imageUrls?.[0] || '',
-      quoteBased: Boolean(product.quoteBased || product.priceType === 'quote'),
-      active: product.active !== false
-    });
+    setDraft(toDraft(product));
     setDraftOpen(true);
   };
 
@@ -67,26 +157,25 @@ export function ProductsPage() {
   };
 
   const saveDraft = () => {
-    if (!draft.name.trim()) return;
+    if (!String(draft.name || '').trim()) return;
+    const nextCategory = String(draft.category || '').trim();
+    if (nextCategory) {
+      const merged = collectProductCategories(products, [
+        ...(workspace.productCategories || []),
+        nextCategory
+      ]);
+      setProductCategories?.(merged);
+    }
+    const existing = products.find((item) => item.id === draft.id);
+    const merged = mergeInventoryFromExisting(draft, existing);
     upsertProduct(
       normalizeProduct({
-        ...draft,
+        ...merged,
         id: draft.id || createProductId(),
-        priceType: draft.quoteBased ? 'quote' : 'fixed',
-        imageUrls: draft.image ? [draft.image] : []
+        priceType: draft.quoteBased ? 'quote' : 'fixed'
       })
     );
     closeDraft();
-  };
-
-  const addCategory = (label) => {
-    const next = String(label || '').trim();
-    if (!next) return;
-    const merged = collectProductCategories(products, [
-      ...(workspace.productCategories || []),
-      next
-    ]);
-    setProductCategories?.(merged);
   };
 
   return (
@@ -136,7 +225,6 @@ export function ProductsPage() {
             : undefined
         }
         categories={categories}
-        onAddCategory={addCategory}
       />
     </div>
   );
