@@ -6,14 +6,14 @@ import { SocialStudioPostTiles } from './SocialStudioPostTiles';
 import { SocialStudioVideoTiles } from './SocialStudioVideoTiles';
 
 /**
- * Studio library — compact tiles for management (live content only).
+ * Studio library — live content with rich tiles and shared composer edit.
  */
 export function SocialStudioLibrary({
   tab,
   onTabChange,
   posts,
-  onUpdateSocialPost,
-  onRemoveSocialPost
+  onEditPost,
+  onCreate
 }) {
   const kind = tab === 'videos' ? 'video' : tab === 'text' ? 'text' : 'image';
 
@@ -27,6 +27,20 @@ export function SocialStudioLibrary({
 
   const label =
     tab === 'videos' ? 'Videos' : tab === 'text' ? 'Text updates' : 'Posts';
+
+  const emptyCopy =
+    tab === 'videos'
+      ? 'Nothing live yet — publish a video above.'
+      : tab === 'text'
+        ? 'Nothing live yet — publish a text update above.'
+        : 'Nothing live yet — publish a photo above.';
+
+  const createLabel =
+    tab === 'videos'
+      ? 'New video'
+      : tab === 'text'
+        ? 'New text update'
+        : 'New post';
 
   return (
     <section className={`bb-social-library${items.length ? '' : ' is-empty'}`}>
@@ -45,29 +59,26 @@ export function SocialStudioLibrary({
       </div>
 
       <div className="bb-social-library-surface">
-        {kind === 'image' ? (
-          <SocialStudioPostTiles
-            posts={items}
-            onUpdateSocialPost={onUpdateSocialPost}
-            onRemoveSocialPost={onRemoveSocialPost}
-          />
-        ) : null}
-
-        {kind === 'video' ? (
-          <SocialStudioVideoTiles
-            posts={items}
-            onUpdateSocialPost={onUpdateSocialPost}
-            onRemoveSocialPost={onRemoveSocialPost}
-          />
-        ) : null}
-
-        {kind === 'text' ? (
-          <SocialStudioArticleTiles
-            posts={items}
-            onUpdateSocialPost={onUpdateSocialPost}
-            onRemoveSocialPost={onRemoveSocialPost}
-          />
-        ) : null}
+        {!items.length ? (
+          <div className="bb-social-library-empty">
+            <p className="bb-social-library-empty-copy">{emptyCopy}</p>
+            {onCreate ? (
+              <button
+                type="button"
+                className="bb-primary-btn"
+                onClick={() => onCreate(tab)}
+              >
+                {createLabel}
+              </button>
+            ) : null}
+          </div>
+        ) : kind === 'image' ? (
+          <SocialStudioPostTiles posts={items} onEditPost={onEditPost} />
+        ) : kind === 'video' ? (
+          <SocialStudioVideoTiles posts={items} onEditPost={onEditPost} />
+        ) : (
+          <SocialStudioArticleTiles posts={items} onEditPost={onEditPost} />
+        )}
       </div>
     </section>
   );

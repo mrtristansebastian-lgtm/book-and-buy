@@ -1,16 +1,33 @@
-import { useState } from 'react';
 import { ExternalLink, Radio } from 'lucide-react';
+import { useState } from 'react';
 import { E_BUSINESS_PLATFORM_NAME } from '../../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { BlogComposerSheet } from '../components/BlogComposerSheet';
 import { SocialStudioCompose } from '../components/SocialStudioCompose';
 import { SocialStudioLibrary } from '../components/SocialStudioLibrary';
+import { postTypeToTab } from '../utils/socialPostType';
 
 export function SocialStudioPage() {
   const { workspace, addSocialPost, updateSocialPost, removeSocialPost } = useWorkspace();
   const [tab, setTab] = useState('posts');
+  const [composer, setComposer] = useState(null);
 
   const posts = workspace.socialPosts || [];
+  const businessName = workspace.brandName || workspace.name || '';
+
+  const openCreate = (kind) => {
+    setTab(kind);
+    setComposer({ mode: 'create', kind });
+  };
+
+  const openEdit = (post) => {
+    const kind = postTypeToTab(post?.type);
+    setTab(kind);
+    setComposer({ mode: 'edit', kind, post });
+  };
+
+  const closeComposer = () => setComposer(null);
 
   return (
     <div className="bb-social-studio">
@@ -22,7 +39,8 @@ export function SocialStudioPage() {
             </p>
             <h1 className="bb-social-studio-title">Business Blog</h1>
             <p className="bb-social-studio-lede">
-              Publish with the buttons below. What you see in history is exactly what customers see live.
+              Compose with a live preview, then publish. What you see in history is
+              what customers see live.
             </p>
           </div>
           <button
@@ -38,18 +56,27 @@ export function SocialStudioPage() {
       </header>
 
       <div className="bb-social-studio-body">
-        <SocialStudioCompose
-          onAddSocialPost={addSocialPost}
-          onOpenCreate={setTab}
-        />
+        <SocialStudioCompose onOpenCreate={openCreate} />
         <SocialStudioLibrary
           tab={tab}
           onTabChange={setTab}
           posts={posts}
+          onEditPost={openEdit}
+          onCreate={openCreate}
+        />
+      </div>
+
+      {composer ? (
+        <BlogComposerSheet
+          kind={composer.kind}
+          post={composer.mode === 'edit' ? composer.post : null}
+          businessName={businessName}
+          onClose={closeComposer}
+          onAddSocialPost={addSocialPost}
           onUpdateSocialPost={updateSocialPost}
           onRemoveSocialPost={removeSocialPost}
         />
-      </div>
+      ) : null}
     </div>
   );
 }
