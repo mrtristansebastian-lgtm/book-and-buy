@@ -282,7 +282,31 @@ html[data-theme='dark'] .bb-public-profile-chip {
   background:
     linear-gradient(var(--bb-surface), var(--bb-surface)) padding-box,
     var(--native-accent-button-gradient) border-box;
-  color: var(--bb-ink);
+  color: var(--bb-ink) !important;
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .bb-public-profile-category,
+html[data-theme='dark'] .bb-public-profile-location,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile-category,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile-location,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile-chip {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-social-profile-tabs {
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-social-profile-tab,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-profile-tab {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-social-profile-tab.is-active,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-profile-tab.is-active,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-profile-tab.is-active {
+  color: var(--bb-ink) !important;
 }
 
 html[data-theme='dark'] .bb-yt-watch,
@@ -315,10 +339,53 @@ html[data-theme='dark'] .bb-social-note {
 }
 
 html[data-theme='dark'] .bb-public-product-card,
-html[data-theme='dark'] .bb-public-product-body {
+html[data-theme='dark'] .bb-public-product-body,
+html[data-theme='dark'] .bb-public-product-surface {
   background: var(--bb-panel) !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28) !important;
+}
+
+html[data-theme='dark'] .bb-public-product-card--featured .bb-public-product-surface {
+  background:
+    linear-gradient(var(--bb-panel), var(--bb-panel)) padding-box,
+    var(--native-accent-button-gradient) border-box !important;
+}
+
+html[data-theme='dark'] .bb-public-product-price-row,
+html[data-theme='dark'] .bb-public-product-stats {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-public-product-stats.has-duration .bb-public-product-stat + .bb-public-product-stat {
+  border-left-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-public-product-price-value,
+html[data-theme='dark'] .bb-public-product-stat-value,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-price-value,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-stat-value {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-public-product-price-label,
+html[data-theme='dark'] .bb-public-product-stat-label,
+html[data-theme='dark'] .bb-public-service-meta,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-price-label,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-stat-label {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-public-product-grid .bb-public-product-media {
+  background: var(--bb-surface-2) !important;
+}
+
+html[data-theme='dark'] .bb-public-product-sticker:not(.bb-public-product-sticker--spots) {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
 }
 
 /* Generic white panels / ink utilities */
@@ -571,20 +638,71 @@ html[data-theme='dark'] .bb-social-studio-card,
 html[data-theme='dark'] .bb-social-composer,
 html[data-theme='dark'] .bb-social-library,
 html[data-theme='dark'] .bb-social-library-item,
+html[data-theme='dark'] .bb-social-library-empty,
 html[data-theme='dark'] .bb-social-note,
 html[data-theme='dark'] .bb-blog-composer,
 html[data-theme='dark'] .bb-blog-preview,
+html[data-theme='dark'] .bb-social-studio-create,
 html[data-theme='dark'] .bb-social-studio-create-btn,
 html[data-theme='dark'] .bb-social-post-tile,
+html[data-theme='dark'] .bb-social-video-tile,
+html[data-theme='dark'] .bb-social-article-tile,
 html[data-theme='dark'] .bb-social-studio [class*='card'],
 html[data-theme='dark'] .bb-social-studio [class*='panel'],
 html[data-theme='dark'] .bb-social-studio [class*='sheet'] {
   background: var(--bb-panel) !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink) !important;
+  box-shadow: none !important;
 }
 
-/* Support */
+html[data-theme='dark'] .bb-social-studio-create-btn-icon,
+html[data-theme='dark'] .bb-social-article-tile-thumb {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-blog-status-pill.is-live {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--bb-muted) !important;
+}
+
+/* Beat social-studio light !important headings / tab ink */
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-create-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-create-btn-copy strong,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-library-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-post-tile-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-video-tile-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-article-tile-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-sheet-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-blog-preview-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-compose-poster-copy strong,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-dropzone-label,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-profile-tab.is-active,
+html[data-theme='dark'] .bb-social-profile-tab.is-active {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-lede,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-create-lede,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-sheet-lede,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-create-btn-copy span,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-library-meta,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-post-tile-caption,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-post-tile-date,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-video-tile-caption,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-video-tile-date,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-article-tile-caption,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-article-tile-date,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-compose-poster-copy span,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-dropzone-hint,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-blog-composer-hint {
+  color: var(--bb-muted) !important;
+}
+
+/* Support / Inbox */
 html[data-theme='dark'] .bb-support-stage,
 html[data-theme='dark'] .bb-support-thread-pane,
 html[data-theme='dark'] .bb-support-pane,
@@ -606,6 +724,53 @@ html[data-theme='dark'] .bb-support-list {
 html[data-theme='dark'] .bb-support-thread {
   color: var(--bb-ink);
   border-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-support-thread-copy strong,
+html[data-theme='dark'] .bb-support-header-copy h2,
+html[data-theme='dark'] body .native-ui .bb-support-thread-copy strong,
+html[data-theme='dark'] body .native-ui .bb-support-header-copy h2 {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-support-avatar {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-support-presence-dot {
+  border-color: var(--bb-panel);
+}
+
+html[data-theme='dark'] .bb-support-thread-preview,
+html[data-theme='dark'] body .native-ui .support-thread-preview,
+html[data-theme='dark'] body .native-ui .bb-support-thread-preview {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-support-bubble.is-client {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-support-bubble.is-business {
+  background: #0a0a0a !important;
+  color: #fff !important;
+}
+
+html[data-theme='dark'] .bb-support-day,
+html[data-theme='dark'] .bb-support-system {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-support-quick-item {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-support-quick-item-icon {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-ink) !important;
 }
 
 /* Finance */
@@ -792,5 +957,138 @@ html[data-theme='dark'] .bb-products-chip.is-active {
   background: #ffffff !important;
   border-color: #ffffff !important;
   color: #050505 !important;
+}
+
+/* Stock crates — dark body + charcoal 3D edges (no blue-gray) */
+html[data-theme='dark'] .bb-stock-crate-body {
+  background: linear-gradient(165deg, #1c1c1c 0%, #141414 100%) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 10px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate-side {
+  background: linear-gradient(180deg, #3a3a3a 0%, #262626 100%) !important;
+  box-shadow: inset -2px 0 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate-bottom {
+  background: linear-gradient(90deg, #2e2e2e 0%, #1f1f1f 100%) !important;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate:hover .bb-stock-crate-side {
+  background: linear-gradient(180deg, #454545 0%, #2c2c2c 100%) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate:hover .bb-stock-crate-bottom {
+  background: linear-gradient(90deg, #383838 0%, #242424 100%) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate-stamp strong {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate-stamp > span {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate-media {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate-qty:not(.is-ok):not(.is-warn) {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-muted) !important;
+}
+
+/* Date / schedule pickers */
+html[data-theme='dark'] .bb-date-picker-sheet,
+html[data-theme='dark'] .bb-schedule-picker-sheet,
+html[data-theme='dark'] .bb-time-picker-sheet,
+html[data-theme='dark'] .bb-sort-picker-sheet {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55) !important;
+}
+
+html[data-theme='dark'] .bb-date-picker-title,
+html[data-theme='dark'] .bb-time-picker-title,
+html[data-theme='dark'] .bb-sort-picker-title,
+html[data-theme='dark'] .bb-schedule-picker-month-nav strong,
+html[data-theme='dark'] body .native-ui .bb-schedule-picker-month-nav strong,
+html[data-theme='dark'] body .native-ui .bb-date-picker-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-date-picker-hint,
+html[data-theme='dark'] .bb-date-picker-summary,
+html[data-theme='dark'] .bb-schedule-picker-weekdays span {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-picker-day {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-picker-day.is-outside {
+  opacity: 0.35;
+}
+
+html[data-theme='dark'] .bb-schedule-picker-day.is-selected {
+  color: #050505 !important;
+}
+
+html[data-theme='dark'] .bb-schedule-picker-day:hover:not(.is-selected) {
+  background: #2a2a2a !important;
+}
+
+/* Reviews — home + profile/content surfaces */
+html[data-theme='dark'] .bb-public-reviews-block,
+html[data-theme='dark'] .bb-public-reviews-shell,
+html[data-theme='dark'] .bb-public-profile .bb-public-reviews-block,
+html[data-theme='dark'] .bb-public-profile .bb-public-reviews-shell {
+  background: var(--bb-bg) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-public-reviews-title,
+html[data-theme='dark'] .bb-public-profile .bb-public-reviews-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-reviews-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-public-review,
+html[data-theme='dark'] .bb-public-profile .bb-public-review {
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-review-quote,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile .bb-public-review-quote {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-review-name,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile .bb-public-review-name {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-star-path--empty {
+  fill: rgba(255, 255, 255, 0.18) !important;
+}
+
+html[data-theme='dark'] .bb-public-profile .bb-public-review-avatar {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-ink) !important;
+  border-color: var(--bb-border) !important;
 }
 
