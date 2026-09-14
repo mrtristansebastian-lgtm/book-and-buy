@@ -1135,3 +1135,131 @@ html[data-theme='dark'] .bb-public-profile .bb-public-review-avatar {
   border-color: var(--bb-border) !important;
 }
 
+
+/* Editor sheets — services / products / stock / shared dialogs */
+html[data-theme='dark'] .bb-services-sheet-backdrop {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+html[data-theme='dark'] .bb-services-sheet-panel,
+html[data-theme='dark'] .bb-services-sheet-panel--setup,
+html[data-theme='dark'] .bb-clients-modal,
+html[data-theme='dark'] .bb-social-studio-sheet-panel {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55) !important;
+}
+
+html[data-theme='dark'] .bb-services-sheet-head,
+html[data-theme='dark'] .bb-services-sheet-footer,
+html[data-theme='dark'] .bb-social-studio-sheet-head,
+html[data-theme='dark'] .bb-social-studio-sheet-footer {
+  border-color: var(--bb-border) !important;
+  background: transparent !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-sheet-title,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-setup-mobile span,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-type-card-title,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-setup-rail-item.is-current .bb-services-setup-rail-label,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-setup-rail-btn:not(:disabled):hover .bb-services-setup-rail-label,
+html[data-theme='dark'] .bb-stock-info-facts dd,
+html[data-theme='dark'] .bb-stock-info-variant-list strong,
+html[data-theme='dark'] .bb-services-review-list dt,
+html[data-theme='dark'] .bb-services-review-list dd {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-sheet-lede,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-section-lede,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-field-hint,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-sheet-eyebrow,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-section-title,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-type-card-copy,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-field > span,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-field-label,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-setup-rail-label,
+html[data-theme='dark'] .bb-stock-info-facts dt,
+html[data-theme='dark'] .bb-stock-info-variant-list span,
+html[data-theme='dark'] .bb-stock-section-label {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-services-type-card:not(.is-active),
+html[data-theme='dark'] .bb-stock-info-facts div,
+html[data-theme='dark'] .bb-stock-info-variant-list li,
+html[data-theme='dark'] .bb-stock-info-media,
+html[data-theme='dark'] .bb-services-review-media {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .bb-services-type-card.is-active .bb-services-type-card-title,
+html[data-theme='dark'] .bb-services-type-card.is-active .bb-services-type-card-copy,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-type-card.is-active .bb-services-type-card-title,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-type-card.is-active .bb-services-type-card-copy {
+  color: #050505 !important;
+}
+
+html[data-theme='dark'] .bb-services-setup-rail-dot {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border-strong) !important;
+  color: var(--bb-muted) !important;
+  box-shadow: 0 0 0 4px var(--bb-panel) !important;
+}
+
+html[data-theme='dark'] .bb-services-setup-rail-item.is-current .bb-services-setup-rail-dot {
+  color: #050505 !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 0 4px var(--bb-panel) !important;
+}
+
+html[data-theme='dark'] .bb-services-setup-rail-item.is-done .bb-services-setup-rail-dot {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-ink) !important;
+  border-color: var(--bb-border-strong) !important;
+}
+
+html[data-theme='dark'] .bb-services-setup-rail-item.is-done .bb-services-setup-rail-label {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-services-setup-rail-list::before {
+  background: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-services-sheet .bb-ghost-btn,
+html[data-theme='dark'] .bb-services-sheet-footer .bb-ghost-btn {
+  color: var(--bb-ink) !important;
+  border-color: var(--bb-border-strong) !important;
+}
+
+html[data-theme='dark'] .bb-services-sheet .bb-ghost-btn:disabled,
+html[data-theme='dark'] .bb-services-sheet-footer .bb-ghost-btn:disabled {
+  color: var(--bb-faint) !important;
+  opacity: 0.55;
+}
+
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-review-list dd,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-review-desc dd {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-products-field > span,
+html[data-theme='dark'] .bb-products-check,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-products-field > span,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-products-check {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-products-gallery-item,
+html[data-theme='dark'] .bb-products-gallery-add,
+html[data-theme='dark'] .bb-services-photo-drop,
+html[data-theme='dark'] .bb-services-dropzone {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-muted) !important;
+}
