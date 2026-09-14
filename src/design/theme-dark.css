@@ -799,7 +799,13 @@ html[data-theme='dark'] .bb-finance-icon-btn {
 html[data-theme='dark'] .bb-finance-metric-label,
 html[data-theme='dark'] .bb-finance-eyebrow,
 html[data-theme='dark'] .bb-finance-receipt-meta,
-html[data-theme='dark'] .bb-finance-receipt-ref {
+html[data-theme='dark'] .bb-finance-receipt-ref,
+html[data-theme='dark'] .bb-finance-receipt-method,
+html[data-theme='dark'] .bb-finance-receipt-client span,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-client span,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-meta,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-method,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-ref {
   color: var(--bb-muted) !important;
 }
 
@@ -810,10 +816,42 @@ html[data-theme='dark'] .bb-finance-receipt-total,
 html[data-theme='dark'] .bb-finance-sheet-title,
 html[data-theme='dark'] .bb-finance-receipt-client,
 html[data-theme='dark'] .bb-finance-receipt-client strong,
+html[data-theme='dark'] .bb-finance-receipt-lines,
 html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-metric-value,
 html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-brand,
-html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-total {
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-total,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-client strong {
   color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-finance-receipt-serration {
+  background: var(--bb-panel) !important;
+}
+
+html[data-theme='dark'] .bb-finance-receipt-rule,
+html[data-theme='dark'] .bb-finance-receipt-rule--dashed {
+  background: var(--bb-border) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-finance-receipt-stamp--paid {
+  color: #6ee7b7 !important;
+  background: rgba(16, 185, 129, 0.14) !important;
+  border-color: rgba(16, 185, 129, 0.28) !important;
+}
+
+html[data-theme='dark'] .bb-finance-receipt-stamp--pending {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.14) !important;
+  border-color: rgba(245, 158, 11, 0.28) !important;
+}
+
+html[data-theme='dark'] .bb-finance-receipt-stamp--unpaid,
+html[data-theme='dark'] .bb-finance-receipt-stamp--failed,
+html[data-theme='dark'] .bb-finance-receipt-stamp--refunded {
+  color: var(--bb-muted) !important;
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
 }
 
 html[data-theme='dark'] .bb-finance-period-pill.is-active,
