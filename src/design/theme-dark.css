@@ -1311,3 +1311,75 @@ html[data-theme='dark'] .bb-services-dropzone {
   border-color: var(--bb-border) !important;
   color: var(--bb-muted) !important;
 }
+
+/* Content compose preview + dropzones */
+html[data-theme='dark'] .bb-blog-preview-frame,
+html[data-theme='dark'] .bb-blog-preview-text-card {
+  background: #1c1c1c !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .bb-blog-preview-brand,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-blog-preview-title,
+html[data-theme='dark'] .bb-blog-preview-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-blog-preview-caption,
+html[data-theme='dark'] .bb-blog-preview-caption.is-muted,
+html[data-theme='dark'] .bb-blog-preview-text-kicker,
+html[data-theme='dark'] .bb-blog-preview-label {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-blog-preview-dot {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+html[data-theme='dark'] .bb-social-dropzone,
+html[data-theme='dark'] .bb-social-dropzone:hover:not(:disabled),
+html[data-theme='dark'] .bb-social-compose-poster-empty,
+html[data-theme='dark'] .bb-social-compose-poster-pick {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border-strong) !important;
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-social-dropzone-label,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-dropzone-label {
+  color: var(--bb-ink) !important;
+}
+
+/* Support client file drawer */
+html[data-theme='dark'] .bb-support-drawer,
+html[data-theme='dark'] .support-client-info-panel {
+  background: #1c1c1c !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+  box-shadow: -18px 0 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme='dark'] .bb-support-drawer-backdrop {
+  background: rgba(0, 0, 0, 0.62) !important;
+}
+
+html[data-theme='dark'] .bb-support-drawer-head,
+html[data-theme='dark'] .bb-support-drawer-section h3 {
+  border-color: var(--bb-border) !important;
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-support-drawer .bb-page-title,
+html[data-theme='dark'] body .native-ui .bb-support-drawer .bb-page-title,
+html[data-theme='dark'] .bb-support-drawer-section p,
+html[data-theme='dark'] .bb-support-history-card strong {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-support-history-card {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
