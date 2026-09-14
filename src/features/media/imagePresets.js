@@ -11,7 +11,11 @@ export const IMAGE_PRESETS = {
     width: 1080,
     height: 1350,
     mime: 'image/jpeg',
-    quality: 0.92
+    quality: 0.92,
+    // Posts keep the photo's own shape; grid tiles crop to squares on display.
+    flexible: true,
+    minAspect: 0.3,
+    maxAspect: 3.5
   },
   hero: {
     id: 'hero',
@@ -74,4 +78,18 @@ export function resolveImagePreset(presetOrId = 'socialPost') {
     return { ...IMAGE_PRESETS.socialPost, ...presetOrId };
   }
   return IMAGE_PRESETS[presetOrId] || IMAGE_PRESETS.socialPost;
+}
+
+/**
+ * Frame shape for an upload: flexible presets keep the photo's own aspect
+ * (only extreme panoramas are reined in); fixed presets use the preset aspect.
+ */
+export function resolveFrameAspect(naturalAspect, presetOrId = 'socialPost') {
+  const preset = resolveImagePreset(presetOrId);
+  if (!preset.flexible || !Number.isFinite(naturalAspect) || naturalAspect <= 0) {
+    return preset.aspect;
+  }
+  const min = preset.minAspect || preset.aspect;
+  const max = preset.maxAspect || preset.aspect;
+  return Math.min(max, Math.max(min, naturalAspect));
 }
