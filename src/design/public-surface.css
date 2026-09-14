@@ -5172,9 +5172,10 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-profile-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  min-height: 1.7rem;
-  padding: 0.22rem 0.72rem;
+  justify-content: center;
+  gap: 0.32rem;
+  min-height: 1.75rem;
+  padding: 0.28rem 0.78rem;
   border-radius: 999px;
   border: 1.5px solid transparent;
   background:
@@ -5184,20 +5185,23 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   background-position: 0 0, var(--native-accent-x) 50%;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   color: #101828;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .bb-public-profile-chip--category {
-  padding-inline: 0.78rem;
+  padding-inline: 0.82rem;
 }
 
 .bb-public-profile-chip--location {
-  padding-left: 0.55rem;
+  padding: 0.28rem 0.78rem 0.28rem 0.62rem;
 }
 
 .bb-public-profile-chip--location .bb-public-profile-chip-icon {
   flex: 0 0 auto;
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.82rem;
+  height: 0.82rem;
+  margin-top: 0;
   background-image: var(--native-accent-button-gradient);
   background-size: 420% 420%;
   background-position: var(--native-accent-x) 50%;
@@ -5208,12 +5212,27 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-profile-category,
 .bb-public-profile-location {
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.74rem;
   font-weight: 720;
   letter-spacing: 0.01em;
-  line-height: 1.2;
+  line-height: 1;
   color: #101828;
+  text-align: center;
+  transform: translateY(0.5px);
+}
+
+.bb-public-profile-chip .bb-editable-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  transform: translateY(0.5px);
 }
 
 .bb-public-profile-meta-dot {

@@ -172,6 +172,15 @@
 
 .bb-social-studio-live .bb-public-profile-card {
   background: transparent;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'avatar'
+    'main'
+    'aside';
+  justify-items: center;
+  text-align: center;
+  column-gap: 0;
+  row-gap: 0.55rem;
 }
 
 .bb-social-studio-live .bb-public-profile-avatar-wrap {
@@ -181,11 +190,58 @@
 
 .bb-social-studio-live .bb-public-profile-avatar-ring {
   margin-top: -3.75rem;
+  justify-self: center;
+}
+
+.bb-social-studio-live .bb-public-profile-main {
+  justify-items: center;
+  text-align: center;
+  margin-top: 0;
+  padding-top: 0.1rem;
+  width: 100%;
+}
+
+.bb-social-studio-live .bb-public-profile-aside {
+  justify-content: center;
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
+  margin-top: 0.15rem;
+  padding-top: 0;
+}
+
+.bb-social-studio-live .bb-public-profile-name,
+.bb-social-studio-live .bb-public-profile-username,
+.bb-social-studio-live .bb-public-profile-bio {
+  text-align: center;
+  margin-inline: auto;
+}
+
+.bb-social-studio-live .bb-public-profile-name {
+  max-width: min(28ch, 100%);
+}
+
+.bb-social-studio-live .bb-public-profile-meta {
+  justify-content: center;
+  margin-inline: auto;
+}
+
+.bb-social-studio-live .bb-public-profile-action--compact {
+  width: auto;
+  min-width: 6.5rem;
 }
 
 @media (min-width: 720px) {
   .bb-social-studio-live .bb-public-profile-card {
-    row-gap: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'avatar'
+      'main'
+      'aside';
+    justify-items: center;
+    text-align: center;
+    row-gap: 0.5rem;
   }
 
   .bb-social-studio-live .bb-public-profile-avatar-ring {
@@ -199,8 +255,28 @@
 
   .bb-social-studio-live .bb-public-profile-main,
   .bb-social-studio-live .bb-public-profile-aside {
-    margin-top: -1rem;
+    margin-top: -0.35rem;
     padding-top: 0;
+  }
+
+  .bb-social-studio-live .bb-public-profile-main {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .bb-social-studio-live .bb-public-profile-aside {
+    justify-content: center;
+    width: 100%;
+    max-width: none;
+  }
+
+  .bb-social-studio-live .bb-public-profile-name,
+  .bb-social-studio-live .bb-public-profile-bio {
+    text-align: center;
+  }
+
+  .bb-social-studio-live .bb-public-profile-meta {
+    justify-content: center;
   }
 }
 
@@ -211,13 +287,6 @@
   justify-content: center;
   gap: 0.5rem;
   max-width: none;
-}
-
-@media (min-width: 720px) {
-  .bb-social-studio-profile-aside {
-    justify-content: flex-end;
-    flex-direction: row;
-  }
 }
 
 .bb-social-studio-profile-post {
@@ -232,7 +301,7 @@
   font-size: 0.92rem;
   font-weight: 720;
   letter-spacing: -0.015em;
-  text-align: left;
+  text-align: center;
   color: transparent;
   background-image: var(--native-accent-button-gradient, linear-gradient(120deg, #14a7ff, #ff6bcb));
   background-size: 420% 420%;
@@ -249,7 +318,7 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   background-position: var(--native-accent-x, 40%) 50% !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  text-align: left !important;
+  text-align: center !important;
 }
 
 .bb-social-profile-edit-modal {
