@@ -51,11 +51,12 @@ export function PublicBookingFlow({
   const cartButton = (
     <button
       type="button"
-      className="bb-ink-btn"
+      className="bb-public-catalog-cart"
       onClick={() => setPanel(panel === 'cart' ? 'shop' : 'cart')}
     >
-      <ShoppingBag size={16} />
-      Cart ({cart.count})
+      <ShoppingBag size={15} />
+      <span>Cart</span>
+      <span className="bb-public-catalog-cart-count">{cart.count}</span>
     </button>
   );
 

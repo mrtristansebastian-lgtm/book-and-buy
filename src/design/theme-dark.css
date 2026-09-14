@@ -787,12 +787,20 @@ html[data-theme='dark'] .bb-support-quick-item-icon {
   color: var(--bb-ink) !important;
 }
 
-/* Finance */
+/* Finance â€” black canvas, grey elevated cards / receipts */
+html[data-theme='dark'] .bb-finance {
+  background: transparent !important;
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-finance-ledger,
+html[data-theme='dark'] .bb-finance-receipts {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 html[data-theme='dark'] .bb-finance-metric,
 html[data-theme='dark'] .bb-finance-chart,
-html[data-theme='dark'] .bb-finance-ledger,
-html[data-theme='dark'] .bb-finance-receipt,
-html[data-theme='dark'] .bb-finance-receipt-body,
 html[data-theme='dark'] .bb-finance-sheet,
 html[data-theme='dark'] .bb-finance-gateway,
 html[data-theme='dark'] .bb-finance-search,
@@ -806,8 +814,16 @@ html[data-theme='dark'] .bb-finance-icon-btn {
   color: var(--bb-ink) !important;
 }
 
+html[data-theme='dark'] .bb-finance-receipt {
+  background: transparent !important;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
+}
+
+html[data-theme='dark'] .bb-finance-receipt-body,
 html[data-theme='dark'] .bb-finance-receipt-serration {
-  background: #1c1c1c !important;
+  background: #242424 !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
 }
 
 html[data-theme='dark'] .bb-finance-metric-label,
@@ -1381,5 +1397,49 @@ html[data-theme='dark'] .bb-support-history-card strong {
 html[data-theme='dark'] .bb-support-history-card {
   background: var(--bb-surface) !important;
   border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+/* Buy / Book catalog tools */
+html[data-theme='dark'] .bb-public-catalog-tab:not(.is-active),
+html[data-theme='dark'] .bb-public-catalog-cart {
+  background: #1c1c1c !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-muted) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .bb-public-catalog-tab:not(.is-active):hover,
+html[data-theme='dark'] .bb-public-catalog-cart:hover {
+  background: #242424 !important;
+  border-color: var(--bb-border-strong) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-public-catalog-tab.is-active {
+  color: #050505 !important;
+}
+
+html[data-theme='dark'] .bb-public-catalog-cart-count {
+  background: #f5f5f5 !important;
+  color: #050505 !important;
+}
+
+/* Owner catalog Edit actions — no navy fill on dark cards */
+html[data-theme='dark'] .bb-catalog-card-action.is-edit {
+  background: #2a2a2a !important;
+  border-color: var(--bb-border-strong) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-catalog-card-action.is-edit:hover {
+  background: #333 !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #fff !important;
+}
+
+html[data-theme='dark'] .bb-stock-crate-action.is-edit {
+  background: #2a2a2a !important;
+  border-color: var(--bb-border-strong) !important;
   color: var(--bb-ink) !important;
 }
