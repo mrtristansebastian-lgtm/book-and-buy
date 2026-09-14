@@ -1368,9 +1368,16 @@ html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-about-bloc
 }
 
 html[data-theme='dark'] .bb-public-profile .bb-public-about--editorial .bb-public-about-media,
-html[data-theme='dark'] .bb-public-profile .bb-public-venue-card {
+html[data-theme='dark'] .bb-public-profile .bb-public-venue-card,
+html[data-theme='dark'] .bb-public-coverflow-slide {
   background: var(--bb-surface-2) !important;
   border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-public-coverflow-btn {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
 }
 
 /* Hero copy stays transparent over the full-bleed image; text stays white */
@@ -1791,6 +1798,28 @@ html[data-theme='dark'] .bb-public-catalog-tab.is-active {
 html[data-theme='dark'] .bb-public-catalog-cart-count {
   background: #f5f5f5 !important;
   color: #050505 !important;
+}
+
+html[data-theme='dark'] .bb-public-catalog-intro-title {
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-public-catalog-intro-body {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-public-catalog-desk .bb-public-catalog-cart.is-open {
+  background: #242424 !important;
+  border-color: var(--bb-border-strong) !important;
+}
+
+html[data-theme='dark'] .bb-public-catalog-cart-drawer {
+  background: var(--bb-surface) !important;
+  border-left-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-public-catalog-cart-scrim {
+  background: rgba(0, 0, 0, 0.45);
 }
 
 /* Owner catalog Edit actions ? no navy fill on dark cards */

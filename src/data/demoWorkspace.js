@@ -992,6 +992,14 @@ export function createDemoWorkspace() {
       aboutBody:
         'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
       aboutImageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
+      visionTitle: 'Our vision',
+      visionBody:
+        'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
+      visionImageUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
+      missionTitle: 'Our mission',
+      missionBody:
+        'Teach real kitchen skills in small groups, share honest recipes, and stock the tools that make practice feel possible after class.',
+      missionImageUrl: '/example/flour-and-flame/venue/pastry-island.webp',
       reasonsTitle: 'What we offer',
       reasonsEyebrow: 'The craft',
       reasons: [
@@ -1323,6 +1331,12 @@ export function hydrateDemoWorkspace(stored) {
         aboutEyebrow: fresh.website.aboutEyebrow,
         aboutBody: fresh.website.aboutBody,
         aboutImageUrl: fresh.website.aboutImageUrl,
+        visionTitle: fresh.website.visionTitle,
+        visionBody: fresh.website.visionBody,
+        visionImageUrl: fresh.website.visionImageUrl,
+        missionTitle: fresh.website.missionTitle,
+        missionBody: fresh.website.missionBody,
+        missionImageUrl: fresh.website.missionImageUrl,
         reasonsTitle: fresh.website.reasonsTitle,
         reasonsEyebrow: fresh.website.reasonsEyebrow,
         reasons: fresh.website.reasons,

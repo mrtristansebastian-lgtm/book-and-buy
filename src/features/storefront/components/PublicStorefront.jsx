@@ -21,10 +21,12 @@ export function PublicStorefront({
 }) {
   const ctx = useWorkspace();
   const workspace = catalogWorkspace || ctx.workspace;
+  const website = workspace.website || {};
   const products = workspace.products || [];
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
   const [categoryId, setCategoryId] = useState('all');
+  const cartOpen = panel === 'cart';
 
   const catalog = useMemo(
     () => products.filter((product) => isProductPubliclyVisible(product)),
@@ -49,11 +51,21 @@ export function PublicStorefront({
     navigate(publicItemPath(workspace.slug, 'buy', productId));
   };
 
+  const openCart = () => setPanel('cart');
+  const closeCart = () => setPanel('shop');
+  const toggleCart = () => setPanel(cartOpen ? 'shop' : 'cart');
+
+  const introBody =
+    String(website.buySubtext || '').trim() ||
+    'Order products from this business.';
+
   const cartButton = (
     <button
       type="button"
-      className="bb-public-catalog-cart"
-      onClick={() => setPanel(panel === 'cart' ? 'shop' : 'cart')}
+      className={`bb-public-catalog-cart${cartOpen ? ' is-open' : ''}`}
+      onClick={toggleCart}
+      aria-expanded={cartOpen}
+      aria-controls="bb-public-catalog-cart-panel"
     >
       <ShoppingBag size={15} />
       <span>Cart</span>
@@ -61,18 +73,13 @@ export function PublicStorefront({
     </button>
   );
 
-  const catalogTools = (
-    <div className="bb-public-catalog-tools">
-      {panel === 'shop' ? (
-        <CatalogCategoryTabs
-          options={categoryTabs}
-          value={categoryId}
-          onChange={setCategoryId}
-          ariaLabel="Product categories"
-        />
-      ) : null}
-      {cartButton}
-    </div>
+  const categoryTabsEl = (
+    <CatalogCategoryTabs
+      options={categoryTabs}
+      value={categoryId}
+      onChange={setCategoryId}
+      ariaLabel="Product categories"
+    />
   );
 
   const renderCard = (product, featuredCard = false) => {
@@ -108,12 +115,12 @@ export function PublicStorefront({
               </span>
             ) : null}
           </div>
-          <div className="bb-public-product-body">
-            <h2>{product.name}</h2>
-          </div>
           <div className="bb-public-product-price-row">
-            <span className="bb-public-product-price-label">Price</span>
-            <span className="bb-public-product-price-value">{price || '—'}</span>
+            <h2 className="bb-public-product-name">{product.name}</h2>
+            <span className="bb-public-product-price-meta">
+              <span className="bb-public-product-price-label">Price</span>
+              <span className="bb-public-product-price-value">{price || '—'}</span>
+            </span>
           </div>
         </button>
         <div className="bb-public-product-actions">
@@ -128,13 +135,11 @@ export function PublicStorefront({
                 return;
               }
               cart.addItem(product);
-              setPanel('cart');
+              openCart();
             }}
           >
             <ShoppingBag size={12} strokeWidth={2.4} />
-            <span>
-              {quote ? 'Quote' : hasOptions ? 'Options' : 'Add'}
-            </span>
+            <span>{quote ? 'Quote' : hasOptions ? 'Options' : 'Add'}</span>
           </button>
           <button
             type="button"
@@ -148,31 +153,77 @@ export function PublicStorefront({
     );
   };
 
+  const productGrid = (
+    <div className="bb-public-product-grid">
+      {featured && featuredProductId ? renderCard(featured, true) : null}
+      {gridProducts.map((product) => renderCard(product))}
+      {catalog.length === 0 ? (
+        <p className="bb-muted m-0">No products published yet.</p>
+      ) : filteredCatalog.length === 0 ? (
+        <p className="bb-muted m-0">No products in this category.</p>
+      ) : null}
+    </div>
+  );
+
+  const cartCheckout = (
+    <PublicCartCheckout
+      catalogWorkspace={workspace}
+      workspaceName={workspaceName || workspace.brandName}
+      publicMode={publicMode}
+      onBack={closeCart}
+    />
+  );
+
   return (
     <section
-      className={`bb-public-buy-section bb-public-gutter ${preview ? 'pointer-events-none' : ''}`}
+      className={`bb-public-buy-section bb-public-gutter bb-public-catalog-desk${
+        cartOpen ? ' is-cart-open' : ''
+      }${preview ? ' pointer-events-none' : ''}`}
     >
-      <div className="bb-public-measure-wide grid gap-6">
-        {catalogTools}
+      <div className="bb-public-measure-wide bb-public-catalog-shell">
+        <div className="bb-public-catalog-topbar">{cartButton}</div>
 
-        {panel === 'cart' ? (
-          <PublicCartCheckout
-            catalogWorkspace={workspace}
-            workspaceName={workspaceName || workspace.brandName}
-            publicMode={publicMode}
-            onBack={() => setPanel('shop')}
-          />
-        ) : (
-          <div className="bb-public-product-grid">
-            {featured && featuredProductId ? renderCard(featured, true) : null}
-            {gridProducts.map((product) => renderCard(product))}
-            {catalog.length === 0 ? (
-              <p className="bb-muted m-0">No products published yet.</p>
-            ) : filteredCatalog.length === 0 ? (
-              <p className="bb-muted m-0">No products in this category.</p>
-            ) : null}
+        <div className="bb-public-catalog-layout">
+          <aside className="bb-public-catalog-side">{categoryTabsEl}</aside>
+
+          <div className="bb-public-catalog-main">
+            <header className="bb-public-catalog-intro">
+              <h1 className="bb-public-catalog-intro-title">Our Products</h1>
+              <p className="bb-public-catalog-intro-body">{introBody}</p>
+            </header>
+
+            <div className="bb-public-catalog-mobile-tools">
+              {categoryTabsEl}
+              {cartButton}
+            </div>
+
+            <div className="bb-public-catalog-mobile-panel">
+              {cartOpen ? cartCheckout : productGrid}
+            </div>
+
+            <div className="bb-public-catalog-desk-grid">{productGrid}</div>
           </div>
-        )}
+        </div>
+
+        {cartOpen ? (
+          <>
+            <button
+              type="button"
+              className="bb-public-catalog-cart-scrim"
+              aria-label="Close cart"
+              onClick={closeCart}
+            />
+            <aside
+              id="bb-public-catalog-cart-panel"
+              className="bb-public-catalog-cart-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Cart"
+            >
+              {cartCheckout}
+            </aside>
+          </>
+        ) : null}
       </div>
     </section>
   );

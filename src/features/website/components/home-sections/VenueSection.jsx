@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { EditableText, EditableImage, EditSection } from '../editable';
 
 export function VenueSection({
@@ -10,8 +11,19 @@ export function VenueSection({
   patchWebsite
 }) {
   const [viewerIndex, setViewerIndex] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const viewable = venueImages.filter((image) => Boolean(image.url));
   const active = viewerIndex == null ? null : viewable[viewerIndex] || null;
+  const flowImages = editMode ? venueImages : viewable;
+  const flowCount = flowImages.length;
+
+  useEffect(() => {
+    if (flowCount === 0) {
+      setActiveIndex(0);
+      return;
+    }
+    setActiveIndex((prev) => Math.min(prev, flowCount - 1));
+  }, [flowCount]);
 
   useEffect(() => {
     if (viewerIndex == null) return undefined;
@@ -37,6 +49,15 @@ export function VenueSection({
     if (editMode) return;
     const index = viewable.findIndex((image) => image.id === imageId);
     if (index >= 0) setViewerIndex(index);
+  };
+
+  const stepFlow = (delta) => {
+    if (flowCount < 2) return;
+    setActiveIndex((prev) => (prev + delta + flowCount) % flowCount);
+  };
+
+  const selectFlow = (index) => {
+    setActiveIndex(index);
   };
 
   return (
@@ -72,55 +93,106 @@ export function VenueSection({
             ) : null}
           </header>
 
-          <div
-            className="bb-public-venue-grid bb-public-venue-rail"
-            role="list"
-            aria-label="Gallery photos"
-          >
-            {venueImages.length === 0 && editMode ? (
-              <p className="bb-edit-section-coach m-0">Add photos to your gallery.</p>
-            ) : null}
-            {venueImages.map((image, index) => {
-              const canOpen = !editMode && Boolean(image.url);
-              return (
-                <figure
-                  key={image.id}
-                  role="listitem"
-                  className={`bb-public-venue-card${canOpen ? ' is-openable' : ''}`}
-                  style={{ '--bb-venue-i': index }}
-                >
-                  {canOpen ? (
-                    <button
-                      type="button"
-                      className="bb-public-venue-open"
-                      onClick={() => openViewer(image.id)}
-                      aria-label="View photo full size"
+          {flowCount === 0 && editMode ? (
+            <p className="bb-edit-section-coach m-0">Add photos to your gallery.</p>
+          ) : null}
+
+          {flowCount > 0 ? (
+            <div className="bb-public-coverflow">
+              <div
+                className="bb-public-coverflow-stage"
+                role="list"
+                aria-label="Gallery photos"
+                aria-roledescription="carousel"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    stepFlow(1);
+                  }
+                  if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    stepFlow(-1);
+                  }
+                }}
+              >
+                {flowImages.map((image, index) => {
+                  const offset = index - activeIndex;
+                  const abs = Math.abs(offset);
+                  if (abs > 3) return null;
+                  const canOpen = !editMode && Boolean(image.url);
+                  const isCenter = offset === 0;
+
+                  return (
+                    <figure
+                      key={image.id}
+                      role="listitem"
+                      className={`bb-public-coverflow-slide${isCenter ? ' is-active' : ''}${
+                        canOpen ? ' is-openable' : ''
+                      }`}
+                      style={{
+                        '--cf-offset': offset,
+                        '--cf-abs': abs,
+                        zIndex: 40 - abs
+                      }}
                     >
-                      <EditableImage
-                        editMode={false}
-                        src={image.url || ''}
-                        className="bb-public-venue-media"
-                        imgClassName="bb-public-venue-img"
-                        storageFolder="venue"
-                        preset="venue"
-                        onChange={(url) => patchVenue(image.id, 'url', url)}
-                      />
-                    </button>
-                  ) : (
-                    <EditableImage
-                      editMode={editMode}
-                      src={image.url || ''}
-                      className="bb-public-venue-media"
-                      imgClassName="bb-public-venue-img"
-                      storageFolder="venue"
-                      preset="venue"
-                      onChange={(url) => patchVenue(image.id, 'url', url)}
-                    />
-                  )}
-                </figure>
-              );
-            })}
-          </div>
+                      {editMode ? (
+                        <EditableImage
+                          editMode={editMode}
+                          src={image.url || ''}
+                          className="bb-public-coverflow-media"
+                          imgClassName="bb-public-coverflow-img"
+                          storageFolder="venue"
+                          preset="venue"
+                          onChange={(url) => patchVenue(image.id, 'url', url)}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          className="bb-public-coverflow-hit"
+                          onClick={() => {
+                            if (isCenter) openViewer(image.id);
+                            else selectFlow(index);
+                          }}
+                          aria-label={
+                            isCenter ? 'View photo full size' : `Show photo ${index + 1}`
+                          }
+                          aria-current={isCenter ? 'true' : undefined}
+                        >
+                          {image.url ? (
+                            <img src={image.url} alt="" className="bb-public-coverflow-img" />
+                          ) : (
+                            <span className="bb-public-coverflow-empty" />
+                          )}
+                        </button>
+                      )}
+                    </figure>
+                  );
+                })}
+              </div>
+
+              {flowCount > 1 ? (
+                <div className="bb-public-coverflow-nav">
+                  <button
+                    type="button"
+                    className="bb-public-coverflow-btn"
+                    aria-label="Previous photo"
+                    onClick={() => stepFlow(-1)}
+                  >
+                    <ChevronLeft size={18} strokeWidth={2.2} />
+                  </button>
+                  <button
+                    type="button"
+                    className="bb-public-coverflow-btn"
+                    aria-label="Next photo"
+                    onClick={() => stepFlow(1)}
+                  >
+                    <ChevronRight size={18} strokeWidth={2.2} />
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           {editMode && venueImages.length < 8 ? (
             <button

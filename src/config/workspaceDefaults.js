@@ -68,6 +68,12 @@ export const createDefaultSettings = () => ({
     aboutEyebrow: 'About',
     aboutBody: 'Tell clients who you are and what makes your business special.',
     aboutImageUrl: '',
+    visionTitle: 'Our vision',
+    visionBody: 'Share where you are headed and what you want to build.',
+    visionImageUrl: '',
+    missionTitle: 'Our mission',
+    missionBody: 'Explain how you serve people every day.',
+    missionImageUrl: '',
     reasonsTitle: 'What we offer',
     reasonsEyebrow: 'The craft',
     reasons: [
