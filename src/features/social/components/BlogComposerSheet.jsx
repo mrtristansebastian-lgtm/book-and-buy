@@ -32,6 +32,7 @@ import {
   formatDurationLabel,
   getPostMediaItems,
   POST_CLIP_MAX_SECONDS,
+  VERTICAL_MAX_SECONDS,
   tabToPostType
 } from '../utils/socialPostType';
 import {
@@ -55,10 +56,20 @@ const META = {
     eyebrowEdit: 'Edit post',
     titleCreate: 'New post'
   },
+  films: {
+    eyebrowCreate: 'New Film',
+    eyebrowEdit: 'Edit Film',
+    titleCreate: 'New Film'
+  },
   videos: {
-    eyebrowCreate: 'New video',
-    eyebrowEdit: 'Edit video',
-    titleCreate: 'New video'
+    eyebrowCreate: 'New Film',
+    eyebrowEdit: 'Edit Film',
+    titleCreate: 'New Film'
+  },
+  verticals: {
+    eyebrowCreate: 'New Vertical',
+    eyebrowEdit: 'Edit Vertical',
+    titleCreate: 'New Vertical'
   },
   text: {
     eyebrowCreate: 'New text update',
@@ -494,10 +505,18 @@ export function BlogComposerSheet({
 }) {
   const isEdit = Boolean(post?.id);
   const type = isEdit
-    ? post.type === 'video' || post.type === 'text' || post.type === 'image'
+    ? post.type === 'video' ||
+      post.type === 'vertical' ||
+      post.type === 'text' ||
+      post.type === 'image'
       ? post.type
       : tabToPostType(kind)
     : tabToPostType(kind);
+  const isLongVideo = type === 'video' || type === 'vertical';
+  const isVertical = type === 'vertical';
+  const videoFallbackAspect = isVertical ? 9 / 16 : 16 / 9;
+  const videoMaxClipSeconds = isVertical ? VERTICAL_MAX_SECONDS : 0;
+  const videoNoun = isVertical ? 'Vertical' : 'Film';
   const meta = META[kind] || META.posts;
 
   const mediaRef = useRef(null);
@@ -546,7 +565,7 @@ export function BlogComposerSheet({
   const [cropTarget, setCropTarget] = useState('image');
   const [cropImageId, setCropImageId] = useState('');
 
-  const steps = type === 'image' ? POST_STEPS : type === 'video' ? VIDEO_STEPS : [];
+  const steps = type === 'image' ? POST_STEPS : isLongVideo ? VIDEO_STEPS : [];
 
   const onUploaded = useCallback((id, result) => {
     if (id === VIDEO_JOB_ID) {
@@ -591,9 +610,9 @@ export function BlogComposerSheet({
 
   const uploadIds = useMemo(() => {
     if (type === 'image') return items.map((item) => item.id);
-    if (type === 'video') return [VIDEO_JOB_ID, POSTER_JOB_ID];
+    if (isLongVideo) return [VIDEO_JOB_ID, POSTER_JOB_ID];
     return [];
-  }, [type, items]);
+  }, [type, items, isLongVideo]);
 
   const summary = useMemo(() => summarizeUploads(uploads, uploadIds), [uploads, uploadIds]);
 
@@ -641,7 +660,7 @@ export function BlogComposerSheet({
         })
         .filter(Boolean);
     }
-    if (type === 'video') {
+    if (isLongVideo) {
       const rows = [];
       const videoState = uploads[VIDEO_JOB_ID];
       const posterState = uploads[POSTER_JOB_ID];
@@ -649,7 +668,7 @@ export function BlogComposerSheet({
         rows.push({
           id: VIDEO_JOB_ID,
           kind: 'video',
-          label: videoFile?.name || 'Video',
+          label: videoFile?.name || videoNoun,
           thumb: posterUrl || '',
           status: videoState.status,
           progress: videoState.progress || 0
@@ -668,7 +687,7 @@ export function BlogComposerSheet({
       return rows;
     }
     return [];
-  }, [type, items, uploads, videoFile, posterUrl]);
+  }, [type, items, uploads, videoFile, posterUrl, isLongVideo, videoNoun]);
 
   const uploadScreenOpen = busy || summary.busy || uploadFlash;
 
@@ -924,7 +943,10 @@ export function BlogComposerSheet({
       setSkips([]);
       setBusy(true);
       try {
-        const check = await intakeLongVideo(file);
+        const check = await intakeLongVideo(file, {
+          orientation: isVertical ? 'portrait' : 'landscape',
+          maxSeconds: videoMaxClipSeconds
+        });
         if (!check.ok) {
           setError(check.reason);
           return;
@@ -966,7 +988,7 @@ export function BlogComposerSheet({
         setBusy(false);
       }
     },
-    [enqueue, mediaUrl, releaseUrl, trackUrl]
+    [enqueue, mediaUrl, releaseUrl, trackUrl, isVertical, videoMaxClipSeconds]
   );
 
   const onPostMediaPick = (event) => {
@@ -982,7 +1004,7 @@ export function BlogComposerSheet({
   };
 
   // Drag & drop across the whole sheet, plus clipboard paste for screenshots.
-  const acceptsDrop = type === 'image' || type === 'video';
+  const acceptsDrop = type === 'image' || isLongVideo;
 
   const onDragEnter = (event) => {
     if (!acceptsDrop || !hasFiles(event)) return;
@@ -1012,7 +1034,7 @@ export function BlogComposerSheet({
     const files = [...(event.dataTransfer?.files || [])];
     if (!files.length) return;
     if (type === 'image') addPostFiles(files);
-    else addLongVideo(files.find((file) => file.type.startsWith('video/')) || files[0]);
+    else if (isLongVideo) addLongVideo(files.find((file) => file.type.startsWith('video/')) || files[0]);
   };
 
   useEffect(() => {
@@ -1237,7 +1259,7 @@ export function BlogComposerSheet({
 
   // Older video posts may lack sourceDurationSeconds — probe once so trim works.
   useEffect(() => {
-    if (type !== 'video' || !mediaUrl || videoSourceDuration > 0) return undefined;
+    if (!isLongVideo || !mediaUrl || videoSourceDuration > 0) return undefined;
     let cancelled = false;
     (async () => {
       try {
@@ -1407,9 +1429,9 @@ export function BlogComposerSheet({
       }
     }
 
-    if (type === 'video') {
+    if (isLongVideo) {
       if (index === 0 && !videoFile && !videoRemoteUrl.trim()) {
-        return 'Upload a video to continue.';
+        return `Upload a ${videoNoun} to continue.`;
       }
       if (index >= VIDEO_STEPS.length - 1) {
         if (uploads[VIDEO_JOB_ID]?.status === 'error') {
@@ -1452,7 +1474,7 @@ export function BlogComposerSheet({
     const lastIndex =
       type === 'image'
         ? POST_STEPS.length - 1
-        : type === 'video'
+        : isLongVideo
           ? VIDEO_STEPS.length - 1
           : 0;
     const message = validateStep(lastIndex);
@@ -1466,7 +1488,7 @@ export function BlogComposerSheet({
     try {
       let payload = {
         type,
-        title: title.trim() || (type === 'video' ? 'Untitled video' : ''),
+        title: title.trim() || (isLongVideo ? `Untitled ${videoNoun}` : ""),
         caption: caption.trim(),
         published: true,
         location: location?.label || '',
@@ -1508,7 +1530,7 @@ export function BlogComposerSheet({
             alt: (item.alt || '').trim()
           }))
         };
-      } else if (type === 'video') {
+      } else if (isLongVideo) {
         let aspect = videoAspect;
         if (!(aspect > 0) && videoRemoteUrl) {
           try {
@@ -2094,14 +2116,14 @@ export function BlogComposerSheet({
             </div>
           ) : null}
 
-          {type === 'video' && isEdit ? (
+          {isLongVideo && isEdit ? (
             <div className="bb-composer-edit bb-composer-edit--video">
               <div className="bb-composer-edit-media">
                 {mediaUrl ? (
                   <div className="bb-composer-arrange-workspace bb-composer-video-trim-workspace">
                     <div
                       className="bb-composer-video-stage"
-                      style={aspectStyle(videoAspect, 16 / 9)}
+                      style={aspectStyle(videoAspect, videoFallbackAspect)}
                     >
                       <TrimmedVideoPreview
                         url={mediaUrl}
@@ -2147,7 +2169,7 @@ export function BlogComposerSheet({
                       durationSeconds={videoSourceDuration || durationSeconds || 0}
                       trimStart={videoTrimStart || 0}
                       trimEnd={videoTrimEnd || videoSourceDuration || durationSeconds || 0}
-                      maxClipSeconds={0}
+                      maxClipSeconds={videoMaxClipSeconds}
                       busy={busy}
                       currentTime={playbackTime}
                       onPreview={setLiveTrim}
@@ -2164,7 +2186,7 @@ export function BlogComposerSheet({
                     disabled={busy}
                   >
                     <UploadCloud size={15} strokeWidth={2.2} />
-                    Replace video
+                    Replace {videoNoun}
                   </button>
                   <span className="bb-composer-readout">
                     Length{' '}
@@ -2187,7 +2209,7 @@ export function BlogComposerSheet({
                     data-autofocus="true"
                     className="native-control-input bb-social-compose-control"
                     value={title}
-                    placeholder="Video title"
+                    placeholder={`${videoNoun} title`}
                     onChange={(event) => setTitle(event.target.value)}
                   />
                 </label>
@@ -2197,7 +2219,7 @@ export function BlogComposerSheet({
                     className="native-control-input bb-social-compose-control bb-social-compose-caption"
                     rows={4}
                     value={caption}
-                    placeholder="What is this video about?"
+                    placeholder={`What is this ${videoNoun} about?`}
                     onChange={(event) => setCaption(event.target.value)}
                   />
                 </label>
@@ -2211,7 +2233,7 @@ export function BlogComposerSheet({
             </div>
           ) : null}
 
-          {type === 'video' && !isEdit ? (
+          {isLongVideo && !isEdit ? (
             <div className="bb-composer-video">
               {stepIndex === 0 ? (
                 <div className="bb-composer-fields bb-composer-video-source">
@@ -2219,7 +2241,7 @@ export function BlogComposerSheet({
                     <div className="bb-composer-arrange-workspace bb-composer-video-trim-workspace">
                       <div
                         className="bb-composer-video-stage"
-                        style={aspectStyle(videoAspect, 16 / 9)}
+                        style={aspectStyle(videoAspect, videoFallbackAspect)}
                       >
                         <TrimmedVideoPreview
                           url={mediaUrl}
@@ -2271,7 +2293,7 @@ export function BlogComposerSheet({
                         trimEnd={
                           videoTrimEnd || videoSourceDuration || durationSeconds || 0
                         }
-                        maxClipSeconds={0}
+                        maxClipSeconds={videoMaxClipSeconds}
                         busy={busy}
                         currentTime={playbackTime}
                         onPreview={setLiveTrim}
@@ -2285,14 +2307,19 @@ export function BlogComposerSheet({
                         onClick={() => videoRef.current?.click()}
                         disabled={busy}
                       >
-                        Replace video
+                        Replace {videoNoun}
                       </button>
                     </div>
                   ) : (
                     <div className="bb-composer-dropzone bb-composer-dropzone--hero">
                       <Film size={28} strokeWidth={2} />
-                      <strong>Upload video</strong>
-                      <span>Drag it in or browse · trim after upload</span>
+                      <strong>Upload {videoNoun}</strong>
+                      <span>
+                        {isVertical
+                          ? `Portrait · up to ${formatDurationLabel(VERTICAL_MAX_SECONDS)}`
+                          : 'Landscape · any length'}{' '}
+                        · trim after upload
+                      </span>
                       <button
                         type="button"
                         className="bb-primary-btn bb-composer-dropzone-upload"
@@ -2319,7 +2346,7 @@ export function BlogComposerSheet({
                 <div className="bb-composer-fields">
                   <div
                     className="bb-composer-video-review bb-composer-video-review--soft bb-composer-video-review--cover"
-                    style={aspectStyle(videoAspect, 16 / 9)}
+                    style={aspectStyle(videoAspect, videoFallbackAspect)}
                   >
                     {mediaUrl ? (
                       <video src={mediaUrl} poster={posterUrl || undefined} muted playsInline />
@@ -2345,7 +2372,7 @@ export function BlogComposerSheet({
                     <input
                       className="native-control-input bb-social-compose-control"
                       value={title}
-                      placeholder="Video title"
+                      placeholder={`${videoNoun} title`}
                       onChange={(event) => setTitle(event.target.value)}
                     />
                   </label>
@@ -2361,7 +2388,7 @@ export function BlogComposerSheet({
                       className="native-control-input bb-social-compose-control bb-social-compose-caption"
                       rows={5}
                       value={caption}
-                      placeholder="What is this video about?"
+                      placeholder={`What is this ${videoNoun} about?`}
                       onChange={(event) => setCaption(event.target.value)}
                     />
                   </label>
@@ -2407,22 +2434,56 @@ export function BlogComposerSheet({
                       onChange={(event) => setCaption(event.target.value)}
                     />
                   </label>
+                  <PlaceLocationField
+                    value={location}
+                    onChange={setLocation}
+                    disabled={busy}
+                    placeholder="Search for a place or address"
+                  />
                 </div>
               </div>
 
               <div className="bb-composer-bubble-preview" aria-label="Preview">
                 <p className="bb-composer-bubble-preview-label">Live preview</p>
                 <article className="bb-social-note bb-social-note--preview">
-                  <div className="bb-social-note-card bb-social-note-bubble">
-                    <header className="bb-social-note-meta">
-                      <span className="bb-social-note-stamp">Just now</span>
+                  <span
+                    className="bb-social-note-avatar bb-social-note-avatar--fallback"
+                    aria-hidden="true"
+                  >
+                    {(businessName || 'B').trim().charAt(0).toUpperCase()}
+                  </span>
+                  <div className="bb-social-note-main">
+                    <header className="bb-social-note-head">
+                      <div className="bb-social-note-identity">
+                        <span className="bb-social-note-name">
+                          {businessName.trim() || 'Your business'}
+                        </span>
+                        <span className="bb-social-note-handle">
+                          @
+                          {(businessName || 'you')
+                            .toLowerCase()
+                            .replace(/[^a-z0-9]+/g, '')
+                            .slice(0, 18) || 'you'}
+                        </span>
+                        <span className="bb-social-note-dot" aria-hidden="true">
+                          ·
+                        </span>
+                        <span className="bb-social-note-time">now</span>
+                      </div>
                     </header>
-                    {title.trim() ? (
-                      <h2 className="bb-social-note-title">{title.trim()}</h2>
-                    ) : null}
-                    <p className="bb-social-note-text">
-                      {caption.trim() || 'Your update will show here…'}
-                    </p>
+                    <div className="bb-social-note-copy">
+                      {title.trim() ? (
+                        <h2 className="bb-social-note-title">{title.trim()}</h2>
+                      ) : null}
+                      <p className="bb-social-note-text">
+                        {caption.trim() || 'Your update will show here…'}
+                      </p>
+                      {location?.label ? (
+                        <p className="bb-social-note-place">
+                          <span>{location.label}</span>
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                 </article>
               </div>
@@ -2490,8 +2551,8 @@ export function BlogComposerSheet({
             <UploadCloud size={30} strokeWidth={2} />
             <strong>Drop to add</strong>
             <span>
-              {type === 'video'
-                ? 'One video file'
+              {isLongVideo
+                ? `One ${videoNoun} file`
                 : `Photos and clips to ${formatDurationLabel(POST_CLIP_MAX_SECONDS)}`}
             </span>
           </div>
@@ -2564,7 +2625,7 @@ export function BlogComposerSheet({
               </button>
             </header>
             <div className="bb-cover-picker-body">
-              {type === 'video' ? (
+              {isLongVideo ? (
                 <VideoThumbnailPicker
                   videoFile={videoFile}
                   videoUrl={mediaUrl}

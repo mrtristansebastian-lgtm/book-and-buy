@@ -8,11 +8,19 @@ import { SocialStudioLibrary } from '../components/SocialStudioLibrary';
 import { postTypeToTab } from '../utils/socialPostType';
 
 export function SocialStudioPage() {
-  const { workspace, addSocialPost, updateSocialPost, removeSocialPost } = useWorkspace();
+  const {
+    workspace,
+    addSocialPost,
+    updateSocialPost,
+    removeSocialPost,
+    updateWebsite,
+    updateProfile
+  } = useWorkspace();
   const [tab, setTab] = useState('posts');
   const [composer, setComposer] = useState(null);
 
   const posts = workspace.socialPosts || [];
+  const website = workspace.website || {};
   const businessName = workspace.brandName || workspace.name || '';
 
   const openCreate = (kind) => {
@@ -51,14 +59,31 @@ export function SocialStudioPage() {
       </header>
 
       <div className="bb-social-studio-body">
-        <SocialStudioCompose onOpenCreate={openCreate} />
-        <SocialStudioLibrary
-          tab={tab}
-          onTabChange={setTab}
-          posts={posts}
-          onEditPost={openEdit}
-          onCreate={openCreate}
-        />
+        <div className="bb-social-studio-live">
+          <SocialStudioCompose
+            brandName={businessName}
+            logoUrl={website.logoUrl || ''}
+            bannerUrl={website.socialBannerUrl || ''}
+            bio={
+              website.homeSubtext ||
+              website.subcopy ||
+              website.socialSubtext ||
+              ''
+            }
+            category={website.profileCategory || ''}
+            location={website.profileLocation || ''}
+            onUpdateWebsite={updateWebsite}
+            onUpdateProfile={updateProfile}
+            onOpenCreate={openCreate}
+          />
+          <SocialStudioLibrary
+            tab={tab}
+            onTabChange={setTab}
+            posts={posts}
+            onEditPost={openEdit}
+            onCreate={openCreate}
+          />
+        </div>
       </div>
 
       {composer ? (

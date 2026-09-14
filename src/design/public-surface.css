@@ -1170,7 +1170,7 @@
 
 .bb-social-profile-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   border: 0;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
@@ -1918,6 +1918,30 @@
   .bb-yt-home {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1rem;
+  }
+}
+
+.bb-social-verticals-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+@media (min-width: 720px) {
+  .bb-social-verticals-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-social-verticals-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1400px) {
+  .bb-social-verticals-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -3296,36 +3320,46 @@
   overflow: hidden;
 }
 
-/* Text updates — separate speech bubbles, 3-up like Posts */
+/* Text updates — X-style vertical timeline */
 .bb-social-notes,
 .bb-social-notes--grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem 0.9rem;
-  max-width: none;
-  margin-inline: 0;
-  border: 0;
-  border-radius: 0;
-  overflow: visible;
-  background: transparent;
+  width: min(100%, 37.5rem);
+  margin-inline: auto;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 1.1rem;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 @media (max-width: 640px) {
   .bb-social-notes,
   .bb-social-notes--grid {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
+    width: 100%;
+    border-radius: 0.95rem;
   }
 }
 
 .bb-social-note {
   display: grid;
-  gap: 0;
+  grid-template-columns: 2.7rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
   min-width: 0;
-  padding: 0;
+  padding: 0.95rem 1rem 1rem;
   position: relative;
-  background: transparent;
-  align-content: start;
+  background: #fff;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  transition: background 160ms ease;
+}
+
+.bb-social-note:last-child {
+  border-bottom: 0;
+}
+
+.bb-social-note:hover {
+  background: rgba(248, 250, 252, 0.95);
 }
 
 .bb-social-note + .bb-social-note {
@@ -3334,63 +3368,123 @@
 
 .bb-social-note:first-child,
 .bb-social-note:last-child {
-  padding-block: 0;
+  padding-block: 0.95rem 1rem;
 }
 
 .bb-social-note:not(:last-child)::after {
   display: none;
 }
 
+.bb-social-note-avatar {
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #eef2f6;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  flex-shrink: 0;
+}
+
+.bb-social-note-avatar--fallback {
+  display: grid;
+  place-items: center;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 780;
+  color: #101828;
+  letter-spacing: -0.02em;
+}
+
+.bb-social-note-main {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.bb-social-note-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.bb-social-note-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.35rem;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.bb-social-note-name {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  color: #0b1220;
+}
+
+.bb-social-note-handle,
+.bb-social-note-dot,
+.bb-social-note-time {
+  font-size: 0.88rem;
+  font-weight: 560;
+  color: #98a2b3;
+}
+
+.bb-social-note-time {
+  cursor: default;
+}
+
+.bb-social-note-more {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin: -0.25rem -0.35rem 0 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #98a2b3;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.bb-social-note-more:hover,
+.bb-social-note-more:focus-visible {
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+  outline: none;
+}
+
+.bb-social-note-copy {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
 .bb-social-note-card,
 .bb-social-note-bubble {
-  position: relative;
-  display: grid;
-  gap: 0.5rem;
-  min-height: 11.5rem;
-  margin-bottom: 0.55rem;
-  padding: 1rem 1.05rem 1.2rem;
-  border-radius: 1.25rem 1.25rem 1.25rem 0.35rem;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
-  overflow: visible;
+  display: contents;
 }
 
 .bb-social-note-card::after,
 .bb-social-note-bubble::after {
-  content: '' !important;
-  display: block !important;
-  position: absolute;
-  left: 1rem;
-  bottom: -0.45rem;
-  width: 0.9rem;
-  height: 0.9rem;
-  background: #fff;
-  border-right: 1px solid rgba(15, 23, 42, 0.1);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
-  transform: rotate(45deg);
-  border-radius: 0 0 0.12rem 0;
-  z-index: 0;
-  pointer-events: none;
+  content: none !important;
+  display: none !important;
 }
 
 .bb-social-note-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.55rem;
-  position: relative;
-  z-index: 1;
+  display: none;
 }
 
 .bb-social-note-stamp {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.66rem;
-  font-weight: 680;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: #98a2b3;
+  display: none;
 }
 
 .bb-social-note-mark {
@@ -3400,62 +3494,65 @@
 .bb-social-note-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.98rem;
+  font-size: 1.05rem;
   font-weight: 780;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   line-height: 1.3;
-  color: #101828;
-  position: relative;
-  z-index: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: #0b1220;
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .bb-social-note-text {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.98rem;
+  line-height: 1.5;
   font-weight: 500;
-  color: #475467;
+  color: #1d2939;
   white-space: pre-wrap;
-  position: relative;
-  z-index: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.bb-social-note-place {
+  margin: 0.15rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 620;
+  color: #0f766e;
+}
+
+.bb-social-note-place span {
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .bb-social-note .bb-social-manage-edit--note {
-  position: relative;
-  z-index: 1;
-  margin: 0.15rem 0 0;
-  justify-self: start;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  box-shadow: none;
+  display: none;
 }
 
-.bb-social-note .bb-social-edit-actions {
-  position: relative;
-  z-index: 1;
-  margin: 0;
+.bb-social-note-actions {
+  margin-top: 0.35rem;
 }
 
 .bb-social-note--preview {
-  border: 0;
-  border-radius: 0;
-  overflow: visible;
-  background: transparent;
-  max-width: 22rem;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
 }
 
-.bb-social-note--preview .bb-social-note-card,
-.bb-social-note--preview .bb-social-note-bubble {
-  min-height: 0;
-  -webkit-line-clamp: unset;
+.bb-social-note--preview .bb-social-note-more {
+  display: none;
 }
 
 .bb-social-note--preview .bb-social-note-title,
@@ -4325,18 +4422,19 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-device-preview--phone .bb-social-notes,
 .bb-device-preview--phone .bb-social-notes--grid {
   max-width: none;
-  grid-template-columns: 1fr !important;
-  gap: 0.75rem;
+  width: 100%;
+  border-radius: 0.85rem;
 }
 
 .bb-device-preview--phone .bb-social-note {
-  padding-block: 0;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0.55rem;
+  padding: 0.8rem 0.75rem 0.85rem;
 }
 
-.bb-device-preview--phone .bb-social-note-card,
-.bb-device-preview--phone .bb-social-note-bubble {
-  min-height: 0;
-  padding: 0.9rem 1rem 1.05rem;
+.bb-device-preview--phone .bb-social-note-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
 }
 
 .bb-device-preview--phone .bb-social-note-title {
@@ -4345,7 +4443,6 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-device-preview--phone .bb-social-note-text {
   font-size: 0.88rem;
-  -webkit-line-clamp: 4;
 }
 
 .bb-device-preview--phone .bb-social-article {
@@ -4652,6 +4749,68 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-profile-shell {
   display: grid;
   gap: 0;
+  overflow: visible;
+  padding: 0.85rem var(--bb-public-gutter, 1.25rem) 0;
+}
+
+.bb-public-profile-banner-wrap {
+  position: relative;
+  width: 100%;
+  /* YouTube-style inset banner strip */
+  height: 11rem;
+  min-height: 11rem;
+  max-height: 11rem;
+  aspect-ratio: unset;
+  border-radius: 0.85rem;
+  background:
+    linear-gradient(135deg, #dbeafe 0%, #e2e8f0 48%, #f1f5f9 100%);
+  overflow: hidden;
+}
+
+.bb-public-profile-banner-wrap > .bb-public-profile-banner,
+.bb-public-profile-banner-wrap > .bb-editable-image,
+.bb-public-profile-banner-wrap > div {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.bb-public-profile-banner,
+.bb-public-profile-banner.bb-editable-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.bb-public-profile-banner-img,
+.bb-public-profile-banner img,
+.bb-public-profile-banner-wrap img {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center center;
+  display: block;
+  border-radius: inherit;
+}
+
+.bb-public-profile-banner .bb-editable-image-empty,
+.bb-public-profile-banner-wrap .bb-editable-image-empty {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  color: rgba(15, 23, 42, 0.4);
+  font-size: 0.82rem;
+  font-weight: 650;
 }
 
 .bb-public-profile-card {
@@ -4664,11 +4823,14 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   justify-items: center;
   align-items: start;
   column-gap: 0;
-  row-gap: 0.85rem;
-  padding: 1.25rem var(--bb-public-gutter, 1.25rem) 1.2rem;
-  background: #fff;
+  row-gap: 0.65rem;
+  padding: 0 0 1.2rem;
+  margin-top: 0;
+  background: transparent;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 .bb-public-profile-avatar-ring {
@@ -4676,11 +4838,17 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   flex: 0 0 auto;
   padding: 0;
   border-radius: 999px;
-  align-self: center;
+  align-self: end;
   justify-self: center;
   display: grid;
   place-items: center;
-  width: 100%;
+  width: auto;
+  /* Only the avatar overlaps the banner — name/bio stay clear below */
+  margin-top: -3.25rem;
+}
+
+.bb-public-profile-shell .bb-public-profile-avatar-wrap {
+  box-shadow: 0 0 0 0.2rem #fff;
 }
 
 .bb-public-profile-main {
@@ -4710,35 +4878,39 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: 'avatar main aside';
     justify-items: stretch;
-    column-gap: 1.15rem;
+    column-gap: 1rem;
     row-gap: 0;
-    align-items: center;
-    padding-top: 1.35rem;
-    padding-bottom: 1.35rem;
+    align-items: end;
+    padding-top: 0;
+    padding-bottom: 1.25rem;
     text-align: left;
   }
 
   .bb-public-profile-avatar-ring {
-    align-self: center;
+    align-self: end;
     justify-self: start;
     width: auto;
+    margin-top: -3.5rem;
   }
 
   .bb-public-profile-main {
     justify-items: start;
     text-align: left;
+    padding-top: 0.15rem;
+    padding-bottom: 0.35rem;
   }
 
   .bb-public-profile-aside {
     justify-content: flex-end;
-    align-self: center;
+    align-self: end;
     max-width: none;
     margin-inline: 0;
+    padding-bottom: 0.35rem;
   }
 
   .bb-public-profile-avatar-wrap {
-    width: 5.75rem;
-    height: 5.75rem;
+    width: 7rem;
+    height: 7rem;
     margin-inline: 0;
   }
 
@@ -4758,8 +4930,8 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-profile-avatar-wrap {
   flex: 0 0 auto;
-  width: 5.5rem;
-  height: 5.5rem;
+  width: 6.25rem;
+  height: 6.25rem;
   margin-inline: auto;
 }
 

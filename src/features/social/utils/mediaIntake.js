@@ -160,7 +160,7 @@ export async function intakePostMedia(files, options = {}) {
  *
  * @returns {Promise<{ ok: boolean, reason?: string, frame?: object }>}
  */
-export async function intakeLongVideo(file) {
+export async function intakeLongVideo(file, options = {}) {
   if (!file) return { ok: false, reason: 'Choose a video file.' };
   if (!String(file.type || '').toLowerCase().startsWith('video/')) {
     return { ok: false, reason: 'That is not a video file.' };
@@ -175,8 +175,33 @@ export async function intakeLongVideo(file) {
     };
   }
 
+  const orientation = options.orientation || 'any';
+  const maxSeconds = Number(options.maxSeconds) || 0;
+
   try {
     const frame = await readVideoFrame(file);
+    const aspect = Number(frame?.aspect) || 0;
+    const seconds = Number(frame?.duration) || 0;
+
+    if (orientation === 'portrait' && aspect >= 1) {
+      return {
+        ok: false,
+        reason: 'Verticals need a portrait video (taller than wide), like a Reel.'
+      };
+    }
+    if (orientation === 'landscape' && aspect > 0 && aspect < 1) {
+      return {
+        ok: false,
+        reason: 'Films need a landscape video (wider than tall). Use Verticals for portrait clips.'
+      };
+    }
+    if (maxSeconds > 0 && seconds > maxSeconds + 0.35) {
+      return {
+        ok: false,
+        reason: `Verticals can be up to ${Math.round(maxSeconds)}s (Instagram Reels length). Trim shorter or pick another clip.`
+      };
+    }
+
     return { ok: true, frame };
   } catch {
     return { ok: false, reason: 'This video format cannot play in the browser.' };

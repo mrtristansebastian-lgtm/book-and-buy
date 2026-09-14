@@ -7,6 +7,13 @@ import { SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
 
+function tabKind(tab) {
+  if (tab === 'videos' || tab === 'films') return 'video';
+  if (tab === 'verticals') return 'vertical';
+  if (tab === 'text') return 'text';
+  return 'image';
+}
+
 /**
  * Studio library — mirrors the live public Social layouts with Edit on each item.
  * Photo posts open into an Instagram-style scrollable feed (not a lightbox).
@@ -22,7 +29,7 @@ export function SocialStudioLibrary({
   const website = workspace.website || {};
   const [feedId, setFeedId] = useState('');
 
-  const kind = tab === 'videos' ? 'video' : tab === 'text' ? 'text' : 'image';
+  const kind = tabKind(tab);
 
   const items = useMemo(
     () =>
@@ -32,22 +39,23 @@ export function SocialStudioLibrary({
     [posts, kind]
   );
 
-  const label =
-    tab === 'videos' ? 'Videos' : tab === 'text' ? 'Text updates' : 'Posts';
-
   const emptyCopy =
-    tab === 'videos'
-      ? 'Nothing live yet — publish a video above.'
-      : tab === 'text'
-        ? 'Nothing live yet — publish a text update above.'
-        : 'Nothing live yet — publish a photo above.';
+    kind === 'video'
+      ? 'Nothing live yet — publish a Film above.'
+      : kind === 'vertical'
+        ? 'Nothing live yet — publish a Vertical above.'
+        : kind === 'text'
+          ? 'Nothing live yet — publish a text update above.'
+          : 'Nothing live yet — publish a photo above.';
 
   const createLabel =
-    tab === 'videos'
-      ? 'New video'
-      : tab === 'text'
-        ? 'New text update'
-        : 'New post';
+    kind === 'video'
+      ? 'New Film'
+      : kind === 'vertical'
+        ? 'New Vertical'
+        : kind === 'text'
+          ? 'New text update'
+          : 'New post';
 
   const feedOpen =
     tab === 'posts' && Boolean(feedId) && items.some((post) => post.id === feedId);
@@ -60,17 +68,7 @@ export function SocialStudioLibrary({
   };
 
   return (
-    <section className={`bb-social-library${items.length ? '' : ' is-empty'}`}>
-      <header className="bb-social-library-head">
-        <div className="bb-social-library-head-copy">
-          <p className="bb-social-library-eyebrow">On your live Social page</p>
-          <h2 className="bb-social-library-title">{label}</h2>
-        </div>
-        {items.length ? (
-          <p className="bb-social-library-meta">{items.length} live</p>
-        ) : null}
-      </header>
-
+    <section className={`bb-social-library bb-social-library--live${items.length ? '' : ' is-empty'}`}>
       {!feedOpen ? (
         <div className="bb-social-library-tabs">
           <SocialProfileTabs value={tab} onChange={changeTab} />
@@ -94,7 +92,7 @@ export function SocialStudioLibrary({
               <button
                 type="button"
                 className="bb-primary-btn"
-                onClick={() => onCreate(tab)}
+                onClick={() => onCreate(tab === 'videos' ? 'films' : tab)}
               >
                 {createLabel}
               </button>
@@ -110,13 +108,29 @@ export function SocialStudioLibrary({
         ) : kind === 'video' ? (
           <SocialVideosPanel
             posts={items}
+            variant="films"
+            showOwnerStats
+            brandName={workspace.brandName || workspace.name || ''}
+            logoUrl={website.logoUrl || ''}
+            onEditPost={onEditPost}
+          />
+        ) : kind === 'vertical' ? (
+          <SocialVideosPanel
+            posts={items}
+            variant="verticals"
             showOwnerStats
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
             onEditPost={onEditPost}
           />
         ) : (
-          <SocialTextTimeline posts={items} onEditPost={onEditPost} />
+          <SocialTextTimeline
+            posts={items}
+            brandName={workspace.brandName || workspace.name || ''}
+            logoUrl={website.logoUrl || ''}
+            slug={workspace.slug || ''}
+            onEditPost={onEditPost}
+          />
         )}
       </div>
     </section>

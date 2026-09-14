@@ -63,6 +63,7 @@ export const createDefaultSettings = () => ({
     buySubtext: 'Order products from this business.',
     socialHeadline: 'Social',
     socialSubtext: 'Updates from the business.',
+    socialBannerUrl: '',
     aboutTitle: 'About us',
     aboutEyebrow: 'About',
     aboutBody: 'Tell clients who you are and what makes your business special.',

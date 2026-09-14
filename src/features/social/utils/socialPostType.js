@@ -1,6 +1,7 @@
 /** Resolve Social post kind for tabs and layouts. */
 export function getSocialPostKind(post) {
   if (!post) return 'text';
+  if (post.type === 'vertical') return 'vertical';
   if (post.type === 'video') return 'video';
   if (post.type === 'text') return 'text';
   if (post.type === 'image') return 'image';
@@ -16,6 +17,9 @@ export function getSocialPostKind(post) {
 
 /** Max clip length (seconds) allowed inside Instagram-style Posts carousels. */
 export const POST_CLIP_MAX_SECONDS = 60;
+
+/** Instagram Reels max length for Verticals (seconds). */
+export const VERTICAL_MAX_SECONDS = 90;
 
 /** Image/video URLs for a post — prefers mediaUrls, falls back to mediaUrl. */
 export function getPostMediaUrls(post) {
@@ -88,14 +92,16 @@ export function formatDurationLabel(seconds = 0) {
 
 /** Map studio tab id → SocialPost.type */
 export function tabToPostType(tab) {
-  if (tab === 'videos') return 'video';
+  if (tab === 'videos' || tab === 'films') return 'video';
+  if (tab === 'verticals') return 'vertical';
   if (tab === 'text') return 'text';
   return 'image';
 }
 
 /** Map SocialPost.type → studio tab id */
 export function postTypeToTab(type) {
-  if (type === 'video') return 'videos';
+  if (type === 'video') return 'films';
+  if (type === 'vertical') return 'verticals';
   if (type === 'text') return 'text';
   return 'posts';
 }

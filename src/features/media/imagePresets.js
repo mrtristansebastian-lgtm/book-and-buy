@@ -87,6 +87,25 @@ export const IMAGE_PRESETS = {
     minAspect: 0.3,
     maxAspect: 3.5,
     ratioOptions: POST_RATIO_OPTIONS
+  },
+  socialBanner: {
+    id: 'socialBanner',
+    label: 'Social banner',
+    // Wide social strip (Twitter/YouTube-safe look), not a tall 16:9 hero.
+    aspect: 3,
+    width: 1500,
+    height: 500,
+    mime: 'image/jpeg',
+    quality: 0.9
+  },
+  logo: {
+    id: 'logo',
+    label: 'Logo',
+    aspect: 1,
+    width: 512,
+    height: 512,
+    mime: 'image/jpeg',
+    quality: 0.92
   }
 };
 

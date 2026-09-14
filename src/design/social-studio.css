@@ -4,25 +4,14 @@
   display: grid;
   gap: 1.35rem;
   width: 100%;
-  max-width: none;
+  max-width: var(--bb-public-measure-wide, 64rem);
+  margin-inline: auto;
   min-width: 0;
 }
 
 @media (min-width: 1100px) {
   .bb-social-studio {
     gap: 1.55rem;
-  }
-
-  .bb-social-studio-create {
-    padding: 1.2rem 1.35rem 1.3rem;
-  }
-
-  .bb-social-studio-create-actions {
-    gap: 0.85rem;
-  }
-
-  .bb-social-studio-create-btn {
-    padding: 1rem 1.05rem;
   }
 
   .bb-social-library-surface--live {
@@ -35,13 +24,6 @@
   .bb-social-studio .bb-social-post-cards {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.35rem;
-  }
-}
-
-@media (min-width: 1600px) {
-  .bb-social-studio .bb-social-ig-grid,
-  .bb-social-studio .bb-social-post-cards {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -101,36 +83,145 @@
   min-width: 0;
 }
 
-/* ??? Create bar ??? */
+/* ??? Social Studio live profile shell ??? */
 
-.bb-social-studio-create {
+.bb-social-studio-live {
   display: grid;
-  gap: 0.9rem;
+  gap: 0;
   min-width: 0;
-  padding: 1.05rem 1.1rem 1.15rem;
+  overflow: visible;
   border-radius: 1.15rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background:
-    linear-gradient(165deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92));
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
 }
 
-.bb-social-studio-create-copy {
-  display: grid;
-  gap: 0.18rem;
+.bb-social-studio-live .bb-public-profile-identity {
+  border: 0;
+  background: #fff;
+  border-radius: 1.15rem 1.15rem 0 0;
+  overflow: visible;
 }
 
-.bb-social-studio-create-eyebrow {
-  margin: 0;
+.bb-social-studio-live .bb-public-profile-shell {
+  padding: 0.85rem 1rem 0;
+  overflow: visible;
+}
+
+.bb-social-studio-live .bb-public-profile-banner-wrap {
+  height: 11rem;
+  min-height: 11rem;
+  max-height: 11rem;
+  aspect-ratio: unset;
+  border-radius: 0.85rem;
+}
+
+.bb-social-studio-live .bb-public-profile-card {
+  background: transparent;
+}
+
+.bb-social-studio-profile-aside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: none;
+}
+
+@media (min-width: 720px) {
+  .bb-social-studio-profile-aside {
+    justify-content: flex-end;
+    flex-direction: row;
+  }
+}
+
+.bb-social-studio-profile-post {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bb-public-profile-action.is-active {
+  background: rgba(15, 23, 42, 0.08);
+  color: #101828;
+}
+
+.bb-social-library--live {
+  gap: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.bb-social-library--live .bb-social-library-tabs {
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 0;
+  background: #fff;
+}
+
+.bb-social-library--live .bb-social-profile-tabs {
+  border-top: 0;
+}
+
+.bb-social-library--live .bb-social-library-surface--live {
+  padding: 0.85rem 1rem 1.15rem;
+}
+
+.bb-social-library--live .bb-social-library-empty {
+  margin: 0.35rem 0 0;
+}
+
+/* Create type picker modal */
+.bb-social-create-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.bb-social-create-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.48);
+  cursor: pointer;
+}
+
+.bb-social-create-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 26rem);
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem 1.15rem 1.2rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.22);
+  animation: bb-blog-sheet-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-social-create-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bb-social-create-modal-eyebrow {
+  margin: 0 0 0.2rem;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 740;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #98a2b3;
 }
 
-.bb-social-studio-create-title {
+.bb-social-create-modal-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 1.12rem;
@@ -139,103 +230,83 @@
   color: #101828;
 }
 
-.bb-social-studio-create-lede {
-  margin: 0;
-  max-width: 36rem;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: #667085;
+.bb-social-create-modal-close {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  color: #475467;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.bb-social-studio-create-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.65rem;
-  min-width: 0;
+.bb-social-create-modal-close:hover {
+  background: rgba(15, 23, 42, 0.09);
+  color: #101828;
 }
 
-.bb-social-studio-create-btn {
+.bb-social-create-modal-actions {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.55rem;
+}
+
+.bb-social-create-modal-btn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 0.7rem;
-  min-width: 0;
+  gap: 0.75rem;
+  width: 100%;
   padding: 0.85rem 0.9rem;
   border-radius: 0.95rem;
   border: 1px solid rgba(15, 23, 42, 0.1);
   background: #fff;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
 }
 
-.bb-social-studio-create-btn:hover {
-  border-color: rgba(15, 23, 42, 0.2);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
-  transform: translateY(-2px);
+.bb-social-create-modal-btn:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #f8fafc;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
-.bb-social-studio-create-btn:focus-visible {
-  outline: 2px solid rgba(15, 23, 42, 0.35);
-  outline-offset: 2px;
-}
-
-.bb-social-studio-create-btn-icon {
+.bb-social-create-modal-btn-icon {
   display: grid;
   place-items: center;
   width: 2.55rem;
   height: 2.55rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  background:
-    linear-gradient(160deg, #f8fafc, #eef2f7);
+  background: linear-gradient(160deg, #f8fafc, #eef2f7);
   color: #344054;
-  flex-shrink: 0;
-  transition: transform 180ms ease;
 }
 
-.bb-social-studio-create-btn:hover .bb-social-studio-create-btn-icon {
-  transform: scale(1.04);
-}
-
-.bb-social-studio-create-btn-copy {
+.bb-social-create-modal-btn-copy {
   display: grid;
-  gap: 0.1rem;
+  gap: 0.12rem;
   min-width: 0;
 }
 
-.bb-social-studio-create-btn-copy strong {
+.bb-social-create-modal-btn-copy strong {
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 760;
   letter-spacing: -0.02em;
   color: #101828;
-  line-height: 1.2;
 }
 
-.bb-social-studio-create-btn-copy span {
-  font-size: 0.7rem;
+.bb-social-create-modal-btn-copy span {
+  font-size: 0.72rem;
   font-weight: 600;
   color: #98a2b3;
-  line-height: 1.25;
-}
-
-.bb-social-studio-create-btn-go {
-  display: grid;
-  place-items: center;
-  color: #cbd5e1;
-  transition:
-    transform 180ms ease,
-    color 180ms ease;
-}
-
-.bb-social-studio-create-btn:hover .bb-social-studio-create-btn-go {
-  color: #475467;
-  transform: translateX(2px);
+  line-height: 1.3;
 }
 
 /* ??? Fields / dropzones (shared) ??? */
@@ -1097,10 +1168,10 @@
 html body .native-ui .bb-social-studio .bb-social-dropzone-hint,
 html body .native-ui .bb-social-studio .bb-social-compose-poster-copy span,
 html body .native-ui .bb-social-studio .bb-social-studio-lede,
-html body .native-ui .bb-social-studio .bb-social-studio-create-lede,
+html body .native-ui .bb-social-studio .bb-public-profile-bio,
 html body .native-ui .bb-social-studio .bb-social-studio-sheet-lede,
 html body .native-ui .bb-social-studio .bb-social-library-meta,
-html body .native-ui .bb-social-studio .bb-social-studio-create-btn-copy span,
+html body .native-ui .bb-social-studio .bb-social-create-modal-btn-copy span,
 html body .native-ui .bb-social-studio .bb-social-post-tile-caption,
 html body .native-ui .bb-social-studio .bb-social-post-tile-date,
 html body .native-ui .bb-social-studio .bb-social-video-tile-caption,
@@ -1114,8 +1185,9 @@ html body .native-ui .bb-social-studio .bb-blog-composer-hint {
 html body .native-ui .bb-social-studio .bb-social-dropzone-label,
 html body .native-ui .bb-social-studio .bb-social-compose-poster-copy strong,
 html body .native-ui .bb-social-studio .bb-social-studio-title,
-html body .native-ui .bb-social-studio .bb-social-studio-create-title,
-html body .native-ui .bb-social-studio .bb-social-studio-create-btn-copy strong,
+html body .native-ui .bb-social-studio .bb-public-profile-name,
+html body .native-ui .bb-social-studio .bb-social-create-modal-title,
+html body .native-ui .bb-social-studio .bb-social-create-modal-btn-copy strong,
 html body .native-ui .bb-social-studio .bb-social-library-title,
 html body .native-ui .bb-social-studio .bb-social-post-tile-title,
 html body .native-ui .bb-social-studio .bb-social-video-tile-title,
@@ -1136,10 +1208,6 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
 
   .bb-blog-preview-media--portrait {
     max-width: 12rem;
-  }
-
-  .bb-social-studio-create-actions {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -1165,28 +1233,12 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
     justify-content: center;
   }
 
-  .bb-social-studio-create {
-    padding: 0.9rem;
+  .bb-social-studio-live {
     border-radius: 1rem;
   }
 
-  .bb-social-studio-create-lede {
-    max-width: none;
-    font-size: 0.78rem;
-  }
-
-  .bb-social-studio-create-actions {
-    grid-template-columns: 1fr;
-    gap: 0.55rem;
-  }
-
-  .bb-social-studio-create-btn {
-    padding: 0.8rem 0.85rem;
-    border-radius: 0.85rem;
-  }
-
-  .bb-social-studio-create-btn-copy span {
-    font-size: 0.68rem;
+  .bb-social-studio-profile-aside {
+    width: 100%;
   }
 
   .bb-social-studio-sheet-panel--composer {

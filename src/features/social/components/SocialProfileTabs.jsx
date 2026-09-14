@@ -1,16 +1,19 @@
-import { Clapperboard, Grid3X3, Type } from 'lucide-react';
+import { Clapperboard, Grid3X3, RectangleVertical, Type } from 'lucide-react';
 
 const TABS = [
   { id: 'posts', label: 'Posts', kind: 'image', Icon: Grid3X3 },
-  { id: 'videos', label: 'Videos', kind: 'video', Icon: Clapperboard },
+  { id: 'films', label: 'Films', kind: 'video', Icon: Clapperboard },
+  { id: 'verticals', label: 'Verticals', kind: 'vertical', Icon: RectangleVertical },
   { id: 'text', label: 'Text updates', kind: 'text', Icon: Type }
 ];
 
 export function SocialProfileTabs({ value = 'posts', onChange }) {
+  const activeId = value === 'videos' ? 'films' : value;
+
   return (
     <div className="bb-social-profile-tabs" role="tablist" aria-label="Social">
       {TABS.map(({ id, label, Icon }) => {
-        const active = value === id;
+        const active = activeId === id;
         return (
           <button
             key={id}

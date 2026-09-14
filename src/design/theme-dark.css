@@ -206,6 +206,20 @@ html[data-theme='dark'] .bb-public-profile-home-stack > .bb-public-home-block {
   border-color: var(--bb-border) !important;
 }
 
+html[data-theme='dark'] .bb-public-profile-banner-wrap,
+html[data-theme='dark'] .bb-social-studio-profile-banner-wrap {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 55%, #111827 100%);
+}
+
+html[data-theme='dark'] .bb-public-profile-shell .bb-public-profile-avatar-wrap {
+  box-shadow: 0 0 0 0.2rem #121212;
+}
+
+html[data-theme='dark'] .bb-social-studio-profile-avatar-wrap {
+  background: #121212;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
 html[data-theme='dark'] .bb-public-profile-tabs,
 html[data-theme='dark'] .bb-public-profile-tabs--top {
   background: var(--bb-rail-bg) !important;
@@ -390,31 +404,69 @@ html[data-theme='dark'] .bb-social-note {
 }
 
 html[data-theme='dark'] .bb-social-notes,
-html[data-theme='dark'] .bb-social-notes--grid,
+html[data-theme='dark'] .bb-social-notes--grid {
+  background: #121212 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .bb-social-note {
+  background: transparent !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-social-note:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
 html[data-theme='dark'] .bb-social-note--preview {
+  background: #1c1c1c !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='dark'] .bb-social-note-avatar {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-social-note-name,
+html[data-theme='dark'] .bb-social-note-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-social-note-handle,
+html[data-theme='dark'] .bb-social-note-dot,
+html[data-theme='dark'] .bb-social-note-time,
+html[data-theme='dark'] .bb-social-note-stamp {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-social-note-text {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+html[data-theme='dark'] .bb-social-note-place {
+  color: #5eead4 !important;
+}
+
+html[data-theme='dark'] .bb-social-note-more:hover,
+html[data-theme='dark'] .bb-social-note-more:focus-visible {
+  background: rgba(94, 234, 212, 0.12) !important;
+  color: #5eead4 !important;
+}
+
+html[data-theme='dark'] .bb-social-note-card,
+html[data-theme='dark'] .bb-social-note-bubble {
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
 }
 
-html[data-theme='dark'] .bb-social-note + .bb-social-note {
-  border-top: 0 !important;
-}
-
-html[data-theme='dark'] .bb-social-note-card,
-html[data-theme='dark'] .bb-social-note-bubble {
-  background: #1c1c1c !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35) !important;
-  color: var(--bb-ink) !important;
-}
-
 html[data-theme='dark'] .bb-social-note-card::after,
 html[data-theme='dark'] .bb-social-note-bubble::after {
-  display: block !important;
-  background: #1c1c1c !important;
-  border-right-color: rgba(255, 255, 255, 0.1) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  display: none !important;
 }
 
 html[data-theme='dark'] .bb-social-manage-edit {
@@ -784,7 +836,10 @@ html[data-theme='dark'] .bb-social-note,
 html[data-theme='dark'] .bb-blog-composer,
 html[data-theme='dark'] .bb-blog-preview,
 html[data-theme='dark'] .bb-social-studio-create,
-html[data-theme='dark'] .bb-social-studio-create-btn,
+html[data-theme='dark'] .bb-social-studio-live,
+html[data-theme='dark'] .bb-social-studio-profile,
+html[data-theme='dark'] .bb-social-create-modal-panel,
+html[data-theme='dark'] .bb-social-create-modal-btn,
 html[data-theme='dark'] .bb-social-post-tile,
 html[data-theme='dark'] .bb-social-video-tile,
 html[data-theme='dark'] .bb-social-article-tile,
@@ -798,6 +853,8 @@ html[data-theme='dark'] .bb-social-studio [class*='sheet'] {
 }
 
 html[data-theme='dark'] .bb-social-studio-create-btn-icon,
+html[data-theme='dark'] .bb-social-create-modal-btn-icon,
+html[data-theme='dark'] .bb-social-studio-profile-chip,
 html[data-theme='dark'] .bb-social-article-tile-thumb {
   background: var(--bb-surface-2) !important;
   border-color: var(--bb-border) !important;
@@ -811,8 +868,9 @@ html[data-theme='dark'] .bb-blog-status-pill.is-live {
 
 /* Beat social-studio light !important headings / tab ink */
 html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-title,
-html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-create-title,
-html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-studio-create-btn-copy strong,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-public-profile-name,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-create-modal-title,
+html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-create-modal-btn-copy strong,
 html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-library-title,
 html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-post-tile-title,
 html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-video-tile-title,

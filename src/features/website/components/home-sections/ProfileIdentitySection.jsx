@@ -44,10 +44,23 @@ export function ProfileIdentitySection({
       editMode={editMode}
       title="Profile"
       sectionId="identity"
-      coach="Avatar, business name, category, location, bio, and Message."
+      coach="Banner, avatar, business name, category, location, bio, and Message."
       className="bb-public-profile-identity"
     >
       <div className="bb-public-profile-shell">
+        <div className="bb-public-profile-banner-wrap">
+          <EditableImage
+            editMode={editMode}
+            src={website.socialBannerUrl || ''}
+            className="bb-public-profile-banner"
+            imgClassName="bb-public-profile-banner-img"
+            storageFolder="social"
+            preset="socialBanner"
+            onChange={(url) => patchWebsite({ socialBannerUrl: url })}
+            placeholderLabel={editMode ? 'Add banner' : ''}
+          />
+        </div>
+
         <div className="bb-public-profile-card">
           <div className="bb-public-profile-avatar-ring">
             <div className="bb-public-profile-avatar-wrap">
@@ -120,7 +133,7 @@ export function ProfileIdentitySection({
                 value={bio}
                 placeholder="Short bio"
                 onChange={(value) =>
-                  patchWebsite({ homeSubtext: value, subcopy: value })
+                  patchWebsite({ homeSubtext: value, subcopy: value, socialSubtext: value })
                 }
               />
             ) : null}

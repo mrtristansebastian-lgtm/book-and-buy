@@ -15,7 +15,8 @@ function sortPosts(posts) {
 }
 
 function tabForKind(kind) {
-  if (kind === 'video') return 'videos';
+  if (kind === 'video') return 'films';
+  if (kind === 'vertical') return 'verticals';
   if (kind === 'text') return 'text';
   return 'posts';
 }
@@ -48,7 +49,7 @@ export function SocialFeed({
   );
 
   const postsByKind = useMemo(() => {
-    const next = { image: [], video: [], text: [] };
+    const next = { image: [], video: [], vertical: [], text: [] };
     for (const post of visiblePosts) {
       const kind = getSocialPostKind(post);
       if (next[kind]) next[kind].push(post);
@@ -87,7 +88,7 @@ export function SocialFeed({
 
   const changeTab = (next) => {
     setFeedId('');
-    setTab(next);
+    setTab(next === 'videos' ? 'films' : next);
   };
 
   const openVideo = (postId) => {
@@ -103,11 +104,23 @@ export function SocialFeed({
   };
 
   const addForTab = () => {
-    if (tab === 'videos') {
+    if (tab === 'films' || tab === 'videos') {
       onAddSocialPost?.({
         type: 'video',
-        title: 'New video',
-        caption: 'Describe this video…',
+        title: 'New Film',
+        caption: 'Describe this Film…',
+        mediaUrl: '',
+        posterUrl: '',
+        duration: '',
+        published: false
+      });
+      return;
+    }
+    if (tab === 'verticals') {
+      onAddSocialPost?.({
+        type: 'vertical',
+        title: 'New Vertical',
+        caption: 'Describe this Vertical…',
         mediaUrl: '',
         posterUrl: '',
         duration: '',
@@ -134,7 +147,13 @@ export function SocialFeed({
   };
 
   const addLabel =
-    tab === 'videos' ? 'Add video' : tab === 'text' ? 'Add text update' : 'Add photo';
+    tab === 'films' || tab === 'videos'
+      ? 'Add Film'
+      : tab === 'verticals'
+        ? 'Add Vertical'
+        : tab === 'text'
+          ? 'Add text update'
+          : 'Add photo';
 
   const feedOpen =
     tab === 'posts' && Boolean(feedId) && imagePosts.some((post) => post.id === feedId);
@@ -191,9 +210,10 @@ export function SocialFeed({
             emptyLabel={editMode ? 'Add a photo post to fill the gallery.' : 'No posts published yet.'}
           />
         ) : null}
-        {!feedOpen && tab === 'videos' ? (
+        {!feedOpen && (tab === 'films' || tab === 'videos') ? (
           <SocialVideosPanel
             posts={tabPosts}
+            variant="films"
             editMode={editMode}
             showOwnerStats={!publicMode}
             brandName={workspace.brandName || ''}
@@ -204,10 +224,27 @@ export function SocialFeed({
             onCloseVideo={closeVideo}
           />
         ) : null}
+        {!feedOpen && tab === 'verticals' ? (
+          <SocialVideosPanel
+            posts={tabPosts}
+            variant="verticals"
+            editMode={editMode}
+            showOwnerStats={!publicMode}
+            brandName={workspace.brandName || ''}
+            logoUrl={website.logoUrl || ''}
+            onUpdateSocialPost={onUpdateSocialPost}
+            initialActiveId={routeKind === 'vertical' ? routePostId : ''}
+            onOpenVideo={openVideo}
+            onCloseVideo={closeVideo}
+          />
+        ) : null}
         {!feedOpen && tab === 'text' ? (
           <SocialTextTimeline
             posts={tabPosts}
             editMode={editMode}
+            brandName={workspace.brandName || workspace.name || ''}
+            logoUrl={website.logoUrl || ''}
+            slug={workspace.slug || ''}
             onUpdateSocialPost={onUpdateSocialPost}
           />
         ) : null}

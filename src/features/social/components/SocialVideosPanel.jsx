@@ -43,6 +43,7 @@ function VideoWatchPage({
   logoUrl = '',
   editMode = false,
   showOwnerStats = false,
+  fallbackAspect = 16 / 9,
   onClose,
   onChangeActive,
   onUpdateSocialPost
@@ -72,7 +73,7 @@ function VideoWatchPage({
 
       <div
         className="bb-yt-watch-player"
-        style={aspectStyle(post.aspectRatio, 16 / 9)}
+        style={aspectStyle(post.aspectRatio, fallbackAspect)}
       >
         {post.mediaUrl ? (
           <BbVideoPlayer
@@ -191,11 +192,12 @@ function VideoWatchPage({
 }
 
 /**
- * Public videos: YouTube-style home feed + watch page.
+ * Public Films (landscape) / Verticals (portrait) grid + watch page.
  * View counts are owner/staff only (hidden on the live public site).
  */
 export function SocialVideosPanel({
   posts,
+  variant = 'films',
   editMode = false,
   showPublishToggle = true,
   showOwnerStats = false,
@@ -209,6 +211,9 @@ export function SocialVideosPanel({
   onCloseVideo
 }) {
   const [watchId, setWatchId] = useState(initialActiveId || '');
+  const isVertical = variant === 'verticals';
+  const fallbackAspect = isVertical ? 9 / 16 : 16 / 9;
+  const noun = isVertical ? 'Vertical' : 'Film';
 
   useEffect(() => {
     if (initialActiveId && posts.some((post) => post.id === initialActiveId)) {
@@ -219,7 +224,9 @@ export function SocialVideosPanel({
   if (!posts.length) {
     return (
       <div className="bb-public-empty">
-        {editMode ? 'Add a video to open the gallery.' : 'No videos published yet.'}
+        {editMode
+          ? `Add a ${noun} to open the gallery.`
+          : `No ${isVertical ? 'Verticals' : 'Films'} published yet.`}
       </div>
     );
   }
@@ -245,6 +252,7 @@ export function SocialVideosPanel({
         logoUrl={logoUrl}
         editMode={editMode}
         showOwnerStats={showOwnerStats}
+        fallbackAspect={fallbackAspect}
         onClose={closeWatch}
         onChangeActive={openWatch}
         onUpdateSocialPost={onUpdateSocialPost}
@@ -253,9 +261,12 @@ export function SocialVideosPanel({
   }
 
   return (
-    <div className="bb-social-video-grid bb-yt-home" role="list">
+    <div
+      className={`bb-social-video-grid bb-yt-home${isVertical ? ' bb-social-verticals-grid' : ''}`}
+      role="list"
+    >
       {posts.map((post) => {
-        const title = String(post.title || '').trim() || 'Untitled video';
+        const title = String(post.title || '').trim() || `Untitled ${noun}`;
         const thumb = post.posterUrl || '';
 
         return (
@@ -274,7 +285,7 @@ export function SocialVideosPanel({
             >
               <span
                 className="bb-social-video-tile-media bb-yt-thumb"
-                style={aspectStyle(post.aspectRatio, 16 / 9)}
+                style={aspectStyle(post.aspectRatio, fallbackAspect)}
               >
                 {thumb ? <img src={thumb} alt="" /> : <span className="bb-social-video-tile-empty" />}
                 <span className="bb-social-video-tile-play" aria-hidden="true">

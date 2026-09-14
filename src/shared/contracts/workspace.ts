@@ -203,6 +203,8 @@ export interface WebsiteSettings {
   buySubtext?: string;
   socialHeadline?: string;
   socialSubtext?: string;
+  /** X-style cover/banner on the Social page profile. */
+  socialBannerUrl?: string;
   ctaLabel?: string;
   buyCtaLabel?: string;
   heroImageUrl?: string;
@@ -253,7 +255,7 @@ export interface WebsiteSettings {
 
 export interface SocialPost {
   id: string;
-  type?: "image" | "video" | "text" | string;
+  type?: "image" | "video" | "vertical" | "text" | string;
   mediaUrl?: string;
   posterUrl?: string;
   caption?: string;
