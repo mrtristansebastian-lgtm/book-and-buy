@@ -350,12 +350,36 @@ html[data-theme='dark'] .bb-yt-watch-desc {
   border-color: var(--bb-border);
 }
 
+html[data-theme='dark'] .bb-yt-watch-channel {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-yt-watch-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--bb-muted);
+}
+
 html[data-theme='dark'] .bb-yt-watch-back {
+  background: rgba(255, 255, 255, 0.06);
   color: var(--bb-muted);
 }
 
 html[data-theme='dark'] .bb-yt-watch-back:hover {
+  background: rgba(255, 255, 255, 0.1);
   color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-yt-related-row:hover,
+html[data-theme='dark'] .bb-yt-related-row:focus-visible {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-yt-related-count {
+  background: rgba(18, 240, 207, 0.14);
+  color: #12f0cf;
 }
 
 html[data-theme='dark'] .bb-public-review,

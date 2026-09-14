@@ -15,7 +15,7 @@ import {
 
 const PROFILE_RAIL_TABS = [
   { id: 'home', label: 'Home' },
-  { id: 'content', label: 'Content' },
+  { id: 'content', label: 'Social' },
   { id: 'book', label: 'Book' },
   { id: 'buy', label: 'Buy' }
 ];

@@ -13,6 +13,7 @@ import {
   Play,
   Plus,
   RotateCcw,
+  Scissors,
   Trash2,
   UploadCloud,
   X
@@ -74,8 +75,7 @@ const POST_STEPS = [
 
 const VIDEO_STEPS = [
   { id: 'source', label: 'Source' },
-  { id: 'details', label: 'Details' },
-  { id: 'thumbnail', label: 'Thumbnail' }
+  { id: 'details', label: 'Details' }
 ];
 
 function isBlobUrl(url) {
@@ -513,6 +513,7 @@ export function BlogComposerSheet({
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState(null);
+  const [coverPickerOpen, setCoverPickerOpen] = useState(false);
   const [items, setItems] = useState([]);
   const [activeId, setActiveId] = useState('');
   const [matchAll, setMatchAll] = useState(false);
@@ -527,6 +528,9 @@ export function BlogComposerSheet({
   const [posterUrl, setPosterUrl] = useState('');
   const [duration, setDuration] = useState('');
   const [durationSeconds, setDurationSeconds] = useState(0);
+  const [videoSourceDuration, setVideoSourceDuration] = useState(0);
+  const [videoTrimStart, setVideoTrimStart] = useState(0);
+  const [videoTrimEnd, setVideoTrimEnd] = useState(0);
   const [videoAspect, setVideoAspect] = useState(0);
 
   const [busy, setBusy] = useState(false);
@@ -691,6 +695,18 @@ export function BlogComposerSheet({
       setDuration(post.duration || '');
       setDurationSeconds(Number(post.durationSeconds) || 0);
       setVideoAspect(Number(post.aspectRatio) || 0);
+      {
+        const sourceDuration =
+          Number(post.sourceDurationSeconds) ||
+          Number(post.durationSeconds) ||
+          0;
+        const trimStart = Number(post.trimStart) || 0;
+        const trimEnd =
+          Number(post.trimEnd) > 0 ? Number(post.trimEnd) : sourceDuration;
+        setVideoSourceDuration(sourceDuration);
+        setVideoTrimStart(trimStart);
+        setVideoTrimEnd(trimEnd);
+      }
 
       const loaded = getPostMediaItems(post).map((item) => {
         const sourceDuration =
@@ -738,6 +754,9 @@ export function BlogComposerSheet({
     setPosterUrl('');
     setDuration('');
     setDurationSeconds(0);
+    setVideoSourceDuration(0);
+    setVideoTrimStart(0);
+    setVideoTrimEnd(0);
     setVideoAspect(0);
     setStepIndex(0);
   }, [post, type, kind]);
@@ -920,8 +939,13 @@ export function BlogComposerSheet({
         setMediaUrl(preview);
         setVideoRemoteUrl('');
         setDurationSeconds(seconds);
+        setVideoSourceDuration(seconds);
+        setVideoTrimStart(0);
+        setVideoTrimEnd(seconds);
         setDuration(formatDurationLabel(seconds));
         setVideoAspect(frame.aspect || 0);
+        setLiveTrim(null);
+        setPlaybackTime(0);
 
         const jobs = [{ id: VIDEO_JOB_ID, kind: 'video', file }];
         try {
@@ -1053,7 +1077,7 @@ export function BlogComposerSheet({
 
   const onCropConfirm = async (file) => {
     if (cropTarget === 'poster') {
-      enqueue({ id: POSTER_JOB_ID, kind: 'image', file, preset: 'videoPoster' });
+      applyVideoPoster(file);
       closeCrop();
       return;
     }
@@ -1114,6 +1138,23 @@ export function BlogComposerSheet({
     if (id) setActiveId(id);
   };
 
+  const applyVideoPoster = useCallback(
+    (file) => {
+      if (!(file instanceof Blob)) return;
+      if (isBlobUrl(posterUrl)) releaseUrl(posterUrl);
+      setPosterUrl(trackUrl(URL.createObjectURL(file)));
+      enqueue({
+        id: POSTER_JOB_ID,
+        kind: 'image',
+        file,
+        preset: 'videoPoster',
+        skipNormalize: true
+      });
+      setCoverPickerOpen(false);
+    },
+    [enqueue, posterUrl, releaseUrl, trackUrl]
+  );
+
   const applyCoverPoster = useCallback(
     (itemId, file) => {
       if (!itemId || !(file instanceof Blob)) return;
@@ -1142,16 +1183,16 @@ export function BlogComposerSheet({
           posterFile: file,
           preset: 'socialPost'
         });
-        return;
+      } else {
+        enqueue({
+          id: `${itemId}__poster`,
+          kind: 'image',
+          file,
+          preset: 'videoPoster',
+          skipNormalize: true
+        });
       }
-
-      enqueue({
-        id: `${itemId}__poster`,
-        kind: 'image',
-        file,
-        preset: 'videoPoster',
-        skipNormalize: true
-      });
+      setCoverPickerOpen(false);
     },
     [items, enqueue, trackUrl, releaseUrl]
   );
@@ -1193,6 +1234,27 @@ export function BlogComposerSheet({
     setPlaybackTime(0);
     setSeekRequest(null);
   }, [activeId]);
+
+  // Older video posts may lack sourceDurationSeconds — probe once so trim works.
+  useEffect(() => {
+    if (type !== 'video' || !mediaUrl || videoSourceDuration > 0) return undefined;
+    let cancelled = false;
+    (async () => {
+      try {
+        const frame = await readVideoFrame(mediaUrl);
+        if (cancelled || !(frame?.duration > 0)) return;
+        setVideoSourceDuration(frame.duration);
+        setVideoTrimStart((prev) => prev || 0);
+        setVideoTrimEnd((prev) => (prev > 0 ? prev : frame.duration));
+        if (!(videoAspect > 0) && frame.aspect > 0) setVideoAspect(frame.aspect);
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [type, mediaUrl, videoSourceDuration, videoAspect]);
 
   const requestSeek = useCallback((time) => {
     seekSeqRef.current += 1;
@@ -1255,6 +1317,58 @@ export function BlogComposerSheet({
     [enqueue, releaseUrl, trackUrl]
   );
 
+  const saveLongVideoTrim = useCallback(
+    async ({ start, end }) => {
+      const sourceDuration = videoSourceDuration || durationSeconds || 0;
+      const trimStart = Math.max(0, Number(start) || 0);
+      const trimEnd = Math.min(
+        sourceDuration || Number(end) || 0,
+        Math.max(trimStart + 0.5, Number(end) || 0)
+      );
+      const clipSeconds = Math.max(0, trimEnd - trimStart);
+      let nextPoster = posterUrl;
+      let posterFile = null;
+
+      const frameSource = videoFile || mediaUrl;
+      if (frameSource) {
+        try {
+          posterFile = await captureVideoPoster(frameSource, trimStart + 0.05);
+          if (isBlobUrl(nextPoster)) releaseUrl(nextPoster);
+          nextPoster = trackUrl(URL.createObjectURL(posterFile));
+        } catch {
+          /* keep existing poster */
+        }
+      }
+
+      setVideoTrimStart(trimStart);
+      setVideoTrimEnd(trimEnd);
+      setDurationSeconds(clipSeconds);
+      setDuration(formatDurationLabel(clipSeconds));
+      setPosterUrl(nextPoster);
+      setLiveTrim(null);
+
+      if (posterFile) {
+        enqueue({
+          id: POSTER_JOB_ID,
+          kind: 'image',
+          file: posterFile,
+          preset: 'videoPoster',
+          skipNormalize: true
+        });
+      }
+    },
+    [
+      videoSourceDuration,
+      durationSeconds,
+      posterUrl,
+      videoFile,
+      mediaUrl,
+      enqueue,
+      releaseUrl,
+      trackUrl
+    ]
+  );
+
   const activeIndex = Math.max(
     0,
     items.findIndex((item) => item.id === activeId)
@@ -1294,19 +1408,18 @@ export function BlogComposerSheet({
     }
 
     if (type === 'video') {
-      const durableVideo = videoRemoteUrl.trim();
-      if (index === 0 && !videoFile && !durableVideo) {
-        return 'Upload a video file or paste a public URL to continue.';
+      if (index === 0 && !videoFile && !videoRemoteUrl.trim()) {
+        return 'Upload a video to continue.';
       }
       if (index >= VIDEO_STEPS.length - 1) {
         if (uploads[VIDEO_JOB_ID]?.status === 'error') {
           return 'The video upload failed — retry it before publishing.';
         }
-        if (!durableVideo) {
+        if (!videoRemoteUrl.trim()) {
           return 'The video is still uploading — one moment.';
         }
         if (!posterUrl.trim() || isBlobUrl(posterUrl)) {
-          return 'Choose a thumbnail before publishing.';
+          return 'Tap Set cover to choose a thumbnail before publishing.';
         }
       }
     }
@@ -1410,6 +1523,9 @@ export function BlogComposerSheet({
           posterUrl: posterUrl.trim(),
           duration: duration.trim() || formatDurationLabel(durationSeconds),
           durationSeconds,
+          sourceDurationSeconds: videoSourceDuration || durationSeconds,
+          trimStart: videoTrimStart || 0,
+          trimEnd: videoTrimEnd || videoSourceDuration || durationSeconds,
           aspectRatio: aspect || 0
         };
       }
@@ -1697,34 +1813,15 @@ export function BlogComposerSheet({
                   placeholder="Search for a place or address"
                 />
                 {items[0]?.kind === 'video' ? (
-                  <div className="bb-composer-cover-thumb">
-                    <p className="bb-composer-hint bb-composer-hint--lead">
-                      Cover frame for the first clip
-                    </p>
-                    <VideoThumbnailPicker
-                      videoFile={items[0].file || null}
-                      videoUrl={items[0].url}
-                      durationSeconds={
-                        items[0].sourceDurationSeconds || items[0].durationSeconds || 0
-                      }
-                      aspectRatio={items[0].aspectRatio}
-                      posterUrl={items[0].posterUrl}
-                      busy={busy}
-                      onFrameChosen={(file) => applyCoverPoster(items[0].id, file)}
-                      onUploadOwn={() => coverPosterRef.current?.click()}
-                    />
-                    <input
-                      ref={coverPosterRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        event.target.value = '';
-                        if (file && items[0]?.id) applyCoverPoster(items[0].id, file);
-                      }}
-                    />
-                  </div>
+                  <button
+                    type="button"
+                    className="bb-ghost-btn bb-composer-cover-set-inline"
+                    disabled={busy}
+                    onClick={() => setCoverPickerOpen(true)}
+                  >
+                    <Scissors size={14} strokeWidth={2.3} />
+                    Set cover frame
+                  </button>
                 ) : null}
               </div>
             </div>
@@ -1870,26 +1967,33 @@ export function BlogComposerSheet({
 
                       <div className="bb-composer-carousel-preview bb-composer-cover-preview">
                         {items[0] ? (
-                          items[0].kind === 'video' ? (
-                            <img
-                              src={items[0].posterUrl || items[0].url}
-                              alt=""
-                              className="bb-composer-cover-still"
-                            />
-                          ) : (
-                            <img
-                              src={items[0].url}
-                              alt=""
-                              className="bb-composer-cover-still"
-                            />
-                          )
+                          <img
+                            src={
+                              items[0].kind === 'video'
+                                ? items[0].posterUrl || items[0].url
+                                : items[0].url
+                            }
+                            alt=""
+                            className="bb-composer-cover-still"
+                          />
                         ) : (
                           <span className="bb-composer-arrange-empty">No media</span>
                         )}
                         {items[0]?.kind === 'video' ? (
-                          <span className="bb-composer-media-badge">
-                            {items[0].durationLabel || 'Video'}
-                          </span>
+                          <>
+                            <span className="bb-composer-media-badge">
+                              {items[0].durationLabel || 'Video'}
+                            </span>
+                            <button
+                              type="button"
+                              className="bb-composer-cover-set"
+                              disabled={busy}
+                              onClick={() => setCoverPickerOpen(true)}
+                            >
+                              <Scissors size={14} strokeWidth={2.3} />
+                              Set cover
+                            </button>
+                          </>
                         ) : null}
                       </div>
 
@@ -1928,35 +2032,20 @@ export function BlogComposerSheet({
                         </div>
                       ) : null}
 
-                      {items[0]?.kind === 'video' ? (
-                        <div className="bb-composer-cover-thumb">
-                          <VideoThumbnailPicker
-                            videoFile={items[0].file || null}
-                            videoUrl={items[0].url}
-                            durationSeconds={
-                              items[0].sourceDurationSeconds ||
-                              items[0].durationSeconds ||
-                              0
-                            }
-                            aspectRatio={items[0].aspectRatio}
-                            posterUrl={items[0].posterUrl}
-                            busy={busy}
-                            onFrameChosen={(file) => applyCoverPoster(items[0].id, file)}
-                            onUploadOwn={() => coverPosterRef.current?.click()}
-                          />
-                          <input
-                            ref={coverPosterRef}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(event) => {
-                              const file = event.target.files?.[0];
-                              event.target.value = '';
-                              if (file && items[0]?.id) applyCoverPoster(items[0].id, file);
-                            }}
-                          />
-                        </div>
-                      ) : null}
+                      <input
+                        ref={coverPosterRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          event.target.value = '';
+                          if (file && items[0]?.id) {
+                            applyCoverPoster(items[0].id, file);
+                            setCoverPickerOpen(false);
+                          }
+                        }}
+                      />
                     </div>
                   </div>
 
@@ -2009,30 +2098,62 @@ export function BlogComposerSheet({
             <div className="bb-composer-edit bb-composer-edit--video">
               <div className="bb-composer-edit-media">
                 {mediaUrl ? (
-                  <div
-                    className="bb-composer-video-stage"
-                    style={aspectStyle(videoAspect, 16 / 9)}
-                  >
-                    <video
-                      className="bb-social-compose-player"
-                      controls
-                      playsInline
-                      poster={posterUrl || undefined}
-                      src={mediaUrl}
-                      onLoadedMetadata={(event) => {
-                        const video = event.currentTarget;
-                        if (
-                          !(videoAspect > 0) &&
-                          video.videoWidth > 0 &&
-                          video.videoHeight > 0
-                        ) {
-                          setVideoAspect(video.videoWidth / video.videoHeight);
+                  <div className="bb-composer-arrange-workspace bb-composer-video-trim-workspace">
+                    <div
+                      className="bb-composer-video-stage"
+                      style={aspectStyle(videoAspect, 16 / 9)}
+                    >
+                      <TrimmedVideoPreview
+                        url={mediaUrl}
+                        posterUrl={posterUrl}
+                        start={liveTrim?.start ?? videoTrimStart ?? 0}
+                        end={
+                          liveTrim?.end ??
+                          videoTrimEnd ??
+                          videoSourceDuration ??
+                          durationSeconds
                         }
-                      }}
+                        seekRequest={seekRequest}
+                        onTime={setPlaybackTime}
+                        onSeekHandled={(id) =>
+                          setSeekRequest((prev) => (prev?.id === id ? null : prev))
+                        }
+                        onAspect={(w, h) => {
+                          if (!(videoAspect > 0) && w > 0 && h > 0) {
+                            setVideoAspect(w / h);
+                          }
+                        }}
+                      />
+                      <span className="bb-composer-media-badge">
+                        {liveTrim
+                          ? formatDurationLabel(
+                              Math.max(0, (liveTrim.end || 0) - (liveTrim.start || 0))
+                            )
+                          : duration || formatDurationLabel(durationSeconds)}
+                      </span>
+                      <button
+                        type="button"
+                        className="bb-composer-cover-set"
+                        disabled={busy}
+                        onClick={() => setCoverPickerOpen(true)}
+                      >
+                        <Scissors size={14} strokeWidth={2.3} />
+                        Set cover
+                      </button>
+                    </div>
+
+                    <VideoClipTrimmer
+                      source={videoFile || mediaUrl}
+                      durationSeconds={videoSourceDuration || durationSeconds || 0}
+                      trimStart={videoTrimStart || 0}
+                      trimEnd={videoTrimEnd || videoSourceDuration || durationSeconds || 0}
+                      maxClipSeconds={0}
+                      busy={busy}
+                      currentTime={playbackTime}
+                      onPreview={setLiveTrim}
+                      onSeek={requestSeek}
+                      onSave={saveLongVideoTrim}
                     />
-                    {duration ? (
-                      <span className="bb-composer-media-badge">{duration}</span>
-                    ) : null}
                   </div>
                 ) : null}
                 <div className="bb-composer-edit-media-actions">
@@ -2080,36 +2201,11 @@ export function BlogComposerSheet({
                     onChange={(event) => setCaption(event.target.value)}
                   />
                 </label>
-              </div>
-
-              <div className="bb-composer-edit-thumb">
-                <p className="bb-composer-hint bb-composer-hint--lead">
-                  Thumbnail cover — pick a frame or upload your own.
-                </p>
-                <VideoThumbnailPicker
-                  videoFile={videoFile}
-                  videoUrl={mediaUrl}
-                  durationSeconds={durationSeconds}
-                  aspectRatio={videoAspect}
-                  posterUrl={posterUrl}
-                  busy={busy}
-                  onFrameChosen={(file) =>
-                    enqueue({
-                      id: POSTER_JOB_ID,
-                      kind: 'image',
-                      file,
-                      preset: 'videoPoster',
-                      skipNormalize: true
-                    })
-                  }
-                  onUploadOwn={() => posterRef.current?.click()}
-                />
-                <input
-                  ref={posterRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={onPosterPick}
+                <PlaceLocationField
+                  value={location}
+                  onChange={setLocation}
+                  disabled={busy}
+                  placeholder="Search for a place or address"
                 />
               </div>
             </div>
@@ -2120,36 +2216,83 @@ export function BlogComposerSheet({
               {stepIndex === 0 ? (
                 <div className="bb-composer-fields bb-composer-video-source">
                   {mediaUrl ? (
-                    <div
-                      className="bb-composer-video-stage"
-                      style={aspectStyle(videoAspect, 16 / 9)}
-                    >
-                      <video
-                        className="bb-social-compose-player"
-                        controls
-                        playsInline
-                        poster={posterUrl || undefined}
-                        src={mediaUrl}
-                        onLoadedMetadata={(event) => {
-                          const video = event.currentTarget;
-                          if (
-                            !(videoAspect > 0) &&
-                            video.videoWidth > 0 &&
-                            video.videoHeight > 0
-                          ) {
-                            setVideoAspect(video.videoWidth / video.videoHeight);
+                    <div className="bb-composer-arrange-workspace bb-composer-video-trim-workspace">
+                      <div
+                        className="bb-composer-video-stage"
+                        style={aspectStyle(videoAspect, 16 / 9)}
+                      >
+                        <TrimmedVideoPreview
+                          url={mediaUrl}
+                          posterUrl={posterUrl}
+                          start={
+                            liveTrim?.start ??
+                            videoTrimStart ??
+                            0
                           }
-                        }}
+                          end={
+                            liveTrim?.end ??
+                            videoTrimEnd ??
+                            videoSourceDuration ??
+                            durationSeconds
+                          }
+                          seekRequest={seekRequest}
+                          onTime={setPlaybackTime}
+                          onSeekHandled={(id) =>
+                            setSeekRequest((prev) => (prev?.id === id ? null : prev))
+                          }
+                          onAspect={(w, h) => {
+                            if (!(videoAspect > 0) && w > 0 && h > 0) {
+                              setVideoAspect(w / h);
+                            }
+                          }}
+                        />
+                        <span className="bb-composer-media-badge">
+                          {liveTrim
+                            ? formatDurationLabel(
+                                Math.max(0, (liveTrim.end || 0) - (liveTrim.start || 0))
+                              )
+                            : duration || formatDurationLabel(durationSeconds)}
+                        </span>
+                        <button
+                          type="button"
+                          className="bb-composer-cover-set"
+                          disabled={busy}
+                          onClick={() => setCoverPickerOpen(true)}
+                        >
+                          <Scissors size={14} strokeWidth={2.3} />
+                          Set cover
+                        </button>
+                      </div>
+
+                      <VideoClipTrimmer
+                        source={videoFile || mediaUrl}
+                        durationSeconds={videoSourceDuration || durationSeconds || 0}
+                        trimStart={videoTrimStart || 0}
+                        trimEnd={
+                          videoTrimEnd || videoSourceDuration || durationSeconds || 0
+                        }
+                        maxClipSeconds={0}
+                        busy={busy}
+                        currentTime={playbackTime}
+                        onPreview={setLiveTrim}
+                        onSeek={requestSeek}
+                        onSave={saveLongVideoTrim}
                       />
-                      {duration ? (
-                        <span className="bb-composer-media-badge">{duration}</span>
-                      ) : null}
+
+                      <button
+                        type="button"
+                        className="bb-ghost-btn"
+                        onClick={() => videoRef.current?.click()}
+                        disabled={busy}
+                      >
+                        Replace video
+                      </button>
                     </div>
                   ) : (
                     <div className="bb-composer-dropzone bb-composer-dropzone--hero">
                       <Film size={28} strokeWidth={2} />
                       <strong>Upload video</strong>
-                      <span>Drag it in or browse · any length · thumbnail comes last</span>
+                      <span>Drag it in or browse · trim after upload</span>
                       <button
                         type="button"
                         className="bb-primary-btn bb-composer-dropzone-upload"
@@ -2169,41 +2312,13 @@ export function BlogComposerSheet({
                     className="hidden"
                     onChange={onVideoSectionFile}
                   />
-
-                  <div className="bb-composer-or">or paste a public URL</div>
-                  <label className="bb-social-field">
-                    <span>Video URL</span>
-                    <input
-                      className="native-control-input bb-social-compose-control"
-                      value={videoFile ? '' : videoRemoteUrl}
-                      placeholder="https://…/video.mp4"
-                      disabled={Boolean(videoFile)}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        setVideoFile(null);
-                        setVideoRemoteUrl(value);
-                        setMediaUrl(value);
-                      }}
-                    />
-                  </label>
-
-                  {mediaUrl ? (
-                    <button
-                      type="button"
-                      className="bb-ghost-btn"
-                      onClick={() => videoRef.current?.click()}
-                      disabled={busy}
-                    >
-                      Replace video file
-                    </button>
-                  ) : null}
                 </div>
               ) : null}
 
               {stepIndex === 1 ? (
                 <div className="bb-composer-fields">
                   <div
-                    className="bb-composer-video-review bb-composer-video-review--soft"
+                    className="bb-composer-video-review bb-composer-video-review--soft bb-composer-video-review--cover"
                     style={aspectStyle(videoAspect, 16 / 9)}
                   >
                     {mediaUrl ? (
@@ -2211,6 +2326,17 @@ export function BlogComposerSheet({
                     ) : null}
                     {duration ? (
                       <span className="bb-composer-video-duration">{duration}</span>
+                    ) : null}
+                    {mediaUrl ? (
+                      <button
+                        type="button"
+                        className="bb-composer-cover-set"
+                        disabled={busy}
+                        onClick={() => setCoverPickerOpen(true)}
+                      >
+                        <Scissors size={14} strokeWidth={2.3} />
+                        Set cover
+                      </button>
                     ) : null}
                   </div>
 
@@ -2239,38 +2365,12 @@ export function BlogComposerSheet({
                       onChange={(event) => setCaption(event.target.value)}
                     />
                   </label>
-                </div>
-              ) : null}
 
-              {stepIndex === 2 ? (
-                <div className="bb-composer-fields bb-composer-video-thumb">
-                  <p className="bb-composer-hint bb-composer-hint--lead">
-                    Pick the cover viewers see before play — the last step, just like YouTube.
-                  </p>
-                  <VideoThumbnailPicker
-                    videoFile={videoFile}
-                    videoUrl={mediaUrl}
-                    durationSeconds={durationSeconds}
-                    aspectRatio={videoAspect}
-                    posterUrl={posterUrl}
-                    busy={busy}
-                    onFrameChosen={(file) =>
-                      enqueue({
-                        id: POSTER_JOB_ID,
-                        kind: 'image',
-                        file,
-                        preset: 'videoPoster',
-                        skipNormalize: true
-                      })
-                    }
-                    onUploadOwn={() => posterRef.current?.click()}
-                  />
-                  <input
-                    ref={posterRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={onPosterPick}
+                  <PlaceLocationField
+                    value={location}
+                    onChange={setLocation}
+                    disabled={busy}
+                    placeholder="Search for a place or address"
                   />
                 </div>
               ) : null}
@@ -2433,6 +2533,73 @@ export function BlogComposerSheet({
           closeCrop();
         }}
         onConfirm={onCropConfirm}
+      />
+
+      {coverPickerOpen ? (
+        <div
+          className="bb-cover-picker-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Choose cover"
+        >
+          <button
+            type="button"
+            className="bb-cover-picker-backdrop"
+            aria-label="Close cover picker"
+            onClick={() => setCoverPickerOpen(false)}
+          />
+          <div className="bb-cover-picker-panel">
+            <header className="bb-cover-picker-head">
+              <div>
+                <p className="bb-cover-picker-eyebrow">Cover</p>
+                <h3 className="bb-cover-picker-title">Choose a frame</h3>
+              </div>
+              <button
+                type="button"
+                className="bb-ghost-btn bb-cover-picker-close"
+                aria-label="Close"
+                onClick={() => setCoverPickerOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </header>
+            <div className="bb-cover-picker-body">
+              {type === 'video' ? (
+                <VideoThumbnailPicker
+                  videoFile={videoFile}
+                  videoUrl={mediaUrl}
+                  durationSeconds={durationSeconds}
+                  aspectRatio={videoAspect}
+                  posterUrl={posterUrl}
+                  busy={busy}
+                  onFrameChosen={applyVideoPoster}
+                  onUploadOwn={() => posterRef.current?.click()}
+                />
+              ) : items[0]?.kind === 'video' ? (
+                <VideoThumbnailPicker
+                  videoFile={items[0].file || null}
+                  videoUrl={items[0].url}
+                  durationSeconds={
+                    items[0].sourceDurationSeconds || items[0].durationSeconds || 0
+                  }
+                  aspectRatio={items[0].aspectRatio}
+                  posterUrl={items[0].posterUrl}
+                  busy={busy}
+                  onFrameChosen={(file) => applyCoverPoster(items[0].id, file)}
+                  onUploadOwn={() => coverPosterRef.current?.click()}
+                />
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <input
+        ref={posterRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={onPosterPick}
       />
     </div>
   );

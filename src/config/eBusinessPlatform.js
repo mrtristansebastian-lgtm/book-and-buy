@@ -1,11 +1,11 @@
-/** Public Home / Book / Buy / Content surface — owner-facing product name. */
-export const E_BUSINESS_PLATFORM_NAME = 'Business Platforms';
-export const E_BUSINESS_PLATFORM_SHORT = 'Business Platforms';
+/** Public Home / Book / Buy / Social surface — owner-facing product name. */
+export const E_BUSINESS_PLATFORM_NAME = 'E-Business Platform';
+export const E_BUSINESS_PLATFORM_SHORT = 'E-Business Platform';
 
 /** Public page ids shown to customers (studio order matches profile rail). */
 export const E_BUSINESS_PAGES = [
   { id: 'home', label: 'Home', path: '' },
-  { id: 'social', label: 'Content', path: '/social' },
+  { id: 'social', label: 'Social', path: '/social' },
   { id: 'book', label: 'Book', path: '/book' },
   { id: 'buy', label: 'Buy', path: '/buy' }
 ];

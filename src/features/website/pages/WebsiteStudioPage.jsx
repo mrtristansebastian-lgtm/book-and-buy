@@ -95,7 +95,7 @@ export function WebsiteStudioPage() {
 
         <div className="flex flex-wrap items-center gap-3">
           <PeriodSegmentedControl
-            ariaLabel="Business Platforms page surface"
+            ariaLabel="E-Business Platform page surface"
             value={surface}
             onChange={setSurface}
             options={pageOptions}

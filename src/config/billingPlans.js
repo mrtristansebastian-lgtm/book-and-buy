@@ -18,7 +18,7 @@ export const BILLING_PLANS = {
     locationLimit: 1,
     features: [
       'Book: services, requests, availability',
-      'Pages: Home + Book',
+      'E-Business Platform: Home + Book',
       'Up to 2 staff',
       'Up to 10 products',
       'Email alerts for requests & orders',
@@ -49,7 +49,7 @@ export const BILLING_PLANS = {
     features: [
       'Everything in Starter',
       'Full Buy: catalog + orders',
-      'Pages + Content',
+      'E-Business Platform + Social',
       'Up to 10 staff',
       'All payment gateways',
       'Booking policies & advance window',

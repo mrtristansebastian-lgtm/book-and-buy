@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Play } from 'lucide-react';
 import { EditableImage, EditableText } from '../../website/components/editable';
 import {
   formatNoteStamp,
@@ -8,14 +8,57 @@ import {
 } from '../utils/socialPostType';
 import { BbVideoPlayer } from './BbVideoPlayer';
 
+function isProbablyImageUrl(url) {
+  const value = String(url || '').toLowerCase();
+  if (!value) return false;
+  if (value.startsWith('data:image/')) return true;
+  return /\.(avif|gif|heic|jpe?g|png|webp)(\?|#|$)/i.test(value);
+}
+
+function isProbablyVideoUrl(url) {
+  const value = String(url || '').toLowerCase();
+  if (!value) return false;
+  if (value.startsWith('data:video/')) return true;
+  return /\.(m4v|mov|mp4|ogv|webm)(\?|#|$)/i.test(value);
+}
+
+/** Prefer explicit kind, but never render an obvious image URL as <video>. */
+function resolveSlideKind(item) {
+  if (!item) return 'image';
+  const url = String(item.url || '');
+  if (item.kind === 'video') {
+    if (isProbablyImageUrl(url) && !isProbablyVideoUrl(url)) return 'image';
+    return 'video';
+  }
+  if (isProbablyVideoUrl(url) && !isProbablyImageUrl(url)) return 'video';
+  return 'image';
+}
+
 function FeedCarousel({ items = [] }) {
   const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const videoRef = useRef(null);
   const active = items[index] || null;
   const multi = items.length > 1;
+  const slideKind = resolveSlideKind(active);
 
   useEffect(() => {
     setIndex(0);
+    setPlaying(false);
   }, [items]);
+
+  useEffect(() => {
+    setPlaying(false);
+    const video = videoRef.current;
+    if (video) {
+      try {
+        video.pause();
+        video.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [index]);
 
   if (!active?.url) {
     return <div className="bb-social-feed-media-empty">No media</div>;
@@ -26,6 +69,8 @@ function FeedCarousel({ items = [] }) {
     Number(active.trimEnd) > 0
       ? Number(active.trimEnd)
       : Number(active.sourceDurationSeconds) || 0;
+  const poster = String(active.posterUrl || '').trim();
+  const stillUrl = poster || (slideKind === 'image' ? active.url : '');
 
   return (
     <div className="bb-social-feed-carousel">
@@ -37,34 +82,68 @@ function FeedCarousel({ items = [] }) {
             : undefined
         }
       >
-        {active.kind === 'video' ? (
-          <video
-            key={`${active.url}-${start}-${end}`}
-            className="bb-social-feed-media-img"
-            src={active.url}
-            poster={active.posterUrl || undefined}
-            controls
-            playsInline
-            muted
-            onLoadedMetadata={(event) => {
-              const video = event.currentTarget;
-              if (start > 0.05) video.currentTime = start;
-              if (!(Number(active.aspectRatio) > 0) && video.videoWidth && video.videoHeight) {
-                video.parentElement.style.aspectRatio = String(
-                  video.videoWidth / video.videoHeight
-                );
-              }
-            }}
-            onTimeUpdate={(event) => {
-              const video = event.currentTarget;
-              if (end > start && video.currentTime >= end - 0.05) {
-                video.pause();
-                video.currentTime = start;
-              }
-            }}
-          />
+        {slideKind === 'video' ? (
+          playing ? (
+            <video
+              key={`video-${index}-${active.url}`}
+              ref={videoRef}
+              className="bb-social-feed-media-img"
+              src={active.url}
+              poster={poster || undefined}
+              controls
+              playsInline
+              muted
+              autoPlay
+              onLoadedMetadata={(event) => {
+                const video = event.currentTarget;
+                if (start > 0.05) video.currentTime = start;
+                if (!(Number(active.aspectRatio) > 0) && video.videoWidth && video.videoHeight) {
+                  video.parentElement.style.aspectRatio = String(
+                    video.videoWidth / video.videoHeight
+                  );
+                }
+              }}
+              onTimeUpdate={(event) => {
+                const video = event.currentTarget;
+                if (end > start && video.currentTime >= end - 0.05) {
+                  video.pause();
+                  video.currentTime = start;
+                  setPlaying(false);
+                }
+              }}
+              onEnded={() => setPlaying(false)}
+            />
+          ) : (
+            <button
+              type="button"
+              key={`still-${index}-${active.url}`}
+              className="bb-social-feed-video-still"
+              onClick={() => setPlaying(true)}
+              aria-label="Play clip"
+            >
+              {stillUrl ? (
+                <img src={stillUrl} alt="" className="bb-social-feed-media-img" />
+              ) : (
+                <video
+                  className="bb-social-feed-media-img"
+                  src={active.url}
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+              )}
+              <span className="bb-social-feed-video-play" aria-hidden="true">
+                <Play size={22} fill="currentColor" strokeWidth={0} />
+              </span>
+            </button>
+          )
         ) : (
-          <img src={active.url} alt="" className="bb-social-feed-media-img" />
+          <img
+            key={`image-${index}-${active.url}`}
+            src={active.url}
+            alt=""
+            className="bb-social-feed-media-img"
+          />
         )}
 
         {multi ? (

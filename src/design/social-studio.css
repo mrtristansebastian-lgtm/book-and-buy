@@ -4,8 +4,45 @@
   display: grid;
   gap: 1.35rem;
   width: 100%;
-  max-width: 56rem;
+  max-width: none;
   min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .bb-social-studio {
+    gap: 1.55rem;
+  }
+
+  .bb-social-studio-create {
+    padding: 1.2rem 1.35rem 1.3rem;
+  }
+
+  .bb-social-studio-create-actions {
+    gap: 0.85rem;
+  }
+
+  .bb-social-studio-create-btn {
+    padding: 1rem 1.05rem;
+  }
+
+  .bb-social-library-surface--live {
+    padding-top: 0.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-social-studio .bb-social-ig-grid,
+  .bb-social-studio .bb-social-post-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .bb-social-studio .bb-social-ig-grid,
+  .bb-social-studio .bb-social-post-cards {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 .bb-social-studio-header {
@@ -798,6 +835,11 @@
   padding-bottom: 0.65rem;
 }
 
+.bb-social-studio .bb-yt-watch {
+  width: 100%;
+  margin-inline: 0;
+}
+
 .bb-social-library-empty {
   display: grid;
   gap: 0.85rem;
@@ -1095,16 +1137,22 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
   .bb-blog-preview-media--portrait {
     max-width: 12rem;
   }
+
+  .bb-social-studio-create-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
   .bb-social-studio {
     max-width: none;
     padding-bottom: 0.5rem;
+    gap: 1.05rem;
   }
 
   .bb-social-studio-header {
     padding-inline: 0;
+    top: 0;
   }
 
   .bb-social-studio-header-row {
@@ -1118,11 +1166,27 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
   }
 
   .bb-social-studio-create {
-    padding: 0.95rem;
+    padding: 0.9rem;
+    border-radius: 1rem;
+  }
+
+  .bb-social-studio-create-lede {
+    max-width: none;
+    font-size: 0.78rem;
   }
 
   .bb-social-studio-create-actions {
     grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .bb-social-studio-create-btn {
+    padding: 0.8rem 0.85rem;
+    border-radius: 0.85rem;
+  }
+
+  .bb-social-studio-create-btn-copy span {
+    font-size: 0.68rem;
   }
 
   .bb-social-studio-sheet-panel--composer {
@@ -1139,6 +1203,11 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
   .bb-social-library-tabs {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .bb-social-library-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .bb-social-ig-grid {
@@ -1168,6 +1237,24 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
   .bb-social-video-tile-edit,
   .bb-social-article-tile-edit {
     justify-self: start;
+  }
+
+  .bb-composer-video-trim-workspace .bb-composer-video-stage {
+    max-width: 100%;
+  }
+
+  .bb-composer-video-trim-workspace .bb-composer-arrange-video,
+  .bb-composer-video-trim-workspace .bb-composer-video-stage video {
+    max-height: min(42vh, 20rem);
+  }
+
+  .bb-composer-edit--video {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .bb-composer-edit-copy {
+    gap: 0.75rem;
   }
 }
 
@@ -1404,7 +1491,7 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
   display: grid;
   gap: 0.65rem;
   width: 100%;
-  max-width: 42rem;
+  max-width: min(100%, 48rem);
   margin-inline: auto;
   padding: 0.85rem 0.95rem 0.9rem;
   border-radius: 1.05rem;
@@ -2036,6 +2123,7 @@ html[data-theme='dark'] .bb-clip-trimmer-tick em {
 }
 
 .bb-composer-cover-preview {
+  position: relative;
   width: fit-content;
   max-width: 100%;
   border-radius: 1rem;
@@ -2052,6 +2140,148 @@ html[data-theme='dark'] .bb-clip-trimmer-tick em {
   max-height: min(42vh, 22rem);
   object-fit: contain;
   background: #000;
+}
+
+.bb-composer-cover-set {
+  position: absolute;
+  left: 50%;
+  bottom: 0.7rem;
+  z-index: 3;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 720;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
+}
+
+.bb-composer-cover-set:hover,
+.bb-composer-cover-set:focus-visible {
+  background: rgba(15, 118, 110, 0.92);
+  outline: none;
+}
+
+.bb-composer-cover-set:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.bb-composer-cover-set-inline {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bb-composer-video-trim-workspace {
+  gap: 0.9rem;
+}
+
+.bb-composer-video-trim-workspace .bb-composer-video-stage {
+  width: 100%;
+  max-width: min(100%, 40rem);
+  margin-inline: auto;
+}
+
+.bb-composer-video-trim-workspace .bb-composer-arrange-video,
+.bb-composer-video-trim-workspace .bb-composer-video-stage video {
+  width: 100%;
+  height: auto;
+  max-height: min(52vh, 28rem);
+  object-fit: contain;
+  background: #000;
+}
+
+.bb-cover-picker-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.bb-cover-picker-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.52);
+  cursor: pointer;
+}
+
+.bb-cover-picker-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 32rem);
+  max-height: min(92vh, 44rem);
+  overflow: auto;
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 1.05rem 1.15rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.bb-cover-picker-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bb-cover-picker-eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-cover-picker-title {
+  margin: 0.15rem 0 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-cover-picker-close {
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.bb-cover-picker-body {
+  min-width: 0;
+}
+
+html[data-theme='dark'] .bb-cover-picker-panel {
+  background: #1a1a1a !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] .bb-cover-picker-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-cover-picker-eyebrow {
+  color: var(--bb-muted) !important;
 }
 
 .bb-composer-cover-picks {

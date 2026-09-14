@@ -82,6 +82,8 @@ function VideoWatchPage({
             poster={post.posterUrl || ''}
             title={post.title || 'Video'}
             aspectRatio={Number(post.aspectRatio) || 0}
+            trimStart={Number(post.trimStart) || 0}
+            trimEnd={Number(post.trimEnd) || 0}
           />
         ) : (
           <div className="bb-social-video-player bb-social-video-player--empty">
@@ -91,49 +93,61 @@ function VideoWatchPage({
       </div>
 
       <div className="bb-yt-watch-body">
-        <div className="bb-yt-watch-head">
-          <EditableText
-            as="h1"
-            className="bb-yt-watch-title"
-            editMode={editMode}
-            value={post.title || ''}
-            placeholder="Title"
-            onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-          />
-          {showOwnerStats ? (
-            <p className="bb-yt-watch-stats">{viewsLabel(post.viewCount)}</p>
+        <div className="bb-yt-watch-primary">
+          <div className="bb-yt-watch-head">
+            <EditableText
+              as="h1"
+              className="bb-yt-watch-title"
+              editMode={editMode}
+              value={post.title || ''}
+              placeholder="Title"
+              onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
+            />
+            <div className="bb-yt-watch-facts">
+              {showOwnerStats ? (
+                <span className="bb-yt-watch-stats">{viewsLabel(post.viewCount)}</span>
+              ) : null}
+              {post.duration ? (
+                <span className="bb-yt-watch-chip">{post.duration}</span>
+              ) : null}
+              {formatNoteStamp(post.createdAt) ? (
+                <span className="bb-yt-watch-chip">{formatNoteStamp(post.createdAt)}</span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="bb-yt-watch-channel">
+            <span className="bb-yt-avatar bb-yt-avatar--watch" aria-hidden="true">
+              {logoUrl ? <img src={logoUrl} alt="" /> : channelInitial(brandName)}
+            </span>
+            <div className="bb-yt-watch-channel-copy">
+              <p className="bb-yt-channel-name">{brandName || 'Business'}</p>
+              <p className="bb-yt-watch-meta">Channel</p>
+            </div>
+          </div>
+
+          {editMode || String(post.caption || '').trim() ? (
+            <div className="bb-yt-watch-desc">
+              <p className="bb-yt-watch-desc-label">Description</p>
+              <EditableText
+                as="p"
+                className="bb-yt-watch-caption"
+                editMode={editMode}
+                multiline
+                value={post.caption || ''}
+                placeholder="Description"
+                onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+              />
+            </div>
           ) : null}
         </div>
 
-        <div className="bb-yt-watch-channel">
-          <span className="bb-yt-avatar bb-yt-avatar--watch" aria-hidden="true">
-            {logoUrl ? <img src={logoUrl} alt="" /> : channelInitial(brandName)}
-          </span>
-          <div className="bb-yt-watch-channel-copy">
-            <p className="bb-yt-channel-name">{brandName || 'Business'}</p>
-            <p className="bb-yt-watch-meta">
-              {[post.duration, formatNoteStamp(post.createdAt)].filter(Boolean).join(' · ')}
-            </p>
-          </div>
-        </div>
-
-        {editMode || String(post.caption || '').trim() ? (
-          <div className="bb-yt-watch-desc">
-            <EditableText
-              as="p"
-              className="bb-yt-watch-caption"
-              editMode={editMode}
-              multiline
-              value={post.caption || ''}
-              placeholder="Description"
-              onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-            />
-          </div>
-        ) : null}
-
         {related.length ? (
-          <section className="bb-yt-related" aria-label="More videos">
-            <h2 className="bb-yt-related-heading">More videos</h2>
+          <aside className="bb-yt-related" aria-label="More videos">
+            <div className="bb-yt-related-head">
+              <h2 className="bb-yt-related-heading">More videos</h2>
+              <span className="bb-yt-related-count">{related.length}</span>
+            </div>
             <div className="bb-yt-related-list">
               {related.map((item) => {
                 const title = String(item.title || '').trim() || 'Untitled video';
@@ -150,6 +164,9 @@ function VideoWatchPage({
                       ) : (
                         <span className="bb-social-video-tile-empty" />
                       )}
+                      <span className="bb-yt-related-play" aria-hidden="true">
+                        <Play size={14} fill="currentColor" strokeWidth={0} />
+                      </span>
                       {item.duration ? (
                         <span className="bb-social-video-tile-duration">{item.duration}</span>
                       ) : null}
@@ -166,7 +183,7 @@ function VideoWatchPage({
                 );
               })}
             </div>
-          </section>
+          </aside>
         ) : null}
       </div>
     </div>

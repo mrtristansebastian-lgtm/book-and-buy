@@ -363,6 +363,12 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   }
 }
 
+@media (min-width: 1280px) {
+  .bb-owner-main {
+    padding: 1.85rem 2.25rem 2rem;
+  }
+}
+
 .bb-owner-main.is-flush {
   padding: 0;
   display: flex;

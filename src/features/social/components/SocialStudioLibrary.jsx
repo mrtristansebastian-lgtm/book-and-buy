@@ -8,7 +8,7 @@ import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
 
 /**
- * Studio library — mirrors the live public Content layouts with Edit on each item.
+ * Studio library — mirrors the live public Social layouts with Edit on each item.
  * Photo posts open into an Instagram-style scrollable feed (not a lightbox).
  */
 export function SocialStudioLibrary({
@@ -63,7 +63,7 @@ export function SocialStudioLibrary({
     <section className={`bb-social-library${items.length ? '' : ' is-empty'}`}>
       <header className="bb-social-library-head">
         <div className="bb-social-library-head-copy">
-          <p className="bb-social-library-eyebrow">On your live Content page</p>
+          <p className="bb-social-library-eyebrow">On your live Social page</p>
           <h2 className="bb-social-library-title">{label}</h2>
         </div>
         {items.length ? (

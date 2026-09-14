@@ -9,18 +9,40 @@ function formatClock(seconds) {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+function resolveClip(trimStart, trimEnd, fullDuration) {
+  const start = Math.max(0, Number(trimStart) || 0);
+  const endRaw = Number(trimEnd) || 0;
+  const end =
+    endRaw > start + 0.05
+      ? endRaw
+      : Number.isFinite(fullDuration) && fullDuration > start
+        ? fullDuration
+        : 0;
+  const active = end > start + 0.05;
+  return {
+    start,
+    end: active ? end : 0,
+    active,
+    length: active ? end - start : Math.max(0, fullDuration || 0)
+  };
+}
+
 /**
- * In-house Business Platforms video player — play, timeline, volume, fullscreen.
+ * In-house E-Business Platform video player — play, timeline, volume, fullscreen.
+ * When trimStart/trimEnd are set, playback and seeking stay inside that clip.
  */
 export function BbVideoPlayer({
   src = '',
   poster = '',
   className = '',
   title = 'Video',
-  aspectRatio = 0
+  aspectRatio = 0,
+  trimStart = 0,
+  trimEnd = 0
 }) {
   const rootRef = useRef(null);
   const videoRef = useRef(null);
+  const clipRef = useRef({ start: 0, end: 0, active: false, length: 0 });
   const [playing, setPlaying] = useState(false);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -34,23 +56,60 @@ export function BbVideoPlayer({
 
   useEffect(() => {
     setDetectedAspect(0);
-  }, [src]);
+    setCurrent(0);
+    setDuration(0);
+    setBuffered(0);
+    setPlaying(false);
+  }, [src, trimStart, trimEnd]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return undefined;
 
-    const onTime = () => setCurrent(video.currentTime || 0);
+    const syncClip = (fullDuration) => {
+      const clip = resolveClip(trimStart, trimEnd, fullDuration);
+      clipRef.current = clip;
+      setDuration(clip.length || fullDuration || 0);
+      return clip;
+    };
+
+    const onTime = () => {
+      const clip = clipRef.current;
+      const t = video.currentTime || 0;
+      if (clip.active && t >= clip.end - 0.04) {
+        video.pause();
+        video.currentTime = clip.end;
+        setCurrent(clip.length);
+        setPlaying(false);
+        setControlsVisible(true);
+        return;
+      }
+      if (clip.active && t < clip.start - 0.05) {
+        video.currentTime = clip.start;
+        setCurrent(0);
+        return;
+      }
+      setCurrent(clip.active ? Math.max(0, t - clip.start) : t);
+    };
+
     const onMeta = () => {
-      if (Number.isFinite(video.duration)) setDuration(video.duration);
+      const full = Number.isFinite(video.duration) ? video.duration : 0;
+      const clip = syncClip(full);
       const w = video.videoWidth || 0;
       const h = video.videoHeight || 0;
       if (w > 0 && h > 0) setDetectedAspect(w / h);
+      if (clip.active && Math.abs((video.currentTime || 0) - clip.start) > 0.12) {
+        video.currentTime = clip.start;
+      }
+      setCurrent(0);
     };
+
     const onProgress = () => {
       try {
         if (video.buffered.length > 0) {
-          setBuffered(video.buffered.end(video.buffered.length - 1));
+          const end = video.buffered.end(video.buffered.length - 1);
+          const clip = clipRef.current;
+          setBuffered(clip.active ? Math.max(0, end - clip.start) : end);
         }
       } catch {
         /* ignore */
@@ -61,6 +120,11 @@ export function BbVideoPlayer({
     const onEnded = () => {
       setPlaying(false);
       setControlsVisible(true);
+      const clip = clipRef.current;
+      if (clip.active) {
+        video.currentTime = clip.start;
+        setCurrent(0);
+      }
     };
 
     video.addEventListener('timeupdate', onTime);
@@ -70,6 +134,7 @@ export function BbVideoPlayer({
     video.addEventListener('play', onPlay);
     video.addEventListener('pause', onPause);
     video.addEventListener('ended', onEnded);
+    if (video.readyState >= 1) onMeta();
     return () => {
       video.removeEventListener('timeupdate', onTime);
       video.removeEventListener('loadedmetadata', onMeta);
@@ -79,7 +144,7 @@ export function BbVideoPlayer({
       video.removeEventListener('pause', onPause);
       video.removeEventListener('ended', onEnded);
     };
-  }, [src]);
+  }, [src, trimStart, trimEnd]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -116,6 +181,14 @@ export function BbVideoPlayer({
     if (!video || !src) return;
     showControlsTemporarily();
     if (video.paused) {
+      const clip = clipRef.current;
+      if (clip.active) {
+        const t = video.currentTime || 0;
+        if (t < clip.start - 0.05 || t >= clip.end - 0.05) {
+          video.currentTime = clip.start;
+          setCurrent(0);
+        }
+      }
       try {
         await video.play();
       } catch {
@@ -129,9 +202,10 @@ export function BbVideoPlayer({
   const seekRatio = (ratio) => {
     const video = videoRef.current;
     if (!video || !duration) return;
-    const next = Math.min(1, Math.max(0, ratio)) * duration;
-    video.currentTime = next;
-    setCurrent(next);
+    const clip = clipRef.current;
+    const nextLocal = Math.min(1, Math.max(0, ratio)) * duration;
+    video.currentTime = clip.active ? clip.start + nextLocal : nextLocal;
+    setCurrent(nextLocal);
   };
 
   const onSeekClick = (event) => {

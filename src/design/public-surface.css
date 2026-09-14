@@ -1913,6 +1913,14 @@
   }
 }
 
+@media (min-width: 1400px) {
+  .bb-social-video-grid,
+  .bb-yt-home {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
 .bb-social-video-tile-card,
 .bb-yt-card {
   display: grid;
@@ -2077,40 +2085,50 @@
   gap: 0;
   width: calc(100% + (2 * var(--bb-public-gutter, 1.25rem)));
   margin-inline: calc(-1 * var(--bb-public-gutter, 1.25rem));
-  background: #fff;
+  background:
+    radial-gradient(120% 60% at 50% 0%, rgba(15, 118, 110, 0.05), transparent 55%),
+    #fff;
 }
 
 .bb-yt-watch-bar {
   display: flex;
   align-items: center;
-  padding: 0.45rem var(--bb-public-gutter, 1.25rem);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+  padding: 0.55rem var(--bb-public-gutter, 1.25rem);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
 }
 
 .bb-yt-watch-back {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   border: 0;
-  background: transparent;
-  padding: 0.3rem 0.15rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.04);
+  padding: 0.4rem 0.75rem 0.4rem 0.55rem;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 720;
   letter-spacing: -0.01em;
-  color: #475467;
+  color: #344054;
   cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
 }
 
 .bb-yt-watch-back:hover {
+  background: rgba(15, 23, 42, 0.08);
   color: #101828;
 }
 
 .bb-yt-watch-player {
   width: 100%;
-  max-width: min(100%, 56rem);
+  max-width: min(100%, 72rem);
   margin-inline: auto;
-  background: transparent;
+  background: #0b1220;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
 }
 
 .bb-yt-watch-player-el,
@@ -2123,79 +2141,124 @@
 
 .bb-yt-watch-body {
   display: grid;
+  gap: 1.35rem;
+  width: min(100%, 72rem);
+  margin-inline: auto;
+  padding: 1.15rem var(--bb-public-gutter, 1.25rem) 2rem;
+}
+
+.bb-yt-watch-primary {
+  display: grid;
   gap: 1rem;
-  padding: 1rem var(--bb-public-gutter, 1.25rem) 1.5rem;
+  min-width: 0;
 }
 
 .bb-yt-watch-head {
   display: grid;
-  gap: 0.28rem;
+  gap: 0.55rem;
   min-width: 0;
 }
 
 .bb-yt-watch-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.12rem, 3.6vw, 1.42rem);
+  font-size: clamp(1.2rem, 3.4vw, 1.55rem);
   font-weight: 800;
-  letter-spacing: -0.038em;
-  line-height: 1.22;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
   color: #0b1220;
+}
+
+.bb-yt-watch-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .bb-yt-watch-stats {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.01em;
+  color: #475467;
+}
+
+.bb-yt-watch-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  font-size: 0.72rem;
+  font-weight: 650;
   color: #667085;
+  font-variant-numeric: tabular-nums;
 }
 
 .bb-yt-watch-channel {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.75rem;
+  gap: 0.85rem;
   align-items: center;
-  padding: 0.15rem 0 0.1rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .bb-yt-avatar--watch {
-  width: 2.45rem;
-  height: 2.45rem;
-  font-size: 0.82rem;
+  width: 2.7rem;
+  height: 2.7rem;
+  font-size: 0.88rem;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9);
 }
 
 .bb-yt-watch-channel-copy {
   display: grid;
-  gap: 0.12rem;
+  gap: 0.15rem;
   min-width: 0;
 }
 
 .bb-yt-watch-channel-copy .bb-yt-channel-name {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.92rem;
-  font-weight: 740;
-  letter-spacing: -0.02em;
+  font-size: 0.98rem;
+  font-weight: 760;
+  letter-spacing: -0.025em;
   line-height: 1.2;
   color: #101828;
 }
 
 .bb-yt-watch-meta {
   margin: 0;
-  font-size: 0.76rem;
-  font-weight: 520;
-  letter-spacing: 0.01em;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: #98a2b3;
 }
 
 .bb-yt-watch-desc {
-  margin: 0.1rem 0 0;
-  padding: 0.85rem 0.95rem;
-  border-radius: 0.85rem;
-  background: #f8fafc;
-  border: 1px solid rgba(15, 23, 42, 0.05);
+  margin: 0;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bb-yt-watch-desc-label {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #98a2b3;
 }
 
 .bb-yt-watch-caption {
@@ -2204,7 +2267,7 @@
   border-radius: 0;
   background: transparent;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   line-height: 1.55;
   font-weight: 520;
   letter-spacing: -0.01em;
@@ -2218,37 +2281,72 @@
 
 .bb-yt-related {
   display: grid;
+  gap: 0.85rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+  min-width: 0;
+}
+
+.bb-yt-related-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
-  margin-top: 0.15rem;
 }
 
 .bb-yt-related-heading {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.88rem;
-  font-weight: 760;
-  letter-spacing: -0.02em;
+  font-size: 0.95rem;
+  font-weight: 780;
+  letter-spacing: -0.025em;
   color: #101828;
+}
+
+.bb-yt-related-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.55rem;
+  height: 1.55rem;
+  padding-inline: 0.4rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.1);
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
 }
 
 .bb-yt-related-list {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.55rem;
 }
 
 .bb-yt-related-row {
   display: grid;
-  grid-template-columns: 10.5rem minmax(0, 1fr);
-  gap: 0.65rem;
+  grid-template-columns: 10.75rem minmax(0, 1fr);
+  gap: 0.75rem;
   align-items: start;
   width: 100%;
-  padding: 0;
-  border: 0;
+  padding: 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 0.85rem;
   background: transparent;
   text-align: left;
   cursor: pointer;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.bb-yt-related-row:hover,
+.bb-yt-related-row:focus-visible {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.06);
+  outline: none;
+  transform: translateY(-1px);
 }
 
 .bb-yt-related-thumb {
@@ -2256,9 +2354,10 @@
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 0.55rem;
+  border-radius: 0.65rem;
   overflow: hidden;
   background: #0c0a09;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
 }
 
 .bb-yt-related-thumb img {
@@ -2266,20 +2365,50 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.28s ease;
+}
+
+.bb-yt-related-row:hover .bb-yt-related-thumb img {
+  transform: scale(1.04);
+}
+
+.bb-yt-related-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.55);
+  color: #fff;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.92);
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+  pointer-events: none;
+}
+
+.bb-yt-related-row:hover .bb-yt-related-play {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .bb-yt-related-copy {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.28rem;
   min-width: 0;
-  padding-top: 0.1rem;
+  padding-top: 0.15rem;
 }
 
 .bb-yt-related-copy strong {
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.86rem;
-  font-weight: 720;
-  letter-spacing: -0.02em;
+  font-size: 0.9rem;
+  font-weight: 740;
+  letter-spacing: -0.025em;
   line-height: 1.3;
   color: #0f172a;
   display: -webkit-box;
@@ -2288,10 +2417,34 @@
   overflow: hidden;
 }
 
-.bb-yt-related-copy span {
+.bb-yt-related-copy span,
+.bb-yt-related-copy .bb-yt-subline {
   font-size: 0.74rem;
-  font-weight: 520;
+  font-weight: 560;
   color: #667085;
+  line-height: 1.35;
+}
+
+@media (min-width: 960px) {
+  .bb-yt-watch-body {
+    grid-template-columns: minmax(0, 1fr) minmax(17rem, 22rem);
+    align-items: start;
+    gap: 1.5rem;
+    width: min(100%, 78rem);
+    padding-top: 1.35rem;
+  }
+
+  .bb-yt-related {
+    border-top: 0;
+    padding-top: 0.15rem;
+    position: sticky;
+    top: 0.75rem;
+  }
+
+  .bb-yt-related-row {
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: 0.65rem;
+  }
 }
 
 @media (max-width: 419px) {
@@ -2337,8 +2490,14 @@
 .bb-social-feed {
   display: grid;
   gap: 0.85rem;
-  width: min(100%, 28rem);
+  width: min(100%, 32rem);
   margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .bb-social-feed {
+    width: min(100%, 36rem);
+  }
 }
 
 .bb-social-feed-toolbar {
@@ -2538,6 +2697,45 @@
 
 .bb-social-feed-carousel {
   width: 100%;
+}
+
+.bb-social-feed-video-still {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: #0b0b0b;
+  cursor: pointer;
+}
+
+.bb-social-feed-video-still .bb-social-feed-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bb-social-feed-video-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: 3.1rem;
+  height: 3.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.55);
+  color: #fff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+  pointer-events: none;
+}
+
+.bb-social-feed-video-still:hover .bb-social-feed-video-play,
+.bb-social-feed-video-still:focus-visible .bb-social-feed-video-play {
+  background: rgba(15, 118, 110, 0.88);
 }
 
 .bb-social-feed-carousel-nav {

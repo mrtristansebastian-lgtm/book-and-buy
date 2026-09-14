@@ -43,7 +43,16 @@ export function getPostMediaItems(post) {
       .map((item) => {
         const url = String(item?.url || '').trim();
         if (!url) return null;
-        const kind = item?.kind === 'video' ? 'video' : 'image';
+        const rawKind = item?.kind === 'video' ? 'video' : 'image';
+        const lower = url.toLowerCase();
+        const looksImage =
+          lower.startsWith('data:image/') ||
+          /\.(avif|gif|heic|jpe?g|png|webp)(\?|#|$)/i.test(lower);
+        const looksVideo =
+          lower.startsWith('data:video/') ||
+          /\.(m4v|mov|mp4|ogv|webm)(\?|#|$)/i.test(lower);
+        const kind =
+          rawKind === 'video' && looksImage && !looksVideo ? 'image' : rawKind;
         return {
           kind,
           url,

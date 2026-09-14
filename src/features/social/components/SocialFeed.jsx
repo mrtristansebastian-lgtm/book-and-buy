@@ -146,7 +146,7 @@ export function SocialFeed({
       <div className="bb-public-measure-wide grid gap-5">
         {embedded || feedOpen ? null : (
           <PublicPageIntro
-            title={website.socialHeadline || 'Content'}
+            title={website.socialHeadline || 'Social'}
             body={website.socialSubtext || ''}
             editMode={editMode}
             titlePlaceholder="Blog title"

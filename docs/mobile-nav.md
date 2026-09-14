@@ -12,7 +12,7 @@ Owner workspace on phones uses a **3-item bottom dock**. There is no top-left ha
 
 ## More menu
 
-Tapping **More** slides up every workspace section (Home, Book, Buy, Business Platforms, Run), including Content, Pages, Schedule, Products, Settings, and Dark mode.
+Tapping **More** slides up every workspace section (Home, Book, Buy, E-Business Platform, Run), including Social, E-Business Platform, Schedule, Products, Settings, and Dark mode.
 
 - Backdrop tap or **X** closes the sheet
 - Choosing any item navigates and closes the sheet

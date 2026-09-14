@@ -161,7 +161,7 @@ export function ReviewsSettingsPage() {
 
         <p className="bb-muted m-0 text-xs">
           Auto-refreshes when this page opens if sync is enabled and the last sync is older than
-          24 hours (or never ran). You can still add curated reviews in Pages edit mode when Google
+          24 hours (or never ran). You can still add curated reviews in E-Business Platform edit mode when Google
           sync is off or empty.
         </p>
       </section>
