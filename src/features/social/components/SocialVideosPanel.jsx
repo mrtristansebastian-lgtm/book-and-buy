@@ -1,112 +1,184 @@
 import { useEffect, useState } from 'react';
-import { Play, X } from 'lucide-react';
+import { ArrowLeft, Play } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
+import { formatNoteStamp } from '../utils/socialPostType';
 import { BbVideoPlayer } from './BbVideoPlayer';
 
-function VideoWatchLightbox({
+function channelInitial(name = '') {
+  const part = String(name || '').trim().charAt(0);
+  return part ? part.toUpperCase() : 'B';
+}
+
+function formatViewCount(value) {
+  const n = Math.max(0, Math.floor(Number(value) || 0));
+  if (n < 1000) return `${n}`;
+  if (n < 10000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+  if (n < 1000000) return `${Math.round(n / 1000)}K`;
+  return `${(n / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+}
+
+function viewsLabel(value) {
+  const n = Math.max(0, Math.floor(Number(value) || 0));
+  const formatted = formatViewCount(n);
+  return `${formatted} view${n === 1 ? '' : 's'}`;
+}
+
+function VideoMetaLine({
+  brandName,
+  post,
+  showOwnerStats = false
+}) {
+  const stamp = formatNoteStamp(post.createdAt);
+  const parts = [brandName || 'Business'];
+  if (showOwnerStats) parts.push(viewsLabel(post.viewCount));
+  if (stamp) parts.push(stamp);
+  return <span className="bb-yt-subline">{parts.join(' · ')}</span>;
+}
+
+function VideoWatchPage({
   post,
   posts = [],
+  brandName = '',
+  logoUrl = '',
   editMode = false,
+  showOwnerStats = false,
   onClose,
   onChangeActive,
   onUpdateSocialPost
 }) {
-  const index = Math.max(
-    0,
-    posts.findIndex((item) => item.id === post?.id)
-  );
+  const related = posts.filter((item) => item.id !== post?.id);
 
   useEffect(() => {
     const onKey = (event) => {
       if (event.key === 'Escape') onClose?.();
-      if (event.key === 'ArrowLeft' && index > 0) onChangeActive?.(posts[index - 1].id);
-      if (event.key === 'ArrowRight' && index < posts.length - 1) {
-        onChangeActive?.(posts[index + 1].id);
-      }
     };
     window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
     };
-  }, [index, posts, onClose, onChangeActive]);
+  }, [onClose]);
 
   if (!post) return null;
 
   return (
-    <div
-      className="bb-social-lightbox bb-social-lightbox--video"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Video player"
-      onClick={onClose}
-    >
-      <div className="bb-social-lightbox-shell" onClick={(event) => event.stopPropagation()}>
-        <button
-          type="button"
-          className="bb-social-lightbox-close"
-          onClick={onClose}
-          aria-label="Close"
-        >
-          <X size={18} strokeWidth={2.2} />
+    <div className="bb-yt-watch" role="dialog" aria-modal="true" aria-label="Video">
+      <header className="bb-yt-watch-bar">
+        <button type="button" className="bb-yt-watch-back" onClick={onClose} aria-label="Back">
+          <ArrowLeft size={18} strokeWidth={2.2} />
+          <span>Back</span>
         </button>
+      </header>
 
-        <div className="bb-social-lightbox-stage bb-social-lightbox-stage--video">
-          <div className="bb-social-lightbox-video-frame">
-            {post.mediaUrl ? (
-              <BbVideoPlayer
-                key={post.id}
-                className="bb-social-video-player"
-                src={post.mediaUrl}
-                poster={post.posterUrl || ''}
-                title={post.title || 'Video'}
-              />
-            ) : (
-              <div className="bb-social-video-player bb-social-video-player--empty">
-                Video unavailable
-              </div>
-            )}
+      <div className="bb-yt-watch-player">
+        {post.mediaUrl ? (
+          <BbVideoPlayer
+            key={post.id}
+            className="bb-social-video-player bb-yt-watch-player-el"
+            src={post.mediaUrl}
+            poster={post.posterUrl || ''}
+            title={post.title || 'Video'}
+          />
+        ) : (
+          <div className="bb-social-video-player bb-social-video-player--empty">
+            Video unavailable
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className="bb-social-lightbox-copy">
-          <p className="bb-social-lightbox-count">
-            {index + 1} / {posts.length}
-            {post.duration ? ` · ${post.duration}` : ''}
-          </p>
+      <div className="bb-yt-watch-body">
+        <div className="bb-yt-watch-head">
           <EditableText
-            as="h2"
-            className="bb-social-lightbox-title"
+            as="h1"
+            className="bb-yt-watch-title"
             editMode={editMode}
             value={post.title || ''}
             placeholder="Title"
             onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
           />
-          <span className="bb-social-lightbox-mark bb-public-native-fill" aria-hidden="true" />
-          <EditableText
-            as="p"
-            className="bb-social-lightbox-caption"
-            editMode={editMode}
-            multiline
-            value={post.caption || ''}
-            placeholder="Description"
-            onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-          />
+          {showOwnerStats ? (
+            <p className="bb-yt-watch-stats">{viewsLabel(post.viewCount)}</p>
+          ) : null}
         </div>
+
+        <div className="bb-yt-watch-channel">
+          <span className="bb-yt-avatar bb-yt-avatar--watch" aria-hidden="true">
+            {logoUrl ? <img src={logoUrl} alt="" /> : channelInitial(brandName)}
+          </span>
+          <div className="bb-yt-watch-channel-copy">
+            <p className="bb-yt-channel-name">{brandName || 'Business'}</p>
+            <p className="bb-yt-watch-meta">
+              {[post.duration, formatNoteStamp(post.createdAt)].filter(Boolean).join(' · ')}
+            </p>
+          </div>
+        </div>
+
+        {editMode || String(post.caption || '').trim() ? (
+          <div className="bb-yt-watch-desc">
+            <EditableText
+              as="p"
+              className="bb-yt-watch-caption"
+              editMode={editMode}
+              multiline
+              value={post.caption || ''}
+              placeholder="Description"
+              onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+            />
+          </div>
+        ) : null}
+
+        {related.length ? (
+          <section className="bb-yt-related" aria-label="More videos">
+            <h2 className="bb-yt-related-heading">More videos</h2>
+            <div className="bb-yt-related-list">
+              {related.map((item) => {
+                const title = String(item.title || '').trim() || 'Untitled video';
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="bb-yt-related-row"
+                    onClick={() => onChangeActive?.(item.id)}
+                  >
+                    <span className="bb-yt-related-thumb">
+                      {item.posterUrl ? (
+                        <img src={item.posterUrl} alt="" />
+                      ) : (
+                        <span className="bb-social-video-tile-empty" />
+                      )}
+                      {item.duration ? (
+                        <span className="bb-social-video-tile-duration">{item.duration}</span>
+                      ) : null}
+                    </span>
+                    <span className="bb-yt-related-copy">
+                      <strong>{title}</strong>
+                      <VideoMetaLine
+                        brandName={brandName}
+                        post={item}
+                        showOwnerStats={showOwnerStats}
+                      />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
       </div>
     </div>
   );
 }
 
 /**
- * Public videos: equal 16:9 YouTube-style tile grid + watch lightbox.
+ * Public videos: YouTube-style home feed + watch page.
+ * View counts are owner/staff only (hidden on the live public site).
  */
 export function SocialVideosPanel({
   posts,
   editMode = false,
   showPublishToggle = true,
+  showOwnerStats = false,
+  brandName = '',
+  logoUrl = '',
   onUpdateSocialPost,
   onRemoveSocialPost,
   initialActiveId = '',
@@ -141,83 +213,77 @@ export function SocialVideosPanel({
     onCloseVideo?.();
   };
 
+  if (watching) {
+    return (
+      <VideoWatchPage
+        post={watching}
+        posts={posts}
+        brandName={brandName}
+        logoUrl={logoUrl}
+        editMode={editMode}
+        showOwnerStats={showOwnerStats}
+        onClose={closeWatch}
+        onChangeActive={openWatch}
+        onUpdateSocialPost={onUpdateSocialPost}
+      />
+    );
+  }
+
   return (
-    <>
-      <div className="bb-social-video-grid" role="list">
-        {posts.map((post) => {
-          const title = String(post.title || '').trim() || 'Untitled video';
-          const thumb = post.posterUrl || '';
+    <div className="bb-social-video-grid bb-yt-home" role="list">
+      {posts.map((post) => {
+        const title = String(post.title || '').trim() || 'Untitled video';
+        const thumb = post.posterUrl || '';
 
-          return (
-            <article key={post.id} className="bb-social-video-tile-card" role="listitem">
-              {editMode && showPublishToggle && post.published === false ? (
-                <div className="bb-social-post-card-meta">
-                  <span className="bb-edit-section-badge">Draft</span>
-                </div>
-              ) : null}
+        return (
+          <article key={post.id} className="bb-social-video-tile-card bb-yt-card" role="listitem">
+            {editMode && showPublishToggle && post.published === false ? (
+              <div className="bb-social-post-card-meta bb-yt-draft">
+                <span className="bb-edit-section-badge">Draft</span>
+              </div>
+            ) : null}
 
-              <button
-                type="button"
-                className="bb-social-video-tile-hit"
-                onClick={() => openWatch(post.id)}
-                aria-label={`Play ${title}`}
-              >
-                <span className="bb-social-video-tile-media">
-                  {thumb ? <img src={thumb} alt="" /> : <span className="bb-social-video-tile-empty" />}
-                  <span className="bb-social-video-tile-play" aria-hidden="true">
-                    <Play size={22} strokeWidth={2.4} fill="currentColor" />
-                  </span>
-                  {post.duration ? (
-                    <span className="bb-social-video-tile-duration">{post.duration}</span>
-                  ) : null}
+            <button
+              type="button"
+              className="bb-social-video-tile-hit bb-yt-hit"
+              onClick={() => openWatch(post.id)}
+              aria-label={`Play ${title}`}
+            >
+              <span className="bb-social-video-tile-media bb-yt-thumb">
+                {thumb ? <img src={thumb} alt="" /> : <span className="bb-social-video-tile-empty" />}
+                <span className="bb-social-video-tile-play" aria-hidden="true">
+                  <Play size={22} strokeWidth={2.4} fill="currentColor" />
                 </span>
-                <span className="bb-social-video-tile-copy">
-                  <strong className="bb-social-video-tile-title">{title}</strong>
-                  {post.caption ? (
-                    <span className="bb-social-video-tile-caption">{post.caption}</span>
-                  ) : null}
-                </span>
-              </button>
+              </span>
+            </button>
 
-              {editMode ? (
-                <div className="bb-social-edit-actions">
-                  {showPublishToggle ? (
-                    <button
-                      type="button"
-                      className="bb-ghost-btn py-1 px-2.5 text-xs"
-                      onClick={() =>
-                        onUpdateSocialPost?.(post.id, { published: post.published === false })
-                      }
-                    >
-                      {post.published !== false ? 'Unpublish' : 'Publish'}
-                    </button>
-                  ) : null}
-                  {onRemoveSocialPost ? (
-                    <button
-                      type="button"
-                      className="bb-ghost-btn py-1 px-2.5 text-xs"
-                      onClick={() => onRemoveSocialPost(post.id)}
-                    >
-                      Delete
-                    </button>
-                  ) : null}
-                </div>
-              ) : null}
-            </article>
-          );
-        })}
-      </div>
-
-      {watching ? (
-        <VideoWatchLightbox
-          post={watching}
-          posts={posts}
-          editMode={editMode}
-          onClose={closeWatch}
-          onChangeActive={openWatch}
-          onUpdateSocialPost={onUpdateSocialPost}
-        />
-      ) : null}
-    </>
+            {editMode ? (
+              <div className="bb-social-edit-actions">
+                {showPublishToggle ? (
+                  <button
+                    type="button"
+                    className="bb-ghost-btn py-1 px-2.5 text-xs"
+                    onClick={() =>
+                      onUpdateSocialPost?.(post.id, { published: post.published === false })
+                    }
+                  >
+                    {post.published !== false ? 'Unpublish' : 'Publish'}
+                  </button>
+                ) : null}
+                {onRemoveSocialPost ? (
+                  <button
+                    type="button"
+                    className="bb-ghost-btn py-1 px-2.5 text-xs"
+                    onClick={() => onRemoveSocialPost(post.id)}
+                  >
+                    Delete
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+          </article>
+        );
+      })}
+    </div>
   );
 }

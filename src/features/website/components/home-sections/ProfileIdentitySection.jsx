@@ -81,32 +81,32 @@ export function ProfileIdentitySection({
             {showMeta ? (
               <div className="bb-public-profile-meta">
                 {showCategory ? (
-                  <EditableText
-                    as="span"
-                    className="bb-public-profile-category"
-                    editMode={editMode}
-                    value={category}
-                    placeholder="Category"
-                    onChange={(value) => patchWebsite({ profileCategory: value })}
-                  />
-                ) : null}
-                {showCategory && showLocation ? (
-                  <span className="bb-public-profile-meta-dot" aria-hidden="true">
-                    ·
+                  <span className="bb-public-profile-chip bb-public-profile-chip--category">
+                    <EditableText
+                      as="span"
+                      className="bb-public-profile-category"
+                      editMode={editMode}
+                      value={category}
+                      placeholder="Category"
+                      onChange={(value) => patchWebsite({ profileCategory: value })}
+                    />
                   </span>
                 ) : null}
                 {showLocation ? (
-                  <EditableText
-                    as="span"
-                    className="bb-public-profile-location"
-                    editMode={editMode}
-                    value={
-                      website.profileLocation ||
-                      (editMode ? '' : location)
-                    }
-                    placeholder="Location"
-                    onChange={(value) => patchWebsite({ profileLocation: value })}
-                  />
+                  <span className="bb-public-profile-chip bb-public-profile-chip--location">
+                    <span className="bb-public-profile-chip-icon" aria-hidden="true" />
+                    <EditableText
+                      as="span"
+                      className="bb-public-profile-location"
+                      editMode={editMode}
+                      value={
+                        website.profileLocation ||
+                        (editMode ? '' : location)
+                      }
+                      placeholder="Location"
+                      onChange={(value) => patchWebsite({ profileLocation: value })}
+                    />
+                  </span>
                 ) : null}
               </div>
             ) : null}

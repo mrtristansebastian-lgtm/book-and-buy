@@ -1,5 +1,6 @@
 /**
- * Photo posts: equal square tile grid — click opens lightbox detail.
+ * Photo posts: Instagram-style flush 3-column image grid.
+ * Click opens lightbox detail.
  */
 export function SocialPostsGrid({
   posts,
@@ -20,26 +21,26 @@ export function SocialPostsGrid({
   }
 
   return (
-    <div className="bb-social-post-cards" role="list">
+    <div className="bb-social-post-cards bb-social-ig-grid" role="list">
       {posts.map((post) => {
         const src = post.mediaUrl || '';
         const title = String(post.title || '').trim() || 'Untitled post';
 
         return (
-          <article key={post.id} className="bb-social-post-card" role="listitem">
+          <article key={post.id} className="bb-social-post-card bb-social-ig-cell" role="listitem">
             {editMode && showPublishToggle && post.published === false ? (
-              <div className="bb-social-post-card-meta">
+              <div className="bb-social-post-card-meta bb-social-ig-draft">
                 <span className="bb-edit-section-badge">Draft</span>
               </div>
             ) : null}
 
             <button
               type="button"
-              className="bb-social-square-tile"
+              className="bb-social-square-tile bb-social-ig-tile"
               onClick={() => onOpenPost?.(post.id)}
               aria-label={`View ${title}`}
             >
-              <span className="bb-social-square-tile-media">
+              <span className="bb-social-square-tile-media bb-social-ig-media">
                 {src ? (
                   <img src={src} alt="" className="bb-social-square-tile-img" />
                 ) : (
@@ -48,11 +49,10 @@ export function SocialPostsGrid({
                   </span>
                 )}
               </span>
-              <span className="bb-social-square-tile-title">{title}</span>
             </button>
 
             {editMode ? (
-              <div className="bb-social-edit-actions">
+              <div className="bb-social-edit-actions bb-social-ig-actions">
                 {showPublishToggle ? (
                   <button
                     type="button"

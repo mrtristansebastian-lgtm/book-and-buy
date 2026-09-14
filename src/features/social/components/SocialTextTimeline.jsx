@@ -1,20 +1,5 @@
 import { EditableText } from '../../website/components/editable';
-
-function formatStamp(createdAt) {
-  const ts = Number(createdAt) || 0;
-  if (!ts) return { date: '', time: '', label: '' };
-  const d = new Date(ts);
-  const date = d.toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric'
-  });
-  const time = d.toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit'
-  });
-  return { date, time, label: `${date} · ${time}` };
-}
+import { formatNoteStamp } from '../utils/socialPostType';
 
 /**
  * Editorial note timeline — reading column with centred hairline separators.
@@ -37,16 +22,16 @@ export function SocialTextTimeline({
   return (
     <div className="bb-social-notes">
       {posts.map((post) => {
-        const stamp = formatStamp(post.createdAt);
+        const stamp = formatNoteStamp(post.createdAt);
         return (
           <article key={post.id} className="bb-social-note">
             <header className="bb-social-note-meta">
-              {stamp.label ? (
+              {stamp ? (
                 <time
                   className="bb-social-note-stamp"
                   dateTime={new Date(post.createdAt).toISOString()}
                 >
-                  {stamp.label}
+                  {stamp}
                 </time>
               ) : null}
               <span className="bb-social-note-mark bb-public-native-fill" aria-hidden="true" />

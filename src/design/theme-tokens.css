@@ -1,0 +1,54 @@
+/**
+ * Semantic color tokens — light defaults, dark overrides via html[data-theme="dark"].
+ * Prefer these over hardcoded hex for shared surfaces and text.
+ */
+
+:root {
+  color-scheme: light;
+
+  --bb-bg: #fbfbfb;
+  --bb-surface: #ffffff;
+  --bb-surface-2: #f4f6f8;
+  --bb-panel: #ffffff;
+  --bb-ink: #101828;
+  --bb-ink-strong: #050505;
+  --bb-muted: #667085;
+  --bb-faint: #98a2b3;
+  --bb-border: rgba(15, 23, 42, 0.08);
+  --bb-border-strong: rgba(15, 23, 42, 0.14);
+  --bb-sidebar-bg: rgba(255, 255, 255, 0.92);
+  --bb-rail-bg: rgba(255, 255, 255, 0.96);
+  --bb-overlay: rgba(15, 23, 42, 0.4);
+  --bb-segment-bg: #eef0f3;
+  --bb-shell-glow-a: rgba(185, 227, 255, 0.35);
+  --bb-shell-glow-b: rgba(255, 212, 242, 0.28);
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bb-bg: #0b0f14;
+  --bb-surface: #12171e;
+  --bb-surface-2: #1a222d;
+  --bb-panel: #151b24;
+  --bb-ink: #f2f4f7;
+  --bb-ink-strong: #ffffff;
+  --bb-muted: #98a2b3;
+  --bb-faint: #667085;
+  --bb-border: rgba(255, 255, 255, 0.08);
+  --bb-border-strong: rgba(255, 255, 255, 0.14);
+  --bb-sidebar-bg: rgba(12, 16, 22, 0.96);
+  --bb-rail-bg: rgba(15, 20, 28, 0.96);
+  --bb-overlay: rgba(0, 0, 0, 0.55);
+  --bb-segment-bg: #1a222d;
+  --bb-shell-glow-a: rgba(20, 167, 255, 0.12);
+  --bb-shell-glow-b: rgba(117, 92, 255, 0.1);
+
+  --app-control-bg: #1a222d;
+  --app-control-bg-focus: #1f2833;
+  --app-control-border: rgba(255, 255, 255, 0.12);
+  --app-control-text: #f2f4f7;
+  --app-control-placeholder: #7d8594;
+  --app-control-icon: #98a2b3;
+  --app-control-chevron: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2398a2b3' stroke-width='2.35' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}

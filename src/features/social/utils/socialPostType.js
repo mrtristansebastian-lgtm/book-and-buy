@@ -36,19 +36,25 @@ export function formatSocialTime(createdAt) {
   return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-export function formatPostStamp(createdAt) {
+/** Same stamp as text updates: "Wed, Mar 12 · 3:45 PM" */
+export function formatNoteStamp(createdAt) {
   const ts = Number(createdAt) || 0;
-  if (!ts) return 'No date';
+  if (!ts) return '';
   const d = new Date(ts);
   const date = d.toLocaleDateString(undefined, {
     weekday: 'short',
     month: 'short',
-    day: 'numeric',
-    year: 'numeric'
+    day: 'numeric'
   });
   const time = d.toLocaleTimeString(undefined, {
     hour: 'numeric',
     minute: '2-digit'
   });
   return `${date} · ${time}`;
+}
+
+export function formatPostStamp(createdAt) {
+  const ts = Number(createdAt) || 0;
+  if (!ts) return 'No date';
+  return formatNoteStamp(ts) || 'No date';
 }

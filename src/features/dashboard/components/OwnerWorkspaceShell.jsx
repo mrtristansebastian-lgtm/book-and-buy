@@ -9,9 +9,11 @@ import {
   Inbox,
   Menu,
   MessageSquare,
+  Moon,
   Package,
   Boxes,
   Share2,
+  Sun,
   Users,
   Settings,
   Globe2,
@@ -27,6 +29,10 @@ import {
 } from '../../../config/routeConfig';
 import { APP_NAME } from '../../../config/appConfig';
 import { navigate } from '../../../app/routing';
+import {
+  getColorScheme,
+  toggleColorScheme
+} from '../../../shared/theme/colorScheme';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
 const ICONS = {
@@ -59,6 +65,7 @@ function groupTabs() {
 export function OwnerWorkspaceShell({ tab, children }) {
   const groups = groupTabs();
   const [navOpen, setNavOpen] = useState(false);
+  const [colorScheme, setColorSchemeState] = useState(() => getColorScheme());
   const { workspace, threads, bookings, orders, exitDemoMode, resetDemoWorkspace, startOwnerOnboarding } =
     useWorkspace();
   const unreadSupport = (threads || []).filter((thread) => thread.unread).length;
@@ -78,9 +85,13 @@ export function OwnerWorkspaceShell({ tab, children }) {
     const onKey = (event) => {
       if (event.key === 'Escape') setNavOpen(false);
     };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [navOpen]);
+
+  const onToggleTheme = () => {
+    setColorSchemeState(toggleColorScheme());
+  };
 
   const badgeFor = (id) => {
     if (id === 'communications' && unreadSupport > 0) return unreadSupport;
@@ -165,7 +176,7 @@ export function OwnerWorkspaceShell({ tab, children }) {
           <nav className="bb-owner-sidebar-nav grid gap-4">
             {Object.entries(groups).map(([groupId, tabs]) => (
               <div key={groupId} className="grid gap-1">
-                <div className="px-2 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-black/35">
+                <div className="bb-owner-nav-group-label">
                   {workspaceGroupLabels[groupId]}
                 </div>
                 {tabs.map((id) => {
@@ -191,6 +202,23 @@ export function OwnerWorkspaceShell({ tab, children }) {
               </div>
             ))}
           </nav>
+
+          <button
+            type="button"
+            className="bb-owner-theme-toggle"
+            onClick={onToggleTheme}
+            aria-pressed={colorScheme === 'dark'}
+          >
+            {colorScheme === 'dark' ? (
+              <Sun size={17} strokeWidth={2.2} aria-hidden />
+            ) : (
+              <Moon size={17} strokeWidth={2.2} aria-hidden />
+            )}
+            <span className="bb-owner-theme-toggle-label">Dark mode</span>
+            <span className="bb-owner-theme-toggle-state">
+              {colorScheme === 'dark' ? 'On' : 'Off'}
+            </span>
+          </button>
         </aside>
 
         <div className="bb-owner-content">

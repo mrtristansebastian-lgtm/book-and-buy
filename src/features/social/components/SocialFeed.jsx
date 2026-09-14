@@ -27,6 +27,7 @@ export function SocialFeed({
   editMode = false,
   showDrafts = false,
   embedded = false,
+  publicMode = false,
   onUpdateWebsite,
   onUpdateSocialPost,
   onAddSocialPost
@@ -181,6 +182,9 @@ export function SocialFeed({
           <SocialVideosPanel
             posts={tabPosts}
             editMode={editMode}
+            showOwnerStats={!publicMode}
+            brandName={workspace.brandName || ''}
+            logoUrl={website.logoUrl || ''}
             onUpdateSocialPost={onUpdateSocialPost}
             initialActiveId={routeKind === 'video' ? routePostId : ''}
             onOpenVideo={openVideo}

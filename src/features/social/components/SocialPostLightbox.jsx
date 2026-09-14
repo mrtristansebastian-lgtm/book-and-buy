@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
+import { formatNoteStamp } from '../utils/socialPostType';
 
 /**
  * Full-image lightbox — dark gallery stage with slim copy band.
@@ -19,6 +20,7 @@ export function SocialPostLightbox({
   );
   const post = posts[index] || null;
   const dialogRef = useRef(null);
+  const stamp = post ? formatNoteStamp(post.createdAt) : '';
 
   useEffect(() => {
     const onKey = (event) => {
@@ -99,9 +101,19 @@ export function SocialPostLightbox({
         </div>
 
         <div className="bb-social-lightbox-copy">
-          <p className="bb-social-lightbox-count">
-            {index + 1} / {posts.length}
-          </p>
+          <div className="bb-social-lightbox-meta">
+            {stamp ? (
+              <time
+                className="bb-social-lightbox-stamp"
+                dateTime={new Date(post.createdAt).toISOString()}
+              >
+                {stamp}
+              </time>
+            ) : null}
+            <p className="bb-social-lightbox-count">
+              {index + 1} / {posts.length}
+            </p>
+          </div>
           <EditableText
             as="h2"
             className="bb-social-lightbox-title"

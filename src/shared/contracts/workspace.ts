@@ -259,6 +259,8 @@ export interface SocialPost {
   caption?: string;
   title?: string;
   duration?: string;
+  /** Owner/staff analytics only — omitted from public snapshot. */
+  viewCount?: number;
   published?: boolean;
   createdAt?: number;
   order?: number;

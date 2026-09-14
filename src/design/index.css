@@ -1,3 +1,4 @@
+@import './theme-tokens.css';
 @import './native-accent-system.css';
 @import './native-gradient-primitives.css';
 @import './native-motion-keyframes.css';
@@ -19,6 +20,7 @@
 @import './date-field.css';
 @import './sort-field.css';
 @import './image-crop.css';
+@import './theme-dark.css';
 
 @tailwind base;
 @tailwind components;
@@ -33,8 +35,8 @@ body,
 body {
   margin: 0;
   font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
-  color: #101828;
-  background: #fbfbfb;
+  color: var(--bb-ink);
+  background: var(--bb-bg);
   -webkit-font-smoothing: antialiased;
 }
 

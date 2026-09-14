@@ -1134,6 +1134,7 @@ export function createDemoWorkspace() {
         title: 'Rolling dough on pastry island',
         caption: 'A quiet look at how we start laminated pastry mornings.',
         duration: '0:15',
+        viewCount: 12840,
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 12,
         order: 0
@@ -1146,6 +1147,7 @@ export function createDemoWorkspace() {
         title: 'Loaves into the oven',
         caption: 'Steam, score, bake — the Friday rhythm.',
         duration: '0:15',
+        viewCount: 9320,
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 36,
         order: 1
@@ -1158,6 +1160,7 @@ export function createDemoWorkspace() {
         title: 'Class walkthrough',
         caption: 'What to expect when you book a hands-on session.',
         duration: '0:15',
+        viewCount: 21450,
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 72,
         order: 2

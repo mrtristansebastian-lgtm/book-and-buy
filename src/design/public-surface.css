@@ -1217,32 +1217,22 @@
   letter-spacing: 0.02em;
 }
 
-/* Posts — equal square tile grid */
-.bb-social-post-cards {
+/* Posts — Instagram flush 3-column image grid */
+.bb-social-post-cards,
+.bb-social-ig-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.1rem 0.85rem;
+  gap: 2px;
+  width: 100%;
 }
 
-@media (max-width: 900px) {
-  .bb-social-post-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.95rem 0.7rem;
-  }
-}
-
-@media (max-width: 419px) {
-  .bb-social-post-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem 0.55rem;
-  }
-}
-
-.bb-social-post-card {
+.bb-social-post-card,
+.bb-social-ig-cell {
   display: grid;
-  gap: 0.4rem;
+  gap: 0;
   min-width: 0;
   align-content: start;
+  position: relative;
 }
 
 .bb-social-post-card-meta {
@@ -1250,9 +1240,17 @@
   justify-content: flex-start;
 }
 
-.bb-social-square-tile {
-  display: grid;
-  gap: 0.45rem;
+.bb-social-ig-draft {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.bb-social-square-tile,
+.bb-social-ig-tile {
+  display: block;
   width: 100%;
   min-width: 0;
   padding: 0;
@@ -1264,26 +1262,30 @@
   -webkit-appearance: none;
 }
 
-.bb-social-square-tile:focus-visible .bb-social-square-tile-media {
+.bb-social-square-tile:focus-visible .bb-social-square-tile-media,
+.bb-social-ig-tile:focus-visible .bb-social-ig-media {
   outline: 2px solid #101828;
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
-.bb-social-square-tile-media {
+.bb-social-square-tile-media,
+.bb-social-ig-media {
   display: block;
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 0.65rem;
+  border-radius: 0;
   overflow: hidden;
-  background: #f2f4f7;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  background: #eef2f6;
+  border: 0;
+  box-shadow: none;
+  transition: filter 0.15s ease;
 }
 
-.bb-social-square-tile:hover .bb-social-square-tile-media {
-  border-color: rgba(15, 23, 42, 0.14);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+.bb-social-square-tile:hover .bb-social-square-tile-media,
+.bb-social-ig-tile:hover .bb-social-ig-media {
+  filter: brightness(0.96);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .bb-social-square-tile-img {
@@ -1291,11 +1293,11 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.45s ease;
+  transition: none;
 }
 
 .bb-social-square-tile:hover .bb-social-square-tile-img {
-  transform: scale(1.04);
+  transform: none;
 }
 
 .bb-social-square-tile-empty {
@@ -1304,23 +1306,22 @@
   display: grid;
   place-items: center;
   color: #98a2b3;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
 }
 
 .bb-social-square-tile-title {
-  display: block;
-  margin: 0;
-  padding: 0 0.1rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.88rem;
-  font-weight: 760;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-  color: #101828;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: none;
+}
+
+.bb-social-ig-actions {
+  padding: 0.35rem 0.2rem 0;
+}
+
+.bb-public-profile .bb-public-social--embedded .bb-social-ig-grid,
+.bb-public-profile .bb-public-social--embedded .bb-social-post-cards {
+  width: calc(100% + (2 * var(--bb-public-gutter, 1.25rem)));
+  margin-inline: calc(-1 * var(--bb-public-gutter, 1.25rem));
 }
 
 /* Legacy card chrome kept for edit/website contexts that still reference it */
@@ -1576,6 +1577,24 @@
   text-align: center;
 }
 
+.bb-social-lightbox-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem 0.75rem;
+}
+
+.bb-social-lightbox-stamp {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
 .bb-social-lightbox-count {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
@@ -1628,36 +1647,49 @@
   width: min(56rem, 100%);
 }
 
-/* Videos — YouTube-style equal tile grid */
-.bb-social-video-grid {
+/* Videos — thumbnail grid (details live on watch page) */
+.bb-social-video-grid,
+.bb-yt-home {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.25rem 0.95rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
 }
 
-@media (max-width: 900px) {
-  .bb-social-video-grid {
+@media (min-width: 720px) {
+  .bb-social-video-grid,
+  .bb-yt-home {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.05rem 0.75rem;
+    gap: 0.85rem;
   }
 }
 
-@media (max-width: 419px) {
-  .bb-social-video-grid {
-    grid-template-columns: 1fr;
+@media (min-width: 1100px) {
+  .bb-social-video-grid,
+  .bb-yt-home {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-.bb-social-video-tile-card {
+.bb-social-video-tile-card,
+.bb-yt-card {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.35rem;
   min-width: 0;
   align-content: start;
+  position: relative;
 }
 
-.bb-social-video-tile-hit {
-  display: grid;
-  gap: 0.5rem;
+.bb-yt-draft {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.45rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.bb-social-video-tile-hit,
+.bb-yt-hit {
+  display: block;
   width: 100%;
   min-width: 0;
   padding: 0;
@@ -1674,22 +1706,22 @@
   outline-offset: 2px;
 }
 
-.bb-social-video-tile-media {
+.bb-social-video-tile-media,
+.bb-yt-thumb {
   position: relative;
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 0.7rem;
+  border-radius: 0.75rem;
   overflow: hidden;
   background: #0c0a09;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  border: 0;
+  box-shadow: none;
 }
 
-.bb-social-video-tile-hit:hover .bb-social-video-tile-media {
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
-  transform: translateY(-1px);
+.bb-social-video-tile-hit:hover .bb-social-video-tile-media,
+.bb-yt-hit:hover .bb-yt-thumb {
+  filter: brightness(0.96);
 }
 
 .bb-social-video-tile-media img {
@@ -1697,11 +1729,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.45s ease;
-}
-
-.bb-social-video-tile-hit:hover .bb-social-video-tile-media img {
-  transform: scale(1.04);
 }
 
 .bb-social-video-tile-play {
@@ -1711,25 +1738,17 @@
   place-items: center;
   color: #050505;
   pointer-events: none;
+  opacity: 1;
 }
 
 .bb-social-video-tile-play::before {
   content: '';
   position: absolute;
-  width: 3.1rem;
-  height: 3.1rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72)),
-    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--native-accent-x, 40%) 50%;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
-  transition: transform 0.2s ease;
-}
-
-.bb-social-video-tile-hit:hover .bb-social-video-tile-play::before {
-  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
 }
 
 .bb-social-video-tile-play svg {
@@ -1738,60 +1757,300 @@
   margin-left: 2px;
 }
 
-.bb-social-video-tile-copy {
-  display: grid;
-  gap: 0.18rem;
-  min-width: 0;
-  padding: 0 0.1rem;
+.bb-social-video-grid .bb-social-video-tile-empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #1a1a1a, #0c0a09);
 }
 
-.bb-social-video-grid .bb-social-video-tile-title {
-  margin: 0;
+.bb-yt-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: #101828;
+  color: #fff;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.78rem;
   font-weight: 760;
   letter-spacing: -0.02em;
-  line-height: 1.25;
-  color: #101828;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  white-space: normal;
-  text-overflow: unset;
 }
 
-.bb-social-video-grid .bb-social-video-tile-caption {
+.bb-yt-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-yt-subline {
   margin: 0;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   font-weight: 520;
   line-height: 1.35;
   color: #667085;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
-.bb-social-video-grid .bb-social-video-tile-duration {
+.bb-yt-channel-name {
+  margin: 0;
+  font-weight: 620;
+  color: #475467;
+}
+
+.bb-social-video-tile-duration {
   position: absolute;
-  right: 0.45rem;
-  bottom: 0.45rem;
+  right: 0.4rem;
+  bottom: 0.4rem;
   z-index: 1;
-  padding: 0.15rem 0.38rem;
-  border-radius: 0.3rem;
-  background: rgba(5, 5, 5, 0.78);
+  padding: 0.12rem 0.35rem;
+  border-radius: 0.28rem;
+  background: rgba(5, 5, 5, 0.82);
   color: #fff;
   font-size: 0.68rem;
   font-weight: 740;
   letter-spacing: 0.02em;
 }
 
-.bb-social-video-grid .bb-social-video-tile-empty {
-  display: block;
+.bb-yt-home .bb-yt-row,
+.bb-yt-home .bb-yt-copy,
+.bb-yt-home .bb-yt-avatar,
+.bb-yt-home .bb-social-video-tile-title,
+.bb-yt-home .bb-yt-subline,
+.bb-yt-home .bb-social-video-tile-duration {
+  display: none !important;
+}
+
+/* YouTube watch page */
+.bb-yt-watch {
+  display: grid;
+  gap: 0;
+  width: calc(100% + (2 * var(--bb-public-gutter, 1.25rem)));
+  margin-inline: calc(-1 * var(--bb-public-gutter, 1.25rem));
+  background: #fff;
+}
+
+.bb-yt-watch-bar {
+  display: flex;
+  align-items: center;
+  padding: 0.45rem var(--bb-public-gutter, 1.25rem);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.bb-yt-watch-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  padding: 0.3rem 0.15rem;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #475467;
+  cursor: pointer;
+}
+
+.bb-yt-watch-back:hover {
+  color: #101828;
+}
+
+.bb-yt-watch-player {
+  width: 100%;
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+
+.bb-yt-watch-player-el,
+.bb-yt-watch-player .bb-social-video-player,
+.bb-yt-watch-player .bb-video-player {
   width: 100%;
   height: 100%;
-  background: linear-gradient(145deg, #1a1a1a, #0c0a09);
+  aspect-ratio: auto !important;
+  border-radius: 0 !important;
+}
+
+.bb-yt-watch-body {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem var(--bb-public-gutter, 1.25rem) 1.5rem;
+}
+
+.bb-yt-watch-head {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.bb-yt-watch-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.12rem, 3.6vw, 1.42rem);
+  font-weight: 800;
+  letter-spacing: -0.038em;
+  line-height: 1.22;
+  color: #0b1220;
+}
+
+.bb-yt-watch-stats {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #667085;
+}
+
+.bb-yt-watch-channel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.15rem 0 0.1rem;
+}
+
+.bb-yt-avatar--watch {
+  width: 2.45rem;
+  height: 2.45rem;
+  font-size: 0.82rem;
+}
+
+.bb-yt-watch-channel-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.bb-yt-watch-channel-copy .bb-yt-channel-name {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 740;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #101828;
+}
+
+.bb-yt-watch-meta {
+  margin: 0;
+  font-size: 0.76rem;
+  font-weight: 520;
+  letter-spacing: 0.01em;
+  color: #98a2b3;
+}
+
+.bb-yt-watch-desc {
+  margin: 0.1rem 0 0;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.bb-yt-watch-caption {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  font-weight: 520;
+  letter-spacing: -0.01em;
+  color: #344054;
+  white-space: pre-wrap;
+}
+
+.bb-yt-related-copy .bb-yt-subline {
+  display: block;
+}
+
+.bb-yt-related {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  margin-top: 0.15rem;
+}
+
+.bb-yt-related-heading {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-yt-related-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.bb-yt-related-row {
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-yt-related-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.55rem;
+  overflow: hidden;
+  background: #0c0a09;
+}
+
+.bb-yt-related-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-yt-related-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  padding-top: 0.1rem;
+}
+
+.bb-yt-related-copy strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: #0f172a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-yt-related-copy span {
+  font-size: 0.74rem;
+  font-weight: 520;
+  color: #667085;
+}
+
+@media (max-width: 419px) {
+  .bb-yt-related-row {
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+  }
 }
 
 
@@ -2952,9 +3211,17 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   margin-inline: auto !important;
 }
 
+.bb-device-preview--phone .bb-public-profile-avatar-ring {
+  justify-self: center !important;
+  width: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
 .bb-device-preview--phone .bb-public-profile-avatar-wrap {
-  width: 5rem !important;
-  height: 5rem !important;
+  width: 5.25rem !important;
+  height: 5.25rem !important;
+  margin-inline: auto !important;
 }
 
 .bb-device-preview--phone .bb-public-map-frame-accent {
@@ -3674,12 +3941,15 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   border-radius: 999px;
   align-self: center;
   justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 100%;
 }
 
 .bb-public-profile-main {
   grid-area: main;
   display: grid;
-  gap: 0.35rem;
+  gap: 0.4rem;
   min-width: 0;
   width: 100%;
   justify-items: center;
@@ -3714,6 +3984,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   .bb-public-profile-avatar-ring {
     align-self: center;
     justify-self: start;
+    width: auto;
   }
 
   .bb-public-profile-main {
@@ -3731,13 +4002,28 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   .bb-public-profile-avatar-wrap {
     width: 5.75rem;
     height: 5.75rem;
+    margin-inline: 0;
+  }
+
+  .bb-public-profile-name {
+    text-align: left;
+    max-width: min(28ch, 100%);
+  }
+
+  .bb-public-profile-meta {
+    justify-content: flex-start;
+  }
+
+  .bb-public-profile-bio {
+    text-align: left;
   }
 }
 
 .bb-public-profile-avatar-wrap {
   flex: 0 0 auto;
-  width: 5.25rem;
-  height: 5.25rem;
+  width: 5.5rem;
+  height: 5.5rem;
+  margin-inline: auto;
 }
 
 .bb-public-profile-avatar {
@@ -3788,31 +4074,60 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem 0.45rem;
-  margin-top: 0.1rem;
-  max-width: 22rem;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+  max-width: 24rem;
+}
+
+.bb-public-profile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.7rem;
+  padding: 0.22rem 0.72rem;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  color: #101828;
+}
+
+.bb-public-profile-chip--category {
+  padding-inline: 0.78rem;
+}
+
+.bb-public-profile-chip--location {
+  padding-left: 0.55rem;
+}
+
+.bb-public-profile-chip--location .bb-public-profile-chip-icon {
+  flex: 0 0 auto;
+  width: 0.85rem;
+  height: 0.85rem;
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 .bb-public-profile-category,
 .bb-public-profile-location {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.8rem;
-  font-weight: 650;
+  font-size: 0.74rem;
+  font-weight: 720;
   letter-spacing: 0.01em;
-  line-height: 1.35;
-  color: #667085;
-}
-
-.bb-public-profile-category {
-  font-weight: 700;
-  color: #475467;
+  line-height: 1.2;
+  color: #101828;
 }
 
 .bb-public-profile-meta-dot {
-  color: #98a2b3;
-  font-weight: 600;
-  line-height: 1;
+  display: none;
 }
 
 .bb-public-profile-bio {

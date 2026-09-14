@@ -200,6 +200,7 @@ export function PublicHomeView({
           preview={preview}
           editMode={editMode}
           embedded
+          publicMode={publicMode}
           showDrafts={showDrafts}
           onUpdateWebsite={onUpdateWebsite}
           onUpdateSocialPost={onUpdateSocialPost}

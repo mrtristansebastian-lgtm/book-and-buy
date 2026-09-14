@@ -4,9 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#050505',
-        navy: '#101828',
-        canvas: '#FBFBFB'
+        ink: 'var(--bb-ink-strong)',
+        navy: 'var(--bb-ink)',
+        canvas: 'var(--bb-bg)'
       },
       fontFamily: {
         brand: ['"Plus Jakarta Sans"', 'Figtree', 'sans-serif'],

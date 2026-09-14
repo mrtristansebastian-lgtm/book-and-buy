@@ -1,16 +1,16 @@
 .bb-shell {
   min-height: 100vh;
   background:
-    radial-gradient(1200px 480px at 12% -10%, rgba(185, 227, 255, 0.35), transparent 55%),
-    radial-gradient(900px 420px at 88% 0%, rgba(255, 212, 242, 0.28), transparent 50%),
-    #fbfbfb;
+    radial-gradient(1200px 480px at 12% -10%, var(--bb-shell-glow-a), transparent 55%),
+    radial-gradient(900px 420px at 88% 0%, var(--bb-shell-glow-b), transparent 50%),
+    var(--bb-bg);
 }
 
 .bb-brand-mark {
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-weight: 760;
   letter-spacing: -0.03em;
-  color: #050505;
+  color: var(--bb-ink-strong);
 }
 
 .bb-page-title {
@@ -22,7 +22,7 @@
   font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 1.05;
-  color: #101828;
+  color: var(--bb-ink);
 }
 
 html body .native-ui .bb-page-title {
@@ -30,7 +30,7 @@ html body .native-ui .bb-page-title {
   font-weight: 800 !important;
   letter-spacing: -0.045em !important;
   line-height: 1.05 !important;
-  color: #101828 !important;
+  color: var(--bb-ink) !important;
 }
 
 /* Glow sits behind the title text only (same on Home + every desk) */
@@ -97,7 +97,7 @@ html body .native-ui .bb-page-title {
 }
 
 .bb-muted {
-  color: #667085;
+  color: var(--bb-muted);
 }
 
 .bb-segment {
@@ -108,15 +108,15 @@ html body .native-ui .bb-page-title {
   padding: 0.28rem;
   border: 0;
   border-radius: 999px;
-  background: #eef0f3;
-  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+  background: var(--bb-segment-bg);
+  box-shadow: inset 0 0 0 1px var(--bb-border);
 }
 
 .bb-segment button {
   appearance: none;
   border: 0;
   background: transparent;
-  color: #667085;
+  color: var(--bb-muted);
   border-radius: 999px;
   padding: 0.48rem 0.95rem;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
@@ -164,7 +164,7 @@ html body .native-ui .bb-page-title {
   width: 100%;
   border: 0;
   background: transparent;
-  color: #667085;
+  color: var(--bb-muted);
   border-radius: 0.85rem;
   padding: 0.7rem 0.85rem;
   font-size: 0.9rem;
@@ -178,12 +178,13 @@ html body .native-ui .bb-page-title {
   padding: 0.55rem 0.75rem;
   font-size: 0.84rem;
   font-weight: 600;
-  color: #98a2b3;
-  border-left: 1px solid rgba(15, 23, 42, 0.08);
+  color: var(--bb-faint);
+  border-left: 1px solid var(--bb-border);
   border-radius: 0 0.75rem 0.75rem 0;
 }
 
 .bb-nav-item[aria-current='page'] {
+  /* Pastel accent fill — always black label (including dark mode) */
   color: #050505;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.22)),
@@ -240,19 +241,19 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(15, 23, 42, 0.14);
+  border: 1px solid var(--bb-border-strong);
   border-radius: 999px;
   padding: 0.75rem 1.15rem;
   font-family: Inter, Figtree, sans-serif;
   font-weight: 620;
-  color: #050505;
-  background: rgba(255, 255, 255, 0.8);
+  color: var(--bb-ink-strong);
+  background: var(--bb-surface);
   cursor: pointer;
 }
 
 .bb-panel {
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--bb-panel);
+  border: 1px solid var(--bb-border);
   border-radius: 1rem;
 }
 
@@ -262,8 +263,8 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid var(--bb-border);
+  background: var(--bb-rail-bg);
   backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
@@ -278,7 +279,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 
 .bb-public-nav a {
   text-decoration: none;
-  color: #667085;
+  color: var(--bb-muted);
   font-weight: 620;
   font-size: 0.88rem;
   padding: 0.45rem 0.8rem;
@@ -315,8 +316,8 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   align-self: start;
   height: 100dvh;
   overflow: auto;
-  border-right: 1px solid rgba(15, 23, 42, 0.06);
-  background: rgba(255, 255, 255, 0.92);
+  border-right: 1px solid var(--bb-border);
+  background: var(--bb-sidebar-bg);
   padding: 1.15rem 0.75rem;
   display: flex;
   flex-direction: column;
@@ -430,8 +431,8 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     align-items: center;
     gap: 0.75rem;
     padding: 0.65rem 0.85rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid var(--bb-border);
+    background: var(--bb-rail-bg);
     backdrop-filter: blur(10px);
     position: sticky;
     top: 0;
@@ -449,10 +450,10 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     gap: 0.4rem;
     height: 2.15rem;
     padding: 0 0.75rem;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid var(--bb-border-strong);
     border-radius: 0.65rem;
-    background: #fff;
-    color: #101828;
+    background: var(--bb-surface);
+    color: var(--bb-ink);
     font-size: 0.78rem;
     font-weight: 700;
     cursor: pointer;
@@ -462,7 +463,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
     font-size: 0.95rem;
     font-weight: 740;
-    color: #101828;
+    color: var(--bb-ink);
     letter-spacing: -0.02em;
   }
 
@@ -520,4 +521,51 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   .bb-shell.is-nav-open {
     overflow: hidden;
   }
+}
+
+.bb-owner-sidebar-nav {
+  flex: 1 1 auto;
+}
+
+.bb-owner-nav-group-label {
+  padding: 0 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bb-faint);
+}
+
+.bb-owner-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  margin-top: auto;
+  flex-shrink: 0;
+  border: 1px solid var(--bb-border);
+  background: var(--bb-surface-2);
+  color: var(--bb-ink);
+  border-radius: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-owner-theme-toggle:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.bb-owner-theme-toggle-label {
+  flex: 1 1 auto;
+}
+
+.bb-owner-theme-toggle-state {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bb-muted);
 }

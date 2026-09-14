@@ -1,0 +1,347 @@
+/**
+ * Universal dark remaps — shared primitives only.
+ * Accent / native-fill gradients stay pastel; labels on them stay black.
+ */
+
+/* Native typography tokens follow theme */
+html[data-theme='dark'] body .native-ui {
+  --native-heading-color: var(--bb-ink);
+  --native-label-color: var(--bb-ink);
+  --native-subtext-color: var(--bb-muted);
+  --native-body-color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-shell {
+  background:
+    radial-gradient(1200px 480px at 12% -10%, var(--bb-shell-glow-a), transparent 55%),
+    radial-gradient(900px 420px at 88% 0%, var(--bb-shell-glow-b), transparent 50%),
+    var(--bb-bg);
+}
+
+html[data-theme='dark'] .bb-brand-mark,
+html[data-theme='dark'] .bb-page-title,
+html[data-theme='dark'] body .native-ui .bb-page-title,
+html[data-theme='dark'] body .native-ui .bb-services-desk .bb-services-desk-title,
+html[data-theme='dark'] body .native-ui .bb-services-sheet .bb-services-sheet-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-muted {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-panel {
+  background: var(--bb-panel);
+  border-color: var(--bb-border);
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-segment {
+  background: var(--bb-segment-bg);
+  box-shadow: inset 0 0 0 1px var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-segment button {
+  color: var(--bb-muted);
+}
+
+/* Gradient / pressed chrome — black on pastel */
+html[data-theme='dark'] .bb-segment button[aria-pressed='true'],
+html[data-theme='dark'] .bb-nav-item[aria-current='page'],
+html[data-theme='dark'] .bb-nav-item.is-nested[aria-current='page'],
+html[data-theme='dark'] .bb-primary-btn,
+html[data-theme='dark'] body .native-ui .bb-primary-btn,
+html[data-theme='dark'] body .native-ui .bb-primary-btn :where(span, strong, small, p),
+html[data-theme='dark'] .bb-studio-action--primary,
+html[data-theme='dark'] .bb-public-native-fill,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-native-fill {
+  color: #050505 !important;
+}
+
+html[data-theme='dark'] .bb-owner-sidebar {
+  background: var(--bb-sidebar-bg);
+  border-right-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-nav-item {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-nav-item:hover:not([aria-current='page']) {
+  color: var(--bb-ink);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme='dark'] .bb-owner-nav-group-label {
+  color: var(--bb-faint);
+}
+
+html[data-theme='dark'] .bb-ghost-btn {
+  background: transparent;
+  color: var(--bb-ink);
+  border-color: var(--bb-border-strong);
+}
+
+html[data-theme='dark'] .bb-ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme='dark'] .bb-owner-mobile-bar,
+html[data-theme='dark'] .bb-mobile-dock {
+  background: var(--bb-rail-bg) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-owner-nav-backdrop {
+  background: var(--bb-overlay);
+}
+
+html[data-theme='dark'] .bb-owner-theme-toggle {
+  color: var(--bb-ink);
+  border-color: var(--bb-border);
+  background: var(--bb-surface-2);
+}
+
+html[data-theme='dark'] .bb-owner-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Settings */
+html[data-theme='dark'] .bb-settings,
+html[data-theme='dark'] .bb-settings-rail {
+  background: var(--bb-bg);
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-settings-rail {
+  border-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-settings-search,
+html[data-theme='dark'] .bb-settings-mobile-select {
+  background: var(--bb-surface-2);
+  color: var(--bb-ink);
+  border-color: var(--bb-border);
+}
+
+/* Floating owner cards / catalog */
+html[data-theme='dark'] .bb-catalog-card {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme='dark'] .bb-catalog-card-title,
+html[data-theme='dark'] body .native-ui .bb-services-desk .bb-catalog-card-title,
+html[data-theme='dark'] .bb-catalog-card-price-value {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-catalog-card-desc,
+html[data-theme='dark'] body .native-ui .bb-services-desk .bb-catalog-card-desc,
+html[data-theme='dark'] .bb-catalog-card-price-label {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-catalog-card-badge:not(.is-ink) {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-catalog-card-media {
+  background: var(--bb-surface-2);
+  border-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-catalog-card-action:not(.is-edit) {
+  background: var(--bb-surface-2);
+  border-color: var(--bb-border);
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-catalog-card-price {
+  border-top-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-studio-action--ghost {
+  background: var(--bb-surface);
+  border-color: var(--bb-border-strong);
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-studio-action--ghost:hover {
+  background: var(--bb-surface-2);
+}
+
+html[data-theme='dark'] .bb-studio-toolbar.bb-panel,
+html[data-theme='dark'] .bb-studio-stage {
+  background: var(--bb-panel);
+  color: var(--bb-ink);
+}
+
+/* Public surface */
+html[data-theme='dark'] .bb-public-surface,
+html[data-theme='dark'] .bb-public-profile,
+html[data-theme='dark'] .bb-public-profile-rail,
+html[data-theme='dark'] .bb-public-profile-panel,
+html[data-theme='dark'] .bb-public-profile-identity,
+html[data-theme='dark'] .bb-public-profile-card,
+html[data-theme='dark'] .bb-public-home-block,
+html[data-theme='dark'] .bb-public-profile-home-stack > .bb-public-home-block {
+  background: var(--bb-bg) !important;
+  color: var(--bb-ink);
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-public-profile-tabs,
+html[data-theme='dark'] .bb-public-profile-tabs--top {
+  background: var(--bb-rail-bg) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-public-profile-tab {
+  color: var(--bb-faint);
+}
+
+html[data-theme='dark'] .bb-public-profile-tab.is-active {
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-device-screen {
+  background: var(--bb-bg);
+}
+
+html[data-theme='dark'] .bb-public-header {
+  background: var(--bb-rail-bg);
+  border-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-public-nav a {
+  color: var(--bb-muted);
+}
+
+/* Beat light-mode !important ink on public copy */
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-catalog-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-page-intro .bb-page-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-page-intro h1,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-detail-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-offer-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-venue-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-visit-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-reviews-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-book-faq-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-faq-q,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-block .bb-page-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-block :where(h2, h3),
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile-name,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile-name.bb-editable-text,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile-section-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-reasons-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-reason-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-about-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-about-offer-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-body h2,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-stat-value,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-profile-name,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-feed-user,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-video-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-post-card-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-square-tile-title,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-lightbox-title,
+html[data-theme='dark'] .bb-public-profile-heading,
+html[data-theme='dark'] .bb-public-profile-name,
+html[data-theme='dark'] .bb-yt-watch-title,
+html[data-theme='dark'] .bb-yt-channel-name,
+html[data-theme='dark'] .bb-social-note-title {
+  color: var(--bb-ink) !important;
+  -webkit-text-fill-color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-about-body,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-profile-bio,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-reason-body,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-reasons-block .bb-public-reason p,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-desc,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-profile-bio,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-feed-caption,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-post-caption,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-video-caption,
+html[data-theme='dark'] .bb-public-profile-bio,
+html[data-theme='dark'] .bb-public-about-body,
+html[data-theme='dark'] .bb-yt-watch-caption,
+html[data-theme='dark'] .bb-yt-subline,
+html[data-theme='dark'] .bb-social-note-text,
+html[data-theme='dark'] .bb-social-note-stamp {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-public-profile-chip {
+  background:
+    linear-gradient(var(--bb-surface), var(--bb-surface)) padding-box,
+    var(--native-accent-button-gradient) border-box;
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-yt-watch,
+html[data-theme='dark'] .bb-yt-watch-body,
+html[data-theme='dark'] .bb-yt-watch-bar,
+html[data-theme='dark'] .bb-social-lightbox-copy {
+  background: var(--bb-bg) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-yt-watch-desc {
+  background: var(--bb-surface-2);
+  border-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-yt-watch-back {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-yt-watch-back:hover {
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-public-review,
+html[data-theme='dark'] .bb-public-faq-item,
+html[data-theme='dark'] .bb-social-note {
+  border-color: var(--bb-border);
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-public-product-card,
+html[data-theme='dark'] .bb-public-product-body {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink);
+}
+
+/* Generic white panels / ink utilities */
+html[data-theme='dark'] .bg-white,
+html[data-theme='dark'] .bg-white\/92,
+html[data-theme='dark'] .bg-white\/95,
+html[data-theme='dark'] [class*='bg-white'] {
+  background-color: var(--bb-surface) !important;
+}
+
+html[data-theme='dark'] .border-black\/8,
+html[data-theme='dark'] .border-black\/10 {
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .text-black,
+html[data-theme='dark'] .text-slate-900,
+html[data-theme='dark'] .text-gray-900,
+html[data-theme='dark'] .text-ink,
+html[data-theme='dark'] .text-navy {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bg-canvas {
+  background-color: var(--bb-bg) !important;
+}
