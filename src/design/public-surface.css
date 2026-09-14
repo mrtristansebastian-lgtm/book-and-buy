@@ -2510,6 +2510,23 @@
   color: #98a2b3;
 }
 
+.bb-social-feed-location {
+  margin: 0.15rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 100%;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #0f766e;
+}
+
+.bb-social-feed-location span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .bb-social-feed-media.bb-editable-image {
   display: block;
 }

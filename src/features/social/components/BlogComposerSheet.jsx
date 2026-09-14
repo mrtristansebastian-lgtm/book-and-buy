@@ -19,6 +19,9 @@ import {
 } from 'lucide-react';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import { useUploadQueue, summarizeUploads } from '../hooks/useUploadQueue';
+import { PlaceLocationField } from './PlaceLocationField';
+import { VideoThumbnailPicker } from './VideoThumbnailPicker';
+import { VideoClipTrimmer } from './VideoClipTrimmer';
 import {
   MAX_MEDIA,
   intakeLongVideo,
@@ -35,8 +38,6 @@ import {
   captureVideoPoster,
   readVideoFrame
 } from '../utils/videoMedia';
-import { VideoThumbnailPicker } from './VideoThumbnailPicker';
-import { VideoClipTrimmer } from './VideoClipTrimmer';
 
 const TEXT_SOFT_LIMIT = 280;
 const CAPTION_SOFT_LIMIT = 2200;
@@ -219,14 +220,10 @@ function UploadOverlay({
             <span className="bb-composer-upload-screen-done" aria-hidden="true">
               <Check size={28} strokeWidth={2.6} />
             </span>
+          ) : phase === 'preparing' ? (
+            <Loader2 size={28} className="bb-spin bb-composer-upload-screen-spinner" aria-hidden="true" />
           ) : (
-            <ProgressRing value={phase === 'preparing' ? 0.12 : progress} size={72} tone="screen">
-              {phase === 'preparing' ? (
-                <Loader2 size={22} className="bb-spin" aria-hidden="true" />
-              ) : (
-                <span className="bb-composer-upload-screen-pct">{pct}%</span>
-              )}
-            </ProgressRing>
+            <span className="bb-composer-upload-screen-pct">{pct}%</span>
           )}
           <div className="bb-composer-upload-screen-copy">
             <strong>{title}</strong>
@@ -506,6 +503,7 @@ export function BlogComposerSheet({
   const mediaRef = useRef(null);
   const videoRef = useRef(null);
   const posterRef = useRef(null);
+  const coverPosterRef = useRef(null);
   const panelRef = useRef(null);
   const reorderRef = useRef(null);
   const dragDepthRef = useRef(0);
@@ -514,6 +512,7 @@ export function BlogComposerSheet({
   const [stepIndex, setStepIndex] = useState(0);
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
+  const [location, setLocation] = useState(null);
   const [items, setItems] = useState([]);
   const [activeId, setActiveId] = useState('');
   const [matchAll, setMatchAll] = useState(false);
@@ -552,6 +551,21 @@ export function BlogComposerSheet({
     }
     if (id === POSTER_JOB_ID) {
       setPosterUrl(result.url || '');
+      return;
+    }
+    if (String(id).endsWith('__poster')) {
+      const itemId = String(id).slice(0, -'__poster'.length);
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                remotePosterUrl: result.url || item.remotePosterUrl,
+                posterUrl: result.url || item.posterUrl
+              }
+            : item
+        )
+      );
       return;
     }
     setItems((prev) =>
@@ -660,6 +674,16 @@ export function BlogComposerSheet({
     if (post) {
       setTitle(post.title || '');
       setCaption(post.caption || '');
+      setLocation(
+        post.location
+          ? {
+              label: String(post.location || ''),
+              placeId: String(post.locationPlaceId || ''),
+              lat: Number(post.locationLat) || 0,
+              lng: Number(post.locationLng) || 0
+            }
+          : null
+      );
       setMediaUrl(post.mediaUrl || '');
       setVideoRemoteUrl(isBlobUrl(post.mediaUrl) ? '' : post.mediaUrl || '');
       setVideoFile(null);
@@ -705,6 +729,7 @@ export function BlogComposerSheet({
     }
     setTitle(draft?.title || '');
     setCaption(draft?.caption || '');
+    setLocation(null);
     setItems([]);
     setActiveId('');
     setMediaUrl('');
@@ -1082,6 +1107,55 @@ export function BlogComposerSheet({
     });
   };
 
+  const setCoverSlide = (index) => {
+    if (!(index > 0)) return;
+    const id = items[index]?.id || '';
+    moveItem(index, 0);
+    if (id) setActiveId(id);
+  };
+
+  const applyCoverPoster = useCallback(
+    (itemId, file) => {
+      if (!itemId || !(file instanceof Blob)) return;
+      const target = items.find((item) => item.id === itemId);
+      if (!target || target.kind !== 'video') return;
+
+      const preview = trackUrl(URL.createObjectURL(file));
+      setItems((prev) =>
+        prev.map((item) => {
+          if (item.id !== itemId) return item;
+          if (isBlobUrl(item.posterUrl)) releaseUrl(item.posterUrl);
+          return {
+            ...item,
+            posterUrl: preview,
+            posterFile: file,
+            remotePosterUrl: ''
+          };
+        })
+      );
+
+      if (target.file instanceof Blob) {
+        enqueue({
+          id: itemId,
+          kind: 'video',
+          file: target.file,
+          posterFile: file,
+          preset: 'socialPost'
+        });
+        return;
+      }
+
+      enqueue({
+        id: `${itemId}__poster`,
+        kind: 'image',
+        file,
+        preset: 'videoPoster',
+        skipNormalize: true
+      });
+    },
+    [items, enqueue, trackUrl, releaseUrl]
+  );
+
   // Pointer-based reordering so it works with touch, not just HTML5 drag.
   const onGripPointerDown = (event, index) => {
     event.preventDefault();
@@ -1281,7 +1355,11 @@ export function BlogComposerSheet({
         type,
         title: title.trim() || (type === 'video' ? 'Untitled video' : ''),
         caption: caption.trim(),
-        published: true
+        published: true,
+        location: location?.label || '',
+        locationPlaceId: location?.placeId || '',
+        locationLat: Number(location?.lat) || 0,
+        locationLng: Number(location?.lng) || 0
       };
 
       if (type === 'image') {
@@ -1292,9 +1370,16 @@ export function BlogComposerSheet({
           setError('Add at least one photo or clip.');
           return;
         }
+        const first = resolved[0];
+        const coverPoster =
+          first.item.kind === 'video'
+            ? first.item.remotePosterUrl ||
+              (isBlobUrl(first.item.posterUrl) ? '' : first.item.posterUrl)
+            : '';
         payload = {
           ...payload,
-          mediaUrl: resolved[0].url,
+          mediaUrl: first.url,
+          posterUrl: coverPoster,
           mediaUrls: resolved.map((entry) => entry.url),
           mediaItems: resolved.map(({ item, url }) => ({
             kind: item.kind,
@@ -1605,6 +1690,42 @@ export function BlogComposerSheet({
                     onChange={(event) => setCaption(event.target.value)}
                   />
                 </label>
+                <PlaceLocationField
+                  value={location}
+                  onChange={setLocation}
+                  disabled={busy}
+                  placeholder="Search for a place or address"
+                />
+                {items[0]?.kind === 'video' ? (
+                  <div className="bb-composer-cover-thumb">
+                    <p className="bb-composer-hint bb-composer-hint--lead">
+                      Cover frame for the first clip
+                    </p>
+                    <VideoThumbnailPicker
+                      videoFile={items[0].file || null}
+                      videoUrl={items[0].url}
+                      durationSeconds={
+                        items[0].sourceDurationSeconds || items[0].durationSeconds || 0
+                      }
+                      aspectRatio={items[0].aspectRatio}
+                      posterUrl={items[0].posterUrl}
+                      busy={busy}
+                      onFrameChosen={(file) => applyCoverPoster(items[0].id, file)}
+                      onUploadOwn={() => coverPosterRef.current?.click()}
+                    />
+                    <input
+                      ref={coverPosterRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        event.target.value = '';
+                        if (file && items[0]?.id) applyCoverPoster(items[0].id, file);
+                      }}
+                    />
+                  </div>
+                ) : null}
               </div>
             </div>
           ) : null}
@@ -1639,7 +1760,6 @@ export function BlogComposerSheet({
                   <div className="bb-composer-arrange-workspace">
                     <div
                       className="bb-composer-arrange-stage"
-                      style={aspectStyle(frameAspectFor(activeItem))}
                     >
                       <MediaPreview
                         item={activeItem}
@@ -1738,48 +1858,105 @@ export function BlogComposerSheet({
               {stepIndex === 2 ? (
                 <div className="bb-composer-caption-step">
                   <div className="bb-composer-caption-media">
-                    <div
-                      className="bb-composer-carousel-preview"
-                      style={aspectStyle(frameAspectFor(activeItem))}
-                    >
-                      {activeItem ? (
-                        <>
-                          <MediaPreview
-                            item={activeItem}
-                            onAspect={(aspect) => setItemAspect(activeItem.id, aspect)}
+                    <div className="bb-composer-cover-block">
+                      <div className="bb-composer-cover-head">
+                        <p className="bb-composer-cover-title">Cover</p>
+                        <span className="bb-composer-cover-note">
+                          {items[0]?.kind === 'video'
+                            ? 'Pick the frame people see first'
+                            : 'First slide is your cover'}
+                        </span>
+                      </div>
+
+                      <div className="bb-composer-carousel-preview bb-composer-cover-preview">
+                        {items[0] ? (
+                          items[0].kind === 'video' ? (
+                            <img
+                              src={items[0].posterUrl || items[0].url}
+                              alt=""
+                              className="bb-composer-cover-still"
+                            />
+                          ) : (
+                            <img
+                              src={items[0].url}
+                              alt=""
+                              className="bb-composer-cover-still"
+                            />
+                          )
+                        ) : (
+                          <span className="bb-composer-arrange-empty">No media</span>
+                        )}
+                        {items[0]?.kind === 'video' ? (
+                          <span className="bb-composer-media-badge">
+                            {items[0].durationLabel || 'Video'}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {items.length > 1 ? (
+                        <div className="bb-composer-cover-picks" role="list">
+                          {items.map((item, index) => {
+                            const thumb =
+                              item.kind === 'video'
+                                ? item.posterUrl || item.url
+                                : item.url;
+                            return (
+                              <button
+                                key={item.id}
+                                type="button"
+                                role="listitem"
+                                className={`bb-composer-cover-pick${
+                                  index === 0 ? ' is-cover' : ''
+                                }`}
+                                onClick={() => setCoverSlide(index)}
+                                aria-label={
+                                  index === 0 ? 'Current cover' : `Use slide ${index + 1} as cover`
+                                }
+                              >
+                                {thumb ? <img src={thumb} alt="" /> : null}
+                                {item.kind === 'video' ? (
+                                  <span className="bb-composer-cover-pick-play" aria-hidden="true">
+                                    <Play size={10} fill="currentColor" />
+                                  </span>
+                                ) : null}
+                                {index === 0 ? (
+                                  <span className="bb-composer-cover-pick-badge">Cover</span>
+                                ) : null}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : null}
+
+                      {items[0]?.kind === 'video' ? (
+                        <div className="bb-composer-cover-thumb">
+                          <VideoThumbnailPicker
+                            videoFile={items[0].file || null}
+                            videoUrl={items[0].url}
+                            durationSeconds={
+                              items[0].sourceDurationSeconds ||
+                              items[0].durationSeconds ||
+                              0
+                            }
+                            aspectRatio={items[0].aspectRatio}
+                            posterUrl={items[0].posterUrl}
+                            busy={busy}
+                            onFrameChosen={(file) => applyCoverPoster(items[0].id, file)}
+                            onUploadOwn={() => coverPosterRef.current?.click()}
                           />
-                          {activeItem.kind === 'video' && activeItem.durationLabel ? (
-                            <span className="bb-composer-media-badge">
-                              {activeItem.durationLabel}
-                            </span>
-                          ) : null}
-                          {items.length > 1 ? (
-                            <div className="bb-composer-carousel-controls">
-                              <button
-                                type="button"
-                                disabled={activeIndex <= 0}
-                                onClick={() => setActiveId(items[activeIndex - 1]?.id || '')}
-                                aria-label="Previous slide"
-                              >
-                                <ChevronLeft size={16} />
-                              </button>
-                              <span>
-                                {activeIndex + 1} / {items.length}
-                              </span>
-                              <button
-                                type="button"
-                                disabled={activeIndex >= items.length - 1}
-                                onClick={() => setActiveId(items[activeIndex + 1]?.id || '')}
-                                aria-label="Next slide"
-                              >
-                                <ChevronRight size={16} />
-                              </button>
-                            </div>
-                          ) : null}
-                        </>
-                      ) : (
-                        <span className="bb-composer-arrange-empty">No media</span>
-                      )}
+                          <input
+                            ref={coverPosterRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(event) => {
+                              const file = event.target.files?.[0];
+                              event.target.value = '';
+                              if (file && items[0]?.id) applyCoverPoster(items[0].id, file);
+                            }}
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   </div>
 
@@ -1801,12 +1978,18 @@ export function BlogComposerSheet({
                       </span>
                       <textarea
                         className="native-control-input bb-social-compose-control bb-social-compose-caption"
-                        rows={6}
+                        rows={5}
                         value={caption}
                         placeholder="Write a caption…"
                         onChange={(event) => setCaption(event.target.value)}
                       />
                     </label>
+                    <PlaceLocationField
+                      value={location}
+                      onChange={setLocation}
+                      disabled={busy}
+                      placeholder="Search for a place or address"
+                    />
                   </div>
                 </div>
               ) : null}

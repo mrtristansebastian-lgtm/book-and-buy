@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Loader2, Scissors } from 'lucide-react';
 import { formatDurationLabel } from '../utils/socialPostType';
-import { captureVideoFrames } from '../utils/videoMedia';
+import { captureVideoFilmstrip } from '../utils/videoMedia';
 
-const FRAME_COUNT = 12;
 const MIN_CLIP_SECONDS = 0.5;
+const STRIP_TILE_CSS = 40;
+const STRIP_HEIGHT_CSS = 64;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -66,7 +67,7 @@ export function VideoClipTrimmer({
 }) {
   const trackRef = useRef(null);
   const dragRef = useRef(null);
-  const frameUrlsRef = useRef([]);
+  const stripUrlRef = useRef('');
   const rangeRef = useRef({ start: 0, end: 0 });
   const onPreviewRef = useRef(onPreview);
   const onSeekRef = useRef(onSeek);
@@ -81,7 +82,8 @@ export function VideoClipTrimmer({
         : fullDuration
       : 0;
 
-  const [frames, setFrames] = useState([]);
+  const [stripUrl, setStripUrl] = useState('');
+  const [trackWidth, setTrackWidth] = useState(0);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [start, setStart] = useState(Number(trimStart) || 0);
@@ -98,31 +100,60 @@ export function VideoClipTrimmer({
   }, [savedStart, savedEnd, source]);
 
   useEffect(() => {
-    frameUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-    frameUrlsRef.current = [];
-    setFrames([]);
+    const track = trackRef.current;
+    if (!track) return undefined;
+    const measure = () => {
+      const width = track.getBoundingClientRect().width;
+      if (width > 0) {
+        setTrackWidth((prev) => (Math.abs(prev - width) < 20 ? prev : width));
+      }
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, [fullDuration]);
 
-    if (!source || !(fullDuration > 0)) return undefined;
+  useEffect(() => {
+    if (stripUrlRef.current) {
+      URL.revokeObjectURL(stripUrlRef.current);
+      stripUrlRef.current = '';
+    }
+    setStripUrl('');
+
+    if (!source || !(fullDuration > 0) || trackWidth < 48) return undefined;
 
     let cancelled = false;
     setLoading(true);
 
-    const fractions = Array.from({ length: FRAME_COUNT }, (_, i) =>
-      FRAME_COUNT <= 1 ? 0 : i / (FRAME_COUNT - 1)
-    );
+    const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+    const frameCount = clamp(Math.round(trackWidth / STRIP_TILE_CSS), 12, 28);
+    const tileWidth = Math.round(STRIP_TILE_CSS * dpr);
+    const tileHeight = Math.round(STRIP_HEIGHT_CSS * dpr);
 
-    captureVideoFrames(source, fractions)
-      .then((captured) => {
+    const publishStrip = (file) => {
+      if (cancelled || !file) return;
+      const url = URL.createObjectURL(file);
+      if (stripUrlRef.current) URL.revokeObjectURL(stripUrlRef.current);
+      stripUrlRef.current = url;
+      setStripUrl(url);
+      setLoading(false);
+    };
+
+    captureVideoFilmstrip(source, {
+      frameCount,
+      tileWidth,
+      tileHeight,
+      quality: 0.9,
+      onProgress: ({ file }) => publishStrip(file)
+    })
+      .then((result) => {
         if (cancelled) return;
-        const withUrls = captured.map((frame) => {
-          const url = URL.createObjectURL(frame.file);
-          frameUrlsRef.current.push(url);
-          return { seconds: frame.seconds, url };
-        });
-        setFrames(withUrls);
+        if (result?.file) publishStrip(result.file);
+        else if (!stripUrlRef.current) setStripUrl('');
       })
       .catch(() => {
-        if (!cancelled) setFrames([]);
+        if (!cancelled) setStripUrl('');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -131,12 +162,14 @@ export function VideoClipTrimmer({
     return () => {
       cancelled = true;
     };
-  }, [source, fullDuration]);
+  }, [source, fullDuration, trackWidth]);
 
   useEffect(
     () => () => {
-      frameUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-      frameUrlsRef.current = [];
+      if (stripUrlRef.current) {
+        URL.revokeObjectURL(stripUrlRef.current);
+        stripUrlRef.current = '';
+      }
     },
     []
   );
@@ -262,108 +295,116 @@ export function VideoClipTrimmer({
   if (!(fullDuration > 0)) return null;
 
   return (
-    <div className="bb-clip-trimmer">
+    <div className={`bb-clip-trimmer${dirty ? ' is-dirty' : ''}${loading ? ' is-loading' : ''}`}>
       <div className="bb-clip-trimmer-head">
         <p className="bb-clip-trimmer-label">
           <Scissors size={13} strokeWidth={2.3} aria-hidden="true" />
           Trim clip
         </p>
-        <span className="bb-clip-trimmer-readout">
-          {formatDurationLabel(start)} – {formatDurationLabel(end)} ·{' '}
-          {formatDurationLabel(clipLength)}
-        </span>
-      </div>
-
-      <div className="bb-clip-trimmer-ruler" aria-hidden="true">
-        {ticks.map((tick) => (
-          <span
-            key={`${tick.seconds}-${tick.major ? 'm' : 'n'}`}
-            className={`bb-clip-trimmer-tick${tick.major ? ' is-major' : ''}`}
-            style={{ left: `${(tick.seconds / fullDuration) * 100}%` }}
-          >
-            {tick.major ? <em>{tick.label}</em> : null}
+        <div className="bb-clip-trimmer-readout" aria-live="polite">
+          <span>
+            {formatDurationLabel(start)} – {formatDurationLabel(end)}
           </span>
-        ))}
+          <span className="bb-clip-trimmer-readout-len">{formatDurationLabel(clipLength)}</span>
+        </div>
       </div>
 
-      <div
-        ref={trackRef}
-        className="bb-clip-trimmer-track"
-        onPointerDown={(event) => {
-          if (event.target.closest('[data-handle]')) return;
-          const seconds = secondsFromClientX(event.clientX);
-          const { start: curStart, end: curEnd } = rangeRef.current;
-          if (seconds >= curStart && seconds <= curEnd) {
-            dragRef.current = 'playhead';
-            applyTrim(seconds, 'playhead');
-            return;
-          }
-          dragRef.current = 'move';
-          applyTrim(seconds, 'move');
-        }}
-      >
-        <div className="bb-clip-trimmer-frames" aria-hidden="true">
-          {loading ? (
-            <div className="bb-clip-trimmer-loading">
-              <Loader2 size={14} className="bb-spin" />
-              Pulling frames…
-            </div>
-          ) : frames.length ? (
-            frames.map((frame) => (
-              <img key={`${frame.seconds}-${frame.url}`} src={frame.url} alt="" />
-            ))
-          ) : (
-            <div className="bb-clip-trimmer-loading">Frames unavailable</div>
-          )}
-        </div>
-
-        <div className="bb-clip-trimmer-shade" style={{ width: `${startPct}%` }} />
-        <div
-          className="bb-clip-trimmer-shade bb-clip-trimmer-shade--right"
-          style={{ width: `${Math.max(0, 100 - endPct)}%` }}
-        />
-
-        <div
-          className="bb-clip-trimmer-window"
-          style={{ left: `${startPct}%`, width: `${Math.max(2, endPct - startPct)}%` }}
-        >
-          <button
-            type="button"
-            className="bb-clip-trimmer-handle bb-clip-trimmer-handle--start"
-            data-handle="start"
-            aria-label="Trim start"
-            onPointerDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              dragRef.current = 'start';
-            }}
-          />
-          <button
-            type="button"
-            className="bb-clip-trimmer-handle bb-clip-trimmer-handle--end"
-            data-handle="end"
-            aria-label="Trim end"
-            onPointerDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              dragRef.current = 'end';
-            }}
-          />
+      <div className="bb-clip-trimmer-board">
+        <div className="bb-clip-trimmer-ruler" aria-hidden="true">
+          {ticks.map((tick) => (
+            <span
+              key={`${tick.seconds}-${tick.major ? 'm' : 'n'}`}
+              className={`bb-clip-trimmer-tick${tick.major ? ' is-major' : ''}`}
+              style={{ left: `${(tick.seconds / fullDuration) * 100}%` }}
+            >
+              {tick.major ? <em>{tick.label}</em> : null}
+            </span>
+          ))}
         </div>
 
         <div
-          className="bb-clip-trimmer-playhead"
-          data-handle="playhead"
-          style={{ left: `${playheadPct}%` }}
+          ref={trackRef}
+          className="bb-clip-trimmer-track"
           onPointerDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            dragRef.current = 'playhead';
+            if (event.target.closest('[data-handle]')) return;
+            const seconds = secondsFromClientX(event.clientX);
+            const { start: curStart, end: curEnd } = rangeRef.current;
+            if (seconds >= curStart && seconds <= curEnd) {
+              dragRef.current = 'playhead';
+              applyTrim(seconds, 'playhead');
+              return;
+            }
+            dragRef.current = 'move';
+            applyTrim(seconds, 'move');
           }}
-          role="presentation"
         >
-          <span className="bb-clip-trimmer-playhead-pin" />
-          <span className="bb-clip-trimmer-playhead-line" />
+          <div className="bb-clip-trimmer-frames" aria-hidden="true">
+            {stripUrl ? (
+              <img
+                className="bb-clip-trimmer-filmstrip"
+                src={stripUrl}
+                alt=""
+                draggable={false}
+              />
+            ) : (
+              <div className="bb-clip-trimmer-loading">
+                <span className="bb-clip-trimmer-shimmer" />
+                <span className="bb-clip-trimmer-loading-copy">
+                  <Loader2 size={13} className="bb-spin" />
+                  {loading ? 'Building filmstrip…' : 'Frames unavailable'}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="bb-clip-trimmer-shade" style={{ width: `${startPct}%` }} />
+          <div
+            className="bb-clip-trimmer-shade bb-clip-trimmer-shade--right"
+            style={{ width: `${Math.max(0, 100 - endPct)}%` }}
+          />
+
+          <div
+            className="bb-clip-trimmer-window"
+            style={{ left: `${startPct}%`, width: `${Math.max(2, endPct - startPct)}%` }}
+          >
+            <button
+              type="button"
+              className="bb-clip-trimmer-handle bb-clip-trimmer-handle--start"
+              data-handle="start"
+              aria-label="Trim start"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                dragRef.current = 'start';
+              }}
+            />
+            <button
+              type="button"
+              className="bb-clip-trimmer-handle bb-clip-trimmer-handle--end"
+              data-handle="end"
+              aria-label="Trim end"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                dragRef.current = 'end';
+              }}
+            />
+          </div>
+
+          <div
+            className="bb-clip-trimmer-playhead"
+            data-handle="playhead"
+            style={{ left: `${playheadPct}%` }}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              dragRef.current = 'playhead';
+            }}
+            role="presentation"
+          >
+            <span className="bb-clip-trimmer-playhead-pin" />
+            <span className="bb-clip-trimmer-playhead-line" />
+          </div>
         </div>
       </div>
 
@@ -391,7 +432,9 @@ export function VideoClipTrimmer({
             )}
           </button>
         </div>
-      ) : null}
+      ) : (
+        <p className="bb-clip-trimmer-hint">Drag the yellow handles to set the in and out points</p>
+      )}
     </div>
   );
 }

@@ -431,8 +431,8 @@ html[data-theme='dark'] .bb-composer-strip-item.is-active {
 }
 
 html[data-theme='dark'] .bb-composer-caption-media {
-  background: #1a1a1a !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: transparent !important;
+  border-color: transparent !important;
 }
 
 html[data-theme='dark'] .bb-composer-caption-kicker,

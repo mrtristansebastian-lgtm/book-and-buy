@@ -32,7 +32,9 @@ export function SocialPostsGrid({
         const multi = media.length > 1;
         const title = String(post.title || '').trim() || 'Untitled post';
         const thumb =
-          first?.kind === 'video' ? first.posterUrl || first.url || '' : first?.url || '';
+          first?.kind === 'video'
+            ? first.posterUrl || post.posterUrl || first.url || ''
+            : first?.url || '';
 
         return (
           <article key={post.id} className="bb-social-post-card bb-social-ig-cell" role="listitem">

@@ -259,6 +259,11 @@ export interface SocialPost {
   caption?: string;
   title?: string;
   duration?: string;
+  /** Tagged place label from Google Places (or manual address). */
+  location?: string;
+  locationPlaceId?: string;
+  locationLat?: number;
+  locationLng?: number;
   /** Owner/staff analytics only — omitted from public snapshot. */
   viewCount?: number;
   published?: boolean;

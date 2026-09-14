@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { EditableImage, EditableText } from '../../website/components/editable';
 import {
   formatNoteStamp,
@@ -317,6 +317,12 @@ export function SocialPostFeed({
                         post.caption
                       )}
                     </div>
+                  ) : null}
+                  {String(post.location || '').trim() ? (
+                    <p className="bb-social-feed-location">
+                      <MapPin size={12} strokeWidth={2.4} aria-hidden="true" />
+                      <span>{String(post.location).trim()}</span>
+                    </p>
                   ) : null}
                   {stamp ? (
                     <time
