@@ -2,13 +2,14 @@ import { useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getSocialPostKind } from '../utils/socialPostType';
 import { SocialPostsGrid } from './SocialPostsGrid';
-import { SocialPostLightbox } from './SocialPostLightbox';
+import { SocialPostFeed } from './SocialPostFeed';
 import { SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
 
 /**
  * Studio library — mirrors the live public Content layouts with Edit on each item.
+ * Photo posts open into an Instagram-style scrollable feed (not a lightbox).
  */
 export function SocialStudioLibrary({
   tab,
@@ -19,7 +20,7 @@ export function SocialStudioLibrary({
 }) {
   const { workspace } = useWorkspace();
   const website = workspace.website || {};
-  const [lightboxId, setLightboxId] = useState('');
+  const [feedId, setFeedId] = useState('');
 
   const kind = tab === 'videos' ? 'video' : tab === 'text' ? 'text' : 'image';
 
@@ -48,8 +49,15 @@ export function SocialStudioLibrary({
         ? 'New text update'
         : 'New post';
 
-  const lightboxOpen =
-    tab === 'posts' && Boolean(lightboxId) && items.some((post) => post.id === lightboxId);
+  const feedOpen =
+    tab === 'posts' && Boolean(feedId) && items.some((post) => post.id === feedId);
+
+  const closeFeed = () => setFeedId('');
+
+  const changeTab = (next) => {
+    setFeedId('');
+    onTabChange?.(next);
+  };
 
   return (
     <section className={`bb-social-library${items.length ? '' : ' is-empty'}`}>
@@ -63,12 +71,23 @@ export function SocialStudioLibrary({
         ) : null}
       </header>
 
-      <div className="bb-social-library-tabs">
-        <SocialProfileTabs value={tab} onChange={onTabChange} />
-      </div>
+      {!feedOpen ? (
+        <div className="bb-social-library-tabs">
+          <SocialProfileTabs value={tab} onChange={changeTab} />
+        </div>
+      ) : null}
 
       <div className="bb-social-library-surface bb-social-library-surface--live">
-        {!items.length ? (
+        {feedOpen ? (
+          <SocialPostFeed
+            posts={items}
+            initialPostId={feedId}
+            brandName={workspace.brandName || workspace.name || ''}
+            logoUrl={website.logoUrl || ''}
+            slug={workspace.slug || ''}
+            onBack={closeFeed}
+          />
+        ) : !items.length ? (
           <div className="bb-social-library-empty">
             <p className="bb-social-library-empty-copy">{emptyCopy}</p>
             {onCreate ? (
@@ -84,7 +103,7 @@ export function SocialStudioLibrary({
         ) : kind === 'image' ? (
           <SocialPostsGrid
             posts={items}
-            onOpenPost={setLightboxId}
+            onOpenPost={setFeedId}
             onEditPost={onEditPost}
             emptyLabel={emptyCopy}
           />
@@ -100,18 +119,6 @@ export function SocialStudioLibrary({
           <SocialTextTimeline posts={items} onEditPost={onEditPost} />
         )}
       </div>
-
-      {lightboxOpen ? (
-        <SocialPostLightbox
-          posts={items}
-          activeId={lightboxId}
-          brandName={workspace.brandName || workspace.name || ''}
-          logoUrl={website.logoUrl || ''}
-          slug={workspace.slug || ''}
-          onClose={() => setLightboxId('')}
-          onChangeActive={setLightboxId}
-        />
-      ) : null}
     </section>
   );
 }

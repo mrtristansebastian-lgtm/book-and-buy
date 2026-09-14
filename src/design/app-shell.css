@@ -426,45 +426,9 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     position: relative;
   }
 
+  /* No top-left hamburger — More lives in the bottom dock */
   .bb-owner-mobile-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 0.85rem;
-    border-bottom: 1px solid var(--bb-border);
-    background: var(--bb-rail-bg);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 25;
-    flex-shrink: 0;
-  }
-
-  .bb-shell.is-support-flush .bb-owner-mobile-bar {
-    position: relative;
-  }
-
-  .bb-owner-nav-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    height: 2.15rem;
-    padding: 0 0.75rem;
-    border: 1px solid var(--bb-border-strong);
-    border-radius: 0.65rem;
-    background: var(--bb-surface);
-    color: var(--bb-ink);
-    font-size: 0.78rem;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .bb-owner-mobile-bar-brand {
-    font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-    font-size: 0.95rem;
-    font-weight: 740;
-    color: var(--bb-ink);
-    letter-spacing: -0.02em;
+    display: none !important;
   }
 
   .bb-owner-nav-backdrop {
@@ -473,28 +437,34 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     inset: 0;
     z-index: 40;
     border: 0;
-    background: rgba(15, 23, 42, 0.35);
+    background: rgba(15, 23, 42, 0.4);
     cursor: pointer;
   }
 
   .bb-owner-sidebar {
     position: fixed;
-    top: 0;
     left: 0;
+    right: 0;
     bottom: 0;
-    width: min(18.5rem, 86vw);
-    height: 100dvh;
+    top: auto;
+    width: 100%;
+    height: min(78dvh, 36rem);
+    max-height: calc(100dvh - 4.5rem);
     z-index: 50;
-    transform: translateX(-105%);
-    transition: transform 180ms ease;
+    transform: translateY(110%);
+    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
     box-shadow: none;
-    padding-top: 1rem;
+    padding: 0.85rem 0.85rem max(1rem, env(safe-area-inset-bottom));
+    border-right: 0;
+    border-top: 1px solid var(--bb-border);
+    border-radius: 1.25rem 1.25rem 0 0;
     align-self: auto;
+    background: var(--bb-sidebar-bg);
   }
 
   .bb-owner-sidebar.is-open {
-    transform: translateX(0);
-    box-shadow: 12px 0 40px rgba(15, 23, 42, 0.18);
+    transform: translateY(0);
+    box-shadow: 0 -18px 48px rgba(15, 23, 42, 0.2);
   }
 
   .bb-owner-nav-close {
@@ -510,17 +480,82 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     flex-shrink: 0;
   }
 
+  .bb-owner-main {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  }
+
   .bb-owner-main.is-flush {
-    padding-bottom: 4.25rem;
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
   }
 
   .bb-mobile-dock {
-    display: flex !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0.15rem;
+    padding: 0.45rem 0.75rem max(0.45rem, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--bb-border);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(14px);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 55;
   }
 
-  .bb-shell.is-nav-open {
+  .bb-shell.is-more-open {
     overflow: hidden;
   }
+}
+
+.bb-mobile-dock {
+  display: none;
+}
+
+.bb-mobile-dock-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--bb-muted);
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.25rem;
+  border-radius: 0.85rem;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 720;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.bb-mobile-dock-item[aria-current='page'],
+.bb-mobile-dock-item[aria-current='true'] {
+  color: var(--bb-ink);
+  background: rgba(18, 240, 207, 0.12);
+}
+
+.bb-mobile-dock-icon-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.bb-mobile-dock-badge {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.55rem;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: #0f766e;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 780;
+  line-height: 1rem;
+  text-align: center;
 }
 
 .bb-owner-sidebar-nav {

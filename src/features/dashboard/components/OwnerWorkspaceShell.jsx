@@ -5,9 +5,9 @@ import {
   CalendarDays,
   ClipboardList,
   CreditCard,
+  Ellipsis,
   Home,
   Inbox,
-  Menu,
   MessageSquare,
   Moon,
   Package,
@@ -20,7 +20,7 @@ import {
   X
 } from 'lucide-react';
 import {
-  mobilePrimaryTabs,
+  mobileDockItems,
   workspaceGroupLabels,
   workspaceTabGroups,
   workspaceTabIds,
@@ -64,7 +64,7 @@ function groupTabs() {
 
 export function OwnerWorkspaceShell({ tab, children }) {
   const groups = groupTabs();
-  const [navOpen, setNavOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [colorScheme, setColorSchemeState] = useState(() => getColorScheme());
   const { workspace, threads, bookings, orders, exitDemoMode, resetDemoWorkspace, startOwnerOnboarding } =
     useWorkspace();
@@ -77,17 +77,17 @@ export function OwnerWorkspaceShell({ tab, children }) {
   ).length;
 
   useEffect(() => {
-    setNavOpen(false);
+    setMoreOpen(false);
   }, [tab]);
 
   useEffect(() => {
-    if (!navOpen) return undefined;
+    if (!moreOpen) return undefined;
     const onKey = (event) => {
-      if (event.key === 'Escape') setNavOpen(false);
+      if (event.key === 'Escape') setMoreOpen(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [navOpen]);
+  }, [moreOpen]);
 
   const onToggleTheme = () => {
     setColorSchemeState(toggleColorScheme());
@@ -101,13 +101,20 @@ export function OwnerWorkspaceShell({ tab, children }) {
   };
 
   const go = (id) => {
-    setNavOpen(false);
+    setMoreOpen(false);
     navigate(`/dashboard/${id}`);
   };
 
+  const primaryDockIds = new Set(
+    mobileDockItems.filter((item) => item.kind === 'tab').map((item) => item.id)
+  );
+  const moreActive = moreOpen || !primaryDockIds.has(tab);
+
   return (
     <div
-      className={`bb-shell native-ui ${tab === 'communications' ? 'is-support-flush' : 'min-h-screen'} ${navOpen ? 'is-nav-open' : ''}`}
+      className={`bb-shell native-ui ${tab === 'communications' ? 'is-support-flush' : 'min-h-screen'}${
+        moreOpen ? ' is-more-open' : ''
+      }`}
     >
       {workspace.isDemo ? (
         <div className="bb-demo-banner sticky top-0 z-40 border-b border-black/8 bg-white/95 backdrop-blur px-4 py-2 flex flex-wrap items-center justify-between gap-2">
@@ -146,16 +153,20 @@ export function OwnerWorkspaceShell({ tab, children }) {
       ) : null}
 
       <div className="bb-owner-layout">
-        {navOpen ? (
+        {moreOpen ? (
           <button
             type="button"
             className="bb-owner-nav-backdrop"
             aria-label="Close menu"
-            onClick={() => setNavOpen(false)}
+            onClick={() => setMoreOpen(false)}
           />
         ) : null}
 
-        <aside className={`bb-owner-sidebar ${navOpen ? 'is-open' : ''}`} aria-hidden={false}>
+        <aside
+          className={`bb-owner-sidebar${moreOpen ? ' is-open' : ''}`}
+          aria-hidden={false}
+          id="bb-owner-more-menu"
+        >
           <div className="bb-owner-sidebar-top">
             <div className="px-2 min-w-0">
               <div className="bb-brand-mark text-xl">{APP_NAME}</div>
@@ -167,7 +178,7 @@ export function OwnerWorkspaceShell({ tab, children }) {
               type="button"
               className="bb-owner-nav-close"
               aria-label="Close menu"
-              onClick={() => setNavOpen(false)}
+              onClick={() => setMoreOpen(false)}
             >
               <X size={18} strokeWidth={2.2} />
             </button>
@@ -222,41 +233,48 @@ export function OwnerWorkspaceShell({ tab, children }) {
         </aside>
 
         <div className="bb-owner-content">
-          <div className="bb-owner-mobile-bar">
-            <button
-              type="button"
-              className="bb-owner-nav-toggle"
-              aria-label={navOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={navOpen}
-              onClick={() => setNavOpen((open) => !open)}
-            >
-              {navOpen ? <X size={18} strokeWidth={2.2} /> : <Menu size={18} strokeWidth={2.2} />}
-              <span>Menu</span>
-            </button>
-            <div className="bb-owner-mobile-bar-brand truncate">
-              {workspaceTabLabels[tab] || APP_NAME}
-            </div>
-          </div>
-
           <main className={`bb-owner-main ${tab === 'communications' ? 'is-flush' : ''}`}>
             {children}
           </main>
         </div>
       </div>
 
-      <nav className="bb-mobile-dock hidden fixed bottom-0 inset-x-0 z-30 border-t border-black/8 bg-white/92 backdrop-blur px-2 py-2 justify-around">
-        {mobilePrimaryTabs.map((id) => {
-          const Icon = ICONS[id];
+      <nav className="bb-mobile-dock" aria-label="Primary">
+        {mobileDockItems.map((item) => {
+          if (item.kind === 'more') {
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className="bb-mobile-dock-item"
+                aria-current={moreActive ? 'true' : undefined}
+                aria-expanded={moreOpen}
+                aria-controls="bb-owner-more-menu"
+                onClick={() => setMoreOpen((open) => !open)}
+              >
+                <Ellipsis size={20} strokeWidth={2.2} />
+                <span>{item.label}</span>
+              </button>
+            );
+          }
+
+          const Icon = ICONS[item.id] || Home;
+          const badge = badgeFor(item.id);
           return (
             <button
-              key={id}
+              key={item.id}
               type="button"
-              className="bb-nav-item flex-col gap-1 py-2 px-2 text-[0.68rem]"
-              aria-current={tab === id ? 'page' : undefined}
-              onClick={() => go(id)}
+              className="bb-mobile-dock-item"
+              aria-current={!moreOpen && tab === item.id ? 'page' : undefined}
+              onClick={() => go(item.id)}
             >
-              <Icon size={18} strokeWidth={2.2} />
-              <span>{workspaceTabLabels[id]}</span>
+              <span className="bb-mobile-dock-icon-wrap">
+                <Icon size={20} strokeWidth={2.2} />
+                {badge > 0 ? (
+                  <span className="bb-mobile-dock-badge">{badge > 9 ? '9+' : badge}</span>
+                ) : null}
+              </span>
+              <span>{item.label}</span>
             </button>
           );
         })}

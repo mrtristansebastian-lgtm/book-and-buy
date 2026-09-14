@@ -3,7 +3,7 @@ import { navigate, publicItemPath, publicPagePath } from '../../../app/routing';
 import { PublicPageIntro } from '../../public-surface/PublicPageIntro';
 import { getSocialPostKind } from '../utils/socialPostType';
 import { SocialPostsGrid } from './SocialPostsGrid';
-import { SocialPostLightbox } from './SocialPostLightbox';
+import { SocialPostFeed } from './SocialPostFeed';
 import { SOCIAL_PROFILE_TABS, SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
@@ -35,7 +35,7 @@ export function SocialFeed({
   const website = workspace.website || {};
   const slug = workspace.slug || '';
   const [tab, setTab] = useState('posts');
-  const [lightboxId, setLightboxId] = useState('');
+  const [feedId, setFeedId] = useState('');
 
   const visiblePosts = useMemo(
     () =>
@@ -65,31 +65,29 @@ export function SocialFeed({
   useEffect(() => {
     if (!routePost) return;
     setTab(tabForKind(routeKind));
-    if (routeKind === 'image') setLightboxId(routePost.id);
+    if (routeKind === 'image') setFeedId(routePost.id);
   }, [routePost, routeKind]);
 
   const activeTab = SOCIAL_PROFILE_TABS.find((item) => item.id === tab) || SOCIAL_PROFILE_TABS[0];
   const tabPosts = postsByKind[activeTab.kind] || [];
 
   const openPost = (postId) => {
-    setLightboxId(postId);
+    setFeedId(postId);
     if (!useLocalNav) {
       navigate(publicItemPath(slug, 'social', postId));
     }
   };
 
-  const closeLightbox = () => {
-    setLightboxId('');
+  const closeFeed = () => {
+    setFeedId('');
     if (!useLocalNav && itemId) {
       navigate(publicPagePath(slug, 'social'));
     }
   };
 
-  const changeLightbox = (postId) => {
-    setLightboxId(postId);
-    if (!useLocalNav) {
-      navigate(publicItemPath(slug, 'social', postId));
-    }
+  const changeTab = (next) => {
+    setFeedId('');
+    setTab(next);
   };
 
   const openVideo = (postId) => {
@@ -138,15 +136,15 @@ export function SocialFeed({
   const addLabel =
     tab === 'videos' ? 'Add video' : tab === 'text' ? 'Add text update' : 'Add photo';
 
-  const lightboxOpen =
-    Boolean(lightboxId) && imagePosts.some((post) => post.id === lightboxId);
+  const feedOpen =
+    tab === 'posts' && Boolean(feedId) && imagePosts.some((post) => post.id === feedId);
 
   return (
     <section
       className={`bb-public-social${embedded ? ' bb-public-social--embedded' : ''} bb-public-gutter`}
     >
       <div className="bb-public-measure-wide grid gap-5">
-        {embedded ? null : (
+        {embedded || feedOpen ? null : (
           <PublicPageIntro
             title={website.socialHeadline || 'Content'}
             body={website.socialSubtext || ''}
@@ -158,18 +156,33 @@ export function SocialFeed({
           />
         )}
 
-        <div className="bb-social-blog-head">
-          {editMode ? (
-            <div className="bb-social-profile-actions">
-              <button type="button" className="bb-primary-btn" onClick={addForTab}>
-                {addLabel}
-              </button>
-            </div>
-          ) : null}
-          <SocialProfileTabs value={tab} onChange={setTab} />
-        </div>
+        {!feedOpen ? (
+          <div className="bb-social-blog-head">
+            {editMode ? (
+              <div className="bb-social-profile-actions">
+                <button type="button" className="bb-primary-btn" onClick={addForTab}>
+                  {addLabel}
+                </button>
+              </div>
+            ) : null}
+            <SocialProfileTabs value={tab} onChange={changeTab} />
+          </div>
+        ) : null}
 
-        {tab === 'posts' ? (
+        {feedOpen ? (
+          <SocialPostFeed
+            posts={imagePosts}
+            initialPostId={feedId}
+            editMode={editMode}
+            brandName={workspace.brandName || workspace.name || ''}
+            logoUrl={website.logoUrl || ''}
+            slug={slug}
+            onBack={closeFeed}
+            onUpdateSocialPost={onUpdateSocialPost}
+          />
+        ) : null}
+
+        {!feedOpen && tab === 'posts' ? (
           <SocialPostsGrid
             posts={tabPosts}
             editMode={editMode}
@@ -178,7 +191,7 @@ export function SocialFeed({
             emptyLabel={editMode ? 'Add a photo post to fill the gallery.' : 'No posts published yet.'}
           />
         ) : null}
-        {tab === 'videos' ? (
+        {!feedOpen && tab === 'videos' ? (
           <SocialVideosPanel
             posts={tabPosts}
             editMode={editMode}
@@ -191,7 +204,7 @@ export function SocialFeed({
             onCloseVideo={closeVideo}
           />
         ) : null}
-        {tab === 'text' ? (
+        {!feedOpen && tab === 'text' ? (
           <SocialTextTimeline
             posts={tabPosts}
             editMode={editMode}
@@ -199,20 +212,6 @@ export function SocialFeed({
           />
         ) : null}
       </div>
-
-      {lightboxOpen ? (
-        <SocialPostLightbox
-          posts={imagePosts}
-          activeId={lightboxId}
-          editMode={editMode}
-          brandName={workspace.brandName || workspace.name || ''}
-          logoUrl={website.logoUrl || ''}
-          slug={slug}
-          onClose={closeLightbox}
-          onChangeActive={changeLightbox}
-          onUpdateSocialPost={onUpdateSocialPost}
-        />
-      ) : null}
     </section>
   );
 }

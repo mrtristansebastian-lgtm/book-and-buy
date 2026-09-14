@@ -93,6 +93,16 @@ html[data-theme='dark'] .bb-mobile-dock {
   color: var(--bb-ink);
 }
 
+html[data-theme='dark'] .bb-mobile-dock-item {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-mobile-dock-item[aria-current='page'],
+html[data-theme='dark'] .bb-mobile-dock-item[aria-current='true'] {
+  color: var(--bb-ink);
+  background: rgba(94, 234, 212, 0.12);
+}
+
 html[data-theme='dark'] .bb-owner-nav-backdrop {
   background: var(--bb-overlay);
 }
@@ -247,6 +257,8 @@ html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-gr
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-product-stat-value,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-profile-name,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-feed-user,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-feed-brand,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-feed-title,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-video-title,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-post-card-title,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-square-tile-title,
@@ -318,6 +330,15 @@ html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-profile-tab
 html[data-theme='dark'] .bb-yt-watch,
 html[data-theme='dark'] .bb-yt-watch-body,
 html[data-theme='dark'] .bb-yt-watch-bar,
+html[data-theme='dark'] .bb-social-feed-post {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-social-feed-post:hover {
+  background: var(--bb-surface-2) !important;
+}
+
 html[data-theme='dark'] .bb-social-lightbox-copy {
   background: var(--bb-bg) !important;
   border-color: var(--bb-border) !important;

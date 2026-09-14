@@ -1,8 +1,111 @@
-import { useEffect, useRef } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EditableImage, EditableText } from '../../website/components/editable';
-import { getSocialPostKind } from '../utils/socialPostType';
+import {
+  formatNoteStamp,
+  getPostMediaItems,
+  getSocialPostKind
+} from '../utils/socialPostType';
 import { BbVideoPlayer } from './BbVideoPlayer';
+
+function FeedCarousel({ items = [] }) {
+  const [index, setIndex] = useState(0);
+  const active = items[index] || null;
+  const multi = items.length > 1;
+
+  useEffect(() => {
+    setIndex(0);
+  }, [items]);
+
+  if (!active?.url) {
+    return <div className="bb-social-feed-media-empty">No media</div>;
+  }
+
+  const start = Number(active.trimStart) || 0;
+  const end =
+    Number(active.trimEnd) > 0
+      ? Number(active.trimEnd)
+      : Number(active.sourceDurationSeconds) || 0;
+
+  return (
+    <div className="bb-social-feed-carousel">
+      <div
+        className="bb-social-feed-media"
+        style={
+          Number(active.aspectRatio) > 0
+            ? { aspectRatio: String(active.aspectRatio) }
+            : undefined
+        }
+      >
+        {active.kind === 'video' ? (
+          <video
+            key={`${active.url}-${start}-${end}`}
+            className="bb-social-feed-media-img"
+            src={active.url}
+            poster={active.posterUrl || undefined}
+            controls
+            playsInline
+            muted
+            onLoadedMetadata={(event) => {
+              const video = event.currentTarget;
+              if (start > 0.05) video.currentTime = start;
+              if (!(Number(active.aspectRatio) > 0) && video.videoWidth && video.videoHeight) {
+                video.parentElement.style.aspectRatio = String(
+                  video.videoWidth / video.videoHeight
+                );
+              }
+            }}
+            onTimeUpdate={(event) => {
+              const video = event.currentTarget;
+              if (end > start && video.currentTime >= end - 0.05) {
+                video.pause();
+                video.currentTime = start;
+              }
+            }}
+          />
+        ) : (
+          <img src={active.url} alt="" className="bb-social-feed-media-img" />
+        )}
+
+        {multi ? (
+          <>
+            {index > 0 ? (
+              <button
+                type="button"
+                className="bb-social-feed-carousel-nav bb-social-feed-carousel-nav--prev"
+                aria-label="Previous"
+                onClick={() => setIndex((value) => value - 1)}
+              >
+                <ChevronLeft size={18} strokeWidth={2.2} />
+              </button>
+            ) : null}
+            {index < items.length - 1 ? (
+              <button
+                type="button"
+                className="bb-social-feed-carousel-nav bb-social-feed-carousel-nav--next"
+                aria-label="Next"
+                onClick={() => setIndex((value) => value + 1)}
+              >
+                <ChevronRight size={18} strokeWidth={2.2} />
+              </button>
+            ) : null}
+            <div className="bb-social-feed-carousel-dots" aria-hidden="true">
+              {items.map((item, i) => (
+                <span
+                  key={`${item.url}-${i}`}
+                  className={`bb-social-feed-carousel-dot${i === index ? ' is-active' : ''}`}
+                />
+              ))}
+            </div>
+            <span className="bb-social-feed-carousel-count">
+              {index + 1} / {items.length}
+            </span>
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 function FeedMedia({ post, editMode, onUpdateSocialPost }) {
   const kind = getSocialPostKind(post);
@@ -10,21 +113,12 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
   if (kind === 'text') {
     return (
       <div className="bb-social-feed-media bb-social-feed-media--text">
-        {post.title ? (
+        {post.title || editMode ? (
           <EditableText
             as="p"
             className="bb-social-feed-text-title"
             editMode={editMode}
             value={post.title || ''}
-            placeholder="Title (optional)"
-            onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-          />
-        ) : editMode ? (
-          <EditableText
-            as="p"
-            className="bb-social-feed-text-title"
-            editMode
-            value=""
             placeholder="Title (optional)"
             onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
           />
@@ -50,6 +144,7 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
             src={post.mediaUrl}
             poster={post.posterUrl || ''}
             title={post.title || 'Video'}
+            aspectRatio={Number(post.aspectRatio) || 0}
             className="bb-social-feed-video"
           />
         ) : post.posterUrl ? (
@@ -77,11 +172,12 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
     );
   }
 
-  if (editMode) {
+  const media = getPostMediaItems(post);
+  if (editMode && media.length <= 1) {
     return (
       <EditableImage
         editMode
-        src={post.mediaUrl || ''}
+        src={post.mediaUrl || media[0]?.url || ''}
         className="bb-social-feed-media"
         imgClassName="bb-social-feed-media-img"
         storageFolder="social"
@@ -92,17 +188,12 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
     );
   }
 
-  return (
-    <div className="bb-social-feed-media">
-      {post.mediaUrl ? (
-        <img src={post.mediaUrl} alt="" className="bb-social-feed-media-img" />
-      ) : (
-        <div className="bb-social-feed-media-empty">No photo</div>
-      )}
-    </div>
-  );
+  return <FeedCarousel items={media} />;
 }
 
+/**
+ * Instagram-style scrollable posts feed — used instead of a lightbox popup.
+ */
 export function SocialPostFeed({
   posts = [],
   initialPostId = '',
@@ -113,18 +204,21 @@ export function SocialPostFeed({
   onBack,
   onUpdateSocialPost
 }) {
-  const username = String(slug || '')
+  const handle = String(slug || '')
     .trim()
-    .replace(/^@/, '');
-  const initial = String(brandName || username || 'B')
-    .trim()
-    .charAt(0)
-    .toUpperCase();
+    .toLowerCase()
+    .replace(/[^a-z0-9._]+/g, '');
+  const displayName = String(brandName || '').trim() || 'Business';
+  const initial = displayName.charAt(0).toUpperCase() || 'B';
+  const username = handle || 'business';
   const targetRef = useRef(null);
 
   useEffect(() => {
     if (!initialPostId || !targetRef.current) return;
-    targetRef.current.scrollIntoView({ block: 'start', behavior: 'auto' });
+    const timer = window.setTimeout(() => {
+      targetRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }, 40);
+    return () => window.clearTimeout(timer);
   }, [initialPostId, posts]);
 
   const feedKind = posts[0] ? getSocialPostKind(posts[0]) : 'image';
@@ -134,7 +228,12 @@ export function SocialPostFeed({
   return (
     <div className="bb-social-feed">
       <div className="bb-social-feed-toolbar">
-        <button type="button" className="bb-social-feed-back" onClick={onBack} aria-label="Back to profile">
+        <button
+          type="button"
+          className="bb-social-feed-back"
+          onClick={onBack}
+          aria-label="Back to profile"
+        >
           <ArrowLeft size={18} strokeWidth={2.2} />
           <span>{backLabel}</span>
         </button>
@@ -145,22 +244,32 @@ export function SocialPostFeed({
           const isTarget = post.id === initialPostId;
           const kind = getSocialPostKind(post);
           const isText = kind === 'text';
+          const stamp = formatNoteStamp(post.createdAt);
+
           return (
             <article
               key={post.id}
               ref={isTarget ? targetRef : null}
-              className={`bb-social-feed-post ${isText ? 'is-text' : ''}`}
+              className={`bb-social-feed-post${isText ? ' is-text' : ''}${
+                isTarget ? ' is-focus' : ''
+              }`}
               id={`social-post-${post.id}`}
             >
               <header className="bb-social-feed-post-head">
                 {logoUrl ? (
                   <img src={logoUrl} alt="" className="bb-social-feed-avatar" />
                 ) : (
-                  <span className="bb-social-feed-avatar bb-social-feed-avatar--fallback" aria-hidden="true">
+                  <span
+                    className="bb-social-feed-avatar bb-social-feed-avatar--fallback"
+                    aria-hidden="true"
+                  >
                     {initial}
                   </span>
                 )}
-                <span className="bb-social-feed-user">@{username || 'business'}</span>
+                <div className="bb-social-feed-author">
+                  <span className="bb-social-feed-brand">{displayName}</span>
+                  <span className="bb-social-feed-user">@{username}</span>
+                </div>
                 {editMode && post.published === false ? (
                   <span className="bb-edit-section-badge bb-social-draft-badge">Draft</span>
                 ) : null}
@@ -174,45 +283,88 @@ export function SocialPostFeed({
 
               {!isText ? (
                 <div className="bb-social-feed-caption-row">
-                  <div className="bb-social-feed-caption">
-                    <strong>@{username || 'business'}</strong>{' '}
-                    {editMode ? (
+                  {post.title || editMode ? (
+                    editMode ? (
                       <EditableText
-                        as="span"
-                        className="bb-social-feed-caption-edit"
+                        as="h2"
+                        className="bb-social-feed-title"
                         editMode
-                        multiline
-                        value={post.caption || ''}
-                        placeholder="Write a caption…"
-                        onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+                        value={post.title || ''}
+                        placeholder="Add a title"
+                        onChange={(value) =>
+                          onUpdateSocialPost?.(post.id, { title: value })
+                        }
                       />
-                    ) : (
-                      post.caption || ''
-                    )}
-                  </div>
+                    ) : post.title ? (
+                      <h2 className="bb-social-feed-title">{post.title}</h2>
+                    ) : null
+                  ) : null}
+                  {(post.caption || editMode) ? (
+                    <div className="bb-social-feed-caption">
+                      {editMode ? (
+                        <EditableText
+                          as="span"
+                          className="bb-social-feed-caption-edit"
+                          editMode
+                          multiline
+                          value={post.caption || ''}
+                          placeholder="Write a caption…"
+                          onChange={(value) =>
+                            onUpdateSocialPost?.(post.id, { caption: value })
+                          }
+                        />
+                      ) : (
+                        post.caption
+                      )}
+                    </div>
+                  ) : null}
+                  {stamp ? (
+                    <time
+                      className="bb-social-feed-stamp"
+                      dateTime={new Date(post.createdAt).toISOString()}
+                    >
+                      {stamp}
+                    </time>
+                  ) : null}
                   {editMode ? (
                     <button
                       type="button"
                       className="bb-ghost-btn py-1 px-2.5 text-xs"
                       onClick={() =>
-                        onUpdateSocialPost?.(post.id, { published: post.published === false })
+                        onUpdateSocialPost?.(post.id, {
+                          published: post.published === false
+                        })
                       }
                     >
                       {post.published !== false ? 'Unpublish' : 'Publish'}
                     </button>
                   ) : null}
                 </div>
-              ) : editMode ? (
-                <button
-                  type="button"
-                  className="bb-ghost-btn py-1 px-2.5 text-xs justify-self-start"
-                  onClick={() =>
-                    onUpdateSocialPost?.(post.id, { published: post.published === false })
-                  }
-                >
-                  {post.published !== false ? 'Unpublish' : 'Publish'}
-                </button>
-              ) : null}
+              ) : (
+                <div className="bb-social-feed-caption-row">
+                  {stamp ? (
+                    <time
+                      className="bb-social-feed-stamp"
+                      dateTime={new Date(post.createdAt).toISOString()}
+                    >
+                      {stamp}
+                    </time>
+                  ) : null}
+                  {editMode ? (
+                    <button
+                      type="button"
+                      className="bb-ghost-btn py-1 px-2.5 text-xs justify-self-start"
+                      onClick={() =>
+                        onUpdateSocialPost?.(post.id, {
+                          published: post.published === false
+                        })
+                      }
+                    >
+                      {post.published !== false ? 'Unpublish' : 'Publish'}
+                    </button>
+                  ) : null}
+                </div>
+              )}
             </article>
           );
         })}

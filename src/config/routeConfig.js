@@ -95,7 +95,15 @@ export const workspaceTabParents = {
   orders: 'products'
 };
 
-export const mobilePrimaryTabs = ['overview', 'services', 'staff', 'products', 'website'];
+/** Mobile dock: Messages + Home are direct; More opens the full workspace menu. */
+export const mobileDockItems = [
+  { id: 'communications', label: 'Messages', kind: 'tab' },
+  { id: 'overview', label: 'Home', kind: 'tab' },
+  { id: 'more', label: 'More', kind: 'more' }
+];
+
+/** @deprecated Prefer mobileDockItems — kept for any older imports. */
+export const mobilePrimaryTabs = ['communications', 'overview'];
 
 export const resolveWorkspaceTab = (tab = 'overview') =>
   workspaceTabAliases[tab] || (workspaceTabIds.includes(tab) ? tab : 'overview');
