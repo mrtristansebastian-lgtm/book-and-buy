@@ -26,7 +26,55 @@ export function readVideoDuration(file) {
 }
 
 /**
- * Capture a JPEG poster frame from a local video File.
+ * Read a video's natural frame size / aspect (same idea as image crop frames).
+ */
+export function readVideoFrame(source) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+    let objectUrl = '';
+
+    const cleanup = () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+
+    video.onloadedmetadata = () => {
+      const width = video.videoWidth || 0;
+      const height = video.videoHeight || 0;
+      cleanup();
+      if (!(width > 0 && height > 0)) {
+        reject(new Error('Could not read video size'));
+        return;
+      }
+      resolve({
+        width,
+        height,
+        aspect: width / height,
+        duration: Number(video.duration) || 0
+      });
+    };
+    video.onerror = () => {
+      cleanup();
+      reject(new Error('Could not load video'));
+    };
+
+    if (typeof source === 'string') {
+      video.src = source;
+      return;
+    }
+    if (source instanceof Blob) {
+      objectUrl = URL.createObjectURL(source);
+      video.src = objectUrl;
+      return;
+    }
+    reject(new Error('Unsupported video source'));
+  });
+}
+
+/**
+ * Capture a JPEG poster frame from a local video File (native aspect, no padding).
  */
 export async function captureVideoPoster(file, atSeconds = 0.15) {
   const url = URL.createObjectURL(file);
@@ -75,4 +123,16 @@ export async function captureVideoPoster(file, atSeconds = 0.15) {
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+/** CSS-friendly aspect value for inline styles */
+export function aspectStyle(aspect, fallback) {
+  const value =
+    Number.isFinite(aspect) && aspect > 0
+      ? aspect
+      : Number.isFinite(fallback) && fallback > 0
+        ? fallback
+        : null;
+  if (!value) return undefined;
+  return { aspectRatio: String(value) };
 }

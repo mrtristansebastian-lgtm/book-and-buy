@@ -16,7 +16,8 @@ export function BbVideoPlayer({
   src = '',
   poster = '',
   className = '',
-  title = 'Video'
+  title = 'Video',
+  aspectRatio = 0
 }) {
   const rootRef = useRef(null);
   const videoRef = useRef(null);
@@ -28,7 +29,12 @@ export function BbVideoPlayer({
   const [volume, setVolume] = useState(0.9);
   const [fullscreen, setFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [detectedAspect, setDetectedAspect] = useState(0);
   const hideTimer = useRef(null);
+
+  useEffect(() => {
+    setDetectedAspect(0);
+  }, [src]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -37,6 +43,9 @@ export function BbVideoPlayer({
     const onTime = () => setCurrent(video.currentTime || 0);
     const onMeta = () => {
       if (Number.isFinite(video.duration)) setDuration(video.duration);
+      const w = video.videoWidth || 0;
+      const h = video.videoHeight || 0;
+      if (w > 0 && h > 0) setDetectedAspect(w / h);
     };
     const onProgress = () => {
       try {
@@ -174,6 +183,12 @@ export function BbVideoPlayer({
   const progress = duration > 0 ? Math.min(1, current / duration) : 0;
   const buffer = duration > 0 ? Math.min(1, buffered / duration) : 0;
   const showChrome = controlsVisible || !playing;
+  const frameAspect =
+    Number.isFinite(aspectRatio) && aspectRatio > 0
+      ? aspectRatio
+      : Number.isFinite(detectedAspect) && detectedAspect > 0
+        ? detectedAspect
+        : 16 / 9;
 
   if (!src) {
     return (
@@ -189,6 +204,7 @@ export function BbVideoPlayer({
       className={`bb-video-player ${showChrome ? 'is-chrome' : 'is-chrome-hidden'} ${
         fullscreen ? 'is-fullscreen' : ''
       } ${className}`.trim()}
+      style={fullscreen ? undefined : { aspectRatio: String(frameAspect) }}
       onMouseMove={showControlsTemporarily}
       onMouseLeave={() => {
         if (playing) setControlsVisible(false);

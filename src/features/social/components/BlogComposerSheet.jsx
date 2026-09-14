@@ -22,7 +22,7 @@ import {
   POST_CLIP_MAX_SECONDS,
   tabToPostType
 } from '../utils/socialPostType';
-import { captureVideoPoster, readVideoDuration } from '../utils/videoMedia';
+import { captureVideoPoster, readVideoDuration, readVideoFrame, aspectStyle } from '../utils/videoMedia';
 
 const MAX_MEDIA = 10;
 const TEXT_SOFT_LIMIT = 280;
@@ -71,6 +71,7 @@ function newMediaItem(partial = {}) {
     posterFile: null,
     durationSeconds: 0,
     durationLabel: '',
+    aspectRatio: 0,
     ...partial
   };
 }
@@ -93,10 +94,16 @@ function StepRail({ steps, index }) {
   );
 }
 
-function MediaPreview({ item }) {
+function MediaPreview({ item, onAspect }) {
   if (!item?.url) {
     return <span className="bb-composer-arrange-empty">Nothing selected</span>;
   }
+
+  const reportAspect = (w, h) => {
+    if (!(w > 0 && h > 0)) return;
+    onAspect?.(w / h);
+  };
+
   if (item.kind === 'video') {
     return (
       <video
@@ -106,10 +113,24 @@ function MediaPreview({ item }) {
         muted
         playsInline
         controls
+        onLoadedMetadata={(event) => {
+          const video = event.currentTarget;
+          reportAspect(video.videoWidth, video.videoHeight);
+        }}
       />
     );
   }
-  return <img src={item.url} alt="" />;
+
+  return (
+    <img
+      src={item.url}
+      alt=""
+      onLoad={(event) => {
+        const img = event.currentTarget;
+        reportAspect(img.naturalWidth, img.naturalHeight);
+      }}
+    />
+  );
 }
 
 /**
@@ -146,6 +167,7 @@ export function BlogComposerSheet({
   const [posterUrl, setPosterUrl] = useState('');
   const [duration, setDuration] = useState('');
   const [durationSeconds, setDurationSeconds] = useState(0);
+  const [videoAspect, setVideoAspect] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [cropSource, setCropSource] = useState(null);
@@ -168,6 +190,7 @@ export function BlogComposerSheet({
       setPosterUrl('');
       setDuration('');
       setDurationSeconds(0);
+      setVideoAspect(0);
       setError('');
       setStepIndex(0);
       setPreviewIndex(0);
@@ -180,13 +203,15 @@ export function BlogComposerSheet({
     setPosterUrl(post.posterUrl || '');
     setDuration(post.duration || '');
     setDurationSeconds(Number(post.durationSeconds) || 0);
+    setVideoAspect(Number(post.aspectRatio) || 0);
     const loaded = getPostMediaItems(post).map((item) =>
       newMediaItem({
         kind: item.kind,
         url: item.url,
         posterUrl: item.posterUrl || '',
         durationSeconds: item.durationSeconds || 0,
-        durationLabel: item.durationLabel || ''
+        durationLabel: item.durationLabel || '',
+        aspectRatio: Number(item.aspectRatio) || 0
       })
     );
     setItems(loaded);
@@ -231,7 +256,8 @@ export function BlogComposerSheet({
           continue;
         }
         if (file.type.startsWith('video/')) {
-          const seconds = await readVideoDuration(file);
+          const frame = await readVideoFrame(file).catch(() => null);
+          const seconds = frame?.duration || (await readVideoDuration(file));
           if (seconds > POST_CLIP_MAX_SECONDS + 0.25) {
             setError(
               `Clips in Posts must be ${POST_CLIP_MAX_SECONDS}s or less. Use Videos for longer films.`
@@ -254,7 +280,8 @@ export function BlogComposerSheet({
               posterUrl: posterPreview,
               posterFile,
               durationSeconds: seconds,
-              durationLabel: formatDurationLabel(seconds)
+              durationLabel: formatDurationLabel(seconds),
+              aspectRatio: frame?.aspect || 0
             })
           );
           continue;
@@ -300,10 +327,12 @@ export function BlogComposerSheet({
     setBusy(true);
     setError('');
     try {
-      const seconds = await readVideoDuration(file);
+      const frame = await readVideoFrame(file);
+      const seconds = frame.duration || (await readVideoDuration(file));
       const label = formatDurationLabel(seconds);
       setDurationSeconds(seconds);
       setDuration(label);
+      setVideoAspect(frame.aspect || 0);
       setVideoFile(file);
       setMediaUrl(URL.createObjectURL(file));
       try {
@@ -519,7 +548,8 @@ export function BlogComposerSheet({
             url: item.url,
             posterUrl: item.posterUrl || '',
             durationSeconds: item.durationSeconds || 0,
-            durationLabel: item.durationLabel || ''
+            durationLabel: item.durationLabel || '',
+            aspectRatio: Number(item.aspectRatio) || 0
           }))
         };
       } else if (type === 'video') {
@@ -532,12 +562,21 @@ export function BlogComposerSheet({
           setError('Upload a video file or paste a public URL to publish.');
           return;
         }
+        let aspect = videoAspect;
+        if (!(aspect > 0) && finalUrl) {
+          try {
+            aspect = (await readVideoFrame(finalUrl)).aspect;
+          } catch {
+            aspect = 0;
+          }
+        }
         payload = {
           ...payload,
           mediaUrl: finalUrl,
           posterUrl: posterUrl.trim(),
           duration: duration.trim() || formatDurationLabel(durationSeconds),
-          durationSeconds
+          durationSeconds,
+          aspectRatio: aspect || 0
         };
       }
 
@@ -631,8 +670,23 @@ export function BlogComposerSheet({
 
               {stepIndex === 1 ? (
                 <div className="bb-composer-arrange">
-                  <div className="bb-composer-arrange-stage">
-                    <MediaPreview item={activePreview} />
+                  <div
+                    className="bb-composer-arrange-stage"
+                    style={aspectStyle(activePreview?.aspectRatio)}
+                  >
+                    <MediaPreview
+                      item={activePreview}
+                      onAspect={(aspect) => {
+                        if (!(aspect > 0) || !activePreview?.id) return;
+                        setItems((prev) =>
+                          prev.map((entry) =>
+                            entry.id === activePreview.id && !(entry.aspectRatio > 0)
+                              ? { ...entry, aspectRatio: aspect }
+                              : entry
+                          )
+                        );
+                      }}
+                    />
                     {activePreview?.kind === 'video' && activePreview.durationLabel ? (
                       <span className="bb-composer-media-badge">
                         {activePreview.durationLabel}
@@ -789,13 +843,22 @@ export function BlogComposerSheet({
               {stepIndex === 0 ? (
                 <div className="bb-composer-fields bb-composer-video-source">
                   {mediaUrl ? (
-                    <div className="bb-composer-video-stage">
+                    <div
+                      className="bb-composer-video-stage"
+                      style={aspectStyle(videoAspect, 16 / 9)}
+                    >
                       <video
                         className="bb-social-compose-player"
                         controls
                         playsInline
                         poster={posterUrl || undefined}
                         src={mediaUrl}
+                        onLoadedMetadata={(event) => {
+                          const video = event.currentTarget;
+                          if (!(videoAspect > 0) && video.videoWidth > 0 && video.videoHeight > 0) {
+                            setVideoAspect(video.videoWidth / video.videoHeight);
+                          }
+                        }}
                       />
                       {duration ? (
                         <span className="bb-composer-media-badge">{duration}</span>
@@ -848,7 +911,10 @@ export function BlogComposerSheet({
 
               {stepIndex === 1 ? (
                 <div className="bb-composer-fields">
-                  <div className="bb-composer-video-review bb-composer-video-review--soft">
+                  <div
+                    className="bb-composer-video-review bb-composer-video-review--soft"
+                    style={aspectStyle(videoAspect, 16 / 9)}
+                  >
                     {mediaUrl ? (
                       <video
                         src={mediaUrl}
@@ -902,6 +968,7 @@ export function BlogComposerSheet({
                     className="bb-composer-dropzone bb-composer-dropzone--poster"
                     onClick={() => posterRef.current?.click()}
                     disabled={busy}
+                    style={posterUrl ? aspectStyle(videoAspect, 16 / 9) : undefined}
                   >
                     {posterUrl ? (
                       <img src={posterUrl} alt="" className="bb-composer-poster-preview" />
@@ -909,7 +976,7 @@ export function BlogComposerSheet({
                       <>
                         <ImagePlus size={26} strokeWidth={2} />
                         <strong>Choose thumbnail</strong>
-                        <span>Required · 16:9 crop with Fit / Fill</span>
+                        <span>Required · keeps the video’s own shape</span>
                       </>
                     )}
                   </button>

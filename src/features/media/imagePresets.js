@@ -69,7 +69,11 @@ export const IMAGE_PRESETS = {
     width: 1280,
     height: 720,
     mime: 'image/jpeg',
-    quality: 0.9
+    quality: 0.9,
+    // Posters keep the video's own shape — never letterboxed into 16:9.
+    flexible: true,
+    minAspect: 0.3,
+    maxAspect: 3.5
   }
 };
 

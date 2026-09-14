@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, Pencil, Play } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp } from '../utils/socialPostType';
+import { aspectStyle } from '../utils/videoMedia';
 import { BbVideoPlayer } from './BbVideoPlayer';
 
 function channelInitial(name = '') {
@@ -69,7 +70,10 @@ function VideoWatchPage({
         </button>
       </header>
 
-      <div className="bb-yt-watch-player">
+      <div
+        className="bb-yt-watch-player"
+        style={aspectStyle(post.aspectRatio, 16 / 9)}
+      >
         {post.mediaUrl ? (
           <BbVideoPlayer
             key={post.id}
@@ -77,6 +81,7 @@ function VideoWatchPage({
             src={post.mediaUrl}
             poster={post.posterUrl || ''}
             title={post.title || 'Video'}
+            aspectRatio={Number(post.aspectRatio) || 0}
           />
         ) : (
           <div className="bb-social-video-player bb-social-video-player--empty">
@@ -250,7 +255,10 @@ export function SocialVideosPanel({
               onClick={() => openWatch(post.id)}
               aria-label={`Play ${title}`}
             >
-              <span className="bb-social-video-tile-media bb-yt-thumb">
+              <span
+                className="bb-social-video-tile-media bb-yt-thumb"
+                style={aspectStyle(post.aspectRatio, 16 / 9)}
+              >
                 {thumb ? <img src={thumb} alt="" /> : <span className="bb-social-video-tile-empty" />}
                 <span className="bb-social-video-tile-play" aria-hidden="true">
                   <Play size={22} strokeWidth={2.4} fill="currentColor" />

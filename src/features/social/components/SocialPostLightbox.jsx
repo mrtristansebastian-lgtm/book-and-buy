@@ -119,6 +119,21 @@ export function SocialPostLightbox({
                 poster={active.posterUrl || undefined}
                 controls
                 playsInline
+                style={
+                  Number(active.aspectRatio) > 0
+                    ? { aspectRatio: String(active.aspectRatio) }
+                    : undefined
+                }
+                onLoadedMetadata={(event) => {
+                  const video = event.currentTarget;
+                  if (
+                    !(Number(active.aspectRatio) > 0) &&
+                    video.videoWidth > 0 &&
+                    video.videoHeight > 0
+                  ) {
+                    video.style.aspectRatio = String(video.videoWidth / video.videoHeight);
+                  }
+                }}
               />
             ) : active?.url ? (
               <img src={active.url} alt={post.title || post.caption || ''} />

@@ -34,7 +34,7 @@ export function getPostMediaUrls(post) {
 
 /**
  * Structured carousel media for Posts (images + short clips).
- * @returns {Array<{ kind: 'image'|'video', url: string, posterUrl?: string, durationSeconds?: number, durationLabel?: string }>}
+ * @returns {Array<{ kind: 'image'|'video', url: string, posterUrl?: string, durationSeconds?: number, durationLabel?: string, aspectRatio?: number }>}
  */
 export function getPostMediaItems(post) {
   if (!post) return [];
@@ -49,7 +49,8 @@ export function getPostMediaItems(post) {
           url,
           posterUrl: String(item?.posterUrl || '').trim(),
           durationSeconds: Number(item?.durationSeconds) || 0,
-          durationLabel: String(item?.durationLabel || '').trim()
+          durationLabel: String(item?.durationLabel || '').trim(),
+          aspectRatio: Number(item?.aspectRatio) || 0
         };
       })
       .filter(Boolean);
@@ -59,7 +60,8 @@ export function getPostMediaItems(post) {
     url,
     posterUrl: '',
     durationSeconds: 0,
-    durationLabel: ''
+    durationLabel: '',
+    aspectRatio: 0
   }));
 }
 
