@@ -4,19 +4,70 @@ export function getSocialPostKind(post) {
   if (post.type === 'video') return 'video';
   if (post.type === 'text') return 'text';
   if (post.type === 'image') return 'image';
-  if (post.mediaUrl || (Array.isArray(post.mediaUrls) && post.mediaUrls.length)) return 'image';
+  if (
+    post.mediaUrl ||
+    (Array.isArray(post.mediaUrls) && post.mediaUrls.length) ||
+    (Array.isArray(post.mediaItems) && post.mediaItems.length)
+  ) {
+    return 'image';
+  }
   return 'text';
 }
 
-/** Image URLs for a post — prefers mediaUrls, falls back to mediaUrl. */
+/** Max clip length (seconds) allowed inside Instagram-style Posts carousels. */
+export const POST_CLIP_MAX_SECONDS = 60;
+
+/** Image/video URLs for a post — prefers mediaUrls, falls back to mediaUrl. */
 export function getPostMediaUrls(post) {
   if (!post) return [];
+  const fromItems = Array.isArray(post.mediaItems)
+    ? post.mediaItems.map((item) => String(item?.url || '').trim()).filter(Boolean)
+    : [];
+  if (fromItems.length) return fromItems;
   const list = Array.isArray(post.mediaUrls)
     ? post.mediaUrls.map((url) => String(url || '').trim()).filter(Boolean)
     : [];
   if (list.length) return list;
   const single = String(post.mediaUrl || '').trim();
   return single ? [single] : [];
+}
+
+/**
+ * Structured carousel media for Posts (images + short clips).
+ * @returns {Array<{ kind: 'image'|'video', url: string, posterUrl?: string, durationSeconds?: number, durationLabel?: string }>}
+ */
+export function getPostMediaItems(post) {
+  if (!post) return [];
+  if (Array.isArray(post.mediaItems) && post.mediaItems.length) {
+    return post.mediaItems
+      .map((item) => {
+        const url = String(item?.url || '').trim();
+        if (!url) return null;
+        const kind = item?.kind === 'video' ? 'video' : 'image';
+        return {
+          kind,
+          url,
+          posterUrl: String(item?.posterUrl || '').trim(),
+          durationSeconds: Number(item?.durationSeconds) || 0,
+          durationLabel: String(item?.durationLabel || '').trim()
+        };
+      })
+      .filter(Boolean);
+  }
+  return getPostMediaUrls(post).map((url) => ({
+    kind: 'image',
+    url,
+    posterUrl: '',
+    durationSeconds: 0,
+    durationLabel: ''
+  }));
+}
+
+export function formatDurationLabel(seconds = 0) {
+  const total = Math.max(0, Math.round(Number(seconds) || 0));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
 }
 
 /** Map studio tab id → SocialPost.type */

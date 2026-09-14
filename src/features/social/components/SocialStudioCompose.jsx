@@ -4,13 +4,13 @@ export const BLOG_CREATE_ACTIONS = [
   {
     id: 'posts',
     label: 'New post',
-    hint: '4:5 photo',
+    hint: 'Photos + clips ≤1m',
     Icon: ImagePlus
   },
   {
     id: 'videos',
     label: 'New video',
-    hint: '16:9 clip',
+    hint: 'Any length · YT flow',
     Icon: Clapperboard
   },
   {
@@ -31,7 +31,7 @@ export function SocialStudioCompose({ onOpenCreate }) {
         <p className="bb-social-studio-create-eyebrow">Publish</p>
         <h2 className="bb-social-studio-create-title">Add to Content</h2>
         <p className="bb-social-studio-create-lede">
-          Pick a format — step through media like Instagram or YouTube, or write an update like X.
+          Posts mix photos and clips up to 1 minute. Longer films go in Videos. Text feels like X.
         </p>
       </div>
       <div className="bb-social-studio-create-actions">

@@ -1351,6 +1351,21 @@
   pointer-events: none;
 }
 
+.bb-social-ig-video-badge {
+  position: absolute;
+  left: 0.4rem;
+  bottom: 0.4rem;
+  z-index: 2;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  pointer-events: none;
+}
+
 .bb-social-ig-carousel-badge-icon {
   width: 0.55rem;
   height: 0.55rem;
@@ -1641,6 +1656,15 @@
   height: auto;
   object-fit: contain;
   display: block;
+}
+
+.bb-social-lightbox-video {
+  max-width: 100%;
+  max-height: min(64vh, 36rem);
+  width: auto;
+  height: auto;
+  display: block;
+  background: #000;
 }
 
 .bb-social-lightbox-media-nav {
@@ -2841,98 +2865,173 @@
   overflow: hidden;
 }
 
-/* Articles — speech-bubble note timeline */
-.bb-social-notes {
+/* Text updates — separate speech bubbles, 3-up like Posts */
+.bb-social-notes,
+.bb-social-notes--grid {
   display: grid;
-  gap: 1rem;
-  max-width: 38rem;
-  margin-inline: auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem 0.9rem;
+  max-width: none;
+  margin-inline: 0;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+@media (max-width: 640px) {
+  .bb-social-notes,
+  .bb-social-notes--grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
 }
 
 .bb-social-note {
   display: grid;
-  gap: 0.55rem;
+  gap: 0;
   min-width: 0;
-  padding-block: 0.35rem;
+  padding: 0;
   position: relative;
+  background: transparent;
+  align-content: start;
 }
 
-.bb-social-note:first-child {
-  padding-top: 0.15rem;
+.bb-social-note + .bb-social-note {
+  border-top: 0;
 }
 
+.bb-social-note:first-child,
 .bb-social-note:last-child {
-  padding-bottom: 0.15rem;
+  padding-block: 0;
 }
 
 .bb-social-note:not(:last-child)::after {
   display: none;
 }
 
+.bb-social-note-card,
+.bb-social-note-bubble {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+  min-height: 11.5rem;
+  margin-bottom: 0.55rem;
+  padding: 1rem 1.05rem 1.2rem;
+  border-radius: 1.25rem 1.25rem 1.25rem 0.35rem;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  overflow: visible;
+}
+
+.bb-social-note-card::after,
+.bb-social-note-bubble::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute;
+  left: 1rem;
+  bottom: -0.45rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  background: #fff;
+  border-right: 1px solid rgba(15, 23, 42, 0.1);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  transform: rotate(45deg);
+  border-radius: 0 0 0.12rem 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .bb-social-note-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem 0.65rem;
+  gap: 0.4rem 0.55rem;
+  position: relative;
+  z-index: 1;
 }
 
 .bb-social-note-stamp {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.66rem;
-  font-weight: 740;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-weight: 680;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: #98a2b3;
 }
 
 .bb-social-note-mark {
-  display: block;
-  width: 1.35rem;
-  height: 0.16rem;
-  border-radius: 999px;
+  display: none;
 }
 
 .bb-social-note-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+  font-size: 0.98rem;
   font-weight: 780;
   letter-spacing: -0.025em;
-  line-height: 1.28;
+  line-height: 1.3;
   color: #101828;
-}
-
-.bb-social-note-bubble {
   position: relative;
-  padding: 0.95rem 1.05rem 1.05rem;
-  border-radius: 1.15rem 1.15rem 1.15rem 0.35rem;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
-}
-
-.bb-social-note-bubble::after {
-  content: '';
-  position: absolute;
-  left: 0.85rem;
-  bottom: -0.42rem;
-  width: 0.85rem;
-  height: 0.85rem;
-  background: #fff;
-  border-right: 1px solid rgba(15, 23, 42, 0.1);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
-  transform: rotate(45deg);
-  border-radius: 0 0 0.12rem 0;
+  z-index: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .bb-social-note-text {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.45;
   font-weight: 500;
-  color: #344054;
+  color: #475467;
   white-space: pre-wrap;
+  position: relative;
+  z-index: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-social-note .bb-social-manage-edit--note {
+  position: relative;
+  z-index: 1;
+  margin: 0.15rem 0 0;
+  justify-self: start;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: none;
+}
+
+.bb-social-note .bb-social-edit-actions {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+.bb-social-note--preview {
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  max-width: 22rem;
+}
+
+.bb-social-note--preview .bb-social-note-card,
+.bb-social-note--preview .bb-social-note-bubble {
+  min-height: 0;
+  -webkit-line-clamp: unset;
+}
+
+.bb-social-note--preview .bb-social-note-title,
+.bb-social-note--preview .bb-social-note-text {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 /* Legacy article card classes kept for safety */
@@ -3782,20 +3881,30 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   font-size: 0.86rem;
 }
 
-.bb-device-preview--phone .bb-social-notes {
+.bb-device-preview--phone .bb-social-notes,
+.bb-device-preview--phone .bb-social-notes--grid {
   max-width: none;
+  grid-template-columns: 1fr !important;
+  gap: 0.75rem;
 }
 
 .bb-device-preview--phone .bb-social-note {
-  padding-block: 1.1rem;
+  padding-block: 0;
+}
+
+.bb-device-preview--phone .bb-social-note-card,
+.bb-device-preview--phone .bb-social-note-bubble {
+  min-height: 0;
+  padding: 0.9rem 1rem 1.05rem;
 }
 
 .bb-device-preview--phone .bb-social-note-title {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
 .bb-device-preview--phone .bb-social-note-text {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  -webkit-line-clamp: 4;
 }
 
 .bb-device-preview--phone .bb-social-article {

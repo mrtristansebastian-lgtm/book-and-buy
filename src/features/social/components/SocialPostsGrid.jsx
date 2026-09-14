@@ -1,9 +1,9 @@
-import { Pencil } from 'lucide-react';
-import { getPostMediaUrls } from '../utils/socialPostType';
+import { Pencil, Play } from 'lucide-react';
+import { getPostMediaItems } from '../utils/socialPostType';
 
 /**
  * Photo posts: Instagram-style flush 3-column image grid.
- * Click opens lightbox detail. Optional onEditPost adds manage chrome.
+ * Supports mixed photo + short-clip carousels.
  */
 export function SocialPostsGrid({
   posts,
@@ -27,10 +27,12 @@ export function SocialPostsGrid({
   return (
     <div className="bb-social-post-cards bb-social-ig-grid" role="list">
       {posts.map((post) => {
-        const urls = getPostMediaUrls(post);
-        const src = urls[0] || '';
-        const multi = urls.length > 1;
+        const media = getPostMediaItems(post);
+        const first = media[0];
+        const multi = media.length > 1;
         const title = String(post.title || '').trim() || 'Untitled post';
+        const thumb =
+          first?.kind === 'video' ? first.posterUrl || first.url || '' : first?.url || '';
 
         return (
           <article key={post.id} className="bb-social-post-card bb-social-ig-cell" role="listitem">
@@ -47,15 +49,27 @@ export function SocialPostsGrid({
               aria-label={`View ${title}`}
             >
               <span className="bb-social-square-tile-media bb-social-ig-media">
-                {src ? (
-                  <img src={src} alt="" className="bb-social-square-tile-img" />
+                {thumb ? (
+                  <img src={thumb} alt="" className="bb-social-square-tile-img" />
+                ) : first?.kind === 'video' && first.url ? (
+                  <video
+                    src={first.url}
+                    muted
+                    playsInline
+                    className="bb-social-square-tile-img"
+                  />
                 ) : (
                   <span className="bb-social-square-tile-empty">
-                    {editMode ? 'Add photo' : 'No image'}
+                    {editMode ? 'Add media' : 'No media'}
                   </span>
                 )}
+                {first?.kind === 'video' ? (
+                  <span className="bb-social-ig-video-badge" aria-hidden="true">
+                    <Play size={12} fill="currentColor" />
+                  </span>
+                ) : null}
                 {multi ? (
-                  <span className="bb-social-ig-carousel-badge" aria-label={`${urls.length} photos`}>
+                  <span className="bb-social-ig-carousel-badge" aria-label={`${media.length} items`}>
                     <span className="bb-social-ig-carousel-badge-icon" aria-hidden="true" />
                   </span>
                 ) : null}

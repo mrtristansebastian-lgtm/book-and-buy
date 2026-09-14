@@ -81,6 +81,55 @@ export async function uploadPublicImage(file: File, pathHint = 'website') {
   return { ok: true as const, localOnly: false, url };
 }
 
+const MAX_VIDEO_BYTES = 48 * 1024 * 1024;
+
+/**
+ * Upload a short social video clip to Storage when configured + signed in.
+ * Falls back to a local object/data URL for demo / offline.
+ */
+export async function uploadPublicVideo(file: File, pathHint = 'social') {
+  if (!(file instanceof File)) {
+    throw new Error('Choose a video file.');
+  }
+  if (!file.type.startsWith('video/')) {
+    throw new Error('Choose a video file (MP4, WebM, or MOV).');
+  }
+  if (file.size > MAX_VIDEO_BYTES) {
+    throw new Error('Video must be under 48MB.');
+  }
+
+  const firebase = getFirebase();
+  if (!firebase) {
+    const url = URL.createObjectURL(file);
+    return {
+      ok: true as const,
+      localOnly: true,
+      url,
+      reason: 'Saved locally until Firebase Storage is configured.'
+    };
+  }
+
+  const ownerId = firebase.auth.currentUser?.uid;
+  if (!ownerId) {
+    const url = URL.createObjectURL(file);
+    return {
+      ok: true as const,
+      localOnly: true,
+      url,
+      reason: 'Sign in to upload to Storage. Saved locally for now.'
+    };
+  }
+
+  const storage = getStorage(firebase.app);
+  const folder = sanitizeFolder(pathHint);
+  const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'video.mp4')}`;
+  const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
+  const storageRef = ref(storage, objectPath);
+  await uploadBytes(storageRef, file, { contentType: file.type });
+  const url = await getDownloadURL(storageRef);
+  return { ok: true as const, localOnly: false, url };
+}
+
 const MAX_CHAT_ATTACHMENT_BYTES = 25 * 1024 * 1024;
 const CHAT_ALLOWED_PREFIXES = ['image/', 'audio/', 'application/pdf', 'text/plain'];
 const CHAT_ALLOWED_EXACT = new Set([

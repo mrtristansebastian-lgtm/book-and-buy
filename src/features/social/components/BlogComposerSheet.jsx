@@ -2,45 +2,50 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
-  Clapperboard,
   Crop,
   Film,
   GripVertical,
   ImagePlus,
+  Play,
   Plus,
   Trash2,
-  Type,
   X
 } from 'lucide-react';
-import { uploadPublicImage } from '../../../shared/firebase/integrations';
+import {
+  uploadPublicImage,
+  uploadPublicVideo
+} from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
-import { getPostMediaUrls, tabToPostType } from '../utils/socialPostType';
+import {
+  formatDurationLabel,
+  getPostMediaItems,
+  POST_CLIP_MAX_SECONDS,
+  tabToPostType
+} from '../utils/socialPostType';
+import { captureVideoPoster, readVideoDuration } from '../utils/videoMedia';
 
-const MAX_IMAGES = 10;
+const MAX_MEDIA = 10;
 const TEXT_SOFT_LIMIT = 280;
 
 const META = {
   posts: {
-    eyebrowCreate: 'New photo',
-    eyebrowEdit: 'Edit photo',
-    titleCreate: 'New post',
-    Icon: ImagePlus
+    eyebrowCreate: 'New post',
+    eyebrowEdit: 'Edit post',
+    titleCreate: 'New post'
   },
   videos: {
     eyebrowCreate: 'New video',
     eyebrowEdit: 'Edit video',
-    titleCreate: 'New video',
-    Icon: Clapperboard
+    titleCreate: 'New video'
   },
   text: {
     eyebrowCreate: 'New text update',
     eyebrowEdit: 'Edit text update',
-    titleCreate: 'New update',
-    Icon: Type
+    titleCreate: 'New update'
   }
 };
 
-const IMAGE_STEPS = [
+const POST_STEPS = [
   { id: 'select', label: 'Select' },
   { id: 'arrange', label: 'Arrange' },
   { id: 'caption', label: 'Caption' }
@@ -48,19 +53,24 @@ const IMAGE_STEPS = [
 
 const VIDEO_STEPS = [
   { id: 'source', label: 'Source' },
-  { id: 'thumbnail', label: 'Thumbnail' },
-  { id: 'details', label: 'Details' }
+  { id: 'details', label: 'Details' },
+  { id: 'thumbnail', label: 'Thumbnail' }
 ];
 
 function isBlobUrl(url) {
   return String(url || '').startsWith('blob:');
 }
 
-function newImageItem(partial = {}) {
+function newMediaItem(partial = {}) {
   return {
-    id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    id: `media-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    kind: 'image',
     url: '',
     file: null,
+    posterUrl: '',
+    posterFile: null,
+    durationSeconds: 0,
+    durationLabel: '',
     ...partial
   };
 }
@@ -83,6 +93,25 @@ function StepRail({ steps, index }) {
   );
 }
 
+function MediaPreview({ item }) {
+  if (!item?.url) {
+    return <span className="bb-composer-arrange-empty">Nothing selected</span>;
+  }
+  if (item.kind === 'video') {
+    return (
+      <video
+        className="bb-composer-arrange-video"
+        src={item.url}
+        poster={item.posterUrl || undefined}
+        muted
+        playsInline
+        controls
+      />
+    );
+  }
+  return <img src={item.url} alt="" />;
+}
+
 /**
  * Unified create/edit composer — stepped for image/video, X-style for text.
  */
@@ -103,7 +132,7 @@ export function BlogComposerSheet({
     : tabToPostType(kind);
   const meta = META[kind] || META.posts;
 
-  const imageRef = useRef(null);
+  const mediaRef = useRef(null);
   const videoRef = useRef(null);
   const posterRef = useRef(null);
   const dragIndex = useRef(null);
@@ -111,10 +140,12 @@ export function BlogComposerSheet({
   const [stepIndex, setStepIndex] = useState(0);
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
-  const [images, setImages] = useState([]);
+  const [items, setItems] = useState([]);
   const [mediaUrl, setMediaUrl] = useState('');
+  const [videoFile, setVideoFile] = useState(null);
   const [posterUrl, setPosterUrl] = useState('');
   const [duration, setDuration] = useState('');
+  const [durationSeconds, setDurationSeconds] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [cropSource, setCropSource] = useState(null);
@@ -125,16 +156,18 @@ export function BlogComposerSheet({
   const [cropImageId, setCropImageId] = useState('');
   const [previewIndex, setPreviewIndex] = useState(0);
 
-  const steps = type === 'image' ? IMAGE_STEPS : type === 'video' ? VIDEO_STEPS : [];
+  const steps = type === 'image' ? POST_STEPS : type === 'video' ? VIDEO_STEPS : [];
 
   useEffect(() => {
     if (!post) {
       setTitle('');
       setCaption('');
-      setImages([]);
+      setItems([]);
       setMediaUrl('');
+      setVideoFile(null);
       setPosterUrl('');
       setDuration('');
+      setDurationSeconds(0);
       setError('');
       setStepIndex(0);
       setPreviewIndex(0);
@@ -143,19 +176,29 @@ export function BlogComposerSheet({
     setTitle(post.title || '');
     setCaption(post.caption || '');
     setMediaUrl(post.mediaUrl || '');
+    setVideoFile(null);
     setPosterUrl(post.posterUrl || '');
     setDuration(post.duration || '');
-    const urls = getPostMediaUrls(post);
-    setImages(urls.map((url) => newImageItem({ url })));
+    setDurationSeconds(Number(post.durationSeconds) || 0);
+    const loaded = getPostMediaItems(post).map((item) =>
+      newMediaItem({
+        kind: item.kind,
+        url: item.url,
+        posterUrl: item.posterUrl || '',
+        durationSeconds: item.durationSeconds || 0,
+        durationLabel: item.durationLabel || ''
+      })
+    );
+    setItems(loaded);
     setError('');
     setPreviewIndex(0);
-    if (type === 'image') setStepIndex(urls.length ? 1 : 0);
-    else if (type === 'video') setStepIndex(0);
+    if (type === 'image') setStepIndex(loaded.length ? 1 : 0);
     else setStepIndex(0);
   }, [post, type]);
 
   const durableVideoUrl = isBlobUrl(mediaUrl) ? '' : mediaUrl;
   const captionLen = caption.length;
+  const activePreview = items[previewIndex] || items[0];
 
   const openImageCrop = (file, target, preset, imageId = '') => {
     setFileNameHint(file.name || '');
@@ -166,29 +209,76 @@ export function BlogComposerSheet({
     setCropOpen(true);
   };
 
-  const onImagesPick = (event) => {
-    const files = [...(event.target.files || [])].filter((file) =>
-      String(file.type || '').startsWith('image/')
-    );
+  const onPostMediaPick = async (event) => {
+    const files = [...(event.target.files || [])];
     event.target.value = '';
     if (!files.length) return;
     setError('');
-    setImages((prev) => {
-      const room = MAX_IMAGES - prev.length;
-      const nextFiles = files.slice(0, Math.max(0, room));
-      const added = nextFiles.map((file) =>
-        newImageItem({
-          url: URL.createObjectURL(file),
-          file
-        })
-      );
-      const next = [...prev, ...added];
-      if (added[0]) {
-        queueMicrotask(() => openImageCrop(added[0].file, 'image', 'socialPost', added[0].id));
+    setBusy(true);
+    try {
+      const room = MAX_MEDIA - items.length;
+      const slice = files.slice(0, Math.max(0, room));
+      const added = [];
+
+      for (const file of slice) {
+        if (file.type.startsWith('image/')) {
+          const item = newMediaItem({
+            kind: 'image',
+            url: URL.createObjectURL(file),
+            file
+          });
+          added.push(item);
+          continue;
+        }
+        if (file.type.startsWith('video/')) {
+          const seconds = await readVideoDuration(file);
+          if (seconds > POST_CLIP_MAX_SECONDS + 0.25) {
+            setError(
+              `Clips in Posts must be ${POST_CLIP_MAX_SECONDS}s or less. Use Videos for longer films.`
+            );
+            continue;
+          }
+          let posterFile = null;
+          let posterPreview = '';
+          try {
+            posterFile = await captureVideoPoster(file);
+            posterPreview = URL.createObjectURL(posterFile);
+          } catch {
+            posterFile = null;
+          }
+          added.push(
+            newMediaItem({
+              kind: 'video',
+              url: URL.createObjectURL(file),
+              file,
+              posterUrl: posterPreview,
+              posterFile,
+              durationSeconds: seconds,
+              durationLabel: formatDurationLabel(seconds)
+            })
+          );
+          continue;
+        }
       }
-      return next;
-    });
-    setStepIndex(1);
+
+      if (!added.length) {
+        if (!error) setError('Choose photos or clips up to 1 minute.');
+        return;
+      }
+
+      setItems((prev) => [...prev, ...added]);
+      setStepIndex(1);
+      const firstImage = added.find((item) => item.kind === 'image' && item.file);
+      if (firstImage) {
+        queueMicrotask(() =>
+          openImageCrop(firstImage.file, 'image', 'socialPost', firstImage.id)
+        );
+      }
+    } catch (err) {
+      setError(err?.message || 'Could not add media');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const onPosterPick = (event) => {
@@ -199,7 +289,7 @@ export function BlogComposerSheet({
     openImageCrop(file, 'poster', 'videoPoster');
   };
 
-  const onVideoFile = (event) => {
+  const onVideoSectionFile = async (event) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
@@ -207,8 +297,27 @@ export function BlogComposerSheet({
       setError('Choose a video file.');
       return;
     }
+    setBusy(true);
     setError('');
-    setMediaUrl(URL.createObjectURL(file));
+    try {
+      const seconds = await readVideoDuration(file);
+      const label = formatDurationLabel(seconds);
+      setDurationSeconds(seconds);
+      setDuration(label);
+      setVideoFile(file);
+      setMediaUrl(URL.createObjectURL(file));
+      try {
+        const poster = await captureVideoPoster(file);
+        const uploaded = await uploadPublicImage(poster, 'social');
+        setPosterUrl(uploaded.url || '');
+      } catch {
+        /* poster optional until final step */
+      }
+    } catch (err) {
+      setError(err?.message || 'Could not read video');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const onCropConfirm = async (file) => {
@@ -220,7 +329,7 @@ export function BlogComposerSheet({
       if (cropTarget === 'poster') {
         setPosterUrl(url);
       } else if (cropImageId) {
-        setImages((prev) =>
+        setItems((prev) =>
           prev.map((item) =>
             item.id === cropImageId ? { ...item, url, file: null } : item
           )
@@ -237,12 +346,13 @@ export function BlogComposerSheet({
     }
   };
 
-  const removeImage = (id) => {
-    setImages((prev) => prev.filter((item) => item.id !== id));
+  const removeItem = (id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
     setPreviewIndex(0);
   };
 
   const cropExistingImage = async (item) => {
+    if (item.kind !== 'image') return;
     if (item.file) {
       openImageCrop(item.file, 'image', 'socialPost', item.id);
       return;
@@ -270,7 +380,7 @@ export function BlogComposerSheet({
     event.preventDefault();
     const from = dragIndex.current;
     if (from == null || from === index) return;
-    setImages((prev) => {
+    setItems((prev) => {
       const next = [...prev];
       const [moved] = next.splice(from, 1);
       next.splice(index, 0, moved);
@@ -283,43 +393,66 @@ export function BlogComposerSheet({
     dragIndex.current = null;
   };
 
-  const ensureImagesUploaded = async () => {
+  const ensurePostMediaUploaded = async () => {
     const next = [];
-    for (const item of images) {
-      if (item.url && !isBlobUrl(item.url) && !item.file) {
-        next.push(item);
+    for (const item of items) {
+      if (item.kind === 'image') {
+        if (item.url && !isBlobUrl(item.url) && !item.file) {
+          next.push(item);
+          continue;
+        }
+        if (!item.file) throw new Error('Crop or re-add each photo before publishing.');
+        const result = await uploadPublicImage(item.file, 'social');
+        next.push({ ...item, url: result.url || '', file: null });
         continue;
       }
-      if (!item.file && isBlobUrl(item.url)) {
-        throw new Error('Crop or re-add each photo before publishing.');
+
+      let url = item.url;
+      if (item.file || isBlobUrl(item.url)) {
+        if (!item.file) throw new Error('Re-add each clip before publishing.');
+        const uploaded = await uploadPublicVideo(item.file, 'social');
+        url = uploaded.url || '';
       }
-      if (!item.file) {
-        throw new Error('Add at least one photo.');
+      let poster = item.posterUrl;
+      if (item.posterFile) {
+        const uploadedPoster = await uploadPublicImage(item.posterFile, 'social');
+        poster = uploadedPoster.url || poster;
+      } else if (poster && isBlobUrl(poster) && item.file) {
+        const posterFile = await captureVideoPoster(item.file);
+        const uploadedPoster = await uploadPublicImage(posterFile, 'social');
+        poster = uploadedPoster.url || '';
       }
-      const result = await uploadPublicImage(item.file, 'social');
-      next.push({ ...item, url: result.url || '', file: null });
+      next.push({
+        ...item,
+        url,
+        file: null,
+        posterUrl: poster && !isBlobUrl(poster) ? poster : '',
+        posterFile: null
+      });
     }
     return next;
   };
 
   const validateStep = (index) => {
     if (type === 'image') {
-      if (index === 0 && !images.length) return 'Add at least one photo.';
-      if (index >= 1 && !images.length) return 'Add at least one photo.';
+      if (!items.length) return 'Add at least one photo or clip (clips ≤ 1 minute).';
     }
     if (type === 'video') {
       if (index === 0) {
-        if (!durableVideoUrl.trim()) {
-          return 'Paste a public video URL to continue (local files are preview-only).';
+        if (!videoFile && !durableVideoUrl.trim()) {
+          return 'Upload a video file or paste a public URL to continue.';
         }
       }
-      if (index >= 1 && !posterUrl.trim()) return 'Add a thumbnail before continuing.';
       if (index >= 2) {
-        if (!mediaUrl.trim()) return 'Paste a public video URL to publish.';
-        if (isBlobUrl(mediaUrl)) {
-          return 'Paste a public video URL before publishing. Local files are preview-only.';
+        if (!videoFile && !durableVideoUrl.trim()) {
+          return 'Upload a video file or paste a public URL to publish.';
         }
-        if (!posterUrl.trim()) return 'Add a thumbnail before publishing.';
+        if (!videoFile && isBlobUrl(mediaUrl)) {
+          return 'Paste a public video URL before publishing.';
+        }
+        if (!posterUrl.trim() || isBlobUrl(posterUrl)) {
+          return 'Add a thumbnail before publishing.';
+        }
       }
     }
     if (type === 'text' && !caption.trim()) return 'Write something first.';
@@ -370,24 +503,41 @@ export function BlogComposerSheet({
       };
 
       if (type === 'image') {
-        const uploaded = await ensureImagesUploaded();
-        const urls = uploaded.map((item) => item.url).filter(Boolean);
-        if (!urls.length) {
-          setError('Add at least one photo.');
+        const uploaded = await ensurePostMediaUploaded();
+        if (!uploaded.length) {
+          setError('Add at least one photo or clip.');
           return;
         }
-        setImages(uploaded);
+        setItems(uploaded);
+        const urls = uploaded.map((item) => item.url).filter(Boolean);
         payload = {
           ...payload,
           mediaUrl: urls[0],
-          mediaUrls: urls
+          mediaUrls: urls,
+          mediaItems: uploaded.map((item) => ({
+            kind: item.kind,
+            url: item.url,
+            posterUrl: item.posterUrl || '',
+            durationSeconds: item.durationSeconds || 0,
+            durationLabel: item.durationLabel || ''
+          }))
         };
       } else if (type === 'video') {
+        let finalUrl = durableVideoUrl.trim();
+        if (videoFile) {
+          const uploaded = await uploadPublicVideo(videoFile, 'social');
+          finalUrl = uploaded.url || '';
+        }
+        if (!finalUrl || isBlobUrl(finalUrl)) {
+          setError('Upload a video file or paste a public URL to publish.');
+          return;
+        }
         payload = {
           ...payload,
-          mediaUrl: mediaUrl.trim(),
+          mediaUrl: finalUrl,
           posterUrl: posterUrl.trim(),
-          duration: duration.trim()
+          duration: duration.trim() || formatDurationLabel(durationSeconds),
+          durationSeconds
         };
       }
 
@@ -406,10 +556,8 @@ export function BlogComposerSheet({
     type === 'text'
       ? true
       : type === 'image'
-        ? stepIndex >= IMAGE_STEPS.length - 1
+        ? stepIndex >= POST_STEPS.length - 1
         : stepIndex >= VIDEO_STEPS.length - 1;
-
-  const activePreview = images[previewIndex] || images[0];
 
   const footerPrimary = () => {
     if (type === 'text' || canPublish) {
@@ -465,31 +613,38 @@ export function BlogComposerSheet({
               {stepIndex === 0 ? (
                 <button
                   type="button"
-                  className="bb-composer-dropzone"
-                  onClick={() => imageRef.current?.click()}
+                  className="bb-composer-dropzone bb-composer-dropzone--hero"
+                  onClick={() => mediaRef.current?.click()}
                   disabled={busy}
                 >
-                  <ImagePlus size={28} strokeWidth={2} />
-                  <strong>Select photos</strong>
-                  <span>Up to {MAX_IMAGES} · 4:5 crop on the next step</span>
+                  <span className="bb-composer-dropzone-icons" aria-hidden="true">
+                    <ImagePlus size={26} strokeWidth={2} />
+                    <Film size={22} strokeWidth={2} />
+                  </span>
+                  <strong>Select photos &amp; clips</strong>
+                  <span>
+                    Up to {MAX_MEDIA} · clips max {POST_CLIP_MAX_SECONDS}s · Instagram-style
+                    crop next
+                  </span>
                 </button>
               ) : null}
 
               {stepIndex === 1 ? (
                 <div className="bb-composer-arrange">
                   <div className="bb-composer-arrange-stage">
-                    {activePreview?.url ? (
-                      <img src={activePreview.url} alt="" />
-                    ) : (
-                      <span className="bb-composer-arrange-empty">No photo selected</span>
-                    )}
+                    <MediaPreview item={activePreview} />
+                    {activePreview?.kind === 'video' && activePreview.durationLabel ? (
+                      <span className="bb-composer-media-badge">
+                        {activePreview.durationLabel}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="bb-composer-strip" role="list">
-                    {images.map((item, index) => (
+                    {items.map((item, index) => (
                       <div
                         key={item.id}
                         className={`bb-composer-strip-item${
-                          (activePreview?.id || images[0]?.id) === item.id ? ' is-active' : ''
+                          (activePreview?.id || items[0]?.id) === item.id ? ' is-active' : ''
                         }`}
                         role="listitem"
                         draggable
@@ -501,26 +656,41 @@ export function BlogComposerSheet({
                         <span className="bb-composer-strip-grip" aria-hidden="true">
                           <GripVertical size={12} />
                         </span>
-                        <img src={item.url} alt="" />
+                        {item.kind === 'video' ? (
+                          <>
+                            {item.posterUrl ? (
+                              <img src={item.posterUrl} alt="" />
+                            ) : (
+                              <video src={item.url} muted playsInline />
+                            )}
+                            <span className="bb-composer-strip-video" aria-hidden="true">
+                              <Play size={10} fill="currentColor" />
+                            </span>
+                          </>
+                        ) : (
+                          <img src={item.url} alt="" />
+                        )}
                         <div className="bb-composer-strip-actions">
-                          <button
-                            type="button"
-                            className="bb-composer-strip-btn"
-                            aria-label="Crop"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              cropExistingImage(item);
-                            }}
-                          >
-                            <Crop size={12} />
-                          </button>
+                          {item.kind === 'image' ? (
+                            <button
+                              type="button"
+                              className="bb-composer-strip-btn"
+                              aria-label="Crop"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                cropExistingImage(item);
+                              }}
+                            >
+                              <Crop size={12} />
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             className="bb-composer-strip-btn"
                             aria-label="Remove"
                             onClick={(event) => {
                               event.stopPropagation();
-                              removeImage(item.id);
+                              removeItem(item.id);
                             }}
                           >
                             <Trash2 size={12} />
@@ -528,31 +698,30 @@ export function BlogComposerSheet({
                         </div>
                       </div>
                     ))}
-                    {images.length < MAX_IMAGES ? (
+                    {items.length < MAX_MEDIA ? (
                       <button
                         type="button"
                         className="bb-composer-strip-add"
-                        onClick={() => imageRef.current?.click()}
-                        aria-label="Add photo"
+                        onClick={() => mediaRef.current?.click()}
+                        aria-label="Add media"
                       >
                         <Plus size={18} />
                       </button>
                     ) : null}
                   </div>
-                  <p className="bb-composer-hint">Drag to reorder · tap crop to refine</p>
+                  <p className="bb-composer-hint">
+                    Drag to reorder · crop photos · clips must stay under 1 minute
+                  </p>
                 </div>
               ) : null}
 
               {stepIndex === 2 ? (
                 <div className="bb-composer-caption-step">
                   <div className="bb-composer-carousel-preview">
-                    {images[0]?.url ? (
+                    {items[0] ? (
                       <>
-                        <img
-                          src={(images[previewIndex] || images[0]).url}
-                          alt=""
-                        />
-                        {images.length > 1 ? (
+                        <MediaPreview item={items[previewIndex] || items[0]} />
+                        {items.length > 1 ? (
                           <div className="bb-composer-carousel-controls">
                             <button
                               type="button"
@@ -563,13 +732,13 @@ export function BlogComposerSheet({
                               <ChevronLeft size={16} />
                             </button>
                             <span>
-                              {previewIndex + 1} / {images.length}
+                              {previewIndex + 1} / {items.length}
                             </span>
                             <button
                               type="button"
-                              disabled={previewIndex >= images.length - 1}
+                              disabled={previewIndex >= items.length - 1}
                               onClick={() =>
-                                setPreviewIndex((v) => Math.min(images.length - 1, v + 1))
+                                setPreviewIndex((v) => Math.min(items.length - 1, v + 1))
                               }
                               aria-label="Next"
                             >
@@ -605,12 +774,12 @@ export function BlogComposerSheet({
               ) : null}
 
               <input
-                ref={imageRef}
+                ref={mediaRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
                 className="hidden"
-                onChange={onImagesPick}
+                onChange={onPostMediaPick}
               />
             </div>
           ) : null}
@@ -618,96 +787,78 @@ export function BlogComposerSheet({
           {type === 'video' ? (
             <div className="bb-composer-video">
               {stepIndex === 0 ? (
-                <div className="bb-composer-fields">
-                  <div className="bb-blog-composer-video-tools">
-                    {mediaUrl && isBlobUrl(mediaUrl) ? (
-                      <div className="bb-blog-composer-video-stage">
-                        <video
-                          className="bb-social-compose-player"
-                          controls
-                          playsInline
-                          poster={posterUrl || undefined}
-                          src={mediaUrl}
-                        />
-                        <p className="bb-composer-hint">
-                          Local preview only — paste a public URL below to publish.
-                        </p>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        className="bb-composer-dropzone bb-composer-dropzone--video"
-                        onClick={() => videoRef.current?.click()}
-                      >
-                        <Film size={26} strokeWidth={2} />
-                        <strong>Preview a local file</strong>
-                        <span>Optional · not published</span>
-                      </button>
-                    )}
-                    <input
-                      ref={videoRef}
-                      type="file"
-                      accept="video/*"
-                      className="hidden"
-                      onChange={onVideoFile}
-                    />
-                  </div>
+                <div className="bb-composer-fields bb-composer-video-source">
+                  {mediaUrl ? (
+                    <div className="bb-composer-video-stage">
+                      <video
+                        className="bb-social-compose-player"
+                        controls
+                        playsInline
+                        poster={posterUrl || undefined}
+                        src={mediaUrl}
+                      />
+                      {duration ? (
+                        <span className="bb-composer-media-badge">{duration}</span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="bb-composer-dropzone bb-composer-dropzone--hero"
+                      onClick={() => videoRef.current?.click()}
+                      disabled={busy}
+                    >
+                      <Film size={28} strokeWidth={2} />
+                      <strong>Upload video</strong>
+                      <span>Any length · thumbnail comes last</span>
+                    </button>
+                  )}
+                  <input
+                    ref={videoRef}
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={onVideoSectionFile}
+                  />
+                  <div className="bb-composer-or">or paste a public URL</div>
                   <label className="bb-social-field">
                     <span>Video URL</span>
                     <input
                       className="native-control-input bb-social-compose-control"
                       value={durableVideoUrl}
                       placeholder="https://…/video.mp4"
-                      onChange={(event) => setMediaUrl(event.target.value)}
+                      onChange={(event) => {
+                        setVideoFile(null);
+                        setMediaUrl(event.target.value);
+                      }}
                     />
                   </label>
+                  {mediaUrl ? (
+                    <button
+                      type="button"
+                      className="bb-ghost-btn"
+                      onClick={() => videoRef.current?.click()}
+                      disabled={busy}
+                    >
+                      Replace video file
+                    </button>
+                  ) : null}
                 </div>
               ) : null}
 
               {stepIndex === 1 ? (
                 <div className="bb-composer-fields">
-                  <button
-                    type="button"
-                    className="bb-composer-dropzone bb-composer-dropzone--poster"
-                    onClick={() => posterRef.current?.click()}
-                    disabled={busy}
-                  >
-                    {posterUrl ? (
-                      <img src={posterUrl} alt="" className="bb-composer-poster-preview" />
-                    ) : (
-                      <>
-                        <ImagePlus size={26} strokeWidth={2} />
-                        <strong>Add thumbnail</strong>
-                        <span>Required · 16:9 crop</span>
-                      </>
-                    )}
-                  </button>
-                  {posterUrl ? (
-                    <button
-                      type="button"
-                      className="bb-ghost-btn"
-                      onClick={() => posterRef.current?.click()}
-                      disabled={busy}
-                    >
-                      Change thumbnail
-                    </button>
-                  ) : null}
-                  <input
-                    ref={posterRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={onPosterPick}
-                  />
-                </div>
-              ) : null}
-
-              {stepIndex === 2 ? (
-                <div className="bb-composer-fields">
-                  <div className="bb-composer-video-review">
-                    {posterUrl ? <img src={posterUrl} alt="" /> : null}
-                    {duration.trim() ? (
-                      <span className="bb-composer-video-duration">{duration.trim()}</span>
+                  <div className="bb-composer-video-review bb-composer-video-review--soft">
+                    {mediaUrl ? (
+                      <video
+                        src={mediaUrl}
+                        poster={posterUrl || undefined}
+                        muted
+                        playsInline
+                      />
+                    ) : null}
+                    {duration ? (
+                      <span className="bb-composer-video-duration">{duration}</span>
                     ) : null}
                   </div>
                   <label className="bb-social-field">
@@ -738,6 +889,47 @@ export function BlogComposerSheet({
                       onChange={(event) => setCaption(event.target.value)}
                     />
                   </label>
+                </div>
+              ) : null}
+
+              {stepIndex === 2 ? (
+                <div className="bb-composer-fields bb-composer-video-thumb">
+                  <p className="bb-composer-hint bb-composer-hint--lead">
+                    Pick the cover viewers see before play — last step, just like YouTube.
+                  </p>
+                  <button
+                    type="button"
+                    className="bb-composer-dropzone bb-composer-dropzone--poster"
+                    onClick={() => posterRef.current?.click()}
+                    disabled={busy}
+                  >
+                    {posterUrl ? (
+                      <img src={posterUrl} alt="" className="bb-composer-poster-preview" />
+                    ) : (
+                      <>
+                        <ImagePlus size={26} strokeWidth={2} />
+                        <strong>Choose thumbnail</strong>
+                        <span>Required · 16:9 crop with Fit / Fill</span>
+                      </>
+                    )}
+                  </button>
+                  {posterUrl ? (
+                    <button
+                      type="button"
+                      className="bb-ghost-btn"
+                      onClick={() => posterRef.current?.click()}
+                      disabled={busy}
+                    >
+                      Change thumbnail
+                    </button>
+                  ) : null}
+                  <input
+                    ref={posterRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onPosterPick}
+                  />
                 </div>
               ) : null}
             </div>
@@ -784,14 +976,13 @@ export function BlogComposerSheet({
               <div className="bb-composer-bubble-preview" aria-label="Preview">
                 <p className="bb-composer-bubble-preview-label">Live preview</p>
                 <article className="bb-social-note bb-social-note--preview">
-                  <header className="bb-social-note-meta">
-                    <span className="bb-social-note-stamp">Just now</span>
-                    <span className="bb-social-note-mark bb-public-native-fill" aria-hidden="true" />
-                  </header>
-                  {title.trim() ? (
-                    <h2 className="bb-social-note-title">{title.trim()}</h2>
-                  ) : null}
-                  <div className="bb-social-note-bubble">
+                  <div className="bb-social-note-card bb-social-note-bubble">
+                    <header className="bb-social-note-meta">
+                      <span className="bb-social-note-stamp">Just now</span>
+                    </header>
+                    {title.trim() ? (
+                      <h2 className="bb-social-note-title">{title.trim()}</h2>
+                    ) : null}
                     <p className="bb-social-note-text">
                       {caption.trim() || 'Your update will show here…'}
                     </p>
