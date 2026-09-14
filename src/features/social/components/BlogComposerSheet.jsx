@@ -72,8 +72,8 @@ const META = {
     titleCreate: 'New Vertical'
   },
   text: {
-    eyebrowCreate: 'New text update',
-    eyebrowEdit: 'Edit text update',
+    eyebrowCreate: 'New note',
+    eyebrowEdit: 'Edit note',
     titleCreate: 'New update'
   }
 };

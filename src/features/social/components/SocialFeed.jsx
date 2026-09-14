@@ -131,7 +131,7 @@ export function SocialFeed({
     if (tab === 'text') {
       onAddSocialPost?.({
         type: 'text',
-        title: 'New text update',
+        title: 'New note',
         caption: 'Write your update…',
         published: false
       });
@@ -152,7 +152,7 @@ export function SocialFeed({
       : tab === 'verticals'
         ? 'Add Vertical'
         : tab === 'text'
-          ? 'Add text update'
+          ? 'Add note'
           : 'Add photo';
 
   const feedOpen =

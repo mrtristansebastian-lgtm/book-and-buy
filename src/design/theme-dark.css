@@ -920,6 +920,30 @@ html[data-theme='dark'] .bb-support-list {
   border-color: var(--bb-border) !important;
 }
 
+html[data-theme='dark'] .bb-support-filter-chip {
+  background: var(--bb-panel);
+  border-color: var(--bb-border);
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-support-filter-chip.is-active {
+  color: var(--bb-ink);
+  background:
+    linear-gradient(var(--bb-panel), var(--bb-panel)) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2, #ffe8a3))
+      border-box;
+}
+
+html[data-theme='dark'] .bb-support-filter-count {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-support-filter-chip.is-active .bb-support-filter-count {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
 @media (max-width: 900px) {
   html[data-theme='dark'] .bb-shell.is-support-flush .bb-owner-content,
   html[data-theme='dark'] .bb-shell.is-support-flush .bb-owner-main.is-flush,

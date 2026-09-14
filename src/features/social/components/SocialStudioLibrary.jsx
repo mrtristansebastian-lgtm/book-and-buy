@@ -45,7 +45,7 @@ export function SocialStudioLibrary({
       : kind === 'vertical'
         ? 'Nothing live yet — publish a Vertical above.'
         : kind === 'text'
-          ? 'Nothing live yet — publish a text update above.'
+          ? 'Nothing live yet — publish a note above.'
           : 'Nothing live yet — publish a photo above.';
 
   const createLabel =
@@ -54,7 +54,7 @@ export function SocialStudioLibrary({
       : kind === 'vertical'
         ? 'New Vertical'
         : kind === 'text'
-          ? 'New text update'
+          ? 'New note'
           : 'New post';
 
   const feedOpen =

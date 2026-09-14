@@ -44,8 +44,8 @@ export function AppLoginScreen() {
           </h1>
           <p className="bb-muted m-0 text-base leading-relaxed">
             {configured
-              ? 'Sign in with Firebase, create a workspace, or open the Flour & Flame demo dashboard.'
-              : 'Local mode — open a workspace or the Flour & Flame demo. Add VITE_FIREBASE_CONFIG for real Auth.'}
+              ? 'Sign in with Firebase, create a workspace, or open the Flame & Flour demo dashboard.'
+              : 'Local mode — open a workspace or the Flame & Flour demo. Add VITE_FIREBASE_CONFIG for real Auth.'}
           </p>
         </header>
 

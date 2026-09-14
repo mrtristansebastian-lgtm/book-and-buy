@@ -302,7 +302,7 @@ export function SocialPostFeed({
 
   const feedKind = posts[0] ? getSocialPostKind(posts[0]) : 'image';
   const backLabel =
-    feedKind === 'video' ? 'Videos' : feedKind === 'text' ? 'Text' : 'Posts';
+    feedKind === 'video' ? 'Videos' : feedKind === 'text' ? 'Notes' : 'Posts';
 
   return (
     <div className="bb-social-feed">

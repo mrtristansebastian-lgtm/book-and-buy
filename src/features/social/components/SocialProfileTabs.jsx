@@ -1,10 +1,10 @@
-import { Clapperboard, Grid3X3, RectangleVertical, Type } from 'lucide-react';
+import { Clapperboard, Grid3X3, PenLine, RectangleVertical } from 'lucide-react';
 
 const TABS = [
   { id: 'posts', label: 'Posts', kind: 'image', Icon: Grid3X3 },
   { id: 'films', label: 'Films', kind: 'video', Icon: Clapperboard },
   { id: 'verticals', label: 'Verticals', kind: 'vertical', Icon: RectangleVertical },
-  { id: 'text', label: 'Text updates', kind: 'text', Icon: Type }
+  { id: 'text', label: 'Notes', kind: 'text', Icon: PenLine }
 ];
 
 export function SocialProfileTabs({ value = 'posts', onChange }) {

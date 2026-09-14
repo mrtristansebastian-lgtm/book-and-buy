@@ -8,7 +8,10 @@ import {
   Phone,
   Plus,
   Search,
-  Trash2
+  Star,
+  Trash2,
+  User,
+  Users
 } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
@@ -24,6 +27,12 @@ const emptyClient = () => ({
   birthday: '',
   notes: ''
 });
+
+const CLIENT_FILTERS = [
+  { id: 'all', label: 'All', Icon: Users },
+  { id: 'regulars', label: 'Regulars', Icon: Star },
+  { id: 'first', label: 'First time', Icon: User }
+];
 
 function clientInitials(name = '') {
   const parts = String(name)
@@ -57,6 +66,48 @@ function formatBirthday(value = '') {
   return raw;
 }
 
+function clientMatchKey(client) {
+  return {
+    id: String(client?.id || ''),
+    email: String(client?.email || '').toLowerCase(),
+    name: String(client?.name || '').toLowerCase()
+  };
+}
+
+function recordMatchesClient(record, key) {
+  const email = String(record?.clientEmail || '').toLowerCase();
+  const name = String(record?.clientName || '').toLowerCase();
+  const id = String(record?.clientId || '');
+  return (
+    (key.id && id && id === key.id) ||
+    (key.email && email && email === key.email) ||
+    (key.name && name && name === key.name)
+  );
+}
+
+function visitCountForClient(client, bookings, orders) {
+  const key = clientMatchKey(client);
+  const bookingHits = (bookings || []).filter((booking) => recordMatchesClient(booking, key)).length;
+  const orderHits = (orders || []).filter((order) => recordMatchesClient(order, key)).length;
+  return bookingHits + orderHits;
+}
+
+/** Tier used for filters + row tags. */
+function clientTier(visitCount) {
+  const regular = visitCount >= 2;
+  const returning = visitCount >= 2;
+  const first = visitCount <= 1;
+  return { regular, returning, first, visitCount };
+}
+
+function tagsForTiers(tiers) {
+  const tags = [];
+  if (tiers.regular) tags.push({ id: 'regular', label: 'Regular' });
+  if (tiers.returning) tags.push({ id: 'returning', label: 'Returning' });
+  if (tiers.first) tags.push({ id: 'new', label: 'New' });
+  return tags;
+}
+
 export function ClientsPage() {
   const {
     clients,
@@ -68,14 +119,37 @@ export function ClientsPage() {
     startThreadFromClient
   } = useWorkspace();
   const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState('all');
   const [selectedId, setSelectedId] = useState('');
   const [mobileDetail, setMobileDetail] = useState(false);
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyClient);
 
+  const tiersById = useMemo(() => {
+    const map = new Map();
+    for (const client of clients) {
+      map.set(client.id, clientTier(visitCountForClient(client, bookings, orders)));
+    }
+    return map;
+  }, [clients, bookings, orders]);
+
+  const filterCounts = useMemo(() => {
+    let regulars = 0;
+    let first = 0;
+    for (const client of clients) {
+      const tiers = tiersById.get(client.id) || clientTier(0);
+      if (tiers.regular) regulars += 1;
+      if (tiers.first) first += 1;
+    }
+    return { all: clients.length, regulars, first };
+  }, [clients, tiersById]);
+
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const list = clients.filter((client) => {
+      const tiers = tiersById.get(client.id) || clientTier(0);
+      if (filter === 'regulars' && !tiers.regular) return false;
+      if (filter === 'first' && !tiers.first) return false;
       if (!needle) return true;
       return [client.name, client.email, client.phone, client.country, client.birthday, client.notes]
         .filter(Boolean)
@@ -84,7 +158,7 @@ export function ClientsPage() {
     return [...list].sort((a, b) =>
       String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' })
     );
-  }, [clients, query]);
+  }, [clients, query, filter, tiersById]);
 
   const letterGroups = useMemo(() => {
     const groups = [];
@@ -178,7 +252,7 @@ export function ClientsPage() {
         <div className="bb-clients-header-copy">
           <div className="bb-page-title-wrap">
             <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-clients-title">Clients</h1>
+            <h1 className="bb-page-title bb-clients-title">Client book</h1>
           </div>
         </div>
         <div className="bb-clients-tools">
@@ -203,10 +277,25 @@ export function ClientsPage() {
         <div className="bb-clients-board-inner">
           <aside className="bb-clients-directory">
             <div className="bb-clients-directory-head">
-              <p className="bb-clients-directory-label">Contacts</p>
-              <p className="bb-clients-directory-count">
-                {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
-              </p>
+              <div className="bb-clients-chips" role="toolbar" aria-label="Client filters">
+                {CLIENT_FILTERS.map(({ id, label, Icon }) => {
+                  const active = filter === id;
+                  const count = filterCounts[id] ?? 0;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`bb-clients-chip${active ? ' is-active' : ''}`}
+                      aria-pressed={active}
+                      onClick={() => setFilter(id)}
+                    >
+                      <Icon size={14} strokeWidth={active ? 2.4 : 2} aria-hidden="true" />
+                      <span>{label}</span>
+                      <span className="bb-clients-chip-count">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div className="bb-clients-directory-scroll">
               {filtered.length === 0 ? (
@@ -214,7 +303,7 @@ export function ClientsPage() {
                   <p>
                     {clients.length === 0
                       ? 'No clients yet. Add your first contact.'
-                      : 'No clients match that search.'}
+                      : 'No clients match that filter.'}
                   </p>
                 </div>
               ) : (
@@ -223,6 +312,9 @@ export function ClientsPage() {
                     <p className="bb-clients-letter">{group.letter}</p>
                     {group.items.map((client) => {
                       const active = selected?.id === client.id;
+                      const tiers = tiersById.get(client.id) || clientTier(0);
+                      const tags = tagsForTiers(tiers);
+                      const meta = [client.phone, client.country].filter(Boolean).join(' / ');
                       return (
                         <button
                           key={client.id}
@@ -237,8 +329,20 @@ export function ClientsPage() {
                           <span className="bb-clients-row-copy">
                             <strong className="bb-clients-row-name">{client.name}</strong>
                             <span className="bb-clients-row-meta">
-                              {client.email || client.phone || 'No contact details'}
+                              {meta || client.email || 'No contact details'}
                             </span>
+                            {tags.length ? (
+                              <span className="bb-clients-tags">
+                                {tags.map((tag) => (
+                                  <span
+                                    key={tag.id}
+                                    className={`bb-clients-tag is-${tag.id}`}
+                                  >
+                                    {tag.label}
+                                  </span>
+                                ))}
+                              </span>
+                            ) : null}
                           </span>
                         </button>
                       );
@@ -276,6 +380,15 @@ export function ClientsPage() {
                           ? ` · ${history.bookings.length + history.orders.length} records`
                           : ''}
                       </p>
+                      {tagsForTiers(tiersById.get(selected.id) || clientTier(0)).length ? (
+                        <span className="bb-clients-tags">
+                          {tagsForTiers(tiersById.get(selected.id) || clientTier(0)).map((tag) => (
+                            <span key={tag.id} className={`bb-clients-tag is-${tag.id}`}>
+                              {tag.label}
+                            </span>
+                          ))}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                   <div className="bb-clients-actions">

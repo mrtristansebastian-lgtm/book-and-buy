@@ -8,7 +8,7 @@ import {
 } from '../utils/staffAvailability';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 12;
+export const DEMO_WEBSITE_SCHEMA = 15;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 3;
@@ -414,7 +414,7 @@ export const DEMO_PAYMENT_GATEWAYS = [
     configured: true,
     providerName: 'Manual EFT',
     credentialSummary: {
-      accountHolder: 'Flour & Flame Studio',
+      accountHolder: 'Flame & Flour Studio',
       bankName: 'Example Bank',
       accountNumber: '****4412',
       branchCode: '250655',
@@ -461,7 +461,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
     compareAtPrice: 540,
     stockAvailable: 8,
     productType: 'Kit',
-    vendor: 'Flour & Flame',
+    vendor: 'Flame & Flour',
     tags: ['pasta', 'weekend'],
     collections: ['Home kitchen'],
     sku: 'PASTA-KIT',
@@ -486,7 +486,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
     price: 420,
     compareAtPrice: 480,
     productType: 'Apparel',
-    vendor: 'Flour & Flame',
+    vendor: 'Flame & Flour',
     tags: ['apron', 'gift'],
     collections: ['Wear in the kitchen'],
     description:
@@ -576,11 +576,11 @@ export const DEMO_PRODUCTS = normalizeProductList([
     height: 1.5,
     dimensionUnit: 'cm',
     productType: 'Book',
-    vendor: 'Flour & Flame',
+    vendor: 'Flame & Flour',
     tags: ['recipes'],
     collections: ['Studio shelf'],
     description:
-      'Studio recipes, fermentation notes, and plating ideas from the Flour & Flame team.\n\nA compact studio companion for weeknight bakes and weekend projects.',
+      'Studio recipes, fermentation notes, and plating ideas from the Flame & Flour team.\n\nA compact studio companion for weeknight bakes and weekend projects.',
     imageUrls: [
       '/example/flour-and-flame/products/kitchen-notes.png',
       '/example/flour-and-flame/venue/studio-notes.png',
@@ -911,8 +911,8 @@ const sampleBookings = [
 
 export function createDemoWorkspace() {
   return {
-    slug: 'flour-and-flame',
-    brandName: 'Flour & Flame',
+    slug: 'flameandflour',
+    brandName: 'Flame & Flour',
     tagline: 'Baking studio in Cape Town',
     welcomeMessage: 'Reserve a class or take home something fresh.',
     email: 'hello@flourandflame.example',
@@ -973,23 +973,24 @@ export function createDemoWorkspace() {
         'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
       ctaLabel: 'Book a class',
       buyCtaLabel: 'Buy',
-      homeHeadline: 'Flour & Flame',
+      homeHeadline: 'Flame & Flour',
       homeSubtext:
         'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
       profileCategory: 'Cooking Studio',
       profileLocation: 'Cape Town',
       heroImageUrl: '/example/flour-and-flame/hero.webp',
-      logoUrl: '/example/flour-and-flame/flame-and-flour-logo.webp',
+      logoUrl: '/example/flour-and-flame/logo.png',
+      socialBannerUrl: '/example/flour-and-flame/banner.png',
       bookHeadline: 'Book a class or private lesson',
       bookSubtext: 'Pick a service, choose a time, and send your request.',
       buyHeadline: 'Take the kitchen home',
       buySubtext: 'Bread boxes, pasta kits, and studio notes ready to order.',
       socialHeadline: 'From the studio',
-      socialSubtext: 'Posts, clips, and notes from Flour & Flame.',
+      socialSubtext: 'Posts, clips, and notes from Flame & Flour.',
       aboutTitle: 'About us',
       aboutEyebrow: 'About',
       aboutBody:
-        'Flour & Flame is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
+        'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
       aboutImageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
       reasonsTitle: 'What we offer',
       reasonsEyebrow: 'The craft',
@@ -1240,7 +1241,7 @@ export function createDemoWorkspace() {
 }
 
 /**
- * Merge a cached demo workspace with the current Flour & Flame public Home content
+ * Merge a cached demo workspace with the current Flame & Flour public Home content
  * when the stored copy predates rich sections (about/venue/map/reviews).
  */
 export function hydrateDemoWorkspace(stored) {
@@ -1350,8 +1351,12 @@ export function hydrateDemoWorkspace(stored) {
         sectionOrder: fresh.website.sectionOrder,
         featuredProductId: fresh.website.featuredProductId,
         heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
+        logoUrl: fresh.website.logoUrl,
+        socialBannerUrl: fresh.website.socialBannerUrl,
         homeHeadline: fresh.website.homeHeadline,
         homeSubtext: fresh.website.homeSubtext,
+        socialSubtext: fresh.website.socialSubtext,
+        aboutBody: fresh.website.aboutBody,
         profileCategory: fresh.website.profileCategory,
         profileLocation: fresh.website.profileLocation,
         headline: fresh.website.headline,
@@ -1376,6 +1381,9 @@ export function hydrateDemoWorkspace(stored) {
     ...fresh,
     ...stored,
     isDemo: true,
+    brandName: fresh.brandName,
+    tagline: fresh.tagline,
+    slug: staleWebsite ? fresh.slug : stored.slug || fresh.slug,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
     servicesSchema: DEMO_SERVICES_SCHEMA,

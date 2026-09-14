@@ -62,6 +62,7 @@ export function SocialStudioPage() {
         <div className="bb-social-studio-live">
           <SocialStudioCompose
             brandName={businessName}
+            slug={workspace.slug || ''}
             logoUrl={website.logoUrl || ''}
             bannerUrl={website.socialBannerUrl || ''}
             bio={

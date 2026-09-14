@@ -49,7 +49,9 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
   }, [slug]);
 
   const localMatch =
-    slug === local.slug || (slug === 'flour-and-flame' && (local.isDemo || local.slug === 'flour-and-flame'));
+    slug === local.slug ||
+    ((slug === 'flour-and-flame' || slug === 'flameandflour') &&
+      (local.isDemo || local.slug === 'flour-and-flame' || local.slug === 'flameandflour'));
 
   const workspace =
     remote ||

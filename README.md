@@ -19,7 +19,7 @@ Open `http://127.0.0.1:5173/`
 
 - Auth entry: `#/`
 - Owner workspace: `#/dashboard/overview`
-- Demo owner dashboard: `#/demo` (Flour & Flame)
+- Demo owner dashboard: `#/demo` (Flame & Flour)
 - Public demo site: `#/w/flour-and-flame`
 
 Without `VITE_FIREBASE_CONFIG`, the app runs in **local mode** (localStorage workspace + demo). Copy `.env.example` to `.env.local` and paste your Firebase web config JSON to enable Auth, Firestore public slug load, and callable helpers under `src/shared/firebase/`.
@@ -56,7 +56,7 @@ Capacitor config is ready (`capacitor.config.json`); add native projects later w
 - `#/` — auth entry
 - `#/onboarding` — create workspace wizard
 - `#/portal` — client portal lookup
-- `#/demo` — Flour & Flame **owner dashboard**
+- `#/demo` — Flame & Flour **owner dashboard**
 - `#/dashboard/services` — Catalog | Requests + manual booking
 - `#/dashboard/staff` — Schedule day board
 - `#/dashboard/products` — Catalog | Orders

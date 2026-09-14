@@ -75,7 +75,7 @@ export function BusinessOnboardingPage() {
                     slug: prev.slug || slugFromName(brandName)
                   }));
                 }}
-                placeholder="Flour & Flame"
+                placeholder="Flame & Flour"
               />
             </label>
             <label className="grid gap-1 text-sm">
@@ -89,7 +89,7 @@ export function BusinessOnboardingPage() {
                     slug: slugFromName(event.target.value)
                   }))
                 }
-                placeholder="flour-and-flame"
+                placeholder="flameandflour"
               />
             </label>
             <label className="grid gap-1 text-sm">
