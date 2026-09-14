@@ -3,11 +3,11 @@ import { getProductUnitPriceCents } from '../../../utils/products';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const FINANCE_PERIODS = [
-  { id: 'all', label: 'All time', title: 'All time' },
-  { id: 'day', label: 'Day', title: 'Today' },
-  { id: 'week', label: 'Week', title: 'This week' },
-  { id: 'month', label: 'Month', title: 'This month' },
-  { id: 'custom', label: 'Custom', title: 'Custom range' }
+  { id: 'all', label: 'All time', shortLabel: 'All', title: 'All time' },
+  { id: 'day', label: 'Day', shortLabel: 'Day', title: 'Today' },
+  { id: 'week', label: 'Week', shortLabel: 'Week', title: 'This week' },
+  { id: 'month', label: 'Month', shortLabel: 'Month', title: 'This month' },
+  { id: 'custom', label: 'Custom', shortLabel: 'Custom', title: 'Custom range' }
 ];
 
 export const CURRENCY_OPTIONS = [

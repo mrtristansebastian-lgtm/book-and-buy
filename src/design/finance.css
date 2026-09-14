@@ -42,6 +42,25 @@
   gap: 0.65rem;
 }
 
+@media (max-width: 720px) {
+  .bb-finance-header-top {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bb-finance-header-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+
+  .bb-finance-currency select {
+    width: 100%;
+  }
+}
+
 .bb-finance-currency select,
 .bb-finance-ledger-filters select,
 .bb-finance-custom-range input,
@@ -330,6 +349,48 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
   color: #98a2b3;
   font-size: 0.92rem;
   font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .bb-finance {
+    gap: 1.15rem;
+  }
+
+  .bb-finance-pulse {
+    gap: 0.7rem;
+  }
+
+  .bb-finance-chart {
+    margin-inline: -1rem;
+    width: calc(100% + 2rem);
+    max-width: none;
+    min-height: 17rem;
+    padding: 0.2rem 0 0.1rem;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-color: rgba(15, 23, 42, 0.06);
+    box-shadow: none;
+    background:
+      linear-gradient(180deg, rgba(238, 252, 255, 0.9) 0%, #ffffff 42%, #ffffff 100%);
+  }
+
+  .bb-finance-chart-toolbar {
+    padding: 0.35rem 0.85rem 0;
+  }
+
+  .bb-finance-chart-canvas {
+    margin-inline: 0;
+  }
+
+  .bb-finance-chart-svg {
+    display: block;
+    width: 100%;
+  }
+
+  .bb-finance-chart-empty {
+    min-height: 12rem;
+  }
 }
 
 .bb-finance-ledger {

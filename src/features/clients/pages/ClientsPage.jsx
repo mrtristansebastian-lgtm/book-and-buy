@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Mail, MessageSquare, Pencil, Phone, Plus, Search, Trash2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Cake,
+  Mail,
+  MessageSquare,
+  Pencil,
+  Phone,
+  Plus,
+  Search,
+  Trash2
+} from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
 import { navigate } from '../../../app/routing';
@@ -10,7 +20,9 @@ const emptyClient = () => ({
   name: '',
   email: '',
   phone: '',
-  country: ''
+  country: '',
+  birthday: '',
+  notes: ''
 });
 
 function clientInitials(name = '') {
@@ -28,6 +40,23 @@ function letterForName(name = '') {
   return ch >= 'A' && ch <= 'Z' ? ch : '#';
 }
 
+function formatBirthday(value = '') {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    if (!Number.isNaN(date.getTime())) {
+      return date.toLocaleDateString(undefined, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+  }
+  return raw;
+}
+
 export function ClientsPage() {
   const {
     clients,
@@ -39,7 +68,8 @@ export function ClientsPage() {
     startThreadFromClient
   } = useWorkspace();
   const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(clients[0]?.id || '');
+  const [selectedId, setSelectedId] = useState('');
+  const [mobileDetail, setMobileDetail] = useState(false);
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyClient);
 
@@ -47,7 +77,7 @@ export function ClientsPage() {
     const needle = query.trim().toLowerCase();
     const list = clients.filter((client) => {
       if (!needle) return true;
-      return [client.name, client.email, client.phone, client.country]
+      return [client.name, client.email, client.phone, client.country, client.birthday, client.notes]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(needle));
     });
@@ -74,12 +104,14 @@ export function ClientsPage() {
   useEffect(() => {
     if (!filtered.length) {
       if (selectedId) setSelectedId('');
+      if (mobileDetail) setMobileDetail(false);
       return;
     }
-    if (!filtered.some((client) => client.id === selectedId)) {
-      setSelectedId(filtered[0].id);
+    if (selectedId && !filtered.some((client) => client.id === selectedId)) {
+      setSelectedId('');
+      setMobileDetail(false);
     }
-  }, [filtered, selectedId]);
+  }, [filtered, selectedId, mobileDetail]);
 
   const selected = filtered.find((client) => client.id === selectedId) || null;
 
@@ -101,11 +133,30 @@ export function ClientsPage() {
     };
   }, [selected, bookings, orders]);
 
+  const openClient = (clientId) => {
+    setSelectedId(clientId);
+    setMobileDetail(true);
+  };
+
+  const closeMobileDetail = () => {
+    setMobileDetail(false);
+  };
+
   const saveClient = () => {
     if (!draft.name.trim()) return;
-    const next = { ...draft, id: draft.id || `client-${Date.now()}` };
+    const next = {
+      ...draft,
+      id: draft.id || `client-${Date.now()}`,
+      name: draft.name.trim(),
+      email: String(draft.email || '').trim(),
+      phone: String(draft.phone || '').trim(),
+      country: String(draft.country || '').trim(),
+      birthday: String(draft.birthday || '').trim(),
+      notes: String(draft.notes || '').trim()
+    };
     upsertClient(next);
     setSelectedId(next.id);
+    setMobileDetail(true);
     setDraftOpen(false);
     setDraft(emptyClient());
   };
@@ -116,8 +167,13 @@ export function ClientsPage() {
     navigate('/dashboard/communications');
   };
 
+  const openEdit = (client = null) => {
+    setDraft(client ? { ...emptyClient(), ...client } : emptyClient());
+    setDraftOpen(true);
+  };
+
   return (
-    <div className="bb-clients">
+    <div className={`bb-clients${mobileDetail && selected ? ' is-mobile-detail' : ''}`}>
       <header className="bb-clients-header">
         <div className="bb-clients-header-copy">
           <div className="bb-page-title-wrap">
@@ -137,14 +193,7 @@ export function ClientsPage() {
               aria-label="Search clients"
             />
           </label>
-          <button
-            type="button"
-            className="bb-primary-btn"
-            onClick={() => {
-              setDraft(emptyClient());
-              setDraftOpen(true);
-            }}
-          >
+          <button type="button" className="bb-primary-btn" onClick={() => openEdit()}>
             <Plus size={16} /> Add client
           </button>
         </div>
@@ -179,7 +228,7 @@ export function ClientsPage() {
                           key={client.id}
                           type="button"
                           className={`bb-clients-row${active ? ' is-active' : ''}`}
-                          onClick={() => setSelectedId(client.id)}
+                          onClick={() => openClient(client.id)}
                           aria-current={active ? 'true' : undefined}
                         >
                           <span className="bb-clients-avatar" aria-hidden="true">
@@ -203,6 +252,17 @@ export function ClientsPage() {
           {selected ? (
             <div className="bb-clients-sheet" key={selected.id}>
               <div className="bb-clients-sheet-scroll">
+                <div className="bb-clients-sheet-bar">
+                  <button
+                    type="button"
+                    className="bb-clients-back"
+                    onClick={closeMobileDetail}
+                  >
+                    <ArrowLeft size={16} strokeWidth={2.2} />
+                    Contacts
+                  </button>
+                </div>
+
                 <div className="bb-clients-sheet-hero">
                   <div className="bb-clients-sheet-identity">
                     <span className="bb-clients-sheet-avatar" aria-hidden="true">
@@ -229,17 +289,18 @@ export function ClientsPage() {
                     <button
                       type="button"
                       className="bb-clients-action"
-                      onClick={() => {
-                        setDraft(selected);
-                        setDraftOpen(true);
-                      }}
+                      onClick={() => openEdit(selected)}
                     >
                       <Pencil size={14} /> Edit
                     </button>
                     <button
                       type="button"
                       className="bb-clients-action is-danger"
-                      onClick={() => removeClient(selected.id)}
+                      onClick={() => {
+                        removeClient(selected.id);
+                        setSelectedId('');
+                        setMobileDetail(false);
+                      }}
                     >
                       <Trash2 size={14} /> Remove
                     </button>
@@ -277,6 +338,27 @@ export function ClientsPage() {
                     <p className="bb-clients-field-label">Country</p>
                     <p className="bb-clients-field-value">{selected.country || '—'}</p>
                   </div>
+                  <div className="bb-clients-field">
+                    <p className="bb-clients-field-label">Birthday</p>
+                    <p className="bb-clients-field-value">
+                      {selected.birthday ? (
+                        <span className="bb-clients-birthday">
+                          <Cake size={13} aria-hidden="true" />
+                          {formatBirthday(selected.birthday)}
+                        </span>
+                      ) : (
+                        '—'
+                      )}
+                    </p>
+                  </div>
+                  {selected.notes ? (
+                    <div className="bb-clients-field">
+                      <p className="bb-clients-field-label">Notes</p>
+                      <p className="bb-clients-field-value bb-clients-field-value--notes">
+                        {selected.notes}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
 
                 <section className="bb-clients-history" aria-label="Bookings">
@@ -332,7 +414,7 @@ export function ClientsPage() {
               </div>
             </div>
           ) : (
-            <div className="bb-clients-sheet">
+            <div className="bb-clients-sheet bb-clients-sheet--empty">
               <div className="bb-clients-sheet-empty">
                 <strong>No contact selected</strong>
                 <p className="bb-clients-history-empty">
@@ -361,27 +443,62 @@ export function ClientsPage() {
           >
             <h2 className="bb-clients-modal-title">{draft.id ? 'Edit client' : 'New client'}</h2>
             <div className="bb-clients-modal-fields">
-              <input
-                placeholder="Name"
-                value={draft.name}
-                onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
-                autoFocus
-              />
-              <input
-                placeholder="Email"
-                value={draft.email}
-                onChange={(event) => setDraft((prev) => ({ ...prev, email: event.target.value }))}
-              />
-              <input
-                placeholder="Phone"
-                value={draft.phone}
-                onChange={(event) => setDraft((prev) => ({ ...prev, phone: event.target.value }))}
-              />
-              <input
-                placeholder="Country"
-                value={draft.country}
-                onChange={(event) => setDraft((prev) => ({ ...prev, country: event.target.value }))}
-              />
+              <label className="bb-clients-modal-field">
+                <span>Name</span>
+                <input
+                  placeholder="Full name"
+                  value={draft.name}
+                  onChange={(event) => setDraft((prev) => ({ ...prev, name: event.target.value }))}
+                  autoFocus
+                />
+              </label>
+              <label className="bb-clients-modal-field">
+                <span>Email</span>
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  value={draft.email}
+                  onChange={(event) => setDraft((prev) => ({ ...prev, email: event.target.value }))}
+                />
+              </label>
+              <label className="bb-clients-modal-field">
+                <span>Phone</span>
+                <input
+                  type="tel"
+                  placeholder="+27 …"
+                  value={draft.phone}
+                  onChange={(event) => setDraft((prev) => ({ ...prev, phone: event.target.value }))}
+                />
+              </label>
+              <label className="bb-clients-modal-field">
+                <span>Country</span>
+                <input
+                  placeholder="Country"
+                  value={draft.country}
+                  onChange={(event) =>
+                    setDraft((prev) => ({ ...prev, country: event.target.value }))
+                  }
+                />
+              </label>
+              <label className="bb-clients-modal-field">
+                <span>Birthday</span>
+                <input
+                  type="date"
+                  value={draft.birthday || ''}
+                  onChange={(event) =>
+                    setDraft((prev) => ({ ...prev, birthday: event.target.value }))
+                  }
+                />
+              </label>
+              <label className="bb-clients-modal-field">
+                <span>Notes</span>
+                <textarea
+                  rows={3}
+                  placeholder="Preferences, allergies, reminders…"
+                  value={draft.notes || ''}
+                  onChange={(event) => setDraft((prev) => ({ ...prev, notes: event.target.value }))}
+                />
+              </label>
             </div>
             <div className="bb-clients-modal-actions">
               <button type="button" className="bb-ghost-btn" onClick={() => setDraftOpen(false)}>

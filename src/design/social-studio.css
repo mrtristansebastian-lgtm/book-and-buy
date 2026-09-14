@@ -9,6 +9,60 @@
   min-width: 0;
 }
 
+/* Mobile: Instagram-style full-bleed ? no inset card */
+@media (max-width: 720px) {
+  .bb-owner-main:has(> .bb-social-studio) {
+    padding-inline: 0;
+    padding-top: 0.55rem;
+  }
+
+  .bb-social-studio {
+    max-width: none;
+    gap: 0.65rem;
+  }
+
+  .bb-social-studio-header {
+    padding-inline: 1rem;
+    top: 0;
+  }
+
+  .bb-social-studio-body {
+    padding-bottom: 5.5rem;
+  }
+
+  .bb-social-studio-live {
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .bb-social-studio-live .bb-public-profile-identity {
+    border-radius: 0;
+  }
+
+  .bb-social-studio-live .bb-public-profile-shell {
+    padding: 0.75rem 1rem 0;
+  }
+
+  .bb-social-studio-live .bb-public-profile-banner-wrap {
+    border-radius: 0.65rem;
+  }
+
+  .bb-social-library--live .bb-social-library-surface--live {
+    padding: 0 0 1rem;
+  }
+
+  .bb-social-studio .bb-social-ig-grid,
+  .bb-social-studio .bb-social-post-cards {
+    gap: 2px;
+  }
+
+  .bb-social-library--live .bb-social-library-empty {
+    margin: 0.75rem 1rem 0;
+  }
+}
+
 @media (min-width: 1100px) {
   .bb-social-studio {
     gap: 1.55rem;

@@ -14,7 +14,8 @@ export function RevenuePulseHeader({
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
   const periodOptions = FINANCE_PERIODS.map((period) => ({
     id: period.id,
-    label: period.label
+    label: period.label,
+    shortLabel: period.shortLabel
   }));
 
   return (

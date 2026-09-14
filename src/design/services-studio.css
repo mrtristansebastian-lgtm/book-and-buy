@@ -49,19 +49,21 @@
 
 /* Owner catalog cards — flat desk cards (3D box is Stock-only) */
 html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catalog-grid {
-  gap: 1rem;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
 }
 
-@media (min-width: 560px) {
+@media (min-width: 720px) {
   html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catalog-grid {
+    gap: 0.85rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 900px) {
   html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catalog-grid {
+    gap: 1rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -69,6 +71,94 @@ html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catal
 @media (min-width: 1280px) {
   html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catalog-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Compact cards on phone so ~4 products fit on screen */
+@media (max-width: 719px) {
+  html body .native-ui .bb-services-desk .bb-catalog-card {
+    gap: 0.35rem;
+    padding: 0.45rem;
+    border-radius: 0.85rem;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-media {
+    aspect-ratio: 1 / 1;
+    border-radius: 0.55rem;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-badge {
+    top: 0.3rem;
+    left: 0.3rem;
+    max-width: calc(58% - 0.4rem);
+    min-height: 1.15rem;
+    padding: 0.18rem 0.42rem;
+    font-size: 0.5rem;
+    font-weight: 740;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.5) inset,
+      0 2px 6px rgba(15, 23, 42, 0.16);
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-badge.is-end {
+    right: 0.3rem;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-badge.is-ink {
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.1) inset,
+      0 2px 6px rgba(15, 23, 42, 0.22);
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-copy {
+    gap: 0.12rem;
+    padding: 0;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-title {
+    font-size: 0.78rem !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em;
+    -webkit-line-clamp: 2;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-desc {
+    display: none !important;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-price {
+    gap: 0.35rem;
+    padding: 0.35rem 0 0;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-price-label {
+    font-size: 0.5rem;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-price-value {
+    font-size: 0.8rem;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-actions {
+    gap: 0.28rem;
+    padding-top: 0;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-action {
+    min-height: 1.85rem;
+    min-width: 1.85rem;
+    padding: 0.28rem 0.45rem;
+    border-radius: 0.55rem;
+    font-size: 0.68rem;
+    gap: 0.28rem;
+  }
+
+  html body .native-ui .bb-services-desk .bb-catalog-card-action svg {
+    width: 13px;
+    height: 13px;
   }
 }
 
@@ -135,33 +225,45 @@ html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catal
   left: 0.5rem;
   max-width: calc(50% - 0.65rem);
   margin: 0;
-  padding: 0.28rem 0.52rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 1.35rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
   color: #101828;
-  font-size: 0.58rem;
-  font-weight: 760;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.56rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  line-height: 1;
   text-transform: uppercase;
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 3px 10px rgba(15, 23, 42, 0.14);
   pointer-events: none;
 }
 
 .bb-catalog-card-badge.is-end {
   left: auto;
   right: 0.5rem;
-  text-align: right;
 }
 
 .bb-catalog-card-badge.is-ink {
-  background: #101828;
-  border-color: #101828;
+  background: rgba(16, 24, 40, 0.92);
+  border-color: rgba(16, 24, 40, 0.92);
   color: #fff;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 3px 10px rgba(15, 23, 42, 0.22);
 }
 
 .bb-catalog-card-copy {

@@ -174,7 +174,7 @@ export function ProductOrdersDesk() {
         ]}
       />
 
-      <div className="bb-ops-toolbar" aria-label="Product order period and sort">
+      <div className="bb-ops-toolbar" aria-label="Product order period">
         <PeriodSegmentedControl
           variant="period"
           ariaLabel="Product order period"
@@ -185,14 +185,6 @@ export function ProductOrdersDesk() {
         />
 
         <div className="bb-ops-toolbar-tools">
-          <SortField
-            value={sortBy}
-            onChange={setSortBy}
-            options={SORT_OPTIONS}
-            pickerTitle="Sort orders"
-            pickerHint="Order product orders in the selected period."
-          />
-
           <div className="bb-schedule-day-nav">
             <button
               type="button"
@@ -213,18 +205,18 @@ export function ProductOrdersDesk() {
             >
               <ChevronRight size={18} />
             </button>
-            <button
-              type="button"
-              className="bb-ink-btn"
-              onClick={() => {
-                setDay(toDateKey(new Date()));
-                setPeriod('day');
-              }}
-            >
-              Today
-            </button>
           </div>
         </div>
+      </div>
+
+      <div className="bb-ops-list-sort">
+        <SortField
+          value={sortBy}
+          onChange={setSortBy}
+          options={SORT_OPTIONS}
+          pickerTitle="Sort orders"
+          pickerHint="Order product orders in the selected period."
+        />
       </div>
 
       <div className="bb-ops-rows">
@@ -301,6 +293,7 @@ export function ProductOrdersDesk() {
                     <div className="bb-ops-action-cluster">
                       <OpsAction
                         tone="primary"
+                        iconOnly
                         ariaLabel="Accept order"
                         onClick={() => acceptOrder(order.id)}
                       >

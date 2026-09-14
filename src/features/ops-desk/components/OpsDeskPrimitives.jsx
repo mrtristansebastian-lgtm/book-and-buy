@@ -77,11 +77,11 @@ export function OpsAvatar({ name = '', src = '' }) {
   );
 }
 
-export function OpsAction({ children, onClick, tone = 'default', ariaLabel, className = '' }) {
+export function OpsAction({ children, onClick, tone = 'default', ariaLabel, className = '', iconOnly = false }) {
   return (
     <button
       type="button"
-      className={`bb-ops-action ${tone !== 'default' ? `is-${tone}` : ''} ${className}`.trim()}
+      className={`bb-ops-action ${tone !== 'default' ? `is-${tone}` : ''}${iconOnly ? ' is-icon' : ''} ${className}`.trim()}
       onClick={onClick}
       aria-label={ariaLabel}
     >

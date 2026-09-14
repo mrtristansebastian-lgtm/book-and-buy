@@ -25,7 +25,14 @@ export function PeriodSegmentedControl({
             onChange?.(option.id);
           }}
         >
-          {option.label}
+          {option.shortLabel ? (
+            <>
+              <span className="bb-segment-label-full">{option.label}</span>
+              <span className="bb-segment-label-short">{option.shortLabel}</span>
+            </>
+          ) : (
+            option.label
+          )}
           {typeof option.count === 'number' ? ` (${option.count})` : ''}
         </button>
       ))}

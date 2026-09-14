@@ -1,11 +1,11 @@
 import { addDays, formatDisplayDate, parseDateKey, toDateKey } from './dates';
 
 export const PERIOD_OPTIONS = [
-  { id: 'all', label: 'All time' },
-  { id: 'day', label: 'Day' },
-  { id: 'week', label: 'Week' },
-  { id: 'month', label: 'Month' },
-  { id: 'custom', label: 'Custom' }
+  { id: 'all', label: 'All time', shortLabel: 'All' },
+  { id: 'day', label: 'Day', shortLabel: 'Day' },
+  { id: 'week', label: 'Week', shortLabel: 'Week' },
+  { id: 'month', label: 'Month', shortLabel: 'Month' },
+  { id: 'custom', label: 'Custom', shortLabel: 'Custom' }
 ];
 
 export function startOfWeek(date) {

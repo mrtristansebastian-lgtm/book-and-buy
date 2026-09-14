@@ -184,14 +184,16 @@ export const DEMO_CLIENTS = [
     name: 'Aisha Naidoo',
     email: 'aisha.naidoo@example.com',
     phone: '+27 72 555 1001',
-    country: 'South Africa'
+    country: 'South Africa',
+    birthday: '1994-03-18'
   },
   {
     id: 'client-002',
     name: 'Daniel Botha',
     email: 'daniel.botha@example.com',
     phone: '+27 72 555 1002',
-    country: 'South Africa'
+    country: 'South Africa',
+    birthday: '1988-11-02'
   },
   {
     id: 'client-003',
@@ -205,7 +207,8 @@ export const DEMO_CLIENTS = [
     name: 'Ethan Williams',
     email: 'ethan.williams@example.com',
     phone: '+27 72 555 1004',
-    country: 'South Africa'
+    country: 'South Africa',
+    birthday: '1999-07-09'
   },
   {
     id: 'client-005',

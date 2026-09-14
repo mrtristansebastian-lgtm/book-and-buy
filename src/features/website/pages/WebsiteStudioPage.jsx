@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ChevronDown, ExternalLink } from 'lucide-react';
 import {
   E_BUSINESS_PAGES,
   E_BUSINESS_PLATFORM_NAME,
@@ -26,6 +26,7 @@ export function WebsiteStudioPage() {
   const [savedFlash, setSavedFlash] = useState(false);
   const [publishNote, setPublishNote] = useState('');
   const [publishing, setPublishing] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
 
   const editMode = mode === 'edit';
 
@@ -33,6 +34,9 @@ export function WebsiteStudioPage() {
     () => E_BUSINESS_PAGES.map((page) => ({ id: page.id, label: page.label })),
     []
   );
+
+  const activePageLabel =
+    pageOptions.find((page) => page.id === surface)?.label || 'Home';
 
   const publishFlash = async () => {
     if (publishing) return;
@@ -65,11 +69,15 @@ export function WebsiteStudioPage() {
 
   return (
     <div className="bb-studio-canvas grid gap-4">
-      <header className="bb-studio-toolbar bb-panel px-4 py-3 grid gap-3">
+      <header
+        className={`bb-studio-toolbar bb-panel${controlsOpen ? ' is-controls-open' : ''}`}
+      >
         <div className="bb-studio-toolbar-top">
-          <div className="grid gap-1 min-w-0">
-            <h1 className="bb-page-title text-2xl md:text-3xl m-0">{E_BUSINESS_PLATFORM_NAME}</h1>
-            <p className="bb-muted m-0 text-sm">
+          <div className="bb-studio-toolbar-copy min-w-0">
+            <h1 className="bb-page-title bb-studio-toolbar-title m-0">
+              {E_BUSINESS_PLATFORM_NAME}
+            </h1>
+            <p className="bb-muted m-0 text-sm bb-studio-toolbar-lede">
               View to scroll. Edit to change copy and images on the page.
             </p>
           </div>
@@ -93,7 +101,22 @@ export function WebsiteStudioPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          className="bb-studio-controls-toggle"
+          aria-expanded={controlsOpen}
+          onClick={() => setControlsOpen((open) => !open)}
+        >
+          <span>
+            {activePageLabel}
+            <span className="bb-studio-controls-toggle-meta">
+              · {mode === 'edit' ? 'Edit' : 'View'} · {device === 'phone' ? 'Phone' : 'Desktop'}
+            </span>
+          </span>
+          <ChevronDown size={16} strokeWidth={2.2} aria-hidden="true" />
+        </button>
+
+        <div className="bb-studio-controls">
           <PeriodSegmentedControl
             ariaLabel="E-Business Platform page surface"
             value={surface}
@@ -118,7 +141,7 @@ export function WebsiteStudioPage() {
               { id: 'desktop', label: 'Desktop' }
             ]}
           />
-          <label className="flex items-center gap-2 text-sm font-semibold ml-auto">
+          <label className="bb-studio-visible-toggle">
             <input
               type="checkbox"
               checked={isPublicPageEnabled(website.pages, surface)}

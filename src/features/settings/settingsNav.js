@@ -16,10 +16,17 @@ export const SETTINGS_SECTIONS = [
 
 export const DEFAULT_SETTINGS_SECTION = 'general';
 
+export function isSettingsSection(value = '') {
+  const id = String(value || '')
+    .trim()
+    .toLowerCase();
+  return SETTINGS_SECTIONS.some((section) => section.id === id);
+}
+
 export function resolveSettingsSection(value = '') {
   const id = String(value || '')
     .trim()
     .toLowerCase();
-  if (SETTINGS_SECTIONS.some((section) => section.id === id)) return id;
+  if (isSettingsSection(id)) return id;
   return DEFAULT_SETTINGS_SECTION;
 }

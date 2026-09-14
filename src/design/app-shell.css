@@ -125,10 +125,17 @@ html body .native-ui .bb-page-title {
   letter-spacing: 0.01em;
   line-height: 1;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition:
     color 140ms ease,
     background 140ms ease,
     box-shadow 140ms ease;
+}
+
+.bb-segment-label-short {
+  display: none;
 }
 
 .bb-segment-period button {
@@ -137,6 +144,35 @@ html body .native-ui .bb-page-title {
   font-size: 0.68rem;
   font-weight: 780;
   padding: 0.52rem 0.9rem;
+}
+
+@media (max-width: 720px) {
+  .bb-segment.bb-segment-period {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 0.12rem;
+    padding: 0.22rem;
+    border-radius: 0.9rem;
+  }
+
+  .bb-segment-period button {
+    min-width: 0;
+    width: 100%;
+    justify-content: center;
+    padding: 0.55rem 0.1rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+  }
+
+  .bb-segment-period .bb-segment-label-full {
+    display: none;
+  }
+
+  .bb-segment-period .bb-segment-label-short {
+    display: inline;
+  }
 }
 
 .bb-segment button[aria-pressed='true'] {
@@ -401,12 +437,15 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   align-content: stretch;
 }
 
-.bb-shell.is-support-flush .bb-owner-sidebar {
-  height: auto;
-  max-height: 100%;
-  align-self: stretch;
-  position: relative;
-  overflow: auto;
+/* Desktop only — mobile uses the fixed bottom sheet (see max-width: 900px). */
+@media (min-width: 901px) {
+  .bb-shell.is-support-flush .bb-owner-sidebar {
+    height: auto;
+    max-height: 100%;
+    align-self: stretch;
+    position: relative;
+    overflow: auto;
+  }
 }
 
 .bb-shell.is-support-flush .bb-owner-content {
@@ -425,6 +464,40 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   .bb-shell.is-support-flush {
     height: 100dvh;
     max-height: 100dvh;
+  }
+
+  /* Keep More-menu sheet off-canvas unless opened — do not reflow into Inbox. */
+  .bb-shell.is-support-flush .bb-owner-sidebar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    height: min(78dvh, 36rem);
+    max-height: calc(100dvh - 4.5rem);
+    align-self: auto;
+    z-index: 50;
+    transform: translateY(110%);
+    overflow: auto;
+  }
+
+  .bb-shell.is-support-flush .bb-owner-sidebar.is-open {
+    transform: translateY(0);
+  }
+
+  .bb-shell.is-support-flush .bb-owner-content,
+  .bb-shell.is-support-flush .bb-owner-main.is-flush,
+  .bb-shell.is-support-flush .bb-support-page,
+  .bb-shell.is-support-flush .bb-support-stage {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    isolation: isolate;
+  }
+
+  .bb-shell.is-support-flush .bb-support-list {
+    background: #fbfbfb;
   }
 
   .bb-owner-layout {
@@ -471,6 +544,43 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   .bb-owner-sidebar.is-open {
     transform: translateY(0);
     box-shadow: 0 -18px 48px rgba(15, 23, 42, 0.2);
+  }
+
+  /* More sheet: two flowing columns (no tall-row gaps) */
+  .bb-owner-sidebar .bb-owner-sidebar-nav {
+    display: block;
+    columns: 2;
+    column-gap: 0.65rem;
+    gap: 0;
+    overflow: auto;
+    min-height: 0;
+    padding-bottom: 0.25rem;
+  }
+
+  .bb-owner-sidebar .bb-owner-sidebar-nav > div {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+    align-content: start;
+    break-inside: avoid;
+    margin: 0 0 0.85rem;
+  }
+
+  .bb-owner-sidebar .bb-owner-nav-group-label {
+    padding: 0 0.35rem 0.15rem;
+    font-size: 0.62rem;
+  }
+
+  .bb-owner-sidebar .bb-nav-item {
+    min-height: 2.35rem;
+    padding: 0.45rem 0.55rem;
+    font-size: 0.82rem;
+    gap: 0.45rem;
+  }
+
+  .bb-owner-sidebar .bb-nav-item.is-nested {
+    margin-left: 0;
+    padding-left: 0.55rem;
   }
 
   .bb-owner-nav-close {
@@ -566,6 +676,13 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 
 .bb-owner-sidebar-nav {
   flex: 1 1 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.bb-owner-sidebar-nav > div {
+  display: grid;
+  gap: 0.25rem;
 }
 
 .bb-owner-nav-group-label {

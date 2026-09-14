@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Bell,
+  ChevronLeft,
   CreditCard,
   Globe2,
   Lock,
@@ -21,6 +22,7 @@ import { useWorkspace } from '../workspace/WorkspaceContext';
 import {
   DEFAULT_SETTINGS_SECTION,
   SETTINGS_SECTIONS,
+  isSettingsSection,
   resolveSettingsSection
 } from './settingsNav';
 import { GeneralSettingsPage } from './pages/GeneralSettingsPage';
@@ -108,6 +110,8 @@ const COPY = {
   }
 };
 
+const MOBILE_MQ = '(max-width: 960px)';
+
 function initials(name = '') {
   const parts = String(name)
     .trim()
@@ -122,9 +126,27 @@ function initials(name = '') {
 
 export function SettingsShell({ section: sectionProp }) {
   const { workspace } = useWorkspace();
+  const hasExplicitSection = isSettingsSection(sectionProp);
   const section = resolveSettingsSection(sectionProp || DEFAULT_SETTINGS_SECTION);
   const [query, setQuery] = useState('');
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(MOBILE_MQ).matches : false
+  );
   const copy = COPY[section] || COPY.general;
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ);
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  // Desktop always needs a section URL so the split pane stays in sync.
+  useEffect(() => {
+    if (hasExplicitSection || isMobile) return;
+    navigate(`/dashboard/settings/${DEFAULT_SETTINGS_SECTION}`, { replace: true });
+  }, [hasExplicitSection, isMobile]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -133,6 +155,10 @@ export function SettingsShell({ section: sectionProp }) {
   }, [query]);
 
   const go = (id) => navigate(`/dashboard/settings/${id}`);
+  const goList = () => navigate('/dashboard/settings');
+
+  const activeId = hasExplicitSection ? section : isMobile ? null : DEFAULT_SETTINGS_SECTION;
+  const mobileView = hasExplicitSection ? 'detail' : 'index';
 
   let body = null;
   if (section === 'general') body = <GeneralSettingsPage />;
@@ -150,8 +176,16 @@ export function SettingsShell({ section: sectionProp }) {
   else if (section === 'account') body = <AccountSettingsPage />;
 
   return (
-    <div className="bb-settings">
+    <div className={`bb-settings is-mobile-${mobileView}`}>
       <aside className="bb-settings-rail" aria-label="Settings categories">
+        <header className="bb-settings-mobile-index-head">
+          <div className="bb-page-title-wrap">
+            <div className="bb-page-header-glow" aria-hidden="true" />
+            <h1 className="bb-page-title">Settings</h1>
+          </div>
+          <p className="bb-muted">Business, billing, and account.</p>
+        </header>
+
         <div className="bb-settings-search-wrap bb-search-field">
           <Search size={14} className="bb-settings-search-icon bb-search-field-icon" aria-hidden />
           <input
@@ -164,23 +198,10 @@ export function SettingsShell({ section: sectionProp }) {
           />
         </div>
 
-        <select
-          className="bb-settings-mobile-select"
-          value={section}
-          onChange={(event) => go(event.target.value)}
-          aria-label="Settings section"
-        >
-          {SETTINGS_SECTIONS.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </select>
-
         <nav className="bb-settings-nav">
           {filtered.map((item) => {
             const Icon = ICONS[item.id] || CreditCard;
-            const active = item.id === section;
+            const active = item.id === activeId;
             return (
               <button
                 key={item.id}
@@ -212,6 +233,10 @@ export function SettingsShell({ section: sectionProp }) {
 
       <div className="bb-settings-main">
         <header className="bb-settings-main-head">
+          <button type="button" className="bb-settings-back" onClick={goList}>
+            <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
+            Settings
+          </button>
           <div className="bb-page-title-wrap">
             <div className="bb-page-header-glow" aria-hidden="true" />
             <h1 className="bb-page-title">{copy.title}</h1>

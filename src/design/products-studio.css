@@ -346,19 +346,23 @@
 
 .bb-stock-room {
   display: grid;
-  gap: 1.25rem 1.1rem;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-  padding: 0.45rem 0.35rem 1.35rem;
+  gap: 0.55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0.15rem 0 1rem;
+  align-items: stretch;
 }
 
-@media (min-width: 560px) {
+@media (min-width: 720px) {
   .bb-stock-room {
+    gap: 0.85rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0.35rem 0.15rem 1.15rem;
   }
 }
 
-@media (min-width: 960px) {
+@media (min-width: 900px) {
   .bb-stock-room {
+    gap: 1rem 1.1rem;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -569,6 +573,86 @@
   background: #1d2939;
   border-color: #1d2939;
   color: #fff;
+}
+
+/* Match Products/Services compact two-up cards on phone */
+@media (max-width: 719px) {
+  .bb-stock-crate {
+    gap: 0.3rem;
+  }
+
+  .bb-stock-crate-scene {
+    --box-depth: 0.4rem;
+    padding: 0.05rem 0.35rem 0.35rem 0.05rem;
+  }
+
+  .bb-stock-crate-body {
+    gap: 0.35rem;
+    min-height: 0;
+    padding: 0.45rem;
+    border-radius: 0.85rem;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+  }
+
+  .bb-stock-crate-side {
+    border-radius: 0 0.55rem 0.55rem 0;
+  }
+
+  .bb-stock-crate-bottom {
+    border-radius: 0 0 0.55rem 0.55rem;
+  }
+
+  .bb-stock-crate-media {
+    aspect-ratio: 1 / 1;
+    border-radius: 0.55rem;
+  }
+
+  .bb-stock-crate-stamp {
+    gap: 0.1rem;
+    padding: 0;
+  }
+
+  .bb-stock-crate-stamp strong {
+    font-size: 0.78rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .bb-stock-crate-stamp > span {
+    font-size: 0.58rem;
+  }
+
+  .bb-stock-crate-qty {
+    padding: 0.18rem 0.42rem;
+    font-size: 0.5rem;
+    font-weight: 740;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1;
+    min-height: 1.15rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bb-stock-crate-actions {
+    gap: 0.28rem;
+    margin-top: 0;
+    padding-top: 0.4rem;
+  }
+
+  .bb-stock-crate-action {
+    min-height: 1.85rem;
+    padding: 0.28rem 0.4rem;
+    border-radius: 0.55rem;
+    font-size: 0.68rem;
+    gap: 0.28rem;
+  }
+
+  .bb-stock-crate-action svg {
+    width: 13px;
+    height: 13px;
+  }
 }
 
 .bb-stock-info {

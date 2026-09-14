@@ -33,6 +33,37 @@
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
+@media (max-width: 720px) {
+  .bb-ops-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+
+  .bb-ops-toolbar .bb-segment.bb-segment-period {
+    width: 100%;
+  }
+
+  .bb-ops-toolbar-tools {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .bb-ops-toolbar-tools .bb-schedule-day-nav {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .bb-ops-toolbar-tools .bb-schedule-day-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 14rem;
+  }
+}
+
 .bb-ops-toolbar-tools {
   display: flex;
   flex-wrap: wrap;
@@ -40,6 +71,13 @@
   justify-content: flex-end;
   gap: 0.55rem 0.75rem;
   margin-left: auto;
+  min-width: 0;
+}
+
+.bb-ops-list-sort {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0.65rem 0 0.35rem;
   min-width: 0;
 }
 
@@ -335,14 +373,14 @@
   color: #667085;
 }
 
-/* Col 4 — compact 2-col action stack, fixed width so it never crowds assign */
+/* Col 4 — action controls */
 .bb-ops-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
   width: 100%;
-  align-content: center;
-  justify-items: stretch;
   overflow: visible;
 }
 
@@ -351,32 +389,35 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.35rem;
-  width: 100%;
+  min-width: 0;
 }
 
 .bb-ops-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.28rem;
-  width: 100%;
+  gap: 0.3rem;
+  width: auto;
   min-width: 0;
   height: 2rem;
-  padding: 0 0.5rem;
-  border: 1px solid rgba(15, 23, 42, 0.14);
-  border-radius: 0.5rem;
+  padding: 0 0.6rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0.55rem;
   background: #fff;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 760;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #344054;
   cursor: pointer;
   white-space: nowrap;
   box-sizing: border-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    filter 120ms ease;
 }
 
 .bb-ops-action:hover {
@@ -384,12 +425,8 @@
   border-color: rgba(15, 23, 42, 0.2);
 }
 
-/* Native accent fill (same system as .bb-primary-btn) — icon-only check */
+/* Accent fill — text + icon (Ship / Fulfilled) or icon-only (Approve) */
 .bb-ops-action.is-primary {
-  width: 2rem;
-  min-width: 2rem;
-  max-width: 2rem;
-  padding: 0;
   border: 1px solid transparent;
   color: #050505 !important;
   background-color: transparent;
@@ -398,6 +435,7 @@
     var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  box-shadow: none;
 }
 
 .bb-ops-action.is-primary:hover {
@@ -405,6 +443,13 @@
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
     var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+}
+
+.bb-ops-action.is-icon {
+  width: 2rem;
+  min-width: 2rem;
+  max-width: 2rem;
+  padding: 0;
 }
 
 .bb-ops-action.is-danger {
@@ -415,6 +460,7 @@
   color: #d92d20;
   border-color: rgba(217, 45, 32, 0.28);
   background: #fff;
+  box-shadow: none;
 }
 
 .bb-ops-action.is-danger:hover {
@@ -422,10 +468,7 @@
 }
 
 .bb-ops-action.is-ghost-slot {
-  visibility: hidden;
-  pointer-events: none;
-  border-color: transparent;
-  background: transparent;
+  display: none;
 }
 
 .bb-ops-empty {
@@ -459,8 +502,22 @@
   }
 
   .bb-ops-actions {
-    max-width: 14rem;
-    justify-self: start;
+    max-width: none;
+    justify-content: stretch;
+  }
+
+  .bb-ops-action:not(.is-danger):not(.is-icon) {
+    flex: 1 1 5.5rem;
+  }
+
+  .bb-ops-action-cluster {
+    flex: 1 1 8rem;
+  }
+
+  .bb-ops-action-cluster .bb-ops-action.is-primary:not(.is-icon) {
+    flex: 1 1 auto;
+    min-width: 4.5rem;
+    padding: 0 0.75rem;
   }
 }
 
@@ -470,9 +527,21 @@
   }
 
   .bb-ops-tabs {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.65rem;
+    flex-wrap: wrap;
+    overflow: visible;
+    gap: 0.28rem;
+  }
+
+  .bb-ops-tab {
+    height: 1.85rem;
+    padding: 0 0.5rem 0 0.4rem;
+    font-size: 0.6rem;
+    gap: 0.28rem;
+  }
+
+  .bb-ops-tab-count {
+    min-width: 1.1rem;
+    height: 1.05rem;
+    font-size: 0.56rem;
   }
 }

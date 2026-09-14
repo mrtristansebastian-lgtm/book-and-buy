@@ -180,7 +180,7 @@ export function BookingRequestsDesk() {
         ]}
       />
 
-      <div className="bb-ops-toolbar" aria-label="Booking request period and sort">
+      <div className="bb-ops-toolbar" aria-label="Booking request period">
         <PeriodSegmentedControl
           variant="period"
           ariaLabel="Booking request period"
@@ -191,14 +191,6 @@ export function BookingRequestsDesk() {
         />
 
         <div className="bb-ops-toolbar-tools">
-          <SortField
-            value={sortBy}
-            onChange={setSortBy}
-            options={SORT_OPTIONS}
-            pickerTitle="Sort requests"
-            pickerHint="Order booking requests in the selected period."
-          />
-
           <div className="bb-schedule-day-nav">
             <button
               type="button"
@@ -219,18 +211,18 @@ export function BookingRequestsDesk() {
             >
               <ChevronRight size={18} />
             </button>
-            <button
-              type="button"
-              className="bb-ink-btn"
-              onClick={() => {
-                setDay(toDateKey(new Date()));
-                setPeriod('day');
-              }}
-            >
-              Today
-            </button>
           </div>
         </div>
+      </div>
+
+      <div className="bb-ops-list-sort">
+        <SortField
+          value={sortBy}
+          onChange={setSortBy}
+          options={SORT_OPTIONS}
+          pickerTitle="Sort requests"
+          pickerHint="Order booking requests in the selected period."
+        />
       </div>
 
       <div className="bb-ops-rows">
@@ -300,6 +292,7 @@ export function BookingRequestsDesk() {
                     <div className="bb-ops-action-cluster">
                       <OpsAction
                         tone="primary"
+                        iconOnly
                         ariaLabel="Approve"
                         onClick={() => confirmBooking(booking.id)}
                       >

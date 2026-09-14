@@ -3914,9 +3914,38 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-device-preview--phone .bb-public-about,
 .bb-device-preview--phone .bb-public-visit,
-.bb-device-preview--phone .bb-public-reasons,
-.bb-device-preview--phone .bb-public-reviews {
+.bb-device-preview--phone .bb-public-reasons {
   grid-template-columns: 1fr !important;
+}
+
+.bb-device-preview--phone .bb-public-reviews,
+.bb-device-preview--phone .bb-public-profile .bb-public-reviews {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  grid-template-columns: none !important;
+  gap: 0.75rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 0.15rem 0.05rem 0.35rem !important;
+}
+
+.bb-device-preview--phone .bb-public-reviews::-webkit-scrollbar,
+.bb-device-preview--phone .bb-public-profile .bb-public-reviews::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-device-preview--phone .bb-public-review,
+.bb-device-preview--phone .bb-public-profile .bb-public-review {
+  flex: 0 0 82% !important;
+  width: 82% !important;
+  max-width: 16.5rem !important;
+  min-height: 0 !important;
+  scroll-snap-align: start !important;
+  scroll-snap-stop: always !important;
 }
 
 .bb-device-preview--phone .bb-public-about-media-frame {
@@ -3935,11 +3964,6 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-device-preview--phone .bb-public-reason {
-  padding: 0.85rem 0;
-  border-left: 0 !important;
-}
-
-.bb-device-preview--phone .bb-public-review {
   padding: 0.85rem 0;
   border-left: 0 !important;
 }
@@ -4493,9 +4517,11 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-studio-toolbar {
-  position: sticky;
-  top: 0.5rem;
+  position: relative;
   z-index: 5;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
 }
 
 .bb-studio-toolbar-top {
@@ -4504,6 +4530,136 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem 1rem;
+}
+
+.bb-studio-toolbar-title {
+  font-size: clamp(1.15rem, 2.5vw, 1.65rem);
+}
+
+.bb-studio-controls-toggle {
+  display: none;
+}
+
+.bb-studio-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.bb-studio-visible-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: #344054;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .bb-studio-toolbar {
+    gap: 0.55rem;
+    padding: 0.7rem 0.75rem;
+    position: relative;
+    top: auto;
+  }
+
+  .bb-studio-toolbar-lede {
+    display: none;
+  }
+
+  .bb-studio-toolbar-title {
+    font-size: 1.05rem;
+  }
+
+  .bb-studio-actions {
+    width: 100%;
+  }
+
+  .bb-studio-action {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 2.15rem;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  .bb-studio-controls-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 2.35rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #f8fafc;
+    color: #101828;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 720;
+    cursor: pointer;
+  }
+
+  .bb-studio-controls-toggle-meta {
+    font-weight: 600;
+    color: #667085;
+  }
+
+  .bb-studio-controls-toggle svg {
+    flex-shrink: 0;
+    transition: transform 0.18s ease;
+  }
+
+  .bb-studio-toolbar.is-controls-open .bb-studio-controls-toggle svg {
+    transform: rotate(180deg);
+  }
+
+  .bb-studio-controls {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+
+  .bb-studio-toolbar.is-controls-open .bb-studio-controls {
+    display: flex;
+  }
+
+  .bb-studio-controls .bb-period-seg,
+  .bb-studio-controls .native-segmented,
+  .bb-studio-controls [role='tablist'],
+  .bb-studio-controls .bb-segment {
+    width: 100%;
+  }
+
+  .bb-studio-controls .bb-segment {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .bb-studio-visible-toggle {
+    margin-left: 0;
+    font-size: 0.8rem;
+  }
+
+  /* Preview already has page switching in the studio bar — drop sticky public nav chrome */
+  .bb-studio-canvas .bb-device-preview .bb-public-header {
+    position: static;
+  }
+
+  .bb-studio-canvas .bb-device-preview .bb-public-nav {
+    display: none;
+  }
+
+  /* Demo bar no longer sticky — keep it out of the way on studio */
+  .bb-shell:has(.bb-studio-canvas) .bb-demo-banner {
+    display: none;
+  }
 }
 
 .bb-studio-eyebrow {
@@ -4848,7 +5004,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-profile-shell .bb-public-profile-avatar-wrap {
-  box-shadow: 0 0 0 0.2rem #fff;
+  box-shadow: none;
 }
 
 .bb-public-profile-main {
@@ -4933,6 +5089,9 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   width: 6.25rem;
   height: 6.25rem;
   margin-inline: auto;
+  border-radius: 999px;
+  overflow: hidden;
+  background: transparent;
 }
 
 .bb-public-profile-avatar {
@@ -5656,17 +5815,30 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-profile .bb-public-reviews {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
   width: 100%;
   padding: 0.2rem 0.05rem 0.35rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.bb-public-profile .bb-public-reviews::-webkit-scrollbar {
+  display: none;
 }
 
 @media (min-width: 720px) {
   .bb-public-profile .bb-public-reviews {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.95rem;
+    overflow: visible;
+    scroll-snap-type: none;
   }
 }
 
@@ -5682,8 +5854,11 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   grid-template-rows: auto 1fr auto;
   gap: 0.85rem;
   align-content: start;
+  flex: 0 0 min(82vw, 17.5rem);
+  width: min(82vw, 17.5rem);
+  max-width: 17.5rem;
   min-width: 0;
-  min-height: 100%;
+  min-height: 0;
   margin: 0;
   padding: 1.25rem 1.2rem 1.15rem;
   border-radius: 1.2rem;
@@ -5694,6 +5869,18 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
     0 1px 0 rgba(255, 255, 255, 0.95) inset,
     0 12px 32px rgba(15, 23, 42, 0.055);
   animation: none;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile .bb-public-review {
+    flex: none;
+    width: auto;
+    max-width: none;
+    min-height: 100%;
+    scroll-snap-align: none;
+  }
 }
 
 .bb-public-profile .bb-public-review:first-child {

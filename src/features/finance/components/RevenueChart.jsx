@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Maximize2, X } from 'lucide-react';
 import { formatMoney } from '../utils/financeLedger';
 import {
@@ -6,7 +6,8 @@ import {
   nearestCoordByX
 } from '../utils/financeChartScale';
 
-const CHART_PAD = { top: 18, right: 18, bottom: 40, left: 72 };
+const CHART_PAD_DESKTOP = { top: 18, right: 18, bottom: 40, left: 72 };
+const CHART_PAD_MOBILE = { top: 12, right: 10, bottom: 34, left: 44 };
 
 function formatTooltipWhen(at, label) {
   if (!Number.isFinite(at)) return label || '';
@@ -28,6 +29,7 @@ function ChartSvg({
   currency,
   width,
   height,
+  pad,
   gradientId,
   active,
   onHover,
@@ -35,8 +37,8 @@ function ChartSvg({
 }) {
   const svgRef = useRef(null);
   const geometry = useMemo(
-    () => buildChartGeometry(series, { width, height, pad: CHART_PAD, yTickCount: 5 }),
-    [series, width, height]
+    () => buildChartGeometry(series, { width, height, pad, yTickCount: 5 }),
+    [series, width, height, pad]
   );
 
   const handlePointer = (event) => {
@@ -48,8 +50,8 @@ function ChartSvg({
     onHover?.(point, geometry);
   };
 
-  const { pad, plot } = geometry;
-  const baseline = pad.top + plot.height;
+  const { pad: chartPad, plot } = geometry;
+  const baseline = chartPad.top + plot.height;
 
   return (
     <div className="bb-finance-chart-canvas">
@@ -73,14 +75,14 @@ function ChartSvg({
         {geometry.ticksY.map((tick) => (
           <g key={`y-${tick.valueCents}`}>
             <line
-              x1={pad.left}
-              x2={width - pad.right}
+              x1={chartPad.left}
+              x2={width - chartPad.right}
               y1={tick.y}
               y2={tick.y}
               className="bb-finance-chart-grid"
             />
             <text
-              x={pad.left - 10}
+              x={chartPad.left - 10}
               y={tick.y + 3.5}
               textAnchor="end"
               className="bb-finance-chart-axis bb-finance-chart-axis--y"
@@ -110,7 +112,7 @@ function ChartSvg({
             <line
               x1={active.x}
               x2={active.x}
-              y1={pad.top}
+              y1={chartPad.top}
               y2={baseline}
               className="bb-finance-chart-guide"
             />
@@ -125,8 +127,8 @@ function ChartSvg({
 
         {/* Invisible hit strip for reliable pointer targeting */}
         <rect
-          x={pad.left}
-          y={pad.top}
+          x={chartPad.left}
+          y={chartPad.top}
           width={plot.width}
           height={plot.height}
           fill="transparent"
@@ -157,10 +159,20 @@ function ChartSvg({
 export function RevenueChart({ series = [], currency = 'R' }) {
   const [expanded, setExpanded] = useState(false);
   const [active, setActive] = useState(null);
+  const [compact, setCompact] = useState(false);
   const gradientId = useId().replace(/:/g, '');
 
-  const width = expanded ? 960 : 640;
-  const height = expanded ? 420 : 300;
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 720px)');
+    const sync = () => setCompact(media.matches);
+    sync();
+    media.addEventListener?.('change', sync);
+    return () => media.removeEventListener?.('change', sync);
+  }, []);
+
+  const width = expanded ? 960 : compact ? 390 : 640;
+  const height = expanded ? 420 : compact ? 260 : 300;
+  const pad = expanded || !compact ? CHART_PAD_DESKTOP : CHART_PAD_MOBILE;
 
   const chart = (
     <div className={`bb-finance-chart${expanded ? ' is-expanded' : ''}`}>
@@ -183,6 +195,7 @@ export function RevenueChart({ series = [], currency = 'R' }) {
           currency={currency}
           width={width}
           height={height}
+          pad={pad}
           gradientId={`bb-finance-area-${gradientId}`}
           active={active}
           onHover={(point) => setActive(point)}

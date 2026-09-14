@@ -590,18 +590,6 @@ export function SchedulePage() {
         />
 
         <div className="bb-schedule-toolbar-end">
-          <SortField
-            value={mode === 'spots' && sortBy === 'client' ? 'oldest' : sortBy}
-            onChange={setSortBy}
-            options={mode === 'slots' ? SORT_OPTIONS : SPOT_SORT_OPTIONS}
-            pickerTitle="Sort schedule"
-            pickerHint={
-              mode === 'slots'
-                ? 'Order appointments in this period.'
-                : 'Order programmes in this period.'
-            }
-          />
-
           <div className="bb-schedule-day-nav">
             <button
               type="button"
@@ -649,7 +637,20 @@ export function SchedulePage() {
       </section>
 
       <div className="bb-schedule-stage" key={`${mode}-${period}-${day}`}>
-        {renderStaffFilter()}
+        <div className="bb-schedule-stage-filters">
+          {renderStaffFilter()}
+          <SortField
+            value={mode === 'spots' && sortBy === 'client' ? 'oldest' : sortBy}
+            onChange={setSortBy}
+            options={mode === 'slots' ? SORT_OPTIONS : SPOT_SORT_OPTIONS}
+            pickerTitle="Sort schedule"
+            pickerHint={
+              mode === 'slots'
+                ? 'Order appointments in this period.'
+                : 'Order programmes in this period.'
+            }
+          />
+        </div>
 
         {mode === 'slots' ? (
           period !== 'day' && agendaBookings.length === 0 ? (

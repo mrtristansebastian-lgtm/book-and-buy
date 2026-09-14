@@ -212,7 +212,7 @@ html[data-theme='dark'] .bb-social-studio-profile-banner-wrap {
 }
 
 html[data-theme='dark'] .bb-public-profile-shell .bb-public-profile-avatar-wrap {
-  box-shadow: 0 0 0 0.2rem #121212;
+  box-shadow: none;
 }
 
 html[data-theme='dark'] .bb-social-studio-profile-avatar-wrap {
@@ -918,6 +918,19 @@ html[data-theme='dark'] .bb-support-thread.is-active {
 html[data-theme='dark'] .bb-support-list {
   background: var(--bb-bg) !important;
   border-color: var(--bb-border) !important;
+}
+
+@media (max-width: 900px) {
+  html[data-theme='dark'] .bb-shell.is-support-flush .bb-owner-content,
+  html[data-theme='dark'] .bb-shell.is-support-flush .bb-owner-main.is-flush,
+  html[data-theme='dark'] .bb-shell.is-support-flush .bb-support-page,
+  html[data-theme='dark'] .bb-shell.is-support-flush .bb-support-stage {
+    background: var(--bb-panel);
+  }
+
+  html[data-theme='dark'] .bb-shell.is-support-flush .bb-support-list {
+    background: var(--bb-bg);
+  }
 }
 
 html[data-theme='dark'] .bb-support-thread {

@@ -128,15 +128,34 @@
   max-width: 40rem;
 }
 
-.bb-settings-mobile-select {
+.bb-settings-mobile-index-head {
   display: none;
-  width: 100%;
-  min-height: 2.6rem;
-  padding: 0.55rem 0.85rem;
-  border-radius: 0.85rem;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  background: #fff;
-  font-weight: 650;
+  gap: 0.35rem;
+}
+
+.bb-settings-mobile-index-head .bb-page-title {
+  margin: 0;
+}
+
+.bb-settings-mobile-index-head p {
+  margin: 0;
+}
+
+.bb-settings-back {
+  display: none;
+  align-items: center;
+  gap: 0.2rem;
+  width: fit-content;
+  min-height: 2.15rem;
+  margin: 0 0 0.15rem;
+  padding: 0 0.1rem;
+  border: 0;
+  background: transparent;
+  color: #344054;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 720;
+  cursor: pointer;
 }
 
 .bb-settings-gateways {
@@ -302,20 +321,37 @@
 @media (max-width: 960px) {
   .bb-settings {
     grid-template-columns: 1fr;
+    min-height: 0;
   }
 
   .bb-settings-rail {
     position: static;
   }
 
-  .bb-settings-nav,
-  .bb-settings-search-wrap,
-  .bb-settings-rail-foot {
+  .bb-settings-nav {
+    max-height: none;
+  }
+
+  .bb-settings-nav-item {
+    min-height: 2.75rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.95rem;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-mobile-index-head {
+    display: grid;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-main {
     display: none;
   }
 
-  .bb-settings-mobile-select {
-    display: block;
+  .bb-settings.is-mobile-detail .bb-settings-rail {
+    display: none;
+  }
+
+  .bb-settings.is-mobile-detail .bb-settings-back {
+    display: inline-flex;
   }
 
   .bb-settings-plan-grid {

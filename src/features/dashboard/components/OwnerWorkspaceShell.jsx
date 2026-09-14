@@ -117,7 +117,7 @@ export function OwnerWorkspaceShell({ tab, children }) {
       }`}
     >
       {workspace.isDemo ? (
-        <div className="bb-demo-banner sticky top-0 z-40 border-b border-black/8 bg-white/95 backdrop-blur px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="bb-demo-banner border-b border-black/8 bg-white px-4 py-2 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-sm">
             <span className="bb-primary-btn py-1 px-3 text-xs pointer-events-none">Demo mode</span>
             <span className="bb-muted">
@@ -164,7 +164,6 @@ export function OwnerWorkspaceShell({ tab, children }) {
 
         <aside
           className={`bb-owner-sidebar${moreOpen ? ' is-open' : ''}`}
-          aria-hidden={false}
           id="bb-owner-more-menu"
         >
           <div className="bb-owner-sidebar-top">
@@ -184,7 +183,7 @@ export function OwnerWorkspaceShell({ tab, children }) {
             </button>
           </div>
 
-          <nav className="bb-owner-sidebar-nav grid gap-4">
+          <nav className="bb-owner-sidebar-nav">
             {Object.entries(groups).map(([groupId, tabs]) => (
               <div key={groupId} className="grid gap-1">
                 <div className="bb-owner-nav-group-label">
