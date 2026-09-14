@@ -3,13 +3,30 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp, getPostMediaItems } from '../utils/socialPostType';
 
+function handleFromSlug(slug = '', brandName = '') {
+  const fromSlug = String(slug || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._]+/g, '');
+  if (fromSlug) return fromSlug;
+  return String(brandName || 'business')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._]+/g, '')
+    .slice(0, 24) || 'business';
+}
+
 /**
- * Full media lightbox — images + short clips in a carousel.
+ * Full media lightbox — images + short clips in a carousel,
+ * with an Instagram-style profile + caption footer.
  */
 export function SocialPostLightbox({
   posts = [],
   activeId = '',
   editMode = false,
+  brandName = '',
+  logoUrl = '',
+  slug = '',
   onClose,
   onChangeActive,
   onUpdateSocialPost
@@ -23,6 +40,10 @@ export function SocialPostLightbox({
   const stamp = post ? formatNoteStamp(post.createdAt) : '';
   const mediaItems = getPostMediaItems(post);
   const [mediaIndex, setMediaIndex] = useState(0);
+
+  const displayName = String(brandName || '').trim() || 'Business';
+  const handle = handleFromSlug(slug, displayName);
+  const initial = displayName.charAt(0).toUpperCase() || 'B';
 
   useEffect(() => {
     setMediaIndex(0);
@@ -113,7 +134,7 @@ export function SocialPostLightbox({
           <div className="bb-social-lightbox-frame">
             {active?.kind === 'video' && active.url ? (
               <video
-                key={`${post.id}-${mediaIndex}`}
+                key={`${post.id}-${mediaIndex}-${active.trimStart || 0}-${active.trimEnd || 0}`}
                 className="bb-social-lightbox-video"
                 src={active.url}
                 poster={active.posterUrl || undefined}
@@ -132,6 +153,20 @@ export function SocialPostLightbox({
                     video.videoHeight > 0
                   ) {
                     video.style.aspectRatio = String(video.videoWidth / video.videoHeight);
+                  }
+                  const start = Number(active.trimStart) || 0;
+                  if (start > 0.05) video.currentTime = start;
+                }}
+                onTimeUpdate={(event) => {
+                  const video = event.currentTarget;
+                  const start = Number(active.trimStart) || 0;
+                  const end =
+                    Number(active.trimEnd) > 0
+                      ? Number(active.trimEnd)
+                      : Number(active.sourceDurationSeconds) || 0;
+                  if (end > start && video.currentTime >= end - 0.05) {
+                    video.pause();
+                    video.currentTime = start;
                   }
                 }}
               />
@@ -188,39 +223,66 @@ export function SocialPostLightbox({
         </div>
 
         <div className="bb-social-lightbox-copy">
-          <div className="bb-social-lightbox-meta">
-            {stamp ? (
-              <time
-                className="bb-social-lightbox-stamp"
-                dateTime={new Date(post.createdAt).toISOString()}
-              >
-                {stamp}
-              </time>
-            ) : null}
-            <p className="bb-social-lightbox-count">
-              {multi
-                ? `${mediaIndex + 1} / ${mediaItems.length} · Post ${index + 1} / ${posts.length}`
-                : `${index + 1} / ${posts.length}`}
-            </p>
+          <header className="bb-social-lightbox-author">
+            {logoUrl ? (
+              <img src={logoUrl} alt="" className="bb-social-lightbox-avatar" />
+            ) : (
+              <span className="bb-social-lightbox-avatar bb-social-lightbox-avatar--fallback" aria-hidden="true">
+                {initial}
+              </span>
+            )}
+            <div className="bb-social-lightbox-author-copy">
+              <p className="bb-social-lightbox-brand">{displayName}</p>
+              <p className="bb-social-lightbox-handle-row">
+                <span className="bb-social-lightbox-handle">@{handle}</span>
+                {stamp ? (
+                  <>
+                    <span className="bb-social-lightbox-dot-sep" aria-hidden="true">
+                      ·
+                    </span>
+                    <time
+                      className="bb-social-lightbox-stamp"
+                      dateTime={new Date(post.createdAt).toISOString()}
+                    >
+                      {stamp}
+                    </time>
+                  </>
+                ) : null}
+              </p>
+            </div>
+            {multi ? (
+              <p className="bb-social-lightbox-count">
+                {mediaIndex + 1} / {mediaItems.length}
+              </p>
+            ) : (
+              <p className="bb-social-lightbox-count">
+                {index + 1} / {posts.length}
+              </p>
+            )}
+          </header>
+
+          {(post.title || editMode) ? (
+            <EditableText
+              as="h2"
+              className="bb-social-lightbox-title"
+              editMode={editMode}
+              value={post.title || ''}
+              placeholder="Add a title"
+              onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
+            />
+          ) : null}
+
+          <div className="bb-social-lightbox-caption-block">
+            <EditableText
+              as="span"
+              className="bb-social-lightbox-caption"
+              editMode={editMode}
+              multiline
+              value={post.caption || ''}
+              placeholder="Write a caption…"
+              onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+            />
           </div>
-          <EditableText
-            as="h2"
-            className="bb-social-lightbox-title"
-            editMode={editMode}
-            value={post.title || ''}
-            placeholder="Title"
-            onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-          />
-          <span className="bb-social-lightbox-mark bb-public-native-fill" aria-hidden="true" />
-          <EditableText
-            as="p"
-            className="bb-social-lightbox-caption"
-            editMode={editMode}
-            multiline
-            value={post.caption || ''}
-            placeholder="Caption"
-            onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-          />
         </div>
       </div>
     </div>

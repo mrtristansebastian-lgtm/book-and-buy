@@ -9,6 +9,7 @@ import {
   GripVertical,
   ImagePlus,
   Layers,
+  Loader2,
   Play,
   Plus,
   RotateCcw,
@@ -35,10 +36,10 @@ import {
   readVideoFrame
 } from '../utils/videoMedia';
 import { VideoThumbnailPicker } from './VideoThumbnailPicker';
+import { VideoClipTrimmer } from './VideoClipTrimmer';
 
 const TEXT_SOFT_LIMIT = 280;
 const CAPTION_SOFT_LIMIT = 2200;
-const ALT_LIMIT = 200;
 
 const VIDEO_JOB_ID = 'primary-video';
 const POSTER_JOB_ID = 'primary-poster';
@@ -95,7 +96,10 @@ function newMediaItem(partial = {}) {
     remotePosterUrl: '',
     posterFile: null,
     durationSeconds: 0,
+    sourceDurationSeconds: 0,
     durationLabel: '',
+    trimStart: 0,
+    trimEnd: 0,
     aspectRatio: 0,
     alt: '',
     ...partial
@@ -166,7 +170,131 @@ function CharacterCount({ value, limit }) {
   );
 }
 
-function MediaPreview({ item, onAspect }) {
+function uploadStatusLabel(status) {
+  if (status === 'preparing') return 'Preparing';
+  if (status === 'uploading') return 'Uploading';
+  if (status === 'queued') return 'Waiting';
+  if (status === 'done') return 'Ready';
+  if (status === 'error') return 'Failed';
+  return '';
+}
+
+/**
+ * Full-panel upload screen so picking media never feels like a black box.
+ * Crossfades between preparing → uploading → brief “All set”.
+ */
+function UploadOverlay({
+  open = false,
+  phase = 'idle',
+  progress = 0,
+  activeCount = 0,
+  total = 0,
+  rows = []
+}) {
+  const pct = Math.round(Math.max(0, Math.min(1, progress)) * 100);
+  const title =
+    phase === 'ready'
+      ? 'All set'
+      : phase === 'preparing'
+        ? 'Preparing media…'
+        : total > 1
+          ? `Uploading ${activeCount} of ${total}`
+          : 'Uploading…';
+  const detail =
+    phase === 'ready'
+      ? 'Your media is ready to publish'
+      : phase === 'preparing'
+        ? 'Reading files and building previews'
+        : `${pct}% complete`;
+
+  return (
+    <div
+      className={`bb-composer-upload-screen${open ? ' is-open' : ''}`}
+      aria-hidden={!open}
+      aria-live="polite"
+    >
+      <div className="bb-composer-upload-screen-card">
+        <div className="bb-composer-upload-screen-hero">
+          {phase === 'ready' ? (
+            <span className="bb-composer-upload-screen-done" aria-hidden="true">
+              <Check size={28} strokeWidth={2.6} />
+            </span>
+          ) : (
+            <ProgressRing value={phase === 'preparing' ? 0.12 : progress} size={72} tone="screen">
+              {phase === 'preparing' ? (
+                <Loader2 size={22} className="bb-spin" aria-hidden="true" />
+              ) : (
+                <span className="bb-composer-upload-screen-pct">{pct}%</span>
+              )}
+            </ProgressRing>
+          )}
+          <div className="bb-composer-upload-screen-copy">
+            <strong>{title}</strong>
+            <span>{detail}</span>
+          </div>
+        </div>
+
+        <div
+          className={`bb-composer-upload-screen-track${
+            phase === 'preparing' ? ' is-indeterminate' : ''
+          }`}
+        >
+          <span
+            style={
+              phase === 'preparing'
+                ? undefined
+                : { width: phase === 'ready' ? '100%' : `${pct}%` }
+            }
+          />
+        </div>
+
+        {rows.length ? (
+          <ul className="bb-composer-upload-screen-list">
+            {rows.map((row) => (
+              <li key={row.id} className={`is-${row.status || 'queued'}`}>
+                <div className="bb-composer-upload-screen-row">
+                  <span className="bb-composer-upload-screen-thumb" aria-hidden="true">
+                    {row.thumb ? (
+                      <img src={row.thumb} alt="" />
+                    ) : row.kind === 'video' ? (
+                      <Film size={14} strokeWidth={2.2} />
+                    ) : (
+                      <ImagePlus size={14} strokeWidth={2.2} />
+                    )}
+                  </span>
+                  <div className="bb-composer-upload-screen-meta">
+                    <strong>{row.label}</strong>
+                    <span>{uploadStatusLabel(row.status)}</span>
+                  </div>
+                  <span className="bb-composer-upload-screen-row-pct">
+                    {row.status === 'done'
+                      ? '100%'
+                      : row.status === 'error'
+                        ? '!'
+                        : `${Math.round((row.progress || 0) * 100)}%`}
+                  </span>
+                </div>
+                <div className="bb-composer-upload-screen-row-track">
+                  <span
+                    style={{
+                      width: `${Math.round(
+                        (row.status === 'done' ? 1 : row.progress || 0) * 100
+                      )}%`
+                    }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function MediaPreview({ item, onAspect, trimStart, trimEnd }) {
+  const videoRef = useRef(null);
+
   if (!item?.url) {
     return <span className="bb-composer-arrange-empty">Nothing selected</span>;
   }
@@ -176,19 +304,26 @@ function MediaPreview({ item, onAspect }) {
     onAspect?.(w / h);
   };
 
+  const start =
+    Number.isFinite(trimStart) && trimStart >= 0
+      ? trimStart
+      : Number(item.trimStart) || 0;
+  const endRaw =
+    Number.isFinite(trimEnd) && trimEnd > 0
+      ? trimEnd
+      : Number(item.trimEnd) > 0
+        ? Number(item.trimEnd)
+        : Number(item.sourceDurationSeconds || item.durationSeconds) || 0;
+
   if (item.kind === 'video') {
     return (
-      <video
-        className="bb-composer-arrange-video"
-        src={item.url}
-        poster={item.posterUrl || undefined}
-        muted
-        playsInline
-        controls
-        onLoadedMetadata={(event) => {
-          const video = event.currentTarget;
-          reportAspect(video.videoWidth, video.videoHeight);
-        }}
+      <TrimmedVideoPreview
+        key={item.id}
+        url={item.url}
+        posterUrl={item.posterUrl}
+        start={start}
+        end={endRaw}
+        onAspect={reportAspect}
       />
     );
   }
@@ -200,6 +335,46 @@ function MediaPreview({ item, onAspect }) {
       onLoad={(event) => {
         const img = event.currentTarget;
         reportAspect(img.naturalWidth, img.naturalHeight);
+      }}
+    />
+  );
+}
+
+function TrimmedVideoPreview({ url, posterUrl, start = 0, end = 0, onAspect }) {
+  const videoRef = useRef(null);
+  const rangeRef = useRef({ start, end });
+  rangeRef.current = { start, end };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const target = Math.max(0, start);
+    if (Math.abs((video.currentTime || 0) - target) > 0.12) {
+      video.currentTime = target;
+    }
+  }, [start, url]);
+
+  return (
+    <video
+      ref={videoRef}
+      className="bb-composer-arrange-video"
+      src={url}
+      poster={posterUrl || undefined}
+      muted
+      playsInline
+      controls
+      onLoadedMetadata={(event) => {
+        const video = event.currentTarget;
+        onAspect?.(video.videoWidth, video.videoHeight);
+        if (start > 0.05) video.currentTime = start;
+      }}
+      onTimeUpdate={(event) => {
+        const video = event.currentTarget;
+        const { start: clipStart, end: clipEnd } = rangeRef.current;
+        if (clipEnd > clipStart && video.currentTime >= clipEnd - 0.05) {
+          video.pause();
+          video.currentTime = clipStart;
+        }
       }}
     />
   );
@@ -271,6 +446,7 @@ export function BlogComposerSheet({
   const [items, setItems] = useState([]);
   const [activeId, setActiveId] = useState('');
   const [matchAll, setMatchAll] = useState(false);
+  const [liveTrim, setLiveTrim] = useState(null);
 
   const [mediaUrl, setMediaUrl] = useState('');
   const [videoRemoteUrl, setVideoRemoteUrl] = useState('');
@@ -329,6 +505,81 @@ export function BlogComposerSheet({
 
   const summary = useMemo(() => summarizeUploads(uploads, uploadIds), [uploads, uploadIds]);
 
+  const [uploadFlash, setUploadFlash] = useState(false);
+  const wasUploadBusyRef = useRef(false);
+
+  useEffect(() => {
+    const active = busy || summary.busy;
+    if (wasUploadBusyRef.current && !active) {
+      setUploadFlash(true);
+      const timer = setTimeout(() => setUploadFlash(false), 900);
+      wasUploadBusyRef.current = false;
+      return () => clearTimeout(timer);
+    }
+    wasUploadBusyRef.current = active;
+    if (active) setUploadFlash(false);
+    return undefined;
+  }, [busy, summary.busy]);
+
+  const uploadPhase = uploadFlash
+    ? 'ready'
+    : busy && !summary.busy
+      ? 'preparing'
+      : summary.busy
+        ? 'uploading'
+        : 'idle';
+
+  const uploadRows = useMemo(() => {
+    if (type === 'image') {
+      return items
+        .map((item, index) => {
+          const state = uploads[item.id];
+          if (!state || state.status === 'canceled') return null;
+          return {
+            id: item.id,
+            kind: item.kind,
+            label:
+              item.kind === 'video'
+                ? `Clip ${index + 1}`
+                : `Photo ${index + 1}`,
+            thumb: item.kind === 'video' ? item.posterUrl || '' : item.url || '',
+            status: state.status,
+            progress: state.progress || 0
+          };
+        })
+        .filter(Boolean);
+    }
+    if (type === 'video') {
+      const rows = [];
+      const videoState = uploads[VIDEO_JOB_ID];
+      const posterState = uploads[POSTER_JOB_ID];
+      if (videoState && videoState.status !== 'canceled') {
+        rows.push({
+          id: VIDEO_JOB_ID,
+          kind: 'video',
+          label: videoFile?.name || 'Video',
+          thumb: posterUrl || '',
+          status: videoState.status,
+          progress: videoState.progress || 0
+        });
+      }
+      if (posterState && posterState.status !== 'canceled') {
+        rows.push({
+          id: POSTER_JOB_ID,
+          kind: 'image',
+          label: 'Thumbnail',
+          thumb: posterUrl || '',
+          status: posterState.status,
+          progress: posterState.progress || 0
+        });
+      }
+      return rows;
+    }
+    return [];
+  }, [type, items, uploads, videoFile, posterUrl]);
+
+  const uploadScreenOpen = busy || summary.busy || uploadFlash;
+
   // ---------------------------------------------------------------- load / draft
 
   useEffect(() => {
@@ -343,19 +594,29 @@ export function BlogComposerSheet({
       setDurationSeconds(Number(post.durationSeconds) || 0);
       setVideoAspect(Number(post.aspectRatio) || 0);
 
-      const loaded = getPostMediaItems(post).map((item) =>
-        newMediaItem({
+      const loaded = getPostMediaItems(post).map((item) => {
+        const sourceDuration =
+          Number(item.sourceDurationSeconds) ||
+          Number(item.durationSeconds) ||
+          0;
+        const trimStart = Number(item.trimStart) || 0;
+        const trimEnd =
+          Number(item.trimEnd) > 0 ? Number(item.trimEnd) : sourceDuration;
+        return newMediaItem({
           kind: item.kind,
           url: item.url,
           remoteUrl: item.url,
           posterUrl: item.posterUrl || '',
           remotePosterUrl: item.posterUrl || '',
-          durationSeconds: item.durationSeconds || 0,
+          durationSeconds: item.durationSeconds || Math.max(0, trimEnd - trimStart),
+          sourceDurationSeconds: sourceDuration,
           durationLabel: item.durationLabel || '',
+          trimStart,
+          trimEnd,
           aspectRatio: Number(item.aspectRatio) || 0,
           alt: item.alt || ''
-        })
-      );
+        });
+      });
       setItems(loaded);
       setActiveId(loaded[0]?.id || '');
       setStepIndex(type === 'image' && loaded.length ? 1 : 0);
@@ -509,7 +770,10 @@ export function BlogComposerSheet({
             posterUrl: trackUrl(entry.posterUrl || ''),
             posterFile: entry.posterFile || null,
             durationSeconds: entry.durationSeconds || 0,
+            sourceDurationSeconds: entry.durationSeconds || 0,
             durationLabel: entry.durationLabel || '',
+            trimStart: 0,
+            trimEnd: entry.durationSeconds || 0,
             aspectRatio: entry.aspectRatio || 0
           })
         );
@@ -776,6 +1040,66 @@ export function BlogComposerSheet({
     );
   };
 
+  useEffect(() => {
+    setLiveTrim(null);
+  }, [activeId]);
+
+  const saveClipTrim = useCallback(
+    async (item, { start, end }) => {
+      if (!item?.id || item.kind !== 'video') return;
+      const sourceDuration =
+        Number(item.sourceDurationSeconds) || Number(item.durationSeconds) || 0;
+      const trimStart = Math.max(0, Number(start) || 0);
+      const trimEnd = Math.min(
+        sourceDuration || Number(end) || 0,
+        Math.max(trimStart + 0.5, Number(end) || 0)
+      );
+      const clipSeconds = Math.max(0, trimEnd - trimStart);
+      let posterFile = item.posterFile || null;
+      let nextPosterUrl = item.posterUrl || '';
+
+      const frameSource = item.file || item.url;
+      if (frameSource) {
+        try {
+          posterFile = await captureVideoPoster(frameSource, trimStart + 0.05);
+          if (isBlobUrl(nextPosterUrl)) releaseUrl(nextPosterUrl);
+          nextPosterUrl = trackUrl(URL.createObjectURL(posterFile));
+        } catch {
+          /* keep existing poster */
+        }
+      }
+
+      setItems((prev) =>
+        prev.map((entry) =>
+          entry.id === item.id
+            ? {
+                ...entry,
+                trimStart,
+                trimEnd,
+                durationSeconds: clipSeconds,
+                sourceDurationSeconds: sourceDuration || entry.sourceDurationSeconds,
+                durationLabel: formatDurationLabel(clipSeconds),
+                posterFile,
+                posterUrl: nextPosterUrl,
+                remotePosterUrl: ''
+              }
+            : entry
+        )
+      );
+      setLiveTrim(null);
+
+      if (item.file instanceof Blob) {
+        enqueue({
+          id: item.id,
+          kind: 'video',
+          file: item.file,
+          posterFile: posterFile || item.posterFile || null
+        });
+      }
+    },
+    [enqueue, releaseUrl, trackUrl]
+  );
+
   const activeIndex = Math.max(
     0,
     items.findIndex((item) => item.id === activeId)
@@ -852,6 +1176,7 @@ export function BlogComposerSheet({
   };
 
   const onLastStep =
+    isEdit ||
     type === 'text' ||
     (type === 'image' ? stepIndex >= POST_STEPS.length - 1 : stepIndex >= VIDEO_STEPS.length - 1);
 
@@ -895,7 +1220,11 @@ export function BlogComposerSheet({
             url,
             posterUrl: item.remotePosterUrl || (isBlobUrl(item.posterUrl) ? '' : item.posterUrl),
             durationSeconds: item.durationSeconds || 0,
+            sourceDurationSeconds:
+              item.sourceDurationSeconds || item.durationSeconds || 0,
             durationLabel: item.durationLabel || '',
+            trimStart: Number(item.trimStart) || 0,
+            trimEnd: Number(item.trimEnd) || 0,
             aspectRatio: Number(frameAspectFor(item)) || 0,
             alt: (item.alt || '').trim()
           }))
@@ -1099,12 +1428,20 @@ export function BlogComposerSheet({
         tabIndex={-1}
         className={`bb-social-studio-sheet-panel bb-social-studio-sheet-panel--composer bb-composer-panel${
           dragActive ? ' is-drag-active' : ''
-        }`}
+        }${uploadScreenOpen ? ' is-uploading' : ''}`}
         onDragEnter={onDragEnter}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
       >
+        <UploadOverlay
+          open={uploadScreenOpen}
+          phase={uploadPhase}
+          progress={summary.progress}
+          activeCount={summary.activeCount}
+          total={summary.total}
+          rows={uploadRows}
+        />
         <header className="bb-social-studio-sheet-head bb-composer-head">
           <div className="bb-blog-composer-head-copy">
             <p className="bb-social-studio-sheet-eyebrow">
@@ -1122,18 +1459,79 @@ export function BlogComposerSheet({
           </button>
         </header>
 
-        {steps.length ? <StepRail steps={steps} index={stepIndex} /> : null}
+        {steps.length && !isEdit ? <StepRail steps={steps} index={stepIndex} /> : null}
 
         <div className="bb-social-studio-sheet-body bb-composer-body">
-          {type === 'image' ? (
+          {type === 'image' && isEdit ? (
+            <div className="bb-composer-edit bb-composer-edit--post">
+              <div className="bb-composer-edit-media">
+                <div
+                  className="bb-composer-carousel-preview"
+                  style={aspectStyle(frameAspectFor(activeItem))}
+                >
+                  {activeItem ? (
+                    <MediaPreview
+                      item={activeItem}
+                      onAspect={(aspect) => setItemAspect(activeItem.id, aspect)}
+                    />
+                  ) : (
+                    <span className="bb-composer-arrange-empty">No media</span>
+                  )}
+                </div>
+                <div className="bb-composer-strip" role="list">
+                  {items.map(renderSlide)}
+                  {items.length < MAX_MEDIA ? (
+                    <button
+                      type="button"
+                      className="bb-composer-strip-add"
+                      onClick={() => mediaRef.current?.click()}
+                      aria-label="Add media"
+                    >
+                      <Plus size={18} />
+                    </button>
+                  ) : null}
+                </div>
+                <input
+                  ref={mediaRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  className="hidden"
+                  onChange={onPostMediaPick}
+                />
+              </div>
+              <div className="bb-composer-edit-copy">
+                <label className="bb-social-field">
+                  <span>Title (optional)</span>
+                  <input
+                    className="native-control-input bb-social-compose-control"
+                    value={title}
+                    placeholder="Give this post a title"
+                    onChange={(event) => setTitle(event.target.value)}
+                  />
+                </label>
+                <label className="bb-social-field bb-social-field--grow">
+                  <span className="bb-composer-x-label-row">
+                    <span>Caption</span>
+                    <CharacterCount value={caption.length} limit={CAPTION_SOFT_LIMIT} />
+                  </span>
+                  <textarea
+                    data-autofocus="true"
+                    className="native-control-input bb-social-compose-control bb-social-compose-caption"
+                    rows={5}
+                    value={caption}
+                    placeholder="Write a caption…"
+                    onChange={(event) => setCaption(event.target.value)}
+                  />
+                </label>
+              </div>
+            </div>
+          ) : null}
+
+          {type === 'image' && !isEdit ? (
             <div className="bb-composer-image">
               {stepIndex === 0 ? (
-                <button
-                  type="button"
-                  className="bb-composer-dropzone bb-composer-dropzone--hero"
-                  onClick={() => mediaRef.current?.click()}
-                  disabled={busy}
-                >
+                <div className="bb-composer-dropzone bb-composer-dropzone--hero">
                   <span className="bb-composer-dropzone-icons" aria-hidden="true">
                     <ImagePlus size={26} strokeWidth={2} />
                     <Film size={22} strokeWidth={2} />
@@ -1143,60 +1541,109 @@ export function BlogComposerSheet({
                     Drag them in, paste from the clipboard, or browse · up to {MAX_MEDIA} slides ·
                     clips to {formatDurationLabel(POST_CLIP_MAX_SECONDS)}
                   </span>
-                </button>
+                  <button
+                    type="button"
+                    className="bb-primary-btn bb-composer-dropzone-upload"
+                    onClick={() => mediaRef.current?.click()}
+                    disabled={busy}
+                  >
+                    <UploadCloud size={16} strokeWidth={2.2} />
+                    Upload
+                  </button>
+                </div>
               ) : null}
 
               {stepIndex === 1 ? (
                 <div className="bb-composer-arrange">
-                  <div
-                    className="bb-composer-arrange-stage"
-                    style={aspectStyle(frameAspectFor(activeItem))}
-                  >
-                    <MediaPreview
-                      item={activeItem}
-                      onAspect={(aspect) => setItemAspect(activeItem?.id, aspect)}
-                    />
-                    {activeItem?.kind === 'video' && activeItem.durationLabel ? (
-                      <span className="bb-composer-media-badge">{activeItem.durationLabel}</span>
-                    ) : null}
+                  <div className="bb-composer-arrange-workspace">
+                    <div
+                      className="bb-composer-arrange-stage"
+                      style={aspectStyle(frameAspectFor(activeItem))}
+                    >
+                      <MediaPreview
+                        item={activeItem}
+                        trimStart={liveTrim?.start}
+                        trimEnd={liveTrim?.end}
+                        onAspect={(aspect) => setItemAspect(activeItem?.id, aspect)}
+                      />
+                      {activeItem?.kind === 'video' && activeItem.durationLabel ? (
+                        <span className="bb-composer-media-badge">
+                          {liveTrim
+                            ? formatDurationLabel(
+                                Math.max(0, (liveTrim.end || 0) - (liveTrim.start || 0))
+                              )
+                            : activeItem.durationLabel}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {activeItem?.kind === 'video' ? (
+                      <VideoClipTrimmer
+                        source={activeItem.file || activeItem.url}
+                        durationSeconds={
+                          activeItem.sourceDurationSeconds ||
+                          activeItem.durationSeconds ||
+                          0
+                        }
+                        trimStart={activeItem.trimStart || 0}
+                        trimEnd={
+                          activeItem.trimEnd ||
+                          activeItem.sourceDurationSeconds ||
+                          activeItem.durationSeconds ||
+                          0
+                        }
+                        maxClipSeconds={POST_CLIP_MAX_SECONDS}
+                        busy={busy}
+                        onPreview={setLiveTrim}
+                        onSave={(range) => saveClipTrim(activeItem, range)}
+                      />
+                    ) : (
+                      <p className="bb-composer-arrange-note">
+                        Drag the strip to reorder · crop photos from the thumbnail
+                      </p>
+                    )}
                   </div>
 
-                  <div className="bb-composer-strip-head">
-                    <span className="bb-composer-slide-count">
-                      {items.length} / {MAX_MEDIA} slides
-                    </span>
-                    {items.length > 1 ? (
-                      <button
-                        type="button"
-                        className={`bb-composer-toggle${matchAll ? ' is-on' : ''}`}
-                        aria-pressed={matchAll}
-                        onClick={() => setMatchAll((value) => !value)}
-                      >
-                        <Layers size={13} strokeWidth={2.3} />
-                        Match all to first
-                      </button>
-                    ) : null}
-                  </div>
+                  <div className="bb-composer-arrange-rail">
+                    <div className="bb-composer-strip-head">
+                      <span className="bb-composer-slide-count">
+                        {items.length} / {MAX_MEDIA} slides
+                      </span>
+                      {items.length > 1 ? (
+                        <button
+                          type="button"
+                          className={`bb-composer-toggle${matchAll ? ' is-on' : ''}`}
+                          aria-pressed={matchAll}
+                          onClick={() => setMatchAll((value) => !value)}
+                        >
+                          <Layers size={13} strokeWidth={2.3} />
+                          Match all to first
+                        </button>
+                      ) : null}
+                    </div>
 
-                  <div className="bb-composer-strip" role="list">
-                    {items.map(renderSlide)}
-                    {items.length < MAX_MEDIA ? (
-                      <button
-                        type="button"
-                        className="bb-composer-strip-add"
-                        onClick={() => mediaRef.current?.click()}
-                        aria-label="Add media"
-                      >
-                        <Plus size={18} />
-                      </button>
-                    ) : null}
-                  </div>
+                    <div className="bb-composer-strip" role="list">
+                      {items.map(renderSlide)}
+                      {items.length < MAX_MEDIA ? (
+                        <button
+                          type="button"
+                          className="bb-composer-strip-add"
+                          onClick={() => mediaRef.current?.click()}
+                          aria-label="Add media"
+                        >
+                          <Plus size={18} />
+                        </button>
+                      ) : null}
+                    </div>
 
-                  <p className="bb-composer-hint">
-                    {matchAll
-                      ? 'Every slide is framed like the first · drag the handle to reorder'
-                      : 'Each slide keeps its own shape · drag the handle to reorder · crop to adjust'}
-                  </p>
+                    <p className="bb-composer-hint">
+                      {activeItem?.kind === 'video'
+                        ? 'Drag the yellow handles to trim · Save trim keeps your cut'
+                        : matchAll
+                          ? 'Every slide is framed like the first · drag the handle to reorder'
+                          : 'Each slide keeps its own shape · drag the handle to reorder · crop to adjust'}
+                    </p>
+                  </div>
                 </div>
               ) : null}
 
@@ -1246,31 +1693,6 @@ export function BlogComposerSheet({
                         <span className="bb-composer-arrange-empty">No media</span>
                       )}
                     </div>
-
-                    {activeItem?.kind === 'image' ? (
-                      <label className="bb-social-field bb-composer-alt">
-                        <span className="bb-composer-x-label-row">
-                          <span>Alt text for slide {activeIndex + 1}</span>
-                          <span className="bb-composer-alt-count">
-                            {(activeItem.alt || '').length}/{ALT_LIMIT}
-                          </span>
-                        </span>
-                        <input
-                          className="native-control-input bb-social-compose-control"
-                          value={activeItem.alt || ''}
-                          maxLength={ALT_LIMIT}
-                          placeholder="Describe this photo for screen readers"
-                          onChange={(event) => {
-                            const alt = event.target.value;
-                            setItems((prev) =>
-                              prev.map((entry) =>
-                                entry.id === activeItem.id ? { ...entry, alt } : entry
-                              )
-                            );
-                          }}
-                        />
-                      </label>
-                    ) : null}
                   </div>
 
                   <div className="bb-composer-caption-copy">
@@ -1312,7 +1734,117 @@ export function BlogComposerSheet({
             </div>
           ) : null}
 
-          {type === 'video' ? (
+          {type === 'video' && isEdit ? (
+            <div className="bb-composer-edit bb-composer-edit--video">
+              <div className="bb-composer-edit-media">
+                {mediaUrl ? (
+                  <div
+                    className="bb-composer-video-stage"
+                    style={aspectStyle(videoAspect, 16 / 9)}
+                  >
+                    <video
+                      className="bb-social-compose-player"
+                      controls
+                      playsInline
+                      poster={posterUrl || undefined}
+                      src={mediaUrl}
+                      onLoadedMetadata={(event) => {
+                        const video = event.currentTarget;
+                        if (
+                          !(videoAspect > 0) &&
+                          video.videoWidth > 0 &&
+                          video.videoHeight > 0
+                        ) {
+                          setVideoAspect(video.videoWidth / video.videoHeight);
+                        }
+                      }}
+                    />
+                    {duration ? (
+                      <span className="bb-composer-media-badge">{duration}</span>
+                    ) : null}
+                  </div>
+                ) : null}
+                <div className="bb-composer-edit-media-actions">
+                  <button
+                    type="button"
+                    className="bb-ghost-btn"
+                    onClick={() => videoRef.current?.click()}
+                    disabled={busy}
+                  >
+                    <UploadCloud size={15} strokeWidth={2.2} />
+                    Replace video
+                  </button>
+                  <span className="bb-composer-readout">
+                    Length{' '}
+                    <strong>{duration || formatDurationLabel(durationSeconds) || '—'}</strong>
+                  </span>
+                </div>
+                <input
+                  ref={videoRef}
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={onVideoSectionFile}
+                />
+              </div>
+
+              <div className="bb-composer-edit-copy">
+                <label className="bb-social-field">
+                  <span>Title</span>
+                  <input
+                    data-autofocus="true"
+                    className="native-control-input bb-social-compose-control"
+                    value={title}
+                    placeholder="Video title"
+                    onChange={(event) => setTitle(event.target.value)}
+                  />
+                </label>
+                <label className="bb-social-field bb-social-field--grow">
+                  <span>Description</span>
+                  <textarea
+                    className="native-control-input bb-social-compose-control bb-social-compose-caption"
+                    rows={4}
+                    value={caption}
+                    placeholder="What is this video about?"
+                    onChange={(event) => setCaption(event.target.value)}
+                  />
+                </label>
+              </div>
+
+              <div className="bb-composer-edit-thumb">
+                <p className="bb-composer-hint bb-composer-hint--lead">
+                  Thumbnail cover — pick a frame or upload your own.
+                </p>
+                <VideoThumbnailPicker
+                  videoFile={videoFile}
+                  videoUrl={mediaUrl}
+                  durationSeconds={durationSeconds}
+                  aspectRatio={videoAspect}
+                  posterUrl={posterUrl}
+                  busy={busy}
+                  onFrameChosen={(file) =>
+                    enqueue({
+                      id: POSTER_JOB_ID,
+                      kind: 'image',
+                      file,
+                      preset: 'videoPoster',
+                      skipNormalize: true
+                    })
+                  }
+                  onUploadOwn={() => posterRef.current?.click()}
+                />
+                <input
+                  ref={posterRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={onPosterPick}
+                />
+              </div>
+            </div>
+          ) : null}
+
+          {type === 'video' && !isEdit ? (
             <div className="bb-composer-video">
               {stepIndex === 0 ? (
                 <div className="bb-composer-fields bb-composer-video-source">
@@ -1343,16 +1875,20 @@ export function BlogComposerSheet({
                       ) : null}
                     </div>
                   ) : (
-                    <button
-                      type="button"
-                      className="bb-composer-dropzone bb-composer-dropzone--hero"
-                      onClick={() => videoRef.current?.click()}
-                      disabled={busy}
-                    >
+                    <div className="bb-composer-dropzone bb-composer-dropzone--hero">
                       <Film size={28} strokeWidth={2} />
                       <strong>Upload video</strong>
                       <span>Drag it in or browse · any length · thumbnail comes last</span>
-                    </button>
+                      <button
+                        type="button"
+                        className="bb-primary-btn bb-composer-dropzone-upload"
+                        onClick={() => videoRef.current?.click()}
+                        disabled={busy}
+                      >
+                        <UploadCloud size={16} strokeWidth={2.2} />
+                        Upload
+                      </button>
+                    </div>
                   )}
 
                   <input
@@ -1533,7 +2069,7 @@ export function BlogComposerSheet({
         </div>
 
         <footer className="bb-social-studio-sheet-footer bb-blog-composer-footer">
-          {summary.busy ? (
+          {summary.busy && !uploadScreenOpen ? (
             <div className="bb-composer-upload-bar" aria-live="polite">
               <div className="bb-composer-upload-track">
                 <span style={{ width: `${Math.round(summary.progress * 100)}%` }} />
@@ -1563,7 +2099,7 @@ export function BlogComposerSheet({
               )}
             </div>
             <div className="bb-social-studio-sheet-footer-actions">
-              {type !== 'text' && stepIndex > 0 ? (
+              {type !== 'text' && !isEdit && stepIndex > 0 ? (
                 <button type="button" className="bb-ghost-btn" onClick={goBack} disabled={busy}>
                   <ChevronLeft size={16} strokeWidth={2.2} />
                   Back

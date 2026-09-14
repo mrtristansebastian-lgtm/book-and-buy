@@ -49,7 +49,10 @@ export function getPostMediaItems(post) {
           url,
           posterUrl: String(item?.posterUrl || '').trim(),
           durationSeconds: Number(item?.durationSeconds) || 0,
+          sourceDurationSeconds: Number(item?.sourceDurationSeconds) || 0,
           durationLabel: String(item?.durationLabel || '').trim(),
+          trimStart: Number(item?.trimStart) || 0,
+          trimEnd: Number(item?.trimEnd) || 0,
           aspectRatio: Number(item?.aspectRatio) || 0,
           alt: String(item?.alt || '').trim()
         };

@@ -105,6 +105,9 @@ export function SocialStudioLibrary({
         <SocialPostLightbox
           posts={items}
           activeId={lightboxId}
+          brandName={workspace.brandName || workspace.name || ''}
+          logoUrl={website.logoUrl || ''}
+          slug={workspace.slug || ''}
           onClose={() => setLightboxId('')}
           onChangeActive={setLightboxId}
         />

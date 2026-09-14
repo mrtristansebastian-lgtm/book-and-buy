@@ -205,6 +205,9 @@ export function SocialFeed({
           posts={imagePosts}
           activeId={lightboxId}
           editMode={editMode}
+          brandName={workspace.brandName || workspace.name || ''}
+          logoUrl={website.logoUrl || ''}
+          slug={slug}
           onClose={closeLightbox}
           onChangeActive={changeLightbox}
           onUpdateSocialPost={onUpdateSocialPost}
