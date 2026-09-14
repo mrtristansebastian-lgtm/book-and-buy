@@ -345,3 +345,277 @@ html[data-theme='dark'] .text-navy {
 html[data-theme='dark'] .bg-canvas {
   background-color: var(--bb-bg) !important;
 }
+
+/* —— Owner desks: kill remaining light panels —— */
+
+html[data-theme='dark'] .bb-home {
+  --bb-home-ink: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-home-block,
+html[data-theme='dark'] .bb-home-attention-row,
+html[data-theme='dark'] .bb-home-live {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-home-block-title,
+html[data-theme='dark'] .bb-home-lede,
+html[data-theme='dark'] .bb-home-today-time,
+html[data-theme='dark'] .bb-home-empty,
+html[data-theme='dark'] .bb-home-more {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-home-today-copy,
+html[data-theme='dark'] .bb-home-attention-label,
+html[data-theme='dark'] .bb-home-live-copy {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-nav-item:not([aria-current='page']) {
+  color: #c5cbd6;
+}
+
+html[data-theme='dark'] .bb-owner-nav-group-label {
+  color: #98a2b3;
+}
+
+/* Schedule + Availability */
+html[data-theme='dark'] .bb-schedule-desk-lede,
+html[data-theme='dark'] .bb-schedule-desk-eyebrow {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-mode,
+html[data-theme='dark'] .bb-schedule-day-nav,
+html[data-theme='dark'] .bb-schedule-board,
+html[data-theme='dark'] .bb-schedule-panel,
+html[data-theme='dark'] .bb-schedule-card,
+html[data-theme='dark'] .bb-schedule-slot,
+html[data-theme='dark'] .bb-schedule-spot,
+html[data-theme='dark'] .bb-schedule-sheet,
+html[data-theme='dark'] .bb-schedule-sheet-body,
+html[data-theme='dark'] .bb-schedule-avail-panel,
+html[data-theme='dark'] .bb-schedule-avail-card,
+html[data-theme='dark'] .bb-schedule-avail-day,
+html[data-theme='dark'] .bb-schedule-avail-settings,
+html[data-theme='dark'] .bb-schedule-avail-settings-rail,
+html[data-theme='dark'] .bb-schedule-avail-settings-panel,
+html[data-theme='dark'] .bb-schedule-staff-chip,
+html[data-theme='dark'] .bb-schedule-period,
+html[data-theme='dark'] .bb-schedule-toolbar,
+html[data-theme='dark'] .bb-schedule-feed,
+html[data-theme='dark'] .bb-schedule-feed-item {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-mode-btn {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-schedule-mode-btn.is-active {
+  color: var(--bb-ink) !important;
+  background: var(--bb-surface-2) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-avail-settings-nav-item.is-active,
+html[data-theme='dark'] .bb-schedule-staff-chip.is-active,
+html[data-theme='dark'] .bb-schedule-period-btn.is-active {
+  color: var(--bb-ink) !important;
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .bb-schedule-avail-edit-toggle,
+html[data-theme='dark'] .bb-schedule-avail-manage-btn.is-settings,
+html[data-theme='dark'] .bb-schedule-avail-day-tool-btn,
+html[data-theme='dark'] .bb-schedule-avail-select-range-btn {
+  background: var(--bb-surface) !important;
+  background-image: none !important;
+  border-color: var(--bb-border-strong) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-avail-manage-btn:not(.is-settings) {
+  color: #050505 !important;
+}
+
+/* Content / social studio */
+html[data-theme='dark'] .bb-social-studio-header {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(20, 167, 255, 0.1), transparent 55%),
+    linear-gradient(180deg, var(--bb-bg) 72%, transparent);
+}
+
+html[data-theme='dark'] .bb-social-studio-card,
+html[data-theme='dark'] .bb-social-composer,
+html[data-theme='dark'] .bb-social-library,
+html[data-theme='dark'] .bb-social-library-item,
+html[data-theme='dark'] .bb-social-note,
+html[data-theme='dark'] .bb-blog-composer,
+html[data-theme='dark'] .bb-blog-preview,
+html[data-theme='dark'] .bb-social-studio-create-btn,
+html[data-theme='dark'] .bb-social-post-tile,
+html[data-theme='dark'] .bb-social-studio [class*='card'],
+html[data-theme='dark'] .bb-social-studio [class*='panel'],
+html[data-theme='dark'] .bb-social-studio [class*='sheet'] {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+/* Support */
+html[data-theme='dark'] .bb-support-stage,
+html[data-theme='dark'] .bb-support-thread-pane,
+html[data-theme='dark'] .bb-support-pane,
+html[data-theme='dark'] .bb-support-timeline,
+html[data-theme='dark'] .bb-support-composer,
+html[data-theme='dark'] .bb-support-composer-wrap,
+html[data-theme='dark'] .bb-support-empty,
+html[data-theme='dark'] .bb-support-thread.is-active {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink);
+}
+
+html[data-theme='dark'] .bb-support-list {
+  background: var(--bb-bg) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-support-thread {
+  color: var(--bb-ink);
+  border-color: var(--bb-border);
+}
+
+/* Finance */
+html[data-theme='dark'] .bb-finance-metric,
+html[data-theme='dark'] .bb-finance-chart,
+html[data-theme='dark'] .bb-finance-ledger,
+html[data-theme='dark'] .bb-finance-receipt,
+html[data-theme='dark'] .bb-finance-receipt-body,
+html[data-theme='dark'] .bb-finance-sheet,
+html[data-theme='dark'] .bb-finance-gateway,
+html[data-theme='dark'] .bb-finance-search,
+html[data-theme='dark'] .bb-finance-status-chip,
+html[data-theme='dark'] .bb-finance-tab-toggle,
+html[data-theme='dark'] .bb-finance-period-pills,
+html[data-theme='dark'] .bb-finance-custom-range,
+html[data-theme='dark'] .bb-finance-icon-btn {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-finance-metric-label,
+html[data-theme='dark'] .bb-finance-eyebrow,
+html[data-theme='dark'] .bb-finance-receipt-meta,
+html[data-theme='dark'] .bb-finance-receipt-ref {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-finance-metric-value,
+html[data-theme='dark'] .bb-finance-ledger-title,
+html[data-theme='dark'] .bb-finance-receipt-brand,
+html[data-theme='dark'] .bb-finance-receipt-total,
+html[data-theme='dark'] .bb-finance-sheet-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-finance-period-pill.is-active,
+html[data-theme='dark'] .bb-finance-tab-toggle button.is-active {
+  color: #050505 !important;
+}
+
+/* Clients */
+html[data-theme='dark'] .bb-clients-row,
+html[data-theme='dark'] .bb-clients-panel,
+html[data-theme='dark'] .bb-clients-sheet,
+html[data-theme='dark'] .bb-clients-card,
+html[data-theme='dark'] .bb-clients-search,
+html[data-theme='dark'] .bb-clients-toolbar,
+html[data-theme='dark'] .bb-clients-action {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-clients-row.is-active {
+  background: var(--bb-surface-2) !important;
+}
+
+/* Settings */
+html[data-theme='dark'] .bb-settings-card,
+html[data-theme='dark'] .bb-settings-panel,
+html[data-theme='dark'] .bb-settings-section,
+html[data-theme='dark'] .bb-settings-form,
+html[data-theme='dark'] .bb-settings [class*='card'],
+html[data-theme='dark'] .bb-settings [class*='panel'] {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-settings-nav-item {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-settings-nav-item.is-active {
+  color: var(--bb-ink) !important;
+  background: var(--bb-surface-2) !important;
+}
+
+/* Shared sheets / fields still hard-coded light */
+html[data-theme='dark'] .bb-time-field,
+html[data-theme='dark'] .bb-time-popover,
+html[data-theme='dark'] .bb-date-field,
+html[data-theme='dark'] .bb-date-popover,
+html[data-theme='dark'] .bb-sort-field,
+html[data-theme='dark'] .bb-sort-popover {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+/* Public homepage remaining light shells */
+html[data-theme='dark'] .bb-public-home-copy,
+html[data-theme='dark'] .bb-public-home-copy-inner,
+html[data-theme='dark'] .bb-public-about,
+html[data-theme='dark'] .bb-public-about-text-shell,
+html[data-theme='dark'] .bb-public-about-offer,
+html[data-theme='dark'] .bb-public-faq,
+html[data-theme='dark'] .bb-public-faq-item,
+html[data-theme='dark'] .bb-public-reviews,
+html[data-theme='dark'] .bb-public-review,
+html[data-theme='dark'] .bb-public-visit,
+html[data-theme='dark'] .bb-public-map,
+html[data-theme='dark'] .bb-public-gallery,
+html[data-theme='dark'] .bb-public-reasons,
+html[data-theme='dark'] .bb-public-reason,
+html[data-theme='dark'] .bb-public-home-stack,
+html[data-theme='dark'] .bb-public-profile-modules,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-block,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-about-block {
+  background: var(--bb-bg) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-public-home-brand,
+html[data-theme='dark'] .bb-public-home-support,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-brand,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-support {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-page-header-glow::before,
+html[data-theme='dark'] .bb-page-header-glow::after {
+  opacity: 0.35;
+}
+
