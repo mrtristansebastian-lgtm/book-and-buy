@@ -10,8 +10,8 @@ function StarGlyph({ variant }) {
     <svg
       className={`bb-public-star bb-public-star--${variant}`}
       viewBox="0 0 24 24"
-      width="16"
-      height="16"
+      width="18"
+      height="18"
       aria-hidden="true"
       focusable="false"
     >

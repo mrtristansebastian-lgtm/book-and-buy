@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
-import { formatNoteStamp } from '../utils/socialPostType';
+import { formatNoteStamp, getPostMediaUrls } from '../utils/socialPostType';
 
 /**
  * Full-image lightbox — dark gallery stage with slim copy band.
+ * Multi-image posts support an in-frame carousel.
  */
 export function SocialPostLightbox({
   posts = [],
@@ -21,13 +22,39 @@ export function SocialPostLightbox({
   const post = posts[index] || null;
   const dialogRef = useRef(null);
   const stamp = post ? formatNoteStamp(post.createdAt) : '';
+  const mediaUrls = getPostMediaUrls(post);
+  const [mediaIndex, setMediaIndex] = useState(0);
+
+  useEffect(() => {
+    setMediaIndex(0);
+  }, [activeId]);
+
+  useEffect(() => {
+    if (mediaIndex >= mediaUrls.length) {
+      setMediaIndex(Math.max(0, mediaUrls.length - 1));
+    }
+  }, [mediaUrls.length, mediaIndex]);
 
   useEffect(() => {
     const onKey = (event) => {
-      if (event.key === 'Escape') onClose?.();
-      if (event.key === 'ArrowLeft' && index > 0) onChangeActive?.(posts[index - 1].id);
-      if (event.key === 'ArrowRight' && index < posts.length - 1) {
-        onChangeActive?.(posts[index + 1].id);
+      if (event.key === 'Escape') {
+        onClose?.();
+        return;
+      }
+      if (event.key === 'ArrowLeft') {
+        if (mediaIndex > 0) {
+          setMediaIndex((value) => value - 1);
+          return;
+        }
+        if (index > 0) onChangeActive?.(posts[index - 1].id);
+        return;
+      }
+      if (event.key === 'ArrowRight') {
+        if (mediaIndex < mediaUrls.length - 1) {
+          setMediaIndex((value) => value + 1);
+          return;
+        }
+        if (index < posts.length - 1) onChangeActive?.(posts[index + 1].id);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -37,7 +64,7 @@ export function SocialPostLightbox({
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [index, posts, onClose, onChangeActive]);
+  }, [index, posts, onClose, onChangeActive, mediaIndex, mediaUrls.length]);
 
   useEffect(() => {
     dialogRef.current?.focus?.();
@@ -45,8 +72,12 @@ export function SocialPostLightbox({
 
   if (!post) return null;
 
-  const hasPrev = index > 0;
-  const hasNext = index < posts.length - 1;
+  const hasPrevPost = index > 0;
+  const hasNextPost = index < posts.length - 1;
+  const hasPrevMedia = mediaIndex > 0;
+  const hasNextMedia = mediaIndex < mediaUrls.length - 1;
+  const activeSrc = mediaUrls[mediaIndex] || '';
+  const multi = mediaUrls.length > 1;
 
   return (
     <div
@@ -69,7 +100,7 @@ export function SocialPostLightbox({
         </button>
 
         <div className="bb-social-lightbox-stage">
-          {hasPrev ? (
+          {hasPrevPost ? (
             <button
               type="button"
               className="bb-social-lightbox-nav bb-social-lightbox-nav--prev"
@@ -81,14 +112,47 @@ export function SocialPostLightbox({
           ) : null}
 
           <div className="bb-social-lightbox-frame">
-            {post.mediaUrl ? (
-              <img src={post.mediaUrl} alt={post.title || post.caption || ''} />
+            {activeSrc ? (
+              <img src={activeSrc} alt={post.title || post.caption || ''} />
             ) : (
               <div className="bb-social-lightbox-empty">No image</div>
             )}
+
+            {multi ? (
+              <>
+                {hasPrevMedia ? (
+                  <button
+                    type="button"
+                    className="bb-social-lightbox-media-nav bb-social-lightbox-media-nav--prev"
+                    onClick={() => setMediaIndex((value) => value - 1)}
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft size={18} strokeWidth={2.2} />
+                  </button>
+                ) : null}
+                {hasNextMedia ? (
+                  <button
+                    type="button"
+                    className="bb-social-lightbox-media-nav bb-social-lightbox-media-nav--next"
+                    onClick={() => setMediaIndex((value) => value + 1)}
+                    aria-label="Next image"
+                  >
+                    <ChevronRight size={18} strokeWidth={2.2} />
+                  </button>
+                ) : null}
+                <div className="bb-social-lightbox-dots" aria-hidden="true">
+                  {mediaUrls.map((url, i) => (
+                    <span
+                      key={`${url}-${i}`}
+                      className={`bb-social-lightbox-dot${i === mediaIndex ? ' is-active' : ''}`}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : null}
           </div>
 
-          {hasNext ? (
+          {hasNextPost ? (
             <button
               type="button"
               className="bb-social-lightbox-nav bb-social-lightbox-nav--next"
@@ -111,7 +175,9 @@ export function SocialPostLightbox({
               </time>
             ) : null}
             <p className="bb-social-lightbox-count">
-              {index + 1} / {posts.length}
+              {multi
+                ? `${mediaIndex + 1} / ${mediaUrls.length} · Post ${index + 1} / ${posts.length}`
+                : `${index + 1} / ${posts.length}`}
             </p>
           </div>
           <EditableText

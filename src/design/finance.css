@@ -187,8 +187,8 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 }
 
 .bb-finance-chart.is-expanded {
-  min-height: min(70vh, 32rem);
-  width: min(96vw, 56rem);
+  min-height: min(70vh, 36rem);
+  width: min(96vw, 64rem);
 }
 
 .bb-finance-chart-overlay {
@@ -223,26 +223,48 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
   border-color: transparent;
 }
 
+.bb-finance-chart-canvas {
+  position: relative;
+  width: 100%;
+}
+
 .bb-finance-chart-svg {
   width: 100%;
   height: auto;
   display: block;
+  touch-action: none;
+  overflow: visible;
 }
 
 .bb-finance-chart-grid {
-  stroke: rgba(15, 23, 42, 0.06);
+  stroke: rgba(15, 23, 42, 0.07);
   stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
 .bb-finance-chart-axis {
   fill: #98a2b3;
   font-size: 10px;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-weight: 560;
+}
+
+.bb-finance-chart-axis--y {
+  font-variant-numeric: tabular-nums;
+}
+
+.bb-finance-chart-grad-top {
+  stop-color: #12f0cf;
+  stop-opacity: 0.32;
+}
+
+.bb-finance-chart-grad-bottom {
+  stop-color: #12f0cf;
+  stop-opacity: 0.02;
 }
 
 .bb-finance-chart-area {
-  fill: url(#unused);
-  fill: rgba(18, 240, 207, 0.16);
+  fill-opacity: 1;
 }
 
 .bb-finance-chart-line {
@@ -251,12 +273,54 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
   stroke-width: 2.4;
   stroke-linejoin: round;
   stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .bb-finance-chart-dot {
   fill: #fff;
   stroke: #12f0cf;
   stroke-width: 2.5;
+}
+
+.bb-finance-chart-dot--active {
+  fill: #12f0cf;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.bb-finance-chart-guide {
+  stroke: rgba(15, 23, 42, 0.28);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.bb-finance-chart-tooltip {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, calc(-100% - 14px));
+  min-width: 7.5rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.75rem;
+  background: #101828;
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.22);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.bb-finance-chart-tooltip-when {
+  font-size: 0.68rem;
+  font-weight: 560;
+  opacity: 0.72;
+  margin-bottom: 0.15rem;
+}
+
+.bb-finance-chart-tooltip-value {
+  font-size: 0.92rem;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .bb-finance-chart-empty {

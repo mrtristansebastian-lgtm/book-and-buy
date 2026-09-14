@@ -27,9 +27,11 @@ export function normalizeFinanceStatus(raw = '') {
   return value || 'unpaid';
 }
 
-export function formatMoney(cents = 0, currency = 'R', { decimals = false } = {}) {
+export function formatMoney(cents = 0, currency = 'R', { decimals = 'auto' } = {}) {
   const amount = Number(cents || 0) / 100;
-  const useDecimals = decimals || Math.abs(amount % 1) > 0.001;
+  // Axis can force whole units; stats use auto (cents only when present) or explicit true.
+  const useDecimals =
+    decimals === true || (decimals === 'auto' && Math.abs(amount % 1) > 0.001);
   const [intPart, frac = ''] = amount.toFixed(useDecimals ? 2 : 0).split('.');
   const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   const symbol = CURRENCY_OPTIONS.find((item) => item.id === currency)?.symbol || currency || 'R';
@@ -259,14 +261,25 @@ export function buildRevenueSeries(ledger = [], periodId = 'all', customRange = 
   if (periodId === 'day') bucketMs = 60 * 60 * 1000;
   else if (periodId === 'week') bucketMs = DAY_MS;
   else if (periodId === 'month') bucketMs = DAY_MS;
-  else bucketMs = Math.max(DAY_MS, Math.ceil((rangeEnd - rangeStart) / 8));
+  else bucketMs = Math.max(DAY_MS, Math.ceil((rangeEnd - rangeStart) / 14));
 
   const buckets = [];
   for (let t = rangeStart; t <= rangeEnd; t += bucketMs) {
     buckets.push({ at: t, amount: 0 });
   }
-  if (!buckets.length || buckets[buckets.length - 1].at < rangeEnd) {
-    buckets.push({ at: rangeEnd, amount: 0 });
+  if (!buckets.length) {
+    buckets.push({ at: rangeStart, amount: 0 });
+  }
+  const lastBucket = buckets[buckets.length - 1];
+  if (lastBucket.at < rangeEnd) {
+    // Snap near-duplicates onto rangeEnd; only add a real end bucket when the gap is meaningful.
+    if (rangeEnd - lastBucket.at <= bucketMs * 0.08) {
+      lastBucket.at = rangeEnd;
+    } else {
+      buckets.push({ at: rangeEnd, amount: 0 });
+    }
+  } else if (lastBucket.at > rangeEnd) {
+    lastBucket.at = rangeEnd;
   }
 
   paid.forEach((point) => {

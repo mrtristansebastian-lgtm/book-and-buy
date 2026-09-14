@@ -1,6 +1,9 @@
+import { Pencil } from 'lucide-react';
+import { getPostMediaUrls } from '../utils/socialPostType';
+
 /**
  * Photo posts: Instagram-style flush 3-column image grid.
- * Click opens lightbox detail.
+ * Click opens lightbox detail. Optional onEditPost adds manage chrome.
  */
 export function SocialPostsGrid({
   posts,
@@ -9,6 +12,7 @@ export function SocialPostsGrid({
   onUpdateSocialPost,
   onRemoveSocialPost,
   onOpenPost,
+  onEditPost,
   emptyLabel
 }) {
   if (!posts.length) {
@@ -23,7 +27,9 @@ export function SocialPostsGrid({
   return (
     <div className="bb-social-post-cards bb-social-ig-grid" role="list">
       {posts.map((post) => {
-        const src = post.mediaUrl || '';
+        const urls = getPostMediaUrls(post);
+        const src = urls[0] || '';
+        const multi = urls.length > 1;
         const title = String(post.title || '').trim() || 'Untitled post';
 
         return (
@@ -48,8 +54,27 @@ export function SocialPostsGrid({
                     {editMode ? 'Add photo' : 'No image'}
                   </span>
                 )}
+                {multi ? (
+                  <span className="bb-social-ig-carousel-badge" aria-label={`${urls.length} photos`}>
+                    <span className="bb-social-ig-carousel-badge-icon" aria-hidden="true" />
+                  </span>
+                ) : null}
               </span>
             </button>
+
+            {onEditPost ? (
+              <button
+                type="button"
+                className="bb-social-manage-edit"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEditPost(post);
+                }}
+              >
+                <Pencil size={13} strokeWidth={2.2} />
+                Edit
+              </button>
+            ) : null}
 
             {editMode ? (
               <div className="bb-social-edit-actions bb-social-ig-actions">

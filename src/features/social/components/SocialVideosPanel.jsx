@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Play } from 'lucide-react';
+import { ArrowLeft, Pencil, Play } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp } from '../utils/socialPostType';
 import { BbVideoPlayer } from './BbVideoPlayer';
@@ -181,6 +181,7 @@ export function SocialVideosPanel({
   logoUrl = '',
   onUpdateSocialPost,
   onRemoveSocialPost,
+  onEditPost,
   initialActiveId = '',
   onOpenVideo,
   onCloseVideo
@@ -256,6 +257,20 @@ export function SocialVideosPanel({
                 </span>
               </span>
             </button>
+
+            {onEditPost ? (
+              <button
+                type="button"
+                className="bb-social-manage-edit"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onEditPost(post);
+                }}
+              >
+                <Pencil size={13} strokeWidth={2.2} />
+                Edit
+              </button>
+            ) : null}
 
             {editMode ? (
               <div className="bb-social-edit-actions">

@@ -342,6 +342,61 @@ html[data-theme='dark'] .bb-social-note {
   color: var(--bb-ink);
 }
 
+html[data-theme='dark'] .bb-social-note-bubble {
+  background: #1c1c1c !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-social-note-bubble::after {
+  background: #1c1c1c !important;
+  border-right-color: rgba(255, 255, 255, 0.1) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html[data-theme='dark'] .bb-social-manage-edit {
+  background: #242424 !important;
+  color: var(--bb-ink) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme='dark'] .bb-social-manage-edit--note {
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-composer-step.is-active {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-composer-step.is-active .bb-composer-step-index {
+  background: #f2f2f2 !important;
+  color: #050505 !important;
+}
+
+html[data-theme='dark'] .bb-composer-dropzone,
+html[data-theme='dark'] .bb-composer-x,
+html[data-theme='dark'] .bb-composer-strip-add {
+  background: #121212 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-composer-dropzone span,
+html[data-theme='dark'] .bb-composer-hint {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-composer-strip-item.is-active {
+  border-color: #f2f2f2 !important;
+}
+
+html[data-theme='dark'] .bb-composer-x-avatar {
+  background: #f2f2f2 !important;
+  color: #050505 !important;
+}
+
 html[data-theme='dark'] .bb-public-product-card,
 html[data-theme='dark'] .bb-public-product-body,
 html[data-theme='dark'] .bb-public-product-surface {
@@ -787,7 +842,7 @@ html[data-theme='dark'] .bb-support-quick-item-icon {
   color: var(--bb-ink) !important;
 }
 
-/* Finance â€” black canvas, grey elevated cards / receipts */
+/* Finance ? black canvas, grey elevated cards / receipts */
 html[data-theme='dark'] .bb-finance {
   background: transparent !important;
   color: var(--bb-ink);
@@ -812,6 +867,63 @@ html[data-theme='dark'] .bb-finance-icon-btn {
   background: #1c1c1c !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink) !important;
+}
+
+/* Finance chart SVG ? readable on charcoal */
+html[data-theme='dark'] .bb-finance-chart-grid {
+  stroke: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-axis {
+  fill: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-line {
+  stroke: #f2f2f2 !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-grad-top {
+  stop-color: #5eead4 !important;
+  stop-opacity: 0.34 !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-grad-bottom {
+  stop-color: #5eead4 !important;
+  stop-opacity: 0.02 !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-dot {
+  fill: #1c1c1c !important;
+  stroke: #5eead4 !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-dot--active {
+  fill: #5eead4 !important;
+  stroke: #f2f2f2 !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-guide {
+  stroke: rgba(255, 255, 255, 0.28) !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-tooltip {
+  background: #0a0a0a !important;
+  color: #f2f2f2 !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='dark'] .bb-finance-chart-tooltip-when {
+  color: var(--bb-muted) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-overlay {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+html[data-theme='dark'] .bb-finance-chart-empty {
+  color: var(--bb-muted) !important;
 }
 
 html[data-theme='dark'] .bb-finance-receipt {
@@ -1425,7 +1537,7 @@ html[data-theme='dark'] .bb-public-catalog-cart-count {
   color: #050505 !important;
 }
 
-/* Owner catalog Edit actions — no navy fill on dark cards */
+/* Owner catalog Edit actions ? no navy fill on dark cards */
 html[data-theme='dark'] .bb-catalog-card-action.is-edit {
   background: #2a2a2a !important;
   border-color: var(--bb-border-strong) !important;

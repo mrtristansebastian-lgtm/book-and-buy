@@ -1,135 +1,90 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  ChevronLeft,
+  ChevronRight,
   Clapperboard,
+  Crop,
   Film,
+  GripVertical,
   ImagePlus,
-  Replace,
+  Plus,
+  Trash2,
   Type,
   X
 } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
-import { tabToPostType } from '../utils/socialPostType';
+import { getPostMediaUrls, tabToPostType } from '../utils/socialPostType';
+
+const MAX_IMAGES = 10;
+const TEXT_SOFT_LIMIT = 280;
 
 const META = {
   posts: {
     eyebrowCreate: 'New photo',
     eyebrowEdit: 'Edit photo',
-    titleCreate: 'Compose a photo post',
-    lede: '4:5 portrait · preview updates as you write',
+    titleCreate: 'New post',
     Icon: ImagePlus
   },
   videos: {
     eyebrowCreate: 'New video',
     eyebrowEdit: 'Edit video',
-    titleCreate: 'Compose a video',
-    lede: '16:9 · paste a public URL to publish',
+    titleCreate: 'New video',
     Icon: Clapperboard
   },
   text: {
     eyebrowCreate: 'New text update',
     eyebrowEdit: 'Edit text update',
-    titleCreate: 'Compose a note',
-    lede: 'Short update · shows on your live Content timeline',
+    titleCreate: 'New update',
     Icon: Type
   }
 };
+
+const IMAGE_STEPS = [
+  { id: 'select', label: 'Select' },
+  { id: 'arrange', label: 'Arrange' },
+  { id: 'caption', label: 'Caption' }
+];
+
+const VIDEO_STEPS = [
+  { id: 'source', label: 'Source' },
+  { id: 'thumbnail', label: 'Thumbnail' },
+  { id: 'details', label: 'Details' }
+];
 
 function isBlobUrl(url) {
   return String(url || '').startsWith('blob:');
 }
 
-function BlogPreview({
-  type,
-  title,
-  caption,
-  mediaUrl,
-  posterUrl,
-  duration,
-  businessName
-}) {
-  const displayTitle =
-    title.trim() ||
-    (type === 'video'
-      ? 'Untitled video'
-      : type === 'text'
-        ? 'Untitled update'
-        : 'Untitled post');
+function newImageItem(partial = {}) {
+  return {
+    id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    url: '',
+    file: null,
+    ...partial
+  };
+}
 
+function StepRail({ steps, index }) {
   return (
-    <div className={`bb-blog-preview bb-blog-preview--${type}`}>
-      <div className="bb-blog-preview-chrome">
-        <span className="bb-blog-preview-dot" />
-        <span className="bb-blog-preview-dot" />
-        <span className="bb-blog-preview-dot" />
-        <p className="bb-blog-preview-label">Live preview</p>
-      </div>
-
-      <div className="bb-blog-preview-frame">
-        <div className="bb-blog-preview-brand">{businessName || 'Your business'}</div>
-
-        {type === 'image' ? (
-          <div className="bb-blog-preview-media bb-blog-preview-media--portrait">
-            {mediaUrl ? (
-              <img src={mediaUrl} alt="" />
-            ) : (
-              <span className="bb-blog-preview-placeholder">
-                <ImagePlus size={22} strokeWidth={2} />
-                <span>Photo appears here</span>
-              </span>
-            )}
-          </div>
-        ) : null}
-
-        {type === 'video' ? (
-          <div className="bb-blog-preview-media bb-blog-preview-media--video">
-            {mediaUrl ? (
-              <video
-                className="bb-blog-preview-player"
-                controls
-                playsInline
-                poster={posterUrl || undefined}
-                src={mediaUrl}
-              />
-            ) : posterUrl ? (
-              <img src={posterUrl} alt="" />
-            ) : (
-              <span className="bb-blog-preview-placeholder">
-                <Film size={22} strokeWidth={2} />
-                <span>Video preview</span>
-              </span>
-            )}
-            {duration.trim() ? (
-              <span className="bb-blog-preview-duration">{duration.trim()}</span>
-            ) : null}
-          </div>
-        ) : null}
-
-        {type === 'text' ? (
-          <div className="bb-blog-preview-text-card">
-            <Type size={16} strokeWidth={2.2} aria-hidden="true" />
-            <p className="bb-blog-preview-text-kicker">Text update</p>
-          </div>
-        ) : null}
-
-        <div className="bb-blog-preview-copy">
-          <h4 className="bb-blog-preview-title">{displayTitle}</h4>
-          {caption.trim() ? (
-            <p className="bb-blog-preview-caption">{caption.trim()}</p>
-          ) : (
-            <p className="bb-blog-preview-caption is-muted">
-              {type === 'text' ? 'Your update will show here…' : 'Caption will show here…'}
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
+    <ol className="bb-composer-steps" aria-label="Composer steps">
+      {steps.map((step, i) => (
+        <li
+          key={step.id}
+          className={`bb-composer-step${i === index ? ' is-active' : ''}${
+            i < index ? ' is-done' : ''
+          }`}
+        >
+          <span className="bb-composer-step-index">{i + 1}</span>
+          <span className="bb-composer-step-label">{step.label}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
 
 /**
- * Unified create/edit composer for Content posts.
- * Publishes immediately — no draft workflow.
+ * Unified create/edit composer — stepped for image/video, X-style for text.
  */
 export function BlogComposerSheet({
   kind = 'posts',
@@ -151,9 +106,12 @@ export function BlogComposerSheet({
   const imageRef = useRef(null);
   const videoRef = useRef(null);
   const posterRef = useRef(null);
+  const dragIndex = useRef(null);
 
+  const [stepIndex, setStepIndex] = useState(0);
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
+  const [images, setImages] = useState([]);
   const [mediaUrl, setMediaUrl] = useState('');
   const [posterUrl, setPosterUrl] = useState('');
   const [duration, setDuration] = useState('');
@@ -164,15 +122,22 @@ export function BlogComposerSheet({
   const [cropPreset, setCropPreset] = useState('socialPost');
   const [fileNameHint, setFileNameHint] = useState('');
   const [cropTarget, setCropTarget] = useState('image');
+  const [cropImageId, setCropImageId] = useState('');
+  const [previewIndex, setPreviewIndex] = useState(0);
+
+  const steps = type === 'image' ? IMAGE_STEPS : type === 'video' ? VIDEO_STEPS : [];
 
   useEffect(() => {
     if (!post) {
       setTitle('');
       setCaption('');
+      setImages([]);
       setMediaUrl('');
       setPosterUrl('');
       setDuration('');
       setError('');
+      setStepIndex(0);
+      setPreviewIndex(0);
       return;
     }
     setTitle(post.title || '');
@@ -180,25 +145,50 @@ export function BlogComposerSheet({
     setMediaUrl(post.mediaUrl || '');
     setPosterUrl(post.posterUrl || '');
     setDuration(post.duration || '');
+    const urls = getPostMediaUrls(post);
+    setImages(urls.map((url) => newImageItem({ url })));
     setError('');
-  }, [post]);
+    setPreviewIndex(0);
+    if (type === 'image') setStepIndex(urls.length ? 1 : 0);
+    else if (type === 'video') setStepIndex(0);
+    else setStepIndex(0);
+  }, [post, type]);
 
   const durableVideoUrl = isBlobUrl(mediaUrl) ? '' : mediaUrl;
+  const captionLen = caption.length;
 
-  const openImageCrop = (file, target, preset) => {
+  const openImageCrop = (file, target, preset, imageId = '') => {
     setFileNameHint(file.name || '');
     setCropSource(file);
     setCropTarget(target);
     setCropPreset(preset);
+    setCropImageId(imageId);
     setCropOpen(true);
   };
 
-  const onImagePick = (event) => {
-    const file = event.target.files?.[0];
+  const onImagesPick = (event) => {
+    const files = [...(event.target.files || [])].filter((file) =>
+      String(file.type || '').startsWith('image/')
+    );
     event.target.value = '';
-    if (!file) return;
+    if (!files.length) return;
     setError('');
-    openImageCrop(file, 'image', 'socialPost');
+    setImages((prev) => {
+      const room = MAX_IMAGES - prev.length;
+      const nextFiles = files.slice(0, Math.max(0, room));
+      const added = nextFiles.map((file) =>
+        newImageItem({
+          url: URL.createObjectURL(file),
+          file
+        })
+      );
+      const next = [...prev, ...added];
+      if (added[0]) {
+        queueMicrotask(() => openImageCrop(added[0].file, 'image', 'socialPost', added[0].id));
+      }
+      return next;
+    });
+    setStepIndex(1);
   };
 
   const onPosterPick = (event) => {
@@ -227,10 +217,18 @@ export function BlogComposerSheet({
     try {
       const result = await uploadPublicImage(file, 'social');
       const url = result.url || '';
-      if (cropTarget === 'poster') setPosterUrl(url);
-      else setMediaUrl(url);
+      if (cropTarget === 'poster') {
+        setPosterUrl(url);
+      } else if (cropImageId) {
+        setImages((prev) =>
+          prev.map((item) =>
+            item.id === cropImageId ? { ...item, url, file: null } : item
+          )
+        );
+      }
       setCropOpen(false);
       setCropSource(null);
+      setCropImageId('');
     } catch (err) {
       setError(err?.message || 'Upload failed');
       throw err;
@@ -239,70 +237,216 @@ export function BlogComposerSheet({
     }
   };
 
-  const validate = () => {
-    if (type === 'image' && !mediaUrl.trim()) return 'Add a photo first.';
-    if (type === 'video') {
-      if (!mediaUrl.trim()) return 'Paste a public video URL to publish.';
-      if (isBlobUrl(mediaUrl)) {
-        return 'Paste a public video URL before publishing. Local files are preview-only.';
+  const removeImage = (id) => {
+    setImages((prev) => prev.filter((item) => item.id !== id));
+    setPreviewIndex(0);
+  };
+
+  const cropExistingImage = async (item) => {
+    if (item.file) {
+      openImageCrop(item.file, 'image', 'socialPost', item.id);
+      return;
+    }
+    if (!item.url) return;
+    setBusy(true);
+    setError('');
+    try {
+      const response = await fetch(item.url);
+      const blob = await response.blob();
+      const file = new File([blob], 'photo.jpg', { type: blob.type || 'image/jpeg' });
+      openImageCrop(file, 'image', 'socialPost', item.id);
+    } catch {
+      setError('Could not open image for crop.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onDragStart = (index) => {
+    dragIndex.current = index;
+  };
+
+  const onDragOver = (event, index) => {
+    event.preventDefault();
+    const from = dragIndex.current;
+    if (from == null || from === index) return;
+    setImages((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(index, 0, moved);
+      dragIndex.current = index;
+      return next;
+    });
+  };
+
+  const onDragEnd = () => {
+    dragIndex.current = null;
+  };
+
+  const ensureImagesUploaded = async () => {
+    const next = [];
+    for (const item of images) {
+      if (item.url && !isBlobUrl(item.url) && !item.file) {
+        next.push(item);
+        continue;
       }
-      if (!posterUrl.trim()) return 'Add a poster image before publishing.';
+      if (!item.file && isBlobUrl(item.url)) {
+        throw new Error('Crop or re-add each photo before publishing.');
+      }
+      if (!item.file) {
+        throw new Error('Add at least one photo.');
+      }
+      const result = await uploadPublicImage(item.file, 'social');
+      next.push({ ...item, url: result.url || '', file: null });
+    }
+    return next;
+  };
+
+  const validateStep = (index) => {
+    if (type === 'image') {
+      if (index === 0 && !images.length) return 'Add at least one photo.';
+      if (index >= 1 && !images.length) return 'Add at least one photo.';
+    }
+    if (type === 'video') {
+      if (index === 0) {
+        if (!durableVideoUrl.trim()) {
+          return 'Paste a public video URL to continue (local files are preview-only).';
+        }
+      }
+      if (index >= 1 && !posterUrl.trim()) return 'Add a thumbnail before continuing.';
+      if (index >= 2) {
+        if (!mediaUrl.trim()) return 'Paste a public video URL to publish.';
+        if (isBlobUrl(mediaUrl)) {
+          return 'Paste a public video URL before publishing. Local files are preview-only.';
+        }
+        if (!posterUrl.trim()) return 'Add a thumbnail before publishing.';
+      }
     }
     if (type === 'text' && !caption.trim()) return 'Write something first.';
     return '';
   };
 
-  const buildPayload = () => {
-    const base = {
-      type,
-      title:
-        title.trim() ||
-        (type === 'video' ? 'Untitled video' : ''),
-      caption: caption.trim(),
-      published: true
-    };
-    if (type === 'image') return { ...base, mediaUrl: mediaUrl.trim() };
-    if (type === 'video') {
-      return {
-        ...base,
-        mediaUrl: mediaUrl.trim(),
-        posterUrl: posterUrl.trim(),
-        duration: duration.trim()
-      };
-    }
-    return base;
-  };
-
-  const publish = () => {
-    const message = validate();
+  const goNext = () => {
+    const message = validateStep(stepIndex);
     if (message) {
       setError(message);
       return;
     }
-    const payload = buildPayload();
-    if (isEdit) onUpdateSocialPost?.(post.id, payload);
-    else onAddSocialPost?.(payload);
-    onClose?.();
+    setError('');
+    setStepIndex((value) => Math.min(value + 1, steps.length - 1));
+  };
+
+  const goBack = () => {
+    setError('');
+    setStepIndex((value) => Math.max(value - 1, 0));
+  };
+
+  const publish = async () => {
+    const lastCheck =
+      type === 'image'
+        ? validateStep(1)
+        : type === 'video'
+          ? validateStep(2)
+          : validateStep(0);
+    if (lastCheck) {
+      setError(lastCheck);
+      return;
+    }
+    if (type === 'text' && !caption.trim()) {
+      setError('Write something first.');
+      return;
+    }
+
+    setBusy(true);
+    setError('');
+    try {
+      let payload = {
+        type,
+        title:
+          title.trim() ||
+          (type === 'video' ? 'Untitled video' : type === 'text' ? '' : ''),
+        caption: caption.trim(),
+        published: true
+      };
+
+      if (type === 'image') {
+        const uploaded = await ensureImagesUploaded();
+        const urls = uploaded.map((item) => item.url).filter(Boolean);
+        if (!urls.length) {
+          setError('Add at least one photo.');
+          return;
+        }
+        setImages(uploaded);
+        payload = {
+          ...payload,
+          mediaUrl: urls[0],
+          mediaUrls: urls
+        };
+      } else if (type === 'video') {
+        payload = {
+          ...payload,
+          mediaUrl: mediaUrl.trim(),
+          posterUrl: posterUrl.trim(),
+          duration: duration.trim()
+        };
+      }
+
+      if (isEdit) onUpdateSocialPost?.(post.id, payload);
+      else onAddSocialPost?.(payload);
+      onClose?.();
+    } catch (err) {
+      setError(err?.message || 'Could not publish');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const sheetTitle = isEdit ? title.trim() || meta.eyebrowEdit : meta.titleCreate;
+  const canPublish =
+    type === 'text'
+      ? true
+      : type === 'image'
+        ? stepIndex >= IMAGE_STEPS.length - 1
+        : stepIndex >= VIDEO_STEPS.length - 1;
+
+  const activePreview = images[previewIndex] || images[0];
+
+  const footerPrimary = () => {
+    if (type === 'text' || canPublish) {
+      return (
+        <button
+          type="button"
+          className="bb-primary-btn"
+          onClick={publish}
+          disabled={busy}
+        >
+          {busy ? 'Publishing…' : isEdit ? 'Save changes' : 'Publish'}
+        </button>
+      );
+    }
+    return (
+      <button type="button" className="bb-primary-btn" onClick={goNext} disabled={busy}>
+        Next
+        <ChevronRight size={16} strokeWidth={2.2} />
+      </button>
+    );
+  };
 
   return (
     <div
-      className="bb-social-studio-sheet bb-social-studio-sheet--composer"
+      className={`bb-social-studio-sheet bb-social-studio-sheet--composer bb-composer-sheet bb-composer-sheet--${type}`}
       role="dialog"
       aria-modal="true"
       aria-label={sheetTitle}
     >
       <div className="bb-social-studio-sheet-backdrop" onClick={onClose} />
-      <div className="bb-social-studio-sheet-panel bb-social-studio-sheet-panel--composer">
-        <header className="bb-social-studio-sheet-head">
+      <div className="bb-social-studio-sheet-panel bb-social-studio-sheet-panel--composer bb-composer-panel">
+        <header className="bb-social-studio-sheet-head bb-composer-head">
           <div className="bb-blog-composer-head-copy">
             <p className="bb-social-studio-sheet-eyebrow">
               {isEdit ? meta.eyebrowEdit : meta.eyebrowCreate}
             </p>
             <h3 className="bb-social-studio-sheet-title">{sheetTitle}</h3>
-            <p className="bb-social-studio-sheet-lede">{meta.lede}</p>
           </div>
           <button
             type="button"
@@ -313,200 +457,351 @@ export function BlogComposerSheet({
           </button>
         </header>
 
-        <div className="bb-social-studio-sheet-body bb-blog-composer-body">
-          <BlogPreview
-            type={type}
-            title={title}
-            caption={caption}
-            mediaUrl={mediaUrl}
-            posterUrl={posterUrl}
-            duration={duration}
-            businessName={businessName}
-          />
+        {steps.length ? <StepRail steps={steps} index={stepIndex} /> : null}
 
-          <div className="bb-blog-composer-fields">
-            {type === 'image' ? (
-              <div className="bb-blog-composer-media-block">
+        <div className="bb-social-studio-sheet-body bb-composer-body">
+          {type === 'image' ? (
+            <div className="bb-composer-image">
+              {stepIndex === 0 ? (
                 <button
                   type="button"
-                  className={`bb-social-dropzone bb-social-dropzone--portrait ${
-                    mediaUrl ? 'has-media' : ''
-                  }`}
+                  className="bb-composer-dropzone"
                   onClick={() => imageRef.current?.click()}
                   disabled={busy}
                 >
-                  {mediaUrl ? (
-                    <img src={mediaUrl} alt="" />
-                  ) : (
-                    <span className="bb-social-dropzone-empty">
-                      <span className="bb-social-dropzone-icon" aria-hidden="true">
-                        <ImagePlus size={20} />
-                      </span>
-                      <span className="bb-social-dropzone-label">
-                        {busy ? 'Uploading…' : 'Add photo'}
-                      </span>
-                      <span className="bb-social-dropzone-hint">4:5 crop</span>
-                    </span>
-                  )}
+                  <ImagePlus size={28} strokeWidth={2} />
+                  <strong>Select photos</strong>
+                  <span>Up to {MAX_IMAGES} · 4:5 crop on the next step</span>
                 </button>
-                {mediaUrl ? (
-                  <button
-                    type="button"
-                    className="bb-ghost-btn bb-social-compose-replace"
-                    onClick={() => imageRef.current?.click()}
-                    disabled={busy}
-                  >
-                    <Replace size={14} />
-                    Replace
-                  </button>
-                ) : null}
-                <input
-                  ref={imageRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={onImagePick}
-                />
-              </div>
-            ) : null}
+              ) : null}
 
-            {type === 'video' ? (
-              <div className="bb-blog-composer-media-block">
-                <div className="bb-blog-composer-video-tools">
-                  {mediaUrl && isBlobUrl(mediaUrl) ? (
-                    <div className="bb-blog-composer-video-stage">
-                      <video
-                        className="bb-social-compose-player"
-                        controls
-                        playsInline
-                        poster={posterUrl || undefined}
-                        src={mediaUrl}
-                      />
-                      <p className="bb-blog-composer-hint">
-                        Local preview only — paste a public URL below to publish.
-                      </p>
+              {stepIndex === 1 ? (
+                <div className="bb-composer-arrange">
+                  <div className="bb-composer-arrange-stage">
+                    {activePreview?.url ? (
+                      <img src={activePreview.url} alt="" />
+                    ) : (
+                      <span className="bb-composer-arrange-empty">No photo selected</span>
+                    )}
+                  </div>
+                  <div className="bb-composer-strip" role="list">
+                    {images.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className={`bb-composer-strip-item${
+                          (activePreview?.id || images[0]?.id) === item.id ? ' is-active' : ''
+                        }`}
+                        role="listitem"
+                        draggable
+                        onDragStart={() => onDragStart(index)}
+                        onDragOver={(event) => onDragOver(event, index)}
+                        onDragEnd={onDragEnd}
+                        onClick={() => setPreviewIndex(index)}
+                      >
+                        <span className="bb-composer-strip-grip" aria-hidden="true">
+                          <GripVertical size={12} />
+                        </span>
+                        <img src={item.url} alt="" />
+                        <div className="bb-composer-strip-actions">
+                          <button
+                            type="button"
+                            className="bb-composer-strip-btn"
+                            aria-label="Crop"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              cropExistingImage(item);
+                            }}
+                          >
+                            <Crop size={12} />
+                          </button>
+                          <button
+                            type="button"
+                            className="bb-composer-strip-btn"
+                            aria-label="Remove"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              removeImage(item.id);
+                            }}
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {images.length < MAX_IMAGES ? (
                       <button
                         type="button"
-                        className="bb-ghost-btn bb-social-compose-replace"
+                        className="bb-composer-strip-add"
+                        onClick={() => imageRef.current?.click()}
+                        aria-label="Add photo"
+                      >
+                        <Plus size={18} />
+                      </button>
+                    ) : null}
+                  </div>
+                  <p className="bb-composer-hint">Drag to reorder · tap crop to refine</p>
+                </div>
+              ) : null}
+
+              {stepIndex === 2 ? (
+                <div className="bb-composer-caption-step">
+                  <div className="bb-composer-carousel-preview">
+                    {images[0]?.url ? (
+                      <>
+                        <img
+                          src={(images[previewIndex] || images[0]).url}
+                          alt=""
+                        />
+                        {images.length > 1 ? (
+                          <div className="bb-composer-carousel-controls">
+                            <button
+                              type="button"
+                              disabled={previewIndex <= 0}
+                              onClick={() => setPreviewIndex((v) => Math.max(0, v - 1))}
+                              aria-label="Previous"
+                            >
+                              <ChevronLeft size={16} />
+                            </button>
+                            <span>
+                              {previewIndex + 1} / {images.length}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={previewIndex >= images.length - 1}
+                              onClick={() =>
+                                setPreviewIndex((v) => Math.min(images.length - 1, v + 1))
+                              }
+                              aria-label="Next"
+                            >
+                              <ChevronRight size={16} />
+                            </button>
+                          </div>
+                        ) : null}
+                      </>
+                    ) : null}
+                  </div>
+                  <div className="bb-composer-fields">
+                    <label className="bb-social-field">
+                      <span>Title (optional)</span>
+                      <input
+                        className="native-control-input bb-social-compose-control"
+                        value={title}
+                        placeholder="Post title"
+                        onChange={(event) => setTitle(event.target.value)}
+                      />
+                    </label>
+                    <label className="bb-social-field bb-social-field--grow">
+                      <span>Caption</span>
+                      <textarea
+                        className="native-control-input bb-social-compose-control bb-social-compose-caption"
+                        rows={5}
+                        value={caption}
+                        placeholder="Write a caption…"
+                        onChange={(event) => setCaption(event.target.value)}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ) : null}
+
+              <input
+                ref={imageRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={onImagesPick}
+              />
+            </div>
+          ) : null}
+
+          {type === 'video' ? (
+            <div className="bb-composer-video">
+              {stepIndex === 0 ? (
+                <div className="bb-composer-fields">
+                  <div className="bb-blog-composer-video-tools">
+                    {mediaUrl && isBlobUrl(mediaUrl) ? (
+                      <div className="bb-blog-composer-video-stage">
+                        <video
+                          className="bb-social-compose-player"
+                          controls
+                          playsInline
+                          poster={posterUrl || undefined}
+                          src={mediaUrl}
+                        />
+                        <p className="bb-composer-hint">
+                          Local preview only — paste a public URL below to publish.
+                        </p>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="bb-composer-dropzone bb-composer-dropzone--video"
                         onClick={() => videoRef.current?.click()}
                       >
-                        <Replace size={14} />
-                        Replace preview
+                        <Film size={26} strokeWidth={2} />
+                        <strong>Preview a local file</strong>
+                        <span>Optional · not published</span>
                       </button>
-                    </div>
-                  ) : (
+                    )}
+                    <input
+                      ref={videoRef}
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={onVideoFile}
+                    />
+                  </div>
+                  <label className="bb-social-field">
+                    <span>Video URL</span>
+                    <input
+                      className="native-control-input bb-social-compose-control"
+                      value={durableVideoUrl}
+                      placeholder="https://…/video.mp4"
+                      onChange={(event) => setMediaUrl(event.target.value)}
+                    />
+                  </label>
+                </div>
+              ) : null}
+
+              {stepIndex === 1 ? (
+                <div className="bb-composer-fields">
+                  <button
+                    type="button"
+                    className="bb-composer-dropzone bb-composer-dropzone--poster"
+                    onClick={() => posterRef.current?.click()}
+                    disabled={busy}
+                  >
+                    {posterUrl ? (
+                      <img src={posterUrl} alt="" className="bb-composer-poster-preview" />
+                    ) : (
+                      <>
+                        <ImagePlus size={26} strokeWidth={2} />
+                        <strong>Add thumbnail</strong>
+                        <span>Required · 16:9 crop</span>
+                      </>
+                    )}
+                  </button>
+                  {posterUrl ? (
                     <button
                       type="button"
-                      className="bb-social-dropzone bb-social-dropzone--video"
-                      onClick={() => videoRef.current?.click()}
+                      className="bb-ghost-btn"
+                      onClick={() => posterRef.current?.click()}
+                      disabled={busy}
                     >
-                      <span className="bb-social-dropzone-empty">
-                        <span className="bb-social-dropzone-icon" aria-hidden="true">
-                          <Film size={20} />
-                        </span>
-                        <span className="bb-social-dropzone-label">Preview local file</span>
-                        <span className="bb-social-dropzone-hint">Optional · not published</span>
-                      </span>
+                      Change thumbnail
                     </button>
-                  )}
+                  ) : null}
                   <input
-                    ref={videoRef}
+                    ref={posterRef}
                     type="file"
-                    accept="video/*"
+                    accept="image/*"
                     className="hidden"
-                    onChange={onVideoFile}
+                    onChange={onPosterPick}
                   />
                 </div>
+              ) : null}
 
-                <label className="bb-social-field">
-                  <span>Video URL</span>
-                  <input
-                    className="native-control-input bb-social-compose-control"
-                    value={durableVideoUrl}
-                    placeholder="https://…/video.mp4"
-                    onChange={(event) => setMediaUrl(event.target.value)}
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  className="bb-social-compose-poster-pick"
-                  onClick={() => posterRef.current?.click()}
-                  disabled={busy}
-                >
-                  {posterUrl ? (
-                    <img
-                      src={posterUrl}
-                      alt=""
-                      className="bb-social-compose-poster-thumb"
+              {stepIndex === 2 ? (
+                <div className="bb-composer-fields">
+                  <div className="bb-composer-video-review">
+                    {posterUrl ? <img src={posterUrl} alt="" /> : null}
+                    {duration.trim() ? (
+                      <span className="bb-composer-video-duration">{duration.trim()}</span>
+                    ) : null}
+                  </div>
+                  <label className="bb-social-field">
+                    <span>Title</span>
+                    <input
+                      className="native-control-input bb-social-compose-control"
+                      value={title}
+                      placeholder="Video title"
+                      onChange={(event) => setTitle(event.target.value)}
                     />
-                  ) : (
-                    <span className="bb-social-compose-poster-empty" aria-hidden="true">
-                      <ImagePlus size={16} />
+                  </label>
+                  <label className="bb-social-field">
+                    <span>Duration</span>
+                    <input
+                      className="native-control-input bb-social-compose-control"
+                      value={duration}
+                      placeholder="3:42"
+                      onChange={(event) => setDuration(event.target.value)}
+                    />
+                  </label>
+                  <label className="bb-social-field bb-social-field--grow">
+                    <span>Description</span>
+                    <textarea
+                      className="native-control-input bb-social-compose-control bb-social-compose-caption"
+                      rows={5}
+                      value={caption}
+                      placeholder="What is this video about?"
+                      onChange={(event) => setCaption(event.target.value)}
+                    />
+                  </label>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {type === 'text' ? (
+            <div className="bb-composer-text">
+              <div className="bb-composer-x">
+                <div className="bb-composer-x-avatar" aria-hidden="true">
+                  {(businessName || 'B').trim().charAt(0).toUpperCase()}
+                </div>
+                <div className="bb-composer-x-main">
+                  <label className="bb-social-field">
+                    <span>Title (optional)</span>
+                    <input
+                      className="native-control-input bb-social-compose-control"
+                      value={title}
+                      placeholder="Add a title"
+                      onChange={(event) => setTitle(event.target.value)}
+                    />
+                  </label>
+                  <label className="bb-social-field bb-social-field--grow">
+                    <span className="bb-composer-x-label-row">
+                      <span>What&apos;s happening?</span>
+                      <span
+                        className={`bb-composer-x-count${
+                          captionLen > TEXT_SOFT_LIMIT ? ' is-over' : ''
+                        }`}
+                      >
+                        {captionLen}
+                      </span>
                     </span>
-                  )}
-                  <span className="bb-social-compose-poster-copy">
-                    <strong>{posterUrl ? 'Change poster' : 'Add poster'}</strong>
-                    <span>Required to publish · 16:9 crop</span>
-                  </span>
-                </button>
-                <input
-                  ref={posterRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={onPosterPick}
-                />
-
-                <label className="bb-social-field">
-                  <span>Duration</span>
-                  <input
-                    className="native-control-input bb-social-compose-control"
-                    value={duration}
-                    placeholder="3:42"
-                    onChange={(event) => setDuration(event.target.value)}
-                  />
-                </label>
+                    <textarea
+                      className="native-control-input bb-social-compose-control bb-composer-x-input"
+                      rows={6}
+                      value={caption}
+                      placeholder="Share an update…"
+                      onChange={(event) => setCaption(event.target.value)}
+                    />
+                  </label>
+                </div>
               </div>
-            ) : null}
 
-            <label className="bb-social-field">
-              <span>Title{type === 'text' ? ' (optional)' : ''}</span>
-              <input
-                className="native-control-input bb-social-compose-control"
-                value={title}
-                placeholder={
-                  type === 'video'
-                    ? 'Video title'
-                    : type === 'text'
-                      ? 'Title (optional)'
-                      : 'Post title'
-                }
-                onChange={(event) => setTitle(event.target.value)}
-              />
-            </label>
+              <div className="bb-composer-bubble-preview" aria-label="Preview">
+                <p className="bb-composer-bubble-preview-label">Live preview</p>
+                <article className="bb-social-note bb-social-note--preview">
+                  <header className="bb-social-note-meta">
+                    <span className="bb-social-note-stamp">Just now</span>
+                    <span className="bb-social-note-mark bb-public-native-fill" aria-hidden="true" />
+                  </header>
+                  {title.trim() ? (
+                    <h2 className="bb-social-note-title">{title.trim()}</h2>
+                  ) : null}
+                  <div className="bb-social-note-bubble">
+                    <p className="bb-social-note-text">
+                      {caption.trim() || 'Your update will show here…'}
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          ) : null}
 
-            <label className="bb-social-field bb-social-field--grow">
-              <span>
-                {type === 'text' ? 'Update' : type === 'video' ? 'Description' : 'Caption'}
-              </span>
-              <textarea
-                className="native-control-input bb-social-compose-control bb-social-compose-caption"
-                rows={type === 'text' ? 7 : 4}
-                value={caption}
-                placeholder={
-                  type === 'text'
-                    ? 'Write your update…'
-                    : type === 'video'
-                      ? 'What is this video about?'
-                      : 'Write a caption…'
-                }
-                onChange={(event) => setCaption(event.target.value)}
-              />
-            </label>
-
-            {error ? <p className="bb-social-compose-error">{error}</p> : null}
-          </div>
+          {error ? <p className="bb-social-compose-error">{error}</p> : null}
         </div>
 
         <footer className="bb-social-studio-sheet-footer bb-blog-composer-footer">
@@ -527,17 +822,17 @@ export function BlogComposerSheet({
             )}
           </div>
           <div className="bb-social-studio-sheet-footer-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="bb-primary-btn"
-              onClick={publish}
-              disabled={busy}
-            >
-              {isEdit ? 'Save changes' : 'Publish'}
-            </button>
+            {type !== 'text' && stepIndex > 0 ? (
+              <button type="button" className="bb-ghost-btn" onClick={goBack} disabled={busy}>
+                <ChevronLeft size={16} strokeWidth={2.2} />
+                Back
+              </button>
+            ) : (
+              <button type="button" className="bb-ghost-btn" onClick={onClose}>
+                Cancel
+              </button>
+            )}
+            {footerPrimary()}
           </div>
         </footer>
       </div>
@@ -551,6 +846,7 @@ export function BlogComposerSheet({
           if (busy) return;
           setCropOpen(false);
           setCropSource(null);
+          setCropImageId('');
         }}
         onConfirm={onCropConfirm}
       />

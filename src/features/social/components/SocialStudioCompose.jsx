@@ -31,7 +31,7 @@ export function SocialStudioCompose({ onOpenCreate }) {
         <p className="bb-social-studio-create-eyebrow">Publish</p>
         <h2 className="bb-social-studio-create-title">Add to Content</h2>
         <p className="bb-social-studio-create-lede">
-          Pick a format — compose with a live preview, then publish straight to your site.
+          Pick a format — step through media like Instagram or YouTube, or write an update like X.
         </p>
       </div>
       <div className="bb-social-studio-create-actions">

@@ -4,8 +4,19 @@ export function getSocialPostKind(post) {
   if (post.type === 'video') return 'video';
   if (post.type === 'text') return 'text';
   if (post.type === 'image') return 'image';
-  if (post.mediaUrl) return 'image';
+  if (post.mediaUrl || (Array.isArray(post.mediaUrls) && post.mediaUrls.length)) return 'image';
   return 'text';
+}
+
+/** Image URLs for a post — prefers mediaUrls, falls back to mediaUrl. */
+export function getPostMediaUrls(post) {
+  if (!post) return [];
+  const list = Array.isArray(post.mediaUrls)
+    ? post.mediaUrls.map((url) => String(url || '').trim()).filter(Boolean)
+    : [];
+  if (list.length) return list;
+  const single = String(post.mediaUrl || '').trim();
+  return single ? [single] : [];
 }
 
 /** Map studio tab id → SocialPost.type */

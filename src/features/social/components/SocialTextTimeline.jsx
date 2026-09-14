@@ -1,15 +1,17 @@
+import { Pencil } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp } from '../utils/socialPostType';
 
 /**
- * Editorial note timeline — reading column with centred hairline separators.
+ * Editorial note timeline — speech-bubble updates with optional manage Edit.
  */
 export function SocialTextTimeline({
   posts,
   editMode = false,
   showPublishToggle = true,
   onUpdateSocialPost,
-  onRemoveSocialPost
+  onRemoveSocialPost,
+  onEditPost
 }) {
   if (!posts.length) {
     return (
@@ -51,15 +53,28 @@ export function SocialTextTimeline({
               />
             ) : null}
 
-            <EditableText
-              as="p"
-              className="bb-social-note-text"
-              editMode={editMode}
-              multiline
-              value={post.caption || ''}
-              placeholder="Write your update…"
-              onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-            />
+            <div className="bb-social-note-bubble">
+              <EditableText
+                as="p"
+                className="bb-social-note-text"
+                editMode={editMode}
+                multiline
+                value={post.caption || ''}
+                placeholder="Write your update…"
+                onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+              />
+            </div>
+
+            {onEditPost ? (
+              <button
+                type="button"
+                className="bb-social-manage-edit bb-social-manage-edit--note"
+                onClick={() => onEditPost(post)}
+              >
+                <Pencil size={13} strokeWidth={2.2} />
+                Edit
+              </button>
+            ) : null}
 
             {editMode ? (
               <div className="bb-social-edit-actions">

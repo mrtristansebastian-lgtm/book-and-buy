@@ -1,12 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getSocialPostKind } from '../utils/socialPostType';
+import { SocialPostsGrid } from './SocialPostsGrid';
+import { SocialPostLightbox } from './SocialPostLightbox';
 import { SocialProfileTabs } from './SocialProfileTabs';
-import { SocialStudioArticleTiles } from './SocialStudioArticleTiles';
-import { SocialStudioPostTiles } from './SocialStudioPostTiles';
-import { SocialStudioVideoTiles } from './SocialStudioVideoTiles';
+import { SocialTextTimeline } from './SocialTextTimeline';
+import { SocialVideosPanel } from './SocialVideosPanel';
 
 /**
- * Studio library — live content with rich tiles and shared composer edit.
+ * Studio library — mirrors the live public Content layouts with Edit on each item.
  */
 export function SocialStudioLibrary({
   tab,
@@ -15,6 +17,10 @@ export function SocialStudioLibrary({
   onEditPost,
   onCreate
 }) {
+  const { workspace } = useWorkspace();
+  const website = workspace.website || {};
+  const [lightboxId, setLightboxId] = useState('');
+
   const kind = tab === 'videos' ? 'video' : tab === 'text' ? 'text' : 'image';
 
   const items = useMemo(
@@ -42,6 +48,9 @@ export function SocialStudioLibrary({
         ? 'New text update'
         : 'New post';
 
+  const lightboxOpen =
+    tab === 'posts' && Boolean(lightboxId) && items.some((post) => post.id === lightboxId);
+
   return (
     <section className={`bb-social-library${items.length ? '' : ' is-empty'}`}>
       <header className="bb-social-library-head">
@@ -58,7 +67,7 @@ export function SocialStudioLibrary({
         <SocialProfileTabs value={tab} onChange={onTabChange} />
       </div>
 
-      <div className="bb-social-library-surface">
+      <div className="bb-social-library-surface bb-social-library-surface--live">
         {!items.length ? (
           <div className="bb-social-library-empty">
             <p className="bb-social-library-empty-copy">{emptyCopy}</p>
@@ -73,13 +82,33 @@ export function SocialStudioLibrary({
             ) : null}
           </div>
         ) : kind === 'image' ? (
-          <SocialStudioPostTiles posts={items} onEditPost={onEditPost} />
+          <SocialPostsGrid
+            posts={items}
+            onOpenPost={setLightboxId}
+            onEditPost={onEditPost}
+            emptyLabel={emptyCopy}
+          />
         ) : kind === 'video' ? (
-          <SocialStudioVideoTiles posts={items} onEditPost={onEditPost} />
+          <SocialVideosPanel
+            posts={items}
+            showOwnerStats
+            brandName={workspace.brandName || workspace.name || ''}
+            logoUrl={website.logoUrl || ''}
+            onEditPost={onEditPost}
+          />
         ) : (
-          <SocialStudioArticleTiles posts={items} onEditPost={onEditPost} />
+          <SocialTextTimeline posts={items} onEditPost={onEditPost} />
         )}
       </div>
+
+      {lightboxOpen ? (
+        <SocialPostLightbox
+          posts={items}
+          activeId={lightboxId}
+          onClose={() => setLightboxId('')}
+          onChangeActive={setLightboxId}
+        />
+      ) : null}
     </section>
   );
 }
