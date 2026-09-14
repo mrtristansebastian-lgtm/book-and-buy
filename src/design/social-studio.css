@@ -1363,18 +1363,18 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
   border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Preview is the media itself ? no padded frame, no crop */
+/* Preview stage: full workspace width, video fills the frame */
 .bb-composer-arrange-stage {
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: grid;
+  place-items: center;
   margin-inline: auto;
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
+  max-height: min(52vh, 28rem);
   border-radius: 1rem;
   overflow: hidden;
-  background: #0f172a;
+  background: #0b1220;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
 }
 
@@ -1382,12 +1382,13 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
 .bb-composer-arrange-stage video,
 .bb-composer-arrange-video {
   display: block;
-  width: auto;
-  height: auto;
-  max-width: min(100%, 20rem);
-  max-height: min(60vh, 28rem);
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: min(52vh, 28rem);
   object-fit: contain;
-  background: transparent;
+  background: #000;
+  vertical-align: middle;
 }
 
 .bb-composer-arrange-empty {
@@ -1404,8 +1405,9 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
 /* Clipchamp-style filmstrip trimmer */
 .bb-clip-trimmer {
   display: grid;
-  gap: 0.55rem;
-  width: min(100%, 28rem);
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 40rem;
   margin-inline: auto;
 }
 
@@ -1435,12 +1437,47 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
   color: #101828;
 }
 
+.bb-clip-trimmer-ruler {
+  position: relative;
+  height: 1.15rem;
+  margin-bottom: 0.1rem;
+}
+
+.bb-clip-trimmer-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0.35rem;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.bb-clip-trimmer-tick.is-major {
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.38);
+}
+
+.bb-clip-trimmer-tick em {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: #667085;
+  white-space: nowrap;
+  line-height: 1;
+}
+
 .bb-clip-trimmer-track {
   position: relative;
-  height: 3.4rem;
+  height: 3.55rem;
   border-radius: 0.65rem;
-  overflow: hidden;
-  background: #0f172a;
+  overflow: visible;
+  background: transparent;
   touch-action: none;
   cursor: grab;
   user-select: none;
@@ -1456,6 +1493,9 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  background: #0f172a;
 }
 
 .bb-clip-trimmer-frames img {
@@ -1481,6 +1521,8 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
   top: 0;
   bottom: 0;
   left: 0;
+  z-index: 1;
+  border-radius: 0.65rem 0 0 0.65rem;
   background: rgba(15, 23, 42, 0.55);
   pointer-events: none;
 }
@@ -1488,12 +1530,14 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
 .bb-clip-trimmer-shade--right {
   left: auto;
   right: 0;
+  border-radius: 0 0.65rem 0.65rem 0;
 }
 
 .bb-clip-trimmer-window {
   position: absolute;
   top: 0;
   bottom: 0;
+  z-index: 2;
   border: 2px solid #facc15;
   border-radius: 0.45rem;
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.35);
@@ -1534,10 +1578,59 @@ html[data-theme='dark'] .bb-composer-edit-thumb {
   border-radius: 0 0.35rem 0.35rem 0;
 }
 
+.bb-clip-trimmer-playhead {
+  position: absolute;
+  top: -0.15rem;
+  bottom: -0.15rem;
+  z-index: 4;
+  width: 0.9rem;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  cursor: ew-resize;
+}
+
+.bb-clip-trimmer-playhead-pin {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 0.12rem;
+  background: #fff;
+  border: 1.5px solid #0f172a;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.bb-clip-trimmer-playhead-line {
+  position: absolute;
+  top: 0.45rem;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.45);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
 .bb-clip-trimmer-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.45rem;
+  padding-top: 0.15rem;
+  animation: bb-clip-actions-in 0.18s ease;
+}
+
+@keyframes bb-clip-actions-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bb-clip-trimmer-actions .bb-primary-btn,
@@ -1556,6 +1649,18 @@ html[data-theme='dark'] .bb-composer-arrange-rail {
 html[data-theme='dark'] .bb-clip-trimmer-readout,
 html[data-theme='dark'] .bb-composer-arrange-note {
   color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-clip-trimmer-tick {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+html[data-theme='dark'] .bb-clip-trimmer-tick.is-major {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+html[data-theme='dark'] .bb-clip-trimmer-tick em {
+  color: var(--bb-muted) !important;
 }
 
 .bb-composer-strip {
