@@ -1,5 +1,5 @@
 /**
- * Universal dark remaps — shared primitives only.
+ * Universal dark remaps ? shared primitives only.
  * Accent / native-fill gradients stay pastel; labels on them stay black.
  */
 
@@ -45,7 +45,7 @@ html[data-theme='dark'] .bb-segment button {
   color: var(--bb-muted);
 }
 
-/* Gradient / pressed chrome — black on pastel */
+/* Gradient / pressed chrome ? black on pastel */
 html[data-theme='dark'] .bb-segment button[aria-pressed='true'],
 html[data-theme='dark'] .bb-nav-item[aria-current='page'],
 html[data-theme='dark'] .bb-nav-item.is-nested[aria-current='page'],
@@ -417,7 +417,7 @@ html[data-theme='dark'] .bg-canvas {
   background-color: var(--bb-bg) !important;
 }
 
-/* —— Owner desks: kill remaining light panels —— */
+/* ?? Owner desks: kill remaining light panels ?? */
 
 html[data-theme='dark'] .bb-home {
   --bb-home-ink: var(--bb-ink);
@@ -467,6 +467,9 @@ html[data-theme='dark'] .bb-schedule-panel,
 html[data-theme='dark'] .bb-schedule-card,
 html[data-theme='dark'] .bb-schedule-slot,
 html[data-theme='dark'] .bb-schedule-spot,
+html[data-theme='dark'] .bb-schedule-spot-stat,
+html[data-theme='dark'] .bb-schedule-spot-card,
+html[data-theme='dark'] .bb-schedule-empty,
 html[data-theme='dark'] .bb-schedule-sheet,
 html[data-theme='dark'] .bb-schedule-sheet-body,
 html[data-theme='dark'] .bb-schedule-avail-panel,
@@ -476,6 +479,7 @@ html[data-theme='dark'] .bb-schedule-avail-settings,
 html[data-theme='dark'] .bb-schedule-avail-settings-rail,
 html[data-theme='dark'] .bb-schedule-avail-settings-panel,
 html[data-theme='dark'] .bb-schedule-avail-studio-settings,
+html[data-theme='dark'] .bb-schedule-avail-paint-bar,
 html[data-theme='dark'] .bb-schedule-agenda-group,
 html[data-theme='dark'] .bb-schedule-agenda-day-panel,
 html[data-theme='dark'] .bb-schedule-staff-chip,
@@ -486,7 +490,7 @@ html[data-theme='dark'] .bb-schedule-feed,
 html[data-theme='dark'] .bb-schedule-feed-item,
 html[data-theme='dark'] .bb-schedule-hours-row,
 html[data-theme='dark'] .bb-schedule-hours-row.is-closed {
-  background: var(--bb-panel) !important;
+  background: #1c1c1c !important;
   background-image: none !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink) !important;
@@ -566,12 +570,18 @@ html[data-theme='dark'] .bb-schedule-staff-avatar.is-active .bb-schedule-staff-a
 html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-desk-title,
 html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-stat-value,
 html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-name,
-html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-sheet-facts dd {
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-sheet-facts dd,
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-empty-title,
+html[data-theme='dark'] .bb-schedule-avail-paint-bar-title,
+html[data-theme='dark'] .bb-schedule-avail-title {
   color: var(--bb-ink) !important;
 }
 
 html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-desk-lede,
-html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-empty-copy {
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-empty-copy,
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-stat-label,
+html[data-theme='dark'] .bb-schedule-avail-paint-bar-hint,
+html[data-theme='dark'] .bb-schedule-avail-hint {
   color: var(--bb-muted) !important;
 }
 
@@ -791,9 +801,13 @@ html[data-theme='dark'] .bb-finance-tab-toggle,
 html[data-theme='dark'] .bb-finance-period-pills,
 html[data-theme='dark'] .bb-finance-custom-range,
 html[data-theme='dark'] .bb-finance-icon-btn {
-  background: var(--bb-panel) !important;
+  background: #1c1c1c !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-finance-receipt-serration {
+  background: #1c1c1c !important;
 }
 
 html[data-theme='dark'] .bb-finance-metric-label,
@@ -822,10 +836,6 @@ html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-brand,
 html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-total,
 html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-client strong {
   color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-finance-receipt-serration {
-  background: var(--bb-panel) !important;
 }
 
 html[data-theme='dark'] .bb-finance-receipt-rule,
@@ -936,7 +946,7 @@ html[data-theme='dark'] .bb-settings-nav-item.is-active {
   background: var(--bb-surface-2) !important;
 }
 
-/* Shared sheets / fields — value chrome + picker sheets */
+/* Shared sheets / fields ? value chrome + picker sheets */
 html[data-theme='dark'] .bb-time-field,
 html[data-theme='dark'] .bb-date-field,
 html[data-theme='dark'] .bb-sort-field,
@@ -957,7 +967,7 @@ html[data-theme='dark'] .bb-sort-field-value .is-placeholder {
   color: var(--bb-faint) !important;
 }
 
-/* Public homepage remaining light shells — never paint over the hero photo */
+/* Public homepage remaining light shells ? never paint over the hero photo */
 html[data-theme='dark'] .bb-public-about,
 html[data-theme='dark'] .bb-public-about-text-shell,
 html[data-theme='dark'] .bb-public-about-offer,
@@ -1003,7 +1013,7 @@ html[data-theme='dark'] .bb-public-home-ghost {
   color: #ffffff !important;
 }
 
-/* Device bezels — light grey metal in dark mode */
+/* Device bezels ? light grey metal in dark mode */
 html[data-theme='dark'] .bb-device-bezel,
 html[data-theme='dark'] .bb-device-preview--phone .bb-device-bezel,
 html[data-theme='dark'] .bb-device-preview--desktop .bb-device-bezel {
@@ -1040,7 +1050,7 @@ html[data-theme='dark'] .bb-products-chip.is-active {
   color: #050505 !important;
 }
 
-/* Stock crates — dark body + charcoal 3D edges (no blue-gray) */
+/* Stock crates ? dark body + charcoal 3D edges (no blue-gray) */
 html[data-theme='dark'] .bb-stock-crate-body {
   background: linear-gradient(165deg, #1c1c1c 0%, #141414 100%) !important;
   border-color: var(--bb-border) !important;
@@ -1130,7 +1140,7 @@ html[data-theme='dark'] .bb-schedule-picker-day:hover:not(.is-selected) {
   background: #2a2a2a !important;
 }
 
-/* Reviews — home + profile/content surfaces */
+/* Reviews ? home + profile/content surfaces */
 html[data-theme='dark'] .bb-public-reviews-block,
 html[data-theme='dark'] .bb-public-reviews-shell,
 html[data-theme='dark'] .bb-public-profile .bb-public-reviews-block,
@@ -1174,7 +1184,7 @@ html[data-theme='dark'] .bb-public-profile .bb-public-review-avatar {
 }
 
 
-/* Editor sheets � services / products / stock / shared dialogs */
+/* Editor sheets ? services / products / stock / shared dialogs */
 html[data-theme='dark'] .bb-services-sheet-backdrop {
   background: rgba(0, 0, 0, 0.72) !important;
 }
