@@ -3,6 +3,17 @@
  * Social posts match Instagram feed portrait (4:5 @ 1080×1350).
  */
 
+/**
+ * Ratios offered as chips in the cropper. `original` keeps the photo's own shape.
+ */
+export const POST_RATIO_OPTIONS = [
+  { id: 'original', label: 'Original', aspect: 0 },
+  { id: 'square', label: '1:1', aspect: 1 },
+  { id: 'portrait', label: '4:5', aspect: 4 / 5 },
+  { id: 'landscape', label: '16:9', aspect: 16 / 9 },
+  { id: 'story', label: '9:16', aspect: 9 / 16 }
+];
+
 export const IMAGE_PRESETS = {
   socialPost: {
     id: 'socialPost',
@@ -15,7 +26,8 @@ export const IMAGE_PRESETS = {
     // Posts keep the photo's own shape; grid tiles crop to squares on display.
     flexible: true,
     minAspect: 0.3,
-    maxAspect: 3.5
+    maxAspect: 3.5,
+    ratioOptions: POST_RATIO_OPTIONS
   },
   hero: {
     id: 'hero',
@@ -73,7 +85,8 @@ export const IMAGE_PRESETS = {
     // Posters keep the video's own shape — never letterboxed into 16:9.
     flexible: true,
     minAspect: 0.3,
-    maxAspect: 3.5
+    maxAspect: 3.5,
+    ratioOptions: POST_RATIO_OPTIONS
   }
 };
 

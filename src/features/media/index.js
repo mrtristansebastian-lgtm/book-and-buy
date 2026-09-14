@@ -7,4 +7,10 @@ export {
   clampImagePan,
   exportFramedImage
 } from './cropImage';
+export {
+  normalizeImageForUpload,
+  isHeicFile,
+  HEIC_MESSAGE,
+  NORMALIZE_MAX_EDGE
+} from './imageNormalize';
 export { ImageCropModal } from './ImageCropModal';

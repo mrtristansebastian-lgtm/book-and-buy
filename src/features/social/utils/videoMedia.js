@@ -125,6 +125,91 @@ export async function captureVideoPoster(file, atSeconds = 0.15) {
   }
 }
 
+function canvasToJpegFile(canvas, name) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error('Could not capture frame'));
+          return;
+        }
+        resolve(new File([blob], name, { type: 'image/jpeg' }));
+      },
+      'image/jpeg',
+      0.9
+    );
+  });
+}
+
+/**
+ * Grab a JPEG still from a video element that is already loaded and seeked.
+ * Throws on cross-origin taint, which callers treat as "frame picking unavailable".
+ */
+export async function captureFrameFromVideoElement(video) {
+  const width = video?.videoWidth || 0;
+  const height = video?.videoHeight || 0;
+  if (!(width > 0 && height > 0)) throw new Error('Video frame not ready');
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas not available');
+  ctx.drawImage(video, 0, 0, width, height);
+
+  return canvasToJpegFile(canvas, `frame-${Date.now()}.jpg`);
+}
+
+/**
+ * Capture several stills in one video load — used for thumbnail suggestions.
+ *
+ * @param {File|string} source local file or same-origin/CORS-enabled URL
+ * @param {number[]} fractions positions through the video, 0–1
+ * @returns {Promise<Array<{ seconds: number, file: File }>>}
+ */
+export async function captureVideoFrames(source, fractions = [0.1, 0.5, 0.8]) {
+  const objectUrl = source instanceof Blob ? URL.createObjectURL(source) : '';
+  const video = document.createElement('video');
+  video.preload = 'auto';
+  video.muted = true;
+  video.playsInline = true;
+  if (!objectUrl) video.crossOrigin = 'anonymous';
+
+  try {
+    await new Promise((resolve, reject) => {
+      video.onloadeddata = () => resolve();
+      video.onerror = () => reject(new Error('Could not load video'));
+      video.src = objectUrl || String(source);
+    });
+
+    const duration = Number(video.duration) || 0;
+    const results = [];
+
+    for (const fraction of fractions) {
+      const seconds = Math.min(
+        Math.max(0, duration * fraction),
+        Math.max(0, duration - 0.05)
+      );
+      if (Number.isFinite(seconds)) {
+        await new Promise((resolve) => {
+          video.onseeked = () => resolve();
+          video.currentTime = seconds;
+        });
+      }
+      try {
+        const file = await captureFrameFromVideoElement(video);
+        results.push({ seconds, file });
+      } catch {
+        /* skip frames the browser refuses to paint */
+      }
+    }
+
+    return results;
+  } finally {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+  }
+}
+
 /** CSS-friendly aspect value for inline styles */
 export function aspectStyle(aspect, fallback) {
   const value =

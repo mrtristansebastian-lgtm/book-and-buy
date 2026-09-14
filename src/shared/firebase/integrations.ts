@@ -1,4 +1,11 @@
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import type { StorageReference, UploadMetadata, UploadTask } from 'firebase/storage';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable
+} from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from './client';
@@ -7,7 +14,7 @@ import { saveOwnerWorkspaceToFirestore } from './ownerWorkspace';
 import { publicWorkspacePath } from './paths';
 import { buildPublicWorkspaceSnapshot } from './publicSnapshot';
 
-const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+export const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
 function sanitizeFolder(pathHint: string) {
   const allowed = new Set(['brand', 'venue', 'services', 'website', 'social', 'account-avatars']);
@@ -34,11 +41,87 @@ function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
+/** Thrown when a caller cancels an in-flight upload, so UI can skip the error state. */
+export class UploadCanceledError extends Error {
+  canceled = true as const;
+
+  constructor(message = 'Upload canceled.') {
+    super(message);
+    this.name = 'UploadCanceledError';
+  }
+}
+
+export function isUploadCanceled(error: unknown) {
+  return Boolean(
+    error &&
+      typeof error === 'object' &&
+      ((error as { canceled?: boolean }).canceled === true ||
+        (error as { code?: string }).code === 'storage/canceled')
+  );
+}
+
+export function formatBytes(bytes: number) {
+  const value = Number(bytes) || 0;
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${Math.round(value / 1024)} KB`;
+  const mb = value / (1024 * 1024);
+  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
+}
+
+export type UploadOptions = {
+  /** Called with completion fraction 0–1 plus raw byte counts. */
+  onProgress?: (fraction: number, transferred: number, total: number) => void;
+  /** Receives the live task so the caller can cancel or pause. */
+  onTask?: (task: UploadTask) => void;
+};
+
+/**
+ * Resumable upload with progress reporting. Rejects with UploadCanceledError
+ * when the caller cancels via the task handed to `onTask`.
+ */
+function runResumableUpload(
+  storageRef: StorageReference,
+  file: File,
+  metadata: UploadMetadata,
+  options: UploadOptions = {}
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const task = uploadBytesResumable(storageRef, file, metadata);
+    options.onTask?.(task);
+    options.onProgress?.(0, 0, file.size);
+
+    task.on(
+      'state_changed',
+      (snapshot) => {
+        const total = snapshot.totalBytes || file.size || 0;
+        const transferred = snapshot.bytesTransferred || 0;
+        const fraction = total > 0 ? Math.min(1, transferred / total) : 0;
+        options.onProgress?.(fraction, transferred, total);
+      },
+      (error) => {
+        if (isUploadCanceled(error)) {
+          reject(new UploadCanceledError());
+          return;
+        }
+        reject(error);
+      },
+      () => {
+        options.onProgress?.(1, file.size, file.size);
+        getDownloadURL(task.snapshot.ref).then(resolve, reject);
+      }
+    );
+  });
+}
+
 /**
  * Upload a public site image to Firebase Storage when configured + signed in.
  * Falls back to a local data URL so Pages studio still works offline/demo.
  */
-export async function uploadPublicImage(file: File, pathHint = 'website') {
+export async function uploadPublicImage(
+  file: File,
+  pathHint = 'website',
+  options: UploadOptions = {}
+) {
   if (!(file instanceof File)) {
     throw new Error('Choose an image file.');
   }
@@ -46,7 +129,9 @@ export async function uploadPublicImage(file: File, pathHint = 'website') {
     throw new Error('Choose an image file (PNG, JPG, or WebP).');
   }
   if (file.size > MAX_IMAGE_BYTES) {
-    throw new Error('Image must be under 6MB.');
+    throw new Error(
+      `That image is ${formatBytes(file.size)} — the limit is ${formatBytes(MAX_IMAGE_BYTES)}.`
+    );
   }
 
   const firebase = getFirebase();
@@ -76,18 +161,26 @@ export async function uploadPublicImage(file: File, pathHint = 'website') {
   const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'image.jpg')}`;
   const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
   const storageRef = ref(storage, objectPath);
-  await uploadBytes(storageRef, file, { contentType: file.type });
-  const url = await getDownloadURL(storageRef);
+  const url = await runResumableUpload(
+    storageRef,
+    file,
+    { contentType: file.type },
+    options
+  );
   return { ok: true as const, localOnly: false, url };
 }
 
-const MAX_VIDEO_BYTES = 48 * 1024 * 1024;
+export const MAX_VIDEO_BYTES = 48 * 1024 * 1024;
 
 /**
  * Upload a short social video clip to Storage when configured + signed in.
  * Falls back to a local object/data URL for demo / offline.
  */
-export async function uploadPublicVideo(file: File, pathHint = 'social') {
+export async function uploadPublicVideo(
+  file: File,
+  pathHint = 'social',
+  options: UploadOptions = {}
+) {
   if (!(file instanceof File)) {
     throw new Error('Choose a video file.');
   }
@@ -95,7 +188,9 @@ export async function uploadPublicVideo(file: File, pathHint = 'social') {
     throw new Error('Choose a video file (MP4, WebM, or MOV).');
   }
   if (file.size > MAX_VIDEO_BYTES) {
-    throw new Error('Video must be under 48MB.');
+    throw new Error(
+      `That video is ${formatBytes(file.size)} — the limit is ${formatBytes(MAX_VIDEO_BYTES)}. Trim it or export at a lower resolution.`
+    );
   }
 
   const firebase = getFirebase();
@@ -125,8 +220,12 @@ export async function uploadPublicVideo(file: File, pathHint = 'social') {
   const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'video.mp4')}`;
   const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
   const storageRef = ref(storage, objectPath);
-  await uploadBytes(storageRef, file, { contentType: file.type });
-  const url = await getDownloadURL(storageRef);
+  const url = await runResumableUpload(
+    storageRef,
+    file,
+    { contentType: file.type },
+    options
+  );
   return { ok: true as const, localOnly: false, url };
 }
 

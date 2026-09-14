@@ -50,7 +50,8 @@ export function getPostMediaItems(post) {
           posterUrl: String(item?.posterUrl || '').trim(),
           durationSeconds: Number(item?.durationSeconds) || 0,
           durationLabel: String(item?.durationLabel || '').trim(),
-          aspectRatio: Number(item?.aspectRatio) || 0
+          aspectRatio: Number(item?.aspectRatio) || 0,
+          alt: String(item?.alt || '').trim()
         };
       })
       .filter(Boolean);
@@ -61,7 +62,8 @@ export function getPostMediaItems(post) {
     posterUrl: '',
     durationSeconds: 0,
     durationLabel: '',
-    aspectRatio: 0
+    aspectRatio: 0,
+    alt: ''
   }));
 }
 

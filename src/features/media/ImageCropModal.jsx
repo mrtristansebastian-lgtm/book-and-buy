@@ -54,6 +54,9 @@ export function ImageCropModal({
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [ratioId, setRatioId] = useState('original');
+
+  const ratioOptions = preset.ratioOptions || null;
 
   useEffect(() => {
     if (!open || !source) {
@@ -76,6 +79,7 @@ export function ImageCropModal({
     setError('');
     setBusy(false);
     setLoading(true);
+    setRatioId('original');
 
     readImageFrame(preview.url, preset)
       .then((next) => {
@@ -126,7 +130,11 @@ export function ImageCropModal({
     };
   }, [open, busy, onCancel]);
 
-  const frameAspect = frame?.frameAspect || preset.aspect;
+  const chosenRatio = ratioOptions?.find((option) => option.id === ratioId);
+  const frameAspect =
+    chosenRatio && chosenRatio.aspect > 0
+      ? chosenRatio.aspect
+      : frame?.frameAspect || preset.aspect;
 
   const viewport = useMemo(() => {
     if (!stage.width || !stage.height) return { width: 0, height: 0 };
@@ -166,13 +174,14 @@ export function ImageCropModal({
     [frame, viewport]
   );
 
-  // Center once per upload; later resizes keep the user's framing.
+  // Re-center on a new upload or a ratio change; plain resizes keep the framing.
+  const frameKey = frame ? `${frame.width}x${frame.height}@${frameAspect.toFixed(4)}` : '';
   useEffect(() => {
-    if (!frame || viewport.width <= 0 || framedRef.current === frame) return;
-    framedRef.current = frame;
+    if (!frame || viewport.width <= 0 || framedRef.current === frameKey) return;
+    framedRef.current = frameKey;
     setZoom(1);
     setPan(centerPan(1));
-  }, [frame, viewport.width, centerPan]);
+  }, [frame, frameKey, viewport.width, centerPan]);
 
   const applyZoom = (nextZoom) => {
     if (!frame || !display) return;
@@ -337,6 +346,22 @@ export function ImageCropModal({
         </div>
 
         <div className="bb-image-crop-toolbar">
+          {ratioOptions ? (
+            <div className="bb-image-crop-ratios" role="group" aria-label="Aspect ratio">
+              {ratioOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`bb-image-crop-ratio${ratioId === option.id ? ' is-active' : ''}`}
+                  aria-pressed={ratioId === option.id}
+                  disabled={busy || !frame}
+                  onClick={() => setRatioId(option.id)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
           <label className="bb-image-crop-zoom">
             <ZoomOut size={15} strokeWidth={2.2} aria-hidden="true" />
             <input

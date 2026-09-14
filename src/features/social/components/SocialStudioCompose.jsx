@@ -1,22 +1,24 @@
-import { Clapperboard, ImagePlus, Type } from 'lucide-react';
+import { ChevronRight, Clapperboard, ImagePlus, Type } from 'lucide-react';
+import { MAX_MEDIA } from '../utils/mediaIntake';
+import { formatDurationLabel, POST_CLIP_MAX_SECONDS } from '../utils/socialPostType';
 
 export const BLOG_CREATE_ACTIONS = [
   {
     id: 'posts',
     label: 'New post',
-    hint: 'Photos + clips ≤1m',
+    hint: `Up to ${MAX_MEDIA} photos or clips to ${formatDurationLabel(POST_CLIP_MAX_SECONDS)}`,
     Icon: ImagePlus
   },
   {
     id: 'videos',
     label: 'New video',
-    hint: 'Any length · YT flow',
+    hint: 'Any length · pick a cover frame last',
     Icon: Clapperboard
   },
   {
     id: 'text',
     label: 'New text update',
-    hint: 'Short note',
+    hint: 'A quick note, no media needed',
     Icon: Type
   }
 ];
@@ -31,7 +33,7 @@ export function SocialStudioCompose({ onOpenCreate }) {
         <p className="bb-social-studio-create-eyebrow">Publish</p>
         <h2 className="bb-social-studio-create-title">Add to Content</h2>
         <p className="bb-social-studio-create-lede">
-          Posts mix photos and clips up to 1 minute. Longer films go in Videos. Text feels like X.
+          Posts mix photos and clips up to a minute. Longer films go in Videos. Text feels like X.
         </p>
       </div>
       <div className="bb-social-studio-create-actions">
@@ -48,6 +50,9 @@ export function SocialStudioCompose({ onOpenCreate }) {
             <span className="bb-social-studio-create-btn-copy">
               <strong>{label}</strong>
               <span>{hint}</span>
+            </span>
+            <span className="bb-social-studio-create-btn-go" aria-hidden="true">
+              <ChevronRight size={16} strokeWidth={2.4} />
             </span>
           </button>
         ))}
