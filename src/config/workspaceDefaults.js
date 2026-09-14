@@ -1,9 +1,9 @@
 export const DEFAULT_HOME_SECTION_ORDER = [
   'about',
   'gallery',
+  'faq',
   'reviews',
-  'map',
-  'faq'
+  'map'
 ];
 
 export const createDefaultHomeSections = () => ({
@@ -63,11 +63,11 @@ export const createDefaultSettings = () => ({
     buySubtext: 'Order products from this business.',
     socialHeadline: 'Content',
     socialSubtext: 'Updates from the business.',
-    aboutTitle: 'About',
+    aboutTitle: 'About us',
     aboutEyebrow: 'About',
     aboutBody: 'Tell clients who you are and what makes your business special.',
     aboutImageUrl: '',
-    reasonsTitle: 'Why choose us',
+    reasonsTitle: 'What we offer',
     reasonsEyebrow: 'The craft',
     reasons: [
       { id: 'r1', title: 'Expert team', body: 'Skilled people who care about the result.' },
@@ -77,12 +77,14 @@ export const createDefaultSettings = () => ({
     venueTitle: 'Gallery',
     venueEyebrow: 'Gallery',
     venueImages: [],
-    mapTitle: 'Location',
+    mapTitle: 'Visit',
     mapEyebrow: 'Find us',
     address: '',
     mapEmbedUrl: '',
     mapLinkUrl: '',
     googlePlaceId: '',
+    googleReviewsEnabled: null,
+    googleReviewsSyncedAt: '',
     reviewsTitle: 'Reviews',
     reviewsEyebrow: 'Reviews',
     reviews: [],

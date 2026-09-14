@@ -24,6 +24,7 @@ export const callableNames = {
   createPublicProductOrder: "createPublicProductOrder",
   getPublicPaymentOptions: "getPublicPaymentOptions",
   getPublicServiceAvailability: "getPublicServiceAvailability",
+  getGooglePlaceReviews: "getGooglePlaceReviews",
   initiatePayment: "initiatePayment",
   confirmPaymentReturn: "confirmPaymentReturn",
   disconnectPaymentGateway: "disconnectPaymentGateway",

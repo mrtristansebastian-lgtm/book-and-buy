@@ -53,15 +53,19 @@ export function VenueSection({
           <header className="bb-public-profile-section-head">
             <EditableText
               as="h2"
-              className="bb-public-profile-section-title bb-public-venue-title"
+              className="bb-public-profile-heading bb-public-venue-title"
               editMode={editMode}
               value={website.venueTitle || 'Gallery'}
-              placeholder="Gallery title"
+              placeholder="Gallery"
               onChange={(value) => patchWebsite({ venueTitle: value })}
             />
           </header>
 
-          <div className="bb-public-venue-grid">
+          <div
+            className="bb-public-venue-grid bb-public-venue-rail"
+            role="list"
+            aria-label="Gallery photos"
+          >
             {venueImages.length === 0 && editMode ? (
               <p className="bb-edit-section-coach m-0">Add photos to your gallery.</p>
             ) : null}
@@ -70,6 +74,7 @@ export function VenueSection({
               return (
                 <figure
                   key={image.id}
+                  role="listitem"
                   className={`bb-public-venue-card${canOpen ? ' is-openable' : ''}`}
                   style={{ '--bb-venue-i': index }}
                 >

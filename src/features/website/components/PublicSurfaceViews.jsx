@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
 import { SocialFeed } from '../../social/components/SocialFeed';
-import { PublicCatalogDetail } from '../../storefront/components/PublicCatalogDetail';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
-import { PublicPageIntro } from '../../public-surface/PublicPageIntro';
 import {
   AboutSection,
   FaqSection,
+  HeroSection,
   MapSection,
   ProfileIdentitySection,
   ReviewsSection,
@@ -45,8 +44,16 @@ function pageEnabled(website, pageId) {
   return true;
 }
 
+function normalizeRailTab(value) {
+  const id = String(value || 'home').trim().toLowerCase();
+  if (id === 'social' || id === 'content') return 'content';
+  if (id === 'book' || id === 'buy' || id === 'home') return id;
+  return 'home';
+}
+
 export function PublicHomeView({
   workspace,
+  railTab = 'home',
   preview = false,
   editMode = false,
   publicMode = false,
@@ -60,6 +67,7 @@ export function PublicHomeView({
   const venueImages = website.venueImages || [];
   const reviews = website.reviews || [];
   const products = workspace.products || [];
+  const requestedTab = normalizeRailTab(railTab);
 
   const patchWebsite = (patch) => onUpdateWebsite?.(patch);
 
@@ -81,18 +89,29 @@ export function PublicHomeView({
     (tab) => pageEnabled(website, tab.id) || editMode
   );
   const tabKey = tabs.map((tab) => tab.id).join('|');
-  const [activeTab, setActiveTab] = useState(tabs[0]?.id || 'home');
+  const [activeTab, setActiveTab] = useState(() =>
+    tabs.some((tab) => tab.id === requestedTab) ? requestedTab : tabs[0]?.id || 'home'
+  );
 
   useEffect(() => {
     if (!tabKey) return;
     const ids = tabKey.split('|');
-    if (!ids.includes(activeTab)) {
-      setActiveTab(ids[0]);
-    }
-  }, [activeTab, tabKey]);
+    const next = ids.includes(requestedTab) ? requestedTab : ids[0];
+    setActiveTab(next);
+  }, [requestedTab, tabKey]);
 
   const homeSections = (
     <div className="bb-public-profile-home-stack">
+      <HeroSection
+        key="hero"
+        workspace={workspace}
+        website={website}
+        editMode={editMode}
+        preview={preview}
+        patchWebsite={patchWebsite}
+        onUpdateProfile={onUpdateProfile}
+        onOpenRailTab={setActiveTab}
+      />
       {order.map((id) => {
         if (id === 'about') {
           return (
@@ -167,7 +186,15 @@ export function PublicHomeView({
 
   if (activeTab === 'content') {
     panel = (
-      <div className="bb-public-profile-panel" role="tabpanel">
+      <div className="bb-public-profile-panel bb-public-profile-panel--content" role="tabpanel">
+        <ProfileIdentitySection
+          workspace={workspace}
+          website={website}
+          editMode={editMode}
+          preview={preview}
+          patchWebsite={patchWebsite}
+          onUpdateProfile={onUpdateProfile}
+        />
         <SocialFeed
           workspace={workspace}
           preview={preview}
@@ -228,17 +255,8 @@ export function PublicHomeView({
   return (
     <div className="bb-public-home-stack bb-public-profile">
       <div className="bb-public-profile-rail">
-        <ProfileIdentitySection
-          workspace={workspace}
-          website={website}
-          editMode={editMode}
-          preview={preview}
-          patchWebsite={patchWebsite}
-          onUpdateProfile={onUpdateProfile}
-        />
-
         {tabs.length ? (
-          <nav className="bb-public-profile-tabs" role="tablist" aria-label="Profile">
+          <nav className="bb-public-profile-tabs bb-public-profile-tabs--top" role="tablist" aria-label="Profile">
             {tabs.map((tab) => {
               const active = activeTab === tab.id;
               return (
@@ -261,134 +279,4 @@ export function PublicHomeView({
       </div>
     </div>
   );
-}
-
-export function PublicBookView({
-  workspace,
-  itemId = '',
-  preview = false,
-  editMode = false,
-  publicMode = false,
-  onUpdateWebsite
-}) {
-  const website = workspace.website || {};
-
-  if (itemId) {
-    const service =
-      (workspace.services || []).find(
-        (row) => row.id === itemId && row.active !== false
-      ) || null;
-    return (
-      <PublicCatalogDetail
-        kind="service"
-        item={service}
-        workspace={workspace}
-        workspaceName={workspace.brandName}
-        slug={workspace.slug}
-        preview={preview || editMode}
-        publicMode={publicMode}
-      />
-    );
-  }
-
-  return (
-    <div className={`bb-public-book ${preview || editMode ? 'bb-public-preview-flow' : ''}`}>
-      <div className="bb-public-book-main bb-public-gutter">
-        <div className="bb-public-measure-wide grid gap-6">
-          <PublicPageIntro
-            title={website.bookHeadline || 'Book'}
-            body={website.bookSubtext || ''}
-            editMode={editMode}
-            titlePlaceholder="Book title"
-            bodyPlaceholder="Book supporting text"
-            onTitleChange={(value) => onUpdateWebsite?.({ bookHeadline: value })}
-            onBodyChange={(value) => onUpdateWebsite?.({ bookSubtext: value })}
-          />
-          <PublicBookingFlow
-            catalogWorkspace={workspace}
-            workspaceName={workspace.brandName}
-            hideTitle
-            preview={preview || editMode}
-            publicMode={publicMode}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function PublicBuyView({
-  workspace,
-  itemId = '',
-  preview = false,
-  editMode = false,
-  publicMode = false,
-  onUpdateWebsite
-}) {
-  const website = workspace.website || {};
-  const products = workspace.products || [];
-
-  if (itemId) {
-    const product =
-      products.find((row) => row.id === itemId && row.active !== false) || null;
-    return (
-      <PublicCatalogDetail
-        kind="product"
-        item={product}
-        workspace={workspace}
-        workspaceName={workspace.brandName}
-        slug={workspace.slug}
-        preview={preview || editMode}
-        publicMode={publicMode}
-      />
-    );
-  }
-
-  return (
-    <div className={`bb-public-buy ${preview || editMode ? 'bb-public-preview-flow' : ''}`}>
-      <div className="bb-public-gutter">
-        <div className="bb-public-measure-wide grid gap-6">
-          <PublicPageIntro
-            title={website.buyHeadline || 'Buy'}
-            body={website.buySubtext || ''}
-            editMode={editMode}
-            titlePlaceholder="Buy title"
-            bodyPlaceholder="Buy supporting text"
-            onTitleChange={(value) => onUpdateWebsite?.({ buyHeadline: value })}
-            onBodyChange={(value) => onUpdateWebsite?.({ buySubtext: value })}
-          />
-          {editMode ? (
-            <label className="grid gap-1 text-xs font-semibold max-w-md">
-              Featured product
-              <select
-                className="native-control-input px-3 py-2 text-sm"
-                value={website.featuredProductId || ''}
-                onChange={(event) =>
-                  onUpdateWebsite?.({ featuredProductId: event.target.value })
-                }
-              >
-                <option value="">None</option>
-                {products.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name || product.title || product.id}
-                  </option>
-                ))}
-              </select>
-            </label>
-          ) : null}
-        </div>
-      </div>
-      <PublicStorefront
-        catalogWorkspace={workspace}
-        workspaceName={workspace.brandName}
-        preview={preview || editMode}
-        featuredProductId={website.featuredProductId}
-        publicMode={publicMode}
-      />
-    </div>
-  );
-}
-
-export function PublicSocialView(props) {
-  return <SocialFeed {...props} />;
 }

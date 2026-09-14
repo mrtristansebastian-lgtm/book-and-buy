@@ -5,6 +5,7 @@
 import { initializeApp } from 'firebase-admin/app';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onRequest } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
 import {
   getPublicPaymentOptions as getPublicPaymentOptionsHelper,
   saveAndVerifyPaymentGateway,
@@ -17,8 +18,11 @@ import {
 } from './payments/index.js';
 import { createPublicProductOrder as createPublicProductOrderHelper } from './orders.js';
 import { buildPublicAvailability } from './availability.js';
+import { fetchPlaceReviews } from './places.js';
 
 initializeApp();
+
+const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 
@@ -93,6 +97,18 @@ export const createPublicProductOrder = onCall(async (request) => {
 export const getPublicServiceAvailability = onCall(async (request) => {
   try {
     return buildPublicAvailability(request.data || {});
+  } catch (error) {
+    wrapError(error);
+  }
+});
+
+export const getGooglePlaceReviews = onCall({ secrets: [googlePlacesApiKey] }, async (request) => {
+  try {
+    requireAuth(request);
+    return await fetchPlaceReviews({
+      placeId: request.data?.placeId,
+      apiKey: googlePlacesApiKey.value()
+    });
   } catch (error) {
     wrapError(error);
   }

@@ -1,25 +1,17 @@
-import { navigate, publicPagePath } from '../../../../app/routing';
 import { EditableText, EditableImage, EditSection } from '../editable';
 
 const DEFAULT_HERO = '/example/flour-and-flame/hero.webp';
-
-function go(preview, editMode, path) {
-  if (preview || editMode) return;
-  navigate(path);
-}
 
 export function HeroSection({
   workspace,
   website,
   editMode,
   preview,
-  patchWebsite
+  patchWebsite,
+  onUpdateProfile,
+  onOpenRailTab
 }) {
-  const headline =
-    website.homeHeadline ||
-    website.headline ||
-    workspace.brandName ||
-    'Business';
+  const brandName = String(workspace.brandName || 'Business').trim() || 'Business';
   const body =
     website.homeSubtext ||
     website.subcopy ||
@@ -27,8 +19,18 @@ export function HeroSection({
     '';
   const heroSrc = website.heroImageUrl || website.heroImage || DEFAULT_HERO;
 
+  const openRail = (tabId) => {
+    if (preview || editMode) return;
+    onOpenRailTab?.(tabId);
+  };
+
   return (
-    <EditSection editMode={editMode} title="Hero" sectionId="hero" className="bb-public-home relative">
+    <EditSection
+      editMode={editMode}
+      title="Hero"
+      sectionId="hero"
+      className="bb-public-home relative bb-public-profile-hero"
+    >
       <div className="absolute inset-0 bb-public-home-atmosphere" aria-hidden="true" />
       <EditableImage
         editMode={editMode}
@@ -47,11 +49,13 @@ export function HeroSection({
             as="h1"
             className="bb-public-home-brand"
             editMode={editMode}
-            value={headline}
-            placeholder="Hero headline"
-            onChange={(value) =>
-              patchWebsite({ homeHeadline: value, headline: value })
-            }
+            value={brandName}
+            placeholder="Business name"
+            onChange={(value) => {
+              const next = String(value || '').trim() || 'Business';
+              onUpdateProfile?.({ brandName: next });
+              patchWebsite({ homeHeadline: next, headline: next });
+            }}
           />
           <EditableText
             as="p"
@@ -68,12 +72,12 @@ export function HeroSection({
             <button
               type="button"
               className="bb-primary-btn"
-              onClick={() => go(preview, editMode, publicPagePath(workspace.slug, 'book'))}
+              onClick={() => openRail('book')}
             >
               <EditableText
                 as="span"
                 editMode={editMode}
-                value={website.ctaLabel || 'Book now'}
+                value={website.ctaLabel || 'Book'}
                 placeholder="Book CTA"
                 onChange={(value) => patchWebsite({ ctaLabel: value })}
               />
@@ -81,7 +85,7 @@ export function HeroSection({
             <button
               type="button"
               className="bb-ghost-btn bb-public-home-ghost"
-              onClick={() => go(preview, editMode, publicPagePath(workspace.slug, 'buy'))}
+              onClick={() => openRail('buy')}
             >
               <EditableText
                 as="span"

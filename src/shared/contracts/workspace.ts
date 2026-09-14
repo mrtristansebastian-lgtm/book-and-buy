@@ -224,6 +224,8 @@ export interface WebsiteSettings {
   mapEmbedUrl?: string;
   mapLinkUrl?: string;
   googlePlaceId?: string;
+  googleReviewsEnabled?: boolean | null;
+  googleReviewsSyncedAt?: string;
   reviewsTitle?: string;
   reviewsEyebrow?: string;
   reviews?: WebsiteReview[];
@@ -237,7 +239,7 @@ export interface WebsiteSettings {
   bookFaqEyebrow?: string;
   bookFaq?: WebsiteFaqItem[];
   featuredProductId?: string;
-  /** Home profile modules: about, gallery, reviews, map, faq (legacy: reasons, venue, offer). */
+  /** Home profile modules: about, gallery, faq, reviews, map (legacy: reasons, venue, offer). */
   sections?: Record<string, boolean>;
   /** Preferred order; Home currently uses createDefaultHomeSectionOrder(). */
   sectionOrder?: string[];

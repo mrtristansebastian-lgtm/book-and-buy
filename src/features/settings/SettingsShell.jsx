@@ -11,6 +11,7 @@ import {
   Settings2,
   Shield,
   ShoppingCart,
+  Star,
   Store,
   Users,
   WalletCards
@@ -31,6 +32,7 @@ import { BookingsSettingsPage } from './pages/BookingsSettingsPage';
 import { CheckoutSettingsPage } from './pages/CheckoutSettingsPage';
 import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
 import { LocationsSettingsPage } from './pages/LocationsSettingsPage';
+import { ReviewsSettingsPage } from './pages/ReviewsSettingsPage';
 import { DomainsSettingsPage } from './pages/DomainsSettingsPage';
 import { PoliciesSettingsPage } from './pages/PoliciesSettingsPage';
 import { AccountSettingsPage } from './pages/AccountSettingsPage';
@@ -45,6 +47,7 @@ const ICONS = {
   checkout: ShoppingCart,
   notifications: Bell,
   locations: MapPin,
+  reviews: Star,
   domains: Globe2,
   policies: Shield,
   account: Lock
@@ -86,6 +89,10 @@ const COPY = {
   locations: {
     title: 'Locations',
     lede: 'Your primary venue address and map.'
+  },
+  reviews: {
+    title: 'Reviews',
+    lede: 'Sync Google Place reviews onto your public Home.'
   },
   domains: {
     title: 'Domains',
@@ -137,6 +144,7 @@ export function SettingsShell({ section: sectionProp }) {
   else if (section === 'checkout') body = <CheckoutSettingsPage />;
   else if (section === 'notifications') body = <NotificationsSettingsPage />;
   else if (section === 'locations') body = <LocationsSettingsPage />;
+  else if (section === 'reviews') body = <ReviewsSettingsPage />;
   else if (section === 'domains') body = <DomainsSettingsPage />;
   else if (section === 'policies') body = <PoliciesSettingsPage />;
   else if (section === 'account') body = <AccountSettingsPage />;

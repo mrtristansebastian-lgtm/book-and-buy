@@ -2,6 +2,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from './client';
+import { firebaseCallables } from './callables';
 import { saveOwnerWorkspaceToFirestore } from './ownerWorkspace';
 import { publicWorkspacePath } from './paths';
 import { buildPublicWorkspaceSnapshot } from './publicSnapshot';
@@ -158,7 +159,7 @@ export async function uploadChatAttachment(
   };
 }
 
-/** Placeholder until a Places callable + API key ship. */
+/** Fetch Google Place reviews via authenticated Cloud Function (owner sync). */
 export async function fetchGooglePlaceReviews(placeId: string) {
   const id = String(placeId || '').trim();
   if (!id) {
@@ -168,14 +169,39 @@ export async function fetchGooglePlaceReviews(placeId: string) {
     return {
       ok: false as const,
       reviews: [],
-      reason: 'Google Places reviews need Firebase + a Places API key (next deploy).'
+      reason: 'Connect Firebase and deploy getGooglePlaceReviews to sync Places reviews.'
     };
   }
-  return {
-    ok: false as const,
-    reviews: [],
-    reason: 'Places reviews callable is not deployed yet. Keep curated reviews for now.'
-  };
+  try {
+    const result = await firebaseCallables.getGooglePlaceReviews({ placeId: id });
+    const reviews = Array.isArray(result?.reviews) ? result.reviews : [];
+    if (!reviews.length) {
+      return {
+        ok: false as const,
+        reviews: [],
+        reason: 'No Google reviews returned for this Place ID.'
+      };
+    }
+    return {
+      ok: true as const,
+      reviews: reviews.map((item, index) => ({
+        id: item.id || `gplace-${Date.now()}-${index}`,
+        quote: String(item.quote || '').trim(),
+        name: String(item.name || 'Google reviewer').trim(),
+        rating: Math.max(0, Math.min(5, Number(item.rating) || 5))
+      })),
+      placeName: result.placeName,
+      rating: result.rating
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Could not fetch Google reviews.';
+    return {
+      ok: false as const,
+      reviews: [],
+      reason: message
+    };
+  }
 }
 
 export function buildGoogleCalendarUrl({

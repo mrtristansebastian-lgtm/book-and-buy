@@ -17,10 +17,10 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
           <header className="bb-public-profile-section-head">
             <EditableText
               as="h2"
-              className="bb-public-profile-section-title"
+              className="bb-public-profile-heading bb-public-faq-title"
               editMode={editMode}
               value={website.bookFaqTitle || 'FAQ'}
-              placeholder="FAQ title"
+              placeholder="FAQ"
               onChange={(value) => patchWebsite({ bookFaqTitle: value })}
             />
           </header>

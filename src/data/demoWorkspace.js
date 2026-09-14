@@ -964,7 +964,7 @@ export function createDemoWorkspace() {
         offer: false,
         bookStrip: false
       },
-      sectionOrder: ['about', 'gallery', 'reviews', 'map', 'faq'],
+      sectionOrder: ['about', 'gallery', 'faq', 'reviews', 'map'],
       headline: 'Cook Bold. Bake Beautifully.',
       subcopy:
         'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
@@ -983,12 +983,12 @@ export function createDemoWorkspace() {
       buySubtext: 'Bread boxes, pasta kits, and studio notes ready to order.',
       socialHeadline: 'From the studio',
       socialSubtext: 'Posts, clips, and notes from Flour & Flame.',
-      aboutTitle: 'A working teaching kitchen',
+      aboutTitle: 'About us',
       aboutEyebrow: 'About',
       aboutBody:
         'Flour & Flame is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
       aboutImageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
-      reasonsTitle: 'Why cook with us',
+      reasonsTitle: 'What we offer',
       reasonsEyebrow: 'The craft',
       reasons: [
         {
@@ -1032,7 +1032,7 @@ export function createDemoWorkspace() {
         }
       ],
       address: '12 Woodstock Kitchen Lane, Cape Town',
-      mapTitle: 'Location',
+      mapTitle: 'Visit',
       mapEyebrow: 'Find us',
       mapEmbedUrl:
         'https://maps.google.com/maps?q=Woodstock%2C%20Cape%20Town&t=&z=14&ie=UTF8&iwloc=&output=embed',
@@ -1336,7 +1336,9 @@ export function hydrateDemoWorkspace(stored) {
         bookFaq: fresh.website.bookFaq,
         sections: {
           ...fresh.website.sections,
-          offer: true,
+          about: true,
+          reasons: false,
+          offer: false,
           bookStrip: false
         },
         sectionOrder: fresh.website.sectionOrder,

@@ -847,50 +847,98 @@
 
 .bb-public-catalog-tools {
   display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  justify-content: center;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.55rem 0.75rem;
   min-width: 0;
-  margin-inline: auto;
+  width: 100%;
+  margin-inline: 0;
 }
 
 .bb-public-catalog-tools .bb-ink-btn {
+  flex: 0 0 auto;
   align-self: stretch;
-  padding: 0.75rem 1.15rem;
-  font-size: 0.875rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
   line-height: 1.25;
   box-sizing: border-box;
 }
 
 .bb-public-catalog-tabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: stretch;
   min-width: 0;
-}
-
-.bb-public-catalog-tabs .bb-segment {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  width: auto;
+  flex: 1 1 auto;
   max-width: 100%;
-  height: 100%;
-  padding: 0.2rem;
-  box-sizing: border-box;
 }
 
-.bb-public-catalog-tabs .bb-segment button {
+.bb-public-catalog-tabs-rail {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0.1rem 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-public-catalog-tabs-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-public-catalog-tab {
+  appearance: none;
+  position: relative;
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1.05rem;
-  font-family: Inter, Figtree, sans-serif;
-  font-size: 0.875rem;
-  font-weight: 680;
-  line-height: 1.25;
-  box-sizing: border-box;
+  min-height: 2.35rem;
+  margin: 0;
+  padding: 0.45rem 0.85rem;
+  border: 0;
+  background: transparent;
+  color: #98a2b3;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 720;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.bb-public-catalog-tab:hover {
+  color: #475467;
+}
+
+.bb-public-catalog-tab.is-active {
+  color: #101828;
+}
+
+.bb-public-catalog-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 999px;
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+}
+
+.bb-public-catalog-tab:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.25);
+  outline-offset: 2px;
 }
 
 /* Social — Instagram-style profile + feed */
@@ -2835,8 +2883,78 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   font-size: 1.55rem;
 }
 
-.bb-device-preview--phone .bb-public-venue-grid {
-  grid-template-columns: 1fr !important;
+.bb-device-preview--phone .bb-public-venue-grid,
+.bb-device-preview--phone .bb-public-profile .bb-public-venue-grid {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  grid-template-columns: none !important;
+  gap: 0.65rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  scroll-padding-inline: 1rem !important;
+  padding-inline: 1rem !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.bb-device-preview--phone .bb-public-venue-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-device-preview--phone .bb-public-profile .bb-public-venue-card {
+  flex: 0 0 78% !important;
+  width: 78% !important;
+  max-width: 15.5rem !important;
+  border-radius: 0.8rem !important;
+  scroll-snap-align: start !important;
+}
+
+.bb-device-preview--phone .bb-public-profile .bb-public-venue-open,
+.bb-device-preview--phone .bb-public-profile .bb-public-venue-media {
+  aspect-ratio: 4 / 5 !important;
+  border-radius: 0.8rem !important;
+}
+
+.bb-device-preview--phone .bb-public-profile-card {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas: 'avatar' 'main' 'aside' !important;
+  justify-items: center !important;
+  text-align: center !important;
+  row-gap: 0.85rem !important;
+  column-gap: 0 !important;
+}
+
+.bb-device-preview--phone .bb-public-profile-main {
+  justify-items: center !important;
+  text-align: center !important;
+}
+
+.bb-device-preview--phone .bb-public-profile-name {
+  text-align: center !important;
+  max-width: 16ch !important;
+  font-size: 1.45rem !important;
+  line-height: 1.12 !important;
+}
+
+.bb-device-preview--phone .bb-public-profile-meta {
+  justify-content: center !important;
+}
+
+.bb-device-preview--phone .bb-public-profile-bio {
+  text-align: center !important;
+}
+
+.bb-device-preview--phone .bb-public-profile-aside {
+  justify-content: center !important;
+  max-width: 14rem !important;
+  width: 100% !important;
+  margin-inline: auto !important;
+}
+
+.bb-device-preview--phone .bb-public-profile-avatar-wrap {
+  width: 5rem !important;
+  height: 5rem !important;
 }
 
 .bb-device-preview--phone .bb-public-map-frame-accent {
@@ -3072,9 +3190,9 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   align-items: stretch;
 }
 
-.bb-device-preview--phone .bb-public-catalog-tabs .bb-segment button {
-  font-size: 0.8rem;
-  padding: 0 0.85rem;
+.bb-device-preview--phone .bb-public-catalog-tab {
+  font-size: 0.64rem;
+  padding: 0.4rem 0.7rem;
 }
 
 .bb-device-preview--phone .bb-public-cart-row {
@@ -3516,7 +3634,7 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
   .bb-public-profile-rail {
     width: 100%;
-    border-block: 1px solid rgba(15, 23, 42, 0.06);
+    border-block: 0;
     background: #fff;
   }
 }
@@ -3534,16 +3652,19 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-profile-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    'avatar main'
-    'aside aside';
-  align-items: center;
-  column-gap: 0.9rem;
+    'avatar'
+    'main'
+    'aside';
+  justify-items: center;
+  align-items: start;
+  column-gap: 0;
   row-gap: 0.85rem;
-  padding: 1.05rem var(--bb-public-gutter, 1.25rem) 1.15rem;
+  padding: 1.25rem var(--bb-public-gutter, 1.25rem) 1.2rem;
   background: #fff;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  text-align: center;
 }
 
 .bb-public-profile-avatar-ring {
@@ -3551,41 +3672,60 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   flex: 0 0 auto;
   padding: 0;
   border-radius: 999px;
-  align-self: start;
+  align-self: center;
+  justify-self: center;
 }
 
 .bb-public-profile-main {
   grid-area: main;
   display: grid;
-  gap: 0.28rem;
+  gap: 0.35rem;
   min-width: 0;
-  justify-items: start;
-  align-content: center;
+  width: 100%;
+  justify-items: center;
+  align-content: start;
+  text-align: center;
 }
 
 .bb-public-profile-aside {
   grid-area: aside;
   display: flex;
-  justify-content: stretch;
+  justify-content: center;
+  width: 100%;
+  max-width: 16rem;
+  margin-inline: auto;
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 720px) {
   .bb-public-profile-card {
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: 'avatar main aside';
+    justify-items: stretch;
     column-gap: 1.15rem;
+    row-gap: 0;
     align-items: center;
     padding-top: 1.35rem;
     padding-bottom: 1.35rem;
+    text-align: left;
   }
 
   .bb-public-profile-avatar-ring {
     align-self: center;
+    justify-self: start;
+  }
+
+  .bb-public-profile-main {
+    justify-items: start;
+    text-align: left;
   }
 
   .bb-public-profile-aside {
     justify-content: flex-end;
     align-self: center;
+    max-width: none;
+    margin-inline: 0;
   }
 
   .bb-public-profile-avatar-wrap {
@@ -3596,8 +3736,8 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-profile-avatar-wrap {
   flex: 0 0 auto;
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 5.25rem;
+  height: 5.25rem;
 }
 
 .bb-public-profile-avatar {
@@ -3630,32 +3770,37 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   display: block;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-weight: 820;
-  letter-spacing: -0.045em;
-  line-height: 1.05;
-  font-size: clamp(1.45rem, 2.8vw, 2.05rem);
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  font-size: clamp(1.35rem, 5.2vw, 1.85rem);
   color: #101828;
-  text-align: left;
-  max-width: min(28ch, 100%);
+  text-align: center;
+  max-width: 18ch;
   visibility: visible;
   opacity: 1;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .bb-public-profile-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem 0.45rem;
-  margin-top: 0.05rem;
+  justify-content: center;
+  gap: 0.3rem 0.45rem;
+  margin-top: 0.1rem;
+  max-width: 22rem;
 }
 
 .bb-public-profile-category,
 .bb-public-profile-location {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 650;
   letter-spacing: 0.01em;
-  line-height: 1.3;
+  line-height: 1.35;
   color: #667085;
 }
 
@@ -3671,36 +3816,53 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-profile-bio {
-  margin: 0.35rem 0 0;
-  max-width: 42rem;
+  margin: 0.45rem 0 0;
+  max-width: 28rem;
   font-size: 0.9rem;
-  line-height: 1.45;
+  line-height: 1.5;
   font-weight: 500;
   color: #344054;
-  text-align: left;
+  text-align: center;
   white-space: pre-wrap;
 }
 
 .bb-public-profile-action {
   width: 100%;
   justify-content: center;
-  min-height: 2.35rem;
-  border-radius: 0.7rem;
-  font-size: 0.82rem;
+  min-height: 2.45rem;
+  border-radius: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 720;
-  padding-inline: 0.55rem;
+  padding-inline: 1rem;
 }
 
 .bb-public-profile-action--compact {
   width: 100%;
-  min-width: 7.5rem;
-  min-height: 2.35rem;
-  padding-inline: 1.15rem;
+  min-width: 0;
+  min-height: 2.45rem;
+  padding-inline: 1.25rem;
 }
 
 @media (min-width: 720px) {
+  .bb-public-profile-name {
+    text-align: left;
+    max-width: min(28ch, 100%);
+    font-size: clamp(1.45rem, 2.8vw, 2.05rem);
+    line-height: 1.05;
+  }
+
+  .bb-public-profile-meta {
+    justify-content: flex-start;
+  }
+
+  .bb-public-profile-bio {
+    text-align: left;
+    margin-top: 0.35rem;
+  }
+
   .bb-public-profile-action--compact {
     width: auto;
+    min-width: 7.5rem;
   }
 }
 
@@ -3712,15 +3874,20 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-profile-tabs {
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 20;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   width: 100%;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  border-top: 0;
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+.bb-public-profile-tabs--top {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
 }
 
 .bb-public-profile-tab {
@@ -3809,6 +3976,32 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   width: 100%;
 }
 
+.bb-public-profile-panel--content {
+  display: grid;
+  gap: 0;
+  width: 100%;
+}
+
+.bb-public-profile-panel--content .bb-public-profile-identity {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-public-profile .bb-public-profile-hero.bb-public-home {
+  min-height: clamp(22rem, calc(100dvh - 3.25rem), 34rem);
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+.bb-public-profile .bb-public-profile-hero .bb-public-home-copy {
+  padding-top: clamp(2.5rem, 8vh, 4rem);
+  padding-bottom: clamp(2rem, 6vh, 3.25rem);
+}
+
+.bb-public-profile-home-stack > .bb-public-profile-hero {
+  border-bottom: 0;
+}
+
 .bb-public-profile-featured {
   margin: 0 0 0.85rem;
   max-width: 18rem;
@@ -3830,14 +4023,13 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-profile-section-head {
-  margin: 0 0 0.75rem;
+  margin: 0 0 1rem;
+  text-align: center;
 }
 
 .bb-public-profile .bb-public-profile-section-title,
 .bb-public-profile .bb-public-about-title,
-.bb-public-profile .bb-public-venue-title,
-.bb-public-profile .bb-public-reviews-title,
-.bb-public-profile .bb-public-visit-title {
+.bb-public-profile .bb-public-about-offer-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.68rem;
@@ -3847,7 +4039,24 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   line-height: 1.2;
   color: #98a2b3;
   max-width: none;
-  text-align: left;
+  text-align: center;
+}
+
+.bb-public-profile .bb-public-profile-heading,
+.bb-public-profile .bb-public-venue-title,
+.bb-public-profile .bb-public-reviews-title,
+.bb-public-profile .bb-public-visit-title,
+.bb-public-profile .bb-public-faq-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  font-weight: 820;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: #101828;
+  text-transform: none;
+  max-width: none;
+  text-align: center;
 }
 
 .bb-public-profile .bb-public-home-block,
@@ -3865,12 +4074,135 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-profile .bb-public-gallery-block {
-  padding-left: 0;
-  padding-right: 0;
+  padding: 1.35rem 0 1.5rem;
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head {
   padding-inline: var(--bb-public-gutter, 1.25rem);
+  margin-bottom: 0.85rem;
+}
+
+.bb-public-profile .bb-public-venue-shell {
+  display: grid;
+  gap: 0;
+}
+
+/* Mobile: horizontal slide rail */
+.bb-public-profile .bb-public-venue-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.7rem;
+  max-width: none;
+  margin: 0;
+  width: 100%;
+  align-items: stretch;
+  padding-inline: var(--bb-public-gutter, 1.25rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--bb-public-gutter, 1.25rem);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.bb-public-profile .bb-public-venue-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-public-profile .bb-public-venue-card {
+  animation: none;
+  margin: 0;
+  flex: 0 0 min(78vw, 17.5rem);
+  width: min(78vw, 17.5rem);
+  max-width: 17.5rem;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: #eef2f6;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.bb-public-profile .bb-public-venue-open,
+.bb-public-profile .bb-public-venue-media {
+  border-radius: 0.85rem;
+  box-shadow: none;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  height: auto;
+}
+
+.bb-public-profile .bb-public-venue-open {
+  display: block;
+  width: 100%;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.bb-public-profile .bb-public-venue-open:hover {
+  transform: none;
+  filter: none;
+}
+
+.bb-public-profile .bb-public-venue-media {
+  margin: 0;
+  background: #eef2f6;
+}
+
+.bb-public-profile .bb-public-venue-img,
+.bb-public-profile .bb-public-venue-media img {
+  aspect-ratio: auto;
+  transition: transform 0.35s ease;
+}
+
+.bb-public-profile .bb-public-venue-open:active .bb-public-venue-img,
+.bb-public-profile .bb-public-venue-open:active .bb-public-venue-media img {
+  transform: scale(1.02);
+}
+
+@media (min-width: 768px) {
+  .bb-public-profile .bb-public-venue-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.45rem;
+    overflow: visible;
+    scroll-snap-type: none;
+    padding-inline: var(--bb-public-gutter, 1.25rem);
+  }
+
+  .bb-public-profile .bb-public-venue-card {
+    flex: none;
+    width: auto;
+    max-width: none;
+    border-radius: 0.55rem;
+    scroll-snap-align: none;
+  }
+
+  .bb-public-profile .bb-public-venue-open,
+  .bb-public-profile .bb-public-venue-media {
+    border-radius: 0.55rem;
+    aspect-ratio: 1;
+  }
+
+  .bb-public-profile .bb-public-venue-open:hover {
+    transform: scale(1.015);
+    filter: brightness(1.03);
+  }
+
+  .bb-public-profile .bb-public-venue-open:hover .bb-public-venue-img,
+  .bb-public-profile .bb-public-venue-open:hover .bb-public-venue-media img {
+    transform: scale(1.04);
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-public-profile .bb-public-venue-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-ghost-btn {
+  margin: 0.85rem var(--bb-public-gutter, 1.25rem) 0;
 }
 
 .bb-public-profile .bb-public-gutter {
@@ -3894,109 +4226,158 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   display: none !important;
 }
 
-.bb-public-profile .bb-public-about {
+.bb-public-profile .bb-public-about-offer {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.bb-public-profile .bb-public-about-offer-about {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
-  max-width: none;
-  margin: 0;
+  gap: 0.9rem;
   align-items: start;
 }
 
 @media (min-width: 900px) {
-  .bb-public-profile .bb-public-about {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  .bb-public-profile .bb-public-about-offer-about {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     gap: 1.5rem;
     align-items: center;
   }
-
-  .bb-public-profile .bb-public-about-media-wrap {
-    order: 0;
-  }
 }
 
-.bb-public-profile .bb-public-about-copy {
-  justify-items: start;
-  justify-self: stretch;
-  text-align: left;
-  max-width: 42rem;
-  gap: 0.55rem;
-}
-
-.bb-public-profile .bb-public-about-media-wrap {
-  order: -1;
-  max-width: none;
+.bb-public-profile .bb-public-about-offer-media-wrap {
   width: 100%;
-  justify-self: stretch;
+  min-width: 0;
 }
 
-.bb-public-profile .bb-public-about-media {
+.bb-public-profile .bb-public-about-offer-media {
   aspect-ratio: 16 / 10;
-  border-radius: 0.75rem;
+  border-radius: 0.85rem;
   overflow: hidden;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: none;
+  background: #eef2f6;
+}
+
+.bb-public-profile .bb-public-about-offer-media img,
+.bb-public-profile .bb-public-about-offer-media .bb-editable-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-profile .bb-public-about-offer-copy {
+  display: grid;
+  gap: 0.55rem;
+  align-content: center;
+  min-width: 0;
 }
 
 .bb-public-profile .bb-public-about-body {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.92rem;
+  line-height: 1.55;
   font-weight: 500;
   color: #475467;
   max-width: 42rem;
-  text-align: left;
+  text-align: center;
 }
 
-.bb-public-profile .bb-public-venue-shell {
-  gap: 0.75rem;
-}
-
-.bb-public-profile .bb-public-venue-grid {
+.bb-public-profile .bb-public-about-text-shell {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.15rem;
-  max-width: none;
+  gap: 0.75rem;
+  padding: 0.15rem 0 0.35rem;
+  justify-items: center;
+}
+
+.bb-public-profile .bb-public-about-text-block .bb-public-about-body {
+  max-width: 40rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-inline: auto;
+}
+
+.bb-public-profile .bb-public-about-offer-offer {
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-public-profile .bb-public-about-offer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile .bb-public-about-offer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+}
+
+.bb-public-profile .bb-public-about-offer-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
   margin: 0;
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: #fafbfc;
+}
+
+.bb-public-profile .bb-public-about-offer-index {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.04em;
+  color: #98a2b3;
+  line-height: 1.4;
+  padding-top: 0.1rem;
+}
+
+.bb-public-profile .bb-public-about-offer-card-copy {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bb-public-profile .bb-public-about-offer-card-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #101828;
+}
+
+.bb-public-profile .bb-public-about-offer-card-body {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: #667085;
+}
+
+.bb-public-profile .bb-public-about-offer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  max-width: 24rem;
+  padding-top: 0.15rem;
+}
+
+.bb-public-profile .bb-public-about-offer-action {
   width: 100%;
-  align-items: stretch;
-}
-
-@media (min-width: 768px) {
-  .bb-public-profile .bb-public-venue-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1100px) {
-  .bb-public-profile .bb-public-venue-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-}
-
-.bb-public-profile .bb-public-venue-card {
-  animation: none;
-}
-
-.bb-public-profile .bb-public-venue-open,
-.bb-public-profile .bb-public-venue-media {
-  border-radius: 0;
-  box-shadow: none;
-  aspect-ratio: 1;
-}
-
-.bb-public-profile .bb-public-venue-media {
-  margin: 0;
-  background: #eef2f6;
-}
-
-.bb-public-profile .bb-public-venue-img,
-.bb-public-profile .bb-public-venue-media img {
-  aspect-ratio: auto;
-}
-
-.bb-public-profile .bb-public-gallery-block .bb-ghost-btn {
-  margin: 0.65rem var(--bb-public-gutter, 1.25rem) 0;
+  justify-content: center;
+  min-height: 2.4rem;
+  border-radius: 0.75rem;
 }
 
 .bb-public-profile .bb-public-visit {
@@ -4017,9 +4398,10 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 
 .bb-public-profile .bb-public-visit-copy,
 .bb-public-profile .bb-public-visit-body {
-  text-align: left;
+  text-align: center;
   max-width: 36rem;
-  justify-items: start;
+  justify-items: center;
+  margin-inline: auto;
 }
 
 .bb-public-profile .bb-public-map-wrap,
@@ -4037,32 +4419,130 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 }
 
 .bb-public-profile .bb-public-reviews-shell {
-  gap: 0.75rem;
+  display: grid;
+  gap: 1rem;
   max-width: none;
   justify-items: stretch;
   width: 100%;
 }
 
+.bb-public-profile .bb-public-profile-faq-block .bb-public-profile-section-head,
+.bb-public-profile .bb-public-map-block .bb-public-profile-section-head {
+  margin-bottom: 1rem;
+}
+
 .bb-public-profile .bb-public-reviews {
+  display: grid;
   grid-template-columns: 1fr;
-  gap: 0.55rem;
+  gap: 0.75rem;
   width: 100%;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 720px) {
+  .bb-public-profile .bb-public-reviews {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+
+@media (min-width: 1024px) {
   .bb-public-profile .bb-public-reviews {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
   }
 }
 
 .bb-public-profile .bb-public-review {
-  padding: 0.8rem 0.85rem;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(15, 23, 42, 0.07);
-  border-top: 1px solid rgba(15, 23, 42, 0.07);
-  border-left: 1px solid rgba(15, 23, 42, 0.07);
-  background: #fafbfc;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.75rem;
+  align-content: start;
+  min-height: 100%;
+  margin: 0;
+  padding: 1.15rem 1.15rem 1.05rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   animation: none;
+}
+
+.bb-public-profile .bb-public-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.bb-public-profile .bb-public-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  line-height: 1;
+}
+
+.bb-public-profile .bb-public-star {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.bb-public-profile .bb-public-star-path--filled {
+  fill: #c9a227;
+}
+
+.bb-public-profile .bb-public-star-path--empty {
+  fill: rgba(15, 23, 42, 0.14);
+}
+
+.bb-public-profile .bb-public-review-quote {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 550;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: #344054;
+}
+
+.bb-public-profile .bb-public-review-author {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.15rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-public-profile .bb-public-review-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  background: #101828;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 760;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.bb-public-profile .bb-public-review-name {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  color: #101828;
+  line-height: 1.25;
+}
+
+.bb-public-profile .bb-public-reviews-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
 }
 
 .bb-public-profile-faq-shell {
@@ -4817,18 +5297,21 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
 .bb-public-stars {
   display: inline-flex;
   align-items: center;
-  gap: 0.08rem;
-  letter-spacing: 0.12em;
-  font-size: 0.85rem;
+  gap: 0.1rem;
   line-height: 1;
 }
 
-.bb-public-stars-on {
-  color: #d4a017;
+.bb-public-star {
+  display: block;
+  flex: 0 0 auto;
 }
 
-.bb-public-stars-off {
-  color: rgba(15, 23, 42, 0.18);
+.bb-public-star-path--filled {
+  fill: #c9a227;
+}
+
+.bb-public-star-path--empty {
+  fill: rgba(15, 23, 42, 0.14);
 }
 
 .bb-public-review-quote {
@@ -5216,18 +5699,29 @@ html body .native-ui .bb-public-surface .bb-public-review-quote {
   line-height: 1.55 !important;
 }
 
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-review-quote {
+  color: #344054 !important;
+  font-weight: 550 !important;
+  line-height: 1.5 !important;
+}
+
 html body .native-ui .bb-public-surface .bb-public-review-name,
 html body .native-ui .bb-public-surface .bb-public-venue-card figcaption,
 html body .native-ui .bb-public-surface .bb-public-venue-card figcaption span {
   color: #667085 !important;
 }
 
-html body .native-ui .bb-public-surface .bb-public-stars-on {
-  color: #d4a017 !important;
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-review-name {
+  color: #101828 !important;
+  font-weight: 720 !important;
 }
 
-html body .native-ui .bb-public-surface .bb-public-stars-off {
-  color: rgba(15, 23, 42, 0.18) !important;
+html body .native-ui .bb-public-surface .bb-public-star-path--filled {
+  fill: #c9a227 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-star-path--empty {
+  fill: rgba(15, 23, 42, 0.14) !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-home-block .bb-page-title,
@@ -5320,9 +5814,7 @@ html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text:h
 /* Profile Home — keep module labels iconic (beat marketing native overrides) */
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-section-title,
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-title,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-venue-title,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-title,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-title {
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-title {
   color: #98a2b3 !important;
   font-size: 0.68rem !important;
   font-weight: 740 !important;
@@ -5330,19 +5822,40 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-titl
   text-transform: uppercase !important;
   line-height: 1.2 !important;
   max-width: none !important;
-  text-align: left !important;
+  text-align: center !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-heading,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-venue-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-faq-title {
+  color: #101828 !important;
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem) !important;
+  font-weight: 820 !important;
+  letter-spacing: -0.035em !important;
+  text-transform: none !important;
+  line-height: 1.1 !important;
+  max-width: none !important;
+  text-align: center !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-body,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-body {
-  text-align: left !important;
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-body,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-card-body {
+  text-align: center !important;
   max-width: none !important;
 }
 
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-card-title {
+  color: #101828 !important;
+  font-weight: 760 !important;
+}
+
 @media (min-width: 900px) {
-  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about,
-  .bb-public-profile .bb-public-about {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr) !important;
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-about,
+  .bb-public-profile .bb-public-about-offer-about {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr) !important;
   }
 
   html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit,

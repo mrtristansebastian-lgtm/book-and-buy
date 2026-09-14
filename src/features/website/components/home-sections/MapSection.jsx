@@ -16,10 +16,10 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
             <header className="bb-public-profile-section-head">
               <EditableText
                 as="h2"
-                className="bb-public-profile-section-title bb-public-visit-title"
+                className="bb-public-profile-heading bb-public-visit-title"
                 editMode={editMode}
-                value={website.mapTitle || 'Location'}
-                placeholder="Location title"
+                value={website.mapTitle || 'Visit'}
+                placeholder="Visit"
                 onChange={(value) => patchWebsite({ mapTitle: value })}
               />
             </header>

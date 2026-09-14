@@ -36,5 +36,12 @@ export const firebaseCallables = {
   savePaymentGatewaySettings: (payload: object) =>
     callCallable(callableNames.savePaymentGatewaySettings, payload),
   createPublicProductOrder: (payload: object) =>
-    callCallable(callableNames.createPublicProductOrder, payload)
+    callCallable(callableNames.createPublicProductOrder, payload),
+  getGooglePlaceReviews: (payload: { placeId: string }) =>
+    callCallable<{ placeId: string }, {
+      ok: boolean;
+      placeName?: string;
+      rating?: number | null;
+      reviews: Array<{ id: string; quote: string; name: string; rating: number }>;
+    }>(callableNames.getGooglePlaceReviews, payload)
 };
