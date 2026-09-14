@@ -365,7 +365,7 @@ export function SocialPostFeed({
                   {post.title || editMode ? (
                     editMode ? (
                       <EditableText
-                        as="h2"
+                        as="p"
                         className="bb-social-feed-title"
                         editMode
                         value={post.title || ''}
@@ -375,7 +375,7 @@ export function SocialPostFeed({
                         }
                       />
                     ) : post.title ? (
-                      <h2 className="bb-social-feed-title">{post.title}</h2>
+                      <p className="bb-social-feed-title">{post.title}</p>
                     ) : null
                   ) : null}
                   {(post.caption || editMode) ? (

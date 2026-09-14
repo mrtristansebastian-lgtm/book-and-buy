@@ -1013,6 +1013,7 @@ export function createDemoWorkspace() {
       ],
       venueTitle: 'Gallery',
       venueEyebrow: 'Gallery',
+      venueBody: 'A look inside the Woodstock studio — ovens, benches, and the rooms where classes land.',
       venueImages: [
         {
           id: 'v1',
@@ -1038,11 +1039,13 @@ export function createDemoWorkspace() {
       address: '12 Woodstock Kitchen Lane, Cape Town',
       mapTitle: 'Visit',
       mapEyebrow: 'Find us',
+      mapBody: 'Find us in Woodstock — street parking nearby, and the studio door is marked with the copper flame.',
       mapEmbedUrl:
         'https://maps.google.com/maps?q=Woodstock%2C%20Cape%20Town&t=&z=14&ie=UTF8&iwloc=&output=embed',
       mapLinkUrl: 'https://maps.google.com/?q=Woodstock,+Cape+Town',
       reviewsTitle: 'Reviews',
       reviewsEyebrow: 'Reviews',
+      reviewsBody: 'What bakers say after a morning in the studio — honest notes from class and private sessions.',
       reviews: [
         {
           id: 'rev1',
@@ -1070,6 +1073,7 @@ export function createDemoWorkspace() {
       bookStripBody: 'See open times on the Book page and send a request in minutes.',
       bookStripCta: 'See availability',
       bookFaqTitle: 'FAQ',
+      bookFaqBody: 'Quick answers before you book — hours, what to bring, and how requests work.',
       bookFaq: [
         {
           id: 'f1',
@@ -1324,14 +1328,17 @@ export function hydrateDemoWorkspace(stored) {
         reasons: fresh.website.reasons,
         venueTitle: fresh.website.venueTitle,
         venueEyebrow: fresh.website.venueEyebrow,
+        venueBody: fresh.website.venueBody,
         venueImages: fresh.website.venueImages,
         address: fresh.website.address,
         mapTitle: fresh.website.mapTitle,
         mapEyebrow: fresh.website.mapEyebrow,
+        mapBody: fresh.website.mapBody,
         mapEmbedUrl: fresh.website.mapEmbedUrl,
         mapLinkUrl: fresh.website.mapLinkUrl,
         reviewsTitle: fresh.website.reviewsTitle,
         reviewsEyebrow: fresh.website.reviewsEyebrow,
+        reviewsBody: fresh.website.reviewsBody,
         reviews: fresh.website.reviews,
         offerTitle: fresh.website.offerTitle,
         offerBookCta: fresh.website.offerBookCta,
@@ -1340,6 +1347,7 @@ export function hydrateDemoWorkspace(stored) {
         bookStripBody: fresh.website.bookStripBody,
         bookStripCta: fresh.website.bookStripCta,
         bookFaqTitle: fresh.website.bookFaqTitle,
+        bookFaqBody: fresh.website.bookFaqBody,
         bookFaq: fresh.website.bookFaq,
         sections: {
           ...fresh.website.sections,

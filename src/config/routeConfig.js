@@ -74,7 +74,7 @@ export const workspaceTabLabels = {
   orders: 'Orders',
   stock: 'Stock',
   website: 'E-Business Platform',
-  social: 'Social',
+  social: 'Social studio',
   communications: 'Support',
   finance: 'Finance',
   clients: 'Clients',

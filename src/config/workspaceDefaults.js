@@ -77,9 +77,11 @@ export const createDefaultSettings = () => ({
     ],
     venueTitle: 'Gallery',
     venueEyebrow: 'Gallery',
+    venueBody: '',
     venueImages: [],
     mapTitle: 'Visit',
     mapEyebrow: 'Find us',
+    mapBody: '',
     address: '',
     mapEmbedUrl: '',
     mapLinkUrl: '',
@@ -88,6 +90,7 @@ export const createDefaultSettings = () => ({
     googleReviewsSyncedAt: '',
     reviewsTitle: 'Reviews',
     reviewsEyebrow: 'Reviews',
+    reviewsBody: '',
     reviews: [],
     offerTitle: 'View what we offer',
     offerBookCta: 'Bookings',
@@ -97,6 +100,7 @@ export const createDefaultSettings = () => ({
     bookStripCta: 'See availability',
     bookFaqTitle: 'FAQ',
     bookFaqEyebrow: 'FAQ',
+    bookFaqBody: '',
     bookFaq: [
       { id: 'f1', q: 'How do requests work?', a: 'Send a request and we confirm by email.' },
       { id: 'f2', q: 'Can I reschedule?', a: 'Yes — message us from Support or reply to your confirmation.' }

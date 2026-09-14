@@ -22,6 +22,17 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
                 placeholder="Visit"
                 onChange={(value) => patchWebsite({ mapTitle: value })}
               />
+              {editMode || String(website.mapBody || '').trim() ? (
+                <EditableText
+                  as="p"
+                  className="bb-public-profile-section-body"
+                  editMode={editMode}
+                  multiline
+                  value={website.mapBody || ''}
+                  placeholder="Short venue intro"
+                  onChange={(value) => patchWebsite({ mapBody: value })}
+                />
+              ) : null}
             </header>
             <EditableText
               as="p"

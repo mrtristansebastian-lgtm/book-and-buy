@@ -110,34 +110,40 @@ export function PublicStorefront({
           </div>
           <div className="bb-public-product-body">
             <h2>{product.name}</h2>
-            {product.description ? (
-              <p className="bb-public-product-desc">{product.description}</p>
-            ) : null}
           </div>
           <div className="bb-public-product-price-row">
             <span className="bb-public-product-price-label">Price</span>
             <span className="bb-public-product-price-value">{price || '—'}</span>
           </div>
         </button>
-        <button
-          type="button"
-          className="bb-public-product-cart-btn"
-          disabled={quote}
-          onClick={() => {
-            if (quote) return;
-            if (hasOptions) {
-              openDetail(product.id);
-              return;
-            }
-            cart.addItem(product);
-            setPanel('cart');
-          }}
-        >
-          <ShoppingBag size={12} strokeWidth={2.4} />
-          <span>
-            {quote ? 'Quote only' : hasOptions ? 'Choose options' : 'Add to cart'}
-          </span>
-        </button>
+        <div className="bb-public-product-actions">
+          <button
+            type="button"
+            className="bb-public-product-cart-btn"
+            disabled={quote}
+            onClick={() => {
+              if (quote) return;
+              if (hasOptions) {
+                openDetail(product.id);
+                return;
+              }
+              cart.addItem(product);
+              setPanel('cart');
+            }}
+          >
+            <ShoppingBag size={12} strokeWidth={2.4} />
+            <span>
+              {quote ? 'Quote' : hasOptions ? 'Options' : 'Add'}
+            </span>
+          </button>
+          <button
+            type="button"
+            className="bb-public-product-more-btn"
+            onClick={() => openDetail(product.id)}
+          >
+            View more
+          </button>
+        </div>
       </article>
     );
   };

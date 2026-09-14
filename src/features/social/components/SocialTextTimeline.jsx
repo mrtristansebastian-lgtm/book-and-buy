@@ -90,7 +90,7 @@ export function SocialTextTimeline({
               <div className="bb-social-note-copy">
                 {editMode || post.title ? (
                   <EditableText
-                    as="h2"
+                    as="p"
                     className="bb-social-note-title"
                     editMode={editMode}
                     value={post.title || ''}

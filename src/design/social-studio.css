@@ -5,7 +5,7 @@
   gap: 1.35rem;
   width: 100%;
   max-width: var(--bb-public-measure-wide, 64rem);
-  margin-inline: auto;
+  margin-inline: 0;
   min-width: 0;
 }
 
@@ -160,12 +160,16 @@
 .bb-social-studio-live .bb-public-profile-shell {
   padding: 0.85rem 1rem 0;
   overflow: visible;
+  max-width: min(100%, 48rem);
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .bb-social-studio-live .bb-public-profile-banner-wrap {
-  height: 11rem;
-  min-height: 11rem;
-  max-height: 11rem;
+  height: clamp(9.5rem, 18vw, 12.5rem);
+  min-height: 9.5rem;
+  max-height: 12.5rem;
   aspect-ratio: unset;
   border-radius: 0.85rem;
 }
@@ -328,14 +332,15 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   display: grid;
   place-items: center;
   padding: max(0.75rem, env(safe-area-inset-top)) 0.85rem max(0.75rem, env(safe-area-inset-bottom));
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
 }
 
 .bb-social-profile-edit-modal-backdrop {
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgba(15, 23, 42, 0.48);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
   cursor: pointer;
 }
 
@@ -344,33 +349,32 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   z-index: 1;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  width: min(100%, 26.5rem);
-  max-height: min(92dvh, 46rem);
-  border-radius: 1.25rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background:
-    linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 28px 72px rgba(15, 23, 42, 0.22);
+  width: min(100%, 42rem);
+  max-height: min(92dvh, 36rem);
+  border-radius: 1.2rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: #fff;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
   overflow: hidden;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
 }
 
 .bb-social-profile-edit-modal-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 1.1rem 1.2rem 0.9rem;
+  padding: 1rem 1.15rem 0.85rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-  background: rgba(255, 255, 255, 0.92);
+  background: #fff;
 }
 
 .bb-social-profile-edit-modal-eyebrow {
-  margin: 0 0 0.18rem;
-  font-size: 0.64rem;
-  font-weight: 760;
-  letter-spacing: 0.12em;
+  margin: 0 0 0.12rem;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 560;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #98a2b3;
 }
@@ -378,9 +382,9 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
 .bb-social-profile-edit-modal-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 1.22rem;
-  font-weight: 800;
-  letter-spacing: -0.035em;
+  font-size: 1.12rem;
+  font-weight: 720;
+  letter-spacing: -0.028em;
   color: #101828;
 }
 
@@ -388,71 +392,291 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   appearance: none;
   display: grid;
   place-items: center;
-  width: 2.15rem;
-  height: 2.15rem;
+  width: 2rem;
+  height: 2rem;
   border: 0;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.05);
-  color: #475467;
+  background: rgba(15, 23, 42, 0.04);
+  color: #667085;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .bb-social-profile-edit-modal-close:hover {
-  background: rgba(15, 23, 42, 0.09);
+  background: rgba(15, 23, 42, 0.08);
   color: #101828;
 }
 
 .bb-social-profile-edit-modal-body {
   display: grid;
-  gap: 1.35rem;
-  padding: 1.1rem 1.2rem 1.25rem;
-  overflow: auto;
   min-height: 0;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  background: #fff;
+  padding: 1rem 1.1rem 1.15rem;
 }
 
-.bb-social-profile-edit-section {
+.bb-social-profile-edit-setup {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 1.15rem 1.35rem;
+  align-items: start;
+  min-height: 0;
+}
+
+.bb-social-profile-edit-setup-mobile {
+  display: none;
+  margin: 0;
+  grid-column: 1 / -1;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 560;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-setup-mobile span {
+  margin-left: 0.4rem;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  font-weight: 700;
+  color: #101828;
+}
+
+.bb-social-profile-edit-rail {
+  position: sticky;
+  top: 0;
+  min-width: 0;
+}
+
+.bb-social-profile-edit-rail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  position: relative;
+}
+
+.bb-social-profile-edit-rail-list::before {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  width: 1px;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.bb-social-profile-edit-rail-item {
+  position: relative;
+  z-index: 1;
+}
+
+.bb-social-profile-edit-rail-btn {
+  display: grid;
+  grid-template-columns: 1.7rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.4rem 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.bb-social-profile-edit-rail-dot {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #667085;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 0 0 4px #fff;
+}
+
+.bb-social-profile-edit-rail-label {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 680;
+  letter-spacing: -0.01em;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-rail-item.is-current .bb-social-profile-edit-rail-dot {
+  color: #050505;
+  border-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+}
+
+.bb-social-profile-edit-rail-item.is-current .bb-social-profile-edit-rail-label {
+  color: #101828;
+  font-weight: 760;
+}
+
+.bb-social-profile-edit-rail-item.is-done .bb-social-profile-edit-rail-dot {
+  color: #101828;
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #f2f4f7;
+}
+
+.bb-social-profile-edit-rail-item.is-done .bb-social-profile-edit-rail-label {
+  color: #475467;
+}
+
+.bb-social-profile-edit-rail-btn:hover .bb-social-profile-edit-rail-label {
+  color: #101828;
+}
+
+.bb-social-profile-edit-stage {
   display: grid;
   gap: 0.85rem;
+  min-width: 0;
+  animation: bb-social-profile-edit-stage-in 0.2s ease;
+}
+
+@keyframes bb-social-profile-edit-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-social-profile-edit-section-head {
+  display: grid;
+  gap: 0.2rem;
 }
 
 .bb-social-profile-edit-section-title {
   margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.72rem;
-  font-weight: 780;
-  letter-spacing: 0.1em;
+  font-weight: 740;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: #667085;
 }
 
 .bb-social-profile-edit-section-copy {
-  margin: -0.35rem 0 0;
-  font-size: 0.8rem;
-  font-weight: 550;
+  margin: 0;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 450;
   line-height: 1.4;
   color: #98a2b3;
 }
 
+.bb-social-profile-edit-section-body {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.bb-social-profile-edit-fields {
+  gap: 0.85rem;
+}
+
 .bb-social-profile-edit-media-stage {
   position: relative;
-  margin-bottom: 1.85rem;
+  margin-bottom: 1.55rem;
 }
 
 .bb-social-profile-edit-media-hint {
   margin: 0;
-  font-size: 0.74rem;
-  font-weight: 550;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 450;
+  letter-spacing: 0.01em;
   color: #98a2b3;
   text-align: center;
 }
 
+@media (max-width: 640px) {
+  .bb-social-profile-edit-modal-panel {
+    width: min(100%, 26rem);
+    max-height: min(92dvh, 40rem);
+  }
+
+  .bb-social-profile-edit-setup {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .bb-social-profile-edit-setup-mobile {
+    display: block;
+  }
+
+  .bb-social-profile-edit-rail {
+    position: static;
+  }
+
+  .bb-social-profile-edit-rail-list {
+    display: flex;
+    gap: 0.35rem;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+    scrollbar-width: none;
+  }
+
+  .bb-social-profile-edit-rail-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bb-social-profile-edit-rail-list::before {
+    display: none;
+  }
+
+  .bb-social-profile-edit-rail-item {
+    flex: 0 0 auto;
+  }
+
+  .bb-social-profile-edit-rail-btn {
+    grid-template-columns: auto auto;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem 0.35rem 0.35rem;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #f8fafc;
+  }
+
+  .bb-social-profile-edit-rail-dot {
+    width: 1.4rem;
+    height: 1.4rem;
+    box-shadow: none;
+    font-size: 0.62rem;
+  }
+
+  .bb-social-profile-edit-rail-item.is-current .bb-social-profile-edit-rail-btn {
+    border-color: transparent;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  }
+}
+
 .bb-social-profile-edit-field-label {
   display: block;
-  margin-bottom: 0.32rem;
-  font-size: 0.66rem;
-  font-weight: 760;
-  letter-spacing: 0.08em;
+  margin-bottom: 0.28rem;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 560;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #98a2b3;
 }
@@ -460,12 +684,10 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
 .bb-social-profile-edit-banner-frame {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 6.2;
-  border-radius: 1rem;
+  aspect-ratio: 16 / 6;
+  border-radius: 0.95rem;
   overflow: hidden;
-  background:
-    linear-gradient(135deg, #eef2f6 0%, #e4e9ef 100%);
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  background: linear-gradient(135deg, #eef2f6 0%, #e4e9ef 100%);
 }
 
 .bb-social-profile-edit-banner-img {
@@ -479,24 +701,25 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   position: absolute;
   left: 50%;
   bottom: 0;
-  transform: translate(-50%, 48%);
+  transform: translate(-50%, 46%);
   z-index: 2;
 }
 
 .bb-social-profile-edit-avatar-frame {
   display: grid;
   place-items: center;
-  width: 5.65rem;
-  height: 5.65rem;
+  width: 5.35rem;
+  height: 5.35rem;
   border-radius: 999px;
   overflow: hidden;
   background: #eef2f6;
-  border: 3.5px solid #fff;
+  border: 3px solid #fff;
   box-shadow:
-    0 0 0 1px rgba(15, 23, 42, 0.06),
-    0 12px 28px rgba(15, 23, 42, 0.14);
-  font-size: 1.35rem;
-  font-weight: 780;
+    0 0 0 1px rgba(15, 23, 42, 0.05),
+    0 10px 22px rgba(15, 23, 42, 0.12);
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
   color: #667085;
 }
 
@@ -509,13 +732,13 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
 
 .bb-social-profile-edit-field {
   display: grid;
-  gap: 0.3rem;
+  gap: 0.28rem;
 }
 
 .bb-social-profile-edit-field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.7rem;
 }
 
 @media (max-width: 420px) {
@@ -526,30 +749,38 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
 
 .bb-social-profile-edit-input {
   width: 100%;
-  min-height: 2.6rem;
-  padding: 0.55rem 0.8rem;
-  border-radius: 0.8rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.7rem;
   border: 1px solid rgba(15, 23, 42, 0.1);
-  background: #fff;
-  font: inherit;
-  font-size: 0.95rem;
-  font-weight: 650;
+  background: #fafbfc;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 520;
+  letter-spacing: -0.01em;
   color: #101828;
   box-sizing: border-box;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .bb-social-profile-edit-textarea {
-  min-height: 5.25rem;
+  min-height: 4.75rem;
   resize: vertical;
-  font-weight: 550;
+  font-weight: 450;
   line-height: 1.45;
+  padding-top: 0.65rem;
+}
+
+.bb-social-profile-edit-input:hover {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.14);
 }
 
 .bb-social-profile-edit-input:focus {
   outline: none;
+  background: #fff;
   border-color: rgba(15, 23, 42, 0.22);
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
 }
 
 .bb-social-profile-edit-input[aria-invalid='true'] {
@@ -561,49 +792,61 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 0.12rem;
-  min-height: 2.6rem;
-  padding: 0 0.2rem 0 0.8rem;
-  border-radius: 0.8rem;
+  gap: 0.1rem;
+  min-height: 2.5rem;
+  padding: 0 0.2rem 0 0.75rem;
+  border-radius: 0.7rem;
   border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fafbfc;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.bb-social-profile-edit-username:hover {
   background: #fff;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border-color: rgba(15, 23, 42, 0.14);
 }
 
 .bb-social-profile-edit-at {
-  font-size: 0.95rem;
-  font-weight: 720;
-  color: #667085;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 520;
+  color: #98a2b3;
 }
 
 .bb-social-profile-edit-input--username {
   border: 0;
-  min-height: 2.4rem;
-  padding-left: 0.08rem;
+  min-height: 2.3rem;
+  padding-left: 0.05rem;
   background: transparent;
   box-shadow: none;
 }
 
+.bb-social-profile-edit-input--username:hover,
 .bb-social-profile-edit-input--username:focus {
   outline: none;
   box-shadow: none;
+  background: transparent;
 }
 
 .bb-social-profile-edit-username:focus-within {
+  background: #fff;
   border-color: rgba(15, 23, 42, 0.22);
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
 }
 
 .bb-social-profile-edit-hint {
-  font-size: 0.72rem;
-  font-weight: 550;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 450;
+  letter-spacing: 0.01em;
   color: #98a2b3;
   line-height: 1.35;
 }
 
 .bb-social-profile-edit-error {
-  font-size: 0.74rem;
-  font-weight: 650;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 520;
   color: #d92d20;
   line-height: 1.35;
 }
@@ -611,16 +854,27 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
 .bb-social-profile-edit-modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.55rem;
-  padding: 0.9rem 1.2rem 1.05rem;
+  gap: 0.5rem;
+  padding: 0.85rem 1.15rem 1rem;
   border-top: 1px solid rgba(15, 23, 42, 0.06);
-  background: rgba(250, 251, 252, 0.96);
+  background: #fff;
+}
+
+.bb-social-profile-edit-modal-footer .bb-ghost-btn,
+.bb-social-profile-edit-modal-footer .bb-primary-btn {
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  min-height: 2.4rem;
+  border-radius: 0.7rem;
+  padding-inline: 1rem;
 }
 
 .bb-social-profile-edit-banner-frame.bb-editable-image .bb-editable-image-hit,
 .bb-social-profile-edit-avatar-frame.bb-editable-image .bb-editable-image-hit {
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
   font-size: 0.62rem;
-  font-weight: 720;
+  font-weight: 560;
   letter-spacing: 0.02em;
 }
 

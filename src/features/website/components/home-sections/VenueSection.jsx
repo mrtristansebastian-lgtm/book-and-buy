@@ -59,6 +59,17 @@ export function VenueSection({
               placeholder="Gallery"
               onChange={(value) => patchWebsite({ venueTitle: value })}
             />
+            {editMode || String(website.venueBody || '').trim() ? (
+              <EditableText
+                as="p"
+                className="bb-public-profile-section-body"
+                editMode={editMode}
+                multiline
+                value={website.venueBody || ''}
+                placeholder="Short gallery intro"
+                onChange={(value) => patchWebsite({ venueBody: value })}
+              />
+            ) : null}
           </header>
 
           <div

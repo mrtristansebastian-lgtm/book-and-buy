@@ -85,6 +85,17 @@ export function ReviewsSection({
               placeholder="Reviews"
               onChange={(value) => patchWebsite({ reviewsTitle: value })}
             />
+            {editMode || String(website.reviewsBody || '').trim() ? (
+              <EditableText
+                as="p"
+                className="bb-public-profile-section-body"
+                editMode={editMode}
+                multiline
+                value={website.reviewsBody || ''}
+                placeholder="Short reviews intro"
+                onChange={(value) => patchWebsite({ reviewsBody: value })}
+              />
+            ) : null}
           </header>
 
           <div className="bb-public-reviews">

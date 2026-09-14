@@ -108,6 +108,24 @@ function CreateTypeModal({ open, onClose, onPick }) {
   );
 }
 
+const PROFILE_EDIT_SECTIONS = [
+  {
+    id: 'photos',
+    label: 'Photos',
+    copy: 'Banner and profile picture shown on your Social profile.'
+  },
+  {
+    id: 'about',
+    label: 'About',
+    copy: 'Name, username, and short bio.'
+  },
+  {
+    id: 'discover',
+    label: 'Discoverability',
+    copy: 'Shown as chips under your name on the profile.'
+  }
+];
+
 function ProfileEditModal({
   open,
   onClose,
@@ -121,6 +139,7 @@ function ProfileEditModal({
   onSave
 }) {
   const titleId = useId();
+  const [section, setSection] = useState('photos');
   const [draftName, setDraftName] = useState('');
   const [draftUsername, setDraftUsername] = useState('');
   const [draftBio, setDraftBio] = useState('');
@@ -134,6 +153,7 @@ function ProfileEditModal({
   useEffect(() => {
     if (!open) return;
     const displayName = String(brandName || '').trim() || 'Business';
+    setSection('photos');
     setDraftName(displayName.slice(0, IG_NAME_MAX));
     setDraftUsername(formatUsernameDisplay(slug, displayName));
     setDraftBio(String(bio || ''));
@@ -157,13 +177,19 @@ function ProfileEditModal({
   if (!open) return null;
 
   const initial = (draftName.trim().charAt(0) || 'B').toUpperCase();
+  const activeSection =
+    PROFILE_EDIT_SECTIONS.find((item) => item.id === section) || PROFILE_EDIT_SECTIONS[0];
+  const sectionIndex = PROFILE_EDIT_SECTIONS.findIndex((item) => item.id === activeSection.id);
 
   const save = () => {
     const nameResult = validateInstagramName(draftName);
     const userResult = validateInstagramUsername(draftUsername);
     setNameError(nameResult.ok ? '' : nameResult.error);
     setUsernameError(userResult.ok ? '' : userResult.error);
-    if (!nameResult.ok || !userResult.ok) return;
+    if (!nameResult.ok || !userResult.ok) {
+      setSection('about');
+      return;
+    }
 
     onSave?.({
       brandName: nameResult.value,
@@ -193,7 +219,7 @@ function ProfileEditModal({
       <div className="bb-social-profile-edit-modal-panel">
         <header className="bb-social-profile-edit-modal-head">
           <div>
-            <p className="bb-social-profile-edit-modal-eyebrow">Social</p>
+            <p className="bb-social-profile-edit-modal-eyebrow">Profile</p>
             <h2 id={titleId} className="bb-social-profile-edit-modal-title">
               Edit profile
             </h2>
@@ -209,141 +235,183 @@ function ProfileEditModal({
         </header>
 
         <div className="bb-social-profile-edit-modal-body">
-          <section className="bb-social-profile-edit-section" aria-label="Photos">
-            <div className="bb-social-profile-edit-media-stage">
-              <EditableImage
-                editMode
-                src={draftBanner}
-                className="bb-social-profile-edit-banner-frame"
-                imgClassName="bb-social-profile-edit-banner-img"
-                storageFolder="social"
-                preset="socialBanner"
-                onChange={setDraftBanner}
-                placeholderLabel="Add banner"
-              />
-              <div className="bb-social-profile-edit-avatar-slot">
-                <EditableImage
-                  editMode
-                  src={draftLogo}
-                  className="bb-social-profile-edit-avatar-frame"
-                  imgClassName="bb-social-profile-edit-avatar-img"
-                  storageFolder="brand"
-                  preset="logo"
-                  onChange={setDraftLogo}
-                  placeholderLabel={initial}
-                />
-              </div>
-            </div>
-            <p className="bb-social-profile-edit-media-hint">
-              Tap the banner or photo to replace
-            </p>
-          </section>
-
-          <section className="bb-social-profile-edit-section" aria-label="About">
-            <h3 className="bb-social-profile-edit-section-title">About</h3>
-
-            <label className="bb-social-profile-edit-field">
-              <span className="bb-social-profile-edit-field-label">Name</span>
-              <input
-                className="bb-social-profile-edit-input"
-                type="text"
-                value={draftName}
-                maxLength={IG_NAME_MAX}
-                autoComplete="nickname"
-                placeholder="Display name"
-                aria-invalid={Boolean(nameError)}
-                onChange={(event) => {
-                  setDraftName(event.target.value.slice(0, IG_NAME_MAX));
-                  setNameError('');
-                }}
-              />
-              {nameError ? (
-                <span className="bb-social-profile-edit-error">{nameError}</span>
-              ) : (
-                <span className="bb-social-profile-edit-hint">
-                  {draftName.length}/{IG_NAME_MAX}
-                </span>
-              )}
-            </label>
-
-            <label className="bb-social-profile-edit-field">
-              <span className="bb-social-profile-edit-field-label">Username</span>
-              <span className="bb-social-profile-edit-username">
-                <span className="bb-social-profile-edit-at" aria-hidden="true">
-                  @
-                </span>
-                <input
-                  className="bb-social-profile-edit-input bb-social-profile-edit-input--username"
-                  type="text"
-                  value={draftUsername}
-                  maxLength={IG_USERNAME_MAX}
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  autoComplete="username"
-                  placeholder="username"
-                  aria-invalid={Boolean(usernameError)}
-                  onChange={(event) => {
-                    setDraftUsername(sanitizeUsernameInput(event.target.value));
-                    setUsernameError('');
-                  }}
-                />
-              </span>
-              {usernameError ? (
-                <span className="bb-social-profile-edit-error">{usernameError}</span>
-              ) : (
-                <span className="bb-social-profile-edit-hint">
-                  Letters, numbers, _ and . · {draftUsername.length}/{IG_USERNAME_MAX}
-                </span>
-              )}
-            </label>
-
-            <label className="bb-social-profile-edit-field">
-              <span className="bb-social-profile-edit-field-label">Bio</span>
-              <textarea
-                className="bb-social-profile-edit-input bb-social-profile-edit-textarea"
-                rows={3}
-                value={draftBio}
-                maxLength={150}
-                placeholder="A short line about your business"
-                onChange={(event) => setDraftBio(event.target.value.slice(0, 150))}
-              />
-              <span className="bb-social-profile-edit-hint">{draftBio.length}/150</span>
-            </label>
-          </section>
-
-          <section className="bb-social-profile-edit-section" aria-label="Discoverability">
-            <h3 className="bb-social-profile-edit-section-title">Discoverability</h3>
-            <p className="bb-social-profile-edit-section-copy">
-              Shown as chips under your name on the profile.
+          <div className="bb-social-profile-edit-setup">
+            <p className="bb-social-profile-edit-setup-mobile">
+              Step {sectionIndex + 1} of {PROFILE_EDIT_SECTIONS.length}
+              <span>{activeSection.label}</span>
             </p>
 
-            <div className="bb-social-profile-edit-field-row">
-              <label className="bb-social-profile-edit-field">
-                <span className="bb-social-profile-edit-field-label">Category</span>
-                <input
-                  className="bb-social-profile-edit-input"
-                  type="text"
-                  value={draftCategory}
-                  maxLength={40}
-                  placeholder="e.g. Bakery"
-                  onChange={(event) => setDraftCategory(event.target.value.slice(0, 40))}
-                />
-              </label>
+            <nav className="bb-social-profile-edit-rail" aria-label="Profile sections">
+              <ol className="bb-social-profile-edit-rail-list">
+                {PROFILE_EDIT_SECTIONS.map((item, index) => {
+                  const isCurrent = item.id === activeSection.id;
+                  const isDone = index < sectionIndex;
+                  return (
+                    <li
+                      key={item.id}
+                      className={`bb-social-profile-edit-rail-item${
+                        isCurrent ? ' is-current' : ''
+                      }${isDone ? ' is-done' : ''}`}
+                    >
+                      <button
+                        type="button"
+                        className="bb-social-profile-edit-rail-btn"
+                        aria-current={isCurrent ? 'step' : undefined}
+                        onClick={() => setSection(item.id)}
+                      >
+                        <span className="bb-social-profile-edit-rail-dot" aria-hidden="true">
+                          {index + 1}
+                        </span>
+                        <span className="bb-social-profile-edit-rail-label">{item.label}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </nav>
 
-              <label className="bb-social-profile-edit-field">
-                <span className="bb-social-profile-edit-field-label">Location</span>
-                <input
-                  className="bb-social-profile-edit-input"
-                  type="text"
-                  value={draftLocation}
-                  maxLength={60}
-                  placeholder="e.g. Cape Town"
-                  onChange={(event) => setDraftLocation(event.target.value.slice(0, 60))}
-                />
-              </label>
+            <div className="bb-social-profile-edit-stage" key={activeSection.id}>
+              <header className="bb-social-profile-edit-section-head">
+                <h3 className="bb-social-profile-edit-section-title">{activeSection.label}</h3>
+                <p className="bb-social-profile-edit-section-copy">{activeSection.copy}</p>
+              </header>
+
+              {activeSection.id === 'photos' ? (
+                <div className="bb-social-profile-edit-section-body">
+                  <div className="bb-social-profile-edit-media-stage">
+                    <EditableImage
+                      editMode
+                      src={draftBanner}
+                      className="bb-social-profile-edit-banner-frame"
+                      imgClassName="bb-social-profile-edit-banner-img"
+                      storageFolder="social"
+                      preset="socialBanner"
+                      onChange={setDraftBanner}
+                      placeholderLabel="Add banner"
+                    />
+                    <div className="bb-social-profile-edit-avatar-slot">
+                      <EditableImage
+                        editMode
+                        src={draftLogo}
+                        className="bb-social-profile-edit-avatar-frame"
+                        imgClassName="bb-social-profile-edit-avatar-img"
+                        storageFolder="brand"
+                        preset="logo"
+                        onChange={setDraftLogo}
+                        placeholderLabel={initial}
+                      />
+                    </div>
+                  </div>
+                  <p className="bb-social-profile-edit-media-hint">
+                    Tap the banner or photo to replace
+                  </p>
+                </div>
+              ) : null}
+
+              {activeSection.id === 'about' ? (
+                <div className="bb-social-profile-edit-section-body bb-social-profile-edit-fields">
+                  <label className="bb-social-profile-edit-field">
+                    <span className="bb-social-profile-edit-field-label">Name</span>
+                    <input
+                      className="bb-social-profile-edit-input"
+                      type="text"
+                      value={draftName}
+                      maxLength={IG_NAME_MAX}
+                      autoComplete="nickname"
+                      placeholder="Display name"
+                      aria-invalid={Boolean(nameError)}
+                      onChange={(event) => {
+                        setDraftName(event.target.value.slice(0, IG_NAME_MAX));
+                        setNameError('');
+                      }}
+                    />
+                    {nameError ? (
+                      <span className="bb-social-profile-edit-error">{nameError}</span>
+                    ) : (
+                      <span className="bb-social-profile-edit-hint">
+                        {draftName.length}/{IG_NAME_MAX}
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="bb-social-profile-edit-field">
+                    <span className="bb-social-profile-edit-field-label">Username</span>
+                    <span className="bb-social-profile-edit-username">
+                      <span className="bb-social-profile-edit-at" aria-hidden="true">
+                        @
+                      </span>
+                      <input
+                        className="bb-social-profile-edit-input bb-social-profile-edit-input--username"
+                        type="text"
+                        value={draftUsername}
+                        maxLength={IG_USERNAME_MAX}
+                        autoCapitalize="off"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        autoComplete="username"
+                        placeholder="username"
+                        aria-invalid={Boolean(usernameError)}
+                        onChange={(event) => {
+                          setDraftUsername(sanitizeUsernameInput(event.target.value));
+                          setUsernameError('');
+                        }}
+                      />
+                    </span>
+                    {usernameError ? (
+                      <span className="bb-social-profile-edit-error">{usernameError}</span>
+                    ) : (
+                      <span className="bb-social-profile-edit-hint">
+                        Letters, numbers, _ and . · {draftUsername.length}/{IG_USERNAME_MAX}
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="bb-social-profile-edit-field">
+                    <span className="bb-social-profile-edit-field-label">Bio</span>
+                    <textarea
+                      className="bb-social-profile-edit-input bb-social-profile-edit-textarea"
+                      rows={4}
+                      value={draftBio}
+                      maxLength={150}
+                      placeholder="A short line about your business"
+                      onChange={(event) => setDraftBio(event.target.value.slice(0, 150))}
+                    />
+                    <span className="bb-social-profile-edit-hint">{draftBio.length}/150</span>
+                  </label>
+                </div>
+              ) : null}
+
+              {activeSection.id === 'discover' ? (
+                <div className="bb-social-profile-edit-section-body">
+                  <div className="bb-social-profile-edit-field-row">
+                    <label className="bb-social-profile-edit-field">
+                      <span className="bb-social-profile-edit-field-label">Category</span>
+                      <input
+                        className="bb-social-profile-edit-input"
+                        type="text"
+                        value={draftCategory}
+                        maxLength={40}
+                        placeholder="e.g. Bakery"
+                        onChange={(event) => setDraftCategory(event.target.value.slice(0, 40))}
+                      />
+                    </label>
+
+                    <label className="bb-social-profile-edit-field">
+                      <span className="bb-social-profile-edit-field-label">Location</span>
+                      <input
+                        className="bb-social-profile-edit-input"
+                        type="text"
+                        value={draftLocation}
+                        maxLength={60}
+                        placeholder="e.g. Cape Town"
+                        onChange={(event) => setDraftLocation(event.target.value.slice(0, 60))}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ) : null}
             </div>
-          </section>
+          </div>
         </div>
 
         <footer className="bb-social-profile-edit-modal-footer">

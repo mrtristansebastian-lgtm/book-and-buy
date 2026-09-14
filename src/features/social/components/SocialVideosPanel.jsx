@@ -71,76 +71,84 @@ function VideoWatchPage({
         </button>
       </header>
 
-      <div
-        className="bb-yt-watch-player"
-        style={aspectStyle(post.aspectRatio, fallbackAspect)}
-      >
-        {post.mediaUrl ? (
-          <BbVideoPlayer
-            key={post.id}
-            className="bb-social-video-player bb-yt-watch-player-el"
-            src={post.mediaUrl}
-            poster={post.posterUrl || ''}
-            title={post.title || 'Video'}
-            aspectRatio={Number(post.aspectRatio) || 0}
-            trimStart={Number(post.trimStart) || 0}
-            trimEnd={Number(post.trimEnd) || 0}
-          />
-        ) : (
-          <div className="bb-social-video-player bb-social-video-player--empty">
-            Video unavailable
-          </div>
-        )}
-      </div>
-
-      <div className="bb-yt-watch-body">
-        <div className="bb-yt-watch-primary">
-          <div className="bb-yt-watch-head">
-            <EditableText
-              as="h1"
-              className="bb-yt-watch-title"
-              editMode={editMode}
-              value={post.title || ''}
-              placeholder="Title"
-              onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-            />
-            <div className="bb-yt-watch-facts">
-              {showOwnerStats ? (
-                <span className="bb-yt-watch-stats">{viewsLabel(post.viewCount)}</span>
-              ) : null}
-              {post.duration ? (
-                <span className="bb-yt-watch-chip">{post.duration}</span>
-              ) : null}
-              {formatNoteStamp(post.createdAt) ? (
-                <span className="bb-yt-watch-chip">{formatNoteStamp(post.createdAt)}</span>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="bb-yt-watch-channel">
-            <span className="bb-yt-avatar bb-yt-avatar--watch" aria-hidden="true">
-              {logoUrl ? <img src={logoUrl} alt="" /> : channelInitial(brandName)}
-            </span>
-            <div className="bb-yt-watch-channel-copy">
-              <p className="bb-yt-channel-name">{brandName || 'Business'}</p>
-              <p className="bb-yt-watch-meta">Channel</p>
-            </div>
-          </div>
-
-          {editMode || String(post.caption || '').trim() ? (
-            <div className="bb-yt-watch-desc">
-              <p className="bb-yt-watch-desc-label">Description</p>
-              <EditableText
-                as="p"
-                className="bb-yt-watch-caption"
-                editMode={editMode}
-                multiline
-                value={post.caption || ''}
-                placeholder="Description"
-                onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+      <div className="bb-yt-watch-layout">
+        <div className="bb-yt-watch-main">
+          <div
+            className="bb-yt-watch-player"
+            style={aspectStyle(post.aspectRatio, fallbackAspect)}
+          >
+            {post.mediaUrl ? (
+              <BbVideoPlayer
+                key={post.id}
+                className="bb-social-video-player bb-yt-watch-player-el"
+                src={post.mediaUrl}
+                poster={post.posterUrl || ''}
+                title={post.title || 'Video'}
+                aspectRatio={Number(post.aspectRatio) || 0}
+                trimStart={Number(post.trimStart) || 0}
+                trimEnd={Number(post.trimEnd) || 0}
               />
+            ) : (
+              <div className="bb-social-video-player bb-social-video-player--empty">
+                Video unavailable
+              </div>
+            )}
+          </div>
+
+          <div className="bb-yt-watch-primary">
+            <div className="bb-yt-watch-head">
+              <EditableText
+                as="h1"
+                className="bb-yt-watch-title"
+                editMode={editMode}
+                value={post.title || ''}
+                placeholder="Title"
+                onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
+              />
+              <p className="bb-yt-watch-facts">
+                {showOwnerStats ? <span>{viewsLabel(post.viewCount)}</span> : null}
+                {showOwnerStats && (post.duration || formatNoteStamp(post.createdAt)) ? (
+                  <span className="bb-yt-watch-facts-sep" aria-hidden="true">
+                    ·
+                  </span>
+                ) : null}
+                {post.duration ? <span>{post.duration}</span> : null}
+                {post.duration && formatNoteStamp(post.createdAt) ? (
+                  <span className="bb-yt-watch-facts-sep" aria-hidden="true">
+                    ·
+                  </span>
+                ) : null}
+                {formatNoteStamp(post.createdAt) ? (
+                  <span>{formatNoteStamp(post.createdAt)}</span>
+                ) : null}
+              </p>
             </div>
-          ) : null}
+
+            <div className="bb-yt-watch-channel">
+              <span className="bb-yt-avatar bb-yt-avatar--watch" aria-hidden="true">
+                {logoUrl ? <img src={logoUrl} alt="" /> : channelInitial(brandName)}
+              </span>
+              <div className="bb-yt-watch-channel-copy">
+                <p className="bb-yt-channel-name">{brandName || 'Business'}</p>
+                <p className="bb-yt-watch-meta">Studio channel</p>
+              </div>
+            </div>
+
+            {editMode || String(post.caption || '').trim() ? (
+              <div className="bb-yt-watch-desc">
+                <p className="bb-yt-watch-desc-label">Description</p>
+                <EditableText
+                  as="p"
+                  className="bb-yt-watch-caption"
+                  editMode={editMode}
+                  multiline
+                  value={post.caption || ''}
+                  placeholder="Add a description…"
+                  onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+                />
+              </div>
+            ) : null}
+          </div>
         </div>
 
         {related.length ? (
@@ -291,6 +299,9 @@ export function SocialVideosPanel({
                 <span className="bb-social-video-tile-play" aria-hidden="true">
                   <Play size={22} strokeWidth={2.4} fill="currentColor" />
                 </span>
+              </span>
+              <span className="bb-yt-meta">
+                <span className="bb-social-video-tile-title">{title}</span>
               </span>
             </button>
 

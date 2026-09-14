@@ -342,11 +342,25 @@ html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-profile-tab
 }
 
 html[data-theme='dark'] .bb-yt-watch,
-html[data-theme='dark'] .bb-yt-watch-body,
-html[data-theme='dark'] .bb-yt-watch-bar,
+html[data-theme='dark'] .bb-yt-watch-bar {
+  background: var(--bb-bg) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-yt-watch-main,
+html[data-theme='dark'] .bb-yt-related {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
 html[data-theme='dark'] .bb-social-feed-post {
   background: var(--bb-surface) !important;
   border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-yt-watch-primary {
+  border-color: transparent !important;
 }
 
 html[data-theme='dark'] .bb-social-feed-post:hover {
@@ -360,19 +374,43 @@ html[data-theme='dark'] .bb-social-lightbox-copy {
 }
 
 html[data-theme='dark'] .bb-yt-watch-desc {
-  background: var(--bb-surface-2);
-  border-color: var(--bb-border);
+  background: var(--bb-surface) !important;
+  border: 1.5px solid var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-yt-watch-desc:hover {
+  box-shadow: none;
+  background: var(--bb-surface) !important;
+}
+
+html[data-theme='dark'] .bb-yt-watch-desc-stat,
+html[data-theme='dark'] .bb-yt-watch-caption,
+html[data-theme='dark'] .bb-yt-watch-channel-copy .bb-yt-channel-name {
+  color: var(--bb-ink) !important;
 }
 
 html[data-theme='dark'] .bb-yt-watch-channel {
-  background: var(--bb-surface-2) !important;
-  border-color: var(--bb-border) !important;
+  background: transparent !important;
+  border: 0 !important;
 }
 
-html[data-theme='dark'] .bb-yt-watch-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: var(--bb-muted);
+html[data-theme='dark'] .bb-yt-watch-facts,
+html[data-theme='dark'] .bb-yt-watch-meta {
+  color: var(--bb-muted) !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+html[data-theme='dark'] .bb-yt-watch-desc-label {
+  color: var(--bb-ink) !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+html[data-theme='dark'] .bb-yt-avatar--watch {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 html[data-theme='dark'] .bb-yt-watch-back {
@@ -387,8 +425,8 @@ html[data-theme='dark'] .bb-yt-watch-back:hover {
 
 html[data-theme='dark'] .bb-yt-related-row:hover,
 html[data-theme='dark'] .bb-yt-related-row:focus-visible {
-  background: var(--bb-surface-2) !important;
-  border-color: var(--bb-border) !important;
+  background: transparent !important;
+  border-color: transparent !important;
 }
 
 html[data-theme='dark'] .bb-yt-related-count {
@@ -405,19 +443,34 @@ html[data-theme='dark'] .bb-social-note {
 
 html[data-theme='dark'] .bb-social-notes,
 html[data-theme='dark'] .bb-social-notes--grid {
-  background: #121212 !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
+  border: 0 !important;
   box-shadow: none !important;
 }
 
 html[data-theme='dark'] .bb-social-note {
-  background: transparent !important;
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(255, 255, 255, 0.06), transparent 42%),
+    linear-gradient(165deg, #1c1c1c 0%, #161616 100%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 30px rgba(0, 0, 0, 0.28) !important;
   color: var(--bb-ink);
 }
 
+html[data-theme='dark'] .bb-social-note::before,
+html[data-theme='dark'] .bb-social-note::after {
+  background: #1c1c1c !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 html[data-theme='dark'] .bb-social-note:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background:
+    radial-gradient(120% 90% at 12% 0%, rgba(255, 255, 255, 0.08), transparent 42%),
+    linear-gradient(165deg, #222 0%, #191919 100%) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
 }
 
 html[data-theme='dark'] .bb-social-note--preview {

@@ -77,8 +77,13 @@ export function ThreadList({ threads, activeId, onSelect }) {
   return (
     <aside className="bb-support-list">
       <div className="bb-support-list-head">
-        <h2 className="bb-page-title text-lg m-0">Inbox</h2>
-        <p className="bb-muted m-0 text-xs mt-1">Bookings, orders, and client messages</p>
+        <div className="bb-support-list-head-copy">
+          <div className="bb-page-title-wrap">
+            <div className="bb-page-header-glow" aria-hidden="true" />
+            <h2 className="bb-page-title bb-support-inbox-title">Inbox</h2>
+          </div>
+          <p className="bb-muted m-0 text-xs mt-1">Bookings, orders, and client messages</p>
+        </div>
 
         <label className="bb-support-search bb-search-field">
           <Search size={15} className="bb-search-field-icon" aria-hidden="true" />

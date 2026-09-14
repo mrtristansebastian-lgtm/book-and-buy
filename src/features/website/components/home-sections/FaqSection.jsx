@@ -23,6 +23,17 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
               placeholder="FAQ"
               onChange={(value) => patchWebsite({ bookFaqTitle: value })}
             />
+            {editMode || String(website.bookFaqBody || '').trim() ? (
+              <EditableText
+                as="p"
+                className="bb-public-profile-section-body"
+                editMode={editMode}
+                multiline
+                value={website.bookFaqBody || ''}
+                placeholder="Short FAQ intro"
+                onChange={(value) => patchWebsite({ bookFaqBody: value })}
+              />
+            ) : null}
           </header>
 
           <div className="bb-public-faq-list">

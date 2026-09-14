@@ -47,6 +47,30 @@
   gap: 0.75rem;
 }
 
+.bb-support-list-head-copy {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bb-support-list-head .bb-page-title-wrap {
+  max-width: 100%;
+}
+
+.bb-support-list-head .bb-page-header-glow {
+  width: min(16rem, 130%);
+  height: 4.5rem;
+  left: -1rem;
+}
+
+.bb-support-inbox-title {
+  font-size: clamp(1.55rem, 2.6vw, 2.05rem);
+}
+
+html body .native-ui .bb-support-inbox-title {
+  font-size: clamp(1.55rem, 2.6vw, 2.05rem) !important;
+}
+
 .bb-support-search {
   width: 100%;
   margin: 0;

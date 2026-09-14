@@ -76,11 +76,11 @@ export function PublicBookingFlow({
 
   return (
     <section
-      className={`bb-public-buy-section ${hideTitle ? '' : 'bb-public-gutter'} ${
+      className={`bb-public-buy-section bb-public-gutter ${
         preview ? 'pointer-events-none' : ''
       }`}
     >
-      <div className={`${hideTitle ? '' : 'bb-public-measure-wide'} grid gap-6`}>
+      <div className="bb-public-measure-wide grid gap-6">
         {catalogTools}
 
         {panel === 'cart' ? (
@@ -134,27 +134,33 @@ export function PublicBookingFlow({
                     </div>
                     <div className="bb-public-product-body">
                       <h2>{item.name}</h2>
-                      {item.description ? (
-                        <p className="bb-public-product-desc">{item.description}</p>
-                      ) : null}
                     </div>
                     <div className="bb-public-product-price-row">
                       <span className="bb-public-product-price-label">Price</span>
                       <span className="bb-public-product-price-value">{price || '—'}</span>
                     </div>
                   </button>
-                  <button
-                    type="button"
-                    className="bb-public-product-cart-btn"
-                    disabled={inCart}
-                    onClick={() => {
-                      cart.addService(item);
-                      setPanel('cart');
-                    }}
-                  >
-                    <ShoppingBag size={12} strokeWidth={2.4} />
-                    <span>{inCart ? 'In cart' : 'Add to cart'}</span>
-                  </button>
+                  <div className="bb-public-product-actions">
+                    <button
+                      type="button"
+                      className="bb-public-product-cart-btn"
+                      disabled={inCart}
+                      onClick={() => {
+                        cart.addService(item);
+                        setPanel('cart');
+                      }}
+                    >
+                      <ShoppingBag size={12} strokeWidth={2.4} />
+                      <span>{inCart ? 'In cart' : 'Add'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="bb-public-product-more-btn"
+                      onClick={() => openDetail(item.id)}
+                    >
+                      View more
+                    </button>
+                  </div>
                 </article>
               );
             })}
