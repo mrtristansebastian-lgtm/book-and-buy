@@ -407,6 +407,16 @@ html[data-theme='dark'] .bb-composer-strip-item.is-active {
   border-color: #f2f2f2 !important;
 }
 
+html[data-theme='dark'] .bb-composer-caption-media {
+  background: #1a1a1a !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] .bb-composer-caption-kicker,
+html[data-theme='dark'] .bb-composer-caption-media-hint {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
 html[data-theme='dark'] .bb-composer-x-avatar {
   background: #f2f2f2 !important;
   color: #050505 !important;

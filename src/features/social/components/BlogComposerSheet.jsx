@@ -771,45 +771,79 @@ export function BlogComposerSheet({
 
               {stepIndex === 2 ? (
                 <div className="bb-composer-caption-step">
-                  <div className="bb-composer-carousel-preview">
-                    {items[0] ? (
-                      <>
-                        <MediaPreview item={items[previewIndex] || items[0]} />
-                        {items.length > 1 ? (
-                          <div className="bb-composer-carousel-controls">
-                            <button
-                              type="button"
-                              disabled={previewIndex <= 0}
-                              onClick={() => setPreviewIndex((v) => Math.max(0, v - 1))}
-                              aria-label="Previous"
-                            >
-                              <ChevronLeft size={16} />
-                            </button>
-                            <span>
-                              {previewIndex + 1} / {items.length}
+                  <div className="bb-composer-caption-media">
+                    <div
+                      className="bb-composer-carousel-preview"
+                      style={aspectStyle(
+                        (items[previewIndex] || items[0])?.aspectRatio
+                      )}
+                    >
+                      {items[0] ? (
+                        <>
+                          <MediaPreview
+                            item={items[previewIndex] || items[0]}
+                            onAspect={(aspect) => {
+                              const active = items[previewIndex] || items[0];
+                              if (!(aspect > 0) || !active?.id) return;
+                              setItems((prev) =>
+                                prev.map((entry) =>
+                                  entry.id === active.id && !(entry.aspectRatio > 0)
+                                    ? { ...entry, aspectRatio: aspect }
+                                    : entry
+                                )
+                              );
+                            }}
+                          />
+                          {(items[previewIndex] || items[0])?.kind === 'video' &&
+                          (items[previewIndex] || items[0])?.durationLabel ? (
+                            <span className="bb-composer-media-badge">
+                              {(items[previewIndex] || items[0]).durationLabel}
                             </span>
-                            <button
-                              type="button"
-                              disabled={previewIndex >= items.length - 1}
-                              onClick={() =>
-                                setPreviewIndex((v) => Math.min(items.length - 1, v + 1))
-                              }
-                              aria-label="Next"
-                            >
-                              <ChevronRight size={16} />
-                            </button>
-                          </div>
-                        ) : null}
-                      </>
+                          ) : null}
+                          {items.length > 1 ? (
+                            <div className="bb-composer-carousel-controls">
+                              <button
+                                type="button"
+                                disabled={previewIndex <= 0}
+                                onClick={() => setPreviewIndex((v) => Math.max(0, v - 1))}
+                                aria-label="Previous"
+                              >
+                                <ChevronLeft size={16} />
+                              </button>
+                              <span>
+                                {previewIndex + 1} / {items.length}
+                              </span>
+                              <button
+                                type="button"
+                                disabled={previewIndex >= items.length - 1}
+                                onClick={() =>
+                                  setPreviewIndex((v) => Math.min(items.length - 1, v + 1))
+                                }
+                                aria-label="Next"
+                              >
+                                <ChevronRight size={16} />
+                              </button>
+                            </div>
+                          ) : null}
+                        </>
+                      ) : (
+                        <span className="bb-composer-arrange-empty">No media</span>
+                      )}
+                    </div>
+                    {items.length > 1 ? (
+                      <p className="bb-composer-caption-media-hint">
+                        Swipe through the carousel before you publish
+                      </p>
                     ) : null}
                   </div>
-                  <div className="bb-composer-fields">
+                  <div className="bb-composer-caption-copy">
+                    <p className="bb-composer-caption-kicker">Almost done</p>
                     <label className="bb-social-field">
                       <span>Title (optional)</span>
                       <input
                         className="native-control-input bb-social-compose-control"
                         value={title}
-                        placeholder="Post title"
+                        placeholder="Give this post a title"
                         onChange={(event) => setTitle(event.target.value)}
                       />
                     </label>
@@ -817,7 +851,7 @@ export function BlogComposerSheet({
                       <span>Caption</span>
                       <textarea
                         className="native-control-input bb-social-compose-control bb-social-compose-caption"
-                        rows={5}
+                        rows={6}
                         value={caption}
                         placeholder="Write a caption…"
                         onChange={(event) => setCaption(event.target.value)}
