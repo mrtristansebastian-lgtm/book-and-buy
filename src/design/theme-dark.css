@@ -269,6 +269,10 @@ html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-profile-bi
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-feed-caption,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-post-caption,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-video-caption,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-note-text,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-note-stamp,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-text-caption,
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-social-article-body,
 html[data-theme='dark'] .bb-public-profile-bio,
 html[data-theme='dark'] .bb-public-about-body,
 html[data-theme='dark'] .bb-yt-watch-caption,
@@ -818,13 +822,23 @@ html[data-theme='dark'] .bb-finance-tab-toggle button.is-active {
 }
 
 /* Clients */
+html[data-theme='dark'] .bb-clients {
+  --bb-clients-ink: var(--bb-ink);
+  --bb-clients-muted: var(--bb-muted);
+  --bb-clients-paper: var(--bb-bg);
+  --bb-clients-paper-deep: var(--bb-surface-2);
+  --bb-clients-line: var(--bb-border);
+}
+
 html[data-theme='dark'] .bb-clients-row,
 html[data-theme='dark'] .bb-clients-panel,
 html[data-theme='dark'] .bb-clients-sheet,
 html[data-theme='dark'] .bb-clients-card,
 html[data-theme='dark'] .bb-clients-search,
 html[data-theme='dark'] .bb-clients-toolbar,
-html[data-theme='dark'] .bb-clients-action {
+html[data-theme='dark'] .bb-clients-action,
+html[data-theme='dark'] .bb-clients-directory,
+html[data-theme='dark'] .bb-clients-modal {
   background: var(--bb-panel) !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink) !important;
@@ -832,6 +846,35 @@ html[data-theme='dark'] .bb-clients-action {
 
 html[data-theme='dark'] .bb-clients-row.is-active {
   background: var(--bb-surface-2) !important;
+}
+
+html[data-theme='dark'] .bb-clients-letter {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-muted) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-clients-row-name,
+html[data-theme='dark'] .bb-clients-sheet-name,
+html[data-theme='dark'] .bb-clients-field-value,
+html[data-theme='dark'] .bb-clients-history-item,
+html[data-theme='dark'] .bb-clients-sheet-empty strong,
+html[data-theme='dark'] body .native-ui .bb-clients-row-name {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-clients-row-meta,
+html[data-theme='dark'] .bb-clients-history-item span,
+html[data-theme='dark'] .bb-clients-sheet-sub,
+html[data-theme='dark'] .bb-clients-history-empty,
+html[data-theme='dark'] .bb-clients-sheet-empty {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-clients-avatar,
+html[data-theme='dark'] .bb-clients-sheet-avatar {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-ink) !important;
 }
 
 /* Settings */
