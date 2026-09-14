@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Pencil, Play } from 'lucide-react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp } from '../utils/socialPostType';
 import { aspectStyle } from '../utils/videoMedia';
@@ -173,9 +173,6 @@ function VideoWatchPage({
                       ) : (
                         <span className="bb-social-video-tile-empty" />
                       )}
-                      <span className="bb-yt-related-play" aria-hidden="true">
-                        <Play size={14} fill="currentColor" strokeWidth={0} />
-                      </span>
                       {item.duration ? (
                         <span className="bb-social-video-tile-duration">{item.duration}</span>
                       ) : null}
@@ -296,12 +293,21 @@ export function SocialVideosPanel({
                 style={aspectStyle(post.aspectRatio, fallbackAspect)}
               >
                 {thumb ? <img src={thumb} alt="" /> : <span className="bb-social-video-tile-empty" />}
-                <span className="bb-social-video-tile-play" aria-hidden="true">
-                  <Play size={22} strokeWidth={2.4} fill="currentColor" />
-                </span>
               </span>
               <span className="bb-yt-meta">
-                <span className="bb-social-video-tile-title">{title}</span>
+                <span className="bb-yt-row">
+                  <span className="bb-yt-avatar" aria-hidden="true">
+                    {logoUrl ? <img src={logoUrl} alt="" /> : channelInitial(brandName)}
+                  </span>
+                  <span className="bb-yt-copy">
+                    <span className="bb-social-video-tile-title">{title}</span>
+                    <VideoMetaLine
+                      brandName={brandName}
+                      post={post}
+                      showOwnerStats={showOwnerStats}
+                    />
+                  </span>
+                </span>
               </span>
             </button>
 

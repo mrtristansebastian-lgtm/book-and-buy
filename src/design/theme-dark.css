@@ -341,6 +341,21 @@ html[data-theme='dark'] body .native-ui .bb-social-studio .bb-social-profile-tab
   color: var(--bb-ink) !important;
 }
 
+html[data-theme='dark'] .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head .bb-social-profile-tabs {
+  border-inline-end-color: var(--bb-border);
+}
+
+html[data-theme='dark'] .bb-public-profile-panel--content .bb-public-social--split .bb-social-profile-tab.is-active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-shell,
+html[data-theme='dark'] .bb-yt-home .bb-yt-card,
+html[data-theme='dark'] .bb-yt-home .bb-social-video-tile-card {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border) !important;
+}
+
 html[data-theme='dark'] .bb-yt-watch,
 html[data-theme='dark'] .bb-yt-watch-bar {
   background: var(--bb-bg) !important;
@@ -411,6 +426,20 @@ html[data-theme='dark'] .bb-yt-watch-desc-label {
 
 html[data-theme='dark'] .bb-yt-avatar--watch {
   background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='dark'] .bb-yt-home .bb-yt-avatar {
+  background: var(--bb-surface-2) !important;
+  color: var(--bb-ink) !important;
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-yt-home .bb-social-video-tile-title {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-yt-home .bb-yt-subline {
+  color: var(--bb-muted) !important;
 }
 
 html[data-theme='dark'] .bb-yt-watch-back {
@@ -1317,6 +1346,7 @@ html[data-theme='dark'] .bb-sort-field-value .is-placeholder {
 
 /* Public homepage remaining light shells ? never paint over the hero photo */
 html[data-theme='dark'] .bb-public-about,
+html[data-theme='dark'] .bb-public-about--editorial,
 html[data-theme='dark'] .bb-public-about-text-shell,
 html[data-theme='dark'] .bb-public-about-offer,
 html[data-theme='dark'] .bb-public-faq,
@@ -1335,6 +1365,12 @@ html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-about-bloc
   background: var(--bb-bg) !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-public-profile .bb-public-about--editorial .bb-public-about-media,
+html[data-theme='dark'] .bb-public-profile .bb-public-venue-card {
+  background: var(--bb-surface-2) !important;
+  border-color: var(--bb-border) !important;
 }
 
 /* Hero copy stays transparent over the full-bleed image; text stays white */

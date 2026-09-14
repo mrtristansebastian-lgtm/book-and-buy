@@ -160,7 +160,7 @@ export function SocialFeed({
 
   return (
     <section
-      className={`bb-public-social${embedded ? ' bb-public-social--embedded' : ''} bb-public-gutter`}
+      className={`bb-public-social${embedded ? ' bb-public-social--embedded bb-public-social--split' : ''} bb-public-gutter`}
     >
       <div className="bb-public-measure-wide grid gap-5">
         {embedded || feedOpen ? null : (
@@ -175,79 +175,79 @@ export function SocialFeed({
           />
         )}
 
-        {!feedOpen ? (
-          <div className="bb-social-blog-head">
-            {editMode ? (
-              <div className="bb-social-profile-actions">
-                <button type="button" className="bb-primary-btn" onClick={addForTab}>
-                  {addLabel}
-                </button>
-              </div>
-            ) : null}
-            <SocialProfileTabs value={tab} onChange={changeTab} />
-          </div>
-        ) : null}
+        <div className="bb-social-blog-head">
+          {editMode && !feedOpen ? (
+            <div className="bb-social-profile-actions">
+              <button type="button" className="bb-primary-btn" onClick={addForTab}>
+                {addLabel}
+              </button>
+            </div>
+          ) : null}
+          <SocialProfileTabs value={tab} onChange={changeTab} />
+        </div>
 
-        {feedOpen ? (
-          <SocialPostFeed
-            posts={imagePosts}
-            initialPostId={feedId}
-            editMode={editMode}
-            brandName={workspace.brandName || workspace.name || ''}
-            logoUrl={website.logoUrl || ''}
-            slug={slug}
-            onBack={closeFeed}
-            onUpdateSocialPost={onUpdateSocialPost}
-          />
-        ) : null}
+        <div className="bb-social-split-body">
+          {feedOpen ? (
+            <SocialPostFeed
+              posts={imagePosts}
+              initialPostId={feedId}
+              editMode={editMode}
+              brandName={workspace.brandName || workspace.name || ''}
+              logoUrl={website.logoUrl || ''}
+              slug={slug}
+              onBack={closeFeed}
+              onUpdateSocialPost={onUpdateSocialPost}
+            />
+          ) : null}
 
-        {!feedOpen && tab === 'posts' ? (
-          <SocialPostsGrid
-            posts={tabPosts}
-            editMode={editMode}
-            onUpdateSocialPost={onUpdateSocialPost}
-            onOpenPost={openPost}
-            emptyLabel={editMode ? 'Add a photo post to fill the gallery.' : 'No posts published yet.'}
-          />
-        ) : null}
-        {!feedOpen && (tab === 'films' || tab === 'videos') ? (
-          <SocialVideosPanel
-            posts={tabPosts}
-            variant="films"
-            editMode={editMode}
-            showOwnerStats={!publicMode}
-            brandName={workspace.brandName || ''}
-            logoUrl={website.logoUrl || ''}
-            onUpdateSocialPost={onUpdateSocialPost}
-            initialActiveId={routeKind === 'video' ? routePostId : ''}
-            onOpenVideo={openVideo}
-            onCloseVideo={closeVideo}
-          />
-        ) : null}
-        {!feedOpen && tab === 'verticals' ? (
-          <SocialVideosPanel
-            posts={tabPosts}
-            variant="verticals"
-            editMode={editMode}
-            showOwnerStats={!publicMode}
-            brandName={workspace.brandName || ''}
-            logoUrl={website.logoUrl || ''}
-            onUpdateSocialPost={onUpdateSocialPost}
-            initialActiveId={routeKind === 'vertical' ? routePostId : ''}
-            onOpenVideo={openVideo}
-            onCloseVideo={closeVideo}
-          />
-        ) : null}
-        {!feedOpen && tab === 'text' ? (
-          <SocialTextTimeline
-            posts={tabPosts}
-            editMode={editMode}
-            brandName={workspace.brandName || workspace.name || ''}
-            logoUrl={website.logoUrl || ''}
-            slug={workspace.slug || ''}
-            onUpdateSocialPost={onUpdateSocialPost}
-          />
-        ) : null}
+          {!feedOpen && tab === 'posts' ? (
+            <SocialPostsGrid
+              posts={tabPosts}
+              editMode={editMode}
+              onUpdateSocialPost={onUpdateSocialPost}
+              onOpenPost={openPost}
+              emptyLabel={editMode ? 'Add a photo post to fill the gallery.' : 'No posts published yet.'}
+            />
+          ) : null}
+          {!feedOpen && (tab === 'films' || tab === 'videos') ? (
+            <SocialVideosPanel
+              posts={tabPosts}
+              variant="films"
+              editMode={editMode}
+              showOwnerStats={!publicMode}
+              brandName={workspace.brandName || ''}
+              logoUrl={website.logoUrl || ''}
+              onUpdateSocialPost={onUpdateSocialPost}
+              initialActiveId={routeKind === 'video' ? routePostId : ''}
+              onOpenVideo={openVideo}
+              onCloseVideo={closeVideo}
+            />
+          ) : null}
+          {!feedOpen && tab === 'verticals' ? (
+            <SocialVideosPanel
+              posts={tabPosts}
+              variant="verticals"
+              editMode={editMode}
+              showOwnerStats={!publicMode}
+              brandName={workspace.brandName || ''}
+              logoUrl={website.logoUrl || ''}
+              onUpdateSocialPost={onUpdateSocialPost}
+              initialActiveId={routeKind === 'vertical' ? routePostId : ''}
+              onOpenVideo={openVideo}
+              onCloseVideo={closeVideo}
+            />
+          ) : null}
+          {!feedOpen && tab === 'text' ? (
+            <SocialTextTimeline
+              posts={tabPosts}
+              editMode={editMode}
+              brandName={workspace.brandName || workspace.name || ''}
+              logoUrl={website.logoUrl || ''}
+              slug={workspace.slug || ''}
+              onUpdateSocialPost={onUpdateSocialPost}
+            />
+          ) : null}
+        </div>
       </div>
     </section>
   );

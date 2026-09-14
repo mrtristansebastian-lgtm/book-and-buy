@@ -1719,9 +1719,9 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   transform: translateY(-1px);
 }
 
-.bb-social-post-tile-hit,
-.bb-social-video-tile-hit,
-.bb-social-article-tile-hit {
+.bb-social-studio .bb-social-post-tile-hit,
+.bb-social-studio .bb-social-video-tile-hit,
+.bb-social-studio .bb-social-article-tile-hit {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.75rem;
