@@ -3084,8 +3084,15 @@ html body .native-ui .bb-public-surface .bb-social-text-time {
   line-height: 1.45;
 }
 
-.bb-device-preview--phone .bb-public-home {
-  min-height: 18.5rem;
+.bb-device-preview--phone .bb-public-home,
+.bb-device-preview--phone .bb-public-profile-hero.bb-public-home {
+  min-height: 22rem;
+}
+
+.bb-device-preview--phone .bb-public-profile-hero .bb-editable-image img,
+.bb-device-preview--phone .bb-public-home .bb-editable-image img {
+  object-fit: cover;
+  object-position: center 28%;
 }
 
 .bb-device-preview--phone .bb-public-home-copy {

@@ -3,12 +3,13 @@
 .bb-ops-desk {
   display: grid;
   gap: 0.25rem;
-  background: #fff;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: var(--bb-panel);
+  border: 1px solid var(--bb-border);
   border-radius: 1rem;
   padding: 1rem 1.35rem 0.65rem;
   box-sizing: border-box;
   overflow: visible;
+  color: var(--bb-ink);
 }
 
 /* —— Filter tabs —— */

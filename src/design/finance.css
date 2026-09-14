@@ -171,7 +171,7 @@
 
 html body .native-ui .bb-finance .bb-finance-metric-value {
   font-weight: 820 !important;
-  color: #101828 !important;
+  color: var(--bb-ink) !important;
   letter-spacing: -0.03em !important;
   line-height: 1.15 !important;
 }
@@ -609,13 +609,13 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 
 html body .native-ui .bb-finance .bb-finance-receipt-total {
   font-weight: 820 !important;
-  color: #101828 !important;
+  color: var(--bb-ink) !important;
   line-height: 1.15 !important;
 }
 
 html body .native-ui .bb-finance .bb-finance-receipt-brand {
   font-weight: 800 !important;
-  color: #101828 !important;
+  color: var(--bb-ink) !important;
 }
 
 .bb-finance-receipt-pay {

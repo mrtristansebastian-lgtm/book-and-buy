@@ -3178,6 +3178,6 @@ html body .native-ui .bb-schedule-desk .bb-schedule-desk-title,
 html body .native-ui .bb-schedule-desk .bb-schedule-spot-stat-value,
 html body .native-ui .bb-schedule-desk .bb-schedule-spot-name,
 html body .native-ui .bb-schedule-desk .bb-schedule-spot-sheet-facts dd {
-  color: #101828 !important;
+  color: var(--bb-ink) !important;
   font-weight: 800 !important;
 }

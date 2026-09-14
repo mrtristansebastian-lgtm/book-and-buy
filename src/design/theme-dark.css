@@ -376,11 +376,11 @@ html[data-theme='dark'] .bb-home-live-copy {
 }
 
 html[data-theme='dark'] .bb-nav-item:not([aria-current='page']) {
-  color: #c5cbd6;
+  color: #d4d4d4;
 }
 
 html[data-theme='dark'] .bb-owner-nav-group-label {
-  color: #98a2b3;
+  color: #a3a3a3;
 }
 
 /* Schedule + Availability */
@@ -404,13 +404,30 @@ html[data-theme='dark'] .bb-schedule-avail-day,
 html[data-theme='dark'] .bb-schedule-avail-settings,
 html[data-theme='dark'] .bb-schedule-avail-settings-rail,
 html[data-theme='dark'] .bb-schedule-avail-settings-panel,
+html[data-theme='dark'] .bb-schedule-avail-studio-settings,
+html[data-theme='dark'] .bb-schedule-agenda-group,
+html[data-theme='dark'] .bb-schedule-agenda-day-panel,
 html[data-theme='dark'] .bb-schedule-staff-chip,
 html[data-theme='dark'] .bb-schedule-period,
 html[data-theme='dark'] .bb-schedule-toolbar,
+html[data-theme='dark'] .bb-schedule-period-filter,
 html[data-theme='dark'] .bb-schedule-feed,
-html[data-theme='dark'] .bb-schedule-feed-item {
+html[data-theme='dark'] .bb-schedule-feed-item,
+html[data-theme='dark'] .bb-schedule-hours-row,
+html[data-theme='dark'] .bb-schedule-hours-row.is-closed {
   background: var(--bb-panel) !important;
+  background-image: none !important;
   border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-today-btn,
+html[data-theme='dark'] .bb-schedule-day-label,
+html[data-theme='dark'] .bb-schedule-sort-select,
+html[data-theme='dark'] .bb-schedule-picker-sheet {
+  background: var(--bb-surface) !important;
+  background-image: none !important;
+  border-color: var(--bb-border-strong) !important;
   color: var(--bb-ink) !important;
 }
 
@@ -446,10 +463,107 @@ html[data-theme='dark'] .bb-schedule-avail-manage-btn:not(.is-settings) {
   color: #050505 !important;
 }
 
+/* Availability / schedule labels that stayed navy on dark */
+html[data-theme='dark'] .bb-schedule-staff-meter-name,
+html[data-theme='dark'] .bb-schedule-staff-avatar-name,
+html[data-theme='dark'] .bb-schedule-avail-avatar,
+html[data-theme='dark'] .bb-schedule-avail-avatar-name,
+html[data-theme='dark'] .bb-schedule-avail-avatar.is-active,
+html[data-theme='dark'] .bb-schedule-staff-avatar.is-active,
+html[data-theme='dark'] .bb-schedule-day-meter-legend-item,
+html[data-theme='dark'] .bb-schedule-day-meter-hours,
+html[data-theme='dark'] .bb-schedule-hours-day,
+html[data-theme='dark'] .bb-schedule-board-title,
+html[data-theme='dark'] .bb-schedule-board-kicker,
+html[data-theme='dark'] .bb-schedule-board-empty {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-day-meter-hours,
+html[data-theme='dark'] .bb-schedule-day-meter-legend-item {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-schedule-avail-avatar.is-active .bb-schedule-avail-avatar-face,
+html[data-theme='dark'] .bb-schedule-staff-avatar.is-active .bb-schedule-staff-avatar-face {
+  box-shadow:
+    0 0 0 2px var(--staff-color, #a3a3a3),
+    0 0 0 4px var(--bb-bg),
+    0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-desk-title,
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-stat-value,
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-name,
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-spot-sheet-facts dd {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-desk-lede,
+html[data-theme='dark'] body .native-ui .bb-schedule-desk .bb-schedule-empty-copy {
+  color: var(--bb-muted) !important;
+}
+
+/* Ops desk (Requests) */
+html[data-theme='dark'] .bb-ops-desk {
+  background: var(--bb-panel) !important;
+  border-color: var(--bb-border) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-ops-tabs,
+html[data-theme='dark'] .bb-ops-toolbar {
+  border-color: var(--bb-border) !important;
+}
+
+html[data-theme='dark'] .bb-ops-tab {
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-ops-tab:hover {
+  color: var(--bb-ink);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme='dark'] .bb-ops-tab.is-active {
+  color: #050505 !important;
+}
+
+html[data-theme='dark'] .bb-ops-tab-count {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--bb-muted);
+}
+
+html[data-theme='dark'] .bb-ops-person-name,
+html[data-theme='dark'] .bb-ops-when-primary,
+html[data-theme='dark'] body .native-ui .bb-ops-desk .bb-ops-person-name,
+html[data-theme='dark'] body .native-ui .bb-ops-desk h3 {
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-ops-meta,
+html[data-theme='dark'] .bb-ops-when-secondary,
+html[data-theme='dark'] .bb-ops-assign-label,
+html[data-theme='dark'] .bb-ops-assign-hint {
+  color: var(--bb-muted) !important;
+}
+
+html[data-theme='dark'] .bb-ops-action,
+html[data-theme='dark'] .bb-ops-assign-control,
+html[data-theme='dark'] .bb-ops-assign-control select {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border-strong) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-ops-action.is-primary {
+  color: #050505 !important;
+}
+
 /* Content / social studio */
 html[data-theme='dark'] .bb-social-studio-header {
   background:
-    radial-gradient(120% 80% at 0% 0%, rgba(20, 167, 255, 0.1), transparent 55%),
+    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
     linear-gradient(180deg, var(--bb-bg) 72%, transparent);
 }
 
@@ -524,7 +638,12 @@ html[data-theme='dark'] .bb-finance-metric-value,
 html[data-theme='dark'] .bb-finance-ledger-title,
 html[data-theme='dark'] .bb-finance-receipt-brand,
 html[data-theme='dark'] .bb-finance-receipt-total,
-html[data-theme='dark'] .bb-finance-sheet-title {
+html[data-theme='dark'] .bb-finance-sheet-title,
+html[data-theme='dark'] .bb-finance-receipt-client,
+html[data-theme='dark'] .bb-finance-receipt-client strong,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-metric-value,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-brand,
+html[data-theme='dark'] body .native-ui .bb-finance .bb-finance-receipt-total {
   color: var(--bb-ink) !important;
 }
 
@@ -571,21 +690,28 @@ html[data-theme='dark'] .bb-settings-nav-item.is-active {
   background: var(--bb-surface-2) !important;
 }
 
-/* Shared sheets / fields still hard-coded light */
+/* Shared sheets / fields — value chrome + picker sheets */
 html[data-theme='dark'] .bb-time-field,
-html[data-theme='dark'] .bb-time-popover,
 html[data-theme='dark'] .bb-date-field,
-html[data-theme='dark'] .bb-date-popover,
 html[data-theme='dark'] .bb-sort-field,
-html[data-theme='dark'] .bb-sort-popover {
+html[data-theme='dark'] .bb-time-field-value,
+html[data-theme='dark'] .bb-date-field-value,
+html[data-theme='dark'] .bb-sort-field-value,
+html[data-theme='dark'] .bb-time-picker-sheet,
+html[data-theme='dark'] .bb-date-picker-sheet,
+html[data-theme='dark'] .bb-sort-picker-sheet {
   background: var(--bb-surface) !important;
   border-color: var(--bb-border) !important;
   color: var(--bb-ink) !important;
 }
 
-/* Public homepage remaining light shells */
-html[data-theme='dark'] .bb-public-home-copy,
-html[data-theme='dark'] .bb-public-home-copy-inner,
+html[data-theme='dark'] .bb-time-field-value .is-placeholder,
+html[data-theme='dark'] .bb-date-field-value .is-placeholder,
+html[data-theme='dark'] .bb-sort-field-value .is-placeholder {
+  color: var(--bb-faint) !important;
+}
+
+/* Public homepage remaining light shells — never paint over the hero photo */
 html[data-theme='dark'] .bb-public-about,
 html[data-theme='dark'] .bb-public-about-text-shell,
 html[data-theme='dark'] .bb-public-about-offer,
@@ -607,15 +733,64 @@ html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-about-bloc
   color: var(--bb-ink) !important;
 }
 
+/* Hero copy stays transparent over the full-bleed image; text stays white */
+html[data-theme='dark'] .bb-public-home-copy,
+html[data-theme='dark'] .bb-public-home-copy-inner {
+  background: transparent !important;
+  color: #fff !important;
+}
+
 html[data-theme='dark'] .bb-public-home-brand,
 html[data-theme='dark'] .bb-public-home-support,
 html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-brand,
-html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-support {
-  color: var(--bb-ink) !important;
+html[data-theme='dark'] body .native-ui .bb-public-surface .bb-public-home-support,
+html[data-theme='dark'] .bb-public-profile-hero .bb-public-home-brand,
+html[data-theme='dark'] .bb-public-profile-hero .bb-public-home-support {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme='dark'] .bb-public-home-ctas .bb-ghost-btn,
+html[data-theme='dark'] .bb-public-home-ghost {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+}
+
+/* Device bezels — light grey metal in dark mode */
+html[data-theme='dark'] .bb-device-bezel,
+html[data-theme='dark'] .bb-device-preview--phone .bb-device-bezel,
+html[data-theme='dark'] .bb-device-preview--desktop .bb-device-bezel {
+  background:
+    linear-gradient(160deg, #ececec 0%, #c8c8c8 38%, #9e9e9e 72%, #bdbdbd 100%) !important;
+  border-color: #8f8f8f !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 18px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme='dark'] .bb-device-notch {
+  background: #5a5a5a !important;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 
 html[data-theme='dark'] .bb-page-header-glow::before,
 html[data-theme='dark'] .bb-page-header-glow::after {
   opacity: 0.35;
+}
+
+/* Products / stock shared chips & crate actions */
+html[data-theme='dark'] .bb-products-chip,
+html[data-theme='dark'] .bb-stock-crate-action {
+  background: var(--bb-surface) !important;
+  border-color: var(--bb-border-strong) !important;
+  color: var(--bb-ink) !important;
+}
+
+html[data-theme='dark'] .bb-products-chip.is-active {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #050505 !important;
 }
 
