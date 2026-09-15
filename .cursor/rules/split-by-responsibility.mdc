@@ -1,0 +1,27 @@
+---
+description: Keep files readable by extracting by responsibility, not by growing god files.
+globs: src/**/*.{js,jsx,ts,tsx,css}
+alwaysApply: false
+---
+
+# Split by responsibility
+
+Do not grow god files. Extract a sibling component, hook, or CSS section when a file crosses these soft caps:
+
+- UI components: **~350 lines**
+- Hooks / utils: **~500 lines**
+- Feature CSS: **~500 lines** — put the surface in a folder with an `index.css` barrel (see `src/design/public-surface/`)
+
+Follow existing feature layout: `pages/`, `components/`, `hooks/`, `utils/`. Match `src/features/website/components/home-sections/` when a surface has several sections.
+
+Keep public exports stable. If a file moves, re-export from the old path.
+
+```jsx
+// BAD — another 400 lines of wizard JSX in the same sheet
+{step === 'details' ? <div className="bb-editor-step">...</div> : null}
+
+// GOOD — sibling step file, sheet stays the stepper
+{step === 'details' ? <ProductEditorDetailsStep draft={draft} patch={patch} /> : null}
+```
+
+Do not rewrite CSS architecture (no CSS-modules migration) just to shrink files. Do not split domain math or seed data unless it is mixed with UI.

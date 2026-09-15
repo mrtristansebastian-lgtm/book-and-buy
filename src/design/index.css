@@ -5,8 +5,8 @@
 @import './native-typography-consistency.css';
 @import './native-booking-theme.css';
 @import './app-shell.css';
-@import './public-surface.css';
-@import './social-studio.css';
+@import './public-surface/index.css';
+@import './social-studio/index.css';
 @import './support-inbox.css';
 @import './ops-desk.css';
 @import './finance.css';
@@ -14,7 +14,7 @@
 @import './overview-home.css';
 @import './clients-directory.css';
 @import './services-studio.css';
-@import './schedule-studio.css';
+@import './schedule-studio/index.css';
 @import './products-studio.css';
 @import './time-field.css';
 @import './date-field.css';

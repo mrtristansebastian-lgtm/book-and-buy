@@ -1,124 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ImagePlus, Plus, Replace, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
-import { DateField } from '../../../shared/ui/DateField';
-import { TimeField } from '../../../shared/ui/TimeField';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
-  DURATION_PRESETS,
-  formatServiceSessionLabel,
   isValidServiceSessionWindow,
   parseDurationMinutes
 } from '../../../utils/services';
-import {
-  SCHEDULE_TYPE_OPTIONS,
-  getScheduleTypeMeta
-} from '../../../utils/scheduleTypes';
-
-function buildSetupSteps(scheduleType) {
-  const isSpot = scheduleType === 'class_session';
-  return [
-    {
-      id: 'type',
-      label: 'Type',
-      lede: 'How do clients book this?'
-    },
-    {
-      id: 'details',
-      label: 'Details',
-      lede: 'Name it, describe it, and set the price.'
-    },
-    {
-      id: 'photo',
-      label: 'Photo',
-      lede: 'Add a catalog photo clients will see on Book.'
-    },
-    isSpot
-      ? {
-          id: 'when',
-          label: 'When',
-          lede: 'Set the start and end date and time for this class or programme.'
-        }
-      : {
-          id: 'duration',
-          label: 'Duration',
-          lede: 'Used with Schedule hours to calculate bookable times.'
-        },
-    {
-      id: 'category',
-      label: 'Category',
-      lede: 'Optional — helps clients browse your Book page.'
-    },
-    {
-      id: 'review',
-      label: 'Review',
-      lede: 'Check everything, assign staff, then save.'
-    }
-  ];
-}
-
-function DurationPicker({ label, value, onChange, hint = '' }) {
-  const minutes = parseDurationMinutes(value);
-  const isCustom = minutes > 0 && !DURATION_PRESETS.includes(minutes);
-
-  return (
-    <div className="bb-services-duration">
-      <div className="bb-services-field-label-row">
-        <span className="bb-services-field-label">{label}</span>
-        {hint ? <span className="bb-services-field-hint">{hint}</span> : null}
-      </div>
-      <div className="bb-services-duration-presets" role="group" aria-label={label}>
-        {DURATION_PRESETS.map((preset) => {
-          const active = minutes === preset;
-          return (
-            <button
-              key={preset}
-              type="button"
-              className={`bb-services-duration-chip${active ? ' is-active' : ''}`}
-              onClick={() => onChange(String(preset))}
-            >
-              {preset} min
-            </button>
-          );
-        })}
-        <button
-          type="button"
-          className={`bb-services-duration-chip${isCustom ? ' is-active' : ''}`}
-          onClick={() => {
-            if (!isCustom) onChange(minutes ? String(minutes) : '75');
-          }}
-        >
-          Custom
-        </button>
-      </div>
-      {isCustom || !minutes ? (
-        <label className="bb-services-field">
-          <span>Minutes</span>
-          <input
-            className="native-control-input bb-services-control"
-            inputMode="numeric"
-            value={value}
-            placeholder="e.g. 75"
-            onChange={(event) => onChange(event.target.value.replace(/[^\d]/g, ''))}
-          />
-        </label>
-      ) : null}
-    </div>
-  );
-}
-
-function durationSummary(draft) {
-  if (draft.fixedDuration === false) {
-    const mins = parseDurationMinutes(draft.minDuration);
-    return mins ? `Min ${mins} min` : 'Minimum not set';
-  }
-  const mins = parseDurationMinutes(draft.duration);
-  return mins ? `${mins} min` : 'Not set';
-}
-
-function typeSummary(draft) {
-  return getScheduleTypeMeta(draft.scheduleType).setupLabel;
-}
+import { ServiceEditorCategoryStep } from './ServiceEditorCategoryStep';
+import { ServiceEditorDetailsStep } from './ServiceEditorDetailsStep';
+import { ServiceEditorDurationStep } from './ServiceEditorDurationStep';
+import { ServiceEditorPhotoStep } from './ServiceEditorPhotoStep';
+import { ServiceEditorReviewStep } from './ServiceEditorReviewStep';
+import { ServiceEditorTypeStep } from './ServiceEditorTypeStep';
+import { ServiceEditorWhenStep } from './ServiceEditorWhenStep';
+import { buildSetupSteps } from './serviceEditorUtils';
 
 export function ServiceEditorSheet({
   open,
@@ -374,375 +269,58 @@ export function ServiceEditorSheet({
 
           <div className="bb-services-setup-stage" key={step}>
             {step === 'type' ? (
-              <section className="bb-services-section">
-                <h3 className="bb-services-section-title">Type</h3>
-                <div className="bb-services-type-grid" role="radiogroup" aria-label="Booking type">
-                  {SCHEDULE_TYPE_OPTIONS.map((option) => {
-                    const active = draft.scheduleType === option.id;
-                    return (
-                      <button
-                        key={option.id}
-                        type="button"
-                        role="radio"
-                        aria-checked={active}
-                        className={`bb-services-type-card${active ? ' is-active' : ''}`}
-                        onClick={() => selectScheduleType(option.id)}
-                      >
-                        <strong className="bb-services-type-card-title">{option.setupLabel}</strong>
-                        <span className="bb-services-type-card-copy">{option.description}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
+              <ServiceEditorTypeStep
+                draft={draft}
+                selectScheduleType={selectScheduleType}
+              />
             ) : null}
 
             {step === 'details' ? (
-              <section className="bb-services-section">
-                <h3 className="bb-services-section-title">Details</h3>
-                <div className="bb-services-fields">
-                  <label className="bb-services-field">
-                    <span>Name</span>
-                    <input
-                      className="native-control-input bb-services-control"
-                      value={draft.name}
-                      placeholder="Service name"
-                      autoFocus
-                      onChange={(event) => patch({ name: event.target.value })}
-                    />
-                  </label>
-                  <label className="bb-services-field">
-                    <span>Description</span>
-                    <textarea
-                      className="native-control-input bb-services-control bb-services-textarea"
-                      rows={3}
-                      value={draft.description}
-                      placeholder="What clients should know…"
-                      onChange={(event) => patch({ description: event.target.value })}
-                    />
-                  </label>
-                  {showCapacity ? (
-                    <div className="bb-services-field-row bb-services-field-row--2">
-                      <label className="bb-services-field">
-                        <span>Price</span>
-                        <input
-                          className="native-control-input bb-services-control"
-                          value={draft.price}
-                          placeholder="e.g. 780"
-                          onChange={(event) => patch({ price: event.target.value })}
-                        />
-                      </label>
-                      <label className="bb-services-field">
-                        <span>Open spots</span>
-                        <input
-                          className="native-control-input bb-services-control"
-                          inputMode="numeric"
-                          value={draft.capacity}
-                          onChange={(event) =>
-                            patch({ capacity: event.target.value.replace(/[^\d]/g, '') })
-                          }
-                        />
-                      </label>
-                    </div>
-                  ) : (
-                    <label className="bb-services-field">
-                      <span>Price</span>
-                      <input
-                        className="native-control-input bb-services-control"
-                        value={draft.price}
-                        placeholder="e.g. 780"
-                        onChange={(event) => patch({ price: event.target.value })}
-                      />
-                    </label>
-                  )}
-                </div>
-              </section>
+              <ServiceEditorDetailsStep
+                draft={draft}
+                patch={patch}
+                showCapacity={showCapacity}
+              />
             ) : null}
 
             {step === 'photo' ? (
-              <section className="bb-services-section">
-                <h3 className="bb-services-section-title">Photo</h3>
-                <button
-                  type="button"
-                  className={`bb-services-photo${draft.image ? ' has-media' : ''}`}
-                  onClick={() => fileRef.current?.click()}
-                  disabled={busy}
-                >
-                  {draft.image ? (
-                    <img src={draft.image} alt="" />
-                  ) : (
-                    <span className="bb-services-photo-empty">
-                      <ImagePlus size={20} />
-                      <strong>Add photo</strong>
-                      <span>16:9 catalog crop</span>
-                    </span>
-                  )}
-                </button>
-                {draft.image ? (
-                  <button
-                    type="button"
-                    className="bb-ghost-btn bb-services-photo-replace"
-                    onClick={() => fileRef.current?.click()}
-                    disabled={busy}
-                  >
-                    <Replace size={14} />
-                    Replace
-                  </button>
-                ) : null}
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPick} />
-              </section>
+              <ServiceEditorPhotoStep
+                draft={draft}
+                busy={busy}
+                fileRef={fileRef}
+                onPick={onPick}
+              />
             ) : null}
 
             {step === 'when' ? (
-              <section className="bb-services-section">
-                <h3 className="bb-services-section-title">When</h3>
-                <p className="bb-services-section-lede">
-                  Clients reserve a seat for this fixed class or programme window.
-                </p>
-                <div className="bb-services-fields">
-                  <div className="bb-services-field-row bb-services-field-row--2">
-                    <div className="bb-services-field">
-                      <DateField
-                        label="Start date"
-                        value={draft.sessionStartDate || ''}
-                        onChange={(sessionStartDate) => {
-                          patch({
-                            sessionStartDate,
-                            sessionEndDate:
-                              !draft.sessionEndDate || draft.sessionEndDate < sessionStartDate
-                                ? sessionStartDate
-                                : draft.sessionEndDate
-                          });
-                        }}
-                      />
-                    </div>
-                    <div className="bb-services-field">
-                      <TimeField
-                        label="Start time"
-                        value={draft.sessionStartTime || ''}
-                        onChange={(next) => patch({ sessionStartTime: next })}
-                      />
-                    </div>
-                  </div>
-                  <div className="bb-services-field-row bb-services-field-row--2">
-                    <div className="bb-services-field">
-                      <DateField
-                        label="End date"
-                        value={draft.sessionEndDate || ''}
-                        min={draft.sessionStartDate || undefined}
-                        onChange={(sessionEndDate) => patch({ sessionEndDate })}
-                      />
-                    </div>
-                    <div className="bb-services-field">
-                      <TimeField
-                        label="End time"
-                        value={draft.sessionEndTime || ''}
-                        onChange={(next) => patch({ sessionEndTime: next })}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </section>
+              <ServiceEditorWhenStep draft={draft} patch={patch} />
             ) : null}
 
             {step === 'duration' ? (
-              <section className="bb-services-section">
-                <h3 className="bb-services-section-title">Duration</h3>
-                <p className="bb-services-section-lede">
-                  Used with Schedule hours to calculate bookable times.
-                </p>
-                <label className="bb-services-check">
-                  <input
-                    type="checkbox"
-                    checked={draft.fixedDuration === false}
-                    onChange={(event) => {
-                      const noFixed = event.target.checked;
-                      if (noFixed) {
-                        patch({
-                          fixedDuration: false,
-                          minDuration: draft.minDuration || draft.duration || '60'
-                        });
-                      } else {
-                        patch({
-                          fixedDuration: true,
-                          duration: draft.duration || draft.minDuration || '60'
-                        });
-                      }
-                    }}
-                  />
-                  <span>No fixed duration</span>
-                </label>
-
-                {draft.fixedDuration === false ? (
-                  <DurationPicker
-                    label="Minimum duration"
-                    hint="Required for availability"
-                    value={draft.minDuration}
-                    onChange={(minDuration) => patch({ minDuration })}
-                  />
-                ) : (
-                  <DurationPicker
-                    label="Service length"
-                    hint="Blocks this much time on the schedule"
-                    value={draft.duration}
-                    onChange={(duration) => patch({ duration })}
-                  />
-                )}
-              </section>
+              <ServiceEditorDurationStep draft={draft} patch={patch} />
             ) : null}
 
             {step === 'category' ? (
-              <section className="bb-services-section">
-                <h3 className="bb-services-section-title">Category</h3>
-                <div className="bb-services-category-chips">
-                  <button
-                    type="button"
-                    className={`bb-services-chip${!draft.category ? ' is-active' : ''}`}
-                    onClick={() => patch({ category: '' })}
-                  >
-                    None
-                  </button>
-                  {categoryOptions.map((label) => {
-                    const active = draft.category === label;
-                    return (
-                      <button
-                        key={label}
-                        type="button"
-                        className={`bb-services-chip${active ? ' is-active' : ''}`}
-                        onClick={() => patch({ category: label })}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    className="bb-services-chip bb-services-chip--add"
-                    onClick={() => setAddingCategory(true)}
-                  >
-                    <Plus size={14} />
-                    Add
-                  </button>
-                </div>
-                {addingCategory ? (
-                  <div className="bb-services-category-add">
-                    <input
-                      className="native-control-input bb-services-control"
-                      value={newCategory}
-                      placeholder="New category"
-                      autoFocus
-                      onChange={(event) => setNewCategory(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
-                          event.preventDefault();
-                          commitCategory();
-                        }
-                      }}
-                    />
-                    <button type="button" className="bb-primary-btn" onClick={commitCategory}>
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      className="bb-ghost-btn"
-                      onClick={() => {
-                        setAddingCategory(false);
-                        setNewCategory('');
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : null}
-              </section>
+              <ServiceEditorCategoryStep
+                draft={draft}
+                patch={patch}
+                categoryOptions={categoryOptions}
+                addingCategory={addingCategory}
+                setAddingCategory={setAddingCategory}
+                newCategory={newCategory}
+                setNewCategory={setNewCategory}
+                commitCategory={commitCategory}
+              />
             ) : null}
 
             {step === 'review' ? (
-              <section className="bb-services-section">
-                <h3 className="bb-services-section-title">Review</h3>
-                <div className="bb-services-review">
-                  <div className="bb-services-review-media">
-                    {draft.image ? (
-                      <img src={draft.image} alt="" />
-                    ) : (
-                      <span>No photo</span>
-                    )}
-                  </div>
-                  <dl className="bb-services-review-list">
-                    <div>
-                      <dt>Name</dt>
-                      <dd>{String(draft.name || '').trim() || '—'}</dd>
-                    </div>
-                    <div>
-                      <dt>Price</dt>
-                      <dd>{String(draft.price || '').trim() || '—'}</dd>
-                    </div>
-                    <div>
-                      <dt>Type</dt>
-                      <dd>
-                        {typeSummary(draft)}
-                        {showCapacity && draft.capacity ? ` · ${draft.capacity} open spots` : ''}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>{isSpot ? 'When' : 'Duration'}</dt>
-                      <dd>
-                        {isSpot
-                          ? formatServiceSessionLabel(draft) || 'Not set'
-                          : durationSummary(draft)}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Category</dt>
-                      <dd>{String(draft.category || '').trim() || 'None'}</dd>
-                    </div>
-                    {String(draft.description || '').trim() ? (
-                      <div className="bb-services-review-desc">
-                        <dt>Description</dt>
-                        <dd>{draft.description}</dd>
-                      </div>
-                    ) : null}
-                  </dl>
-                </div>
-
-                <div className="bb-services-staff">
-                  <span className="bb-services-field-label">Assigned staff</span>
-                  <div className="bb-services-staff-chips">
-                    {staff.length === 0 ? (
-                      <p className="bb-services-empty-note">Add team members on Schedule.</p>
-                    ) : (
-                      staff.map((member) => {
-                        const on = (draft.staffIds || []).includes(member.id);
-                        return (
-                          <button
-                            key={member.id}
-                            type="button"
-                            className={`bb-services-chip${on ? ' is-active' : ''}`}
-                            onClick={() =>
-                              patch({
-                                staffIds: on
-                                  ? draft.staffIds.filter((id) => id !== member.id)
-                                  : [...(draft.staffIds || []), member.id]
-                              })
-                            }
-                          >
-                            {member.name}
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-
-                <label className="bb-services-check">
-                  <input
-                    type="checkbox"
-                    checked={draft.active !== false}
-                    onChange={(event) => patch({ active: event.target.checked })}
-                  />
-                  <span>Visible on public Book page</span>
-                </label>
-              </section>
+              <ServiceEditorReviewStep
+                draft={draft}
+                patch={patch}
+                showCapacity={showCapacity}
+                isSpot={isSpot}
+                staff={staff}
+              />
             ) : null}
 
             {error ? <p className="bb-services-error">{error}</p> : null}

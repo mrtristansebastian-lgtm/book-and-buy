@@ -1,0 +1,3104 @@
+/* Rich Home / Iconic profile — full-width surface */
+.bb-public-home-stack {
+  display: grid;
+}
+
+.bb-public-profile {
+  justify-items: stretch;
+  width: 100%;
+  padding: 0 0 2rem;
+  background: #fff;
+}
+
+.bb-public-profile-rail {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  margin-inline: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  overflow: visible;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .bb-public-profile {
+    background: #f4f6f8;
+    padding: 0 0 1.5rem;
+  }
+
+  .bb-public-profile-rail {
+    width: 100%;
+    border-block: 0;
+    background: #fff;
+  }
+}
+
+.bb-public-profile-identity {
+  position: relative;
+  padding: 0;
+  background: #fff;
+}
+
+.bb-public-profile-shell {
+  display: grid;
+  gap: 0;
+  overflow: visible;
+  width: 100%;
+  max-width: min(100%, 48rem);
+  margin-inline: auto;
+  padding: 0.85rem var(--bb-public-gutter, 1.25rem) 0;
+  box-sizing: border-box;
+}
+
+.bb-public-profile-banner-wrap {
+  position: relative;
+  width: 100%;
+  /* YouTube-style inset banner strip */
+  height: clamp(9.5rem, 18vw, 12.5rem);
+  min-height: 9.5rem;
+  max-height: 12.5rem;
+  aspect-ratio: unset;
+  border-radius: 0.85rem;
+  background:
+    linear-gradient(135deg, #dbeafe 0%, #e2e8f0 48%, #f1f5f9 100%);
+  overflow: hidden;
+}
+
+.bb-public-profile-banner-wrap > .bb-public-profile-banner,
+.bb-public-profile-banner-wrap > .bb-editable-image,
+.bb-public-profile-banner-wrap > div {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.bb-public-profile-banner,
+.bb-public-profile-banner.bb-editable-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.bb-public-profile-banner-img,
+.bb-public-profile-banner img,
+.bb-public-profile-banner-wrap img {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  object-position: center center;
+  display: block;
+  border-radius: inherit;
+}
+
+.bb-public-profile-banner .bb-editable-image-empty,
+.bb-public-profile-banner-wrap .bb-editable-image-empty {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  color: rgba(15, 23, 42, 0.4);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.bb-public-profile-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'avatar'
+    'main'
+    'aside';
+  justify-items: center;
+  align-items: start;
+  column-gap: 0;
+  row-gap: 0.65rem;
+  padding: 0 0 1.2rem;
+  margin-top: 0;
+  background: transparent;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.bb-public-profile-avatar-ring {
+  grid-area: avatar;
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: 999px;
+  align-self: start;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: auto;
+  /* Half of 6.5rem avatar overlaps the banner */
+  margin-top: -3.25rem;
+}
+
+.bb-public-profile-shell .bb-public-profile-avatar-wrap {
+  box-shadow: none;
+}
+
+.bb-public-profile-main {
+  grid-area: main;
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  width: 100%;
+  justify-items: center;
+  align-content: start;
+  text-align: center;
+  padding-top: 0.1rem;
+  margin-top: 0;
+}
+
+.bb-public-profile-aside {
+  grid-area: aside;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+  width: 100%;
+  max-width: 14rem;
+  margin-inline: auto;
+  padding-top: 0.15rem;
+  margin-top: 0.1rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile-card {
+    row-gap: 0.55rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .bb-public-profile-avatar-ring {
+    /* Half of 7.5rem avatar */
+    margin-top: -3.75rem;
+  }
+
+  .bb-public-profile-avatar-wrap {
+    width: 7.5rem;
+    height: 7.5rem;
+    margin-inline: auto;
+  }
+
+  .bb-public-profile-aside {
+    max-width: 12.5rem;
+  }
+
+  .bb-public-profile-name {
+    max-width: min(28ch, 100%);
+  }
+
+  .bb-public-profile-bio {
+    max-width: 32rem;
+  }
+}
+
+.bb-public-profile-avatar-wrap {
+  flex: 0 0 auto;
+  width: 6.5rem;
+  height: 6.5rem;
+  margin-inline: auto;
+  border-radius: 999px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.bb-public-profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 2px solid #101828;
+  background: #f2f4f7;
+  position: relative;
+}
+
+.bb-public-profile-avatar.bb-editable-image .bb-editable-image-hit {
+  border-radius: 999px;
+  font-size: 0.55rem;
+}
+
+.bb-public-profile-avatar-img,
+.bb-public-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-profile-name {
+  margin: 0;
+  display: block;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  font-size: clamp(1.35rem, 5.2vw, 1.85rem);
+  color: #101828;
+  text-align: center;
+  max-width: min(22ch, 100%);
+  visibility: visible;
+  opacity: 1;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
+}
+
+.bb-public-profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+  max-width: 24rem;
+}
+
+.bb-public-profile-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  min-height: 1.75rem;
+  padding: 0.28rem 0.78rem;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  color: #101828;
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+.bb-public-profile-chip--category {
+  padding-inline: 0.82rem;
+}
+
+.bb-public-profile-chip--location {
+  padding: 0.28rem 0.78rem 0.28rem 0.62rem;
+}
+
+.bb-public-profile-chip--location .bb-public-profile-chip-icon {
+  flex: 0 0 auto;
+  width: 0.82rem;
+  height: 0.82rem;
+  margin-top: 0;
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.bb-public-profile-category,
+.bb-public-profile-location {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 720;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  color: #101828;
+  text-align: center;
+  transform: translateY(0.5px);
+}
+
+.bb-public-profile-chip .bb-editable-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  transform: translateY(0.5px);
+}
+
+.bb-public-profile-meta-dot {
+  display: none;
+}
+
+.bb-public-profile-bio {
+  margin: 0.45rem 0 0;
+  max-width: 28rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-weight: 500;
+  color: #344054;
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.bb-public-profile-action {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.45rem;
+  border-radius: 0.75rem;
+  font-size: 0.84rem;
+  font-weight: 720;
+  padding-inline: 1rem;
+}
+
+.bb-public-profile-action--compact {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.45rem;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile-name {
+    text-align: center;
+    max-width: min(28ch, 100%);
+    font-size: clamp(1.45rem, 2.8vw, 2.05rem);
+    line-height: 1.05;
+  }
+
+  .bb-public-profile-meta {
+    justify-content: center;
+  }
+
+  .bb-public-profile-bio {
+    text-align: center;
+    margin-top: 0.2rem;
+  }
+
+  .bb-public-profile-action--compact {
+    width: 100%;
+    min-width: 7.5rem;
+  }
+}
+
+.bb-public-profile-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bb-public-profile-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  width: 100%;
+  border-top: 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+}
+
+.bb-public-profile-tabs--top {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-profile-tab {
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.65rem;
+  border: 0;
+  background: transparent;
+  color: #98a2b3;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.64rem;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.15rem;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .bb-public-profile-tab {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    min-height: 2.85rem;
+  }
+}
+
+.bb-public-profile-tab:hover {
+  color: #475467;
+}
+
+.bb-public-profile-tab.is-active {
+  color: #101828;
+}
+
+.bb-public-profile-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 999px;
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+}
+
+.bb-public-profile-tab:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.25);
+  outline-offset: -2px;
+}
+
+.bb-public-profile-modules {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  background: #fff;
+  min-height: 12rem;
+}
+
+.bb-public-profile-panel {
+  min-width: 0;
+  width: 100%;
+}
+
+.bb-public-profile-home-stack {
+  display: grid;
+  gap: 0;
+  width: 100%;
+}
+
+.bb-public-profile-home-stack > .bb-public-home-block {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-public-profile-home-stack > .bb-public-home-block:last-child {
+  border-bottom: 0;
+}
+
+.bb-public-profile-panel--book,
+.bb-public-profile-panel--buy {
+  padding: 0.85rem var(--bb-public-gutter, 1.25rem) 1.25rem;
+  width: 100%;
+}
+
+.bb-public-profile-panel--content {
+  display: grid;
+  gap: 0;
+  width: 100%;
+}
+
+.bb-public-profile-panel--content .bb-public-profile-identity {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-social-split-body {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+/*
+ * EXPERIMENT: Social desktop split
+ * Fixed centered shell — profile + tabs stay put; content scrolls in the right pane.
+ * Undo by removing this block + SocialFeed --split / bb-social-split-body wrappers
+ */
+@media (min-width: 1100px) {
+  .bb-public-home-stack.bb-public-profile:has(.bb-public-social--split) {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    padding: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .bb-public-profile:has(.bb-public-social--split) .bb-public-profile-rail {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .bb-public-profile:has(.bb-public-social--split) .bb-public-profile-tabs--top {
+    position: relative;
+    top: auto;
+    flex: 0 0 auto;
+  }
+
+  .bb-public-profile:has(.bb-public-social--split) .bb-public-profile-modules {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) {
+    grid-template-columns: 18.75rem 4.85rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: 0.85rem;
+    row-gap: 0;
+    align-items: stretch;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
+    margin-inline: 0;
+    padding: 0.85rem 1.15rem 1rem 0.75rem;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-identity {
+    border-bottom: 0;
+    position: relative;
+    top: auto;
+    align-self: stretch;
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block: 0.5rem;
+    padding-bottom: 0.5rem;
+    scrollbar-gutter: stable;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-shell {
+    max-width: none;
+    margin: 0;
+    padding: 0.65rem 0.65rem 0.85rem;
+    width: 100%;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 1rem;
+    background: #fff;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-banner-wrap {
+    height: 7.5rem;
+    min-height: 7.5rem;
+    max-height: 7.5rem;
+    border-radius: 0.7rem;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-card {
+    justify-items: center;
+    text-align: center;
+    border-bottom: 0;
+    padding-bottom: 0.35rem;
+    row-gap: 0.45rem;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-avatar-ring {
+    justify-self: center;
+    margin-top: -2.4rem;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-avatar-wrap {
+    width: 4.75rem;
+    height: 4.75rem;
+    margin-inline: auto;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-main,
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-aside {
+    justify-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-name,
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-bio {
+    max-width: none;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-meta {
+    justify-content: center;
+    max-width: none;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-aside {
+    max-width: none;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-action,
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-action--compact {
+    width: 100%;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split,
+  .bb-public-profile-panel--content .bb-public-social--split > .bb-public-measure-wide {
+    display: contents;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head {
+    display: grid;
+    gap: 0.55rem;
+    max-width: none;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    margin: 0;
+    position: relative;
+    top: auto;
+    align-self: stretch;
+    align-content: center;
+    justify-items: stretch;
+    padding: 0.1rem 0 0;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head .bb-social-profile-actions {
+    justify-content: stretch;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head .bb-social-profile-actions .bb-primary-btn {
+    width: 100%;
+    padding-inline: 0.35rem;
+    font-size: 0.68rem;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head .bb-social-profile-tabs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+    border: 0;
+    border-inline-end: 1px solid rgba(15, 23, 42, 0.1);
+    padding-right: 0.4rem;
+    height: fit-content;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-profile-tab {
+    flex-direction: column;
+    gap: 0.28rem;
+    min-height: 4.1rem;
+    padding: 0.55rem 0.2rem;
+    border-radius: 0.55rem;
+    letter-spacing: 0.06em;
+    font-size: 0.58rem;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-profile-tab.is-active {
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-profile-tab.is-active::after {
+    left: auto;
+    right: -0.4rem;
+    top: 18%;
+    bottom: 18%;
+    width: 2px;
+    height: auto;
+    border-radius: 999px;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    align-self: stretch;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    padding: 0.1rem 0.35rem 1.25rem 0.15rem;
+    scrollbar-gutter: stable;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body > * {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body > .bb-social-feed {
+    width: min(100%, 28.5rem);
+    max-width: 28.5rem;
+    margin-inline: auto;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-feed-media {
+    max-height: min(36rem, 70dvh);
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-ig-grid,
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-post-cards,
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-video-grid,
+  .bb-public-profile-panel--content .bb-public-social--split .bb-yt-home {
+    align-content: start;
+    align-items: start;
+    height: auto;
+  }
+
+  .bb-public-profile .bb-public-social--split > .bb-public-measure-wide,
+  .bb-public-profile .bb-public-social--split .bb-social-split-body {
+    max-width: none;
+    margin: 0;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-yt-watch) {
+    grid-template-columns: 18.75rem 4.85rem minmax(0, 1fr);
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-video-grid.bb-yt-home:not(.bb-social-verticals-grid) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem 0.75rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .bb-public-profile-panel--content:has(.bb-public-social--split) {
+    grid-template-columns: 19.5rem 5rem minmax(0, 1fr);
+    padding: 0.9rem 1.35rem 1.1rem 0.9rem;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-video-grid.bb-yt-home:not(.bb-social-verticals-grid) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Phone / tablet keep the stacked Social layout */
+@media (max-width: 1099px) {
+  .bb-public-social--split .bb-social-split-body {
+    display: block;
+  }
+}
+
+.bb-public-profile .bb-public-profile-hero.bb-public-home {
+  min-height: clamp(22rem, calc(100dvh - 3.25rem), 34rem);
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+.bb-public-profile .bb-public-profile-hero .bb-public-home-copy {
+  padding-top: clamp(2.5rem, 8vh, 4rem);
+  padding-bottom: clamp(2rem, 6vh, 3.25rem);
+}
+
+.bb-public-profile-home-stack > .bb-public-profile-hero {
+  border-bottom: 0;
+}
+
+.bb-public-profile-featured {
+  margin: 0 0 0.85rem;
+  max-width: 18rem;
+}
+
+.bb-public-profile .bb-public-social--embedded {
+  padding-top: 0.75rem;
+  padding-bottom: 1rem;
+  padding-left: var(--bb-public-gutter, 1.25rem);
+  padding-right: var(--bb-public-gutter, 1.25rem);
+  width: 100%;
+}
+
+.bb-public-profile .bb-public-social--embedded .bb-public-measure-wide {
+  gap: 0.85rem;
+}
+
+.bb-public-profile .bb-public-social--embedded .bb-public-measure-wide:has(> .bb-yt-watch) {
+  max-width: min(100%, 72rem);
+  width: 100%;
+  margin-inline: auto;
+}
+
+@media (min-width: 960px) {
+  .bb-public-profile .bb-public-social--embedded .bb-social-ig-grid,
+  .bb-public-profile .bb-public-social--embedded .bb-social-post-cards {
+    width: 100%;
+    margin-inline: 0;
+  }
+}
+
+.bb-public-profile-section-head {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
+.bb-public-profile-section-body {
+  margin: 0;
+  max-width: 36rem;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  color: #475467;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.bb-public-profile .bb-public-profile-section-title,
+.bb-public-profile .bb-public-about-offer-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: #98a2b3;
+  max-width: none;
+  text-align: center;
+}
+
+.bb-public-profile .bb-public-profile-heading,
+.bb-public-profile .bb-public-venue-title,
+.bb-public-profile .bb-public-reviews-title,
+.bb-public-profile .bb-public-visit-title,
+.bb-public-profile .bb-public-faq-title,
+.bb-public-profile .bb-public-about-title {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  font-weight: 820;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: #101828;
+  text-transform: none;
+  text-align: center;
+}
+
+.bb-public-profile .bb-public-profile-heading::after,
+.bb-public-profile .bb-public-venue-title::after,
+.bb-public-profile .bb-public-reviews-title::after,
+.bb-public-profile .bb-public-visit-title::after,
+.bb-public-profile .bb-public-faq-title::after,
+.bb-public-profile .bb-public-about-title::after {
+  content: '';
+  display: block;
+  width: min(4.75rem, 55%);
+  height: 2px;
+  margin-top: 0.42rem;
+  border-radius: 999px;
+  background-color: #eefcff;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  background-blend-mode: soft-light, normal;
+}
+
+.bb-public-profile .bb-public-home-block,
+.bb-public-profile .bb-public-about-block,
+.bb-public-profile .bb-public-venue-block,
+.bb-public-profile .bb-public-reviews-block,
+.bb-public-profile .bb-public-map-block,
+.bb-public-profile .bb-public-profile-faq-block {
+  position: relative;
+  padding: 1.1rem var(--bb-public-gutter, 1.25rem) 1.25rem;
+  border-bottom: 0;
+  background: #fff;
+  overflow: visible;
+  width: 100%;
+}
+
+.bb-public-profile .bb-public-gallery-block {
+  padding: 1.35rem 0 1.75rem;
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head {
+  padding-inline: var(--bb-public-gutter, 1.25rem);
+  margin-bottom: 0.35rem;
+}
+
+.bb-public-profile .bb-public-venue-shell {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: min(100%, 92rem);
+  margin-inline: auto;
+  justify-items: center;
+}
+
+/* 3D coverflow gallery */
+.bb-public-coverflow {
+  display: grid;
+  gap: 1.15rem;
+  width: 100%;
+  justify-items: center;
+  padding: 0.35rem 0 0.25rem;
+}
+
+.bb-public-coverflow-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: clamp(22rem, 62vw, 36rem);
+  perspective: 1600px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  overflow: visible;
+}
+
+.bb-public-coverflow-slide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max-content;
+  max-width: min(86vw, 28rem);
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 1.15rem;
+  overflow: hidden;
+  background: #e8edf3;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  transform: translate(-50%, -50%)
+    translateX(calc(var(--cf-offset) * 64%))
+    translateZ(calc(var(--cf-abs) * -140px))
+    rotateY(calc(var(--cf-offset) * -30deg))
+    scale(calc(1 - (var(--cf-abs) * 0.1)));
+  opacity: calc(1 - (var(--cf-abs) * 0.16));
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.16),
+    0 4px 12px rgba(15, 23, 42, 0.08);
+  transition:
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 420ms ease,
+    box-shadow 420ms ease;
+  will-change: transform, opacity;
+}
+
+.bb-public-coverflow-slide.is-active {
+  opacity: 1;
+  box-shadow:
+    0 28px 56px rgba(15, 23, 42, 0.22),
+    0 10px 22px rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-coverflow-hit,
+.bb-public-coverflow-media {
+  display: block;
+  width: max-content;
+  max-width: min(86vw, 28rem);
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  line-height: 0;
+}
+
+.bb-public-coverflow-hit:focus-visible {
+  outline: 2px solid #101828;
+  outline-offset: 3px;
+}
+
+.bb-public-coverflow-img,
+.bb-public-coverflow-media img {
+  width: auto;
+  height: auto;
+  max-width: min(86vw, 28rem);
+  max-height: clamp(16rem, 58vw, 34rem);
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.bb-public-coverflow-empty {
+  display: block;
+  width: min(42vw, 14rem);
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(145deg, #e2e8f0, #f8fafc);
+}
+
+.bb-public-coverflow-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.bb-public-coverflow-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #fff;
+  color: #101828;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
+}
+
+.bb-public-coverflow-btn:hover {
+  border-color: rgba(15, 23, 42, 0.24);
+  background: #f8fafc;
+}
+
+.bb-public-coverflow-btn:active {
+  transform: scale(0.96);
+}
+
+.bb-public-coverflow-btn:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.35);
+  outline-offset: 2px;
+}
+
+@media (min-width: 720px) {
+  .bb-public-coverflow-stage {
+    height: clamp(28rem, 52vw, 40rem);
+  }
+
+  .bb-public-coverflow-slide,
+  .bb-public-coverflow-hit,
+  .bb-public-coverflow-media {
+    max-width: min(58vw, 34rem);
+  }
+
+  .bb-public-coverflow-img,
+  .bb-public-coverflow-media img {
+    max-width: min(58vw, 34rem);
+    max-height: clamp(22rem, 54vw, 38rem);
+  }
+
+  .bb-public-coverflow-slide {
+    border-radius: 1.35rem;
+    transform: translate(-50%, -50%)
+      translateX(calc(var(--cf-offset) * 68%))
+      translateZ(calc(var(--cf-abs) * -160px))
+      rotateY(calc(var(--cf-offset) * -26deg))
+      scale(calc(1 - (var(--cf-abs) * 0.08)));
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-public-coverflow-stage {
+    height: clamp(32rem, 48vw, 44rem);
+  }
+
+  .bb-public-coverflow-slide,
+  .bb-public-coverflow-hit,
+  .bb-public-coverflow-media {
+    max-width: min(42vw, 38rem);
+  }
+
+  .bb-public-coverflow-img,
+  .bb-public-coverflow-media img {
+    max-width: min(42vw, 38rem);
+    max-height: min(78vh, 40rem);
+  }
+
+  .bb-public-coverflow-slide {
+    transform: translate(-50%, -50%)
+      translateX(calc(var(--cf-offset) * 72%))
+      translateZ(calc(var(--cf-abs) * -180px))
+      rotateY(calc(var(--cf-offset) * -24deg))
+      scale(calc(1 - (var(--cf-abs) * 0.07)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-public-coverflow-slide {
+    transition: none;
+  }
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-ghost-btn {
+  margin: 0.85rem var(--bb-public-gutter, 1.25rem) 0;
+}
+
+.bb-public-profile .bb-public-gutter {
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  width: 100%;
+}
+
+.bb-public-profile .bb-public-measure,
+.bb-public-profile .bb-public-measure-wide {
+  max-width: none;
+  margin: 0;
+  width: 100%;
+}
+
+/* Keep public Social / Films / Notes content from going edge-to-edge on PC */
+.bb-public-profile .bb-public-social--embedded > .bb-public-measure-wide {
+  max-width: min(100%, 48rem);
+  width: 100%;
+  margin-inline: auto;
+}
+
+.bb-public-profile .bb-public-social--embedded > .bb-public-measure-wide:has(> .bb-yt-watch) {
+  max-width: min(100%, 72rem);
+  margin-inline: auto;
+}
+
+/* Book + Buy catalogs — use the profile rail width on PC */
+.bb-public-profile .bb-public-profile-panel--book .bb-public-measure-wide,
+.bb-public-profile .bb-public-profile-panel--buy .bb-public-measure-wide,
+.bb-public-profile .bb-public-profile-panel--book .bb-public-measure,
+.bb-public-profile .bb-public-profile-panel--buy .bb-public-measure {
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+  padding-inline: 0.75rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 960px) {
+  .bb-public-profile .bb-public-profile-panel--book .bb-public-measure-wide,
+  .bb-public-profile .bb-public-profile-panel--buy .bb-public-measure-wide,
+  .bb-public-profile .bb-public-profile-panel--book .bb-public-measure,
+  .bb-public-profile .bb-public-profile-panel--buy .bb-public-measure {
+    padding-inline: 1rem 1.25rem;
+  }
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile .bb-public-profile-panel--book .bb-public-product-grid,
+  .bb-public-profile .bb-public-profile-panel--buy .bb-public-product-grid,
+  .bb-public-profile .bb-public-profile-panel--book .bb-public-service-list,
+  .bb-public-profile .bb-public-profile-panel--buy .bb-public-service-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .bb-public-profile .bb-public-profile-panel--book .bb-public-product-grid,
+  .bb-public-profile .bb-public-profile-panel--buy .bb-public-product-grid,
+  .bb-public-profile .bb-public-profile-panel--book .bb-public-service-list,
+  .bb-public-profile .bb-public-profile-panel--buy .bb-public-service-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+}
+
+@media (min-width: 960px) {
+  .bb-public-profile .bb-public-social--embedded .bb-social-video-grid.bb-yt-home:not(.bb-social-verticals-grid) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem 0.75rem;
+  }
+
+  .bb-public-profile .bb-public-social--embedded .bb-social-verticals-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.bb-public-profile .bb-public-map-frame-accent,
+.bb-public-profile .bb-public-section-eyebrow,
+.bb-public-profile .bb-public-section-accent {
+  display: none !important;
+}
+
+/* Profile About — editorial split */
+.bb-public-profile .bb-public-about-block.bb-public-about-editorial {
+  padding: 1.75rem var(--bb-public-gutter, 1.25rem) 2rem;
+}
+
+.bb-public-profile .bb-public-about--editorial {
+  display: grid;
+  gap: 1.35rem;
+  align-items: center;
+  width: 100%;
+  max-width: min(100%, 56rem);
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .bb-public-profile .bb-public-about--editorial {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 3vw, 2.35rem);
+  }
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-copy {
+  display: grid;
+  gap: 0.85rem;
+  align-content: center;
+  justify-items: start;
+  justify-self: stretch;
+  width: 100%;
+  max-width: 32rem;
+  text-align: left;
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-head {
+  justify-items: start;
+  margin: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-title,
+.bb-public-profile .bb-public-about--editorial .bb-public-profile-heading {
+  justify-items: start;
+  text-align: left;
+  max-width: none;
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-body {
+  margin: 0;
+  max-width: 34rem;
+  font-size: clamp(0.98rem, 1.35vw, 1.08rem);
+  line-height: 1.65;
+  font-weight: 500;
+  color: #475467;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-media-wrap {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  isolation: isolate;
+  animation: bb-about-media-in 0.7s ease both;
+}
+
+@keyframes bb-about-media-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-public-profile .bb-public-about--editorial .bb-public-about-media-wrap {
+    animation: none;
+  }
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-media {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 5 / 6;
+  width: 100%;
+  max-height: none;
+  min-height: 14rem;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: #eef2f6;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: none;
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-media img,
+.bb-public-profile .bb-public-about--editorial .bb-public-about-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.01);
+  transition: transform 0.7s ease;
+}
+
+.bb-public-profile .bb-public-about--editorial .bb-public-about-media:hover img,
+.bb-public-profile .bb-public-about--editorial .bb-public-about-media:hover .bb-public-about-media-img {
+  transform: scale(1.045);
+}
+
+@media (max-width: 899px) {
+  .bb-public-profile .bb-public-about--editorial {
+    gap: 1.15rem;
+  }
+
+  .bb-public-profile .bb-public-about--editorial .bb-public-about-copy {
+    justify-items: center;
+    text-align: center;
+    max-width: none;
+  }
+
+  .bb-public-profile .bb-public-about--editorial .bb-public-about-head,
+  .bb-public-profile .bb-public-about--editorial .bb-public-about-title,
+  .bb-public-profile .bb-public-about--editorial .bb-public-profile-heading {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .bb-public-profile .bb-public-about--editorial .bb-public-about-body {
+    text-align: center;
+    max-width: 36rem;
+    margin-inline: auto;
+  }
+
+  .bb-public-profile .bb-public-about--editorial .bb-public-about-media {
+    aspect-ratio: 16 / 11;
+    min-height: 11rem;
+  }
+}
+
+.bb-public-profile .bb-public-about-offer {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.bb-public-profile .bb-public-about-offer-about {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .bb-public-profile .bb-public-about-offer-about {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 1.5rem;
+    align-items: center;
+  }
+}
+
+.bb-public-profile .bb-public-about-offer-media-wrap {
+  width: 100%;
+  min-width: 0;
+}
+
+.bb-public-profile .bb-public-about-offer-media {
+  aspect-ratio: 16 / 10;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #eef2f6;
+}
+
+.bb-public-profile .bb-public-about-offer-media img,
+.bb-public-profile .bb-public-about-offer-media .bb-editable-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-public-profile .bb-public-about-offer-copy {
+  display: grid;
+  gap: 0.55rem;
+  align-content: center;
+  min-width: 0;
+}
+
+.bb-public-profile .bb-public-about-body {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #475467;
+  max-width: 42rem;
+  text-align: center;
+}
+
+.bb-public-profile .bb-public-about-text-shell {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.15rem 0 0.35rem;
+  justify-items: center;
+}
+
+.bb-public-profile .bb-public-about-text-block .bb-public-about-body {
+  max-width: 40rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-inline: auto;
+}
+
+.bb-public-profile .bb-public-about-offer-offer {
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-public-profile .bb-public-about-offer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile .bb-public-about-offer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+}
+
+.bb-public-profile .bb-public-about-offer-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: start;
+  margin: 0;
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: #fafbfc;
+}
+
+.bb-public-profile .bb-public-about-offer-index {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.04em;
+  color: #98a2b3;
+  line-height: 1.4;
+  padding-top: 0.1rem;
+}
+
+.bb-public-profile .bb-public-about-offer-card-copy {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bb-public-profile .bb-public-about-offer-card-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: #101828;
+}
+
+.bb-public-profile .bb-public-about-offer-card-body {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: #667085;
+}
+
+.bb-public-profile .bb-public-about-offer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  max-width: 24rem;
+  padding-top: 0.15rem;
+}
+
+.bb-public-profile .bb-public-about-offer-action {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.4rem;
+  border-radius: 0.75rem;
+}
+
+.bb-public-profile .bb-public-visit {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  max-width: none;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .bb-public-profile .bb-public-visit {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 1.35rem;
+    align-items: stretch;
+  }
+}
+
+.bb-public-profile .bb-public-visit-copy,
+.bb-public-profile .bb-public-visit-body {
+  text-align: center;
+  max-width: 36rem;
+  justify-items: center;
+  margin-inline: auto;
+}
+
+.bb-public-profile .bb-public-map-wrap,
+.bb-public-profile .bb-public-map-frame {
+  min-height: 13rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .bb-public-profile .bb-public-map-wrap,
+  .bb-public-profile .bb-public-map-frame {
+    min-height: 18rem;
+  }
+}
+
+.bb-public-profile .bb-public-reviews-shell {
+  display: grid;
+  gap: 1rem;
+  max-width: none;
+  justify-items: stretch;
+  width: 100%;
+}
+
+.bb-public-profile .bb-public-profile-faq-block .bb-public-profile-section-head,
+.bb-public-profile .bb-public-map-block .bb-public-profile-section-head {
+  margin-bottom: 1rem;
+}
+
+.bb-public-profile .bb-public-reviews {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.2rem 0.05rem 0.35rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.bb-public-profile .bb-public-reviews::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile .bb-public-reviews {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.95rem;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bb-public-profile .bb-public-reviews {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.05rem;
+  }
+}
+
+.bb-public-profile .bb-public-review {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.85rem;
+  align-content: start;
+  flex: 0 0 min(82vw, 17.5rem);
+  width: min(82vw, 17.5rem);
+  max-width: 17.5rem;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 1.25rem 1.2rem 1.15rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background:
+    linear-gradient(165deg, #ffffff 0%, #fafbfc 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 12px 32px rgba(15, 23, 42, 0.055);
+  animation: none;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (min-width: 720px) {
+  .bb-public-profile .bb-public-review {
+    flex: none;
+    width: auto;
+    max-width: none;
+    min-height: 100%;
+    scroll-snap-align: none;
+  }
+}
+
+.bb-public-profile .bb-public-review:first-child {
+  padding-left: 1.2rem;
+  border-left: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.bb-public-profile .bb-public-review-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.bb-public-profile .bb-public-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem 0.2rem 0.25rem;
+  border-radius: 999px;
+  background: rgba(232, 185, 35, 0.1);
+}
+
+.bb-public-profile .bb-public-star {
+  display: block;
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  filter: drop-shadow(0 1px 0.5px rgba(166, 110, 12, 0.28));
+}
+
+.bb-public-profile .bb-public-star-path--filled {
+  fill: #e8b923;
+  stroke: #c99212;
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+.bb-public-profile .bb-public-star-path--empty {
+  fill: rgba(15, 23, 42, 0.1);
+  stroke: rgba(15, 23, 42, 0.06);
+  stroke-width: 0.5;
+}
+
+.bb-public-profile .bb-public-review-quote {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 560;
+  line-height: 1.55;
+  letter-spacing: -0.015em;
+  color: #1d2939;
+}
+
+.bb-public-profile .bb-public-review-author {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.1rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.bb-public-profile .bb-public-review-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  background: #101828;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 760;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+}
+
+.bb-public-profile .bb-public-review-name {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.84rem;
+  font-weight: 740;
+  letter-spacing: -0.015em;
+  color: #101828;
+  line-height: 1.25;
+}
+
+.bb-public-profile .bb-public-reviews-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.bb-public-profile-faq-shell {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.bb-public-profile .bb-public-faq-item {
+  border-radius: 0.7rem;
+}
+
+@media (max-width: 420px) {
+  .bb-public-profile-tab {
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.05rem;
+  }
+}
+
+.bb-public-home-block {
+  position: relative;
+  padding-top: clamp(2.15rem, 5vw, 3.25rem);
+  padding-bottom: clamp(2.15rem, 5vw, 3.25rem);
+}
+
+.bb-public-home-block--soft {
+  background: linear-gradient(180deg, #f8f8f9 0%, #f4f5f6 100%);
+}
+
+/* Native accent split line under the hero only */
+.bb-public-home::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  z-index: 4;
+  pointer-events: none;
+  background-color: #eefcff;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  background-blend-mode: soft-light, normal;
+}
+
+.bb-public-section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #667085;
+  line-height: 1;
+}
+
+/* Exact same animated fill as nav / segment / primary chrome */
+.bb-public-native-fill {
+  background-color: #eefcff;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  background-blend-mode: soft-light, normal;
+}
+
+.bb-public-section-eyebrow-mark {
+  display: block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 0.12rem;
+  flex-shrink: 0;
+}
+
+.bb-public-section-eyebrow-text {
+  margin: 0;
+  min-width: 1ch;
+  outline: none;
+}
+
+.bb-public-section-eyebrow .bb-editable-text.is-empty:before {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bb-public-section-eyebrow.is-on-ink {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.bb-public-section-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  width: fit-content;
+  max-width: 100%;
+  text-align: center;
+}
+
+.bb-public-section-heading :where(h2, .bb-editable-text) {
+  width: auto;
+  max-width: 100%;
+  text-align: center;
+}
+
+.bb-public-section-accent {
+  display: block;
+  align-self: stretch;
+  width: auto;
+  height: 4px;
+  border-radius: 999px;
+  /* Thickest in the middle of the heading, thins out to the edges */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.2) 10%,
+    #000 36%,
+    #000 64%,
+    rgba(0, 0, 0, 0.2) 90%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.2) 10%,
+    #000 36%,
+    #000 64%,
+    rgba(0, 0, 0, 0.2) 90%,
+    transparent 100%
+  );
+}
+
+/* About — editorial split with framed photo */
+.bb-public-about-block {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
+}
+
+.bb-public-about {
+  display: grid;
+  gap: 1.35rem;
+  align-items: center;
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .bb-public-about {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: center;
+  }
+}
+
+.bb-public-about-copy {
+  display: grid;
+  gap: 0.7rem;
+  align-content: center;
+  justify-items: center;
+  justify-self: center;
+  width: 100%;
+  max-width: 26rem;
+  text-align: center;
+}
+
+.bb-public-about-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #101828;
+  max-width: 12ch;
+  text-align: center;
+}
+
+.bb-public-about-body {
+  margin: 0.1rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 500;
+  color: #475467;
+  max-width: 34ch;
+  text-align: center;
+}
+
+.bb-public-about-media-wrap {
+  position: relative;
+  isolation: isolate;
+  max-width: 22rem;
+  width: 100%;
+  justify-self: center;
+}
+
+@media (min-width: 900px) {
+  .bb-public-about-media-wrap {
+    max-width: 26rem;
+    justify-self: end;
+  }
+}
+
+.bb-public-about-media-frame {
+  position: absolute;
+  inset: auto -0.5rem -0.5rem auto;
+  width: 36%;
+  height: 36%;
+  border-radius: 0 0 1.1rem 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bb-public-about-media {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 1 / 1;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.05);
+  min-height: 11rem;
+  max-height: 22rem;
+  width: 100%;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 18px 36px rgba(15, 23, 42, 0.12);
+}
+
+.bb-public-about-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scale(1.01);
+  transition: transform 0.7s ease;
+}
+
+.bb-public-about-media:hover img {
+  transform: scale(1.04);
+}
+
+/* Why choose us — oversized indices */
+.bb-public-reasons-block {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  color: #101828;
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
+}
+
+.bb-public-reasons-shell {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 1.85rem);
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.bb-public-reasons-head {
+  display: grid;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: none;
+  justify-items: center;
+  text-align: center;
+}
+
+.bb-public-reasons-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #101828;
+  max-width: 14ch;
+  text-align: center;
+}
+
+.bb-public-reasons {
+  display: grid;
+  gap: 0;
+}
+
+@media (min-width: 768px) {
+  .bb-public-reasons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+  }
+}
+
+.bb-public-reason {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  background: transparent;
+  border-radius: 0;
+  animation: bb-public-rise 0.55s ease both;
+  animation-delay: calc(0.06s * var(--bb-reason-i, 0));
+}
+
+@media (min-width: 768px) {
+  .bb-public-reason {
+    padding: 0.15rem 1.15rem 0;
+    border-top: 0;
+    border-left: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  .bb-public-reason:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+.bb-public-reason-index {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.65rem, 2.8vw, 2.15rem);
+  font-weight: 820;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-color: transparent;
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+}
+
+.bb-public-reason-copy {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.bb-public-reason-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  font-weight: 760;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #101828;
+}
+
+.bb-public-reason-body,
+.bb-public-reason p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-weight: 500;
+  color: #475467;
+  max-width: 26ch;
+}
+
+/* Venue — even photo grid, images keep natural proportions */
+.bb-public-venue-block {
+  position: relative;
+  overflow: visible;
+  background: #fff;
+}
+
+.bb-public-venue-shell {
+  display: grid;
+  gap: clamp(1.5rem, 3.5vw, 2.25rem);
+  justify-items: stretch;
+}
+
+.bb-public-venue-head {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: none;
+  justify-items: center;
+  text-align: center;
+}
+
+.bb-public-venue-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(2.15rem, 4.2vw, 3.25rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  color: #101828;
+  max-width: 14ch;
+  text-align: center;
+}
+
+.bb-public-venue-grid {
+  display: grid;
+  gap: 0.65rem;
+  width: 100%;
+  max-width: 38rem;
+  margin-inline: auto;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+@media (min-width: 640px) {
+  .bb-public-venue-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+.bb-public-venue-card {
+  margin: 0;
+  min-width: 0;
+  width: 100%;
+  animation: bb-public-rise 0.55s ease both;
+  animation-delay: calc(0.05s * var(--bb-venue-i, 0));
+}
+
+.bb-public-venue-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  text-align: left;
+  border-radius: 0.85rem;
+}
+
+.bb-public-venue-open:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.35);
+  outline-offset: 3px;
+}
+
+.bb-public-venue-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.bb-public-venue-media:not(:has(img)) {
+  min-height: 0;
+}
+
+.bb-public-venue-img,
+.bb-public-venue-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.bb-public-venue-card figcaption {
+  font-size: 0.82rem;
+  color: #667085;
+}
+
+.bb-public-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(5, 5, 5, 0.86);
+}
+
+.bb-public-lightbox-img {
+  max-width: min(960px, 100%);
+  max-height: 82vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.75rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.bb-public-lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  background: rgba(255, 255, 255, 0.94);
+  color: #101828;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bb-public-lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #101828;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bb-public-lightbox-nav.is-prev {
+  left: 1rem;
+}
+
+.bb-public-lightbox-nav.is-next {
+  right: 1rem;
+}
+
+.bb-public-lightbox-count {
+  position: absolute;
+  bottom: 1.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+/* Visit / Map */
+.bb-public-map-block {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
+}
+
+.bb-public-visit {
+  display: grid;
+  gap: 1.25rem;
+  align-items: stretch;
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 900px) {
+  .bb-public-visit {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(1.35rem, 2.5vw, 2rem);
+  }
+}
+
+.bb-public-visit-copy {
+  display: grid;
+  gap: 0.75rem;
+  align-content: center;
+  justify-items: center;
+  justify-self: center;
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+}
+
+.bb-public-visit-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #101828;
+  max-width: 10ch;
+  text-align: center;
+}
+
+.bb-public-visit-body {
+  margin: 0.1rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #475467;
+  max-width: 28ch;
+  text-align: center;
+}
+
+.bb-public-visit-fields {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 24rem;
+  margin-top: 0.35rem;
+  text-align: left;
+}
+
+.bb-public-visit-field {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 740;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.bb-public-map-wrap {
+  position: relative;
+  isolation: isolate;
+  min-height: 12.5rem;
+  max-width: 28rem;
+  width: 100%;
+  justify-self: center;
+}
+
+@media (min-width: 900px) {
+  .bb-public-map-wrap {
+    max-width: none;
+    justify-self: stretch;
+  }
+}
+
+.bb-public-map-frame-accent {
+  position: absolute;
+  inset: auto auto -0.45rem -0.45rem;
+  width: 30%;
+  height: 30%;
+  border-radius: 0 0 0 1rem;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bb-public-map-frame {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 12.5rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+@media (min-width: 900px) {
+  .bb-public-map-frame {
+    min-height: 15rem;
+  }
+}
+
+.bb-public-map-frame iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 12.5rem;
+  border: 0;
+  display: block;
+}
+
+@media (min-width: 900px) {
+  .bb-public-map-frame iframe {
+    min-height: 15rem;
+  }
+}
+
+/* Reviews — editorial quotes with gold stars */
+.bb-public-reviews-block {
+  position: relative;
+  overflow: visible;
+  background: #fff;
+  padding-top: clamp(2rem, 4.5vw, 3rem);
+  padding-bottom: clamp(2rem, 4.5vw, 3rem);
+}
+
+.bb-public-reviews-shell {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 1.85rem);
+  justify-items: stretch;
+  max-width: 56rem;
+  margin-inline: auto;
+}
+
+.bb-public-reviews-head {
+  display: grid;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: none;
+  justify-items: center;
+  text-align: center;
+}
+
+.bb-public-reviews-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #101828;
+  max-width: 14ch;
+  text-align: center;
+}
+
+.bb-public-reviews {
+  display: grid;
+  gap: 0;
+  width: 100%;
+}
+
+@media (min-width: 800px) {
+  .bb-public-reviews {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.bb-public-review {
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+  padding: 1.1rem 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  background: transparent;
+  border-radius: 0;
+  animation: bb-public-rise 0.55s ease both;
+  animation-delay: calc(0.05s * var(--bb-review-i, 0));
+}
+
+@media (min-width: 800px) {
+  .bb-public-review {
+    padding: 0.1rem 1.1rem 0;
+    border-top: 0;
+    border-left: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  .bb-public-review:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+.bb-public-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  line-height: 1;
+}
+
+.bb-public-star {
+  display: block;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 1px 0.5px rgba(166, 110, 12, 0.22));
+}
+
+.bb-public-star-path--filled {
+  fill: #e8b923;
+  stroke: #c99212;
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+.bb-public-star-path--empty {
+  fill: rgba(15, 23, 42, 0.1);
+  stroke: rgba(15, 23, 42, 0.06);
+  stroke-width: 0.5;
+}
+
+.bb-public-review-quote {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  line-height: 1.5;
+  font-weight: 560;
+  letter-spacing: -0.015em;
+  color: #1d2939;
+  max-width: 28ch;
+}
+
+.bb-public-review-name {
+  margin: 0.1rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 720;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #667085;
+}
+
+.bb-public-reviews-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Offer CTA — after reviews */
+.bb-public-offer-block {
+  background: #fff;
+}
+
+.bb-public-offer-shell {
+  display: grid;
+  gap: clamp(1.35rem, 3vw, 1.85rem);
+  justify-items: center;
+  text-align: center;
+}
+
+.bb-public-offer-head {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+  justify-items: center;
+}
+
+.bb-public-offer-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.85rem, 3.8vw, 2.75rem);
+  font-weight: 820;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #101828;
+  text-align: center;
+  max-width: 14ch;
+}
+
+.bb-public-offer-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.bb-public-offer-ctas .bb-primary-btn,
+.bb-public-offer-ctas .bb-ghost-btn {
+  min-width: 9.5rem;
+}
+
+.bb-public-book-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.35rem;
+  padding: 1.65rem 1.7rem;
+  border-radius: 1.35rem;
+  background: #0c0a09;
+  color: #fff;
+}
+
+.bb-public-book-strip-copy {
+  min-width: 0;
+  flex: 1 1 16rem;
+}
+
+.bb-public-book-strip .bb-page-title,
+.bb-public-book-strip .bb-public-lede,
+.bb-public-book-strip p,
+.bb-public-book-strip h2 {
+  color: #fff;
+}
+
+.bb-public-book-strip .bb-public-lede {
+  opacity: 0.86;
+  max-width: 28rem;
+}
+
+.bb-public-book-strip .bb-primary-btn {
+  flex-shrink: 0;
+}
+
+.bb-public-book-layout {
+  display: grid;
+  gap: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.bb-public-book-main {
+  max-width: var(--bb-public-measure-wide);
+  margin-inline: auto;
+  width: 100%;
+}
+
+.bb-public-book-main .bb-public-buy-section {
+  padding-top: 0;
+}
+
+/* Book FAQ — bottom accordion */
+.bb-public-book-faq {
+  padding-top: clamp(1.5rem, 4vw, 2.75rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+  background: #f4f4f5;
+}
+
+.bb-public-book-faq-shell {
+  display: grid;
+  gap: clamp(1.35rem, 3vw, 2rem);
+}
+
+.bb-public-book-faq-head {
+  display: grid;
+  gap: 0.85rem;
+  width: 100%;
+  justify-items: center;
+  text-align: center;
+}
+
+.bb-public-book-faq-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.65rem, 3.2vw, 2.25rem);
+  font-weight: 820;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: #101828;
+  text-align: center;
+}
+
+.bb-public-faq-list {
+  display: grid;
+  gap: 0;
+  width: 100%;
+}
+
+.bb-public-faq-item {
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-faq-item:last-of-type {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 1.05rem 0.15rem;
+  list-style: none;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 720;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: #101828;
+}
+
+.bb-public-faq-q::-webkit-details-marker {
+  display: none;
+}
+
+.bb-public-faq-q::after {
+  content: '+';
+  flex-shrink: 0;
+  width: 1.4rem;
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #667085;
+}
+
+.bb-public-faq-item[open] .bb-public-faq-q::after {
+  content: '−';
+}
+
+.bb-public-faq-item.is-edit .bb-public-faq-q::after {
+  display: none;
+}
+
+.bb-public-faq-item.is-edit .bb-public-faq-q {
+  cursor: text;
+  padding-bottom: 0.45rem;
+}
+
+.bb-public-faq-item.is-edit .bb-public-faq-a {
+  padding-top: 0.15rem;
+}
+
+.bb-public-faq-a {
+  padding: 0 1.6rem 1.1rem 0.15rem;
+}
+
+.bb-public-faq-a p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #475467;
+  max-width: 42rem;
+}
+
+.bb-public-book-aside {
+  padding: 1.25rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fbfbfb;
+}
+
+/* Motion */
+@keyframes bb-public-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-public-home-copy,
+.bb-public-home-block {
+  animation: bb-public-rise 0.55s ease both;
+}
+
+.bb-public-home-block:nth-of-type(2) {
+  animation-delay: 0.04s;
+}
+
+.bb-public-home-block:nth-of-type(3) {
+  animation-delay: 0.08s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-public-home-copy,
+  .bb-public-home-block,
+  .bb-public-reason,
+  .bb-public-venue-card,
+  .bb-public-review {
+    animation: none;
+  }
+
+  .bb-public-about-media img {
+    transition: none;
+  }
+}
+
+.bb-public-surface--edit .bb-public-home-ctas .bb-primary-btn,
+.bb-public-surface--edit .bb-public-home-ctas .bb-ghost-btn {
+  pointer-events: auto;
+}
+
+/*
+ * Beat native-typography-consistency !important rules on public pages.
+ * Those rules force dark heading/body colors that break hero + book strip.
+ */
+html body .native-ui .bb-public-surface .bb-public-home-copy :where(h1, h2, h3, p),
+html body .native-ui .bb-public-surface .bb-public-home-brand,
+html body .native-ui .bb-public-surface .bb-public-home-support {
+  color: #fff !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-support {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-weight: 500 !important;
+  line-height: 1.5 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-label,
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-coach,
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-badge {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home .bb-edit-section-badge {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+html body .native-ui .bb-public-surface .bb-public-lede {
+  color: #475467 !important;
+  font-weight: 500 !important;
+  line-height: 1.55 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-about-title {
+  color: #101828 !important;
+  font-weight: 820 !important;
+  line-height: 0.98 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-about-body {
+  color: #475467 !important;
+  font-weight: 500 !important;
+  line-height: 1.65 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-catalog-title,
+html body .native-ui .bb-public-surface .bb-public-page-intro .bb-page-title,
+html body .native-ui .bb-public-surface .bb-public-page-intro h1,
+html body .native-ui .bb-public-surface .bb-public-detail-title,
+html body .native-ui .bb-public-surface .bb-public-offer-title,
+html body .native-ui .bb-public-surface .bb-public-venue-title,
+html body .native-ui .bb-public-surface .bb-public-visit-title,
+html body .native-ui .bb-public-surface .bb-public-reviews-title {
+  color: #101828 !important;
+  font-weight: 820 !important;
+  line-height: 1.05 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-name {
+  color: #101828 !important;
+  font-size: 0.78rem !important;
+  font-weight: 740 !important;
+  text-align: left !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-product-stat-label {
+  color: rgba(15, 23, 42, 0.42) !important;
+  font-weight: 740 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-product-stat-value {
+  color: #101828 !important;
+  font-weight: 560 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-desc {
+  color: #667085 !important;
+  font-weight: 500 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-book-faq-title {
+  color: #101828 !important;
+  font-weight: 820 !important;
+  line-height: 1.05 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-faq-q {
+  color: #101828 !important;
+  font-weight: 720 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-faq-a p {
+  color: #475467 !important;
+  font-weight: 500 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-about-copy .bb-public-lede {
+  color: #344054 !important;
+  line-height: 1.65 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-muted {
+  color: #475467 !important;
+  font-weight: 500 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-review-quote {
+  color: #1d2939 !important;
+  font-weight: 560 !important;
+  line-height: 1.55 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-review-quote {
+  color: #344054 !important;
+  font-weight: 550 !important;
+  line-height: 1.5 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-review-name,
+html body .native-ui .bb-public-surface .bb-public-venue-card figcaption,
+html body .native-ui .bb-public-surface .bb-public-venue-card figcaption span {
+  color: #667085 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-review-name {
+  color: #101828 !important;
+  font-weight: 720 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-star-path--filled {
+  fill: #e8b923 !important;
+  stroke: #c99212 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-star-path--empty {
+  fill: rgba(15, 23, 42, 0.14) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-block .bb-page-title,
+html body .native-ui .bb-public-surface .bb-public-home-block :where(h2, h3) {
+  color: #101828 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile-name,
+html body .native-ui .bb-public-surface .bb-public-profile-name.bb-editable-text,
+html body .native-ui .bb-public-surface .bb-public-profile-section-title {
+  color: #101828 !important;
+  -webkit-text-fill-color: #101828 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile-bio {
+  color: #344054 !important;
+}
+
+/* Dark panels last so they win over body/lede rules above */
+html body .native-ui .bb-public-surface .bb-public-reasons-title,
+html body .native-ui .bb-public-surface .bb-public-reason-title {
+  color: #101828 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-reason-body,
+html body .native-ui .bb-public-surface .bb-public-reasons-block .bb-public-reason p {
+  color: #475467 !important;
+  font-weight: 500 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-section-eyebrow.is-on-ink {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-reason-index {
+  color: transparent !important;
+  background-color: transparent !important;
+  background-image: var(--native-accent-button-gradient) !important;
+  background-size: 420% 420% !important;
+  background-position: var(--native-accent-x) 50% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-native-fill,
+html body .native-ui .bb-public-surface .bb-public-section-accent,
+html body .native-ui .bb-public-surface .bb-public-home::after,
+html body .native-ui .bb-public-surface .bb-public-section-eyebrow-mark,
+html body .native-ui .bb-public-surface .bb-public-about-media-frame,
+html body .native-ui .bb-public-surface .bb-public-map-frame-accent,
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn {
+  background-color: #eefcff !important;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient) !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--native-accent-x) 50% !important;
+  background-blend-mode: soft-light, normal !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-book-strip :where(h1, h2, h3, p),
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-page-title,
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-public-lede {
+  color: #fff !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-primary-btn,
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-primary-btn :where(span, strong, small),
+html body .native-ui .bb-public-surface .bb-public-offer-ctas .bb-primary-btn,
+html body .native-ui .bb-public-surface .bb-public-offer-ctas .bb-primary-btn :where(span, strong, small),
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn,
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn :where(span, strong, small),
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn,
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn :where(span, svg) {
+  color: #050505 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text.is-empty:before {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text.is-focused,
+html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+/* Profile Home — keep module labels iconic (beat marketing native overrides) */
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-section-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-title {
+  color: #98a2b3 !important;
+  font-size: 0.68rem !important;
+  font-weight: 740 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  line-height: 1.2 !important;
+  max-width: none !important;
+  text-align: center !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-heading,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-venue-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-faq-title {
+  color: #101828 !important;
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem) !important;
+  font-weight: 820 !important;
+  letter-spacing: -0.035em !important;
+  text-transform: none !important;
+  line-height: 1.1 !important;
+  max-width: 100% !important;
+  text-align: center !important;
+  display: inline-grid !important;
+  justify-items: center !important;
+  width: fit-content !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-title,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-profile-heading {
+  text-align: left !important;
+  justify-items: start !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-body {
+  text-align: left !important;
+  max-width: 34rem !important;
+}
+
+@media (max-width: 899px) {
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-title,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-profile-heading {
+    text-align: center !important;
+    justify-items: center !important;
+  }
+
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-body {
+    text-align: center !important;
+  }
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-body,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-body,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-card-body {
+  text-align: center !important;
+  max-width: none !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-card-title {
+  color: #101828 !important;
+  font-weight: 760 !important;
+}
+
+@media (min-width: 900px) {
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-about,
+  .bb-public-profile .bb-public-about-offer-about {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr) !important;
+  }
+
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit,
+  .bb-public-profile .bb-public-visit {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+  }
+}
+

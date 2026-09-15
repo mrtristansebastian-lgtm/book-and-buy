@@ -1,15 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Info, Pencil, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Info, Pencil } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { SortField } from '../../../shared/ui/SortField';
-import {
-  buildMonthGrid,
-  formatDisplayDate,
-  parseDateKey,
-  toDateKey
-} from '../../../utils/dates';
+import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import {
   formatPeriodLabel,
   getPeriodRange,
@@ -23,11 +18,22 @@ import {
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import { getScheduleDayTimeline, getBusinessHoursForDate } from '../../../utils/staffAvailability';
-import { formatTimeValue, parseTimeValue } from '../../../utils/time';
 import { DayTimelineMeter } from '../components/DayTimelineMeter';
+import { ScheduleDatePicker } from '../components/ScheduleDatePicker';
+import { SpotInfoSheet } from '../components/SpotInfoSheet';
+import {
+  bookingDateKey,
+  compareAgendaBookings,
+  compareSpotServices,
+  formatBookingWindow,
+  formatSessionPart,
+  resolveStaffNames,
+  serviceOverlapsRange,
+  staffInitials,
+  staffPhoto,
+  statusLabel
+} from './schedulePageUtils';
 
-const ACTIVE = new Set(['pending', 'confirmed', 'waitlist']);
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const SORT_OPTIONS = [
   { id: 'latest', label: 'Latest' },
   { id: 'oldest', label: 'Oldest' },
@@ -40,319 +46,6 @@ const SPOT_SORT_OPTIONS = [
   { id: 'oldest', label: 'Oldest' },
   { id: 'service', label: 'Name A-Z' }
 ];
-
-function staffInitials(name = '') {
-  const parts = String(name || '')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-  if (!parts.length) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase();
-}
-
-function staffPhoto(member) {
-  return member?.photoURL || member?.imageUrl || '';
-}
-
-function statusLabel(status) {
-  if (status === 'upcoming') return 'Upcoming';
-  if (status === 'live') return 'Live';
-  if (status === 'ended') return 'Ended';
-  return 'Draft';
-}
-
-function formatSessionPart(dateKey, time) {
-  if (!dateKey && !time) return '—';
-  const datePart = dateKey ? formatDisplayDate(dateKey) : '';
-  const timePart = String(time || '').trim();
-  if (datePart && timePart) return `${datePart} · ${timePart}`;
-  return datePart || timePart || '—';
-}
-
-function formatBookingWindow(booking) {
-  const start = String(booking?.time || '').trim();
-  if (!start) return '—';
-  const minutes = Number(booking?.durationMinutes) || 0;
-  if (!minutes) return start;
-  const parts = parseTimeValue(start, start);
-  const total = parts.hour * 60 + parts.minute + minutes;
-  const endHour = Math.floor(total / 60) % 24;
-  const endMinute = total % 60;
-  return `${start}–${formatTimeValue(endHour, endMinute)}`;
-}
-
-function bookingDateKey(booking) {
-  return String(booking?.dateKey || booking?.date || '').trim();
-}
-
-function resolveStaffNames(service, staffList = []) {
-  const ids = Array.isArray(service?.staffIds) ? service.staffIds : [];
-  if (!ids.length) return [];
-  return ids
-    .map((id) => staffList.find((member) => member.id === id)?.name)
-    .filter(Boolean);
-}
-
-function compareAgendaBookings(a, b, sort = 'oldest') {
-  const dateCompare = bookingDateKey(a).localeCompare(bookingDateKey(b));
-  const timeCompare = String(a.time || '').localeCompare(String(b.time || ''));
-  const chronoCompare = dateCompare || timeCompare;
-  if (sort === 'latest') return -chronoCompare || String(b.id || '').localeCompare(String(a.id || ''));
-  if (sort === 'client') {
-    const byClient = String(a.clientName || '').localeCompare(String(b.clientName || ''), undefined, {
-      sensitivity: 'base'
-    });
-    return byClient || chronoCompare;
-  }
-  if (sort === 'service') {
-    const byService = String(a.serviceName || '').localeCompare(String(b.serviceName || ''), undefined, {
-      sensitivity: 'base'
-    });
-    return byService || chronoCompare;
-  }
-  return chronoCompare;
-}
-
-function compareSpotServices(a, b, sort = 'oldest') {
-  const startCompare = String(a.sessionStartDate || '').localeCompare(String(b.sessionStartDate || ''));
-  const timeCompare = String(a.sessionStartTime || '').localeCompare(String(b.sessionStartTime || ''));
-  const chronoCompare = startCompare || timeCompare;
-  if (sort === 'latest') return -chronoCompare;
-  if (sort === 'service') {
-    return String(a.name || '').localeCompare(String(b.name || ''), undefined, {
-      sensitivity: 'base'
-    });
-  }
-  return chronoCompare;
-}
-
-function serviceOverlapsRange(service, startKey, endKey) {
-  const sessionStart = String(service?.sessionStartDate || '').trim();
-  const sessionEnd = String(service?.sessionEndDate || sessionStart).trim();
-  if (!sessionStart) return false;
-  return sessionStart <= endKey && sessionEnd >= startKey;
-}
-
-function ScheduleDatePicker({ day, onApply, onClose }) {
-  const selected = parseDateKey(day) || new Date();
-  const [draftDay, setDraftDay] = useState(() => toDateKey(selected));
-  const [monthAnchor, setMonthAnchor] = useState(
-    () => new Date(selected.getFullYear(), selected.getMonth(), 1)
-  );
-  const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
-  const todayKey = toDateKey(new Date());
-
-  return (
-    <div
-      className="bb-services-sheet"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Pick day"
-    >
-      <div className="bb-services-sheet-backdrop" onClick={onClose} />
-      <div className="bb-services-sheet-panel bb-schedule-picker-sheet">
-        <header className="bb-services-sheet-head">
-          <div>
-            <p className="bb-services-sheet-eyebrow">Calendar</p>
-            <h2 className="bb-services-sheet-title">Pick day</h2>
-            <p className="bb-services-sheet-lede">Jump to a date.</p>
-          </div>
-          <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose}>
-            <X size={16} />
-          </button>
-        </header>
-
-        <div className="bb-services-sheet-body bb-schedule-picker-body">
-          <div className="bb-schedule-picker-month-nav">
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              aria-label="Previous month"
-              onClick={() =>
-                setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
-              }
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <strong>
-              {monthAnchor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
-            </strong>
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              aria-label="Next month"
-              onClick={() =>
-                setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
-              }
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-
-          <div className="bb-schedule-picker-weekdays" aria-hidden="true">
-            {WEEKDAYS.map((label) => (
-              <span key={label}>{label}</span>
-            ))}
-          </div>
-
-          <div className="bb-schedule-picker-grid">
-            {monthDays.map((date) => {
-              const key = toDateKey(date);
-              const inMonth = date.getMonth() === monthAnchor.getMonth();
-              const isSelected = key === draftDay;
-              const isToday = key === todayKey;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  className={`bb-schedule-picker-day${isSelected ? ' is-selected' : ''}${
-                    isToday ? ' is-today' : ''
-                  }${inMonth ? '' : ' is-outside'}`}
-                  onClick={() => setDraftDay(key)}
-                >
-                  {date.getDate()}
-                </button>
-              );
-            })}
-          </div>
-
-          <p className="bb-schedule-picker-summary">{formatDisplayDate(draftDay)}</p>
-        </div>
-
-        <footer className="bb-services-sheet-footer">
-          <button
-            type="button"
-            className="bb-ghost-btn"
-            onClick={() => {
-              const now = toDateKey(new Date());
-              setDraftDay(now);
-              setMonthAnchor(new Date());
-            }}
-          >
-            Today
-          </button>
-          <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="button" className="bb-primary-btn" onClick={() => onApply?.({ day: draftDay })}>
-              Apply
-            </button>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-}
-function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) {
-  if (!service) return null;
-
-  const capacity = Math.max(1, Number(service.capacity) || 1);
-  const booked = countServiceSpotBookings(service, bookings);
-  const open = getServiceOpenSpots(service, bookings);
-  const status = getSpotSessionStatus(service);
-  const staffNames = resolveStaffNames(service, staff);
-  const imageSrc = service.imageUrls?.[0] || '';
-  const seatBookings = bookings
-    .filter((booking) => booking.serviceId === service.id)
-    .filter((booking) => ACTIVE.has(String(booking.status || '')))
-    .sort((a, b) => String(b.createdAt || 0).localeCompare(String(a.createdAt || 0)));
-
-  return (
-    <div
-      className="bb-services-sheet"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${service.name} details`}
-    >
-      <div className="bb-services-sheet-backdrop" onClick={onClose} />
-      <div className="bb-services-sheet-panel bb-schedule-spot-sheet">
-        <header className="bb-services-sheet-head">
-          <div className="bb-schedule-spot-sheet-head">
-            <div className={`bb-schedule-spot-sheet-thumb${imageSrc ? '' : ' is-empty'}`}>
-              {imageSrc ? <img src={imageSrc} alt="" /> : null}
-            </div>
-            <div className="bb-schedule-spot-sheet-copy">
-              <p className="bb-services-sheet-eyebrow">Spot programme</p>
-              <h2 className="bb-services-sheet-title">{service.name}</h2>
-              <span className={`bb-schedule-spot-pill is-${status}`}>{statusLabel(status)}</span>
-            </div>
-          </div>
-          <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose}>
-            <X size={16} />
-          </button>
-        </header>
-
-        <div className="bb-services-sheet-body bb-schedule-spot-sheet-body">
-          <dl className="bb-schedule-spot-sheet-facts">
-            <div>
-              <dt>Starts</dt>
-              <dd>{formatSessionPart(service.sessionStartDate, service.sessionStartTime)}</dd>
-            </div>
-            <div>
-              <dt>Ends</dt>
-              <dd>{formatSessionPart(service.sessionEndDate, service.sessionEndTime)}</dd>
-            </div>
-            <div>
-              <dt>Capacity</dt>
-              <dd>
-                {booked}/{capacity} booked · {open} open
-              </dd>
-            </div>
-            <div>
-              <dt>Staff</dt>
-              <dd>{staffNames.length ? staffNames.join(', ') : 'No staff assigned'}</dd>
-            </div>
-          </dl>
-
-          {String(service.description || '').trim() ? (
-            <p className="bb-schedule-spot-sheet-desc">{service.description}</p>
-          ) : null}
-
-          <section className="bb-schedule-spot-sheet-seats">
-            <h3 className="bb-schedule-spot-sheet-seats-title">Seat bookings</h3>
-            {seatBookings.length === 0 ? (
-              <p className="bb-schedule-lane-empty">No seat requests yet.</p>
-            ) : (
-              <div className="bb-schedule-spot-bookings">
-                {seatBookings.map((booking) => (
-                  <article key={booking.id} className="bb-schedule-booking">
-                    <div className="bb-schedule-booking-top">
-                      <strong>{booking.clientName || 'Guest'}</strong>
-                      <span className="bb-schedule-booking-status">{booking.status}</span>
-                    </div>
-                    <div className="bb-schedule-booking-client">
-                      {booking.clientEmail || booking.clientPhone || 'No contact'}
-                    </div>
-                    {booking.status === 'pending' ? (
-                      <button
-                        type="button"
-                        className="bb-primary-btn text-sm py-2"
-                        onClick={() => onConfirm?.(booking.id)}
-                      >
-                        Confirm seat
-                      </button>
-                    ) : null}
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-
-        <footer className="bb-services-sheet-footer">
-          <span />
-          <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-primary-btn" onClick={onClose}>
-              Close
-            </button>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-}
 
 export function SchedulePage() {
   const {

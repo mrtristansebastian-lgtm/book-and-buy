@@ -1,0 +1,1255 @@
+/* Business Blog studio ? premium compose desk + live library */
+
+.bb-social-studio {
+  display: grid;
+  gap: 1.35rem;
+  width: 100%;
+  max-width: var(--bb-public-measure-wide, 64rem);
+  margin-inline: 0;
+  min-width: 0;
+}
+
+/* Mobile: Instagram-style full-bleed ? no inset card */
+@media (max-width: 720px) {
+  .bb-owner-main:has(> .bb-social-studio) {
+    padding-inline: 0;
+    padding-top: 0.55rem;
+  }
+
+  .bb-social-studio {
+    max-width: none;
+    gap: 0.65rem;
+  }
+
+  .bb-social-studio-header {
+    padding-inline: 1rem;
+    top: 0;
+  }
+
+  .bb-social-studio-body {
+    padding-bottom: 5.5rem;
+  }
+
+  .bb-social-studio-live {
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .bb-social-studio-live .bb-public-profile-identity {
+    border-radius: 0;
+  }
+
+  .bb-social-studio-live .bb-public-profile-shell {
+    padding: 0.75rem 1rem 0;
+  }
+
+  .bb-social-studio-live .bb-public-profile-banner-wrap {
+    border-radius: 0.65rem;
+  }
+
+  .bb-social-library--live .bb-social-library-surface--live {
+    padding: 0 0 1rem;
+  }
+
+  .bb-social-studio .bb-social-ig-grid,
+  .bb-social-studio .bb-social-post-cards {
+    gap: 2px;
+  }
+
+  .bb-social-library--live .bb-social-library-empty {
+    margin: 0.75rem 1rem 0;
+  }
+}
+
+@media (min-width: 1100px) {
+  .bb-social-studio {
+    gap: 1.55rem;
+  }
+
+  .bb-social-library-surface--live {
+    padding-top: 0.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-social-studio .bb-social-ig-grid,
+  .bb-social-studio .bb-social-post-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+}
+
+.bb-social-studio-header {
+  display: grid;
+  gap: 0.85rem;
+  position: sticky;
+  top: 0.25rem;
+  z-index: 4;
+  padding: 0.35rem 0 0.85rem;
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(20, 167, 255, 0.07), transparent 55%),
+    radial-gradient(90% 70% at 100% 0%, rgba(15, 23, 42, 0.04), transparent 50%),
+    linear-gradient(180deg, #fbfbfb 72%, rgba(251, 251, 251, 0));
+}
+
+.bb-social-studio-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bb-social-studio-header-copy {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bb-social-studio-eyebrow {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-social-studio-lede {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #667085;
+}
+
+.bb-social-studio-live-btn {
+  gap: 0.4rem;
+}
+
+.bb-social-studio-body {
+  display: grid;
+  gap: 1.65rem;
+  padding-bottom: 2.25rem;
+  min-width: 0;
+}
+
+/* ??? Social Studio live profile shell ??? */
+
+.bb-social-studio-live {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  overflow: visible;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+}
+
+.bb-social-studio-live .bb-public-profile-identity {
+  border: 0;
+  background: #fff;
+  border-radius: 1.15rem 1.15rem 0 0;
+  overflow: visible;
+}
+
+.bb-social-studio-live .bb-public-profile-shell {
+  padding: 0.85rem 1rem 0;
+  overflow: visible;
+  max-width: min(100%, 48rem);
+  margin-inline: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bb-social-studio-live .bb-public-profile-banner-wrap {
+  height: clamp(9.5rem, 18vw, 12.5rem);
+  min-height: 9.5rem;
+  max-height: 12.5rem;
+  aspect-ratio: unset;
+  border-radius: 0.85rem;
+}
+
+.bb-social-studio-live .bb-public-profile-card {
+  background: transparent;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'avatar'
+    'main'
+    'aside';
+  justify-items: center;
+  text-align: center;
+  column-gap: 0;
+  row-gap: 0.55rem;
+}
+
+.bb-social-studio-live .bb-public-profile-avatar-wrap {
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.bb-social-studio-live .bb-public-profile-avatar-ring {
+  margin-top: -3.75rem;
+  justify-self: center;
+}
+
+.bb-social-studio-live .bb-public-profile-main {
+  justify-items: center;
+  text-align: center;
+  margin-top: 0;
+  padding-top: 0.1rem;
+  width: 100%;
+}
+
+.bb-social-studio-live .bb-public-profile-aside {
+  justify-content: center;
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
+  margin-top: 0.15rem;
+  padding-top: 0;
+}
+
+.bb-social-studio-live .bb-public-profile-name,
+.bb-social-studio-live .bb-public-profile-username,
+.bb-social-studio-live .bb-public-profile-bio {
+  text-align: center;
+  margin-inline: auto;
+}
+
+.bb-social-studio-live .bb-public-profile-name {
+  max-width: min(28ch, 100%);
+}
+
+.bb-social-studio-live .bb-public-profile-meta {
+  justify-content: center;
+  margin-inline: auto;
+}
+
+.bb-social-studio-live .bb-public-profile-action--compact {
+  width: auto;
+  min-width: 6.5rem;
+}
+
+@media (min-width: 720px) {
+  .bb-social-studio-live .bb-public-profile-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'avatar'
+      'main'
+      'aside';
+    justify-items: center;
+    text-align: center;
+    row-gap: 0.5rem;
+  }
+
+  .bb-social-studio-live .bb-public-profile-avatar-ring {
+    margin-top: -4.25rem;
+  }
+
+  .bb-social-studio-live .bb-public-profile-avatar-wrap {
+    width: 8.5rem;
+    height: 8.5rem;
+  }
+
+  .bb-social-studio-live .bb-public-profile-main,
+  .bb-social-studio-live .bb-public-profile-aside {
+    margin-top: -0.35rem;
+    padding-top: 0;
+  }
+
+  .bb-social-studio-live .bb-public-profile-main {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .bb-social-studio-live .bb-public-profile-aside {
+    justify-content: center;
+    width: 100%;
+    max-width: none;
+  }
+
+  .bb-social-studio-live .bb-public-profile-name,
+  .bb-social-studio-live .bb-public-profile-bio {
+    text-align: center;
+  }
+
+  .bb-social-studio-live .bb-public-profile-meta {
+    justify-content: center;
+  }
+}
+
+.bb-social-studio-profile-aside {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  max-width: none;
+}
+
+.bb-social-studio-profile-post {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bb-public-profile-username {
+  margin: 0.2rem 0 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 720;
+  letter-spacing: -0.015em;
+  text-align: center;
+  color: transparent;
+  background-image: var(--native-accent-button-gradient, linear-gradient(120deg, #14a7ff, #ff6bcb));
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 40%) 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+html body .native-ui .bb-social-studio .bb-public-profile-username,
+html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-text {
+  color: transparent !important;
+  background-image: var(--native-accent-button-gradient, linear-gradient(120deg, #14a7ff, #ff6bcb)) !important;
+  background-size: 420% 420% !important;
+  background-position: var(--native-accent-x, 40%) 50% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  text-align: center !important;
+}
+
+.bb-social-profile-edit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: max(0.75rem, env(safe-area-inset-top)) 0.85rem max(0.75rem, env(safe-area-inset-bottom));
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+}
+
+.bb-social-profile-edit-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.bb-social-profile-edit-modal-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(100%, 42rem);
+  max-height: min(92dvh, 36rem);
+  border-radius: 1.2rem;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  background: #fff;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+}
+
+.bb-social-profile-edit-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem 0.85rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  background: #fff;
+}
+
+.bb-social-profile-edit-modal-eyebrow {
+  margin: 0 0 0.12rem;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 560;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-modal-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.12rem;
+  font-weight: 720;
+  letter-spacing: -0.028em;
+  color: #101828;
+}
+
+.bb-social-profile-edit-modal-close {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.04);
+  color: #667085;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bb-social-profile-edit-modal-close:hover {
+  background: rgba(15, 23, 42, 0.08);
+  color: #101828;
+}
+
+.bb-social-profile-edit-modal-body {
+  display: grid;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  background: #fff;
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.bb-social-profile-edit-setup {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 1.15rem 1.35rem;
+  align-items: start;
+  min-height: 0;
+}
+
+.bb-social-profile-edit-setup-mobile {
+  display: none;
+  margin: 0;
+  grid-column: 1 / -1;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 560;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-setup-mobile span {
+  margin-left: 0.4rem;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  font-weight: 700;
+  color: #101828;
+}
+
+.bb-social-profile-edit-rail {
+  position: sticky;
+  top: 0;
+  min-width: 0;
+}
+
+.bb-social-profile-edit-rail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+  position: relative;
+}
+
+.bb-social-profile-edit-rail-list::before {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  width: 1px;
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.bb-social-profile-edit-rail-item {
+  position: relative;
+  z-index: 1;
+}
+
+.bb-social-profile-edit-rail-btn {
+  display: grid;
+  grid-template-columns: 1.7rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.4rem 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.bb-social-profile-edit-rail-dot {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #667085;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 0 0 4px #fff;
+}
+
+.bb-social-profile-edit-rail-label {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 680;
+  letter-spacing: -0.01em;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-rail-item.is-current .bb-social-profile-edit-rail-dot {
+  color: #050505;
+  border-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+}
+
+.bb-social-profile-edit-rail-item.is-current .bb-social-profile-edit-rail-label {
+  color: #101828;
+  font-weight: 760;
+}
+
+.bb-social-profile-edit-rail-item.is-done .bb-social-profile-edit-rail-dot {
+  color: #101828;
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #f2f4f7;
+}
+
+.bb-social-profile-edit-rail-item.is-done .bb-social-profile-edit-rail-label {
+  color: #475467;
+}
+
+.bb-social-profile-edit-rail-btn:hover .bb-social-profile-edit-rail-label {
+  color: #101828;
+}
+
+.bb-social-profile-edit-stage {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+  animation: bb-social-profile-edit-stage-in 0.2s ease;
+}
+
+@keyframes bb-social-profile-edit-stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bb-social-profile-edit-section-head {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.bb-social-profile-edit-section-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 740;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #667085;
+}
+
+.bb-social-profile-edit-section-copy {
+  margin: 0;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 450;
+  line-height: 1.4;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-section-body {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.bb-social-profile-edit-fields {
+  gap: 0.85rem;
+}
+
+.bb-social-profile-edit-media-stage {
+  position: relative;
+  margin-bottom: 1.55rem;
+}
+
+.bb-social-profile-edit-media-hint {
+  margin: 0;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 450;
+  letter-spacing: 0.01em;
+  color: #98a2b3;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .bb-social-profile-edit-modal-panel {
+    width: min(100%, 26rem);
+    max-height: min(92dvh, 40rem);
+  }
+
+  .bb-social-profile-edit-setup {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .bb-social-profile-edit-setup-mobile {
+    display: block;
+  }
+
+  .bb-social-profile-edit-rail {
+    position: static;
+  }
+
+  .bb-social-profile-edit-rail-list {
+    display: flex;
+    gap: 0.35rem;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+    scrollbar-width: none;
+  }
+
+  .bb-social-profile-edit-rail-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bb-social-profile-edit-rail-list::before {
+    display: none;
+  }
+
+  .bb-social-profile-edit-rail-item {
+    flex: 0 0 auto;
+  }
+
+  .bb-social-profile-edit-rail-btn {
+    grid-template-columns: auto auto;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem 0.35rem 0.35rem;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #f8fafc;
+  }
+
+  .bb-social-profile-edit-rail-dot {
+    width: 1.4rem;
+    height: 1.4rem;
+    box-shadow: none;
+    font-size: 0.62rem;
+  }
+
+  .bb-social-profile-edit-rail-item.is-current .bb-social-profile-edit-rail-btn {
+    border-color: transparent;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  }
+}
+
+.bb-social-profile-edit-field-label {
+  display: block;
+  margin-bottom: 0.28rem;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 560;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-banner-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 6;
+  border-radius: 0.95rem;
+  overflow: hidden;
+  background: linear-gradient(135deg, #eef2f6 0%, #e4e9ef 100%);
+}
+
+.bb-social-profile-edit-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-social-profile-edit-avatar-slot {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 46%);
+  z-index: 2;
+}
+
+.bb-social-profile-edit-avatar-frame {
+  display: grid;
+  place-items: center;
+  width: 5.35rem;
+  height: 5.35rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eef2f6;
+  border: 3px solid #fff;
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.05),
+    0 10px 22px rgba(15, 23, 42, 0.12);
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #667085;
+}
+
+.bb-social-profile-edit-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-social-profile-edit-field {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.bb-social-profile-edit-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+@media (max-width: 420px) {
+  .bb-social-profile-edit-field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bb-social-profile-edit-input {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fafbfc;
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 520;
+  letter-spacing: -0.01em;
+  color: #101828;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.bb-social-profile-edit-textarea {
+  min-height: 4.75rem;
+  resize: vertical;
+  font-weight: 450;
+  line-height: 1.45;
+  padding-top: 0.65rem;
+}
+
+.bb-social-profile-edit-input:hover {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+.bb-social-profile-edit-input:focus {
+  outline: none;
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.22);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
+}
+
+.bb-social-profile-edit-input[aria-invalid='true'] {
+  border-color: rgba(217, 45, 32, 0.45);
+  box-shadow: 0 0 0 3px rgba(217, 45, 32, 0.08);
+}
+
+.bb-social-profile-edit-username {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.1rem;
+  min-height: 2.5rem;
+  padding: 0 0.2rem 0 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fafbfc;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.bb-social-profile-edit-username:hover {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.14);
+}
+
+.bb-social-profile-edit-at {
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 520;
+  color: #98a2b3;
+}
+
+.bb-social-profile-edit-input--username {
+  border: 0;
+  min-height: 2.3rem;
+  padding-left: 0.05rem;
+  background: transparent;
+  box-shadow: none;
+}
+
+.bb-social-profile-edit-input--username:hover,
+.bb-social-profile-edit-input--username:focus {
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.bb-social-profile-edit-username:focus-within {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.22);
+  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
+}
+
+.bb-social-profile-edit-hint {
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 450;
+  letter-spacing: 0.01em;
+  color: #98a2b3;
+  line-height: 1.35;
+}
+
+.bb-social-profile-edit-error {
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 520;
+  color: #d92d20;
+  line-height: 1.35;
+}
+
+.bb-social-profile-edit-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1.15rem 1rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  background: #fff;
+}
+
+.bb-social-profile-edit-modal-footer .bb-ghost-btn,
+.bb-social-profile-edit-modal-footer .bb-primary-btn {
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  min-height: 2.4rem;
+  border-radius: 0.7rem;
+  padding-inline: 1rem;
+}
+
+.bb-social-profile-edit-banner-frame.bb-editable-image .bb-editable-image-hit,
+.bb-social-profile-edit-avatar-frame.bb-editable-image .bb-editable-image-hit {
+  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 560;
+  letter-spacing: 0.02em;
+}
+
+.bb-social-profile-edit-avatar-frame.bb-editable-image .bb-editable-image-hit {
+  border-radius: 999px;
+}
+
+.bb-public-profile-action.is-active {
+  background: rgba(15, 23, 42, 0.08);
+  color: #101828;
+}
+
+.bb-social-library--live {
+  gap: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.bb-social-library--live .bb-social-library-tabs {
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 0;
+  background: #fff;
+}
+
+.bb-social-library--live .bb-social-profile-tabs {
+  border-top: 0;
+}
+
+.bb-social-library--live .bb-social-library-surface--live {
+  padding: 0.85rem 1rem 1.15rem;
+}
+
+.bb-social-library--live .bb-social-library-empty {
+  margin: 0.35rem 0 0;
+}
+
+/* Create type picker modal */
+.bb-social-create-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.bb-social-create-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.48);
+  cursor: pointer;
+}
+
+.bb-social-create-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 26rem);
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem 1.15rem 1.2rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.22);
+  animation: bb-blog-sheet-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-social-create-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bb-social-create-modal-eyebrow {
+  margin: 0 0 0.2rem;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.64rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-social-create-modal-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #101828;
+}
+
+.bb-social-create-modal-close {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  color: #475467;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.bb-social-create-modal-close:hover {
+  background: rgba(15, 23, 42, 0.09);
+  color: #101828;
+}
+
+.bb-social-create-modal-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.bb-social-create-modal-btn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.bb-social-create-modal-btn:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #f8fafc;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.bb-social-create-modal-btn-icon {
+  display: grid;
+  place-items: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(160deg, #f8fafc, #eef2f7);
+  color: #344054;
+}
+
+.bb-social-create-modal-btn-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.bb-social-create-modal-btn-copy strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-social-create-modal-btn-copy span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #98a2b3;
+  line-height: 1.3;
+}
+
+/* ??? Fields / dropzones (shared) ??? */
+
+.bb-social-field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.bb-social-field > span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #667085;
+}
+
+.bb-social-field--grow {
+  flex: 1 1 auto;
+}
+
+.bb-social-compose-control,
+.bb-social-studio-sheet-body .bb-social-compose-control,
+.bb-social-studio-sheet-body .native-control-input {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.bb-social-compose-caption {
+  resize: vertical;
+  min-height: 3.75rem !important;
+  line-height: 1.45;
+}
+
+.bb-social-dropzone {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 0.9rem;
+  border: 1px dashed rgba(15, 23, 42, 0.16);
+  background: #f8fafc;
+  cursor: pointer;
+  appearance: none;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  overflow: hidden;
+}
+
+.bb-social-dropzone:hover:not(:disabled) {
+  border-color: rgba(15, 23, 42, 0.28);
+  background: #f2f4f7;
+}
+
+.bb-social-dropzone:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.bb-social-dropzone--portrait {
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  max-width: 11rem;
+}
+
+.bb-social-dropzone--video {
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  min-height: 7.5rem;
+}
+
+.bb-social-dropzone.has-media {
+  border-style: solid;
+  border-color: rgba(15, 23, 42, 0.08);
+  background: #0c0a09;
+  padding: 0;
+}
+
+.bb-social-dropzone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-social-dropzone-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  text-align: center;
+}
+
+.bb-social-dropzone-icon {
+  display: grid;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #475467;
+}
+
+.bb-social-dropzone-label {
+  font-size: 0.8rem;
+  font-weight: 720;
+  color: #101828;
+}
+
+.bb-social-dropzone-hint {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #98a2b3;
+}
+
+.bb-social-compose-replace {
+  gap: 0.3rem;
+  justify-self: start;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.72rem;
+}
+
+.bb-social-compose-player {
+  width: 100%;
+  border-radius: 0.75rem;
+  background: #0c0a09;
+  max-height: 14rem;
+}
+
+.bb-social-compose-poster-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #f8f9fb;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  overflow: hidden;
+}
+
+.bb-social-compose-poster-pick:hover:not(:disabled) {
+  border-color: rgba(15, 23, 42, 0.16);
+  background: #f2f4f7;
+}
+
+.bb-social-compose-poster-pick:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.bb-social-compose-poster-empty {
+  display: grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 2.4rem;
+  border-radius: 0.4rem;
+  background: #fff;
+  border: 1px dashed rgba(15, 23, 42, 0.16);
+  color: #667085;
+  flex-shrink: 0;
+}
+
+.bb-social-compose-poster-thumb {
+  width: 4.25rem;
+  height: 2.4rem;
+  object-fit: cover;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  flex-shrink: 0;
+}
+
+.bb-social-compose-poster-copy {
+  display: grid;
+  gap: 0.08rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bb-social-compose-poster-copy strong {
+  font-size: 0.8rem;
+  font-weight: 720;
+  color: #101828;
+}
+
+.bb-social-compose-poster-copy span {
+  font-size: 0.7rem;
+  color: #98a2b3;
+  font-weight: 540;
+}
+
+.bb-social-compose-error {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 620;
+  color: #b45309;
+}
+
