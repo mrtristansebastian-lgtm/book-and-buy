@@ -66,6 +66,7 @@ export function PublicHomeView({
   const website = workspace.website || {};
   const venueImages = website.venueImages || [];
   const reviews = website.reviews || [];
+  const reasons = website.reasons || [];
   const products = workspace.products || [];
   const requestedTab = normalizeRailTab(railTab);
 
@@ -76,6 +77,11 @@ export function PublicHomeView({
       venueImages: venueImages.map((item) =>
         item.id === id ? { ...item, [field]: value } : item
       )
+    });
+  };
+  const patchReason = (id, field, value) => {
+    patchWebsite({
+      reasons: reasons.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     });
   };
   const patchReview = (id, field, value) => {
@@ -118,9 +124,11 @@ export function PublicHomeView({
             <AboutSection
               key="about"
               website={website}
+              reasons={reasons}
               editMode={editMode}
               hidden={!sectionOn(website, 'about')}
               patchWebsite={patchWebsite}
+              patchReason={patchReason}
             />
           );
         }

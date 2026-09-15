@@ -790,6 +790,39 @@
   }
 }
 
+/*
+ * The desktop studio preview is an 880px device inside a larger browser.
+ * Size the fixed Social shell against that device, not the outer 100dvh.
+ */
+.bb-device-preview--desktop .bb-device-screen:has(.bb-public-social--split) {
+  height: min(62vh, 620px);
+  overflow: hidden;
+}
+
+.bb-device-preview--desktop
+  .bb-device-screen:has(.bb-public-social--split)
+  > .bb-public-surface,
+.bb-device-preview--desktop
+  .bb-device-screen
+  .bb-public-home-stack.bb-public-profile:has(.bb-public-social--split) {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+
+.bb-device-preview--desktop
+  .bb-public-profile:has(.bb-public-social--split)
+  .bb-public-profile-rail,
+.bb-device-preview--desktop
+  .bb-public-profile:has(.bb-public-social--split)
+  .bb-public-profile-modules,
+.bb-device-preview--desktop
+  .bb-public-profile-panel--content:has(.bb-public-social--split) {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+
 /* Phone / tablet keep the stacked Social layout */
 @media (max-width: 1099px) {
   .bb-public-social--split .bb-social-split-body {
@@ -938,20 +971,24 @@
 
 .bb-public-profile .bb-public-gallery-block {
   padding: 1.35rem 0 1.75rem;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head {
   padding-inline: var(--bb-public-gutter, 1.25rem);
-  margin-bottom: 0.35rem;
+  margin-bottom: 1.75rem;
 }
 
 .bb-public-profile .bb-public-venue-shell {
   display: grid;
-  gap: 0.85rem;
+  gap: 1.25rem;
   width: 100%;
   max-width: min(100%, 92rem);
   margin-inline: auto;
   justify-items: center;
+  min-width: 0;
+  overflow-x: clip;
 }
 
 /* 3D coverflow gallery */
@@ -959,26 +996,33 @@
   display: grid;
   gap: 1.15rem;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   justify-items: center;
-  padding: 0.35rem 0 0.25rem;
+  padding: 0;
+  overflow-x: clip;
 }
 
 .bb-public-coverflow-stage {
   position: relative;
   display: grid;
-  place-items: center;
+  justify-items: center;
+  align-items: start;
   width: 100%;
-  height: clamp(22rem, 62vw, 36rem);
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
   perspective: 1600px;
-  perspective-origin: 50% 50%;
+  perspective-origin: 50% 0%;
   transform-style: preserve-3d;
-  overflow: visible;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .bb-public-coverflow-slide {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 0;
   width: max-content;
   max-width: min(86vw, 28rem);
   height: auto;
@@ -987,9 +1031,9 @@
   border-radius: 1.15rem;
   overflow: hidden;
   background: #e8edf3;
-  transform-origin: center center;
+  transform-origin: center top;
   transform-style: preserve-3d;
-  transform: translate(-50%, -50%)
+  transform: translateX(-50%)
     translateX(calc(var(--cf-offset) * 64%))
     translateZ(calc(var(--cf-abs) * -140px))
     rotateY(calc(var(--cf-offset) * -30deg))
@@ -1006,6 +1050,9 @@
 }
 
 .bb-public-coverflow-slide.is-active {
+  position: relative;
+  left: auto;
+  transform: none;
   opacity: 1;
   box-shadow:
     0 28px 56px rgba(15, 23, 42, 0.22),
@@ -1052,10 +1099,45 @@
 }
 
 .bb-public-coverflow-nav {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   gap: 0.65rem;
+}
+
+.bb-public-coverflow-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.15rem 0 0;
+}
+
+.bb-public-coverflow-dot {
+  width: 0.48rem;
+  height: 0.48rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.22);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.bb-public-coverflow-dot.is-active {
+  background: #101828;
+  transform: scale(1.18);
+}
+
+.bb-public-coverflow-dot:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.35);
+  outline-offset: 2px;
 }
 
 .bb-public-coverflow-btn {
@@ -1091,11 +1173,44 @@
   outline-offset: 2px;
 }
 
-@media (min-width: 720px) {
+@media (max-width: 719px) {
   .bb-public-coverflow-stage {
-    height: clamp(28rem, 52vw, 40rem);
+    touch-action: pan-y;
   }
 
+  .bb-public-coverflow-slide {
+    max-width: min(78vw, 22rem);
+    transform: translateX(-50%)
+      translateX(calc(var(--cf-offset) * 42%))
+      translateZ(calc(var(--cf-abs) * -110px))
+      rotateY(calc(var(--cf-offset) * -22deg))
+      scale(calc(1 - (var(--cf-abs) * 0.12)));
+  }
+
+  .bb-public-coverflow-hit,
+  .bb-public-coverflow-media {
+    max-width: min(78vw, 22rem);
+  }
+
+  .bb-public-coverflow-img,
+  .bb-public-coverflow-media img {
+    max-width: min(78vw, 22rem);
+    max-height: clamp(14rem, 62vw, 24rem);
+  }
+
+  .bb-public-coverflow-slide.is-active {
+    transform: none;
+  }
+}
+
+@media (min-width: 720px) {
+  .bb-public-coverflow-nav--arrows {
+    display: inline-flex;
+  }
+
+  .bb-public-coverflow-dots {
+    display: none;
+  }
   .bb-public-coverflow-slide,
   .bb-public-coverflow-hit,
   .bb-public-coverflow-media {
@@ -1110,7 +1225,7 @@
 
   .bb-public-coverflow-slide {
     border-radius: 1.35rem;
-    transform: translate(-50%, -50%)
+    transform: translateX(-50%)
       translateX(calc(var(--cf-offset) * 68%))
       translateZ(calc(var(--cf-abs) * -160px))
       rotateY(calc(var(--cf-offset) * -26deg))
@@ -1119,10 +1234,6 @@
 }
 
 @media (min-width: 1100px) {
-  .bb-public-coverflow-stage {
-    height: clamp(32rem, 48vw, 44rem);
-  }
-
   .bb-public-coverflow-slide,
   .bb-public-coverflow-hit,
   .bb-public-coverflow-media {
@@ -1136,7 +1247,7 @@
   }
 
   .bb-public-coverflow-slide {
-    transform: translate(-50%, -50%)
+    transform: translateX(-50%)
       translateX(calc(var(--cf-offset) * 72%))
       translateZ(calc(var(--cf-abs) * -180px))
       rotateY(calc(var(--cf-offset) * -24deg))
@@ -1380,55 +1491,6 @@
   }
 }
 
-.bb-public-profile .bb-public-about-offer {
-  display: grid;
-  gap: 1.5rem;
-  width: 100%;
-}
-
-.bb-public-profile .bb-public-about-offer-about {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.9rem;
-  align-items: start;
-}
-
-@media (min-width: 900px) {
-  .bb-public-profile .bb-public-about-offer-about {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: 1.5rem;
-    align-items: center;
-  }
-}
-
-.bb-public-profile .bb-public-about-offer-media-wrap {
-  width: 100%;
-  min-width: 0;
-}
-
-.bb-public-profile .bb-public-about-offer-media {
-  aspect-ratio: 16 / 10;
-  border-radius: 0.85rem;
-  overflow: hidden;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: #eef2f6;
-}
-
-.bb-public-profile .bb-public-about-offer-media img,
-.bb-public-profile .bb-public-about-offer-media .bb-editable-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.bb-public-profile .bb-public-about-offer-copy {
-  display: grid;
-  gap: 0.55rem;
-  align-content: center;
-  min-width: 0;
-}
-
 .bb-public-profile .bb-public-about-body {
   margin: 0;
   font-size: 0.92rem;
@@ -1453,85 +1515,644 @@
   margin-inline: auto;
 }
 
-.bb-public-profile .bb-public-about-offer-offer {
+/* Post-hero editorial journey */
+.bb-public-profile .bb-public-about-journey {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0;
+  background: #fff;
+  overflow-x: clip;
+}
+
+.bb-public-about-journey-shell {
   display: grid;
-  gap: 0.85rem;
-  padding-top: 0.35rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
-}
-
-.bb-public-profile .bb-public-about-offer-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.55rem;
-}
-
-@media (min-width: 720px) {
-  .bb-public-profile .bb-public-about-offer-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.65rem;
-  }
-}
-
-.bb-public-profile .bb-public-about-offer-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.65rem;
-  align-items: start;
-  margin: 0;
-  padding: 0.85rem 0.9rem;
-  border-radius: 0.85rem;
-  border: 1px solid rgba(15, 23, 42, 0.07);
-  background: #fafbfc;
-}
-
-.bb-public-profile .bb-public-about-offer-index {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.72rem;
-  font-weight: 780;
-  letter-spacing: 0.04em;
-  color: #98a2b3;
-  line-height: 1.4;
-  padding-top: 0.1rem;
-}
-
-.bb-public-profile .bb-public-about-offer-card-copy {
-  display: grid;
-  gap: 0.25rem;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
 }
 
-.bb-public-profile .bb-public-about-offer-card-title {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.95rem;
-  font-weight: 760;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+.bb-public-about-offer-intro {
+  position: relative;
+  display: grid;
+  gap: 2.4rem;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  padding: clamp(3.4rem, 12vw, 5.5rem) var(--bb-public-gutter, 1.25rem);
+  box-sizing: border-box;
+  overflow: visible;
+  background: #fff;
   color: #101828;
 }
 
-.bb-public-profile .bb-public-about-offer-card-body {
+.bb-public-about-journey-head {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.bb-public-profile .bb-public-about-journey-title {
   margin: 0;
-  font-size: 0.84rem;
-  line-height: 1.45;
+  max-width: 8ch;
+  font-size: clamp(2.6rem, 6vw, 5rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+  color: #101828;
+  text-wrap: balance;
+}
+
+.bb-public-about-journey-body {
+  margin: 0.75rem 0 0;
+  max-width: 30ch;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(0.98rem, 1.25vw, 1.08rem);
   font-weight: 500;
+  line-height: 1.65;
+  color: #667085;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.bb-public-about-pillars {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.13);
+}
+
+.bb-public-about-pillar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  align-items: start;
+  column-gap: 1rem;
+  min-width: 0;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.13);
+  transition:
+    padding 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 260ms ease;
+}
+
+.bb-public-about-pillar-copy {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.bb-public-about-pillar-marker {
+  display: inline-grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  border: 1px solid rgba(100, 128, 20, 0.36);
+  border-radius: 999px;
+  background: rgba(211, 255, 95, 0.28);
+  color: #536b10;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+}
+
+.bb-public-about-pillar-marker.is-icon {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  color: #101828;
+}
+
+button.bb-public-about-pillar-marker {
+  cursor: pointer;
+}
+
+button.bb-public-about-pillar-marker:hover {
+  background: #101828;
+  color: #d3ff5f;
+}
+
+button.bb-public-about-pillar-marker.is-icon:hover {
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  color: #101828;
+  transform: translateY(-1px);
+}
+
+.bb-public-about-pillar-marker-wrap {
+  position: relative;
+  z-index: 3;
+}
+
+.bb-public-about-pillar-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.2rem, 5.5vw, 1.55rem);
+  font-weight: 790;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #101828;
+}
+
+.bb-public-about-pillar-body {
+  margin: 0;
+  max-width: 38rem;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.94rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: #667085;
+  text-wrap: pretty;
+}
+
+.bb-public-about-marker-toggle {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.bb-public-about-edit-label {
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: #667085;
 }
 
-.bb-public-profile .bb-public-about-offer-actions {
+.bb-public-about-segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  max-width: 24rem;
-  padding-top: 0.15rem;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border-radius: 0.65rem;
+  background: rgba(15, 23, 42, 0.07);
 }
 
-.bb-public-profile .bb-public-about-offer-action {
-  width: 100%;
+.bb-public-about-segmented button {
+  padding: 0.55rem 0.75rem;
+  border: 0;
+  border-radius: 0.48rem;
+  background: transparent;
+  color: #667085;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.bb-public-about-segmented button.is-active {
+  background: #d3ff5f;
+  color: #101828;
+}
+
+.bb-public-about-pillar-actions {
+  grid-column: 2;
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.75rem;
+}
+
+.bb-public-about-journey.is-editing .bb-public-about-pillar-actions {
+  grid-column: 2;
+  grid-row: auto;
+}
+
+.bb-public-about-pillar-actions button,
+.bb-public-about-icon-picker button {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0.55rem;
+  background: rgba(255, 255, 255, 0.82);
+  color: #667085;
+  cursor: pointer;
+}
+
+.bb-public-about-pillar-actions button:hover:not(:disabled) {
+  background: #101828;
+  color: #fff;
+}
+
+.bb-public-about-pillar-actions button.is-danger:hover:not(:disabled) {
+  background: #fee4e2;
+  color: #b42318;
+}
+
+.bb-public-about-pillar-actions button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.bb-public-about-icon-picker {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(4, 2rem);
+  gap: 0.35rem;
+  width: max-content;
+  padding: 0.55rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0.85rem;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+}
+
+.bb-public-about-icon-picker button {
+  border-color: rgba(15, 23, 42, 0.1);
+  background: #f4f6f8;
+  color: #667085;
+}
+
+.bb-public-about-icon-picker button:hover,
+.bb-public-about-icon-picker button.is-active {
+  background: #101828;
+  color: #d3ff5f;
+}
+
+.bb-public-about-add-point {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  min-height: 2.4rem;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed rgba(100, 128, 20, 0.48);
   border-radius: 0.75rem;
+  background: rgba(211, 255, 95, 0.18);
+  color: #536b10;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.bb-public-about-add-point:hover {
+  background: rgba(211, 255, 95, 0.3);
+}
+
+@media (min-width: 720px) {
+  .bb-public-about-offer-intro {
+    grid-template-columns: minmax(16rem, 0.88fr) minmax(0, 1.12fr);
+    gap: clamp(2.5rem, 6vw, 5.5rem);
+    padding: clamp(3.5rem, 5vw, 4.5rem) clamp(2rem, 6vw, 5rem);
+  }
+
+  .bb-public-about-journey-head {
+    position: static;
+    align-self: center;
+    justify-self: center;
+  }
+
+  .bb-public-about-pillar {
+    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    column-gap: 1.25rem;
+    padding: 1.8rem 0;
+  }
+
+  .bb-public-about-pillar:hover {
+    padding-inline: 0.8rem;
+    background: rgba(255, 255, 255, 0.64);
+  }
+
+  .bb-public-about-pillar-actions {
+    grid-column: 3;
+    grid-row: 1;
+    margin-top: 0;
+  }
+
+  .bb-public-about-journey.is-editing .bb-public-about-pillar-actions {
+    grid-column: 2;
+    grid-row: auto;
+    margin-top: 0.75rem;
+  }
+}
+
+.bb-public-about-book {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  touch-action: pan-y;
+}
+
+.bb-public-about-book-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(22rem, 36vw, 28rem);
+  min-width: 0;
+  perspective: 1800px;
+  transform-style: preserve-3d;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+.bb-public-about-page {
+  position: absolute;
+  inset: 0;
+  z-index: var(--bb-about-page-z);
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: #f7fafc;
+  transform: rotateY(0deg);
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition:
+    transform 780ms cubic-bezier(0.65, 0, 0.2, 1),
+    box-shadow 780ms ease;
+  will-change: transform;
+}
+
+.bb-public-about-page.is-turned {
+  transform: rotateY(-180deg);
+  pointer-events: none;
+  box-shadow: 18px 0 36px rgba(15, 23, 42, 0.14);
+}
+
+.bb-public-about-page:not(.is-current) {
+  pointer-events: none;
+}
+
+.bb-public-about-page.is-current {
+  backface-visibility: visible;
+}
+
+.bb-public-about-page-media {
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #e8edf2;
+}
+
+.bb-public-about-page-image,
+.bb-public-about-page-media .bb-editable-image,
+.bb-public-about-page-media .bb-editable-image-hit {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.bb-public-about-page-img,
+.bb-public-about-page-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.bb-public-about-page-copy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 0.85rem;
+  min-width: 0;
+  padding: clamp(2rem, 6vw, 5rem);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.bb-public-about-page-title {
+  justify-items: start;
+  text-align: left;
+}
+
+.bb-public-about-page-body {
+  margin: 0;
+  max-width: 34rem;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1rem, 1.4vw, 1.13rem);
+  font-weight: 500;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  color: #475467;
+  text-wrap: pretty;
+}
+
+.bb-public-about-page-nav-shell {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  margin-top: 0.55rem;
+}
+
+.bb-public-about-page-nav {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.15rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.bb-public-about-page-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 2px solid #d0d5dd;
+  border-radius: 999px;
+  background-color: #fff;
+  background-image: none;
+  color: #101828;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.bb-public-about-page-tab:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 2px);
+  width: calc(1.15rem - 4px);
+  height: 1px;
+  background: #cfd5dd;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.bb-public-about-page-tab svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.bb-public-about-page-tab:hover {
+  border-color: #98a2b3;
+  transform: translateY(-1px);
+}
+
+.bb-public-about-page-tab.is-active {
+  border-color: transparent;
+  background-color: transparent;
+  background-image:
+    linear-gradient(#fff, #fff),
+    var(--native-accent-button-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  color: #101828;
+  transform: scale(1.06);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-about-page-tab:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.35);
+  outline-offset: 2px;
+}
+
+.bb-public-about-page-icon-picker {
+  position: absolute;
+  bottom: calc(100% + 0.65rem);
+  left: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(5, 2rem);
+  gap: 0.35rem;
+  width: max-content;
+  padding: 0.55rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0.85rem;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.2);
+}
+
+.bb-public-about-page-icon-picker button {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.55rem;
+  background: #f4f6f8;
+  color: #667085;
+  cursor: pointer;
+}
+
+.bb-public-about-page-icon-picker button:hover,
+.bb-public-about-page-icon-picker button.is-active {
+  background: #101828;
+  color: #fff;
+}
+
+/* Reveal is enabled only after JavaScript has attached the observer. */
+.bb-public-about-journey-shell.has-reveal [data-journey-reveal] {
+  opacity: 0;
+  transform: translateY(0.9rem);
+  transition:
+    opacity 520ms ease,
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-public-about-journey-shell.has-reveal [data-journey-reveal] .bb-public-about-page-img {
+  transform: scale(1.025);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-public-about-journey-shell.has-reveal [data-journey-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.bb-public-about-journey-shell.has-reveal
+  [data-journey-reveal].is-visible
+  .bb-public-about-page-img {
+  transform: none;
+}
+
+.bb-public-about-journey.is-editing [data-journey-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 719px) {
+  .bb-public-about-offer-intro {
+    padding-block: 3.4rem;
+  }
+
+  .bb-public-about-book-stage {
+    height: min(32rem, 132vw);
+    min-height: 28rem;
+  }
+
+  .bb-public-about-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(13rem, 48%) minmax(0, 1fr);
+    transform-origin: left center;
+  }
+
+  .bb-public-about-page-copy {
+    justify-items: center;
+    align-content: center;
+    padding: 1.4rem var(--bb-public-gutter, 1.25rem) 1.65rem;
+    text-align: center;
+  }
+
+  .bb-public-about-page-title {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .bb-public-about-page-body {
+    text-align: center;
+    font-size: 0.96rem;
+    line-height: 1.6;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-public-about-journey-shell.has-reveal [data-journey-reveal],
+  .bb-public-about-journey-shell.has-reveal [data-journey-reveal] .bb-public-about-page-img {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .bb-public-about-page {
+    transition: none;
+  }
 }
 
 .bb-public-profile .bb-public-visit {
@@ -3079,23 +3700,12 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--edi
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-body,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-body,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-card-body {
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-body {
   text-align: center !important;
   max-width: none !important;
 }
 
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-card-title {
-  color: #101828 !important;
-  font-weight: 760 !important;
-}
-
 @media (min-width: 900px) {
-  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-offer-about,
-  .bb-public-profile .bb-public-about-offer-about {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr) !important;
-  }
-
   html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit,
   .bb-public-profile .bb-public-visit {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;

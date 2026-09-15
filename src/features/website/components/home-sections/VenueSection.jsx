@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { EditableText, EditableImage, EditSection } from '../editable';
+
+const SWIPE_THRESHOLD_PX = 42;
 
 export function VenueSection({
   website,
@@ -12,6 +14,9 @@ export function VenueSection({
 }) {
   const [viewerIndex, setViewerIndex] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const stageRef = useRef(null);
+  const swipeRef = useRef({ x: 0, y: 0, active: false, locked: false });
+  const stepFlowRef = useRef(() => {});
   const viewable = venueImages.filter((image) => Boolean(image.url));
   const active = viewerIndex == null ? null : viewable[viewerIndex] || null;
   const flowImages = editMode ? venueImages : viewable;
@@ -55,6 +60,65 @@ export function VenueSection({
     if (flowCount < 2) return;
     setActiveIndex((prev) => (prev + delta + flowCount) % flowCount);
   };
+  stepFlowRef.current = stepFlow;
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || flowCount < 2) return undefined;
+
+    const onStart = (event) => {
+      if (event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      swipeRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        active: true,
+        locked: false
+      };
+    };
+
+    const onMove = (event) => {
+      const swipe = swipeRef.current;
+      if (!swipe.active || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      const dx = touch.clientX - swipe.x;
+      const dy = touch.clientY - swipe.y;
+      if (!swipe.locked) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        swipe.locked = Math.abs(dx) > Math.abs(dy);
+        if (!swipe.locked) {
+          swipe.active = false;
+          return;
+        }
+      }
+      if (swipe.locked) event.preventDefault();
+    };
+
+    const onEnd = (event) => {
+      const swipe = swipeRef.current;
+      if (!swipe.active) return;
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - swipe.x;
+      swipeRef.current = { x: 0, y: 0, active: false, locked: false };
+      if (!swipe.locked || Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
+      stepFlowRef.current(dx < 0 ? 1 : -1);
+    };
+
+    const onCancel = () => {
+      swipeRef.current = { x: 0, y: 0, active: false, locked: false };
+    };
+
+    stage.addEventListener('touchstart', onStart, { passive: true });
+    stage.addEventListener('touchmove', onMove, { passive: false });
+    stage.addEventListener('touchend', onEnd, { passive: true });
+    stage.addEventListener('touchcancel', onCancel, { passive: true });
+    return () => {
+      stage.removeEventListener('touchstart', onStart);
+      stage.removeEventListener('touchmove', onMove);
+      stage.removeEventListener('touchend', onEnd);
+      stage.removeEventListener('touchcancel', onCancel);
+    };
+  }, [flowCount]);
 
   const selectFlow = (index) => {
     setActiveIndex(index);
@@ -100,6 +164,7 @@ export function VenueSection({
           {flowCount > 0 ? (
             <div className="bb-public-coverflow">
               <div
+                ref={stageRef}
                 className="bb-public-coverflow-stage"
                 role="list"
                 aria-label="Gallery photos"
@@ -172,24 +237,45 @@ export function VenueSection({
               </div>
 
               {flowCount > 1 ? (
-                <div className="bb-public-coverflow-nav">
-                  <button
-                    type="button"
-                    className="bb-public-coverflow-btn"
-                    aria-label="Previous photo"
-                    onClick={() => stepFlow(-1)}
+                <>
+                  <div className="bb-public-coverflow-nav bb-public-coverflow-nav--arrows">
+                    <button
+                      type="button"
+                      className="bb-public-coverflow-btn"
+                      aria-label="Previous photo"
+                      onClick={() => stepFlow(-1)}
+                    >
+                      <ChevronLeft size={18} strokeWidth={2.2} />
+                    </button>
+                    <button
+                      type="button"
+                      className="bb-public-coverflow-btn"
+                      aria-label="Next photo"
+                      onClick={() => stepFlow(1)}
+                    >
+                      <ChevronRight size={18} strokeWidth={2.2} />
+                    </button>
+                  </div>
+                  <div
+                    className="bb-public-coverflow-dots"
+                    role="tablist"
+                    aria-label="Gallery photos"
                   >
-                    <ChevronLeft size={18} strokeWidth={2.2} />
-                  </button>
-                  <button
-                    type="button"
-                    className="bb-public-coverflow-btn"
-                    aria-label="Next photo"
-                    onClick={() => stepFlow(1)}
-                  >
-                    <ChevronRight size={18} strokeWidth={2.2} />
-                  </button>
-                </div>
+                    {flowImages.map((image, index) => (
+                      <button
+                        key={image.id}
+                        type="button"
+                        role="tab"
+                        className={`bb-public-coverflow-dot${
+                          index === activeIndex ? ' is-active' : ''
+                        }`}
+                        aria-label={`Show photo ${index + 1}`}
+                        aria-selected={index === activeIndex}
+                        onClick={() => selectFlow(index)}
+                      />
+                    ))}
+                  </div>
+                </>
               ) : null}
             </div>
           ) : null}

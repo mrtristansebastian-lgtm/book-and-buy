@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { PublicSurfaceRenderer } from './PublicSurfaceRenderer';
 
 /**
@@ -15,6 +16,11 @@ export function DevicePreviewFrame({
   showDrafts = false
 }) {
   const isPhone = device === 'phone';
+  const screenRef = useRef(null);
+
+  useEffect(() => {
+    screenRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [page, device]);
 
   return (
     <div
@@ -24,7 +30,7 @@ export function DevicePreviewFrame({
     >
       <div className="bb-device-bezel">
         {isPhone ? <div className="bb-device-notch" aria-hidden="true" /> : null}
-        <div className="bb-device-screen">
+        <div className="bb-device-screen" ref={screenRef}>
           <PublicSurfaceRenderer
             workspace={workspace}
             page={page}

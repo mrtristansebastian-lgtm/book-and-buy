@@ -996,25 +996,34 @@ export function createDemoWorkspace() {
       visionBody:
         'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
       visionImageUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
+      visionNavIcon: 'eye',
       missionTitle: 'Our mission',
       missionBody:
         'Teach real kitchen skills in small groups, share honest recipes, and stock the tools that make practice feel possible after class.',
       missionImageUrl: '/example/flour-and-flame/venue/pastry-island.webp',
+      missionNavIcon: 'target',
+      aboutNavIcon: 'info',
       reasonsTitle: 'What we offer',
       reasonsEyebrow: 'The craft',
+      reasonsBody:
+        'Small-group learning, professional tools, and thoughtful take-home goods — all built to keep the craft going.',
+      reasonsMarkerStyle: 'icon',
       reasons: [
         {
           id: 'r1',
+          icon: 'people',
           title: 'Small groups',
           body: 'Enough attention to learn, enough energy to enjoy the room.'
         },
         {
           id: 'r2',
+          icon: 'craft',
           title: 'Real kitchen gear',
           body: 'Work on pro benches with the tools we actually use every day.'
         },
         {
           id: 'r3',
+          icon: 'package',
           title: 'Take-home sets',
           body: 'Bread boxes, pasta kits, and notes so the craft continues at home.'
         }

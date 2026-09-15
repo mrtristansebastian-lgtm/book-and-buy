@@ -71,15 +71,35 @@ export const createDefaultSettings = () => ({
     visionTitle: 'Our vision',
     visionBody: 'Share where you are headed and what you want to build.',
     visionImageUrl: '',
+    visionNavIcon: 'eye',
     missionTitle: 'Our mission',
     missionBody: 'Explain how you serve people every day.',
     missionImageUrl: '',
+    missionNavIcon: 'target',
+    aboutNavIcon: 'info',
     reasonsTitle: 'What we offer',
     reasonsEyebrow: 'The craft',
+    reasonsBody: 'A focused set of services shaped around what your clients need most.',
+    reasonsMarkerStyle: 'icon',
     reasons: [
-      { id: 'r1', title: 'Expert team', body: 'Skilled people who care about the result.' },
-      { id: 'r2', title: 'Easy booking', body: 'Reserve online in a few taps.' },
-      { id: 'r3', title: 'Quality products', body: 'Take home what you love.' }
+      {
+        id: 'r1',
+        icon: 'award',
+        title: 'Expert team',
+        body: 'Skilled people who care about the result.'
+      },
+      {
+        id: 'r2',
+        icon: 'calendar',
+        title: 'Easy booking',
+        body: 'Reserve online in a few taps.'
+      },
+      {
+        id: 'r3',
+        icon: 'package',
+        title: 'Quality products',
+        body: 'Take home what you love.'
+      }
     ],
     venueTitle: 'Gallery',
     venueEyebrow: 'Gallery',
