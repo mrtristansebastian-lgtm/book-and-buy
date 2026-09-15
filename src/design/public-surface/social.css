@@ -3286,6 +3286,10 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
   text-align: center;
 }
 
+.bb-device-preview--phone .bb-public-about-page-nav-shell {
+  justify-items: center;
+}
+
 .bb-device-preview--phone .bb-public-about-page-title {
   justify-items: center;
   text-align: center;

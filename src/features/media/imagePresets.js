@@ -47,6 +47,15 @@ export const IMAGE_PRESETS = {
     mime: 'image/jpeg',
     quality: 0.92
   },
+  aboutPage: {
+    id: 'aboutPage',
+    label: 'Story page',
+    aspect: 4 / 5,
+    width: 1080,
+    height: 1350,
+    mime: 'image/jpeg',
+    quality: 0.92
+  },
   venue: {
     id: 'venue',
     label: 'Venue',

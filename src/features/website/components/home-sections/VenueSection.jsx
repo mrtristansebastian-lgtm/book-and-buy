@@ -142,6 +142,10 @@ export function VenueSection({
               editMode={editMode}
               value={website.venueTitle || 'Gallery'}
               placeholder="Gallery"
+              website={website}
+              patchWebsite={patchWebsite}
+              colorTokenId="gallery.title"
+              accentTokenId="gallery.titleUnderline"
               onChange={(value) => patchWebsite({ venueTitle: value })}
             />
             {editMode || String(website.venueBody || '').trim() ? (
@@ -152,6 +156,9 @@ export function VenueSection({
                 multiline
                 value={website.venueBody || ''}
                 placeholder="Short gallery intro"
+                website={website}
+                patchWebsite={patchWebsite}
+                colorTokenId="gallery.body"
                 onChange={(value) => patchWebsite({ venueBody: value })}
               />
             ) : null}

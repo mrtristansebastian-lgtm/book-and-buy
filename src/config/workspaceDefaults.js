@@ -71,12 +71,30 @@ export const createDefaultSettings = () => ({
     visionTitle: 'Our vision',
     visionBody: 'Share where you are headed and what you want to build.',
     visionImageUrl: '',
-    visionNavIcon: 'eye',
     missionTitle: 'Our mission',
     missionBody: 'Explain how you serve people every day.',
     missionImageUrl: '',
-    missionNavIcon: 'target',
-    aboutNavIcon: 'info',
+    aboutPages: [
+      {
+        id: 'about',
+        title: 'About us',
+        body: 'Tell clients who you are and what makes your business special.',
+        imageUrl: ''
+      },
+      {
+        id: 'mission',
+        title: 'Our mission',
+        body: 'Explain how you serve people every day.',
+        imageUrl: ''
+      },
+      {
+        id: 'vision',
+        title: 'Our vision',
+        body: 'Share where you are headed and what you want to build.',
+        imageUrl: ''
+      }
+    ],
+    styleTokens: {},
     reasonsTitle: 'What we offer',
     reasonsEyebrow: 'The craft',
     reasonsBody: 'A focused set of services shaped around what your clients need most.',

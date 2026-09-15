@@ -1,3 +1,4 @@
+import { Plus, Trash2 } from 'lucide-react';
 import { EditableText, EditSection } from '../editable';
 
 export function FaqSection({ website, editMode, hidden, patchWebsite }) {
@@ -21,6 +22,10 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
               editMode={editMode}
               value={website.bookFaqTitle || 'FAQ'}
               placeholder="FAQ"
+              website={website}
+              patchWebsite={patchWebsite}
+              colorTokenId="faq.title"
+              accentTokenId="faq.titleUnderline"
               onChange={(value) => patchWebsite({ bookFaqTitle: value })}
             />
             {editMode || String(website.bookFaqBody || '').trim() ? (
@@ -31,6 +36,9 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
                 multiline
                 value={website.bookFaqBody || ''}
                 placeholder="Short FAQ intro"
+                website={website}
+                patchWebsite={patchWebsite}
+                colorTokenId="faq.body"
                 onChange={(value) => patchWebsite({ bookFaqBody: value })}
               />
             ) : null}
@@ -40,20 +48,35 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
             {faq.map((item) =>
               editMode ? (
                 <div key={item.id} className="bb-public-faq-item is-edit">
-                  <div className="bb-public-faq-q">
-                    <EditableText
-                      as="span"
-                      editMode
-                      value={item.q || ''}
-                      placeholder="Question"
-                      onChange={(value) =>
+                  <div className="bb-public-edit-title-row">
+                    <div className="bb-public-faq-q">
+                      <EditableText
+                        as="span"
+                        editMode
+                        value={item.q || ''}
+                        placeholder="Question"
+                        onChange={(value) =>
+                          patchWebsite({
+                            bookFaq: faq.map((row) =>
+                              row.id === item.id ? { ...row, q: value } : row
+                            )
+                          })
+                        }
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="bb-public-inline-delete"
+                      aria-label="Delete FAQ item"
+                      title="Delete"
+                      onClick={() =>
                         patchWebsite({
-                          bookFaq: faq.map((row) =>
-                            row.id === item.id ? { ...row, q: value } : row
-                          )
+                          bookFaq: faq.filter((row) => row.id !== item.id)
                         })
                       }
-                    />
+                    >
+                      <Trash2 size={14} strokeWidth={2.2} aria-hidden="true" />
+                    </button>
                   </div>
                   <div className="bb-public-faq-a">
                     <EditableText
@@ -84,20 +107,23 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
               )
             )}
             {editMode && faq.length < 8 ? (
-              <button
-                type="button"
-                className="bb-ghost-btn justify-self-start"
-                onClick={() =>
-                  patchWebsite({
-                    bookFaq: [
-                      ...faq,
-                      { id: `f-${Date.now()}`, q: '', a: '' }
-                    ]
-                  })
-                }
-              >
-                Add FAQ item
-              </button>
+              <div className="bb-public-section-actions">
+                <button
+                  type="button"
+                  className="bb-public-section-action"
+                  onClick={() =>
+                    patchWebsite({
+                      bookFaq: [
+                        ...faq,
+                        { id: `f-${Date.now()}`, q: '', a: '' }
+                      ]
+                    })
+                  }
+                >
+                  <Plus size={17} aria-hidden="true" />
+                  Add FAQ
+                </button>
+              </div>
             ) : null}
           </div>
         </div>

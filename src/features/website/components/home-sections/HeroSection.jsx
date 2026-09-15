@@ -1,4 +1,11 @@
-import { EditableText, EditableImage, EditSection } from '../editable';
+import {
+  EditableText,
+  EditableImage,
+  EditSection,
+  readStyleToken,
+  styleTokenColor,
+  isSolidColorToken
+} from '../editable';
 
 const DEFAULT_HERO = '/example/flour-and-flame/hero.webp';
 
@@ -18,6 +25,9 @@ export function HeroSection({
     workspace.tagline ||
     '';
   const heroSrc = website.heroImageUrl || website.heroImage || DEFAULT_HERO;
+  const ctaToken = readStyleToken(website, 'hero.bookCta');
+  const ctaSolid = styleTokenColor(ctaToken);
+  const ctaIsSolid = isSolidColorToken(ctaToken);
 
   const openRail = (tabId) => {
     if (preview || editMode) return;
@@ -40,7 +50,7 @@ export function HeroSection({
         storageFolder="brand"
         preset="hero"
         onChange={(url) => patchWebsite({ heroImageUrl: url })}
-        placeholderLabel="Add hero image URL"
+        placeholderLabel="Upload hero image"
       />
       <div className="absolute inset-0 bb-public-home-scrim" aria-hidden="true" />
       <div className="bb-public-home-copy bb-public-gutter">
@@ -51,6 +61,9 @@ export function HeroSection({
             editMode={editMode}
             value={brandName}
             placeholder="Business name"
+            website={website}
+            patchWebsite={patchWebsite}
+            colorTokenId="hero.brand"
             onChange={(value) => {
               const next = String(value || '').trim() || 'Business';
               onUpdateProfile?.({ brandName: next });
@@ -64,6 +77,9 @@ export function HeroSection({
             multiline
             value={body}
             placeholder="Short supporting line"
+            website={website}
+            patchWebsite={patchWebsite}
+            colorTokenId="hero.support"
             onChange={(value) =>
               patchWebsite({ homeSubtext: value, subcopy: value })
             }
@@ -71,7 +87,12 @@ export function HeroSection({
           <div className="bb-public-home-ctas">
             <button
               type="button"
-              className="bb-primary-btn"
+              className={`bb-primary-btn${ctaIsSolid ? ' bb-style-token-solid' : ''}`}
+              style={
+                ctaIsSolid
+                  ? { '--bb-cta-fill': ctaSolid, backgroundColor: ctaSolid }
+                  : undefined
+              }
               onClick={() => openRail('book')}
             >
               <EditableText
@@ -79,6 +100,12 @@ export function HeroSection({
                 editMode={editMode}
                 value={website.ctaLabel || 'Book'}
                 placeholder="Book CTA"
+                website={website}
+                patchWebsite={patchWebsite}
+                colorTokenId="hero.bookCtaLabel"
+                fillTokenId="hero.bookCta"
+                fillAllowGradient
+                fillTitle="Button fill"
                 onChange={(value) => patchWebsite({ ctaLabel: value })}
               />
             </button>
@@ -92,6 +119,9 @@ export function HeroSection({
                 editMode={editMode}
                 value={website.buyCtaLabel || 'Buy'}
                 placeholder="Buy CTA"
+                website={website}
+                patchWebsite={patchWebsite}
+                colorTokenId="hero.buyCtaLabel"
                 onChange={(value) => patchWebsite({ buyCtaLabel: value })}
               />
             </button>

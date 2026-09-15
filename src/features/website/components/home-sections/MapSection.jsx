@@ -20,6 +20,10 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
                 editMode={editMode}
                 value={website.mapTitle || 'Visit'}
                 placeholder="Visit"
+                website={website}
+                patchWebsite={patchWebsite}
+                colorTokenId="visit.title"
+                accentTokenId="visit.titleUnderline"
                 onChange={(value) => patchWebsite({ mapTitle: value })}
               />
               {editMode || String(website.mapBody || '').trim() ? (
@@ -30,6 +34,9 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
                   multiline
                   value={website.mapBody || ''}
                   placeholder="Short venue intro"
+                  website={website}
+                  patchWebsite={patchWebsite}
+                  colorTokenId="visit.body"
                   onChange={(value) => patchWebsite({ mapBody: value })}
                 />
               ) : null}
@@ -41,6 +48,9 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
               multiline
               value={website.address || ''}
               placeholder="Street address"
+              website={website}
+              patchWebsite={patchWebsite}
+              colorTokenId="visit.address"
               onChange={(value) => patchWebsite({ address: value })}
             />
             {editMode ? (
@@ -67,7 +77,7 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
             ) : null}
             {website.mapLinkUrl || website.mapEmbedUrl ? (
               <a
-                className="bb-ghost-btn"
+                className="bb-public-section-action"
                 href={website.mapLinkUrl || website.mapEmbedUrl}
                 target="_blank"
                 rel="noreferrer"

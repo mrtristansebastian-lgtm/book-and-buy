@@ -150,6 +150,10 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
             sections: {
               ...prev.website?.sections,
               ...(patch.sections || {})
+            },
+            styleTokens: {
+              ...prev.website?.styleTokens,
+              ...(patch.styleTokens || {})
             }
           },
           publishedAt: patch.publish ? Date.now() : prev.publishedAt

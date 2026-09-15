@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ImagePlus, Trash2, Upload } from 'lucide-react';
 import { uploadPublicImage } from '../../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../../media/ImageCropModal';
 
@@ -12,7 +13,7 @@ export function EditableImage({
   editMode = false,
   className = '',
   imgClassName = '',
-  placeholderLabel = 'Add image URL',
+  placeholderLabel = 'Upload image',
   storageFolder = 'website',
   preset = 'about'
 }) {
@@ -88,28 +89,77 @@ export function EditableImage({
     );
   }
 
+  const isEmpty = !src;
+
   return (
     <>
-      <div className={`bb-editable-image ${className}`} ref={popRef}>
+      <div
+        className={`bb-editable-image${isEmpty ? ' is-empty' : ''} ${className}`}
+        ref={popRef}
+      >
         {src ? (
           <img src={src} alt={alt} className={imgClassName || 'w-full h-full object-cover'} />
         ) : (
-          <div
-            className={`bb-editable-image-empty grid place-items-center text-sm ${
-              className.includes('absolute') ? 'absolute inset-0 text-white/80' : 'text-black/40'
-            }`}
-          >
-            {placeholderLabel}
+          <div className="bb-editable-image-blank">
+            <div className="bb-editable-image-blank-frame" aria-hidden="true" />
+            <button
+              type="button"
+              className="bb-editable-image-upload"
+              disabled={busy}
+              onClick={() => fileRef.current?.click()}
+            >
+              <Upload size={18} strokeWidth={2.1} aria-hidden="true" />
+              <span>{busy ? 'Uploading…' : placeholderLabel}</span>
+            </button>
+            <button
+              type="button"
+              className="bb-editable-image-url-link"
+              disabled={busy}
+              onClick={() => setOpen(true)}
+            >
+              or paste URL
+            </button>
+            {error ? <p className="bb-editable-image-blank-error">{error}</p> : null}
           </div>
         )}
-        <button
-          type="button"
-          className="bb-editable-image-hit"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label="Edit image"
-        >
-          {busy ? 'Uploading…' : 'Edit image'}
-        </button>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={onPickFile}
+        />
+
+        {!isEmpty ? (
+          <div className="bb-editable-image-actions">
+            <button
+              type="button"
+              className="bb-editable-image-hit"
+              onClick={() => setOpen((prev) => !prev)}
+              aria-label={busy ? 'Uploading image' : 'Edit image'}
+            >
+              <ImagePlus size={14} strokeWidth={2.2} aria-hidden="true" />
+              <span>{busy ? 'Uploading…' : 'Edit'}</span>
+            </button>
+            <button
+              type="button"
+              className="bb-editable-image-delete"
+              disabled={busy}
+              aria-label="Delete image"
+              title="Delete image"
+              onClick={() => {
+                setOpen(false);
+                setDraft('');
+                setError('');
+                onChange?.('');
+              }}
+            >
+              <Trash2 size={14} strokeWidth={2.2} aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
+
         {open ? (
           <div className="bb-editable-image-pop">
             <label className="grid gap-1 text-xs font-semibold">
@@ -124,13 +174,6 @@ export function EditableImage({
                 }}
               />
             </label>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={onPickFile}
-            />
             <div className="flex flex-wrap gap-2 justify-end">
               <button
                 type="button"
@@ -167,9 +210,6 @@ export function EditableImage({
               </button>
             </div>
             {error ? <p className="m-0 text-xs text-red-600">{error}</p> : null}
-            <p className="m-0 text-[0.68rem] text-black/40">
-              Uploads are cropped to the surface size, then saved to Storage when signed in.
-            </p>
           </div>
         ) : null}
       </div>

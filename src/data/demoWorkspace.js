@@ -996,13 +996,30 @@ export function createDemoWorkspace() {
       visionBody:
         'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
       visionImageUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
-      visionNavIcon: 'eye',
       missionTitle: 'Our mission',
       missionBody:
         'Teach real kitchen skills in small groups, share honest recipes, and stock the tools that make practice feel possible after class.',
       missionImageUrl: '/example/flour-and-flame/venue/pastry-island.webp',
-      missionNavIcon: 'target',
-      aboutNavIcon: 'info',
+      aboutPages: [
+        {
+          id: 'about',
+          title: 'About us',
+          body: 'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
+          imageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp'
+        },
+        {
+          id: 'mission',
+          title: 'Our mission',
+          body: 'Teach real kitchen skills in small groups, share honest recipes, and stock the tools that make practice feel possible after class.',
+          imageUrl: '/example/flour-and-flame/venue/pastry-island.webp'
+        },
+        {
+          id: 'vision',
+          title: 'Our vision',
+          body: 'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
+          imageUrl: '/example/flour-and-flame/venue/bread-ovens.webp'
+        }
+      ],
       reasonsTitle: 'What we offer',
       reasonsEyebrow: 'The craft',
       reasonsBody:

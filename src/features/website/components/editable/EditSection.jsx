@@ -23,7 +23,12 @@ export function EditSection({
           {hidden ? <span className="bb-edit-section-badge">Hidden</span> : null}
         </div>
       ) : null}
-      {editMode && coach && !hidden ? <p className="bb-edit-section-coach">{coach}</p> : null}
+      {editMode && coach && !hidden ? (
+        <div className="bb-edit-section-coach">
+          <span className="bb-edit-section-coach-label">Helper</span>
+          <p className="bb-edit-section-coach-body">{coach}</p>
+        </div>
+      ) : null}
       {children}
     </section>
   );

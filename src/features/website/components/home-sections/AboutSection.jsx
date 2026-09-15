@@ -5,6 +5,8 @@ import {
   Award,
   CalendarCheck,
   ChefHat,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   Eye,
   Heart,
@@ -20,29 +22,102 @@ import {
   Users,
   Zap
 } from 'lucide-react';
-import { EditableText, EditableImage, EditSection } from '../editable';
+import { EditableText, EditableImage, EditSection, StylePopover } from '../editable';
+import {
+  readStyleToken,
+  styleTokenColor,
+  STYLE_TOKEN_GRADIENT
+} from '../editable/styleTokens';
+import { EditableColor } from '../editable/EditableColor';
+
+const OFFER_NUMBER_OPTIONS = Array.from({ length: 9 }, (_, index) => {
+  const value = String(index + 1);
+  return {
+    id: `n${value}`,
+    label: value,
+    kind: 'number',
+    value
+  };
+});
 
 const OFFER_ICON_OPTIONS = [
-  { id: 'info', label: 'Information', Icon: Info },
-  { id: 'target', label: 'Target', Icon: Target },
-  { id: 'eye', label: 'Vision', Icon: Eye },
-  { id: 'sparkles', label: 'Sparkles', Icon: Sparkles },
-  { id: 'calendar', label: 'Calendar', Icon: CalendarCheck },
-  { id: 'award', label: 'Award', Icon: Award },
-  { id: 'heart', label: 'Heart', Icon: Heart },
-  { id: 'shield', label: 'Shield', Icon: ShieldCheck },
-  { id: 'energy', label: 'Energy', Icon: Zap },
-  { id: 'people', label: 'People', Icon: Users },
-  { id: 'clock', label: 'Clock', Icon: Clock3 },
-  { id: 'package', label: 'Package', Icon: PackageCheck },
-  { id: 'leaf', label: 'Leaf', Icon: Leaf },
-  { id: 'craft', label: 'Craft', Icon: ChefHat },
-  { id: 'star', label: 'Star', Icon: Star }
+  ...OFFER_NUMBER_OPTIONS,
+  { id: 'info', label: 'Information', kind: 'icon', Icon: Info },
+  { id: 'target', label: 'Target', kind: 'icon', Icon: Target },
+  { id: 'eye', label: 'Vision', kind: 'icon', Icon: Eye },
+  { id: 'sparkles', label: 'Sparkles', kind: 'icon', Icon: Sparkles },
+  { id: 'calendar', label: 'Calendar', kind: 'icon', Icon: CalendarCheck },
+  { id: 'award', label: 'Award', kind: 'icon', Icon: Award },
+  { id: 'heart', label: 'Heart', kind: 'icon', Icon: Heart },
+  { id: 'shield', label: 'Shield', kind: 'icon', Icon: ShieldCheck },
+  { id: 'energy', label: 'Energy', kind: 'icon', Icon: Zap },
+  { id: 'people', label: 'People', kind: 'icon', Icon: Users },
+  { id: 'clock', label: 'Clock', kind: 'icon', Icon: Clock3 },
+  { id: 'package', label: 'Package', kind: 'icon', Icon: PackageCheck },
+  { id: 'leaf', label: 'Leaf', kind: 'icon', Icon: Leaf },
+  { id: 'craft', label: 'Craft', kind: 'icon', Icon: ChefHat },
+  { id: 'star', label: 'Star', kind: 'icon', Icon: Star }
 ];
 
 const OFFER_ICON_MAP = Object.fromEntries(
-  OFFER_ICON_OPTIONS.map(({ id, Icon }) => [id, Icon])
+  OFFER_ICON_OPTIONS.map((option) => [option.id, option])
 );
+
+function resolveOfferMarker(reason, index) {
+  const fallback = OFFER_NUMBER_OPTIONS[index % OFFER_NUMBER_OPTIONS.length];
+  const option = OFFER_ICON_MAP[reason?.icon] || fallback;
+  return option;
+}
+
+function OfferMarkerGlyph({ option, size = 23 }) {
+  if (option.kind === 'number') {
+    return (
+      <span className="bb-public-about-marker-digit" aria-hidden="true">
+        {option.value}
+      </span>
+    );
+  }
+  const Icon = option.Icon;
+  return <Icon size={size} strokeWidth={1.8} aria-hidden="true" />;
+}
+
+const MAX_ABOUT_PAGES = 8;
+
+function legacyAboutPages(website = {}) {
+  return [
+    {
+      id: 'about',
+      title: website.aboutTitle || 'About us',
+      body: website.aboutBody || '',
+      imageUrl: website.aboutImageUrl || ''
+    },
+    {
+      id: 'mission',
+      title: website.missionTitle || 'Our mission',
+      body: website.missionBody || '',
+      imageUrl: website.missionImageUrl || ''
+    },
+    {
+      id: 'vision',
+      title: website.visionTitle || 'Our vision',
+      body: website.visionBody || '',
+      imageUrl: website.visionImageUrl || ''
+    }
+  ];
+}
+
+function resolveAboutPages(website = {}) {
+  const stored = Array.isArray(website.aboutPages) ? website.aboutPages : [];
+  if (stored.length > 0) {
+    return stored.map((page, index) => ({
+      id: page.id || `page-${index + 1}`,
+      title: page.title || '',
+      body: page.body || '',
+      imageUrl: page.imageUrl || ''
+    }));
+  }
+  return legacyAboutPages(website);
+}
 
 export function AboutSection({
   website,
@@ -56,48 +131,21 @@ export function AboutSection({
   const [activePage, setActivePage] = useState(0);
   const [openIconPicker, setOpenIconPicker] = useState(null);
   const touchStartRef = useRef(null);
-  const markerStyle = website.reasonsMarkerStyle === 'icon' ? 'icon' : 'number';
-  const pages = [
-    {
-      id: 'about',
-      title: website.aboutTitle || 'About us',
-      titlePlaceholder: 'About us',
-      body: website.aboutBody || '',
-      bodyPlaceholder: 'About your business',
-      imageUrl: website.aboutImageUrl || '',
-      icon: website.aboutNavIcon || 'info',
-      onTitle: (value) => patchWebsite({ aboutTitle: value }),
-      onBody: (value) => patchWebsite({ aboutBody: value }),
-      onImage: (url) => patchWebsite({ aboutImageUrl: url }),
-      onIcon: (icon) => patchWebsite({ aboutNavIcon: icon })
-    },
-    {
-      id: 'mission',
-      title: website.missionTitle || 'Our mission',
-      titlePlaceholder: 'Our mission',
-      body: website.missionBody || '',
-      bodyPlaceholder: 'Your mission',
-      imageUrl: website.missionImageUrl || '',
-      icon: website.missionNavIcon || 'target',
-      onTitle: (value) => patchWebsite({ missionTitle: value }),
-      onBody: (value) => patchWebsite({ missionBody: value }),
-      onImage: (url) => patchWebsite({ missionImageUrl: url }),
-      onIcon: (icon) => patchWebsite({ missionNavIcon: icon })
-    },
-    {
-      id: 'vision',
-      title: website.visionTitle || 'Our vision',
-      titlePlaceholder: 'Our vision',
-      body: website.visionBody || '',
-      bodyPlaceholder: 'Your vision',
-      imageUrl: website.visionImageUrl || '',
-      icon: website.visionNavIcon || 'eye',
-      onTitle: (value) => patchWebsite({ visionTitle: value }),
-      onBody: (value) => patchWebsite({ visionBody: value }),
-      onImage: (url) => patchWebsite({ visionImageUrl: url }),
-      onIcon: (icon) => patchWebsite({ visionNavIcon: icon })
-    }
-  ];
+  const aboutPages = resolveAboutPages(website);
+
+  useEffect(() => {
+    setActivePage((current) => Math.min(current, Math.max(aboutPages.length - 1, 0)));
+  }, [aboutPages.length]);
+
+  const patchAboutPages = (nextPages) => {
+    patchWebsite({ aboutPages: nextPages });
+  };
+
+  const patchAboutPage = (id, field, value) => {
+    patchAboutPages(
+      aboutPages.map((page) => (page.id === id ? { ...page, [field]: value } : page))
+    );
+  };
 
   useEffect(() => {
     const journey = journeyRef.current;
@@ -123,18 +171,20 @@ export function AboutSection({
     };
   }, [editMode]);
 
+  if (hidden && !editMode) return null;
+
   return (
-    <EditSection
-      editMode={editMode}
-      title="About"
-      sectionId="about"
-      hidden={hidden}
-      coach="What you offer, your story, mission, and vision."
-      className={`bb-public-home-block bb-public-about-block bb-public-about-journey${
-        editMode ? ' is-editing' : ''
-      }`}
-    >
-      <div className="bb-public-about-journey-shell" ref={journeyRef}>
+    <div className="bb-public-about-journey-shell" ref={journeyRef}>
+      <EditSection
+        editMode={editMode}
+        title="What we offer"
+        sectionId="offer"
+        hidden={hidden}
+        coach="List what you offer — short points with numbers or icons."
+        className={`bb-public-home-block bb-public-about-block bb-public-about-journey bb-public-about-offer-block${
+          editMode ? ' is-editing' : ''
+        }`}
+      >
         <section className="bb-public-about-offer-intro" data-journey-reveal>
           <header className="bb-public-about-journey-head">
             <EditableText
@@ -144,6 +194,10 @@ export function AboutSection({
               value={website.reasonsTitle || 'What we offer'}
               placeholder="What we offer"
               onChange={(value) => patchWebsite({ reasonsTitle: value })}
+              website={website}
+              patchWebsite={patchWebsite}
+              colorTokenId="offer.title"
+              accentTokenId="offer.titleUnderline"
             />
             <EditableText
               as="p"
@@ -156,31 +210,10 @@ export function AboutSection({
               }
               placeholder="A short introduction to what makes your business different."
               onChange={(value) => patchWebsite({ reasonsBody: value })}
+              website={website}
+              patchWebsite={patchWebsite}
+              colorTokenId="offer.body"
             />
-            {editMode ? (
-              <div className="bb-public-about-marker-toggle" aria-label="Point marker style">
-                <span className="bb-public-about-edit-label">Show points as</span>
-                <div className="bb-public-about-segmented">
-                  {[
-                    ['number', 'Numbers'],
-                    ['icon', 'Icons']
-                  ].map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      className={markerStyle === value ? 'is-active' : ''}
-                      aria-pressed={markerStyle === value}
-                      onClick={() => {
-                        setOpenIconPicker(null);
-                        patchWebsite({ reasonsMarkerStyle: value });
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
           </header>
 
           <div className="bb-public-about-pillars">
@@ -194,9 +227,10 @@ export function AboutSection({
                 <OfferMarker
                   reason={reason}
                   index={index}
-                  markerStyle={markerStyle}
                   editMode={editMode}
                   pickerOpen={openIconPicker === reason.id}
+                  website={website}
+                  patchWebsite={patchWebsite}
                   onTogglePicker={() =>
                     setOpenIconPicker((current) =>
                       current === reason.id ? null : reason.id
@@ -206,6 +240,7 @@ export function AboutSection({
                     patchReason(reason.id, 'icon', icon);
                     setOpenIconPicker(null);
                   }}
+                  onClosePicker={() => setOpenIconPicker(null)}
                 />
                 <div className="bb-public-about-pillar-copy">
                   <EditableText
@@ -215,6 +250,9 @@ export function AboutSection({
                     value={reason.title || ''}
                     placeholder="Offer title"
                     onChange={(value) => patchReason(reason.id, 'title', value)}
+                    website={website}
+                    patchWebsite={patchWebsite}
+                    colorTokenId={`offer.point.${reason.id}.title`}
                   />
                   <EditableText
                     as="p"
@@ -224,6 +262,9 @@ export function AboutSection({
                     value={reason.body || ''}
                     placeholder="Short description"
                     onChange={(value) => patchReason(reason.id, 'body', value)}
+                    website={website}
+                    patchWebsite={patchWebsite}
+                    colorTokenId={`offer.point.${reason.id}.body`}
                   />
                 </div>
                 {editMode ? (
@@ -282,7 +323,7 @@ export function AboutSection({
                         id: `r-${Date.now()}`,
                         title: '',
                         body: '',
-                        icon: OFFER_ICON_OPTIONS[reasons.length % OFFER_ICON_OPTIONS.length].id
+                        icon: OFFER_NUMBER_OPTIONS[reasons.length % OFFER_NUMBER_OPTIONS.length].id
                       }
                     ]
                   })
@@ -294,7 +335,18 @@ export function AboutSection({
             ) : null}
           </div>
         </section>
+      </EditSection>
 
+      <EditSection
+        editMode={editMode}
+        title="About us"
+        sectionId="about"
+        hidden={hidden}
+        coach="Tell your story across pages — photo, title, and body. Use Back/Next to flip pages."
+        className={`bb-public-home-block bb-public-about-block bb-public-about-journey bb-public-about-story-block${
+          editMode ? ' is-editing' : ''
+        }`}
+      >
         <section
           className="bb-public-about-book"
           data-journey-reveal
@@ -310,27 +362,78 @@ export function AboutSection({
             if (Math.abs(delta) < 45) return;
             setActivePage((current) =>
               delta < 0
-                ? Math.min(current + 1, pages.length - 1)
+                ? Math.min(current + 1, aboutPages.length - 1)
                 : Math.max(current - 1, 0)
             );
           }}
         >
           <div className="bb-public-about-book-stage">
-            {pages.map((page, index) => (
+            {aboutPages.map((page, index) => (
               <EditorialPage
                 key={page.id}
                 page={page}
                 index={index}
                 activePage={activePage}
+                pageCount={aboutPages.length}
                 editMode={editMode}
-                pages={pages}
-                onSelectPage={setActivePage}
+                website={website}
+                patchWebsite={patchWebsite}
+                onBack={() => setActivePage((current) => Math.max(current - 1, 0))}
+                onNext={() =>
+                  setActivePage((current) => Math.min(current + 1, aboutPages.length - 1))
+                }
+                onTitle={(value) => patchAboutPage(page.id, 'title', value)}
+                onBody={(value) => patchAboutPage(page.id, 'body', value)}
+                onImage={(url) => patchAboutPage(page.id, 'imageUrl', url)}
               />
             ))}
           </div>
+          {editMode ? (
+            <div className="bb-public-section-actions bb-public-about-page-actions">
+              {aboutPages.length < MAX_ABOUT_PAGES ? (
+                <button
+                  type="button"
+                  className="bb-public-about-add-page bb-public-section-action"
+                  onClick={() => {
+                    const next = [
+                      ...aboutPages,
+                      {
+                        id: `p-${Date.now()}`,
+                        title: '',
+                        body: '',
+                        imageUrl: ''
+                      }
+                    ];
+                    patchAboutPages(next);
+                    setActivePage(next.length - 1);
+                  }}
+                >
+                  <Plus size={17} aria-hidden="true" />
+                  Add page
+                </button>
+              ) : null}
+              {aboutPages.length > 1 ? (
+                <button
+                  type="button"
+                  className="bb-public-about-page-remove bb-public-section-action"
+                  aria-label={`Delete ${aboutPages[activePage]?.title || 'page'}`}
+                  onClick={() => {
+                    const currentId = aboutPages[activePage]?.id;
+                    if (!currentId) return;
+                    const next = aboutPages.filter((item) => item.id !== currentId);
+                    patchAboutPages(next);
+                    setActivePage((current) => Math.min(current, next.length - 1));
+                  }}
+                >
+                  <Trash2 size={15} aria-hidden="true" />
+                  Remove page
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </section>
-      </div>
-    </EditSection>
+      </EditSection>
+    </div>
   );
 }
 
@@ -345,59 +448,120 @@ function moveItem(items, from, to) {
 function OfferMarker({
   reason,
   index,
-  markerStyle,
   editMode,
   pickerOpen,
+  website,
+  patchWebsite,
   onTogglePicker,
-  onSelectIcon
+  onSelectIcon,
+  onClosePicker
 }) {
-  const iconId = OFFER_ICON_MAP[reason.icon]
-    ? reason.icon
-    : OFFER_ICON_OPTIONS[index % OFFER_ICON_OPTIONS.length].id;
-  const Icon = OFFER_ICON_MAP[iconId];
-
-  if (markerStyle === 'number') {
-    return (
-      <span className="bb-public-about-pillar-marker is-number" aria-hidden="true">
-        {String(index + 1).padStart(2, '0')}
-      </span>
-    );
-  }
+  const markerRef = useRef(null);
+  const [colorOpen, setColorOpen] = useState(false);
+  const option = resolveOfferMarker(reason, index);
+  const ringToken = readStyleToken(website, `offer.point.${reason.id}.marker`);
+  const ringSolid = styleTokenColor(ringToken);
+  const ringStyle =
+    ringSolid && ringToken !== STYLE_TOKEN_GRADIENT
+      ? {
+          borderColor: ringSolid,
+          background: '#fff',
+          backgroundImage: 'none',
+          color: '#101828'
+        }
+      : undefined;
 
   return (
     <div className="bb-public-about-pillar-marker-wrap">
       {editMode ? (
         <button
+          ref={markerRef}
           type="button"
-          className="bb-public-about-pillar-marker is-icon is-editable"
+          className={`bb-public-about-pillar-marker is-icon is-editable${
+            option.kind === 'number' ? ' is-digit' : ''
+          }`}
+          style={ringStyle}
           aria-label={`Choose icon for ${reason.title || 'point'}`}
-          aria-expanded={pickerOpen}
-          onClick={onTogglePicker}
+          aria-expanded={pickerOpen || colorOpen}
+          onClick={() => {
+            setColorOpen(false);
+            onTogglePicker();
+          }}
         >
-          <Icon size={23} strokeWidth={1.8} aria-hidden="true" />
+          <OfferMarkerGlyph option={option} />
         </button>
       ) : (
-        <span className="bb-public-about-pillar-marker is-icon" aria-hidden="true">
-          <Icon size={23} strokeWidth={1.8} />
+        <span
+          className={`bb-public-about-pillar-marker is-icon${
+            option.kind === 'number' ? ' is-digit' : ''
+          }`}
+          style={ringStyle}
+          aria-hidden="true"
+        >
+          <OfferMarkerGlyph option={option} />
         </span>
       )}
-      {editMode && pickerOpen ? (
-        <div className="bb-public-about-icon-picker" aria-label="Choose an icon">
-          {OFFER_ICON_OPTIONS.map(({ id, label, Icon: OptionIcon }) => (
+      <StylePopover
+        open={editMode && pickerOpen}
+        anchorRef={markerRef}
+        placement="left-of-bezel"
+        title="Choose icon"
+        onClose={onClosePicker}
+      >
+        <div className="bb-style-icon-grid" aria-label="Choose a number">
+          {OFFER_NUMBER_OPTIONS.map((num) => (
             <button
-              key={id}
+              key={num.id}
               type="button"
-              className={id === iconId ? 'is-active' : ''}
-              aria-label={label}
-              aria-pressed={id === iconId}
-              title={label}
-              onClick={() => onSelectIcon(id)}
+              className={`bb-style-icon-digit${num.id === option.id ? ' is-active' : ''}`}
+              aria-label={num.label}
+              aria-pressed={num.id === option.id}
+              title={num.label}
+              onClick={() => onSelectIcon(num.id)}
             >
-              <OptionIcon size={18} aria-hidden="true" />
+              <span className="bb-public-about-marker-digit">{num.value}</span>
             </button>
           ))}
         </div>
-      ) : null}
+        <div className="bb-style-icon-grid" aria-label="Choose an icon">
+          {OFFER_ICON_OPTIONS.filter((item) => item.kind === 'icon').map(
+            ({ id, label, Icon: OptionIcon }) => (
+              <button
+                key={id}
+                type="button"
+                className={id === option.id ? 'is-active' : ''}
+                aria-label={label}
+                aria-pressed={id === option.id}
+                title={label}
+                onClick={() => onSelectIcon(id)}
+              >
+                <OptionIcon size={18} aria-hidden="true" />
+              </button>
+            )
+          )}
+        </div>
+        <button
+          type="button"
+          className="bb-style-reset"
+          onClick={() => {
+            onClosePicker();
+            setColorOpen(true);
+          }}
+        >
+          Marker color
+        </button>
+      </StylePopover>
+      <EditableColor
+        open={colorOpen}
+        anchorRef={markerRef}
+        website={website}
+        patchWebsite={patchWebsite}
+        tokenId={`offer.point.${reason.id}.marker`}
+        title="Marker style"
+        allowGradient
+        placement="left-of-bezel"
+        onClose={() => setColorOpen(false)}
+      />
     </div>
   );
 }
@@ -406,13 +570,20 @@ function EditorialPage({
   page,
   index,
   activePage,
+  pageCount,
   editMode,
-  pages,
-  onSelectPage
+  website,
+  patchWebsite,
+  onBack,
+  onNext,
+  onTitle,
+  onBody,
+  onImage
 }) {
   const turned = index < activePage;
   const current = index === activePage;
-  const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  const canGoBack = activePage > 0;
+  const canGoNext = activePage < pageCount - 1;
 
   return (
     <article
@@ -429,8 +600,8 @@ function EditorialPage({
           className="bb-public-about-page-image"
           imgClassName="bb-public-about-page-img"
           storageFolder="brand"
-          preset="about"
-          onChange={page.onImage}
+          preset="aboutPage"
+          onChange={onImage}
         />
       </div>
       <div className="bb-public-about-page-copy">
@@ -439,8 +610,12 @@ function EditorialPage({
           className="bb-public-profile-heading bb-public-about-page-title"
           editMode={editMode}
           value={page.title}
-          placeholder={page.titlePlaceholder}
-          onChange={page.onTitle}
+          placeholder="Page title"
+          onChange={onTitle}
+          website={website}
+          patchWebsite={patchWebsite}
+          colorTokenId={`about.page.${page.id}.title`}
+          accentTokenId={`about.page.${page.id}.underline`}
         />
         <EditableText
           as="p"
@@ -448,62 +623,35 @@ function EditorialPage({
           editMode={editMode}
           multiline
           value={page.body}
-          placeholder={page.bodyPlaceholder}
-          onChange={page.onBody}
+          placeholder="Tell this part of your story"
+          onChange={onBody}
+          website={website}
+          patchWebsite={patchWebsite}
+          colorTokenId={`about.page.${page.id}.body`}
         />
         <div className="bb-public-about-page-nav-shell">
-          <nav className="bb-public-about-page-nav" aria-label="About pages">
-            {pages.map((navPage, navIndex) => {
-              const Icon = OFFER_ICON_MAP[navPage.icon] || Info;
-              const active = navIndex === activePage;
-
-              return (
-                <button
-                  key={navPage.id}
-                  type="button"
-                  className={`bb-public-about-page-tab${active ? ' is-active' : ''}`}
-                  aria-label={
-                    editMode && active
-                      ? `Choose icon for ${navPage.title}`
-                      : `Show ${navPage.title}`
-                  }
-                  aria-pressed={active}
-                  aria-expanded={editMode && active ? iconPickerOpen : undefined}
-                  title={editMode && active ? `Change ${navPage.title} icon` : navPage.title}
-                  onClick={() => {
-                    if (editMode && active) {
-                      setIconPickerOpen((open) => !open);
-                      return;
-                    }
-                    setIconPickerOpen(false);
-                    onSelectPage(navIndex);
-                  }}
-                >
-                  <Icon size={18} strokeWidth={2} aria-hidden="true" />
-                </button>
-              );
-            })}
+          <nav className="bb-public-about-page-turn" aria-label="About pages">
+            <button
+              type="button"
+              className="bb-public-about-page-turn-btn"
+              aria-label="Previous page"
+              disabled={!canGoBack}
+              onClick={onBack}
+            >
+              <ChevronLeft size={16} strokeWidth={2.2} aria-hidden="true" />
+              <span>Back</span>
+            </button>
+            <button
+              type="button"
+              className="bb-public-about-page-turn-btn"
+              aria-label="Next page"
+              disabled={!canGoNext}
+              onClick={onNext}
+            >
+              <span>Next</span>
+              <ChevronRight size={16} strokeWidth={2.2} aria-hidden="true" />
+            </button>
           </nav>
-          {editMode && iconPickerOpen ? (
-            <div className="bb-public-about-page-icon-picker" aria-label="Choose a page icon">
-              {OFFER_ICON_OPTIONS.map(({ id, label, Icon }) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={id === page.icon ? 'is-active' : ''}
-                  aria-label={label}
-                  aria-pressed={id === page.icon}
-                  title={label}
-                  onClick={() => {
-                    page.onIcon(id);
-                    setIconPickerOpen(false);
-                  }}
-                >
-                  <Icon size={18} aria-hidden="true" />
-                </button>
-              ))}
-            </div>
-          ) : null}
         </div>
       </div>
     </article>

@@ -955,6 +955,29 @@
   background-blend-mode: soft-light, normal;
 }
 
+.bb-public-profile .bb-public-profile-heading[data-underline-solid='true']::after,
+.bb-public-profile .bb-public-venue-title[data-underline-solid='true']::after,
+.bb-public-profile .bb-public-reviews-title[data-underline-solid='true']::after,
+.bb-public-profile .bb-public-visit-title[data-underline-solid='true']::after,
+.bb-public-profile .bb-public-faq-title[data-underline-solid='true']::after,
+.bb-public-profile .bb-public-about-title[data-underline-solid='true']::after,
+.bb-public-profile .bb-editable-text[data-underline-solid='true']::after {
+  background-image: none;
+  background-color: var(--bb-underline-color, #101828);
+  background-blend-mode: normal;
+}
+
+.bb-public-stars[data-star-solid='true'] .bb-public-star-path--filled {
+  fill: var(--bb-star-fill, #e8b923) !important;
+  stroke: var(--bb-star-fill, #c99212) !important;
+}
+
+.bb-public-home-ctas .bb-primary-btn.bb-style-token-solid {
+  background-image: none !important;
+  background-color: var(--bb-cta-fill, #101828) !important;
+  color: #fff !important;
+}
+
 .bb-public-profile .bb-public-home-block,
 .bb-public-profile .bb-public-about-block,
 .bb-public-profile .bb-public-venue-block,
@@ -1632,6 +1655,21 @@
   color: #101828;
 }
 
+.bb-public-about-pillar-marker.is-digit {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+}
+
+.bb-public-about-marker-digit {
+  display: inline-grid;
+  place-items: center;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 780;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
 button.bb-public-about-pillar-marker {
   cursor: pointer;
 }
@@ -1797,11 +1835,11 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   gap: 0.5rem;
   width: 100%;
   margin-top: 1rem;
-  padding: 0.9rem 1rem;
-  border: 1px dashed rgba(100, 128, 20, 0.48);
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.16);
   border-radius: 0.75rem;
-  background: rgba(211, 255, 95, 0.18);
-  color: #536b10;
+  background: #fff;
+  color: #101828;
   font: inherit;
   font-size: 0.82rem;
   font-weight: 760;
@@ -1809,7 +1847,9 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-about-add-point:hover {
-  background: rgba(211, 255, 95, 0.3);
+  background: #101828;
+  border-color: #101828;
+  color: #fff;
 }
 
 @media (min-width: 720px) {
@@ -1915,12 +1955,17 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-about-page-image,
-.bb-public-about-page-media .bb-editable-image,
-.bb-public-about-page-media .bb-editable-image-hit {
+.bb-public-about-page-media .bb-editable-image {
   display: block;
+  position: relative;
   width: 100%;
   height: 100%;
   margin: 0;
+}
+
+.bb-public-about-page-media .bb-editable-image-hit {
+  width: auto;
+  height: auto;
 }
 
 .bb-public-about-page-img,
@@ -1962,118 +2007,166 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-about-page-nav-shell {
   position: relative;
-  display: grid;
-  justify-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
   margin-top: 0.55rem;
 }
 
-.bb-public-about-page-nav {
-  position: relative;
+.bb-public-about-page-turn {
   display: inline-flex;
   align-items: center;
-  gap: 1.15rem;
+  gap: 0.55rem;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
 }
 
-.bb-public-about-page-tab {
-  position: relative;
-  z-index: 1;
-  display: inline-grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  border: 2px solid #d0d5dd;
-  border-radius: 999px;
-  background-color: #fff;
-  background-image: none;
+.bb-public-about-page-turn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 5.75rem;
+  height: 2.55rem;
+  margin: 0;
+  padding: 0 0.95rem;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  border-radius: 0.55rem;
+  background: #fff;
   color: #101828;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition:
-    border-color 160ms ease,
     background 160ms ease,
-    transform 160ms ease,
-    box-shadow 160ms ease;
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
-.bb-public-about-page-tab:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 2px);
-  width: calc(1.15rem - 4px);
-  height: 1px;
-  background: #cfd5dd;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.bb-public-about-page-tab svg {
-  width: 1.2rem;
-  height: 1.2rem;
-}
-
-.bb-public-about-page-tab:hover {
-  border-color: #98a2b3;
+.bb-public-about-page-turn-btn:hover:not(:disabled) {
+  background: #101828;
+  border-color: #101828;
+  color: #fff;
   transform: translateY(-1px);
 }
 
-.bb-public-about-page-tab.is-active {
-  border-color: transparent;
-  background-color: transparent;
-  background-image:
-    linear-gradient(#fff, #fff),
-    var(--native-accent-button-gradient);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  background-size: auto, 420% 420%;
-  background-position: 0 0, var(--native-accent-x) 50%;
-  color: #101828;
-  transform: scale(1.06);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+.bb-public-about-page-turn-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
-.bb-public-about-page-tab:focus-visible {
+.bb-public-about-page-turn-btn:focus-visible {
   outline: 2px solid rgba(15, 23, 42, 0.35);
   outline-offset: 2px;
 }
 
-.bb-public-about-page-icon-picker {
-  position: absolute;
-  bottom: calc(100% + 0.65rem);
-  left: 0;
-  z-index: 30;
-  display: grid;
-  grid-template-columns: repeat(5, 2rem);
-  gap: 0.35rem;
-  width: max-content;
-  padding: 0.55rem;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 0.85rem;
-  background: #fff;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.2);
-}
-
-.bb-public-about-page-icon-picker button {
-  display: inline-grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 1px solid rgba(15, 23, 42, 0.1);
+.bb-public-section-action,
+.bb-public-about-page-remove,
+.bb-public-about-add-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 0;
+  min-height: 2.55rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgba(15, 23, 42, 0.16);
   border-radius: 0.55rem;
-  background: #f4f6f8;
-  color: #667085;
+  background: #fff;
+  color: #101828;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-decoration: none;
   cursor: pointer;
 }
 
-.bb-public-about-page-icon-picker button:hover,
-.bb-public-about-page-icon-picker button.is-active {
+.bb-public-about-add-point svg,
+.bb-public-section-action svg,
+.bb-public-about-page-remove svg,
+.bb-public-about-add-page svg,
+.bb-public-about-page-turn-btn svg {
+  color: inherit;
+  stroke: currentColor;
+}
+
+.bb-public-section-action:hover,
+.bb-public-about-page-remove:hover,
+.bb-public-about-add-page:hover {
   background: #101828;
+  border-color: #101828;
   color: #fff;
+}
+
+.bb-public-edit-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.bb-public-edit-title-row > .bb-editable-text-shell,
+.bb-public-edit-title-row > .bb-editable-text,
+.bb-public-edit-title-row > .bb-public-faq-q {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bb-public-inline-delete {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.55rem;
+  height: 1.55rem;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: #d92d20;
+  cursor: pointer;
+}
+
+.bb-public-inline-delete:hover {
+  background: rgba(217, 45, 32, 0.1);
+  color: #b42318;
+}
+
+.bb-public-inline-delete:focus-visible {
+  outline: 2px solid rgba(217, 45, 32, 0.45);
+  outline-offset: 1px;
+}
+
+.bb-public-section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.bb-public-about-page-actions {
+  width: 100%;
+  padding: 0 var(--bb-public-gutter, 1.25rem);
+  margin-top: 1rem;
+}
+
+.bb-public-about-add-page {
+  width: auto;
+  max-width: none;
+  margin: 0;
+}
+
+.bb-public-about-journey.is-editing .bb-public-about-page-copy {
+  justify-items: start;
 }
 
 /* Reveal is enabled only after JavaScript has attached the observer. */
@@ -2127,6 +2220,10 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     align-content: center;
     padding: 1.4rem var(--bb-public-gutter, 1.25rem) 1.65rem;
     text-align: center;
+  }
+
+  .bb-public-about-page-nav-shell {
+    justify-items: center;
   }
 
   .bb-public-about-page-title {
@@ -2363,11 +2460,20 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   line-height: 1.25;
 }
 
-.bb-public-profile .bb-public-reviews-actions {
+.bb-public-profile .bb-public-reviews-actions,
+.bb-public-reviews-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.55rem;
   padding-top: 0.25rem;
+}
+
+.bb-public-reviews-sync-note {
+  margin: 0.75rem 0 0;
+  color: #667085;
+  font-size: 0.78rem;
+  font-weight: 650;
 }
 
 .bb-public-profile-faq-shell {
