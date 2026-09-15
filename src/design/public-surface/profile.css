@@ -748,6 +748,15 @@
     width: min(100%, 28.5rem);
     max-width: 28.5rem;
     margin-inline: auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body:has(.bb-social-feed) {
+    overflow: hidden;
+    padding-bottom: 0.35rem;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .bb-public-profile-panel--content .bb-public-social--split .bb-social-feed-media {
@@ -769,8 +778,23 @@
     margin: 0;
   }
 
-  .bb-public-profile-panel--content:has(.bb-yt-watch) {
+  .bb-public-profile-panel--content:has(.bb-yt-watch),
+  .bb-public-profile-panel--content:has(.bb-vertical-watch) {
     grid-template-columns: 18.75rem 4.85rem minmax(0, 1fr);
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body:has(.bb-vertical-watch) {
+    overflow: hidden;
+    padding: 0;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body > .bb-vertical-watch {
+    height: 100%;
+    min-height: 0;
+    max-width: none;
+    border-radius: 1rem;
   }
 
   .bb-public-profile-panel--content .bb-public-social--split .bb-social-video-grid.bb-yt-home:not(.bb-social-verticals-grid) {
@@ -863,7 +887,8 @@
   gap: 0.85rem;
 }
 
-.bb-public-profile .bb-public-social--embedded .bb-public-measure-wide:has(> .bb-yt-watch) {
+.bb-public-profile .bb-public-social--embedded .bb-public-measure-wide:has(> .bb-yt-watch),
+.bb-public-profile .bb-public-social--embedded .bb-public-measure-wide:has(.bb-vertical-watch) {
   max-width: min(100%, 72rem);
   width: 100%;
   margin-inline: auto;
@@ -1036,7 +1061,7 @@
   min-width: 0;
   height: auto;
   perspective: 1600px;
-  perspective-origin: 50% 0%;
+  perspective-origin: 50% 50%;
   transform-style: preserve-3d;
   overflow-x: clip;
   overflow-y: visible;
@@ -1054,14 +1079,14 @@
   border-radius: 1.15rem;
   overflow: hidden;
   background: #e8edf3;
-  transform-origin: center top;
+  transform-origin: center center;
   transform-style: preserve-3d;
   transform: translateX(-50%)
     translateX(calc(var(--cf-offset) * 64%))
     translateZ(calc(var(--cf-abs) * -140px))
     rotateY(calc(var(--cf-offset) * -30deg))
     scale(calc(1 - (var(--cf-abs) * 0.1)));
-  opacity: calc(1 - (var(--cf-abs) * 0.16));
+  opacity: calc(1 - (var(--cf-abs) * 0.48));
   box-shadow:
     0 18px 40px rgba(15, 23, 42, 0.16),
     0 4px 12px rgba(15, 23, 42, 0.08);
@@ -1309,7 +1334,8 @@
   margin-inline: auto;
 }
 
-.bb-public-profile .bb-public-social--embedded > .bb-public-measure-wide:has(> .bb-yt-watch) {
+.bb-public-profile .bb-public-social--embedded > .bb-public-measure-wide:has(> .bb-yt-watch),
+.bb-public-profile .bb-public-social--embedded > .bb-public-measure-wide:has(.bb-vertical-watch) {
   max-width: min(100%, 72rem);
   margin-inline: auto;
 }
@@ -1890,6 +1916,8 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-about-book {
+  display: grid;
+  gap: 0.85rem;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -1897,6 +1925,46 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   padding: 0;
   box-sizing: border-box;
   touch-action: pan-y;
+  outline: none;
+}
+
+.bb-public-about-arrows {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.bb-public-about-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #c0c6d0;
+  cursor: pointer;
+  transition: color 220ms ease, opacity 220ms ease;
+}
+
+.bb-public-about-arrow:hover:not(:disabled) {
+  color: #98a2b3;
+}
+
+.bb-public-about-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.bb-public-about-arrow:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.28);
+  outline-offset: 2px;
 }
 
 .bb-public-about-book-stage {
@@ -1904,47 +1972,36 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   width: 100%;
   height: clamp(22rem, 36vw, 28rem);
   min-width: 0;
-  perspective: 1800px;
-  transform-style: preserve-3d;
   overflow: hidden;
   border: 0;
   border-radius: 0;
   background: #fff;
   box-shadow: none;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.bb-public-about-book-stage:active {
+  cursor: grabbing;
 }
 
 .bb-public-about-page {
   position: absolute;
   inset: 0;
-  z-index: var(--bb-about-page-z);
+  z-index: var(--bb-about-page-z, 1);
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
   width: 100%;
   height: 100%;
   margin: 0;
-  background: #f7fafc;
-  transform: rotateY(0deg);
-  transform-origin: left center;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  transition:
-    transform 780ms cubic-bezier(0.65, 0, 0.2, 1),
-    box-shadow 780ms ease;
-  will-change: transform;
-}
-
-.bb-public-about-page.is-turned {
-  transform: rotateY(-180deg);
-  pointer-events: none;
-  box-shadow: 18px 0 36px rgba(15, 23, 42, 0.14);
-}
-
-.bb-public-about-page:not(.is-current) {
+  background: transparent;
   pointer-events: none;
 }
 
 .bb-public-about-page.is-current {
-  backface-visibility: visible;
+  background: #fff;
+  pointer-events: auto;
+  z-index: 3;
 }
 
 .bb-public-about-page-media {
@@ -1952,6 +2009,68 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   height: 100%;
   overflow: hidden;
   background: #e8edf2;
+  transform-origin: 50% 58%;
+  box-shadow: 0 0 0 rgba(15, 23, 42, 0);
+  transition:
+    transform 920ms cubic-bezier(0.33, 0.05, 0.2, 1),
+    opacity 780ms cubic-bezier(0.33, 0.05, 0.2, 1),
+    box-shadow 920ms cubic-bezier(0.33, 0.05, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.bb-public-about-page-copy {
+  opacity: 0;
+  transform: translate3d(0, 0.4rem, 0);
+  transition:
+    opacity 700ms cubic-bezier(0.33, 0.05, 0.2, 1),
+    transform 700ms cubic-bezier(0.33, 0.05, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.bb-public-about-page.is-current .bb-public-about-page-media {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  box-shadow: 0 0 0 rgba(15, 23, 42, 0);
+}
+
+.bb-public-about-page.is-current .bb-public-about-page-copy {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-delay: 220ms, 220ms;
+}
+
+/* Outgoing / waiting cards — soft shuffle off the stage */
+.bb-public-about-book.is-dir-next .bb-public-about-page.is-behind .bb-public-about-page-media,
+.bb-public-about-book.is-dir-prev .bb-public-about-page.is-ahead .bb-public-about-page-media {
+  opacity: 0;
+  transform: translate3d(-16%, 6%, 0) rotate(-6deg) scale(0.94);
+  box-shadow: -10px 14px 28px rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-about-book.is-dir-next .bb-public-about-page.is-ahead .bb-public-about-page-media,
+.bb-public-about-book.is-dir-prev .bb-public-about-page.is-behind .bb-public-about-page-media {
+  opacity: 0;
+  transform: translate3d(18%, -4%, 0) rotate(7deg) scale(0.93);
+  box-shadow: 10px 12px 26px rgba(15, 23, 42, 0.1);
+}
+
+.bb-public-about-page:not(.is-current) .bb-public-about-page-copy {
+  opacity: 0;
+  transform: translate3d(0, 0.25rem, 0);
+  transition-delay: 0ms, 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-public-about-page-media,
+  .bb-public-about-page-copy {
+    transition: opacity 160ms ease !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .bb-public-about-page.is-current .bb-public-about-page-copy {
+    transition-delay: 0ms !important;
+  }
 }
 
 .bb-public-about-page-image,
@@ -2005,67 +2124,6 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   text-wrap: pretty;
 }
 
-.bb-public-about-page-nav-shell {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.55rem;
-  margin-top: 0.55rem;
-}
-
-.bb-public-about-page-turn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-.bb-public-about-page-turn-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  min-width: 5.75rem;
-  height: 2.55rem;
-  margin: 0;
-  padding: 0 0.95rem;
-  border: 1px solid rgba(15, 23, 42, 0.16);
-  border-radius: 0.55rem;
-  background: #fff;
-  color: #101828;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 750;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
-}
-
-.bb-public-about-page-turn-btn:hover:not(:disabled) {
-  background: #101828;
-  border-color: #101828;
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-.bb-public-about-page-turn-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.bb-public-about-page-turn-btn:focus-visible {
-  outline: 2px solid rgba(15, 23, 42, 0.35);
-  outline-offset: 2px;
-}
-
 .bb-public-section-action,
 .bb-public-about-page-remove,
 .bb-public-about-add-page {
@@ -2077,7 +2135,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   min-height: 2.55rem;
   padding: 0.7rem 0.95rem;
   border: 1px solid rgba(15, 23, 42, 0.16);
-  border-radius: 0.55rem;
+  border-radius: 0;
   background: #fff;
   color: #101828;
   font: inherit;
@@ -2090,8 +2148,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 .bb-public-about-add-point svg,
 .bb-public-section-action svg,
 .bb-public-about-page-remove svg,
-.bb-public-about-add-page svg,
-.bb-public-about-page-turn-btn svg {
+.bb-public-about-add-page svg {
   color: inherit;
   stroke: currentColor;
 }
@@ -2212,7 +2269,6 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   .bb-public-about-page {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(13rem, 48%) minmax(0, 1fr);
-    transform-origin: left center;
   }
 
   .bb-public-about-page-copy {
@@ -2222,8 +2278,8 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     text-align: center;
   }
 
-  .bb-public-about-page-nav-shell {
-    justify-items: center;
+  .bb-public-about-arrows {
+    justify-content: center;
   }
 
   .bb-public-about-page-title {

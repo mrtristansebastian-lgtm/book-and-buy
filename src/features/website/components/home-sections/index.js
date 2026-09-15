@@ -1,6 +1,7 @@
 export { ProfileIdentitySection } from './ProfileIdentitySection';
 export { HeroSection } from './HeroSection';
 export { AboutSection } from './AboutSection';
+export { WhatWeOfferSection } from './WhatWeOfferSection';
 export { ReasonsSection } from './ReasonsSection';
 export { VenueSection } from './VenueSection';
 export { MapSection } from './MapSection';

@@ -38,7 +38,12 @@ export function BbVideoPlayer({
   title = 'Video',
   aspectRatio = 0,
   trimStart = 0,
-  trimEnd = 0
+  trimEnd = 0,
+  fill = false,
+  autoPlay = false,
+  loop = false,
+  startMuted = false,
+  variant = 'default'
 }) {
   const rootRef = useRef(null);
   const videoRef = useRef(null);
@@ -47,7 +52,7 @@ export function BbVideoPlayer({
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [buffered, setBuffered] = useState(0);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(Boolean(startMuted || autoPlay));
   const [volume, setVolume] = useState(0.9);
   const [fullscreen, setFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
@@ -77,6 +82,11 @@ export function BbVideoPlayer({
       const clip = clipRef.current;
       const t = video.currentTime || 0;
       if (clip.active && t >= clip.end - 0.04) {
+        if (loop) {
+          video.currentTime = clip.start;
+          setCurrent(0);
+          return;
+        }
         video.pause();
         video.currentTime = clip.end;
         setCurrent(clip.length);
@@ -118,9 +128,15 @@ export function BbVideoPlayer({
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
     const onEnded = () => {
+      const clip = clipRef.current;
+      if (loop) {
+        video.currentTime = clip.active ? clip.start : 0;
+        setCurrent(0);
+        video.play().catch(() => setPlaying(false));
+        return;
+      }
       setPlaying(false);
       setControlsVisible(true);
-      const clip = clipRef.current;
       if (clip.active) {
         video.currentTime = clip.start;
         setCurrent(0);
@@ -144,7 +160,23 @@ export function BbVideoPlayer({
       video.removeEventListener('pause', onPause);
       video.removeEventListener('ended', onEnded);
     };
-  }, [src, trimStart, trimEnd]);
+  }, [src, trimStart, trimEnd, loop]);
+
+  useEffect(() => {
+    if (!autoPlay) return undefined;
+    const video = videoRef.current;
+    if (!video || !src) return undefined;
+    video.muted = true;
+    const tryPlay = () => {
+      video.play().catch(() => setPlaying(false));
+    };
+    if (video.readyState >= 2) {
+      tryPlay();
+      return undefined;
+    }
+    video.addEventListener('loadeddata', tryPlay, { once: true });
+    return () => video.removeEventListener('loadeddata', tryPlay);
+  }, [src, autoPlay]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -263,6 +295,8 @@ export function BbVideoPlayer({
       : Number.isFinite(detectedAspect) && detectedAspect > 0
         ? detectedAspect
         : 16 / 9;
+  const sized = !fill && !fullscreen;
+  const isReel = variant === 'reel';
 
   if (!src) {
     return (
@@ -275,14 +309,20 @@ export function BbVideoPlayer({
   return (
     <div
       ref={rootRef}
-      className={`bb-video-player ${showChrome ? 'is-chrome' : 'is-chrome-hidden'} ${
-        fullscreen ? 'is-fullscreen' : ''
+      className={`bb-video-player ${
+        isReel ? 'is-reel' : showChrome ? 'is-chrome' : 'is-chrome-hidden'
+      } ${fullscreen ? 'is-fullscreen' : ''} ${fill ? 'is-fill' : ''} ${
+        playing ? 'is-playing' : 'is-paused'
       } ${className}`.trim()}
-      style={fullscreen ? undefined : { aspectRatio: String(frameAspect) }}
-      onMouseMove={showControlsTemporarily}
-      onMouseLeave={() => {
-        if (playing) setControlsVisible(false);
-      }}
+      style={sized ? { aspectRatio: String(frameAspect) } : undefined}
+      onMouseMove={isReel ? undefined : showControlsTemporarily}
+      onMouseLeave={
+        isReel
+          ? undefined
+          : () => {
+              if (playing) setControlsVisible(false);
+            }
+      }
     >
       <video
         ref={videoRef}
@@ -290,12 +330,39 @@ export function BbVideoPlayer({
         src={src}
         poster={poster || undefined}
         playsInline
-        preload="metadata"
-        onClick={togglePlay}
+        muted={muted}
+        loop={loop && !(Number(trimEnd) > Number(trimStart))}
+        preload={autoPlay ? 'auto' : 'metadata'}
+        onClick={isReel ? undefined : togglePlay}
         aria-label={title}
       />
 
-      {!playing ? (
+      {isReel ? (
+        <>
+          <button
+            type="button"
+            className="bb-video-player-reel-toggle"
+            onClick={togglePlay}
+            aria-label={playing ? 'Pause' : 'Play'}
+          >
+            <span className="bb-video-player-reel-icon">
+              {playing ? (
+                <Pause size={52} fill="currentColor" strokeWidth={0} />
+              ) : (
+                <Play size={52} fill="currentColor" strokeWidth={0} />
+              )}
+            </span>
+          </button>
+          <button
+            type="button"
+            className="bb-video-player-reel-mute"
+            onClick={toggleMute}
+            aria-label={muted || volume === 0 ? 'Unmute' : 'Mute'}
+          >
+            {muted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+        </>
+      ) : !playing ? (
         <button
           type="button"
           className="bb-video-player-center"
@@ -308,6 +375,7 @@ export function BbVideoPlayer({
         </button>
       ) : null}
 
+      {isReel ? null : (
       <div className="bb-video-player-chrome" aria-hidden={!showChrome}>
         <div
           className="bb-video-player-seek"
@@ -377,6 +445,7 @@ export function BbVideoPlayer({
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }

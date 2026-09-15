@@ -96,6 +96,10 @@ html body .native-ui :where(
   text-transform: none !important;
 }
 
+html body .native-ui .bb-vertical-watch :where(p, h1, h2, h3, h4) {
+  color: #fff !important;
+}
+
 html body .native-ui :where(
   small,
   .dashboard-page-header p,

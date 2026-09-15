@@ -1,8 +1,9 @@
 export const DEFAULT_HOME_SECTION_ORDER = [
+  'offerIntro',
   'about',
   'gallery',
-  'faq',
   'reviews',
+  'faq',
   'map'
 ];
 
@@ -12,6 +13,7 @@ export const createDefaultHomeSections = () => ({
   reviews: true,
   map: true,
   faq: true,
+  offerIntro: true,
   reasons: false,
   venue: true,
   offer: false,

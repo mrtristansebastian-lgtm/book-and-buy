@@ -343,76 +343,6 @@
   box-shadow: none;
 }
 
-html[data-theme='dark'] .bb-composer-cover-title,
-html[data-theme='dark'] .bb-place-field-label {
-  color: var(--bb-muted) !important;
-}
-
-html[data-theme='dark'] .bb-composer-cover-pick {
-  background: #222 !important;
-}
-
-html[data-theme='dark'] .bb-place-field-clear {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--bb-muted);
-}
-
-html[data-theme='dark'] .bb-place-field-selected {
-  color: #12f0cf !important;
-}
-
-html[data-theme='dark'] .pac-container {
-  background: #1a1a1a !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .pac-item {
-  border-top-color: rgba(255, 255, 255, 0.06) !important;
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .pac-item:hover,
-html[data-theme='dark'] .pac-item-selected {
-  background: rgba(18, 240, 207, 0.1) !important;
-}
-
-html[data-theme='dark'] .bb-clip-trimmer {
-  background: #1a1a1a !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: none;
-}
-
-html[data-theme='dark'] .bb-clip-trimmer-readout,
-html[data-theme='dark'] .bb-composer-arrange-note {
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-clip-trimmer-label {
-  color: var(--bb-muted) !important;
-}
-
-html[data-theme='dark'] .bb-clip-trimmer-readout-len {
-  background: rgba(18, 240, 207, 0.14);
-  color: #12f0cf;
-}
-
-html[data-theme='dark'] .bb-clip-trimmer-hint {
-  color: var(--bb-muted) !important;
-}
-
-html[data-theme='dark'] .bb-clip-trimmer-tick {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-html[data-theme='dark'] .bb-clip-trimmer-tick.is-major {
-  background: rgba(255, 255, 255, 0.36);
-}
-
-html[data-theme='dark'] .bb-clip-trimmer-tick em {
-  color: var(--bb-muted) !important;
-}
-
 .bb-composer-strip {
   display: flex;
   gap: 0.55rem;
@@ -783,19 +713,6 @@ html[data-theme='dark'] .bb-clip-trimmer-tick em {
   min-width: 0;
 }
 
-html[data-theme='dark'] .bb-cover-picker-panel {
-  background: #1a1a1a !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-html[data-theme='dark'] .bb-cover-picker-title {
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-cover-picker-eyebrow {
-  color: var(--bb-muted) !important;
-}
-
 .bb-composer-cover-picks {
   display: flex;
   flex-wrap: wrap;
@@ -1161,21 +1078,6 @@ html[data-theme='dark'] .bb-cover-picker-eyebrow {
   background: transparent;
 }
 
-html[data-theme='dark'] .bb-composer-dropzone--hero {
-  background:
-    radial-gradient(120% 90% at 50% 0%, rgba(94, 234, 212, 0.1), transparent 55%),
-    #121212 !important;
-}
-
-html[data-theme='dark'] .bb-composer-dropzone-icons {
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-composer-or,
-html[data-theme='dark'] .bb-composer-hint--lead {
-  color: var(--bb-muted) !important;
-}
-
 /* ------------------------------------------------------------------
    Composer: upload feedback, drop target, alt text, discard guard
    ------------------------------------------------------------------ */
@@ -1501,42 +1403,6 @@ html[data-theme='dark'] .bb-composer-hint--lead {
     transform: scale(1);
     opacity: 1;
   }
-}
-
-html[data-theme='dark'] .bb-composer-upload-screen {
-  background: rgba(18, 18, 18, 0.78) !important;
-}
-
-html[data-theme='dark'] .bb-composer-upload-screen-card {
-  background: #1a1a1a !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-html[data-theme='dark'] .bb-composer-upload-screen-copy strong,
-html[data-theme='dark'] .bb-composer-upload-screen-meta strong,
-html[data-theme='dark'] .bb-composer-ring-label {
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-composer-upload-screen-copy span,
-html[data-theme='dark'] .bb-composer-upload-screen-meta span,
-html[data-theme='dark'] .bb-composer-upload-screen-row-pct {
-  color: var(--bb-muted) !important;
-}
-
-html[data-theme='dark'] .bb-composer-upload-screen-pct,
-html[data-theme='dark'] .bb-composer-upload-screen-spinner {
-  color: #12f0cf !important;
-}
-
-html[data-theme='dark'] .bb-composer-upload-screen-thumb,
-html[data-theme='dark'] .bb-composer-upload-screen-track,
-html[data-theme='dark'] .bb-composer-upload-screen-row-track {
-  background: rgba(255, 255, 255, 0.08) !important;
-}
-
-html[data-theme='dark'] .bb-composer-ring--screen .bb-composer-ring-track {
-  stroke: rgba(255, 255, 255, 0.16);
 }
 
 .bb-composer-ring--warn .bb-composer-ring-fill {
@@ -2036,86 +1902,4 @@ html[data-theme='dark'] .bb-composer-ring--screen .bb-composer-ring-track {
     width: 4rem;
     height: 4.9rem;
   }
-}
-
-/* Dark theme */
-html[data-theme='dark'] .bb-composer-drop-overlay {
-  background: rgba(18, 18, 18, 0.94) !important;
-  color: #5eead4 !important;
-}
-
-html[data-theme='dark'] .bb-composer-drop-overlay strong {
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-composer-drop-overlay span,
-html[data-theme='dark'] .bb-composer-slide-count,
-html[data-theme='dark'] .bb-composer-alt-count,
-html[data-theme='dark'] .bb-composer-upload-copy,
-html[data-theme='dark'] .bb-composer-count,
-html[data-theme='dark'] .bb-thumb-picker-label,
-html[data-theme='dark'] .bb-thumb-picker-empty,
-html[data-theme='dark'] .bb-thumb-picker-loading,
-html[data-theme='dark'] .bb-thumb-picker-time-read {
-  color: var(--bb-muted) !important;
-}
-
-html[data-theme='dark'] .bb-composer-ring-track {
-  stroke: rgba(255, 255, 255, 0.2);
-}
-
-html[data-theme='dark'] .bb-composer-ring-fill {
-  stroke: #5eead4;
-}
-
-html[data-theme='dark'] .bb-composer-toggle {
-  background: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  color: var(--bb-muted) !important;
-}
-
-html[data-theme='dark'] .bb-composer-toggle.is-on {
-  background: #5eead4 !important;
-  border-color: #5eead4 !important;
-  color: #0b1120 !important;
-}
-
-html[data-theme='dark'] .bb-composer-readout {
-  background: rgba(255, 255, 255, 0.05) !important;
-}
-
-html[data-theme='dark'] .bb-composer-readout strong {
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-composer-banner {
-  background: rgba(127, 29, 29, 0.22) !important;
-  border-color: rgba(248, 113, 113, 0.3) !important;
-}
-
-html[data-theme='dark'] .bb-composer-banner-title,
-html[data-theme='dark'] .bb-composer-banner-list,
-html[data-theme='dark'] .bb-composer-banner-close {
-  color: #fecaca !important;
-}
-
-html[data-theme='dark'] .bb-composer-upload-track {
-  background: rgba(255, 255, 255, 0.12) !important;
-}
-
-html[data-theme='dark'] .bb-composer-confirm-card {
-  background: #1a1a1a !important;
-}
-
-html[data-theme='dark'] .bb-composer-confirm-card h4 {
-  color: var(--bb-ink) !important;
-}
-
-html[data-theme='dark'] .bb-composer-confirm-card p {
-  color: var(--bb-muted) !important;
-}
-
-html[data-theme='dark'] .bb-thumb-picker-stage--empty,
-html[data-theme='dark'] .bb-thumb-picker-option {
-  background: #2a2a2a !important;
 }

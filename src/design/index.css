@@ -20,7 +20,6 @@
 @import './date-field.css';
 @import './sort-field.css';
 @import './image-crop.css';
-@import './theme-dark.css';
 
 @tailwind base;
 @tailwind components;

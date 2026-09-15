@@ -291,11 +291,15 @@ export function SocialPostFeed({
   const initial = displayName.charAt(0).toUpperCase() || 'B';
   const username = handle || 'business';
   const targetRef = useRef(null);
+  const listRef = useRef(null);
 
   useEffect(() => {
-    if (!initialPostId || !targetRef.current) return;
+    if (!initialPostId || !targetRef.current || !listRef.current) return;
     const timer = window.setTimeout(() => {
-      targetRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      const list = listRef.current;
+      const target = targetRef.current;
+      if (!list || !target) return;
+      list.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
     }, 40);
     return () => window.clearTimeout(timer);
   }, [initialPostId, posts]);
@@ -318,7 +322,7 @@ export function SocialPostFeed({
         </button>
       </div>
 
-      <div className="bb-social-feed-list">
+      <div ref={listRef} className="bb-social-feed-list">
         {posts.map((post) => {
           const isTarget = post.id === initialPostId;
           const kind = getSocialPostKind(post);

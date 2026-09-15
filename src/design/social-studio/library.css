@@ -66,9 +66,14 @@
   padding-bottom: 0.65rem;
 }
 
-.bb-social-studio .bb-yt-watch {
+.bb-social-studio .bb-yt-watch,
+.bb-social-studio .bb-vertical-watch {
   width: 100%;
   margin-inline: 0;
+}
+
+.bb-social-library-surface .bb-vertical-watch {
+  min-height: min(78dvh, 52rem);
 }
 
 .bb-social-library-empty {
@@ -653,13 +658,6 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
   .bb-composer-edit--post {
     grid-template-columns: 1fr;
   }
-}
-
-html[data-theme='dark'] .bb-composer-edit-media,
-html[data-theme='dark'] .bb-composer-edit-copy,
-html[data-theme='dark'] .bb-composer-edit-thumb {
-  background: #1a1a1a !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Preview stage: fixed max height, width follows content aspect */

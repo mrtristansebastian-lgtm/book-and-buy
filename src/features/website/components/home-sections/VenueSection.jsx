@@ -4,6 +4,14 @@ import { EditableText, EditableImage, EditSection } from '../editable';
 
 const SWIPE_THRESHOLD_PX = 42;
 
+function circularOffsets(index, activeIndex, count) {
+  if (count < 2) return [index - activeIndex];
+  let offset = ((index - activeIndex) % count + count) % count;
+  if (offset > Math.floor(count / 2)) offset -= count;
+  if (count === 2 && offset === 1) return [1, -1];
+  return [offset];
+}
+
 export function VenueSection({
   website,
   venueImages,
@@ -188,16 +196,17 @@ export function VenueSection({
                   }
                 }}
               >
-                {flowImages.map((image, index) => {
-                  const offset = index - activeIndex;
+                {flowImages.flatMap((image, index) => {
+                  const canOpen = !editMode && Boolean(image.url);
+                  const offsets = circularOffsets(index, activeIndex, flowCount);
+                  return offsets.map((offset) => {
                   const abs = Math.abs(offset);
                   if (abs > 3) return null;
-                  const canOpen = !editMode && Boolean(image.url);
                   const isCenter = offset === 0;
 
                   return (
                     <figure
-                      key={image.id}
+                      key={`${image.id}:${offset}`}
                       role="listitem"
                       className={`bb-public-coverflow-slide${isCenter ? ' is-active' : ''}${
                         canOpen ? ' is-openable' : ''
@@ -240,6 +249,7 @@ export function VenueSection({
                       )}
                     </figure>
                   );
+                  });
                 })}
               </div>
 

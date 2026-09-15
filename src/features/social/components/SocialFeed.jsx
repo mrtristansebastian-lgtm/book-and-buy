@@ -37,6 +37,7 @@ export function SocialFeed({
   const slug = workspace.slug || '';
   const [tab, setTab] = useState('posts');
   const [feedId, setFeedId] = useState('');
+  const [videoWatchOpen, setVideoWatchOpen] = useState(false);
 
   const visiblePosts = useMemo(
     () =>
@@ -64,10 +65,14 @@ export function SocialFeed({
   const imagePosts = postsByKind.image || [];
 
   useEffect(() => {
-    if (!routePost) return;
+    if (!routePost) {
+      if (!useLocalNav) setVideoWatchOpen(false);
+      return;
+    }
     setTab(tabForKind(routeKind));
     if (routeKind === 'image') setFeedId(routePost.id);
-  }, [routePost, routeKind]);
+    if (routeKind === 'vertical' || routeKind === 'video') setVideoWatchOpen(true);
+  }, [routePost, routeKind, useLocalNav]);
 
   const activeTab = SOCIAL_PROFILE_TABS.find((item) => item.id === tab) || SOCIAL_PROFILE_TABS[0];
   const tabPosts = postsByKind[activeTab.kind] || [];
@@ -88,16 +93,19 @@ export function SocialFeed({
 
   const changeTab = (next) => {
     setFeedId('');
+    setVideoWatchOpen(false);
     setTab(next === 'videos' ? 'films' : next);
   };
 
   const openVideo = (postId) => {
+    setVideoWatchOpen(true);
     if (!useLocalNav) {
       navigate(publicItemPath(slug, 'social', postId));
     }
   };
 
   const closeVideo = () => {
+    setVideoWatchOpen(false);
     if (!useLocalNav && itemId) {
       navigate(publicPagePath(slug, 'social'));
     }
@@ -157,13 +165,15 @@ export function SocialFeed({
 
   const feedOpen =
     tab === 'posts' && Boolean(feedId) && imagePosts.some((post) => post.id === feedId);
+  const verticalWatchOpen = tab === 'verticals' && videoWatchOpen;
+  const hideIntro = embedded || feedOpen || verticalWatchOpen;
 
   return (
     <section
       className={`bb-public-social${embedded ? ' bb-public-social--embedded bb-public-social--split' : ''} bb-public-gutter`}
     >
       <div className="bb-public-measure-wide grid gap-5">
-        {embedded || feedOpen ? null : (
+        {hideIntro ? null : (
           <PublicPageIntro
             title={website.socialHeadline || 'Social'}
             body={website.socialSubtext || ''}
@@ -176,7 +186,7 @@ export function SocialFeed({
         )}
 
         <div className="bb-social-blog-head">
-          {editMode && !feedOpen ? (
+          {editMode && !feedOpen && !verticalWatchOpen ? (
             <div className="bb-social-profile-actions">
               <button type="button" className="bb-primary-btn" onClick={addForTab}>
                 {addLabel}

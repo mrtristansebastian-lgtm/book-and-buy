@@ -10,7 +10,8 @@ import {
   MapSection,
   ProfileIdentitySection,
   ReviewsSection,
-  VenueSection
+  VenueSection,
+  WhatWeOfferSection
 } from './home-sections';
 
 const PROFILE_RAIL_TABS = [
@@ -119,16 +120,27 @@ export function PublicHomeView({
         onOpenRailTab={setActiveTab}
       />
       {order.map((id) => {
+        if (id === 'offerIntro') {
+          return (
+            <WhatWeOfferSection
+              key="offerIntro"
+              website={website}
+              reasons={reasons}
+              editMode={editMode}
+              hidden={!sectionOn(website, 'offerIntro')}
+              patchWebsite={patchWebsite}
+              patchReason={patchReason}
+            />
+          );
+        }
         if (id === 'about') {
           return (
             <AboutSection
               key="about"
               website={website}
-              reasons={reasons}
               editMode={editMode}
               hidden={!sectionOn(website, 'about')}
               patchWebsite={patchWebsite}
-              patchReason={patchReason}
             />
           );
         }

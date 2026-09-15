@@ -9,11 +9,9 @@ import {
   Home,
   Inbox,
   MessageSquare,
-  Moon,
   Package,
   Boxes,
   Share2,
-  Sun,
   Users,
   Settings,
   Globe2,
@@ -29,10 +27,6 @@ import {
 } from '../../../config/routeConfig';
 import { APP_NAME } from '../../../config/appConfig';
 import { navigate } from '../../../app/routing';
-import {
-  getColorScheme,
-  toggleColorScheme
-} from '../../../shared/theme/colorScheme';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
 const ICONS = {
@@ -65,7 +59,6 @@ function groupTabs() {
 export function OwnerWorkspaceShell({ tab, children }) {
   const groups = groupTabs();
   const [moreOpen, setMoreOpen] = useState(false);
-  const [colorScheme, setColorSchemeState] = useState(() => getColorScheme());
   const { workspace, threads, bookings, orders, exitDemoMode, resetDemoWorkspace, startOwnerOnboarding } =
     useWorkspace();
   const unreadSupport = (threads || []).filter((thread) => thread.unread).length;
@@ -88,10 +81,6 @@ export function OwnerWorkspaceShell({ tab, children }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [moreOpen]);
-
-  const onToggleTheme = () => {
-    setColorSchemeState(toggleColorScheme());
-  };
 
   const badgeFor = (id) => {
     if (id === 'communications' && unreadSupport > 0) return unreadSupport;
@@ -212,23 +201,6 @@ export function OwnerWorkspaceShell({ tab, children }) {
               </div>
             ))}
           </nav>
-
-          <button
-            type="button"
-            className="bb-owner-theme-toggle"
-            onClick={onToggleTheme}
-            aria-pressed={colorScheme === 'dark'}
-          >
-            {colorScheme === 'dark' ? (
-              <Sun size={17} strokeWidth={2.2} aria-hidden />
-            ) : (
-              <Moon size={17} strokeWidth={2.2} aria-hidden />
-            )}
-            <span className="bb-owner-theme-toggle-label">Dark mode</span>
-            <span className="bb-owner-theme-toggle-state">
-              {colorScheme === 'dark' ? 'On' : 'Off'}
-            </span>
-          </button>
         </aside>
 
         <div className="bb-owner-content">

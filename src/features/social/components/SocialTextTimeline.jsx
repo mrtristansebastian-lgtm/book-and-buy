@@ -3,7 +3,7 @@ import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp, formatSocialTime } from '../utils/socialPostType';
 
 /**
- * Notes — X-style vertical timeline (avatar, handle, relative time).
+ * Notes — Twitter / X-style feed (avatar, handle, relative time).
  */
 export function SocialTextTimeline({
   posts,

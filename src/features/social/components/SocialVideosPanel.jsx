@@ -4,6 +4,7 @@ import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp } from '../utils/socialPostType';
 import { aspectStyle } from '../utils/videoMedia';
 import { BbVideoPlayer } from './BbVideoPlayer';
+import { VerticalWatchPage } from './VerticalWatchPage';
 
 function channelInitial(name = '') {
   const part = String(name || '').trim().charAt(0);
@@ -249,6 +250,20 @@ export function SocialVideosPanel({
   };
 
   if (watching) {
+    if (isVertical) {
+      return (
+        <VerticalWatchPage
+          post={watching}
+          posts={posts}
+          brandName={brandName}
+          logoUrl={logoUrl}
+          editMode={editMode}
+          onClose={closeWatch}
+          onChangeActive={openWatch}
+          onUpdateSocialPost={onUpdateSocialPost}
+        />
+      );
+    }
     return (
       <VideoWatchPage
         post={watching}

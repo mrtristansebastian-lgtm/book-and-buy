@@ -1051,12 +1051,13 @@ export function createDemoWorkspace() {
         reviews: true,
         map: true,
         faq: true,
+        offerIntro: true,
         reasons: false,
         venue: true,
         offer: false,
         bookStrip: false
       },
-      sectionOrder: ['about', 'gallery', 'faq', 'reviews', 'map'],
+      sectionOrder: ['offerIntro', 'about', 'gallery', 'reviews', 'faq', 'map'],
       headline: 'Cook Bold. Bake Beautifully.',
       subcopy:
         'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
@@ -1730,6 +1731,7 @@ export function hydrateDemoWorkspace(stored) {
         sections: {
           ...fresh.website.sections,
           about: true,
+          offerIntro: true,
           reasons: false,
           offer: false,
           bookStrip: false
