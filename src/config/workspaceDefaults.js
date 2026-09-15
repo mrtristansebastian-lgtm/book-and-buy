@@ -149,7 +149,7 @@ export const createDefaultSettings = () => ({
     bookFaqBody: '',
     bookFaq: [
       { id: 'f1', q: 'How do requests work?', a: 'Send a request and we confirm by email.' },
-      { id: 'f2', q: 'Can I reschedule?', a: 'Yes — message us from Support or reply to your confirmation.' }
+      { id: 'f2', q: 'Can I reschedule?', a: 'Yes. Message us from Support or reply to your confirmation.' }
     ],
     featuredProductId: ''
   },

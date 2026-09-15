@@ -1024,8 +1024,35 @@
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head {
+  width: 100%;
+  justify-self: stretch;
   padding-inline: var(--bb-public-gutter, 1.25rem);
   margin-bottom: 1.75rem;
+  justify-items: start;
+  text-align: left;
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading {
+  font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-weight: 780;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  text-align: left;
+  justify-items: start;
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading::after {
+  width: min(5.5rem, 42%);
+  margin-top: 0.55rem;
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body {
+  max-width: 24rem;
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
+  line-height: 1.65;
+  letter-spacing: -0.015em;
+  text-align: left;
+  text-wrap: pretty;
 }
 
 .bb-public-profile .bb-public-venue-shell {
@@ -1598,32 +1625,41 @@
 .bb-public-about-journey-head {
   display: grid;
   align-content: start;
-  justify-items: center;
-  gap: 0.7rem;
+  justify-items: start;
+  gap: 0.95rem;
   width: 100%;
-  margin: 0 auto;
-  text-align: center;
+  margin: 0;
+  text-align: left;
 }
 
-.bb-public-profile .bb-public-about-journey-title {
+.bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
   margin: 0;
-  max-width: 8ch;
-  font-size: clamp(2.6rem, 6vw, 5rem);
-  line-height: 0.92;
-  letter-spacing: -0.07em;
+  max-width: none;
+  font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-weight: 780;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
   color: #101828;
+  text-align: left;
+  justify-items: start;
   text-wrap: balance;
 }
 
+.bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading::after {
+  width: min(5.5rem, 42%);
+  margin-top: 0.55rem;
+}
+
 .bb-public-about-journey-body {
-  margin: 0.75rem 0 0;
-  max-width: 30ch;
+  margin: 0;
+  max-width: 24rem;
   font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(0.98rem, 1.25vw, 1.08rem);
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
   font-weight: 500;
   line-height: 1.65;
-  color: #667085;
-  text-align: center;
+  letter-spacing: -0.015em;
+  color: #475467;
+  text-align: left;
   text-wrap: pretty;
 }
 
@@ -1887,8 +1923,8 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
   .bb-public-about-journey-head {
     position: static;
-    align-self: center;
-    justify-self: center;
+    align-self: start;
+    justify-self: start;
   }
 
   .bb-public-about-pillar {
@@ -1928,57 +1964,19 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   outline: none;
 }
 
-.bb-public-about-arrows {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin: 0.25rem 0 0;
-  padding: 0;
-  border: 0;
-}
-
-.bb-public-about-arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 4.25rem;
-  height: 4.25rem;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: #c0c6d0;
-  cursor: pointer;
-  transition: color 220ms ease, opacity 220ms ease;
-}
-
-.bb-public-about-arrow:hover:not(:disabled) {
-  color: #98a2b3;
-}
-
-.bb-public-about-arrow:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.bb-public-about-arrow:focus-visible {
-  outline: 2px solid rgba(15, 23, 42, 0.28);
-  outline-offset: 2px;
-}
-
 .bb-public-about-book-stage {
   position: relative;
   width: 100%;
-  height: clamp(22rem, 36vw, 28rem);
+  height: clamp(24rem, 40vw, 32rem);
   min-width: 0;
   overflow: hidden;
   border: 0;
   border-radius: 0;
-  background: #fff;
+  background: transparent;
   box-shadow: none;
   cursor: grab;
   touch-action: pan-y;
+  perspective: 1400px;
 }
 
 .bb-public-about-book-stage:active {
@@ -1990,37 +1988,122 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   inset: 0;
   z-index: var(--bb-about-page-z, 1);
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  grid-template-columns: minmax(0, 1.7fr) minmax(14rem, 0.9fr);
   width: 100%;
   height: 100%;
   margin: 0;
+  padding: 1.25rem var(--bb-public-gutter, 1.25rem) 2rem;
+  box-sizing: border-box;
+  gap: clamp(1.5rem, 3.5vw, 3rem);
   background: transparent;
   pointer-events: none;
 }
 
 .bb-public-about-page.is-current {
-  background: #fff;
+  background: transparent;
   pointer-events: auto;
   z-index: 3;
 }
 
 .bb-public-about-page-media {
-  min-width: 0;
+  position: relative;
+  justify-self: stretch;
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
   height: 100%;
+  min-width: 0;
   overflow: hidden;
+  border-radius: 0.15rem;
   background: #e8edf2;
-  transform-origin: 50% 58%;
-  box-shadow: 0 0 0 rgba(15, 23, 42, 0);
+  transform-origin: 0% 0%;
+  transform-style: preserve-3d;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+  opacity: calc(1 - (var(--bb-about-stack, 0) * 0.14));
+  transform:
+    translate3d(
+      calc(var(--bb-about-stack, 0) * 5.5%),
+      calc(var(--bb-about-stack, 0) * 7%),
+      0
+    )
+    scale(calc(1 - (var(--bb-about-stack, 0) * 0.045)))
+    rotateX(calc(var(--bb-about-stack, 0) * 1.8deg))
+    rotateZ(calc(var(--bb-about-stack, 0) * -1.1deg));
   transition:
-    transform 920ms cubic-bezier(0.33, 0.05, 0.2, 1),
-    opacity 780ms cubic-bezier(0.33, 0.05, 0.2, 1),
-    box-shadow 920ms cubic-bezier(0.33, 0.05, 0.2, 1);
+    transform 820ms cubic-bezier(0.33, 0.05, 0.2, 1),
+    opacity 680ms cubic-bezier(0.33, 0.05, 0.2, 1),
+    box-shadow 820ms cubic-bezier(0.33, 0.05, 0.2, 1);
   will-change: transform, opacity;
+}
+
+.bb-public-about-edges {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  pointer-events: none;
+}
+
+.bb-public-about-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(2.75rem, 8%, 4rem);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0;
+  transition:
+    opacity 220ms ease,
+    color 220ms ease,
+    background 220ms ease;
+}
+
+.bb-public-about-edge--prev {
+  left: 0;
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.32), transparent);
+}
+
+.bb-public-about-edge--next {
+  right: 0;
+  background: linear-gradient(270deg, rgba(15, 23, 42, 0.32), transparent);
+}
+
+.bb-public-about-page-media:hover .bb-public-about-edge:not(:disabled),
+.bb-public-about-edge:focus-visible {
+  opacity: 1;
+}
+
+.bb-public-about-edge:hover:not(:disabled) {
+  color: #fff;
+}
+
+.bb-public-about-edge:disabled {
+  opacity: 0;
+  cursor: default;
+  pointer-events: none;
+}
+
+.bb-public-about-edge:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: -3px;
 }
 
 .bb-public-about-page-copy {
   opacity: 0;
-  transform: translate3d(0, 0.4rem, 0);
+  transform: translate3d(0, 0.45rem, 0);
   transition:
     opacity 700ms cubic-bezier(0.33, 0.05, 0.2, 1),
     transform 700ms cubic-bezier(0.33, 0.05, 0.2, 1);
@@ -2029,8 +2112,10 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-about-page.is-current .bb-public-about-page-media {
   opacity: 1;
-  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
-  box-shadow: 0 0 0 rgba(15, 23, 42, 0);
+  transform: translate3d(0, -3.5%, 0) scale(1) rotateX(0deg) rotateZ(0deg);
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.06),
+    0 22px 48px rgba(15, 23, 42, 0.18);
 }
 
 .bb-public-about-page.is-current .bb-public-about-page-copy {
@@ -2039,25 +2124,16 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   transition-delay: 220ms, 220ms;
 }
 
-/* Outgoing / waiting cards — soft shuffle off the stage */
-.bb-public-about-book.is-dir-next .bb-public-about-page.is-behind .bb-public-about-page-media,
-.bb-public-about-book.is-dir-prev .bb-public-about-page.is-ahead .bb-public-about-page-media {
-  opacity: 0;
-  transform: translate3d(-16%, 6%, 0) rotate(-6deg) scale(0.94);
-  box-shadow: -10px 14px 28px rgba(15, 23, 42, 0.1);
-}
-
-.bb-public-about-book.is-dir-next .bb-public-about-page.is-ahead .bb-public-about-page-media,
-.bb-public-about-book.is-dir-prev .bb-public-about-page.is-behind .bb-public-about-page-media {
-  opacity: 0;
-  transform: translate3d(18%, -4%, 0) rotate(7deg) scale(0.93);
-  box-shadow: 10px 12px 26px rgba(15, 23, 42, 0.1);
+/* Deeper cards in the stack sit further down behind the top photo */
+.bb-public-about-page:not(.is-current) .bb-public-about-page-media {
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
 }
 
 .bb-public-about-page:not(.is-current) .bb-public-about-page-copy {
   opacity: 0;
   transform: translate3d(0, 0.25rem, 0);
   transition-delay: 0ms, 0ms;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2100,11 +2176,37 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   display: grid;
   align-content: center;
   justify-items: start;
-  gap: 0.85rem;
+  align-self: center;
+  gap: 0.95rem;
   min-width: 0;
-  padding: clamp(2rem, 6vw, 5rem);
+  max-width: 26rem;
+  padding: clamp(1rem, 2.5vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 2.5vw, 2rem)
+    clamp(1.25rem, 3.5vw, 2.75rem);
   box-sizing: border-box;
   text-align: left;
+}
+
+.bb-public-about-page-index {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.28rem;
+  margin: 0 0 0.15rem;
+  padding: 0;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-public-about-page-index-current {
+  color: #344054;
+}
+
+.bb-public-about-page-index-sep {
+  opacity: 0.55;
 }
 
 .bb-public-about-page-title {
@@ -2112,14 +2214,28 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   text-align: left;
 }
 
+.bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
+  font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-weight: 780;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  text-align: left;
+  justify-items: start;
+}
+
+.bb-public-profile .bb-public-about-page-title.bb-public-profile-heading::after {
+  width: min(5.5rem, 42%);
+  margin-top: 0.55rem;
+}
+
 .bb-public-about-page-body {
   margin: 0;
-  max-width: 34rem;
+  max-width: 24rem;
   font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(1rem, 1.4vw, 1.13rem);
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
   font-weight: 500;
-  line-height: 1.7;
-  letter-spacing: -0.01em;
+  line-height: 1.65;
+  letter-spacing: -0.015em;
   color: #475467;
   text-wrap: pretty;
 }
@@ -2268,31 +2384,54 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
   .bb-public-about-page {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(13rem, 48%) minmax(0, 1fr);
+    grid-template-rows: minmax(12rem, 52%) minmax(0, 1fr);
+    padding: 1rem var(--bb-public-gutter, 1.25rem) 1.5rem;
+    gap: 1rem;
+  }
+
+  .bb-public-about-page-media {
+    width: 100%;
+    height: 100%;
+    border-radius: 0.15rem;
+    justify-self: stretch;
+    align-self: stretch;
   }
 
   .bb-public-about-page-copy {
-    justify-items: center;
-    align-content: center;
-    padding: 1.4rem var(--bb-public-gutter, 1.25rem) 1.65rem;
-    text-align: center;
+    justify-items: start;
+    align-content: start;
+    max-width: none;
+    padding: 0.35rem 0 1.4rem;
+    text-align: left;
   }
 
-  .bb-public-about-arrows {
-    justify-content: center;
+  .bb-public-about-edge {
+    width: 2.6rem;
+    opacity: 0.55;
+  }
+
+  .bb-public-about-page-media:hover .bb-public-about-edge:not(:disabled),
+  .bb-public-about-edge:not(:disabled) {
+    opacity: 0.7;
+  }
+
+  .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
+    font-size: clamp(1.85rem, 8.5vw, 2.45rem) !important;
+    text-align: left !important;
+    justify-items: start !important;
   }
 
   .bb-public-about-page-title {
-    justify-items: center;
-    text-align: center;
+    justify-items: start;
+    text-align: left;
   }
 
   .bb-public-about-page-body {
-    text-align: center;
-    font-size: 0.96rem;
+    text-align: left;
+    max-width: 28rem;
+    font-size: clamp(1.02rem, 3.8vw, 1.18rem);
     line-height: 1.6;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2357,6 +2496,23 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 .bb-public-profile .bb-public-profile-faq-block .bb-public-profile-section-head,
 .bb-public-profile .bb-public-map-block .bb-public-profile-section-head {
   margin-bottom: 1rem;
+}
+
+.bb-public-profile .bb-public-reviews-block .bb-public-reviews-title.bb-public-profile-heading,
+.bb-public-profile .bb-public-map-block .bb-public-visit-title.bb-public-profile-heading,
+.bb-public-profile .bb-public-profile-faq-block .bb-public-faq-title.bb-public-profile-heading {
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem);
+  letter-spacing: -0.038em;
+  line-height: 1.08;
+}
+
+.bb-public-profile .bb-public-reviews-block .bb-public-profile-section-body,
+.bb-public-profile .bb-public-map-block .bb-public-profile-section-body,
+.bb-public-profile .bb-public-profile-faq-block .bb-public-profile-section-body {
+  max-width: 38rem;
+  font-size: clamp(1rem, 1.45vw, 1.12rem);
+  line-height: 1.6;
+  letter-spacing: -0.012em;
 }
 
 .bb-public-profile .bb-public-reviews {
@@ -3838,6 +3994,34 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-faq-title 
   width: fit-content !important;
 }
 
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-block .bb-public-reviews-title.bb-public-profile-heading,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-map-block .bb-public-visit-title.bb-public-profile-heading,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-faq-block .bb-public-faq-title.bb-public-profile-heading {
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem) !important;
+  letter-spacing: -0.038em !important;
+  line-height: 1.08 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-block .bb-public-profile-section-body,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-map-block .bb-public-profile-section-body,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-faq-block .bb-public-profile-section-body {
+  font-size: clamp(1rem, 1.45vw, 1.12rem) !important;
+  line-height: 1.6 !important;
+  max-width: 38rem !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
+  font-size: clamp(2.15rem, 4vw, 3.35rem) !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.045em !important;
+  line-height: 1.02 !important;
+  text-align: left !important;
+  justify-items: start !important;
+  max-width: none !important;
+}
+
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-title,
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-profile-heading {
   text-align: left !important;
@@ -3851,13 +4035,19 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--edi
 
 @media (max-width: 899px) {
   html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-title,
-  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-profile-heading {
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-profile-heading:not(.bb-public-about-page-title) {
     text-align: center !important;
     justify-items: center !important;
   }
 
   html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-body {
     text-align: center !important;
+  }
+
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
+    font-size: clamp(1.85rem, 8.5vw, 2.45rem) !important;
+    text-align: left !important;
+    justify-items: start !important;
   }
 }
 

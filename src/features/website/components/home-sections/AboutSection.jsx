@@ -230,7 +230,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
         title="About us"
         sectionId="about"
         hidden={hidden}
-        coach="Tell your story across pages — photo, title, and body. Use the arrows, swipe, or arrow keys to flip pages."
+        coach="Tell your story across pages — big photo, title, and body. Click the photo edges, swipe, or use arrow keys to flip."
         className={`bb-public-home-block bb-public-about-block bb-public-about-journey bb-public-about-story-block${
           editMode ? ' is-editing' : ''
         }`}
@@ -337,13 +337,18 @@ function EditorialPage({
   const current = index === activePage;
   const behind = index < activePage;
   const ahead = index > activePage;
+  const stackDepth = Math.abs(index - activePage);
+  const pageLabel = String(index + 1).padStart(2, '0');
 
   return (
     <article
       className={`bb-public-about-page${current ? ' is-current' : ''}${
         behind ? ' is-behind' : ''
       }${ahead ? ' is-ahead' : ''} is-dir-${direction > 0 ? 'next' : 'prev'}`}
-      style={{ '--bb-about-page-z': current ? 3 : behind ? 1 : 2 }}
+      style={{
+        '--bb-about-page-z': current ? pageCount + 2 : Math.max(pageCount - stackDepth, 1),
+        '--bb-about-stack': stackDepth
+      }}
       aria-hidden={!current}
     >
       <div className="bb-public-about-page-media">
@@ -356,8 +361,41 @@ function EditorialPage({
           preset="aboutPage"
           onChange={onImage}
         />
+        {current && pageCount > 1 ? (
+          <nav className="bb-public-about-edges" aria-label="About pages">
+            <button
+              type="button"
+              className="bb-public-about-edge bb-public-about-edge--prev"
+              aria-label="Previous page"
+              disabled={activePage <= 0}
+              onClick={() => onGoToPage(activePage - 1)}
+            >
+              <ChevronLeft size={28} strokeWidth={1.7} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="bb-public-about-edge bb-public-about-edge--next"
+              aria-label="Next page"
+              disabled={activePage >= pageCount - 1}
+              onClick={() => onGoToPage(activePage + 1)}
+            >
+              <ChevronRight size={28} strokeWidth={1.7} aria-hidden="true" />
+            </button>
+          </nav>
+        ) : null}
       </div>
       <div className="bb-public-about-page-copy">
+        {pageCount > 1 ? (
+          <p className="bb-public-about-page-index" aria-hidden={!current}>
+            <span className="bb-public-about-page-index-current">{pageLabel}</span>
+            <span className="bb-public-about-page-index-sep" aria-hidden="true">
+              /
+            </span>
+            <span className="bb-public-about-page-index-total">
+              {String(pageCount).padStart(2, '0')}
+            </span>
+          </p>
+        ) : null}
         <EditableText
           as="h2"
           className="bb-public-profile-heading bb-public-about-page-title"
@@ -382,28 +420,6 @@ function EditorialPage({
           patchWebsite={patchWebsite}
           colorTokenId={`about.page.${page.id}.body`}
         />
-        {current && pageCount > 1 ? (
-          <nav className="bb-public-about-arrows" aria-label="About chapters">
-            <button
-              type="button"
-              className="bb-public-about-arrow"
-              aria-label="Previous chapter"
-              disabled={activePage <= 0}
-              onClick={() => onGoToPage(activePage - 1)}
-            >
-              <ChevronLeft size={44} strokeWidth={1.6} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="bb-public-about-arrow"
-              aria-label="Next chapter"
-              disabled={activePage >= pageCount - 1}
-              onClick={() => onGoToPage(activePage + 1)}
-            >
-              <ChevronRight size={44} strokeWidth={1.6} aria-hidden="true" />
-            </button>
-          </nav>
-        ) : null}
       </div>
     </article>
   );

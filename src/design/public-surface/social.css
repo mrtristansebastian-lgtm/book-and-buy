@@ -3571,11 +3571,21 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
 
 .bb-device-preview--phone .bb-public-about-journey-head {
   position: static;
+  justify-items: start;
+  text-align: left;
 }
 
-.bb-device-preview--phone .bb-public-about-journey-title {
-  max-width: 9ch;
-  font-size: 2.35rem;
+.bb-device-preview--phone .bb-public-about-journey-title,
+.bb-device-preview--phone .bb-public-about-journey-title.bb-public-profile-heading {
+  max-width: none;
+  font-size: 1.85rem;
+  text-align: left;
+  justify-items: start;
+}
+
+.bb-device-preview--phone .bb-public-about-journey-body {
+  text-align: left;
+  font-size: 1.02rem;
 }
 
 .bb-device-preview--phone .bb-public-about-pillar {
@@ -3602,37 +3612,50 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
 
 .bb-device-preview--phone .bb-public-about-page {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(12.5rem, 44%) minmax(0, 1fr);
+  grid-template-rows: minmax(12.5rem, 52%) minmax(0, 1fr);
+  padding: 0.85rem var(--bb-public-gutter, 1.25rem) 1.1rem;
+  gap: 0.95rem;
+}
+
+.bb-device-preview--phone .bb-public-about-page-media {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.15rem;
+  justify-self: stretch;
 }
 
 .bb-device-preview--phone .bb-public-about-page-copy {
-  justify-items: center;
-  align-content: center;
-  padding: 1.2rem var(--bb-public-gutter, 1.25rem) 1.45rem;
-  text-align: center;
+  justify-items: start;
+  align-content: start;
+  max-width: none;
+  padding: 0.25rem 0 1.1rem;
+  text-align: left;
 }
 
-.bb-device-preview--phone .bb-public-about-arrows {
-  justify-content: center;
+.bb-device-preview--phone .bb-public-about-edge:not(:disabled) {
+  opacity: 0.65;
 }
 
-.bb-device-preview--phone .bb-public-about-page-title {
-  justify-items: center;
-  text-align: center;
+.bb-device-preview--phone .bb-public-about-page-title,
+.bb-device-preview--phone .bb-public-about-page-title.bb-public-profile-heading {
+  justify-items: start;
+  text-align: left;
+  font-size: 1.7rem;
 }
 
 .bb-device-preview--phone .bb-public-about-page-body {
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   line-height: 1.55;
-  text-align: center;
+  text-align: left;
 }
 
 .bb-device-preview--phone .bb-public-about-title,
 .bb-device-preview--phone .bb-public-reasons-title,
 .bb-device-preview--phone .bb-public-venue-title,
 .bb-device-preview--phone .bb-public-visit-title,
-.bb-device-preview--phone .bb-public-reviews-title {
-  font-size: 1.45rem;
+.bb-device-preview--phone .bb-public-reviews-title,
+.bb-device-preview--phone .bb-public-faq-title {
+  font-size: 1.6rem;
   max-width: none;
 }
 

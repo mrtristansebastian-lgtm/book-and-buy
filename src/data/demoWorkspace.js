@@ -8,13 +8,13 @@ import {
 } from '../utils/staffAvailability';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 26;
+export const DEMO_WEBSITE_SCHEMA = 28;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
-export const DEMO_SOCIAL_SCHEMA = 10;
+export const DEMO_SOCIAL_SCHEMA = 11;
 
 /** Bump when demo services gain spot session windows (start/end date + time). */
-export const DEMO_SERVICES_SCHEMA = 10;
+export const DEMO_SERVICES_SCHEMA = 11;
 
 /** Bump when demo staff availability / closed-days / staff photos change. */
 export const DEMO_AVAILABILITY_SCHEMA = 2;
@@ -34,7 +34,7 @@ function startOfToday() {
 export const DEMO_SERVICES = normalizeServiceList([
   {
     id: 'cooking-1-month',
-    name: 'Cooking — 1 Month',
+    name: 'Cooking 1 Month',
     category: 'Cooking packages',
     price: 2800,
     duration: 180,
@@ -45,39 +45,39 @@ export const DEMO_SERVICES = normalizeServiceList([
     sessionEndDate: toDateKey(addDays(today, 4)),
     sessionEndTime: '20:30',
     description:
-      'Four weeks. Four kitchens. One seat at our bench.\n\nYou’ll cook Italian pasta night, a Cape Malay supper, a fast Asian stir-fry, and a French bistro plate — enough range to feel dangerous in a good way. We eat what we make. You leave with notes you will actually use.',
+      'Four weeks. Four kitchens. One seat at our bench.\n\nYou’ll cook Italian pasta night, a Cape Malay supper, a fast Asian stir-fry, and a French bistro plate. Enough range to feel dangerous in a good way. We eat what we make. You leave with notes you will actually use.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
     staffIds: ['jordan-lee', 'maya-patel']
   },
   {
     id: 'cooking-6-month',
-    name: 'Cooking — 6 Months',
+    name: 'Cooking 6 Months',
     category: 'Cooking packages',
     price: 8900,
     duration: 180,
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'Half a year of showing up hungry.\n\nTwice a month we rotate cuisines — Italian, Cape Malay, East Asian, French bistro, plus seasonal wild cards — so your knife work, sauces, and plating stop feeling like a fluke. Think of it as a long apprenticeship with better snacks.',
+      'Half a year of showing up hungry.\n\nTwice a month we rotate through Italian, Cape Malay, East Asian, French bistro, and seasonal wild cards so your knife work, sauces, and plating stop feeling like a fluke. Think of it as a long apprenticeship with better snacks.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
     staffIds: ['jordan-lee', 'sofia-martins']
   },
   {
     id: 'cooking-1-year',
-    name: 'Cooking — 1 Year',
+    name: 'Cooking 1 Year',
     category: 'Cooking packages',
     price: 15500,
     duration: 180,
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'A full year of cooking like you mean it.\n\nYou’ll work through a rotating map of cuisines — weeknight stir-fries, weekend Italian, Cape Malay feasts, French sauces, roast Sundays — until the muscle memory sticks. Priority booking, deeper technique, and the kind of confidence that makes dinner guests nervous (in a good way).',
+      'A full year of cooking like you mean it.\n\nYou’ll work through weeknight stir-fries, weekend Italian, Cape Malay feasts, French sauces, and roast Sundays until the muscle memory sticks. Priority booking, deeper technique, and the kind of confidence that makes dinner guests nervous (in a good way).',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
     staffIds: ['jordan-lee', 'maya-patel']
   },
   {
     id: 'baking-1-month',
-    name: 'Baking — 1 Month',
+    name: 'Baking 1 Month',
     category: 'Baking packages',
     price: 2950,
     duration: 210,
@@ -88,33 +88,33 @@ export const DEMO_SERVICES = normalizeServiceList([
     sessionEndDate: toDateKey(addDays(today, 6)),
     sessionEndTime: '12:30',
     description:
-      'One month. Flour on your apron. Butter under your nails.\n\nWe move from sourdough loaves to laminated croissants to a proper pastry finish — enough variety that your home oven finally feels like a studio. Take-home bakes. Honest notes. No fluff.',
+      'One month. Flour on your apron. Butter under your nails.\n\nWe move from sourdough loaves to laminated croissants to a proper pastry finish. Enough variety that your home oven finally feels like a studio. Take-home bakes. Honest notes. No fluff.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
     staffIds: ['thando-mokoena', 'maya-patel']
   },
   {
     id: 'baking-6-month',
-    name: 'Baking — 6 Months',
+    name: 'Baking 6 Months',
     category: 'Baking packages',
     price: 9800,
     duration: 210,
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'Six months of dough that actually listens to you.\n\nTwice a month we cycle bread, lamination, enriched doughs, and pastry — sourdough, croissants, focaccia, tarts, celebration cakes — so fermentation, butter, and sugar stop being mysteries. Slow skill. Real craft. Worth every sticky counter.',
+      'Six months of dough that actually listens to you.\n\nTwice a month we cycle bread, lamination, enriched doughs, and pastry, from sourdough and croissants to focaccia, tarts, and celebration cakes, so fermentation, butter, and sugar stop being mysteries. Slow skill. Real craft. Worth every sticky counter.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
     staffIds: ['thando-mokoena', 'jordan-lee']
   },
   {
     id: 'baking-1-year',
-    name: 'Baking — 1 Year',
+    name: 'Baking 1 Year',
     category: 'Baking packages',
     price: 16800,
     duration: 210,
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'A year inside the bake.\n\nYou’ll live through the full calendar — country loaves, laminated mornings, pastry nights, holiday sweets — until shaping, proofing, and finishing feel like second nature. Priority seats, deeper feedback, and the quiet flex of bringing something that looks (and tastes) like it came from a bakery.',
+      'A year inside the bake.\n\nYou’ll live through country loaves, laminated mornings, pastry nights, and holiday sweets until shaping, proofing, and finishing feel like second nature. Priority seats, deeper feedback, and the quiet flex of bringing something that looks (and tastes) like it came from a bakery.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
     staffIds: ['thando-mokoena', 'sofia-martins']
   }
@@ -204,7 +204,7 @@ export const DEMO_CLIENTS = [
   }
 ];
 
-export const DEMO_THREADS_SCHEMA = 3;
+export const DEMO_THREADS_SCHEMA = 4;
 export const DEMO_ORDERS_SCHEMA = 3;
 /** Bump when demo finance ledger sample bookings/orders change. */
 export const DEMO_FINANCE_SCHEMA = 2;
@@ -283,7 +283,7 @@ export const DEMO_THREADS = [
         id: 'm5',
         type: 'text',
         from: 'business',
-        body: 'Absolutely — we will set the session around stacking and buttercream.',
+        body: 'Absolutely. We will set the session around stacking and buttercream.',
         at: Date.now() - 1000 * 60 * 180
       },
       {
@@ -431,7 +431,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
     height: 15,
     dimensionUnit: 'cm',
     description:
-      'A mixed box of the day’s loaves — sourdough, seeded, and a soft milk loaf.\n\nBaked the morning of collection so the crust stays lively and the crumb stays open. Best enjoyed within two days, or freeze slices for later.',
+      'A mixed box of the day’s loaves, with sourdough, seeded bread, and a soft milk loaf.\n\nBaked the morning of collection so the crust stays lively and the crumb stays open. Best enjoyed within two days, or freeze slices for later.',
     imageUrls: [
       '/example/flour-and-flame/products/artisan-bread-box.png',
       '/example/flour-and-flame/venue/bread-ovens.webp'
@@ -473,7 +473,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
     tags: ['apron', 'gift'],
     collections: ['Wear in the kitchen'],
     description:
-      'Heavyweight cotton apron with cross-back straps and a deep tool pocket — the same cut we wear on bake days.\n\nPick your size and colour; each piece is finished in the studio.',
+      'Heavyweight cotton apron with cross-back straps and a deep tool pocket. The same cut we wear on bake days.\n\nPick your size and colour; each piece is finished in the studio.',
     imageUrls: [
       '/example/flour-and-flame/products/studio-apron.png',
       '/example/flour-and-flame/venue/teaching-kitchen.webp'
@@ -588,7 +588,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
     tags: ['knives', 'essentials'],
     collections: ['Home kitchen'],
     description:
-      'A working trio: chef’s knife, bread knife, and paring knife in a simple canvas roll.\n\nThe same everyday blades we reach for on class days — balanced, sharp, and ready for home kitchens.',
+      'A working trio with a chef’s knife, bread knife, and paring knife in a simple canvas roll.\n\nThe same everyday blades we reach for on class days. Balanced, sharp, and ready for home kitchens.',
     imageUrls: [
       '/example/flour-and-flame/products/chef-knife-set.png',
       '/example/flour-and-flame/venue/pastry-island.webp'
@@ -612,7 +612,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
     tags: ['plates', 'gift'],
     collections: ['Studio shelf'],
     description:
-      'A set of four handmade ceramic dinner plates with a soft matte glaze.\n\nBuilt for tasting plates and weeknight meals — sturdy enough for the dishwasher, quiet enough for the table.',
+      'A set of four handmade ceramic dinner plates with a soft matte glaze.\n\nBuilt for tasting plates and weeknight meals. Sturdy enough for the dishwasher, quiet enough for the table.',
     imageUrls: [
       '/example/flour-and-flame/products/ceramic-plate-set.png',
       '/example/flour-and-flame/venue/tasting-room.webp'
@@ -660,7 +660,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
     tags: ['pastry', 'wood'],
     collections: ['Home kitchen'],
     description:
-      'A long French-style wooden rolling pin for pastry and pasta sheets.\n\nSmooth, balanced, and ready for flour — the pin we keep on every pastry island.',
+      'A long French-style wooden rolling pin for pastry and pasta sheets.\n\nSmooth, balanced, and ready for flour. The pin we keep on every pastry island.',
     imageUrls: [
       '/example/flour-and-flame/products/wooden-rolling-pin.png',
       '/example/flour-and-flame/venue/pastry-island.webp'
@@ -874,7 +874,7 @@ const sampleBookings = [
   {
     id: 'bk-1',
     serviceId: 'baking-1-month',
-    serviceName: 'Baking — 1 Month',
+    serviceName: 'Baking 1 Month',
     scheduleType: 'class_session',
     clientName: 'Aisha Naidoo',
     clientEmail: 'aisha.naidoo@example.com',
@@ -896,7 +896,7 @@ const sampleBookings = [
   {
     id: 'bk-2',
     serviceId: 'baking-6-month',
-    serviceName: 'Baking — 6 Months',
+    serviceName: 'Baking 6 Months',
     scheduleType: 'appointment',
     clientName: 'Daniel Botha',
     clientEmail: 'daniel.botha@example.com',
@@ -917,7 +917,7 @@ const sampleBookings = [
   {
     id: 'bk-3',
     serviceId: 'cooking-1-month',
-    serviceName: 'Cooking — 1 Month',
+    serviceName: 'Cooking 1 Month',
     scheduleType: 'class_session',
     clientName: 'Lerato Dlamini',
     clientEmail: 'lerato.dlamini@example.com',
@@ -938,7 +938,7 @@ const sampleBookings = [
   {
     id: 'bk-4',
     serviceId: 'baking-1-year',
-    serviceName: 'Baking — 1 Year',
+    serviceName: 'Baking 1 Year',
     scheduleType: 'appointment',
     clientName: 'Nandi Maseko',
     clientEmail: 'nandi.maseko@example.com',
@@ -957,7 +957,7 @@ const sampleBookings = [
   {
     id: 'bk-5',
     serviceId: 'cooking-6-month',
-    serviceName: 'Cooking — 6 Months',
+    serviceName: 'Cooking 6 Months',
     scheduleType: 'appointment',
     clientName: 'Owen du Plessis',
     clientEmail: 'owen.duplessis@example.com',
@@ -978,7 +978,7 @@ const sampleBookings = [
   {
     id: 'bk-6',
     serviceId: 'cooking-1-year',
-    serviceName: 'Cooking — 1 Year',
+    serviceName: 'Cooking 1 Year',
     scheduleType: 'appointment',
     clientName: 'Fatima Abrahams',
     clientEmail: 'fatima.abrahams@example.com',
@@ -1060,12 +1060,12 @@ export function createDemoWorkspace() {
       sectionOrder: ['offerIntro', 'about', 'gallery', 'reviews', 'faq', 'map'],
       headline: 'Cook Bold. Bake Beautifully.',
       subcopy:
-        'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
+        'Hands-on classes in a working Cape Town studio. Leave with skill, confidence, and something delicious.',
       ctaLabel: 'Book a class',
       buyCtaLabel: 'Buy',
       homeHeadline: 'Flame & Flour',
       homeSubtext:
-        'Hands-on classes in a working Cape Town studio — leave with skill, confidence, and something delicious.',
+        'Hands-on classes in a working Cape Town studio. Leave with skill, confidence, and something delicious.',
       profileCategory: 'Cooking Studio',
       profileLocation: 'Cape Town',
       heroImageUrl: '/example/flour-and-flame/hero.webp',
@@ -1080,11 +1080,11 @@ export function createDemoWorkspace() {
       aboutTitle: 'About us',
       aboutEyebrow: 'About',
       aboutBody:
-        'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
+        'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you, then send you home with skills (and something delicious).',
       aboutImageUrl: '/example/flour-and-flame/about/ff-about-team.jpg',
       visionTitle: 'Our vision',
       visionBody:
-        'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
+        'A city where more people cook with confidence, starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
       visionImageUrl: '/example/flour-and-flame/about/ff-about-vision.jpg',
       missionTitle: 'Our mission',
       missionBody:
@@ -1094,7 +1094,7 @@ export function createDemoWorkspace() {
         {
           id: 'about',
           title: 'About us',
-          body: 'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
+          body: 'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you, then send you home with skills (and something delicious).',
           imageUrl: '/example/flour-and-flame/about/ff-about-team.jpg'
         },
         {
@@ -1106,14 +1106,14 @@ export function createDemoWorkspace() {
         {
           id: 'vision',
           title: 'Our vision',
-          body: 'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
+          body: 'A city where more people cook with confidence, starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
           imageUrl: '/example/flour-and-flame/about/ff-about-vision.jpg'
         }
       ],
       reasonsTitle: 'What we offer',
       reasonsEyebrow: 'The craft',
       reasonsBody:
-        'Small-group learning, professional tools, and thoughtful take-home goods — all built to keep the craft going.',
+        'Small-group learning, professional tools, and thoughtful take-home goods, all built to keep the craft going.',
       reasonsMarkerStyle: 'icon',
       reasons: [
         {
@@ -1137,7 +1137,7 @@ export function createDemoWorkspace() {
       ],
       venueTitle: 'Gallery',
       venueEyebrow: 'Gallery',
-      venueBody: 'A look inside the Woodstock studio — ovens, benches, and the rooms where classes land.',
+      venueBody: 'A look inside the Woodstock studio, from the ovens and benches to the rooms where classes land.',
       venueImages: [
         {
           id: 'v1',
@@ -1163,17 +1163,17 @@ export function createDemoWorkspace() {
       address: '12 Woodstock Kitchen Lane, Cape Town',
       mapTitle: 'Visit',
       mapEyebrow: 'Find us',
-      mapBody: 'Find us in Woodstock — street parking nearby, and the studio door is marked with the copper flame.',
+      mapBody: 'Find us in Woodstock. Street parking nearby, and the studio door is marked with the copper flame.',
       mapEmbedUrl:
         'https://maps.google.com/maps?q=Woodstock%2C%20Cape%20Town&t=&z=14&ie=UTF8&iwloc=&output=embed',
       mapLinkUrl: 'https://maps.google.com/?q=Woodstock,+Cape+Town',
       reviewsTitle: 'Reviews',
       reviewsEyebrow: 'Reviews',
-      reviewsBody: 'What bakers say after a morning in the studio — honest notes from class and private sessions.',
+      reviewsBody: 'Honest notes from class and private sessions after a morning in the studio.',
       reviews: [
         {
           id: 'rev1',
-          quote: 'Best Saturday I’ve spent in a kitchen — left with a loaf and real confidence.',
+          quote: 'Best Saturday I’ve spent in a kitchen. Left with a loaf and real confidence.',
           name: 'Aisha N.',
           rating: 5
         },
@@ -1197,7 +1197,7 @@ export function createDemoWorkspace() {
       bookStripBody: 'See open times on the Book page and send a request in minutes.',
       bookStripCta: 'See availability',
       bookFaqTitle: 'FAQ',
-      bookFaqBody: 'Quick answers before you book — hours, what to bring, and how requests work.',
+      bookFaqBody: 'Quick answers before you book, covering hours, what to bring, and how requests work.',
       bookFaq: [
         {
           id: 'f1',
@@ -1212,7 +1212,7 @@ export function createDemoWorkspace() {
         {
           id: 'f3',
           q: 'Can I book privately?',
-          a: 'Yes — pick a cooking or baking package, or message us from Support.'
+          a: 'Yes. Pick a cooking or baking package, or message us from Support.'
         }
       ],
       featuredProductId: 'artisan-bread-box'
@@ -1223,7 +1223,7 @@ export function createDemoWorkspace() {
         type: 'image',
         title: 'Scored loaf',
         mediaUrl: '/example/flour-and-flame/social/ff-social-scored-loaf.png',
-        caption: 'Sharp score, open crumb — Friday’s country loaf.',
+        caption: 'Sharp score, open crumb. Friday’s country loaf.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 8,
         order: 0
@@ -1263,7 +1263,7 @@ export function createDemoWorkspace() {
         type: 'image',
         title: 'Croissants',
         mediaUrl: '/example/flour-and-flame/social/ff-social-croissants.png',
-        caption: 'Straight from the oven — still singing.',
+        caption: 'Straight from the oven. Still singing.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 70,
         order: 4
@@ -1303,7 +1303,7 @@ export function createDemoWorkspace() {
         type: 'image',
         title: 'Beef stir fry',
         mediaUrl: '/example/flour-and-flame/social/ff-social-beef-stir-fry.png',
-        caption: 'Hot wok, glossy beef — lunch special tonight.',
+        caption: 'Hot wok, glossy beef. Lunch special tonight.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 125,
         order: 8
@@ -1333,7 +1333,7 @@ export function createDemoWorkspace() {
         type: 'image',
         title: 'Vanilla cake',
         mediaUrl: '/example/flour-and-flame/social/ff-social-vanilla-cake.jpg',
-        caption: 'Soft crumb, vanilla buttercream — tasting tomorrow.',
+        caption: 'Soft crumb, vanilla buttercream. Tasting tomorrow.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 170,
         order: 11
@@ -1474,7 +1474,7 @@ export function createDemoWorkspace() {
         mediaUrl: DEMO_SAMPLE_VIDEO_URL,
         posterUrl: '/example/flour-and-flame/verticals/ff-vertical-oven-pull.png',
         title: 'Croissant pull',
-        caption: 'Straight from the deck — still singing.',
+        caption: 'Straight from the deck. Still singing.',
         duration: '0:14',
         viewCount: 29810,
         published: true,
@@ -1538,7 +1538,7 @@ export function createDemoWorkspace() {
         type: 'text',
         title: 'Private lessons open for March',
         caption:
-          'One-to-one baking sessions are booking now. Tell us what you want to master — laminated pastry, celebration cakes, or everyday bread — and we will build the class around you.',
+          'One-to-one baking sessions are booking now. Tell us whether you want laminated pastry, celebration cakes, or everyday bread, and we will build the class around you.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 6,
         order: 0
@@ -1568,7 +1568,7 @@ export function createDemoWorkspace() {
         type: 'text',
         title: 'A note from today’s class',
         caption:
-          'Rest your dough longer than you think. Texture always tells the truth — and patience is the quiet ingredient that makes the bake.',
+          'Rest your dough longer than you think. Texture always tells the truth, and patience is the quiet ingredient that makes the bake.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 70,
         order: 3
@@ -1704,6 +1704,7 @@ export function hydrateDemoWorkspace(stored) {
         aboutPages: fresh.website.aboutPages,
         reasonsTitle: fresh.website.reasonsTitle,
         reasonsEyebrow: fresh.website.reasonsEyebrow,
+        reasonsBody: fresh.website.reasonsBody,
         reasons: fresh.website.reasons,
         venueTitle: fresh.website.venueTitle,
         venueEyebrow: fresh.website.venueEyebrow,
