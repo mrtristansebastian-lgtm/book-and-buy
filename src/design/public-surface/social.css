@@ -274,16 +274,25 @@
   letter-spacing: 0.02em;
 }
 
-/* Posts — Instagram flush 3-column image grid */
+/* Posts — Instagram flush image grid (4-up on desktop) */
 .bb-social-post-cards,
 .bb-social-ig-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 2px;
   width: 100%;
+  max-width: 52rem;
   height: auto;
   align-content: start;
   align-items: start;
+}
+
+@media (max-width: 900px) {
+  .bb-social-post-cards,
+  .bb-social-ig-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: none;
+  }
 }
 
 .bb-social-post-card,
@@ -452,8 +461,9 @@
 
 .bb-public-profile .bb-public-social--embedded .bb-social-ig-grid,
 .bb-public-profile .bb-public-social--embedded .bb-social-post-cards {
-  width: calc(100% + (2 * var(--bb-public-gutter, 1.25rem)));
-  margin-inline: calc(-1 * var(--bb-public-gutter, 1.25rem));
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
 }
 
 /* Legacy card chrome kept for edit/website contexts that still reference it */
@@ -952,7 +962,7 @@
   gap: 0;
   padding: 0.45rem 0.45rem 0.55rem;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 0.85rem;
+  border-radius: 0;
   background: #fff;
   box-sizing: border-box;
 }
@@ -963,7 +973,7 @@
 }
 
 .bb-yt-home .bb-yt-thumb {
-  border-radius: 0.55rem;
+  border-radius: 0;
 }
 
 .bb-yt-draft {
@@ -1027,7 +1037,7 @@
 }
 
 .bb-yt-home .bb-yt-thumb {
-  border-radius: 0.55rem;
+  border-radius: 0;
 }
 
 .bb-social-video-tile-media:not([style*='aspect-ratio']),

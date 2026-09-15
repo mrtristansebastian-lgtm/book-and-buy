@@ -8,13 +8,13 @@ import {
 } from '../utils/staffAvailability';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 15;
+export const DEMO_WEBSITE_SCHEMA = 26;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
-export const DEMO_SOCIAL_SCHEMA = 3;
+export const DEMO_SOCIAL_SCHEMA = 10;
 
 /** Bump when demo services gain spot session windows (start/end date + time). */
-export const DEMO_SERVICES_SCHEMA = 1;
+export const DEMO_SERVICES_SCHEMA = 10;
 
 /** Bump when demo staff availability / closed-days / staff photos change. */
 export const DEMO_AVAILABILITY_SCHEMA = 2;
@@ -33,104 +33,89 @@ function startOfToday() {
 
 export const DEMO_SERVICES = normalizeServiceList([
   {
-    id: 'pasta-from-scratch',
-    name: 'Pasta From Scratch',
-    category: 'Cooking',
-    price: 850,
+    id: 'cooking-1-month',
+    name: 'Cooking — 1 Month',
+    category: 'Cooking packages',
+    price: 2800,
     duration: 180,
     scheduleType: 'class_session',
     capacity: 8,
-    sessionStartDate: toDateKey(addDays(today, 3)),
-    sessionStartTime: '10:00',
-    sessionEndDate: toDateKey(addDays(today, 3)),
-    sessionEndTime: '13:00',
+    sessionStartDate: toDateKey(addDays(today, 4)),
+    sessionStartTime: '17:30',
+    sessionEndDate: toDateKey(addDays(today, 4)),
+    sessionEndTime: '20:30',
     description:
-      'Mix, roll, shape, and cook fresh pasta before sitting down to enjoy the finished dishes together.\n\nYou’ll work through dough hydration, resting, rolling, cutting, and a simple sauce finish — then share the meal at the studio table.',
-    imageUrls: [
-      '/example/flour-and-flame/venue/pastry-island.png',
-      '/example/flour-and-flame/products/fresh-pasta-starter-set.png',
-      '/example/flour-and-flame/venue/studio-notes.png'
-    ],
+      'Four weeks. Four kitchens. One seat at our bench.\n\nYou’ll cook Italian pasta night, a Cape Malay supper, a fast Asian stir-fry, and a French bistro plate — enough range to feel dangerous in a good way. We eat what we make. You leave with notes you will actually use.',
+    imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
     staffIds: ['jordan-lee', 'maya-patel']
   },
   {
-    id: 'artisan-bread',
-    name: 'Artisan Bread Workshop',
-    category: 'Bread',
-    price: 780,
-    duration: 210,
-    scheduleType: 'class_session',
-    capacity: 10,
-    sessionStartDate: toDateKey(addDays(today, 5)),
-    sessionStartTime: '09:00',
-    sessionEndDate: toDateKey(addDays(today, 5)),
-    sessionEndTime: '12:30',
-    description:
-      'Learn fermentation, shaping, scoring, and baking while making your own naturally leavened loaf.\n\nThe session covers starter care, bulk fermentation cues, and oven steam so you can repeat the bake at home.',
-    imageUrls: [
-      '/example/flour-and-flame/venue/bread-ovens.png',
-      '/example/flour-and-flame/products/artisan-bread-box.png',
-      '/example/flour-and-flame/hero.png'
-    ],
-    staffIds: ['thando-mokoena', 'maya-patel']
-  },
-  {
-    id: 'french-pastry',
-    name: 'French Pastry Foundations',
-    category: 'Pastry',
-    price: 950,
+    id: 'cooking-6-month',
+    name: 'Cooking — 6 Months',
+    category: 'Cooking packages',
+    price: 8900,
     duration: 180,
-    scheduleType: 'class_session',
-    capacity: 8,
-    sessionStartDate: toDateKey(addDays(today, 8)),
-    sessionStartTime: '10:00',
-    sessionEndDate: toDateKey(addDays(today, 9)),
-    sessionEndTime: '13:00',
-    description:
-      'Build confidence with laminated dough, choux pastry, fillings, glazing, and elegant finishing.\n\nLeave with plated pastries plus notes you can reuse for celebrations at home.',
-    imageUrls: [
-      '/example/flour-and-flame/venue/pastry-island.png',
-      '/example/flour-and-flame/venue/studio-notes.png',
-      '/example/flour-and-flame/products/kitchen-notes.png'
-    ],
-    staffIds: ['jordan-lee', 'thando-mokoena']
-  },
-  {
-    id: 'cape-malay-cooking',
-    name: 'Cape Malay Cooking',
-    category: 'Cape cuisine',
-    price: 900,
-    duration: 180,
-    scheduleType: 'class_session',
-    capacity: 8,
-    sessionStartDate: toDateKey(addDays(today, 12)),
-    sessionStartTime: '17:00',
-    sessionEndDate: toDateKey(addDays(today, 12)),
-    sessionEndTime: '20:00',
-    description:
-      'Cook a generous Cape Malay menu while learning how to balance aromatics, spice, sweetness, and heat.\n\nExpect a shared table finish and take-home spice notes from the kitchen.',
-    imageUrls: [
-      '/example/flour-and-flame/hero.png',
-      '/example/flour-and-flame/venue/pastry-island.png',
-      '/example/flour-and-flame/venue/bread-ovens.png'
-    ],
-    staffIds: ['jordan-lee', 'maya-patel']
-  },
-  {
-    id: 'private-baking',
-    name: 'Private Baking Lesson',
-    category: 'Private lessons',
-    price: 1200,
-    duration: 120,
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'A focused one-to-one lesson shaped around your baking goals, from fundamentals to celebration cakes.\n\nBring a recipe you’d like to refine, or ask us to plan the session around a technique you want to lock in.',
-    imageUrls: [
-      '/example/flour-and-flame/venue/studio-notes.png',
-      '/example/flour-and-flame/products/kitchen-notes.png',
-      '/example/flour-and-flame/venue/bread-ovens.png'
-    ],
+      'Half a year of showing up hungry.\n\nTwice a month we rotate cuisines — Italian, Cape Malay, East Asian, French bistro, plus seasonal wild cards — so your knife work, sauces, and plating stop feeling like a fluke. Think of it as a long apprenticeship with better snacks.',
+    imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
+    staffIds: ['jordan-lee', 'sofia-martins']
+  },
+  {
+    id: 'cooking-1-year',
+    name: 'Cooking — 1 Year',
+    category: 'Cooking packages',
+    price: 15500,
+    duration: 180,
+    scheduleType: 'appointment',
+    capacity: 1,
+    description:
+      'A full year of cooking like you mean it.\n\nYou’ll work through a rotating map of cuisines — weeknight stir-fries, weekend Italian, Cape Malay feasts, French sauces, roast Sundays — until the muscle memory sticks. Priority booking, deeper technique, and the kind of confidence that makes dinner guests nervous (in a good way).',
+    imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
+    staffIds: ['jordan-lee', 'maya-patel']
+  },
+  {
+    id: 'baking-1-month',
+    name: 'Baking — 1 Month',
+    category: 'Baking packages',
+    price: 2950,
+    duration: 210,
+    scheduleType: 'class_session',
+    capacity: 8,
+    sessionStartDate: toDateKey(addDays(today, 6)),
+    sessionStartTime: '09:00',
+    sessionEndDate: toDateKey(addDays(today, 6)),
+    sessionEndTime: '12:30',
+    description:
+      'One month. Flour on your apron. Butter under your nails.\n\nWe move from sourdough loaves to laminated croissants to a proper pastry finish — enough variety that your home oven finally feels like a studio. Take-home bakes. Honest notes. No fluff.',
+    imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
+    staffIds: ['thando-mokoena', 'maya-patel']
+  },
+  {
+    id: 'baking-6-month',
+    name: 'Baking — 6 Months',
+    category: 'Baking packages',
+    price: 9800,
+    duration: 210,
+    scheduleType: 'appointment',
+    capacity: 1,
+    description:
+      'Six months of dough that actually listens to you.\n\nTwice a month we cycle bread, lamination, enriched doughs, and pastry — sourdough, croissants, focaccia, tarts, celebration cakes — so fermentation, butter, and sugar stop being mysteries. Slow skill. Real craft. Worth every sticky counter.',
+    imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
+    staffIds: ['thando-mokoena', 'jordan-lee']
+  },
+  {
+    id: 'baking-1-year',
+    name: 'Baking — 1 Year',
+    category: 'Baking packages',
+    price: 16800,
+    duration: 210,
+    scheduleType: 'appointment',
+    capacity: 1,
+    description:
+      'A year inside the bake.\n\nYou’ll live through the full calendar — country loaves, laminated mornings, pastry nights, holiday sweets — until shaping, proofing, and finishing feel like second nature. Priority seats, deeper feedback, and the quiet flex of bringing something that looks (and tastes) like it came from a bakery.',
+    imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
     staffIds: ['thando-mokoena', 'sofia-martins']
   }
 ]);
@@ -222,7 +207,7 @@ export const DEMO_CLIENTS = [
 export const DEMO_THREADS_SCHEMA = 3;
 export const DEMO_ORDERS_SCHEMA = 3;
 /** Bump when demo finance ledger sample bookings/orders change. */
-export const DEMO_FINANCE_SCHEMA = 1;
+export const DEMO_FINANCE_SCHEMA = 2;
 
 export const DEMO_THREADS = [
   {
@@ -449,8 +434,7 @@ export const DEMO_PRODUCTS = normalizeProductList([
       'A mixed box of the day’s loaves — sourdough, seeded, and a soft milk loaf.\n\nBaked the morning of collection so the crust stays lively and the crumb stays open. Best enjoyed within two days, or freeze slices for later.',
     imageUrls: [
       '/example/flour-and-flame/products/artisan-bread-box.png',
-      '/example/flour-and-flame/venue/bread-ovens.png',
-      '/example/flour-and-flame/hero.png'
+      '/example/flour-and-flame/venue/bread-ovens.webp'
     ]
   },
   {
@@ -475,14 +459,13 @@ export const DEMO_PRODUCTS = normalizeProductList([
       'Flour blend, semolina, recipe cards, and a wooden paddle for home pasta nights.\n\nEverything you need for a first from-scratch batch, scaled for two generous plates.',
     imageUrls: [
       '/example/flour-and-flame/products/fresh-pasta-starter-set.png',
-      '/example/flour-and-flame/venue/pastry-island.png',
-      '/example/flour-and-flame/venue/studio-notes.png'
+      '/example/flour-and-flame/venue/pastry-island.webp'
     ]
   },
   {
     id: 'studio-apron',
-    name: 'Studio Apron',
-    category: 'Kits',
+    name: 'Studio Apron Set',
+    category: 'Merch',
     price: 420,
     compareAtPrice: 480,
     productType: 'Apparel',
@@ -492,8 +475,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     description:
       'Heavyweight cotton apron with cross-back straps and a deep tool pocket — the same cut we wear on bake days.\n\nPick your size and colour; each piece is finished in the studio.',
     imageUrls: [
-      '/example/flour-and-flame/products/fresh-pasta-starter-set.png',
-      '/example/flour-and-flame/venue/pastry-island.png'
+      '/example/flour-and-flame/products/studio-apron.png',
+      '/example/flour-and-flame/venue/teaching-kitchen.webp'
     ],
     options: [
       { id: 'opt-size', name: 'Size', values: ['S/M', 'L/XL'] },
@@ -583,23 +566,129 @@ export const DEMO_PRODUCTS = normalizeProductList([
       'Studio recipes, fermentation notes, and plating ideas from the Flame & Flour team.\n\nA compact studio companion for weeknight bakes and weekend projects.',
     imageUrls: [
       '/example/flour-and-flame/products/kitchen-notes.png',
-      '/example/flour-and-flame/venue/studio-notes.png',
-      '/example/flour-and-flame/products/artisan-bread-box.png'
+      '/example/flour-and-flame/venue/studio-notes.png'
     ]
   },
   {
-    id: 'private-menu-consult',
-    name: 'Private Menu Consult',
-    category: 'Consulting',
-    priceType: 'quote',
-    quoteBased: true,
-    stockLabel: 'By arrangement',
+    id: 'chef-knife-set',
+    name: 'Chef’s Knife Set',
+    category: 'Tools',
+    price: 890,
+    compareAtPrice: 980,
+    stockAvailable: 6,
+    sku: 'KNIFE-SET',
+    weight: 1.1,
+    weightUnit: 'kg',
+    length: 40,
+    width: 12,
+    height: 5,
+    dimensionUnit: 'cm',
+    productType: 'Tool',
+    vendor: 'Flame & Flour',
+    tags: ['knives', 'essentials'],
+    collections: ['Home kitchen'],
     description:
-      'Plan a custom menu or celebration bake with the kitchen — priced after a short consult.\n\nShare headcount, dietary needs, and the feel you want; we’ll reply with a clear quote and timeline.',
+      'A working trio: chef’s knife, bread knife, and paring knife in a simple canvas roll.\n\nThe same everyday blades we reach for on class days — balanced, sharp, and ready for home kitchens.',
     imageUrls: [
-      '/example/flour-and-flame/venue/pastry-island.png',
-      '/example/flour-and-flame/hero.png',
-      '/example/flour-and-flame/products/kitchen-notes.png'
+      '/example/flour-and-flame/products/chef-knife-set.png',
+      '/example/flour-and-flame/venue/pastry-island.webp'
+    ]
+  },
+  {
+    id: 'ceramic-plate-set',
+    name: 'Ceramic Plate Set',
+    category: 'Tableware',
+    price: 560,
+    stockAvailable: 10,
+    sku: 'PLATE-SET',
+    weight: 2.4,
+    weightUnit: 'kg',
+    length: 28,
+    width: 28,
+    height: 8,
+    dimensionUnit: 'cm',
+    productType: 'Tableware',
+    vendor: 'Flame & Flour',
+    tags: ['plates', 'gift'],
+    collections: ['Studio shelf'],
+    description:
+      'A set of four handmade ceramic dinner plates with a soft matte glaze.\n\nBuilt for tasting plates and weeknight meals — sturdy enough for the dishwasher, quiet enough for the table.',
+    imageUrls: [
+      '/example/flour-and-flame/products/ceramic-plate-set.png',
+      '/example/flour-and-flame/venue/tasting-room.webp'
+    ]
+  },
+  {
+    id: 'mixing-bowl-set',
+    name: 'Mixing Bowl Set',
+    category: 'Tools',
+    price: 340,
+    stockAvailable: 14,
+    sku: 'BOWL-SET',
+    weight: 1.6,
+    weightUnit: 'kg',
+    length: 30,
+    width: 30,
+    height: 16,
+    dimensionUnit: 'cm',
+    productType: 'Tool',
+    vendor: 'Flame & Flour',
+    tags: ['bowls', 'prep'],
+    collections: ['Home kitchen'],
+    description:
+      'Three nested stainless mixing bowls for dough, batter, and mise en place.\n\nStable bases, deep sides, and the sizes we actually use when teaching.',
+    imageUrls: [
+      '/example/flour-and-flame/products/mixing-bowl-set.png',
+      '/example/flour-and-flame/venue/teaching-kitchen.webp'
+    ]
+  },
+  {
+    id: 'wooden-rolling-pin',
+    name: 'Wooden Rolling Pin',
+    category: 'Tools',
+    price: 185,
+    stockAvailable: 18,
+    sku: 'ROLL-PIN',
+    weight: 480,
+    weightUnit: 'g',
+    length: 45,
+    width: 6,
+    height: 6,
+    dimensionUnit: 'cm',
+    productType: 'Tool',
+    vendor: 'Flame & Flour',
+    tags: ['pastry', 'wood'],
+    collections: ['Home kitchen'],
+    description:
+      'A long French-style wooden rolling pin for pastry and pasta sheets.\n\nSmooth, balanced, and ready for flour — the pin we keep on every pastry island.',
+    imageUrls: [
+      '/example/flour-and-flame/products/wooden-rolling-pin.png',
+      '/example/flour-and-flame/venue/pastry-island.webp'
+    ]
+  },
+  {
+    id: 'weekend-bake-kit',
+    name: 'Weekend Bake Kit',
+    category: 'Kits',
+    price: 390,
+    compareAtPrice: 450,
+    stockAvailable: 9,
+    sku: 'WEEKEND-KIT',
+    weight: 1.1,
+    weightUnit: 'kg',
+    length: 30,
+    width: 22,
+    height: 10,
+    dimensionUnit: 'cm',
+    productType: 'Kit',
+    vendor: 'Flame & Flour',
+    tags: ['bread', 'weekend'],
+    collections: ['Home kitchen'],
+    description:
+      'Flour blend, yeast, parchment, and a clear weekend schedule for one country loaf.\n\nDesigned for first-time bakers who want a calm Saturday bake without guesswork.',
+    imageUrls: [
+      '/example/flour-and-flame/products/weekend-bake-kit.png',
+      '/example/flour-and-flame/venue/bread-ovens.webp'
     ]
   }
 ]);
@@ -784,8 +873,8 @@ const sampleOrders = [
 const sampleBookings = [
   {
     id: 'bk-1',
-    serviceId: 'artisan-bread',
-    serviceName: 'Artisan Bread Workshop',
+    serviceId: 'baking-1-month',
+    serviceName: 'Baking — 1 Month',
     scheduleType: 'class_session',
     clientName: 'Aisha Naidoo',
     clientEmail: 'aisha.naidoo@example.com',
@@ -796,7 +885,7 @@ const sampleBookings = [
     status: 'confirmed',
     paymentStatus: 'paid',
     paymentMethod: 'stripe',
-    amountInCents: 78000,
+    amountInCents: 295000,
     currency: 'R',
     paidAt: Date.now() - 1000 * 60 * 60 * 6,
     timestamp: Date.now() - 1000 * 60 * 60 * 48,
@@ -806,8 +895,8 @@ const sampleBookings = [
   },
   {
     id: 'bk-2',
-    serviceId: 'private-baking',
-    serviceName: 'Private Baking Lesson',
+    serviceId: 'baking-6-month',
+    serviceName: 'Baking — 6 Months',
     scheduleType: 'appointment',
     clientName: 'Daniel Botha',
     clientEmail: 'daniel.botha@example.com',
@@ -818,7 +907,7 @@ const sampleBookings = [
     status: 'pending',
     paymentStatus: 'unpaid',
     paymentMethod: 'manual_eft',
-    amountInCents: 120000,
+    amountInCents: 980000,
     currency: 'R',
     timestamp: Date.now() - 1000 * 60 * 60 * 8,
     staffId: 'sofia-martins',
@@ -827,19 +916,19 @@ const sampleBookings = [
   },
   {
     id: 'bk-3',
-    serviceId: 'pasta-from-scratch',
-    serviceName: 'Pasta From Scratch',
+    serviceId: 'cooking-1-month',
+    serviceName: 'Cooking — 1 Month',
     scheduleType: 'class_session',
     clientName: 'Lerato Dlamini',
     clientEmail: 'lerato.dlamini@example.com',
     clientPhone: '+27 72 555 1003',
     date: toDateKey(addDays(today, 1)),
     dateKey: toDateKey(addDays(today, 1)),
-    time: '10:00',
+    time: '17:30',
     status: 'pending',
     paymentStatus: 'manual_pending',
     paymentMethod: 'manual_eft',
-    amountInCents: 85000,
+    amountInCents: 280000,
     currency: 'R',
     timestamp: Date.now() - 1000 * 60 * 60 * 20,
     staffId: 'jordan-lee',
@@ -848,9 +937,9 @@ const sampleBookings = [
   },
   {
     id: 'bk-4',
-    serviceId: 'french-pastry',
-    serviceName: 'French Pastry Foundations',
-    scheduleType: 'class_session',
+    serviceId: 'baking-1-year',
+    serviceName: 'Baking — 1 Year',
+    scheduleType: 'appointment',
     clientName: 'Nandi Maseko',
     clientEmail: 'nandi.maseko@example.com',
     date: toDateKey(addDays(today, 2)),
@@ -858,7 +947,7 @@ const sampleBookings = [
     time: '11:00',
     status: 'waitlist',
     paymentStatus: 'unpaid',
-    amountInCents: 95000,
+    amountInCents: 1680000,
     currency: 'R',
     timestamp: Date.now() - 1000 * 60 * 60 * 30,
     staffId: 'maya-patel',
@@ -867,9 +956,9 @@ const sampleBookings = [
   },
   {
     id: 'bk-5',
-    serviceId: 'cape-malay-cooking',
-    serviceName: 'Cape Malay Cooking',
-    scheduleType: 'class_session',
+    serviceId: 'cooking-6-month',
+    serviceName: 'Cooking — 6 Months',
+    scheduleType: 'appointment',
     clientName: 'Owen du Plessis',
     clientEmail: 'owen.duplessis@example.com',
     date: toDateKey(addDays(today, -7)),
@@ -878,7 +967,7 @@ const sampleBookings = [
     status: 'confirmed',
     paymentStatus: 'paid',
     paymentMethod: 'paystack',
-    amountInCents: 90000,
+    amountInCents: 890000,
     currency: 'R',
     paidAt: Date.now() - 1000 * 60 * 60 * 24 * 9,
     timestamp: Date.now() - 1000 * 60 * 60 * 24 * 10,
@@ -888,9 +977,9 @@ const sampleBookings = [
   },
   {
     id: 'bk-6',
-    serviceId: 'artisan-bread',
-    serviceName: 'Artisan Bread Workshop',
-    scheduleType: 'class_session',
+    serviceId: 'cooking-1-year',
+    serviceName: 'Cooking — 1 Year',
+    scheduleType: 'appointment',
     clientName: 'Fatima Abrahams',
     clientEmail: 'fatima.abrahams@example.com',
     date: toDateKey(addDays(today, -21)),
@@ -899,7 +988,7 @@ const sampleBookings = [
     status: 'confirmed',
     paymentStatus: 'paid',
     paymentMethod: 'cash',
-    amountInCents: 78000,
+    amountInCents: 1550000,
     currency: 'R',
     paidAt: Date.now() - 1000 * 60 * 60 * 24 * 22,
     timestamp: Date.now() - 1000 * 60 * 60 * 24 * 23,
@@ -979,10 +1068,10 @@ export function createDemoWorkspace() {
       profileCategory: 'Cooking Studio',
       profileLocation: 'Cape Town',
       heroImageUrl: '/example/flour-and-flame/hero.webp',
-      logoUrl: '/example/flour-and-flame/logo.png',
+      logoUrl: '/example/flour-and-flame/logo-mark.jpg',
       socialBannerUrl: '/example/flour-and-flame/banner.png',
-      bookHeadline: 'Book a class or private lesson',
-      bookSubtext: 'Pick a service, choose a time, and send your request.',
+      bookHeadline: 'Book a package',
+      bookSubtext: 'Choose a cooking or baking package, pick a time, and send your request.',
       buyHeadline: 'Take the kitchen home',
       buySubtext: 'Bread boxes, pasta kits, and studio notes ready to order.',
       socialHeadline: 'From the studio',
@@ -991,33 +1080,33 @@ export function createDemoWorkspace() {
       aboutEyebrow: 'About',
       aboutBody:
         'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
-      aboutImageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
+      aboutImageUrl: '/example/flour-and-flame/about/ff-about-team.jpg',
       visionTitle: 'Our vision',
       visionBody:
         'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
-      visionImageUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
+      visionImageUrl: '/example/flour-and-flame/about/ff-about-vision.jpg',
       missionTitle: 'Our mission',
       missionBody:
         'Teach real kitchen skills in small groups, share honest recipes, and stock the tools that make practice feel possible after class.',
-      missionImageUrl: '/example/flour-and-flame/venue/pastry-island.webp',
+      missionImageUrl: '/example/flour-and-flame/about/ff-about-mission.jpg',
       aboutPages: [
         {
           id: 'about',
           title: 'About us',
           body: 'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you — then send you home with skills (and something delicious).',
-          imageUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp'
+          imageUrl: '/example/flour-and-flame/about/ff-about-team.jpg'
         },
         {
           id: 'mission',
           title: 'Our mission',
           body: 'Teach real kitchen skills in small groups, share honest recipes, and stock the tools that make practice feel possible after class.',
-          imageUrl: '/example/flour-and-flame/venue/pastry-island.webp'
+          imageUrl: '/example/flour-and-flame/about/ff-about-mission.jpg'
         },
         {
           id: 'vision',
           title: 'Our vision',
           body: 'A city where more people cook with confidence — starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
-          imageUrl: '/example/flour-and-flame/venue/bread-ovens.webp'
+          imageUrl: '/example/flour-and-flame/about/ff-about-vision.jpg'
         }
       ],
       reasonsTitle: 'What we offer',
@@ -1122,60 +1211,140 @@ export function createDemoWorkspace() {
         {
           id: 'f3',
           q: 'Can I book privately?',
-          a: 'Yes — pick Private Baking Lesson or message us from Support.'
+          a: 'Yes — pick a cooking or baking package, or message us from Support.'
         }
       ],
       featuredProductId: 'artisan-bread-box'
     },
     socialPosts: [
       {
-        id: 'post-1',
+        id: 'post-5',
         type: 'image',
-        title: 'Morning bake',
-        mediaUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
-        caption: 'Loaves cooling on the rack after the first oven run.',
+        title: 'Scored loaf',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-scored-loaf.png',
+        caption: 'Sharp score, open crumb — Friday’s country loaf.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 8,
         order: 0
       },
       {
-        id: 'post-2',
+        id: 'post-6',
         type: 'image',
-        title: 'Pastry island',
-        mediaUrl: '/example/flour-and-flame/venue/pastry-island.webp',
-        caption: 'Prep for Saturday’s French foundations class.',
+        title: 'Laminated dough',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-laminated-dough.png',
+        caption: 'Butter locked in. Croissant dough resting.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 30,
         order: 1
       },
       {
-        id: 'post-4',
+        id: 'post-7',
         type: 'image',
-        title: 'Tasting room',
-        mediaUrl: '/example/flour-and-flame/venue/tasting-room.webp',
-        caption: 'Set for the evening class tasting.',
+        title: 'Fresh pasta',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-fresh-pasta.png',
+        caption: 'Tagliatelle nests for this week’s pasta class.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 40,
         order: 2
       },
       {
-        id: 'post-5',
+        id: 'post-8',
         type: 'image',
-        title: 'Teaching kitchen',
-        mediaUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
-        caption: 'Benches ready. Aprons out.',
+        title: 'Plated dessert',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-plated-dessert.png',
+        caption: 'End-of-class tasting plate.',
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 55,
         order: 3
       },
       {
+        id: 'post-9',
+        type: 'image',
+        title: 'Croissants',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-croissants.png',
+        caption: 'Straight from the oven — still singing.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 70,
+        order: 4
+      },
+      {
+        id: 'post-10',
+        type: 'image',
+        title: 'Bench is set',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-class-hands.png',
+        caption: 'Aprons out. Class starts in ten.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 82,
+        order: 5
+      },
+      {
+        id: 'post-11',
+        type: 'image',
+        title: 'Sunday lasagna',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-lasagna.png',
+        caption: 'Layered, bubbled, and ready for the table.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 95,
+        order: 6
+      },
+      {
+        id: 'post-12',
+        type: 'image',
+        title: 'Chocolate tart',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-chocolate-tart.png',
+        caption: 'Ganache set. Ready for the tasting room.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 110,
+        order: 7
+      },
+      {
+        id: 'post-13',
+        type: 'image',
+        title: 'Beef stir fry',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-beef-stir-fry.png',
+        caption: 'Hot wok, glossy beef — lunch special tonight.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 125,
+        order: 8
+      },
+      {
+        id: 'post-14',
+        type: 'image',
+        title: 'Fried chicken',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-fried-chicken.png',
+        caption: 'Crispy, golden, and gone by dinner.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 140,
+        order: 9
+      },
+      {
+        id: 'post-15',
+        type: 'image',
+        title: 'Milkshake hour',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-milkshakes.png',
+        caption: 'Thick shakes spinning up at the counter.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 155,
+        order: 10
+      },
+      {
+        id: 'post-16',
+        type: 'image',
+        title: 'Vanilla cake',
+        mediaUrl: '/example/flour-and-flame/social/ff-social-vanilla-cake.jpg',
+        caption: 'Soft crumb, vanilla buttercream — tasting tomorrow.',
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 170,
+        order: 11
+      },
+      {
         id: 'vid-1',
         type: 'video',
         mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/venue/pastry-island.webp',
-        title: 'Rolling dough on pastry island',
-        caption: 'A quiet look at how we start laminated pastry mornings.',
-        duration: '0:15',
+        posterUrl: '/example/flour-and-flame/films/ff-film-steak-sear.png',
+        title: 'Steak sear',
+        caption: 'Cast iron, hard sear, quiet studio kitchen.',
+        duration: '0:18',
         viewCount: 12840,
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 12,
@@ -1185,10 +1354,10 @@ export function createDemoWorkspace() {
         id: 'vid-2',
         type: 'video',
         mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/venue/bread-ovens.webp',
-        title: 'Loaves into the oven',
-        caption: 'Steam, score, bake — the Friday rhythm.',
-        duration: '0:15',
+        posterUrl: '/example/flour-and-flame/films/ff-film-pasta-boil.png',
+        title: 'Pasta in the pot',
+        caption: 'Fresh noodles hitting simmering water.',
+        duration: '0:16',
         viewCount: 9320,
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 36,
@@ -1198,14 +1367,170 @@ export function createDemoWorkspace() {
         id: 'vid-3',
         type: 'video',
         mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/venue/teaching-kitchen.webp',
-        title: 'Class walkthrough',
-        caption: 'What to expect when you book a hands-on session.',
-        duration: '0:15',
+        posterUrl: '/example/flour-and-flame/films/ff-film-eggs-scramble.png',
+        title: 'Soft scramble',
+        caption: 'Slow eggs for a class breakfast demo.',
+        duration: '0:14',
         viewCount: 21450,
         published: true,
         createdAt: Date.now() - 1000 * 60 * 60 * 72,
         order: 2
+      },
+      {
+        id: 'vid-4',
+        type: 'video',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/films/ff-film-citrus-salad.png',
+        title: 'Citrus salad',
+        caption: 'Bright herbs and citrus for a light tasting.',
+        duration: '0:12',
+        viewCount: 7640,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 48,
+        order: 3
+      },
+      {
+        id: 'vid-5',
+        type: 'video',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/films/ff-film-roast-veg.png',
+        title: 'Roast veg tray',
+        caption: 'Sheet-pan vegetables, blistered and ready.',
+        duration: '0:15',
+        viewCount: 11890,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 60,
+        order: 4
+      },
+      {
+        id: 'vid-6',
+        type: 'video',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/films/ff-film-espresso-pour.png',
+        title: 'Studio espresso',
+        caption: 'A quiet pour before the evening class.',
+        duration: '0:11',
+        viewCount: 15220,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 84,
+        order: 5
+      },
+      {
+        id: 'vid-7',
+        type: 'video',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/films/ff-film-chocolate-mousse.png',
+        title: 'Chocolate mousse',
+        caption: 'Tasting cups set for dessert night.',
+        duration: '0:13',
+        viewCount: 18950,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 96,
+        order: 6
+      },
+      {
+        id: 'vert-1',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-score-loaf.png',
+        title: 'Cookie tray',
+        caption: 'Chocolate chip, straight from the oven.',
+        duration: '0:18',
+        viewCount: 18420,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 5,
+        order: 0
+      },
+      {
+        id: 'vert-2',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-laminate.png',
+        title: 'Laminate fold',
+        caption: 'Butter locked. Croissant dough resting.',
+        duration: '0:22',
+        viewCount: 15680,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 14,
+        order: 1
+      },
+      {
+        id: 'vert-3',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-pasta-roll.png',
+        title: 'Pasta through the machine',
+        caption: 'Sheet by sheet for Saturday’s pasta class.',
+        duration: '0:16',
+        viewCount: 22140,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 22,
+        order: 2
+      },
+      {
+        id: 'vert-4',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-oven-pull.png',
+        title: 'Croissant pull',
+        caption: 'Straight from the deck — still singing.',
+        duration: '0:14',
+        viewCount: 29810,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 33,
+        order: 3
+      },
+      {
+        id: 'vert-5',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-pipe-ganache.png',
+        title: 'Steak in the pan',
+        caption: 'Cast iron, butter, and a hard sear.',
+        duration: '0:19',
+        viewCount: 13250,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 46,
+        order: 4
+      },
+      {
+        id: 'vert-6',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-class-bench.png',
+        title: 'Bench is set',
+        caption: 'Aprons out. Class starts in ten.',
+        duration: '0:12',
+        viewCount: 9870,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 58,
+        order: 5
+      },
+      {
+        id: 'vert-7',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-tasting-plate.png',
+        title: 'Tasting plate',
+        caption: 'End-of-class dessert, plated quiet.',
+        duration: '0:15',
+        viewCount: 17440,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 67,
+        order: 6
+      },
+      {
+        id: 'vert-8',
+        type: 'vertical',
+        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
+        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-open-crumb.png',
+        title: 'Open crumb',
+        caption: 'The crumb we chase every bake.',
+        duration: '0:11',
+        viewCount: 25190,
+        published: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 79,
+        order: 7
       },
       {
         id: 'text-1',
@@ -1258,11 +1583,8 @@ export function createDemoWorkspace() {
     }),
     services: DEMO_SERVICES,
     serviceCategories: collectServiceCategories(DEMO_SERVICES, [
-      'Cooking',
-      'Bread',
-      'Pastry',
-      'Cape cuisine',
-      'Private lessons'
+      'Cooking packages',
+      'Baking packages'
     ]),
     staff: DEMO_STAFF,
     staffAvailability: createStaffAvailabilityForRoster(DEMO_STAFF, '09:00', '17:00', 8),
@@ -1271,8 +1593,10 @@ export function createDemoWorkspace() {
     productCategories: collectProductCategories(DEMO_PRODUCTS, [
       'Baked goods',
       'Kits',
-      'Books',
-      'Consulting'
+      'Tools',
+      'Tableware',
+      'Merch',
+      'Books'
     ]),
     orders: sampleOrders
   };
@@ -1292,7 +1616,12 @@ export function hydrateDemoWorkspace(stored) {
     !Array.isArray(stored.website?.reasons) ||
     !stored.website.reasons.length ||
     !Array.isArray(stored.website?.venueImages) ||
-    !stored.website.venueImages.length;
+    !stored.website.venueImages.length ||
+    !Array.isArray(stored.products) ||
+    stored.products.length !== 9 ||
+    stored.products.some((product) =>
+      ['bench-tools-set', 'linen-tea-towel', 'proofing-basket'].includes(product?.id)
+    );
 
   const hasVideo = (stored.socialPosts || []).some((post) => post?.type === 'video');
   const hasText = (stored.socialPosts || []).some((post) => post?.type === 'text');
@@ -1301,10 +1630,18 @@ export function hydrateDemoWorkspace(stored) {
       (post?.type === 'image' || post?.type === 'video' || post?.type === 'text') &&
       !String(post?.title || '').trim()
   );
+  const imagePostCount = (stored.socialPosts || []).filter((post) => post?.type === 'image').length;
+  const videoPostCount = (stored.socialPosts || []).filter((post) => post?.type === 'video').length;
+  const verticalPostCount = (stored.socialPosts || []).filter(
+    (post) => post?.type === 'vertical'
+  ).length;
   const staleSocial =
     Number(stored.socialSchema || 0) < DEMO_SOCIAL_SCHEMA ||
     !Array.isArray(stored.socialPosts) ||
     stored.socialPosts.length < 6 ||
+    imagePostCount < 12 ||
+    videoPostCount < 7 ||
+    verticalPostCount < 8 ||
     !hasVideo ||
     !hasText ||
     postsMissingTitles;
@@ -1339,7 +1676,7 @@ export function hydrateDemoWorkspace(stored) {
   const staleServices =
     Number(stored.servicesSchema || 0) < DEMO_SERVICES_SCHEMA ||
     !Array.isArray(stored.services) ||
-    stored.services.length < 4 ||
+    stored.services.length < 6 ||
     spotServicesMissingSessions;
 
   const staleAvailability =
@@ -1363,6 +1700,7 @@ export function hydrateDemoWorkspace(stored) {
         missionTitle: fresh.website.missionTitle,
         missionBody: fresh.website.missionBody,
         missionImageUrl: fresh.website.missionImageUrl,
+        aboutPages: fresh.website.aboutPages,
         reasonsTitle: fresh.website.reasonsTitle,
         reasonsEyebrow: fresh.website.reasonsEyebrow,
         reasons: fresh.website.reasons,

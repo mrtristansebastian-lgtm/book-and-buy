@@ -2,7 +2,7 @@ import { Pencil, Play } from 'lucide-react';
 import { getPostMediaItems } from '../utils/socialPostType';
 
 /**
- * Photo posts: Instagram-style flush 3-column image grid.
+ * Photo posts: Instagram-style flush 4-column image grid on desktop.
  * Supports mixed photo + short-clip carousels.
  */
 export function SocialPostsGrid({

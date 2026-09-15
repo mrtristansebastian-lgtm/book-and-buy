@@ -195,7 +195,7 @@ html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catal
 .bb-catalog-card-media {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   border-radius: 0.75rem;
   overflow: hidden;
   background: #eef2f6;
@@ -205,8 +205,9 @@ html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catal
 .bb-catalog-card-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+  background: #fff;
 }
 
 .bb-catalog-card-media-empty {

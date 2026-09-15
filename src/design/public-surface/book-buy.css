@@ -36,8 +36,8 @@
 
 .bb-device-preview--phone .bb-public-product-cart-btn {
   border-radius: 0 0 0.6rem 0.6rem;
-  padding: 0.4rem 0.5rem;
-  font-size: 0.6rem;
+  padding: 0.52rem 0.55rem;
+  font-size: 0.7rem;
   gap: 0.2rem;
 }
 
@@ -58,7 +58,7 @@
 .bb-device-preview--phone .bb-public-product-grid .bb-public-product-media {
   width: auto;
   height: auto;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 1 / 1;
   border-radius: 0.42rem;
 }
 
@@ -82,15 +82,15 @@
 }
 
 .bb-device-preview--phone .bb-public-product-price-row {
-  padding: 0.45rem 0.55rem;
+  padding: 0.5rem 0.55rem;
 }
 
 .bb-device-preview--phone .bb-public-product-price-label {
-  font-size: 0.46rem;
+  font-size: 0.56rem;
 }
 
 .bb-device-preview--phone .bb-public-product-price-value {
-  font-size: 0.7rem;
+  font-size: 0.86rem;
 }
 
 .bb-device-preview--phone .bb-public-product-grid .bb-public-product-body {
