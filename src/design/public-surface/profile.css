@@ -2097,7 +2097,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 .bb-public-about-page.is-current {
   background: transparent;
   pointer-events: auto;
-  z-index: 3;
+  z-index: var(--bb-about-page-z, 3);
 }
 
 .bb-public-about-page-media-stage {
@@ -2111,8 +2111,10 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   min-height: 0;
   perspective: 1400px;
   transform-style: preserve-3d;
-  padding: 0.7rem 1rem 0.45rem 0;
+  /* Room for up-right deck peeks inside the media band */
+  padding: 0.75rem 1.05rem 0.4rem 0;
   box-sizing: border-box;
+  overflow: visible;
 }
 
 .bb-public-about-page-media {
@@ -2126,17 +2128,17 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   background: #e8edf2;
   transform-origin: 0% 100%;
   transform-style: preserve-3d;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
   opacity: calc(1 - (var(--bb-about-stack, 0) * 0.14));
   transform:
     translate3d(
-      calc(var(--bb-about-stack, 0) * 4%),
-      calc(var(--bb-about-stack, 0) * -3%),
-      calc(var(--bb-about-stack, 0) * -26px)
+      calc(var(--bb-about-stack, 0) * 3.75%),
+      calc(var(--bb-about-stack, 0) * -2.75%),
+      calc(var(--bb-about-stack, 0) * -24px)
     )
-    scale(calc(1 - (var(--bb-about-stack, 0) * 0.04)))
-    rotateX(calc(var(--bb-about-stack, 0) * 1.15deg))
-    rotateZ(calc(var(--bb-about-stack, 0) * -0.8deg));
+    scale(calc(1 - (var(--bb-about-stack, 0) * 0.038)))
+    rotateX(calc(var(--bb-about-stack, 0) * 1.1deg))
+    rotateZ(calc(var(--bb-about-stack, 0) * -0.75deg));
   transition:
     transform 720ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -2227,10 +2229,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   box-sizing: border-box;
   text-align: center;
   opacity: 0;
-  transition: opacity 700ms cubic-bezier(0.33, 0.05, 0.2, 1);
-  transform: none;
-  transform-style: flat;
-  perspective: none;
+  transition: opacity 420ms ease;
   isolation: isolate;
 }
 
@@ -2295,17 +2294,14 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-about-page.is-current .bb-public-about-page-copy {
   opacity: 1;
-  transition-delay: 220ms;
 }
 
-/* Deeper cards stay thin and quiet behind the front photo */
 .bb-public-about-page:not(.is-current) .bb-public-about-page-media {
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.09);
 }
 
 .bb-public-about-page:not(.is-current) .bb-public-about-page-copy {
   opacity: 0;
-  transition-delay: 0ms;
   pointer-events: none;
 }
 
@@ -2314,11 +2310,6 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   .bb-public-about-page-copy {
     transition: opacity 160ms ease !important;
     transform: none !important;
-    box-shadow: none !important;
-  }
-
-  .bb-public-about-page.is-current .bb-public-about-page-copy {
-    transition-delay: 0ms !important;
   }
 }
 
@@ -2520,11 +2511,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     grid-template-columns: none;
     grid-template-rows: none;
     grid-template-areas: none;
-    padding: 0.35rem var(--bb-public-gutter, 1.25rem) 1.15rem;
-  }
-
-  .bb-public-about-page.is-current {
-    z-index: var(--bb-about-page-z, 3);
+    padding: 0.4rem var(--bb-public-gutter, 1.25rem) 1.15rem;
   }
 
   .bb-public-about-page-copy {
@@ -2540,10 +2527,9 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     margin: 0;
     padding: 0;
     text-align: center;
-    background: transparent;
   }
 
-  /* Keep inactive copy out of flow so every slide shares one media band */
+  /* Inactive copy out of flow so every slide shares one media band */
   .bb-public-about-page:not(.is-current) .bb-public-about-page-copy {
     position: absolute;
     width: 0;
@@ -2565,8 +2551,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     width: auto;
     height: auto;
     min-height: 0;
-    /* Let the up-right deck actually show */
-    padding: 0.85rem 1rem 0.35rem 0;
+    padding: 0.8rem 1rem 0.35rem 0;
     box-sizing: border-box;
     overflow: visible;
   }
@@ -2576,20 +2561,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     height: 100%;
     min-height: 0;
     border-radius: 0.2rem;
-    opacity: calc(1 - (var(--bb-about-stack, 0) * 0.15));
-    transform:
-      translate3d(
-        calc(var(--bb-about-stack, 0) * 5%),
-        calc(var(--bb-about-stack, 0) * -3.5%),
-        calc(var(--bb-about-stack, 0) * -22px)
-      )
-      scale(calc(1 - (var(--bb-about-stack, 0) * 0.045)))
-      rotateX(calc(var(--bb-about-stack, 0) * 1.25deg))
-      rotateZ(calc(var(--bb-about-stack, 0) * -0.9deg));
-  }
-
-  .bb-public-about-page.is-current .bb-public-about-page-media {
-    transform: translate3d(0, 0, 0) scale(1) rotateX(0deg) rotateZ(0deg);
+    /* Same % up-right deck as desktop */
   }
 
   .bb-public-about-page-nav {

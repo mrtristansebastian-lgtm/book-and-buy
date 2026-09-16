@@ -4,7 +4,7 @@ import { EditableText, EditableImage, EditSection } from '../editable';
 
 const MAX_ABOUT_PAGES = 8;
 const SWIPE_THRESHOLD_PX = 48;
-/** Fixed whitespace between About copy and the front image on mobile. */
+/** Fixed whitespace between About copy and the shared media deck on mobile. */
 const MOBILE_COPY_IMAGE_GAP_PX = 16;
 
 function legacyAboutPages(website = {}) {
