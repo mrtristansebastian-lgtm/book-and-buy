@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { EditableText, EditableImage, EditSection } from '../editable';
 
 const MAX_ABOUT_PAGES = 8;
 const SWIPE_THRESHOLD_PX = 48;
+/** Fixed whitespace between About copy and the front image on mobile. */
+const MOBILE_COPY_IMAGE_GAP_PX = 12;
 
 function legacyAboutPages(website = {}) {
   return [
@@ -48,6 +50,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
   const [activePage, setActivePage] = useState(0);
   const [direction, setDirection] = useState(1);
   const [revealed, setRevealed] = useState(() => Boolean(editMode));
+  const [mobileMediaTopPx, setMobileMediaTopPx] = useState(null);
   const swipeRef = useRef({
     pointerId: null,
     startX: 0,
@@ -250,6 +253,11 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
             role="group"
             aria-roledescription="carousel"
             aria-label="About story pages"
+            style={
+              mobileMediaTopPx != null
+                ? { '--bb-about-mobile-media-top': `${mobileMediaTopPx}px` }
+                : undefined
+            }
           >
             {aboutPages.map((page, index) => (
               <EditorialPage
@@ -266,6 +274,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
                 onBody={(value) => patchAboutPage(page.id, 'body', value)}
                 onImage={(url) => patchAboutPage(page.id, 'imageUrl', url)}
                 onGoToPage={goToPage}
+                onMobileMediaTop={setMobileMediaTopPx}
               />
             ))}
           </div>
@@ -332,12 +341,46 @@ function EditorialPage({
   onTitle,
   onBody,
   onImage,
-  onGoToPage
+  onGoToPage,
+  onMobileMediaTop
 }) {
   const current = index === activePage;
   const behind = index < activePage;
   const ahead = index > activePage;
   const stackDepth = Math.abs(index - activePage);
+  const copyRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (!current || typeof onMobileMediaTop !== 'function') return undefined;
+    const copy = copyRef.current;
+    if (!copy) return undefined;
+    const stage = copy.closest('.bb-public-about-book-stage');
+    if (!stage) return undefined;
+
+    const measure = () => {
+      const stageBox = stage.getBoundingClientRect();
+      const copyBox = copy.getBoundingClientRect();
+      const nextTop = Math.max(
+        0,
+        Math.round(copyBox.bottom - stageBox.top + MOBILE_COPY_IMAGE_GAP_PX)
+      );
+      onMobileMediaTop((prev) => (prev === nextTop ? prev : nextTop));
+    };
+
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure);
+      return () => window.removeEventListener('resize', measure);
+    }
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(copy);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [current, onMobileMediaTop, page.title, page.body]);
 
   return (
     <article
@@ -363,7 +406,7 @@ function EditorialPage({
           />
         </div>
       </div>
-      <div className="bb-public-about-page-copy">
+      <div className="bb-public-about-page-copy" ref={copyRef}>
         <EditableText
           as="h2"
           className="bb-public-profile-heading bb-public-about-page-title"
