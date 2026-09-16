@@ -338,7 +338,6 @@ function EditorialPage({
   const behind = index < activePage;
   const ahead = index > activePage;
   const stackDepth = Math.abs(index - activePage);
-  const pageLabel = String(index + 1).padStart(2, '0');
 
   return (
     <article
@@ -351,51 +350,42 @@ function EditorialPage({
       }}
       aria-hidden={!current}
     >
-      <div className="bb-public-about-page-media">
-        <EditableImage
-          editMode={editMode}
-          src={page.imageUrl}
-          className="bb-public-about-page-image"
-          imgClassName="bb-public-about-page-img"
-          storageFolder="brand"
-          preset="aboutPage"
-          onChange={onImage}
-        />
-        {current && pageCount > 1 ? (
-          <nav className="bb-public-about-edges" aria-label="About pages">
-            <button
-              type="button"
-              className="bb-public-about-edge bb-public-about-edge--prev"
-              aria-label="Previous page"
-              disabled={activePage <= 0}
-              onClick={() => onGoToPage(activePage - 1)}
-            >
-              <ChevronLeft size={28} strokeWidth={1.7} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="bb-public-about-edge bb-public-about-edge--next"
-              aria-label="Next page"
-              disabled={activePage >= pageCount - 1}
-              onClick={() => onGoToPage(activePage + 1)}
-            >
-              <ChevronRight size={28} strokeWidth={1.7} aria-hidden="true" />
-            </button>
-          </nav>
-        ) : null}
+      <div className="bb-public-about-page-media-stage">
+        <div className="bb-public-about-page-media">
+          <EditableImage
+            editMode={editMode}
+            src={page.imageUrl}
+            className="bb-public-about-page-image"
+            imgClassName="bb-public-about-page-img"
+            storageFolder="brand"
+            preset="aboutPage"
+            onChange={onImage}
+          />
+          {current && pageCount > 1 ? (
+            <nav className="bb-public-about-edges" aria-label="About pages">
+              <button
+                type="button"
+                className="bb-public-about-edge bb-public-about-edge--prev"
+                aria-label="Previous page"
+                disabled={activePage <= 0}
+                onClick={() => onGoToPage(activePage - 1)}
+              >
+                <ChevronLeft size={28} strokeWidth={1.7} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className="bb-public-about-edge bb-public-about-edge--next"
+                aria-label="Next page"
+                disabled={activePage >= pageCount - 1}
+                onClick={() => onGoToPage(activePage + 1)}
+              >
+                <ChevronRight size={28} strokeWidth={1.7} aria-hidden="true" />
+              </button>
+            </nav>
+          ) : null}
+        </div>
       </div>
       <div className="bb-public-about-page-copy">
-        {pageCount > 1 ? (
-          <p className="bb-public-about-page-index" aria-hidden={!current}>
-            <span className="bb-public-about-page-index-current">{pageLabel}</span>
-            <span className="bb-public-about-page-index-sep" aria-hidden="true">
-              /
-            </span>
-            <span className="bb-public-about-page-index-total">
-              {String(pageCount).padStart(2, '0')}
-            </span>
-          </p>
-        ) : null}
         <EditableText
           as="h2"
           className="bb-public-profile-heading bb-public-about-page-title"
@@ -410,7 +400,7 @@ function EditorialPage({
         />
         <EditableText
           as="p"
-          className="bb-public-about-page-body"
+          className="bb-public-profile-section-body bb-public-about-page-body"
           editMode={editMode}
           multiline
           value={page.body}

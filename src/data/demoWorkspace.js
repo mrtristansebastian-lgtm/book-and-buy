@@ -8,7 +8,7 @@ import {
 } from '../utils/staffAvailability';
 
 /** Bump when demo website shape gains required public Home fields. */
-export const DEMO_WEBSITE_SCHEMA = 28;
+export const DEMO_WEBSITE_SCHEMA = 32;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 11;
@@ -71,7 +71,7 @@ export const DEMO_SERVICES = normalizeServiceList([
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'A full year of cooking like you mean it.\n\nYou’ll work through weeknight stir-fries, weekend Italian, Cape Malay feasts, French sauces, and roast Sundays until the muscle memory sticks. Priority booking, deeper technique, and the kind of confidence that makes dinner guests nervous (in a good way).',
+      'A full year of cooking like you mean it.\n\nYou’ll work through weeknight stir-fries, weekend Italian, Cape Malay feasts, French sauces, and roast Sundays until the muscle memory sticks. Priority booking, deeper technique, and the kind of confidence that makes dinner guests nervous in the best way.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
     staffIds: ['jordan-lee', 'maya-patel']
   },
@@ -114,7 +114,7 @@ export const DEMO_SERVICES = normalizeServiceList([
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'A year inside the bake.\n\nYou’ll live through country loaves, laminated mornings, pastry nights, and holiday sweets until shaping, proofing, and finishing feel like second nature. Priority seats, deeper feedback, and the quiet flex of bringing something that looks (and tastes) like it came from a bakery.',
+      'A year inside the bake.\n\nYou’ll live through country loaves, laminated mornings, pastry nights, and holiday sweets until shaping, proofing, and finishing feel like second nature. Priority seats, deeper feedback, and the quiet flex of bringing something that looks and tastes like it came from a bakery.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
     staffIds: ['thando-mokoena', 'sofia-martins']
   }
@@ -1080,7 +1080,7 @@ export function createDemoWorkspace() {
       aboutTitle: 'About us',
       aboutEyebrow: 'About',
       aboutBody:
-        'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you, then send you home with skills (and something delicious).',
+        'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you, then send you home with skills and something delicious.',
       aboutImageUrl: '/example/flour-and-flame/about/ff-about-team.jpg',
       visionTitle: 'Our vision',
       visionBody:
@@ -1094,20 +1094,23 @@ export function createDemoWorkspace() {
         {
           id: 'about',
           title: 'About us',
-          body: 'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you, then send you home with skills (and something delicious).',
-          imageUrl: '/example/flour-and-flame/about/ff-about-team.jpg'
+          body: 'Flame & Flour is a Cape Town studio for hands-on classes, private lessons, and kitchen goods. We cook with you, then send you home with skills and something delicious.',
+          imageUrl: '/example/flour-and-flame/about/ff-about-team.jpg',
+          icon: 'info'
         },
         {
           id: 'mission',
           title: 'Our mission',
           body: 'Teach real kitchen skills in small groups, share honest recipes, and stock the tools that make practice feel possible after class.',
-          imageUrl: '/example/flour-and-flame/about/ff-about-mission.jpg'
+          imageUrl: '/example/flour-and-flame/about/ff-about-mission.jpg',
+          icon: 'target'
         },
         {
           id: 'vision',
           title: 'Our vision',
           body: 'A city where more people cook with confidence, starting in a warm Woodstock kitchen, then carrying that craft into their own homes.',
-          imageUrl: '/example/flour-and-flame/about/ff-about-vision.jpg'
+          imageUrl: '/example/flour-and-flame/about/ff-about-vision.jpg',
+          icon: 'eye'
         }
       ],
       reasonsTitle: 'What we offer',
@@ -1135,9 +1138,10 @@ export function createDemoWorkspace() {
           body: 'Bread boxes, pasta kits, and notes so the craft continues at home.'
         }
       ],
-      venueTitle: 'Gallery',
-      venueEyebrow: 'Gallery',
+      venueTitle: 'Photos',
+      venueEyebrow: 'Photos',
       venueBody: 'A look inside the Woodstock studio, from the ovens and benches to the rooms where classes land.',
+      venueIcon: 'camera',
       venueImages: [
         {
           id: 'v1',
@@ -1164,11 +1168,13 @@ export function createDemoWorkspace() {
       mapTitle: 'Visit',
       mapEyebrow: 'Find us',
       mapBody: 'Find us in Woodstock. Street parking nearby, and the studio door is marked with the copper flame.',
+      mapIcon: 'location',
       mapEmbedUrl:
         'https://maps.google.com/maps?q=Woodstock%2C%20Cape%20Town&t=&z=14&ie=UTF8&iwloc=&output=embed',
       mapLinkUrl: 'https://maps.google.com/?q=Woodstock,+Cape+Town',
       reviewsTitle: 'Reviews',
       reviewsEyebrow: 'Reviews',
+      reviewsIcon: 'star',
       reviewsBody: 'Honest notes from class and private sessions after a morning in the studio.',
       reviews: [
         {
@@ -1197,6 +1203,7 @@ export function createDemoWorkspace() {
       bookStripBody: 'See open times on the Book page and send a request in minutes.',
       bookStripCta: 'See availability',
       bookFaqTitle: 'FAQ',
+      bookFaqIcon: 'question',
       bookFaqBody: 'Quick answers before you book, covering hours, what to bring, and how requests work.',
       bookFaq: [
         {
@@ -1709,16 +1716,19 @@ export function hydrateDemoWorkspace(stored) {
         venueTitle: fresh.website.venueTitle,
         venueEyebrow: fresh.website.venueEyebrow,
         venueBody: fresh.website.venueBody,
+        venueIcon: fresh.website.venueIcon,
         venueImages: fresh.website.venueImages,
         address: fresh.website.address,
         mapTitle: fresh.website.mapTitle,
         mapEyebrow: fresh.website.mapEyebrow,
         mapBody: fresh.website.mapBody,
+        mapIcon: fresh.website.mapIcon,
         mapEmbedUrl: fresh.website.mapEmbedUrl,
         mapLinkUrl: fresh.website.mapLinkUrl,
         reviewsTitle: fresh.website.reviewsTitle,
         reviewsEyebrow: fresh.website.reviewsEyebrow,
         reviewsBody: fresh.website.reviewsBody,
+        reviewsIcon: fresh.website.reviewsIcon,
         reviews: fresh.website.reviews,
         offerTitle: fresh.website.offerTitle,
         offerBookCta: fresh.website.offerBookCta,
@@ -1728,6 +1738,7 @@ export function hydrateDemoWorkspace(stored) {
         bookStripCta: fresh.website.bookStripCta,
         bookFaqTitle: fresh.website.bookFaqTitle,
         bookFaqBody: fresh.website.bookFaqBody,
+        bookFaqIcon: fresh.website.bookFaqIcon,
         bookFaq: fresh.website.bookFaq,
         sections: {
           ...fresh.website.sections,

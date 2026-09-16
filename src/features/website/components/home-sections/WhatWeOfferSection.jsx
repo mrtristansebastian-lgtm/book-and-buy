@@ -170,7 +170,7 @@ export function WhatWeOfferSection({
             />
             <EditableText
               as="p"
-              className="bb-public-about-journey-body"
+              className="bb-public-profile-section-body bb-public-about-journey-body"
               editMode={editMode}
               multiline
               value={

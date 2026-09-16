@@ -135,7 +135,7 @@ export function VenueSection({
   return (
     <EditSection
       editMode={editMode}
-      title="Gallery"
+      title="Photos"
       sectionId="gallery"
       hidden={hidden}
       coach="Add photos of your space and work."
@@ -148,8 +148,8 @@ export function VenueSection({
               as="h2"
               className="bb-public-profile-heading bb-public-venue-title"
               editMode={editMode}
-              value={website.venueTitle || 'Gallery'}
-              placeholder="Gallery"
+              value={website.venueTitle || 'Photos'}
+              placeholder="Photos"
               website={website}
               patchWebsite={patchWebsite}
               colorTokenId="gallery.title"
@@ -163,7 +163,7 @@ export function VenueSection({
                 editMode={editMode}
                 multiline
                 value={website.venueBody || ''}
-                placeholder="Short gallery intro"
+                placeholder="Short photos intro"
                 website={website}
                 patchWebsite={patchWebsite}
                 colorTokenId="gallery.body"
@@ -173,7 +173,7 @@ export function VenueSection({
           </header>
 
           {flowCount === 0 && editMode ? (
-            <p className="bb-edit-section-coach m-0">Add photos to your gallery.</p>
+            <p className="bb-edit-section-coach m-0">Add photos to this section.</p>
           ) : null}
 
           {flowCount > 0 ? (
@@ -182,7 +182,7 @@ export function VenueSection({
                 ref={stageRef}
                 className="bb-public-coverflow-stage"
                 role="list"
-                aria-label="Gallery photos"
+                aria-label="Photos"
                 aria-roledescription="carousel"
                 tabIndex={0}
                 onKeyDown={(event) => {
@@ -276,7 +276,7 @@ export function VenueSection({
                   <div
                     className="bb-public-coverflow-dots"
                     role="tablist"
-                    aria-label="Gallery photos"
+                    aria-label="Photos"
                   >
                     {flowImages.map((image, index) => (
                       <button
@@ -318,7 +318,7 @@ export function VenueSection({
           className="bb-public-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label="Gallery photo"
+          aria-label="Photo"
           onClick={() => setViewerIndex(null)}
         >
           <button

@@ -913,14 +913,15 @@
 .bb-public-profile-section-body {
   margin: 0;
   max-width: 36rem;
-  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.92rem;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
   font-weight: 500;
-  line-height: 1.55;
-  letter-spacing: -0.01em;
-  color: #475467;
+  line-height: 1.65;
+  letter-spacing: -0.015em;
+  color: #101828;
   text-align: center;
-  text-wrap: balance;
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
 }
 
 .bb-public-profile .bb-public-profile-section-title,
@@ -1024,35 +1025,52 @@
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head {
-  width: 100%;
-  justify-self: stretch;
+  width: min(28rem, calc(100% - (2 * var(--bb-public-gutter, 1.25rem))));
+  max-width: 28rem;
+  justify-self: start;
   padding-inline: var(--bb-public-gutter, 1.25rem);
   margin-bottom: 1.75rem;
-  justify-items: start;
-  text-align: left;
+  justify-items: center;
+  text-align: center;
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading {
-  font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-size: clamp(1.85rem, 3.3vw, 2.75rem);
   font-weight: 780;
   letter-spacing: -0.045em;
   line-height: 1.02;
-  text-align: left;
-  justify-items: start;
+  text-align: center;
+  justify-items: center;
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading::after {
-  width: min(5.5rem, 42%);
-  margin-top: 0.55rem;
+  width: min(5rem, 40%);
+  margin-top: 0.48rem;
+  margin-inline: auto;
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body,
+.bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head > .bb-editable-text-shell {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  justify-self: stretch;
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body {
-  max-width: 24rem;
-  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
   line-height: 1.65;
   letter-spacing: -0.015em;
-  text-align: left;
+  text-align: center;
   text-wrap: pretty;
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-public-venue-shell {
+  justify-items: center;
+}
+
+.bb-public-profile .bb-public-gallery-block .bb-public-venue-shell > .bb-public-profile-section-head {
+  justify-self: start;
 }
 
 .bb-public-profile .bb-public-venue-shell {
@@ -1624,42 +1642,38 @@
 
 .bb-public-about-journey-head {
   display: grid;
-  align-content: start;
-  justify-items: start;
+  align-content: center;
+  justify-items: center;
   gap: 0.95rem;
   width: 100%;
   margin: 0;
-  text-align: left;
+  text-align: center;
 }
 
 .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
   margin: 0;
   max-width: none;
-  font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-size: clamp(1.85rem, 3.3vw, 2.75rem);
   font-weight: 780;
   letter-spacing: -0.045em;
   line-height: 1.02;
   color: #101828;
-  text-align: left;
-  justify-items: start;
+  text-align: center;
+  justify-items: center;
   text-wrap: balance;
 }
 
 .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading::after {
-  width: min(5.5rem, 42%);
-  margin-top: 0.55rem;
+  width: min(5rem, 40%);
+  margin-top: 0.48rem;
+  margin-inline: auto;
 }
 
 .bb-public-about-journey-body {
-  margin: 0;
-  max-width: 24rem;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
-  font-weight: 500;
-  line-height: 1.65;
-  letter-spacing: -0.015em;
-  color: #475467;
-  text-align: left;
+  max-width: min(28rem, 100%);
+  margin-inline: auto;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  text-align: center;
   text-wrap: pretty;
 }
 
@@ -1919,12 +1933,15 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     grid-template-columns: minmax(16rem, 0.88fr) minmax(0, 1.12fr);
     gap: clamp(2.5rem, 6vw, 5.5rem);
     padding: clamp(3.5rem, 5vw, 4.5rem) clamp(2rem, 6vw, 5rem);
+    align-items: stretch;
   }
 
   .bb-public-about-journey-head {
     position: static;
-    align-self: start;
-    justify-self: start;
+    align-self: center;
+    justify-self: stretch;
+    height: auto;
+    min-height: 0;
   }
 
   .bb-public-about-pillar {
@@ -1976,7 +1993,6 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   box-shadow: none;
   cursor: grab;
   touch-action: pan-y;
-  perspective: 1400px;
 }
 
 .bb-public-about-book-stage:active {
@@ -1989,10 +2005,12 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   z-index: var(--bb-about-page-z, 1);
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(14rem, 0.9fr);
+  grid-template-rows: 100%;
+  align-items: stretch;
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 1.25rem var(--bb-public-gutter, 1.25rem) 2rem;
+  padding: 1.35rem var(--bb-public-gutter, 1.25rem);
   box-sizing: border-box;
   gap: clamp(1.5rem, 3.5vw, 3rem);
   background: transparent;
@@ -2005,10 +2023,22 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   z-index: 3;
 }
 
-.bb-public-about-page-media {
+.bb-public-about-page-media-stage {
   position: relative;
+  grid-column: 1;
+  grid-row: 1;
   justify-self: stretch;
   align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+}
+
+.bb-public-about-page-media {
+  position: relative;
   width: 100%;
   max-width: none;
   height: 100%;
@@ -2102,17 +2132,34 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-about-page-copy {
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
+  align-content: center;
+  justify-items: center;
+  align-self: stretch;
+  justify-self: stretch;
+  gap: 0.85rem;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0 clamp(1rem, 3vw, 2.25rem);
+  box-sizing: border-box;
+  text-align: center;
   opacity: 0;
-  transform: translate3d(0, 0.45rem, 0);
-  transition:
-    opacity 700ms cubic-bezier(0.33, 0.05, 0.2, 1),
-    transform 700ms cubic-bezier(0.33, 0.05, 0.2, 1);
-  will-change: opacity, transform;
+  transition: opacity 700ms cubic-bezier(0.33, 0.05, 0.2, 1);
+  transform: none;
+  transform-style: flat;
+  perspective: none;
+  isolation: isolate;
 }
 
 .bb-public-about-page.is-current .bb-public-about-page-media {
   opacity: 1;
-  transform: translate3d(0, -3.5%, 0) scale(1) rotateX(0deg) rotateZ(0deg);
+  transform: translate3d(0, 0, 0) scale(1) rotateX(0deg) rotateZ(0deg);
   box-shadow:
     0 4px 10px rgba(15, 23, 42, 0.06),
     0 22px 48px rgba(15, 23, 42, 0.18);
@@ -2120,8 +2167,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-about-page.is-current .bb-public-about-page-copy {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
-  transition-delay: 220ms, 220ms;
+  transition-delay: 220ms;
 }
 
 /* Deeper cards in the stack sit further down behind the top photo */
@@ -2131,8 +2177,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-about-page:not(.is-current) .bb-public-about-page-copy {
   opacity: 0;
-  transform: translate3d(0, 0.25rem, 0);
-  transition-delay: 0ms, 0ms;
+  transition-delay: 0ms;
   pointer-events: none;
 }
 
@@ -2172,72 +2217,31 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   object-position: center;
 }
 
-.bb-public-about-page-copy {
-  display: grid;
-  align-content: center;
-  justify-items: start;
-  align-self: center;
-  gap: 0.95rem;
-  min-width: 0;
-  max-width: 26rem;
-  padding: clamp(1rem, 2.5vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 2.5vw, 2rem)
-    clamp(1.25rem, 3.5vw, 2.75rem);
-  box-sizing: border-box;
-  text-align: left;
-}
-
-.bb-public-about-page-index {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.28rem;
-  margin: 0 0 0.15rem;
-  padding: 0;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: #98a2b3;
-}
-
-.bb-public-about-page-index-current {
-  color: #344054;
-}
-
-.bb-public-about-page-index-sep {
-  opacity: 0.55;
-}
-
 .bb-public-about-page-title {
-  justify-items: start;
-  text-align: left;
+  justify-items: center;
+  text-align: center;
 }
 
 .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
-  font-size: clamp(2.15rem, 4vw, 3.35rem);
+  font-size: clamp(1.9rem, 3.4vw, 2.85rem);
   font-weight: 780;
   letter-spacing: -0.045em;
   line-height: 1.02;
-  text-align: left;
-  justify-items: start;
+  text-align: center;
+  justify-items: center;
 }
 
 .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading::after {
-  width: min(5.5rem, 42%);
-  margin-top: 0.55rem;
+  width: min(5rem, 40%);
+  margin-top: 0.48rem;
+  margin-inline: auto;
 }
 
 .bb-public-about-page-body {
-  margin: 0;
-  max-width: 24rem;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
-  font-weight: 500;
-  line-height: 1.65;
-  letter-spacing: -0.015em;
-  color: #475467;
+  max-width: min(34rem, 100%);
+  text-align: center;
   text-wrap: pretty;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
 }
 
 .bb-public-section-action,
@@ -2339,7 +2343,8 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-about-journey.is-editing .bb-public-about-page-copy {
-  justify-items: start;
+  align-self: stretch;
+  height: 100%;
 }
 
 /* Reveal is enabled only after JavaScript has attached the observer. */
@@ -2384,25 +2389,41 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
   .bb-public-about-page {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(12rem, 52%) minmax(0, 1fr);
+    grid-template-rows: auto minmax(12rem, 1fr);
     padding: 1rem var(--bb-public-gutter, 1.25rem) 1.5rem;
     gap: 1rem;
+  }
+
+  .bb-public-about-page-copy {
+    order: 1;
+    grid-column: 1;
+    grid-row: auto;
+    align-self: stretch;
+    align-content: start;
+    justify-items: center;
+    height: auto;
+    max-height: none;
+    max-width: none;
+    padding: 0.15rem 0 0.35rem;
+    text-align: center;
+  }
+
+  .bb-public-about-page-media-stage {
+    order: 2;
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    height: 100%;
+    min-height: 12rem;
+    justify-self: stretch;
+    align-self: stretch;
   }
 
   .bb-public-about-page-media {
     width: 100%;
     height: 100%;
+    min-height: 12rem;
     border-radius: 0.15rem;
-    justify-self: stretch;
-    align-self: stretch;
-  }
-
-  .bb-public-about-page-copy {
-    justify-items: start;
-    align-content: start;
-    max-width: none;
-    padding: 0.35rem 0 1.4rem;
-    text-align: left;
   }
 
   .bb-public-about-edge {
@@ -2416,21 +2437,88 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   }
 
   .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
-    font-size: clamp(1.85rem, 8.5vw, 2.45rem) !important;
-    text-align: left !important;
-    justify-items: start !important;
+    font-size: clamp(1.55rem, 2.85vw, 2.05rem) !important;
+    font-weight: 820 !important;
+    letter-spacing: -0.038em !important;
+    line-height: 1.08 !important;
+    text-align: center !important;
+    justify-items: center !important;
   }
 
   .bb-public-about-page-title {
-    justify-items: start;
-    text-align: left;
+    justify-items: center;
+    text-align: center;
   }
 
   .bb-public-about-page-body {
-    text-align: left;
-    max-width: 28rem;
-    font-size: clamp(1.02rem, 3.8vw, 1.18rem);
-    line-height: 1.6;
+    text-align: center;
+    max-width: min(38rem, 100%);
+    margin-inline: auto;
+    font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
+  }
+
+  /* Centre all Home section headings + intros on mobile */
+  .bb-public-profile .bb-public-profile-section-head,
+  .bb-public-profile .bb-public-about-journey-head,
+  .bb-public-profile .bb-public-visit-copy {
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  .bb-public-profile .bb-public-gallery-block .bb-public-venue-shell > .bb-public-profile-section-head {
+    justify-self: center !important;
+    width: min(28rem, 100%);
+    max-width: 100%;
+    margin-inline: auto;
+    padding-inline: var(--bb-public-gutter, 1.25rem);
+  }
+
+  /* Match Photos / About / What we offer type to Reviews + FAQ on mobile */
+  .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading,
+  .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading,
+  .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
+    font-size: clamp(1.55rem, 2.85vw, 2.05rem) !important;
+    font-weight: 820 !important;
+    letter-spacing: -0.038em !important;
+    line-height: 1.08 !important;
+    text-align: center !important;
+    justify-items: center !important;
+  }
+
+  .bb-public-profile .bb-public-profile-heading,
+  .bb-public-profile .bb-public-venue-title,
+  .bb-public-profile .bb-public-reviews-title,
+  .bb-public-profile .bb-public-visit-title,
+  .bb-public-profile .bb-public-faq-title,
+  .bb-public-profile .bb-public-about-journey-title,
+  .bb-public-profile .bb-public-about-page-title {
+    text-align: center !important;
+    justify-items: center !important;
+  }
+
+  .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body,
+  .bb-public-profile .bb-public-about-journey-body,
+  .bb-public-profile .bb-public-about-page-body {
+    font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
+    text-align: center !important;
+    margin-inline: auto !important;
+    max-width: min(38rem, 100%) !important;
+  }
+
+  .bb-public-profile .bb-public-profile-section-body,
+  .bb-public-profile .bb-public-visit-body {
+    text-align: center !important;
+    margin-inline: auto !important;
+  }
+
+  .bb-public-profile .bb-public-profile-heading::after,
+  .bb-public-profile .bb-public-venue-title::after,
+  .bb-public-profile .bb-public-reviews-title::after,
+  .bb-public-profile .bb-public-visit-title::after,
+  .bb-public-profile .bb-public-faq-title::after,
+  .bb-public-profile .bb-public-about-journey-title::after,
+  .bb-public-profile .bb-public-about-page-title::after {
+    margin-inline: auto;
   }
 }
 
@@ -2510,9 +2598,6 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 .bb-public-profile .bb-public-map-block .bb-public-profile-section-body,
 .bb-public-profile .bb-public-profile-faq-block .bb-public-profile-section-body {
   max-width: 38rem;
-  font-size: clamp(1rem, 1.45vw, 1.12rem);
-  line-height: 1.6;
-  letter-spacing: -0.012em;
 }
 
 .bb-public-profile .bb-public-reviews {
@@ -4002,24 +4087,96 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-fa
   line-height: 1.08 !important;
 }
 
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-block .bb-public-profile-section-body,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-map-block .bb-public-profile-section-body,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-faq-block .bb-public-profile-section-body {
-  font-size: clamp(1rem, 1.45vw, 1.12rem) !important;
-  line-height: 1.6 !important;
-  max-width: 38rem !important;
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-section-body:not(.bb-public-about-page-body):not(.bb-public-about-journey-body),
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-body {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif !important;
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.65 !important;
+  letter-spacing: -0.015em !important;
+  color: #101828 !important;
+  -webkit-font-smoothing: antialiased !important;
 }
 
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading,
-html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
-  font-size: clamp(2.15rem, 4vw, 3.35rem) !important;
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-body {
+  font-size: clamp(1rem, 1.5vw, 1.2rem) !important;
+  text-align: center !important;
+  max-width: min(28rem, 100%) !important;
+  margin-inline: auto !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
+  font-size: clamp(1.9rem, 3.4vw, 2.85rem) !important;
   font-weight: 780 !important;
   letter-spacing: -0.045em !important;
   line-height: 1.02 !important;
-  text-align: left !important;
-  justify-items: start !important;
+  text-align: center !important;
+  justify-items: center !important;
   max-width: none !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head {
+  justify-self: start !important;
+  justify-items: center !important;
+  text-align: center !important;
+  width: min(28rem, calc(100% - (2 * var(--bb-public-gutter, 1.25rem)))) !important;
+  max-width: 28rem !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading {
+  font-size: clamp(1.85rem, 3.3vw, 2.75rem) !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.045em !important;
+  line-height: 1.02 !important;
+  text-align: center !important;
+  justify-items: center !important;
+  max-width: none !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body,
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head > .bb-editable-text-shell {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  text-align: center !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body {
+  font-size: clamp(1rem, 1.5vw, 1.2rem) !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
+  font-size: clamp(1.85rem, 3.3vw, 2.75rem) !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.045em !important;
+  line-height: 1.02 !important;
+  text-align: center !important;
+  justify-items: center !important;
+  max-width: none !important;
+}
+
+@media (min-width: 720px) {
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-copy {
+    display: grid !important;
+    align-content: center !important;
+    justify-items: center !important;
+    align-self: stretch !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    text-align: center !important;
+  }
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-body {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif !important;
+  font-size: clamp(1rem, 1.5vw, 1.2rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.65 !important;
+  letter-spacing: -0.015em !important;
+  color: #101828 !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-align: center !important;
+  max-width: min(34rem, 100%) !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-title,
@@ -4044,10 +4201,46 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--edi
     text-align: center !important;
   }
 
-  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
-    font-size: clamp(1.85rem, 8.5vw, 2.45rem) !important;
-    text-align: left !important;
-    justify-items: start !important;
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
+    font-size: clamp(1.55rem, 2.85vw, 2.05rem) !important;
+    font-weight: 820 !important;
+    letter-spacing: -0.038em !important;
+    line-height: 1.08 !important;
+    text-align: center !important;
+    justify-items: center !important;
+  }
+
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-section-head,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-head {
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-venue-shell > .bb-public-profile-section-head {
+    justify-self: center !important;
+    margin-inline: auto !important;
+  }
+
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-heading,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-venue-title,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-reviews-title,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-title,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-faq-title,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-title,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title {
+    text-align: center !important;
+    justify-items: center !important;
+  }
+
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-body,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-body,
+  html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-section-body {
+    font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
+    text-align: center !important;
+    margin-inline: auto !important;
   }
 }
 

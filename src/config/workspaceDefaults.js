@@ -81,19 +81,22 @@ export const createDefaultSettings = () => ({
         id: 'about',
         title: 'About us',
         body: 'Tell clients who you are and what makes your business special.',
-        imageUrl: ''
+        imageUrl: '',
+        icon: 'info'
       },
       {
         id: 'mission',
         title: 'Our mission',
         body: 'Explain how you serve people every day.',
-        imageUrl: ''
+        imageUrl: '',
+        icon: 'target'
       },
       {
         id: 'vision',
         title: 'Our vision',
         body: 'Share where you are headed and what you want to build.',
-        imageUrl: ''
+        imageUrl: '',
+        icon: 'eye'
       }
     ],
     styleTokens: {},
@@ -121,13 +124,15 @@ export const createDefaultSettings = () => ({
         body: 'Take home what you love.'
       }
     ],
-    venueTitle: 'Gallery',
-    venueEyebrow: 'Gallery',
+    venueTitle: 'Photos',
+    venueEyebrow: 'Photos',
     venueBody: '',
+    venueIcon: 'camera',
     venueImages: [],
     mapTitle: 'Visit',
     mapEyebrow: 'Find us',
     mapBody: '',
+    mapIcon: 'location',
     address: '',
     mapEmbedUrl: '',
     mapLinkUrl: '',
@@ -137,6 +142,7 @@ export const createDefaultSettings = () => ({
     reviewsTitle: 'Reviews',
     reviewsEyebrow: 'Reviews',
     reviewsBody: '',
+    reviewsIcon: 'star',
     reviews: [],
     offerTitle: 'View what we offer',
     offerBookCta: 'Bookings',
@@ -147,6 +153,7 @@ export const createDefaultSettings = () => ({
     bookFaqTitle: 'FAQ',
     bookFaqEyebrow: 'FAQ',
     bookFaqBody: '',
+    bookFaqIcon: 'question',
     bookFaq: [
       { id: 'f1', q: 'How do requests work?', a: 'Send a request and we confirm by email.' },
       { id: 'f2', q: 'Can I reschedule?', a: 'Yes. Message us from Support or reply to your confirmation.' }
