@@ -15,7 +15,7 @@ function tabKind(tab) {
 }
 
 /**
- * Studio library — mirrors the live public Social layouts with Edit on each item.
+ * Studio library — live Social layouts with ⋯ manage menus on each item.
  * Photo posts open into an Instagram-style scrollable feed (not a lightbox).
  */
 export function SocialStudioLibrary({
@@ -23,6 +23,8 @@ export function SocialStudioLibrary({
   onTabChange,
   posts,
   onEditPost,
+  onRemoveSocialPost,
+  onUpdateSocialPost,
   onCreate
 }) {
   const { workspace } = useWorkspace();
@@ -67,6 +69,13 @@ export function SocialStudioLibrary({
     onTabChange?.(next);
   };
 
+  const manageProps = {
+    onEditPost,
+    onRemoveSocialPost,
+    onUpdateSocialPost,
+    showPublishToggle: Boolean(onUpdateSocialPost)
+  };
+
   return (
     <section className={`bb-social-library bb-social-library--live${items.length ? '' : ' is-empty'}`}>
       {!feedOpen ? (
@@ -84,6 +93,7 @@ export function SocialStudioLibrary({
             logoUrl={website.logoUrl || ''}
             slug={workspace.slug || ''}
             onBack={closeFeed}
+            {...manageProps}
           />
         ) : !items.length ? (
           <div className="bb-social-library-empty">
@@ -102,7 +112,6 @@ export function SocialStudioLibrary({
           <SocialPostsGrid
             posts={items}
             onOpenPost={setFeedId}
-            onEditPost={onEditPost}
             emptyLabel={emptyCopy}
           />
         ) : kind === 'video' ? (
@@ -112,7 +121,7 @@ export function SocialStudioLibrary({
             showOwnerStats
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
-            onEditPost={onEditPost}
+            {...manageProps}
           />
         ) : kind === 'vertical' ? (
           <SocialVideosPanel
@@ -121,7 +130,7 @@ export function SocialStudioLibrary({
             showOwnerStats
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
-            onEditPost={onEditPost}
+            {...manageProps}
           />
         ) : (
           <SocialTextTimeline
@@ -129,7 +138,7 @@ export function SocialStudioLibrary({
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
             slug={workspace.slug || ''}
-            onEditPost={onEditPost}
+            {...manageProps}
           />
         )}
       </div>

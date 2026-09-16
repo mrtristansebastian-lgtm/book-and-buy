@@ -1221,12 +1221,17 @@
 .bb-yt-watch-bar {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   width: 100%;
   max-width: min(100%, 72rem);
   margin-inline: auto;
   padding: 0.45rem 0;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   background: #fff;
+}
+
+.bb-yt-watch-bar .bb-social-post-menu {
+  margin-left: auto;
 }
 
 .bb-yt-watch-back {
@@ -1658,6 +1663,10 @@
   padding: 0 0.15rem;
 }
 
+.bb-vertical-watch-bar .bb-social-post-menu {
+  margin-left: auto;
+}
+
 .bb-vertical-watch-back {
   display: inline-flex;
   align-items: center;
@@ -2057,12 +2066,27 @@ html body .native-ui .bb-public-surface .bb-vertical-watch .bb-vertical-watch-st
 }
 
 .bb-social-feed-post-head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
   padding: 0.9rem 1rem 0.8rem;
+}
+
+.bb-social-feed-author {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.bb-social-feed-post-head .bb-social-draft-badge {
+  flex: 0 0 auto;
+}
+
+.bb-social-feed-post-head .bb-social-post-menu {
+  flex: 0 0 auto;
+  margin-left: 0.15rem;
 }
 
 .bb-social-feed-avatar {
@@ -2085,12 +2109,6 @@ html body .native-ui .bb-public-surface .bb-vertical-watch .bb-vertical-watch-st
   background:
     radial-gradient(120% 100% at 30% 20%, rgba(18, 240, 207, 0.28), transparent 55%),
     #eef2f6;
-}
-
-.bb-social-feed-author {
-  min-width: 0;
-  display: grid;
-  gap: 0.1rem;
 }
 
 .bb-social-feed-brand {
@@ -3365,7 +3383,7 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
 }
 
 .bb-device-preview--phone {
-  max-width: 300px;
+  max-width: 390px;
   margin-inline: auto;
 }
 

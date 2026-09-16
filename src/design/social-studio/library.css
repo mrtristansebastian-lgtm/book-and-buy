@@ -62,8 +62,7 @@
 
 .bb-social-library-surface--live {
   overflow: visible;
-  padding-top: 0.35rem;
-  padding-bottom: 0.65rem;
+  padding: 0;
 }
 
 .bb-social-studio .bb-yt-watch,
@@ -429,7 +428,7 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
 
   .bb-social-ig-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.2rem;
+    gap: 2px;
   }
 
   .bb-social-feed {

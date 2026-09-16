@@ -2,18 +2,10 @@
 .bb-public-service-list,
 .bb-public-product-grid {
   display: grid;
-  gap: 0.52rem;
-  grid-template-columns: minmax(0, 1fr);
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   width: 100%;
   align-items: stretch;
-}
-
-@media (min-width: 640px) {
-  .bb-public-service-list,
-  .bb-public-product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.52rem;
-  }
 }
 
 @media (min-width: 900px) {
@@ -23,7 +15,7 @@
   }
 }
 
-@media (max-width: 639px) {
+@media (max-width: 899px) {
   .bb-public-buy-header {
     flex-direction: column;
     align-items: stretch;
@@ -32,34 +24,64 @@
 
   .bb-public-product-surface > .bb-public-product-media,
   .bb-public-product-surface > .bb-public-product-body {
-    margin-inline: 0.4rem;
+    margin-inline: 0.28rem;
   }
 
   .bb-public-product-surface > .bb-public-product-media {
-    margin-top: 0.4rem;
+    margin-top: 0.28rem;
+  }
+
+  .bb-public-product-price-row {
+    padding: 0.4rem 0.4rem 0.42rem;
+    gap: 0.1rem;
+    min-height: 2.15rem;
+  }
+
+  .bb-public-product-name {
+    font-size: 0.78rem;
+    font-weight: 650;
+    line-height: 1.2;
+  }
+
+  .bb-public-product-price {
+    font-size: 0.66rem;
   }
 
   .bb-public-product-grid .bb-public-product-body {
-    padding: 0.4rem 0.3rem;
+    padding: 0.32rem 0.2rem;
     align-content: center;
   }
 
   .bb-public-product-grid .bb-public-product-body h2 {
-    font-size: 0.95rem !important;
+    font-size: 0.78rem !important;
   }
 
   .bb-public-product-grid .bb-public-product-desc {
-    max-width: 28ch;
-    font-size: 0.62rem;
+    max-width: 22ch;
+    font-size: 0.56rem;
   }
 
   .bb-public-product-stats {
     min-height: 0;
   }
 
+  .bb-public-product-sticker {
+    padding: 0.22rem 0.34rem;
+    font-size: 0.48rem;
+  }
+
+  .bb-public-product-actions {
+    min-height: 2.15rem;
+  }
+
+  .bb-public-product-cart-btn,
+  .bb-public-product-more-btn {
+    padding: 0.42rem 0.35rem;
+    font-size: 0.64rem;
+  }
+
   .bb-public-product-cart-btn {
-    padding: 0.55rem 0.6rem;
-    font-size: 0.74rem;
+    gap: 0.18rem;
   }
 }
 

@@ -7,6 +7,7 @@ import {
   getSocialPostKind
 } from '../utils/socialPostType';
 import { BbVideoPlayer } from './BbVideoPlayer';
+import { SocialPostManageMenu } from './SocialPostManageMenu';
 
 function isProbablyImageUrl(url) {
   const value = String(url || '').toLowerCase();
@@ -281,7 +282,10 @@ export function SocialPostFeed({
   logoUrl = '',
   editMode = false,
   onBack,
-  onUpdateSocialPost
+  onUpdateSocialPost,
+  onEditPost,
+  onRemoveSocialPost,
+  showPublishToggle = true
 }) {
   const handle = String(slug || '')
     .trim()
@@ -355,6 +359,16 @@ export function SocialPostFeed({
                 </div>
                 {editMode && post.published === false ? (
                   <span className="bb-edit-section-badge bb-social-draft-badge">Draft</span>
+                ) : null}
+                {onEditPost || onRemoveSocialPost || onUpdateSocialPost ? (
+                  <SocialPostManageMenu
+                    post={post}
+                    onEditPost={onEditPost}
+                    onRemoveSocialPost={onRemoveSocialPost}
+                    onUpdateSocialPost={onUpdateSocialPost}
+                    showPublishToggle={showPublishToggle && Boolean(onUpdateSocialPost)}
+                    className="bb-social-post-menu--feed"
+                  />
                 ) : null}
               </header>
 

@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { Clapperboard, ImagePlus, PenLine, Plus, RectangleVertical, X } from 'lucide-react';
+import { Clapperboard, ExternalLink, ImagePlus, PenLine, Plus, Radio, RectangleVertical, X } from 'lucide-react';
 import { EditableImage } from '../../website/components/editable';
 import { MAX_MEDIA } from '../utils/mediaIntake';
 import {
@@ -440,7 +440,8 @@ export function SocialStudioCompose({
   location = '',
   onUpdateWebsite,
   onUpdateProfile,
-  onOpenCreate
+  onOpenCreate,
+  onOpenLive
 }) {
   const [editOpen, setEditOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -535,6 +536,17 @@ export function SocialStudioCompose({
               >
                 Edit
               </button>
+              {onOpenLive ? (
+                <button
+                  type="button"
+                  className="bb-ghost-btn bb-public-profile-action bb-public-profile-action--compact bb-social-studio-live-btn"
+                  onClick={onOpenLive}
+                >
+                  <Radio size={14} strokeWidth={2.2} />
+                  Open E-Platform
+                  <ExternalLink size={13} strokeWidth={2.2} />
+                </button>
+              ) : null}
               <button
                 type="button"
                 className="bb-primary-btn bb-public-profile-action bb-public-profile-action--compact bb-social-studio-profile-post"

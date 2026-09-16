@@ -3,6 +3,7 @@ import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp } from '../utils/socialPostType';
 import { BbVideoPlayer } from './BbVideoPlayer';
+import { SocialPostManageMenu } from './SocialPostManageMenu';
 
 function channelInitial(name = '') {
   const part = String(name || '').trim().charAt(0);
@@ -15,9 +16,12 @@ export function VerticalWatchPage({
   brandName = '',
   logoUrl = '',
   editMode = false,
+  showPublishToggle = true,
   onClose,
   onChangeActive,
-  onUpdateSocialPost
+  onUpdateSocialPost,
+  onEditPost,
+  onRemoveSocialPost
 }) {
   const activeIndex = Math.max(
     0,
@@ -108,6 +112,16 @@ export function VerticalWatchPage({
         <p className="bb-vertical-watch-count">
           {activeIndex + 1} / {count}
         </p>
+        {onEditPost || onRemoveSocialPost || onUpdateSocialPost ? (
+          <SocialPostManageMenu
+            post={post}
+            onEditPost={onEditPost}
+            onRemoveSocialPost={onRemoveSocialPost}
+            onUpdateSocialPost={onUpdateSocialPost}
+            showPublishToggle={showPublishToggle && Boolean(onUpdateSocialPost)}
+            className="bb-social-post-menu--watch"
+          />
+        ) : null}
       </header>
 
       <div className="bb-vertical-watch-body">

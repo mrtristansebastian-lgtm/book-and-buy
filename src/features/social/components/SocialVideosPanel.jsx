@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp } from '../utils/socialPostType';
 import { aspectStyle } from '../utils/videoMedia';
 import { BbVideoPlayer } from './BbVideoPlayer';
+import { SocialPostManageMenu } from './SocialPostManageMenu';
 import { VerticalWatchPage } from './VerticalWatchPage';
 
 function channelInitial(name = '') {
@@ -44,10 +45,13 @@ function VideoWatchPage({
   logoUrl = '',
   editMode = false,
   showOwnerStats = false,
+  showPublishToggle = true,
   fallbackAspect = 16 / 9,
   onClose,
   onChangeActive,
-  onUpdateSocialPost
+  onUpdateSocialPost,
+  onEditPost,
+  onRemoveSocialPost
 }) {
   const related = posts.filter((item) => item.id !== post?.id);
 
@@ -70,6 +74,16 @@ function VideoWatchPage({
           <ArrowLeft size={18} strokeWidth={2.2} />
           <span>Back</span>
         </button>
+        {onEditPost || onRemoveSocialPost || onUpdateSocialPost ? (
+          <SocialPostManageMenu
+            post={post}
+            onEditPost={onEditPost}
+            onRemoveSocialPost={onRemoveSocialPost}
+            onUpdateSocialPost={onUpdateSocialPost}
+            showPublishToggle={showPublishToggle && Boolean(onUpdateSocialPost)}
+            className="bb-social-post-menu--watch"
+          />
+        ) : null}
       </header>
 
       <div className="bb-yt-watch-layout">
@@ -261,6 +275,9 @@ export function SocialVideosPanel({
           onClose={closeWatch}
           onChangeActive={openWatch}
           onUpdateSocialPost={onUpdateSocialPost}
+          onEditPost={onEditPost}
+          onRemoveSocialPost={onRemoveSocialPost}
+          showPublishToggle={showPublishToggle}
         />
       );
     }
@@ -272,10 +289,13 @@ export function SocialVideosPanel({
         logoUrl={logoUrl}
         editMode={editMode}
         showOwnerStats={showOwnerStats}
+        showPublishToggle={showPublishToggle}
         fallbackAspect={fallbackAspect}
         onClose={closeWatch}
         onChangeActive={openWatch}
         onUpdateSocialPost={onUpdateSocialPost}
+        onEditPost={onEditPost}
+        onRemoveSocialPost={onRemoveSocialPost}
       />
     );
   }
@@ -325,45 +345,6 @@ export function SocialVideosPanel({
                 </span>
               </span>
             </button>
-
-            {onEditPost ? (
-              <button
-                type="button"
-                className="bb-social-manage-edit"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onEditPost(post);
-                }}
-              >
-                <Pencil size={13} strokeWidth={2.2} />
-                Edit
-              </button>
-            ) : null}
-
-            {editMode ? (
-              <div className="bb-social-edit-actions">
-                {showPublishToggle ? (
-                  <button
-                    type="button"
-                    className="bb-ghost-btn py-1 px-2.5 text-xs"
-                    onClick={() =>
-                      onUpdateSocialPost?.(post.id, { published: post.published === false })
-                    }
-                  >
-                    {post.published !== false ? 'Unpublish' : 'Publish'}
-                  </button>
-                ) : null}
-                {onRemoveSocialPost ? (
-                  <button
-                    type="button"
-                    className="bb-ghost-btn py-1 px-2.5 text-xs"
-                    onClick={() => onRemoveSocialPost(post.id)}
-                  >
-                    Delete
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
           </article>
         );
       })}

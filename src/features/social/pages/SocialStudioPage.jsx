@@ -1,4 +1,3 @@
-import { ExternalLink, Radio } from 'lucide-react';
 import { useState } from 'react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -36,6 +35,8 @@ export function SocialStudioPage() {
 
   const closeComposer = () => setComposer(null);
 
+  const openLive = () => navigate(publicPagePath(workspace.slug, 'social'));
+
   return (
     <div className="bb-social-studio">
       <header className="bb-social-studio-header">
@@ -46,15 +47,6 @@ export function SocialStudioPage() {
               <h1 className="bb-page-title bb-social-studio-title">Social Studio</h1>
             </div>
           </div>
-          <button
-            type="button"
-            className="bb-ghost-btn bb-social-studio-live-btn shrink-0"
-            onClick={() => navigate(publicPagePath(workspace.slug, 'social'))}
-          >
-            <Radio size={14} strokeWidth={2.2} />
-            Open live
-            <ExternalLink size={13} strokeWidth={2.2} />
-          </button>
         </div>
       </header>
 
@@ -76,12 +68,15 @@ export function SocialStudioPage() {
             onUpdateWebsite={updateWebsite}
             onUpdateProfile={updateProfile}
             onOpenCreate={openCreate}
+            onOpenLive={openLive}
           />
           <SocialStudioLibrary
             tab={tab}
             onTabChange={setTab}
             posts={posts}
             onEditPost={openEdit}
+            onRemoveSocialPost={removeSocialPost}
+            onUpdateSocialPost={updateSocialPost}
             onCreate={openCreate}
           />
         </div>

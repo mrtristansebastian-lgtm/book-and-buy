@@ -1,0 +1,389 @@
+/*
+ * Studio device frames sit inside a wide browser, so viewport @media rules
+ * still apply desktop layouts to phone/narrow previews. Size layouts against
+ * the device screen width so Book / Buy / Social match the live page.
+ */
+
+.bb-device-screen {
+  container-type: inline-size;
+  container-name: bb-device;
+}
+
+/* Phone frame closer to a real handset so type/spacing match live mobile */
+.bb-device-preview--phone {
+  max-width: 390px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Social — undo desktop split when the frame is phone/tablet-narrow          */
+/* -------------------------------------------------------------------------- */
+
+@container bb-device (max-width: 1099px) {
+  .bb-public-home-stack.bb-public-profile:has(.bb-public-social--split) {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .bb-public-profile:has(.bb-public-social--split) .bb-public-profile-rail,
+  .bb-public-profile:has(.bb-public-social--split) .bb-public-profile-modules {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+    column-gap: 0 !important;
+    row-gap: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-inline: 0 !important;
+    padding: 0.85rem var(--bb-public-gutter, 1.25rem) 1.25rem !important;
+    overflow: visible !important;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-identity {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+    position: relative !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    padding-block: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-shell {
+    max-width: min(100%, 48rem) !important;
+    margin-inline: auto !important;
+    margin-block: 0 !important;
+    padding: 0.85rem var(--bb-public-gutter, 1.25rem) 0 !important;
+    width: 100% !important;
+    flex: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+  }
+
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-banner-wrap {
+    height: clamp(9.5rem, 18vw, 12.5rem) !important;
+    min-height: 9.5rem !important;
+    max-height: 12.5rem !important;
+    border-radius: 0.85rem !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split,
+  .bb-public-profile-panel--content .bb-public-social--split > .bb-public-measure-wide {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head {
+    display: grid !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0.35rem 0 0.15rem !important;
+    align-content: start !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head .bb-social-profile-actions {
+    justify-content: stretch !important;
+  }
+
+  .bb-public-profile-panel--content
+    .bb-public-social--split
+    .bb-social-blog-head
+    .bb-social-profile-actions
+    .bb-primary-btn {
+    width: 100% !important;
+    padding-inline: 0.85rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-blog-head .bb-social-profile-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    grid-template-columns: none !important;
+    gap: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    border: 0 !important;
+    border-inline-end: 0 !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1) !important;
+    padding-right: 0 !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-profile-tab {
+    flex: 1 1 0 !important;
+    flex-direction: row !important;
+    gap: 0.28rem !important;
+    min-height: 2.55rem !important;
+    padding: 0.55rem 0.35rem !important;
+    border-radius: 0 !important;
+    letter-spacing: 0.06em !important;
+    font-size: 0.62rem !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-profile-tab.is-active {
+    background: transparent !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-profile-tab.is-active::after {
+    left: 18% !important;
+    right: 18% !important;
+    top: auto !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: 2px !important;
+    border-radius: 999px !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0.65rem 0 1.25rem !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-split-body > .bb-social-feed {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-ig-grid,
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-post-cards,
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-video-grid,
+  .bb-public-profile-panel--content .bb-public-social--split .bb-yt-home {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-ig-grid,
+  .bb-public-profile-panel--content .bb-public-social--split .bb-social-post-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+  }
+
+  .bb-public-profile-panel--content
+    .bb-public-social--split
+    .bb-social-video-grid.bb-yt-home:not(.bb-social-verticals-grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Book + Buy — undo desktop desk shell when the frame is under 960px         */
+/* -------------------------------------------------------------------------- */
+
+@container bb-device (max-width: 959px) {
+  .bb-public-home-stack.bb-public-profile:has(.bb-public-profile-panel--buy),
+  .bb-public-home-stack.bb-public-profile:has(.bb-public-profile-panel--book) {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .bb-public-profile:has(.bb-public-profile-panel--buy) .bb-public-profile-rail,
+  .bb-public-profile:has(.bb-public-profile-panel--book) .bb-public-profile-rail,
+  .bb-public-profile:has(.bb-public-profile-panel--buy) .bb-public-profile-modules,
+  .bb-public-profile:has(.bb-public-profile-panel--book) .bb-public-profile-modules,
+  .bb-public-profile-panel--buy,
+  .bb-public-profile-panel--book {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .bb-public-catalog-desk {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-bottom: 1.75rem !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-shell {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: grid !important;
+    grid-template-rows: auto !important;
+    gap: 0.85rem !important;
+    padding-inline: 0 !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-mobile-tools {
+    display: grid !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-mobile-panel {
+    display: grid !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-side,
+  .bb-public-catalog-desk .bb-public-catalog-desk-grid,
+  .bb-public-catalog-desk .bb-public-catalog-cart-scrim,
+  .bb-public-catalog-desk .bb-public-catalog-cart-drawer {
+    display: none !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.85rem !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-main {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: grid !important;
+    grid-template-rows: auto !important;
+    gap: 0.85rem !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-intro {
+    margin: 0 0 0.35rem !important;
+    padding: 0 !important;
+    border-bottom: 0 !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-intro-actions {
+    display: none !important;
+  }
+
+  .bb-public-catalog-desk.is-cart-open .bb-public-catalog-cart-scrim,
+  .bb-public-catalog-desk.is-cart-open .bb-public-catalog-cart-drawer {
+    display: none !important;
+  }
+}
+
+/* Product / service grid columns track the frame, not the outer viewport */
+@container bb-device (max-width: 899px) {
+  .bb-public-service-list,
+  .bb-public-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.4rem !important;
+  }
+
+  .bb-public-buy-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .bb-public-product-surface > .bb-public-product-media,
+  .bb-public-product-surface > .bb-public-product-body {
+    margin-inline: 0.26rem !important;
+  }
+
+  .bb-public-product-surface > .bb-public-product-media {
+    margin-top: 0.26rem !important;
+  }
+
+  .bb-public-product-price-row {
+    padding: 0.38rem 0.4rem 0.4rem !important;
+    gap: 0.1rem !important;
+    min-height: 2.1rem !important;
+  }
+
+  .bb-public-product-grid .bb-public-product-body {
+    padding: 0.28rem 0.18rem !important;
+    align-content: center !important;
+  }
+
+  .bb-public-product-grid .bb-public-product-body h2,
+  .bb-public-product-name {
+    font-size: 0.74rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .bb-public-product-price {
+    font-size: 0.64rem !important;
+  }
+
+  .bb-public-product-cart-btn,
+  .bb-public-product-more-btn {
+    padding: 0.4rem 0.3rem !important;
+    font-size: 0.62rem !important;
+  }
+
+  .bb-public-catalog-intro-title {
+    font-size: clamp(1.35rem, 7vw, 1.65rem) !important;
+  }
+
+  .bb-public-catalog-intro-body {
+    font-size: 0.9rem !important;
+  }
+}
+
+@container bb-device (min-width: 900px) {
+  .bb-public-product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.55rem !important;
+  }
+}
+
+/* Desktop studio frame (~880px): keep Book/Buy height inside the device, not 100dvh */
+.bb-device-preview--desktop .bb-device-screen:has(.bb-public-profile-panel--buy),
+.bb-device-preview--desktop .bb-device-screen:has(.bb-public-profile-panel--book),
+.bb-device-preview--desktop .bb-device-screen:has(.bb-public-social--split) {
+  height: min(70vh, 720px);
+  overflow: hidden;
+}
+
+.bb-device-preview--desktop
+  .bb-device-screen:has(.bb-public-profile-panel--buy)
+  > .bb-public-surface,
+.bb-device-preview--desktop
+  .bb-device-screen:has(.bb-public-profile-panel--book)
+  > .bb-public-surface,
+.bb-device-preview--desktop
+  .bb-device-screen:has(.bb-public-social--split)
+  > .bb-public-surface {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+
+/* Phone preview: keep live mobile type scale (avoid over-shrinking titles) */
+.bb-device-preview--phone .bb-public-catalog-intro-title {
+  font-size: 1.45rem !important;
+  line-height: 1.12 !important;
+}
+
+.bb-device-preview--phone .bb-public-buy-header h1,
+.bb-device-preview--phone .bb-public-social-header h1,
+.bb-device-preview--phone .bb-public-catalog-title,
+.bb-device-preview--phone .bb-page-title.text-4xl,
+.bb-device-preview--phone .bb-page-title.text-3xl {
+  font-size: 1.35rem !important;
+  line-height: 1.15 !important;
+}
+
+.bb-device-preview--phone .bb-social-profile-tab span {
+  display: inline !important;
+}

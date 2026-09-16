@@ -1,6 +1,7 @@
-import { MapPin, Pencil } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { EditableText } from '../../website/components/editable';
 import { formatNoteStamp, formatSocialTime } from '../utils/socialPostType';
+import { SocialPostManageMenu } from './SocialPostManageMenu';
 
 /**
  * Notes — Twitter / X-style feed (avatar, handle, relative time).
@@ -74,16 +75,16 @@ export function SocialTextTimeline({
                   ) : null}
                 </div>
 
-                {onEditPost ? (
-                  <button
-                    type="button"
-                    className="bb-social-note-more"
-                    onClick={() => onEditPost(post)}
-                    aria-label="Edit update"
-                    title="Edit"
-                  >
-                    <Pencil size={15} strokeWidth={2.1} />
-                  </button>
+                {onEditPost || onRemoveSocialPost || onUpdateSocialPost ? (
+                  <SocialPostManageMenu
+                    post={post}
+                    onEditPost={onEditPost}
+                    onRemoveSocialPost={onRemoveSocialPost}
+                    onUpdateSocialPost={onUpdateSocialPost}
+                    showPublishToggle={showPublishToggle && Boolean(onUpdateSocialPost)}
+                    className="bb-social-post-menu--note"
+                    align="end"
+                  />
                 ) : null}
               </header>
 
@@ -117,7 +118,7 @@ export function SocialTextTimeline({
                 ) : null}
               </div>
 
-              {editMode ? (
+              {editMode && !onEditPost ? (
                 <div className="bb-social-edit-actions bb-social-note-actions">
                   {showPublishToggle ? (
                     <button

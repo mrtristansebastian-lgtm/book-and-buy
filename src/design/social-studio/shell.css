@@ -27,7 +27,7 @@
   }
 
   .bb-social-studio-body {
-    padding-bottom: 5.5rem;
+    padding-bottom: 0;
   }
 
   .bb-social-studio-live {
@@ -50,7 +50,7 @@
   }
 
   .bb-social-library--live .bb-social-library-surface--live {
-    padding: 0 0 1rem;
+    padding: 0;
   }
 
   .bb-social-studio .bb-social-ig-grid,
@@ -67,17 +67,13 @@
   .bb-social-studio {
     gap: 1.55rem;
   }
-
-  .bb-social-library-surface--live {
-    padding-top: 0.5rem;
-  }
 }
 
 @media (min-width: 1280px) {
   .bb-social-studio .bb-social-ig-grid,
   .bb-social-studio .bb-social-post-cards {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.35rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2px;
   }
 }
 
@@ -133,7 +129,7 @@
 .bb-social-studio-body {
   display: grid;
   gap: 1.65rem;
-  padding-bottom: 2.25rem;
+  padding-bottom: 0;
   min-width: 0;
 }
 
@@ -904,8 +900,21 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   border-top: 0;
 }
 
+.bb-social-studio .bb-social-ig-grid,
+.bb-social-studio .bb-social-post-cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+}
+
 .bb-social-library--live .bb-social-library-surface--live {
-  padding: 0.85rem 1rem 1.15rem;
+  padding: 0;
+}
+
+.bb-social-library--live .bb-social-library-empty {
+  margin: 0.85rem 1rem 0;
 }
 
 .bb-social-library--live .bb-social-library-empty {
@@ -1252,4 +1261,173 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   font-weight: 620;
   color: #b45309;
 }
+
+/* Instagram-style ⋯ manage menu (feed / watch / notes — not grid tiles) */
+.bb-social-post-menu {
+  position: relative;
+  z-index: 6;
+  flex: 0 0 auto;
+}
+
+.bb-social-post-menu-trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #475467;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.bb-social-post-menu-trigger:hover,
+.bb-social-post-menu.is-open .bb-social-post-menu-trigger {
+  background: rgba(15, 23, 42, 0.06);
+  color: #101828;
+}
+
+.bb-social-post-menu-trigger:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.28);
+  outline-offset: 2px;
+}
+
+.bb-social-post-menu-panel {
+  position: absolute;
+  top: calc(100% + 0.28rem);
+  z-index: 20;
+  min-width: 10.5rem;
+  padding: 0.35rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  box-shadow:
+    0 12px 28px rgba(15, 23, 42, 0.14),
+    0 2px 6px rgba(15, 23, 42, 0.06);
+  display: grid;
+  gap: 0.15rem;
+}
+
+.bb-social-post-menu-panel--end {
+  right: 0;
+  left: auto;
+}
+
+.bb-social-post-menu-panel--start {
+  left: 0;
+  right: auto;
+}
+
+.bb-social-post-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0.62rem 0.75rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: #101828;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.84rem;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.bb-social-post-menu-item:hover,
+.bb-social-post-menu-item:focus-visible {
+  background: rgba(15, 23, 42, 0.05);
+  outline: none;
+}
+
+.bb-social-post-menu-item.is-danger {
+  color: #b42318;
+}
+
+.bb-social-post-menu-item.is-danger:hover,
+.bb-social-post-menu-item.is-danger:focus-visible {
+  background: rgba(180, 35, 24, 0.08);
+}
+
+.bb-social-post-menu--note .bb-social-post-menu-trigger {
+  width: 1.9rem;
+  height: 1.9rem;
+  color: #536471;
+}
+
+.bb-social-post-menu--watch .bb-social-post-menu-trigger {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+/* Natural Instagram scroll — page scrolls as one; no nested scroll trap */
+.bb-owner-main:has(> .bb-social-studio) {
+  display: block;
+  height: auto;
+  max-height: none;
+  /* overflow:auto + height:auto traps iOS/Android touch scroll */
+  overflow: visible;
+}
+
+.bb-owner-layout:has(.bb-social-studio),
+.bb-owner-content:has(.bb-social-studio) {
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
+
+@media (max-width: 900px) {
+  .bb-owner-main:has(> .bb-social-studio) {
+    /* Dock clearance only — no extra blank scroll past the grid */
+    padding-bottom: calc(4.85rem + env(safe-area-inset-bottom));
+  }
+}
+
+.bb-social-studio,
+.bb-social-studio-body,
+.bb-social-studio-live,
+.bb-social-library--live,
+.bb-social-library--live .bb-social-library-tabs,
+.bb-social-library--live .bb-social-library-surface--live {
+  flex: none !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.bb-social-studio {
+  display: grid;
+  grid-template-rows: none;
+}
+
+.bb-social-studio-body,
+.bb-social-studio-live,
+.bb-social-library--live {
+  display: grid;
+  grid-template-rows: none;
+}
+
+.bb-social-studio-body {
+  padding-bottom: 0;
+}
+
+.bb-social-library--live .bb-social-library-surface--live {
+  padding: 0;
+}
+
+.bb-social-studio .bb-social-ig-grid,
+.bb-social-studio .bb-social-post-cards,
+.bb-social-studio .bb-social-notes,
+.bb-social-studio .bb-social-video-grid {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  touch-action: pan-y;
+}
+
 
