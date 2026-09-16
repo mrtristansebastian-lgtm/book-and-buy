@@ -23,7 +23,7 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
       {tab === 'overview' ? (
         <OverviewPage />
       ) : tab === 'services' ? (
-        <ServicesPage />
+        <ServicesPage routeRest={rest} />
       ) : tab === 'requests' ? (
         <RequestsPage />
       ) : tab === 'staff' ? (
@@ -31,11 +31,11 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
       ) : tab === 'availability' ? (
         <AvailabilityPage />
       ) : tab === 'products' ? (
-        <ProductsPage />
+        <ProductsPage routeRest={rest} />
       ) : tab === 'orders' ? (
         <OrdersPage />
       ) : tab === 'stock' ? (
-        <StockPage />
+        <StockPage routeRest={rest} />
       ) : tab === 'website' ? (
         <WebsiteStudioPage />
       ) : tab === 'website-book' ? (

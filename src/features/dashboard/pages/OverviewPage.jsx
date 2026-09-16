@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Check, Copy, ExternalLink, LayoutGrid, List } from 'lucide-react';
+import { Check, Copy, ExternalLink } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
-import { launcherApps } from '../../../config/appLauncher';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate, toDateKey } from '../../../utils/dates';
@@ -17,7 +16,6 @@ import {
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
-import { AppTile } from '../components/AppTile';
 
 function greetingForHour(hour) {
   if (hour < 12) return 'Good morning';
@@ -51,25 +49,12 @@ function plural(count, one, many) {
   return `${count} ${count === 1 ? one : many}`;
 }
 
-const LAUNCHER_VIEW_KEY = 'bb.launcherView';
-
-function readLauncherView() {
-  try {
-    const stored = window.localStorage.getItem(LAUNCHER_VIEW_KEY);
-    if (stored === 'list' || stored === 'icons') return stored;
-  } catch {
-    /* ignore */
-  }
-  return 'icons';
-}
-
-/** Home launcher: greeting, business stats strip, and every mini-app as a widget tile. */
+/** Business Home: greeting + stats. Apps live in the side panel / mobile menu. */
 export function OverviewPage() {
   const { user } = useAuth();
   const { workspace, staff, bookings, orders, services } = useWorkspace();
-  const { badgeFor, pendingRequests, pendingOrders, unreadSupport } = useWorkspaceBadges();
+  const { pendingRequests, pendingOrders, unreadSupport } = useWorkspaceBadges();
   const [copied, setCopied] = useState(false);
-  const [view, setView] = useState(readLauncherView);
   const [periodId, setPeriodId] = useState('week');
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
@@ -86,7 +71,6 @@ export function OverviewPage() {
   const waiting = pendingRequests + pendingOrders + unreadSupport;
   const currency = workspace.currency || 'R';
 
-  // Upcoming = from today forward, capped by the selected period's end.
   const upcomingBookings = useMemo(() => {
     const { start, end } = getPeriodBounds(periodId, customRange);
     const todayStart = new Date();
@@ -155,16 +139,6 @@ export function OverviewPage() {
     }
   ];
 
-  const toggleView = () => {
-    const next = view === 'icons' ? 'list' : 'icons';
-    setView(next);
-    try {
-      window.localStorage.setItem(LAUNCHER_VIEW_KEY, next);
-    } catch {
-      /* ignore */
-    }
-  };
-
   const copyPublicLink = async () => {
     const url = `${window.location.origin}${window.location.pathname}#${publicHomePath}`;
     try {
@@ -177,7 +151,7 @@ export function OverviewPage() {
   };
 
   return (
-    <div className="bb-launcher">
+    <div className="bb-launcher is-home-only">
       <header className="bb-launcher-header bb-launcher-enter" style={{ '--i': 0 }}>
         <div className="bb-launcher-header-copy">
           <div className="bb-page-title-wrap">
@@ -192,20 +166,6 @@ export function OverviewPage() {
         </div>
 
         <div className="bb-launcher-tools">
-          <button
-            type="button"
-            className="bb-launcher-view"
-            aria-pressed={view === 'list'}
-            aria-label={view === 'icons' ? 'Show list view' : 'Show app icons'}
-            title={view === 'icons' ? 'List view' : 'App icons'}
-            onClick={toggleView}
-          >
-            {view === 'icons' ? (
-              <List size={16} strokeWidth={2.1} absoluteStrokeWidth />
-            ) : (
-              <LayoutGrid size={16} strokeWidth={2.1} absoluteStrokeWidth />
-            )}
-          </button>
           <PeriodSegmentedControl
             variant="period"
             ariaLabel="Stats time period"
@@ -215,27 +175,27 @@ export function OverviewPage() {
             onCustomSelect={() => setCustomPickerOpen(true)}
           />
 
-        <div className="bb-launcher-live">
-          <span className="bb-launcher-live-dot" aria-hidden="true" />
-          <span className="bb-launcher-live-label">Live site</span>
-          <button
-            type="button"
-            className="bb-launcher-live-btn"
-            onClick={copyPublicLink}
-            aria-label="Copy public site link"
-          >
-            {copied ? <Check size={14} strokeWidth={2.4} /> : <Copy size={14} strokeWidth={2.2} />}
-            {copied ? 'Copied' : 'Copy link'}
-          </button>
-          <button
-            type="button"
-            className="bb-launcher-live-btn is-primary"
-            onClick={() => navigate(publicHomePath)}
-          >
-            <ExternalLink size={14} strokeWidth={2.2} />
-            Open
-          </button>
-        </div>
+          <div className="bb-launcher-live">
+            <span className="bb-launcher-live-dot" aria-hidden="true" />
+            <span className="bb-launcher-live-label">Live site</span>
+            <button
+              type="button"
+              className="bb-launcher-live-btn"
+              onClick={copyPublicLink}
+              aria-label="Copy public site link"
+            >
+              {copied ? <Check size={14} strokeWidth={2.4} /> : <Copy size={14} strokeWidth={2.2} />}
+              {copied ? 'Copied' : 'Copy link'}
+            </button>
+            <button
+              type="button"
+              className="bb-launcher-live-btn is-primary"
+              onClick={() => navigate(publicHomePath)}
+            >
+              <ExternalLink size={14} strokeWidth={2.2} />
+              Open
+            </button>
+          </div>
         </div>
       </header>
 
@@ -256,28 +216,16 @@ export function OverviewPage() {
         aria-label="Business at a glance"
         style={{ '--i': 1 }}
       >
-        {stats.map((stat) => {
-          return (
-            <button
-              key={stat.id}
-              type="button"
-              className={`bb-stat${stat.featured ? ' is-featured' : ''}${stat.alert ? ' is-alert' : ''}`}
-              onClick={() => navigate(`/dashboard/${stat.to}`)}
-            >
-              <span className="bb-stat-value">{stat.value}</span>
-              <span className="bb-stat-label">{stat.label}</span>
-            </button>
-          );
-        })}
-      </section>
-
-      <section
-        className="bb-launcher-groups"
-        aria-label="Apps"
-        style={{ '--n': launcherApps.length }}
-      >
-        {launcherApps.map((app, index) => (
-          <AppTile key={app.id} app={app} badgeFor={badgeFor} index={index + 1} view={view} />
+        {stats.map((stat) => (
+          <button
+            key={stat.id}
+            type="button"
+            className={`bb-stat${stat.featured ? ' is-featured' : ''}${stat.alert ? ' is-alert' : ''}`}
+            onClick={() => navigate(`/dashboard/${stat.to}`)}
+          >
+            <span className="bb-stat-value">{stat.value}</span>
+            <span className="bb-stat-label">{stat.label}</span>
+          </button>
         ))}
       </section>
     </div>

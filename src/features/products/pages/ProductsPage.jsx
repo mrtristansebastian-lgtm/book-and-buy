@@ -1,5 +1,6 @@
-﻿import { useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
+import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
   collectProductCategories,
@@ -9,6 +10,23 @@ import {
 } from '../../../utils/products';
 import { ProductCatalogCard } from '../components/ProductCatalogCard';
 import { ProductEditorSheet } from '../components/ProductEditorSheet';
+import { ProductInfoSheet } from '../components/ProductInfoSheet';
+
+function useIsMobileEditor() {
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 899px)').matches
+      : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 899px)');
+    const onChange = () => setMobile(mq.matches);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return mobile;
+}
 
 const emptyDraft = () => ({
   id: '',
@@ -151,7 +169,7 @@ const mergeInventoryFromExisting = (draft, existing) => {
   };
 };
 
-export function ProductsPage() {
+export function ProductsPage({ routeRest = [] }) {
   const {
     products,
     workspace,
@@ -159,27 +177,96 @@ export function ProductsPage() {
     removeProduct,
     setProductCategories
   } = useWorkspace();
+  const isMobile = useIsMobileEditor();
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
+  const [viewProduct, setViewProduct] = useState(null);
+
+  const mode = routeRest[0] || '';
+  const editId = routeRest[1] || '';
+  const pageEdit =
+    isMobile && (mode === 'new' || (mode === 'edit' && Boolean(editId)));
+  const pageView = isMobile && mode === 'view' && Boolean(editId);
 
   const categories = useMemo(
     () => collectProductCategories(products, workspace.productCategories || []),
     [products, workspace.productCategories]
   );
 
+  useEffect(() => {
+    if (!pageEdit) return;
+    if (mode === 'new') {
+      setDraft(emptyDraft());
+      setDraftOpen(true);
+      return;
+    }
+    if (mode === 'edit' && editId) {
+      const existing = products.find((item) => item.id === editId);
+      if (existing) {
+        setDraft(toDraft(existing));
+        setDraftOpen(true);
+      } else {
+        navigate('/dashboard/products');
+      }
+    }
+  }, [pageEdit, mode, editId, products]);
+
+  useEffect(() => {
+    if (!pageView) return;
+    const existing = products.find((item) => item.id === editId);
+    if (existing) {
+      setViewProduct(existing);
+    } else {
+      navigate('/dashboard/products');
+    }
+  }, [pageView, editId, products]);
+
   const openCreate = () => {
+    if (isMobile) {
+      navigate('/dashboard/products/new');
+      return;
+    }
     setDraft(emptyDraft());
     setDraftOpen(true);
   };
 
   const openEdit = (product) => {
+    if (isMobile) {
+      navigate(`/dashboard/products/edit/${product.id}`);
+      return;
+    }
+    setViewProduct(null);
     setDraft(toDraft(product));
     setDraftOpen(true);
+  };
+
+  const openView = (product) => {
+    if (isMobile) {
+      navigate(`/dashboard/products/view/${product.id}`);
+      return;
+    }
+    setViewProduct(product);
   };
 
   const closeDraft = () => {
     setDraftOpen(false);
     setDraft(emptyDraft());
+    if (pageEdit) navigate('/dashboard/products');
+  };
+
+  const closeView = () => {
+    setViewProduct(null);
+    if (pageView) navigate('/dashboard/products');
+  };
+
+  const openEditFromView = (product) => {
+    if (isMobile) {
+      navigate(`/dashboard/products/edit/${product.id}`);
+      return;
+    }
+    setViewProduct(null);
+    setDraft(toDraft(product));
+    setDraftOpen(true);
   };
 
   const saveDraft = () => {
@@ -203,6 +290,43 @@ export function ProductsPage() {
     );
     closeDraft();
   };
+
+  const liveViewProduct = viewProduct
+    ? products.find((item) => item.id === viewProduct.id) || viewProduct
+    : null;
+
+  if (pageView && liveViewProduct) {
+    return (
+      <ProductInfoSheet
+        product={liveViewProduct}
+        onClose={closeView}
+        onEdit={openEditFromView}
+        variant="page"
+      />
+    );
+  }
+
+  if (pageEdit && draftOpen) {
+    return (
+      <ProductEditorSheet
+        open
+        variant="page"
+        draft={draft}
+        onChange={setDraft}
+        onClose={closeDraft}
+        onSave={saveDraft}
+        onDelete={
+          draft.id
+            ? () => {
+                removeProduct(draft.id);
+                closeDraft();
+              }
+            : undefined
+        }
+        categories={categories}
+      />
+    );
+  }
 
   return (
     <div className="bb-services-desk">
@@ -228,29 +352,41 @@ export function ProductsPage() {
             <ProductCatalogCard
               key={product.id}
               product={product}
+              onView={openView}
               onEdit={openEdit}
               onRemove={(item) => removeProduct(item.id)}
+              tapToView={isMobile}
             />
           ))}
         </div>
       )}
 
-      <ProductEditorSheet
-        open={draftOpen}
-        draft={draft}
-        onChange={setDraft}
-        onClose={closeDraft}
-        onSave={saveDraft}
-        onDelete={
-          draft.id
-            ? () => {
-                removeProduct(draft.id);
-                closeDraft();
-              }
-            : undefined
-        }
-        categories={categories}
-      />
+      {!isMobile ? (
+        <ProductEditorSheet
+          open={draftOpen}
+          draft={draft}
+          onChange={setDraft}
+          onClose={closeDraft}
+          onSave={saveDraft}
+          onDelete={
+            draft.id
+              ? () => {
+                  removeProduct(draft.id);
+                  closeDraft();
+                }
+              : undefined
+          }
+          categories={categories}
+        />
+      ) : null}
+
+      {!isMobile && liveViewProduct ? (
+        <ProductInfoSheet
+          product={liveViewProduct}
+          onClose={closeView}
+          onEdit={openEditFromView}
+        />
+      ) : null}
     </div>
   );
 }

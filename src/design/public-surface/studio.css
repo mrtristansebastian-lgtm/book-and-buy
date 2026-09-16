@@ -116,20 +116,50 @@
   line-height: 1.35;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 899px) {
   .bb-owner-main:has(> .bb-studio-canvas) {
     padding-inline: 0;
-    padding-top: 0.55rem;
+    padding-top: 0.45rem;
   }
 
   .bb-studio-canvas {
-    gap: 0.65rem;
+    gap: 0.55rem;
   }
 
   .bb-studio-toolbar {
     gap: 0.55rem;
     padding-inline: 1rem;
-    padding-bottom: 0.65rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .bb-studio-toolbar-top {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .bb-studio-toolbar-copy {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.55rem 0.65rem;
+  }
+
+  .bb-studio-toolbar-copy .bb-page-title-wrap {
+    grid-column: 2;
+  }
+
+  .bb-studio-back {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #fff;
+    color: #101828;
+    cursor: pointer;
   }
 
   .bb-studio-toolbar-lede {
@@ -138,57 +168,36 @@
 
   .bb-studio-actions {
     width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
   }
 
   .bb-studio-action {
     flex: 1 1 auto;
     justify-content: center;
-    min-height: 2.15rem;
-    padding: 0.4rem 0.7rem;
+    min-height: 2.25rem;
+    height: auto;
+    padding: 0.45rem 0.65rem;
     font-size: 0.78rem;
   }
 
+  .bb-studio-action--primary.is-unpublished {
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    color: #475467;
+    box-shadow: none;
+  }
+
   .bb-studio-controls-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    width: 100%;
-    min-height: 2.35rem;
-    padding: 0.4rem 0.7rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    background: #f8fafc;
-    color: #101828;
-    font: inherit;
-    font-size: 0.82rem;
-    font-weight: 720;
-    cursor: pointer;
-  }
-
-  .bb-studio-controls-toggle-meta {
-    font-weight: 600;
-    color: #667085;
-  }
-
-  .bb-studio-controls-toggle svg {
-    flex-shrink: 0;
-    transition: transform 0.18s ease;
-  }
-
-  .bb-studio-toolbar.is-controls-open .bb-studio-controls-toggle svg {
-    transform: rotate(180deg);
+    display: none !important;
   }
 
   .bb-studio-controls {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.55rem;
-  }
-
-  .bb-studio-toolbar.is-controls-open .bb-studio-controls {
-    display: flex;
+    gap: 0.45rem;
   }
 
   .bb-studio-controls .bb-period-seg,
@@ -204,14 +213,34 @@
     grid-auto-columns: minmax(0, 1fr);
   }
 
-  .bb-studio-visible-toggle {
-    margin-left: 0;
-    font-size: 0.8rem;
+  .bb-studio-visible-toggle,
+  .bb-studio-visible-block {
+    display: none;
   }
 
   .bb-studio-stage {
     padding-inline: 0;
     padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  }
+
+  /* Phone-width catalog: keep a readable 2-up card grid */
+  .bb-studio-canvas.is-mobile .bb-public-service-list,
+  .bb-studio-canvas.is-mobile .bb-public-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.65rem !important;
+  }
+
+  .bb-studio-canvas.is-mobile .bb-public-catalog-intro-copy {
+    display: none;
+  }
+
+  .bb-studio-canvas.is-mobile .bb-public-catalog-intro {
+    margin-bottom: 0.35rem;
+  }
+
+  .bb-studio-canvas.is-mobile .bb-public-catalog-intro-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   /* Preview already has page switching in the studio bar — drop sticky public nav chrome */
@@ -225,6 +254,11 @@
 
   /* Demo bar no longer sticky — keep it out of the way on studio */
   .bb-shell:has(.bb-studio-canvas) .bb-demo-banner {
+    display: none;
+  }
+
+  /* Studio pages already have an in-toolbar back control */
+  .bb-shell:has(.bb-studio-canvas) .bb-miniapp-bar {
     display: none;
   }
 }
@@ -280,6 +314,13 @@
     var(--native-accent-button-gradient);
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
+}
+
+.bb-studio-action--primary.is-unpublished {
+  color: #475467;
+  background-image: none;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.14);
 }
 
 .bb-studio-action--primary:hover:not(:disabled) {

@@ -283,23 +283,46 @@ function formatWeight(item) {
   return `${value} ${item.weightUnit || 'g'}`;
 }
 
-function StockInfoSheet({ product, onClose }) {
+function useIsMobileEditor() {
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 899px)').matches
+      : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 899px)');
+    const onChange = () => setMobile(mq.matches);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return mobile;
+}
+
+function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
   if (!product) return null;
   const badge = stockBadge(product);
   const status = normalizeProductStatus(product);
   const hasVariants = productHasVariants(product);
   const imageSrc = product.imageUrls?.[0] || '';
+  const isPage = variant === 'page';
 
   return (
-    <div className="bb-services-sheet" role="dialog" aria-modal="true" aria-labelledby="stock-info-title">
-      <div className="bb-services-sheet-backdrop" onClick={onClose} />
+    <div
+      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      role={isPage ? 'region' : 'dialog'}
+      aria-modal={isPage ? undefined : true}
+      aria-labelledby="stock-info-title"
+    >
+      {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
       <div className="bb-services-sheet-panel">
         <header className="bb-services-sheet-head">
           <div>
+            <p className="bb-services-sheet-eyebrow">Stock</p>
             <h2 id="stock-info-title" className="bb-services-sheet-title">
               {product.name}
             </h2>
-            <p className="bb-services-sheet-lede">Stock overview</p>
+            <p className="bb-services-sheet-lede">Inventory overview for this product.</p>
           </div>
           <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose} aria-label="Close">
             <X size={18} />
@@ -387,6 +410,12 @@ function StockInfoSheet({ product, onClose }) {
             <button type="button" className="bb-ghost-btn" onClick={onClose}>
               Close
             </button>
+            {onEdit ? (
+              <button type="button" className="bb-primary-btn" onClick={() => onEdit(product)}>
+                <Pencil size={15} strokeWidth={2.2} />
+                Edit stock
+              </button>
+            ) : null}
           </div>
         </footer>
       </div>
@@ -394,9 +423,10 @@ function StockInfoSheet({ product, onClose }) {
   );
 }
 
-function StockEditSheet({ product, onClose, onSave }) {
+function StockEditSheet({ product, onClose, onSave, variant = 'sheet' }) {
   const [draft, setDraft] = useState(product);
   const [savedFlash, setSavedFlash] = useState(false);
+  const isPage = variant === 'page';
 
   useEffect(() => {
     setDraft(product);
@@ -425,11 +455,17 @@ function StockEditSheet({ product, onClose, onSave }) {
   };
 
   return (
-    <div className="bb-services-sheet" role="dialog" aria-modal="true" aria-labelledby="stock-edit-title">
-      <div className="bb-services-sheet-backdrop" onClick={onClose} />
+    <div
+      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      role={isPage ? 'region' : 'dialog'}
+      aria-modal={isPage ? undefined : true}
+      aria-labelledby="stock-edit-title"
+    >
+      {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
       <div className="bb-services-sheet-panel bb-services-sheet-panel--setup">
         <header className="bb-services-sheet-head">
           <div>
+            <p className="bb-services-sheet-eyebrow">Stock</p>
             <h2 id="stock-edit-title" className="bb-services-sheet-title">
               Edit stock
             </h2>
@@ -481,12 +517,18 @@ function StockEditSheet({ product, onClose, onSave }) {
   );
 }
 
-export function StockPage() {
+export function StockPage({ routeRest = [] }) {
   const { products, upsertProduct } = useWorkspace();
+  const isMobile = useIsMobileEditor();
   const [query, setQuery] = useState('');
   const [filterId, setFilterId] = useState('all');
   const [infoProduct, setInfoProduct] = useState(null);
   const [editProduct, setEditProduct] = useState(null);
+
+  const mode = routeRest[0] || '';
+  const itemId = routeRest[1] || '';
+  const pageInfo = isMobile && mode === 'info' && Boolean(itemId);
+  const pageEdit = isMobile && mode === 'edit' && Boolean(itemId);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -509,12 +551,80 @@ export function StockPage() {
     });
   }, [products, query, filterId]);
 
+  useEffect(() => {
+    if (!pageInfo && !pageEdit) return;
+    const found = (products || []).find((item) => item.id === itemId);
+    if (!found) {
+      navigate('/dashboard/stock');
+      return;
+    }
+    if (pageInfo) setInfoProduct(found);
+    if (pageEdit) setEditProduct(found);
+  }, [pageInfo, pageEdit, itemId, products]);
+
+  const openInfo = (product) => {
+    if (isMobile) {
+      navigate(`/dashboard/stock/info/${product.id}`);
+      return;
+    }
+    setInfoProduct(product);
+  };
+
+  const openEdit = (product) => {
+    if (isMobile) {
+      navigate(`/dashboard/stock/edit/${product.id}`);
+      return;
+    }
+    setEditProduct(product);
+  };
+
+  const closeInfo = () => {
+    setInfoProduct(null);
+    if (pageInfo) navigate('/dashboard/stock');
+  };
+
+  const closeEdit = () => {
+    setEditProduct(null);
+    if (pageEdit) navigate('/dashboard/stock');
+  };
+
   const liveEditProduct = editProduct
     ? (products || []).find((item) => item.id === editProduct.id) || editProduct
     : null;
   const liveInfoProduct = infoProduct
     ? (products || []).find((item) => item.id === infoProduct.id) || infoProduct
     : null;
+
+  const openEditFromInfo = (product) => {
+    if (isMobile) {
+      navigate(`/dashboard/stock/edit/${product.id}`);
+      return;
+    }
+    setInfoProduct(null);
+    setEditProduct(product);
+  };
+
+  if (pageInfo && liveInfoProduct) {
+    return (
+      <StockInfoSheet
+        product={liveInfoProduct}
+        onClose={closeInfo}
+        onEdit={openEditFromInfo}
+        variant="page"
+      />
+    );
+  }
+
+  if (pageEdit && liveEditProduct) {
+    return (
+      <StockEditSheet
+        product={liveEditProduct}
+        onClose={closeEdit}
+        onSave={(next) => upsertProduct(next)}
+        variant="page"
+      />
+    );
+  }
 
   return (
     <div className="bb-services-desk bb-stock-desk">
@@ -580,8 +690,8 @@ export function StockPage() {
                 <StockProductCard
                   key={product.id}
                   product={product}
-                  onInfo={setInfoProduct}
-                  onEdit={setEditProduct}
+                  onInfo={openInfo}
+                  onEdit={openEdit}
                 />
               ))}
             </div>
@@ -589,13 +699,17 @@ export function StockPage() {
         </>
       )}
 
-      {liveInfoProduct ? (
-        <StockInfoSheet product={liveInfoProduct} onClose={() => setInfoProduct(null)} />
+      {!isMobile && liveInfoProduct ? (
+        <StockInfoSheet
+          product={liveInfoProduct}
+          onClose={closeInfo}
+          onEdit={openEditFromInfo}
+        />
       ) : null}
-      {liveEditProduct ? (
+      {!isMobile && liveEditProduct ? (
         <StockEditSheet
           product={liveEditProduct}
-          onClose={() => setEditProduct(null)}
+          onClose={closeEdit}
           onSave={(next) => upsertProduct(next)}
         />
       ) : null}

@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
+import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
   collectServiceCategories,
@@ -30,7 +31,55 @@ const emptyDraft = () => ({
   variants: []
 });
 
-export function ServicesPage() {
+function toDraft(service) {
+  return {
+    id: service.id,
+    name: service.name || '',
+    price: String(service.price ?? ''),
+    duration: String(service.duration ?? '60'),
+    fixedDuration: service.fixedDuration !== false,
+    minDuration: String(service.minDuration ?? ''),
+    scheduleType: service.scheduleType || 'appointment',
+    description: service.description || '',
+    category: service.category || '',
+    capacity: String(service.capacity || 1),
+    sessionStartDate: service.sessionStartDate || '',
+    sessionStartTime: service.sessionStartTime || '10:00',
+    sessionEndDate: service.sessionEndDate || service.sessionStartDate || '',
+    sessionEndTime: service.sessionEndTime || '12:00',
+    staffIds: service.staffIds || [],
+    image: service.imageUrls?.[0] || '',
+    active: service.active !== false,
+    variants: Array.isArray(service.variants)
+      ? service.variants.map((variant) => ({
+          id: variant.id,
+          name: variant.name || '',
+          description: variant.description || '',
+          price: String(variant.price ?? ''),
+          minDuration: String(variant.minDuration ?? ''),
+          available: variant.available !== false
+        }))
+      : []
+  };
+}
+
+function useIsMobileEditor() {
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 899px)').matches
+      : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 899px)');
+    const onChange = () => setMobile(mq.matches);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return mobile;
+}
+
+export function ServicesPage({ routeRest = [] }) {
   const {
     services,
     staff,
@@ -39,8 +88,14 @@ export function ServicesPage() {
     removeService,
     setServiceCategories
   } = useWorkspace();
+  const isMobile = useIsMobileEditor();
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
+
+  const mode = routeRest[0] || '';
+  const editId = routeRest[1] || '';
+  const pageMode =
+    isMobile && (mode === 'new' || (mode === 'edit' && Boolean(editId)));
 
   const categories = useMemo(
     () =>
@@ -48,47 +103,46 @@ export function ServicesPage() {
     [services, workspace.serviceCategories]
   );
 
+  useEffect(() => {
+    if (!pageMode) return;
+    if (mode === 'new') {
+      setDraft(emptyDraft());
+      setDraftOpen(true);
+      return;
+    }
+    if (mode === 'edit' && editId) {
+      const existing = services.find((item) => item.id === editId);
+      if (existing) {
+        setDraft(toDraft(existing));
+        setDraftOpen(true);
+      } else {
+        navigate('/dashboard/services');
+      }
+    }
+  }, [pageMode, mode, editId, services]);
+
   const openCreate = () => {
+    if (isMobile) {
+      navigate('/dashboard/services/new');
+      return;
+    }
     setDraft(emptyDraft());
     setDraftOpen(true);
   };
 
   const openEdit = (service) => {
-    setDraft({
-      id: service.id,
-      name: service.name || '',
-      price: String(service.price ?? ''),
-      duration: String(service.duration ?? '60'),
-      fixedDuration: service.fixedDuration !== false,
-      minDuration: String(service.minDuration ?? ''),
-      scheduleType: service.scheduleType || 'appointment',
-      description: service.description || '',
-      category: service.category || '',
-      capacity: String(service.capacity || 1),
-      sessionStartDate: service.sessionStartDate || '',
-      sessionStartTime: service.sessionStartTime || '10:00',
-      sessionEndDate: service.sessionEndDate || service.sessionStartDate || '',
-      sessionEndTime: service.sessionEndTime || '12:00',
-      staffIds: service.staffIds || [],
-      image: service.imageUrls?.[0] || '',
-      active: service.active !== false,
-      variants: Array.isArray(service.variants)
-        ? service.variants.map((variant) => ({
-            id: variant.id,
-            name: variant.name || '',
-            description: variant.description || '',
-            price: String(variant.price ?? ''),
-            minDuration: String(variant.minDuration ?? ''),
-            available: variant.available !== false
-          }))
-        : []
-    });
+    if (isMobile) {
+      navigate(`/dashboard/services/edit/${service.id}`);
+      return;
+    }
+    setDraft(toDraft(service));
     setDraftOpen(true);
   };
 
   const closeDraft = () => {
     setDraftOpen(false);
     setDraft(emptyDraft());
+    if (pageMode) navigate('/dashboard/services');
   };
 
   const saveDraft = () => {
@@ -116,6 +170,30 @@ export function ServicesPage() {
     ]);
     setServiceCategories?.(merged);
   };
+
+  if (pageMode && draftOpen) {
+    return (
+      <ServiceEditorSheet
+        open
+        variant="page"
+        draft={draft}
+        onChange={setDraft}
+        onClose={closeDraft}
+        onSave={saveDraft}
+        onDelete={
+          draft.id
+            ? () => {
+                removeService(draft.id);
+                closeDraft();
+              }
+            : undefined
+        }
+        staff={staff}
+        categories={categories}
+        onAddCategory={addCategory}
+      />
+    );
+  }
 
   return (
     <div className="bb-services-desk">
@@ -149,24 +227,26 @@ export function ServicesPage() {
         </div>
       )}
 
-      <ServiceEditorSheet
-        open={draftOpen}
-        draft={draft}
-        onChange={setDraft}
-        onClose={closeDraft}
-        onSave={saveDraft}
-        onDelete={
-          draft.id
-            ? () => {
-                removeService(draft.id);
-                closeDraft();
-              }
-            : undefined
-        }
-        staff={staff}
-        categories={categories}
-        onAddCategory={addCategory}
-      />
+      {!isMobile ? (
+        <ServiceEditorSheet
+          open={draftOpen}
+          draft={draft}
+          onChange={setDraft}
+          onClose={closeDraft}
+          onSave={saveDraft}
+          onDelete={
+            draft.id
+              ? () => {
+                  removeService(draft.id);
+                  closeDraft();
+                }
+              : undefined
+          }
+          staff={staff}
+          categories={categories}
+          onAddCategory={addCategory}
+        />
+      ) : null}
     </div>
   );
 }

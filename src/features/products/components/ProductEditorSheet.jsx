@@ -48,7 +48,8 @@ export function ProductEditorSheet({
   onClose,
   onSave,
   onDelete,
-  categories = []
+  categories = [],
+  variant = 'sheet'
 }) {
   const fileRef = useRef(null);
   const [step, setStep] = useState('details');
@@ -58,6 +59,7 @@ export function ProductEditorSheet({
   const [cropOpen, setCropOpen] = useState(false);
   const [fileNameHint, setFileNameHint] = useState('');
   const [valueDrafts, setValueDrafts] = useState({});
+  const isPage = variant === 'page';
 
   useEffect(() => {
     if (!open) return;
@@ -272,12 +274,12 @@ export function ProductEditorSheet({
 
   return (
     <div
-      className="bb-services-sheet"
-      role="dialog"
-      aria-modal="true"
+      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      role={isPage ? 'region' : 'dialog'}
+      aria-modal={isPage ? undefined : true}
       aria-label={isEdit ? 'Edit product' : 'New product'}
     >
-      <div className="bb-services-sheet-backdrop" onClick={onClose} />
+      {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
       <div className="bb-services-sheet-panel bb-services-sheet-panel--setup">
         <header className="bb-services-sheet-head">
           <div>
@@ -285,7 +287,7 @@ export function ProductEditorSheet({
               {isEdit ? 'Edit product' : 'New product'}
             </p>
             <h2 className="bb-services-sheet-title">
-              {String(draft.name || '').trim() || 'Untitled product'}
+              {String(draft.name || '').trim() || (isEdit ? 'Edit product' : 'Add a product')}
             </h2>
             <p className="bb-services-sheet-lede">{activeStep.lede}</p>
           </div>
@@ -293,6 +295,7 @@ export function ProductEditorSheet({
             type="button"
             className="bb-ghost-btn bb-services-sheet-close"
             onClick={onClose}
+            aria-label={isPage ? 'Back to products' : 'Close'}
           >
             <X size={16} />
           </button>
@@ -341,7 +344,7 @@ export function ProductEditorSheet({
 
           <div className="bb-services-setup-stage" key={step}>
             {step === 'details' ? (
-              <ProductEditorDetailsStep draft={draft} patch={patch} />
+              <ProductEditorDetailsStep draft={draft} patch={patch} autoFocus={isPage} />
             ) : null}
 
             {step === 'media' ? (

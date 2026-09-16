@@ -5,9 +5,12 @@ import { navigate } from '../../../app/routing';
 import { AppIcon } from './AppIcon';
 
 /** One launcher section: category heading + either app icons or a list of pages. */
-export function AppTile({ app, badgeFor, index = 0, view = 'icons' }) {
+export function AppTile({ app, badgeFor, index = 0, view = 'icons', onSelect = null }) {
   const Icon = app.icon;
-  const open = (tabId) => navigate(`/dashboard/${tabId}`);
+  const open = (tabId) => {
+    navigate(`/dashboard/${tabId}`);
+    onSelect?.(tabId);
+  };
 
   return (
     <section
@@ -65,6 +68,7 @@ export function AppTile({ app, badgeFor, index = 0, view = 'icons' }) {
               tint={app.tint}
               badge={badgeFor(tabId)}
               index={index + i * 0.25}
+              onSelect={onSelect}
             />
           ))}
         </div>

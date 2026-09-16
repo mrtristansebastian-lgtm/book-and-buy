@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { ChevronDown, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import {
   isEBusinessPreviewOnlyPage,
   isHomePageAlwaysVisible,
   isPublicPageEnabled
 } from '../../../config/eBusinessPlatform';
+import { LAUNCHER_TAB } from '../../../config/appLauncher';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
@@ -12,6 +13,22 @@ import { DevicePreviewFrame } from '../components/DevicePreviewFrame';
 
 function countActiveOffers(items = []) {
   return (items || []).filter((item) => item && item.active !== false).length;
+}
+
+function useIsMobileStudio() {
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 899px)').matches
+      : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 899px)');
+    const onChange = () => setMobile(mq.matches);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return mobile;
 }
 
 /**
@@ -34,6 +51,7 @@ export function WebsiteSurfaceStudio({
     addSocialPost
   } = useWorkspace();
   const website = workspace.website || {};
+  const isMobile = useIsMobileStudio();
   const [stepSurface, setStepSurface] = useState(
     stepOptions?.[0]?.id || fixedSurface || 'home'
   );
@@ -42,16 +60,14 @@ export function WebsiteSurfaceStudio({
   const [savedFlash, setSavedFlash] = useState(false);
   const [publishNote, setPublishNote] = useState('');
   const [publishing, setPublishing] = useState(false);
-  const [controlsOpen, setControlsOpen] = useState(false);
 
   const surface = stepOptions ? stepSurface : fixedSurface;
   const editMode = mode === 'edit';
   const previewOnlySurface = isEBusinessPreviewOnlyPage(surface);
   const homeLocked = isHomePageAlwaysVisible(surface);
   const livePage = openLivePage || (previewOnlySurface ? 'buy' : surface);
-  const activeStepLabel =
-    stepOptions?.find((step) => step.id === surface)?.label || title;
   const pageVisible = isPublicPageEnabled(website.pages, surface);
+  const previewDevice = isMobile ? 'phone' : device;
   const serviceCount = countActiveOffers(workspace.services);
   const productCount = countActiveOffers(workspace.products);
   const emptyCatalogHint =
@@ -60,6 +76,10 @@ export function WebsiteSurfaceStudio({
       : pageVisible && surface === 'buy' && productCount === 0
         ? 'No products yet — page will look empty to customers.'
         : '';
+
+  useEffect(() => {
+    if (isMobile) setDevice('phone');
+  }, [isMobile]);
 
   const publishFlash = async () => {
     if (publishing) return;
@@ -91,11 +111,41 @@ export function WebsiteSurfaceStudio({
     });
   };
 
+  const canToggleVisibility =
+    showPageVisible && !previewOnlySurface && !homeLocked;
+
+  const onPublishAction = async () => {
+    if (canToggleVisibility && !pageVisible) {
+      togglePage(surface);
+      setPublishNote('Page is now live for customers.');
+      return;
+    }
+    await publishFlash();
+  };
+
+  const publishLabel = publishing
+    ? 'Publishing…'
+    : savedFlash
+      ? 'Published'
+      : canToggleVisibility && !pageVisible
+        ? 'Unpublished'
+        : 'Publish live';
+
   return (
-    <div className="bb-studio-canvas">
-      <header className={`bb-studio-toolbar${controlsOpen ? ' is-controls-open' : ''}`}>
+    <div className={`bb-studio-canvas${isMobile ? ' is-mobile' : ''}`}>
+      <header className="bb-studio-toolbar">
         <div className="bb-studio-toolbar-top">
           <div className="bb-studio-toolbar-copy min-w-0">
+            {isMobile ? (
+              <button
+                type="button"
+                className="bb-studio-back"
+                aria-label="Back to Home"
+                onClick={() => navigate(`/dashboard/${LAUNCHER_TAB}`)}
+              >
+                <ArrowLeft size={18} strokeWidth={2.4} />
+              </button>
+            ) : null}
             <div className="bb-page-title-wrap">
               <div className="bb-page-header-glow" aria-hidden="true" />
               <h1 className="bb-page-title m-0">{title}</h1>
@@ -113,32 +163,19 @@ export function WebsiteSurfaceStudio({
             </button>
             <button
               type="button"
-              className="bb-studio-action bb-studio-action--primary"
+              className={`bb-studio-action bb-studio-action--primary${
+                canToggleVisibility && !pageVisible ? ' is-unpublished' : ''
+              }`}
               disabled={publishing}
-              onClick={publishFlash}
+              onClick={onPublishAction}
             >
-              {publishing ? 'Publishing…' : savedFlash ? 'Published' : 'Publish'}
+              {publishLabel}
             </button>
           </div>
         </div>
 
-        <button
-          type="button"
-          className="bb-studio-controls-toggle"
-          aria-expanded={controlsOpen}
-          onClick={() => setControlsOpen((open) => !open)}
-        >
-          <span>
-            {activeStepLabel}
-            <span className="bb-studio-controls-toggle-meta">
-              · {mode === 'edit' ? 'Edit' : 'View'} · {device === 'phone' ? 'Phone' : 'Desktop'}
-            </span>
-          </span>
-          <ChevronDown size={16} strokeWidth={2.2} aria-hidden="true" />
-        </button>
-
         <div className="bb-studio-controls">
-          {stepOptions ? (
+          {stepOptions && !isMobile ? (
             <PeriodSegmentedControl
               ariaLabel="Checkout flow step"
               value={surface}
@@ -155,16 +192,18 @@ export function WebsiteSurfaceStudio({
               { id: 'edit', label: 'Edit' }
             ]}
           />
-          <PeriodSegmentedControl
-            ariaLabel="Preview device"
-            value={device}
-            onChange={setDevice}
-            options={[
-              { id: 'phone', label: 'Phone' },
-              { id: 'desktop', label: 'Desktop' }
-            ]}
-          />
-          {previewOnlySurface || !showPageVisible ? (
+          {!isMobile ? (
+            <PeriodSegmentedControl
+              ariaLabel="Preview device"
+              value={device}
+              onChange={setDevice}
+              options={[
+                { id: 'phone', label: 'Phone' },
+                { id: 'desktop', label: 'Desktop' }
+              ]}
+            />
+          ) : null}
+          {isMobile ? null : previewOnlySurface || !showPageVisible ? (
             previewOnlySurface ? (
               <p className="bb-muted m-0 text-xs bb-studio-visible-toggle">
                 Checkout mockup — studio preview only
@@ -201,7 +240,7 @@ export function WebsiteSurfaceStudio({
         <DevicePreviewFrame
           workspace={workspace}
           page={surface}
-          device={device}
+          device={previewDevice}
           editMode={editMode}
           onUpdateWebsite={updateWebsite}
           onUpdateProfile={updateProfile}

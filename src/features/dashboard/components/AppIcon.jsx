@@ -3,7 +3,7 @@ import { workspaceTabLabels } from '../../../config/routeConfig';
 import { navigate } from '../../../app/routing';
 
 /** iOS-style app icon: category-tinted squircle + white glyph, count badge, label. */
-export function AppIcon({ tabId, fallbackIcon, tint, badge = 0, index = 0 }) {
+export function AppIcon({ tabId, fallbackIcon, tint, badge = 0, index = 0, onSelect = null }) {
   const Icon = TAB_ICONS[tabId] || fallbackIcon;
   const [tintA, tintB] = tint || ['#cbd5e1', '#94a3b8'];
   const label = workspaceTabLabels[tabId] || tabId;
@@ -15,7 +15,10 @@ export function AppIcon({ tabId, fallbackIcon, tint, badge = 0, index = 0 }) {
       style={{ '--tint-a': tintA, '--tint-b': tintB, '--i': index }}
       title={TAB_HINTS[tabId]}
       aria-label={badge > 0 ? `${label}, ${badge} waiting` : label}
-      onClick={() => navigate(`/dashboard/${tabId}`)}
+      onClick={() => {
+        navigate(`/dashboard/${tabId}`);
+        onSelect?.(tabId);
+      }}
     >
       <span className="bb-appicon-glyph" aria-hidden="true">
         {Icon ? <Icon size={28} strokeWidth={1.9} absoluteStrokeWidth /> : null}

@@ -25,7 +25,8 @@ export function ServiceEditorSheet({
   onDelete,
   staff = [],
   categories = [],
-  onAddCategory
+  onAddCategory,
+  variant = 'sheet'
 }) {
   const fileRef = useRef(null);
   const [step, setStep] = useState('type');
@@ -229,25 +230,31 @@ export function ServiceEditorSheet({
   };
 
   const showCapacity = isSpot;
+  const isPage = variant === 'page';
 
   return (
     <div
-      className="bb-services-sheet"
-      role="dialog"
-      aria-modal="true"
+      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      role={isPage ? 'region' : 'dialog'}
+      aria-modal={isPage ? undefined : true}
       aria-label={isEdit ? 'Edit service' : 'New service'}
     >
-      <div className="bb-services-sheet-backdrop" onClick={onClose} />
+      {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
       <div className="bb-services-sheet-panel bb-services-sheet-panel--setup">
         <header className="bb-services-sheet-head">
           <div>
             <p className="bb-services-sheet-eyebrow">{isEdit ? 'Edit service' : 'New service'}</p>
             <h2 className="bb-services-sheet-title">
-              {String(draft.name || '').trim() || 'Untitled service'}
+              {String(draft.name || '').trim() || (isEdit ? 'Edit service' : 'Add a service')}
             </h2>
             <p className="bb-services-sheet-lede">{activeStep.lede}</p>
           </div>
-          <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose}>
+          <button
+            type="button"
+            className="bb-ghost-btn bb-services-sheet-close"
+            onClick={onClose}
+            aria-label={isPage ? 'Back to services' : 'Close'}
+          >
             <X size={16} />
           </button>
         </header>
@@ -298,6 +305,7 @@ export function ServiceEditorSheet({
                 draft={draft}
                 patch={patch}
                 showCapacity={showCapacity}
+                autoFocus={isPage}
               />
             ) : null}
 

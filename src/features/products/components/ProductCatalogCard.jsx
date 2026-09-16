@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import {
   formatCompareAtPrice,
   formatProductPrice,
@@ -6,7 +6,13 @@ import {
   normalizeProductStatus
 } from '../../../utils/products';
 
-export function ProductCatalogCard({ product, onEdit, onRemove }) {
+export function ProductCatalogCard({
+  product,
+  onView,
+  onEdit,
+  onRemove,
+  tapToView = false
+}) {
   const imageSrc = product.imageUrls?.[0] || '';
   const category = String(product.category || '').trim();
   const stock = formatStockNote(product);
@@ -18,8 +24,27 @@ export function ProductCatalogCard({ product, onEdit, onRemove }) {
   const statusLabel =
     status === 'draft' ? 'Draft' : status === 'archived' ? 'Archived' : '';
 
+  const openView = () => onView?.(product);
+
   return (
-    <article className={`bb-catalog-card${notLive ? ' is-hidden' : ''}`}>
+    <article
+      className={`bb-catalog-card${notLive ? ' is-hidden' : ''}${
+        tapToView && onView ? ' is-tappable' : ''
+      }`}
+      onClick={tapToView && onView ? openView : undefined}
+      onKeyDown={
+        tapToView && onView
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openView();
+              }
+            }
+          : undefined
+      }
+      role={tapToView && onView ? 'button' : undefined}
+      tabIndex={tapToView && onView ? 0 : undefined}
+    >
       <div className="bb-catalog-card-media">
         {imageSrc ? <img src={imageSrc} alt="" /> : <span className="bb-catalog-card-media-empty" />}
         {category ? <span className="bb-catalog-card-badge">{category}</span> : null}
@@ -48,7 +73,21 @@ export function ProductCatalogCard({ product, onEdit, onRemove }) {
         </span>
       </div>
 
-      <div className="bb-catalog-card-actions">
+      <div
+        className="bb-catalog-card-actions"
+        onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
+      >
+        {onView ? (
+          <button
+            type="button"
+            className="bb-catalog-card-action"
+            onClick={openView}
+          >
+            <Eye size={15} strokeWidth={2.2} />
+            <span>View</span>
+          </button>
+        ) : null}
         <button
           type="button"
           className="bb-catalog-card-action is-edit"

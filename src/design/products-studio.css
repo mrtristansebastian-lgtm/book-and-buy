@@ -32,6 +32,54 @@
   gap: 0.65rem;
 }
 
+.bb-products-pricing {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.bb-products-compare-field .bb-services-field-label-row {
+  width: 100%;
+}
+
+.bb-products-compare-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  margin: 0;
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  background: transparent;
+  color: #475467;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 680;
+  cursor: pointer;
+}
+
+.bb-products-compare-add:hover {
+  color: #101828;
+}
+
+.bb-products-compare-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #98a2b3;
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.bb-products-compare-clear:hover {
+  color: #667085;
+}
+
 @media (max-width: 520px) {
   .bb-products-price-row {
     grid-template-columns: 1fr;
@@ -667,20 +715,24 @@
 
 .bb-stock-info {
   display: grid;
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
 .bb-stock-info-hero {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr);
-  gap: 0.85rem;
+  grid-template-columns: 5.25rem minmax(0, 1fr);
+  gap: 0.95rem;
   align-items: center;
+  padding: 0.85rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .bb-stock-info-media {
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 0.75rem;
+  width: 5.25rem;
+  height: 5.25rem;
+  border-radius: 0.85rem;
   overflow: hidden;
   background: #eef2f6;
   border: 1px solid rgba(15, 23, 42, 0.06);
@@ -695,24 +747,24 @@
 
 .bb-stock-info-copy {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.45rem;
   justify-items: start;
 }
 
 .bb-stock-info-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.65rem;
   margin: 0;
 }
 
 .bb-stock-info-facts div {
   display: grid;
-  gap: 0.2rem;
-  padding: 0.7rem 0.75rem;
-  border-radius: 0.75rem;
-  background: #f8fafc;
-  border: 1px solid rgba(15, 23, 42, 0.06);
+  gap: 0.25rem;
+  padding: 0.8rem 0.85rem;
+  border-radius: 0.85rem;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .bb-stock-info-facts dt {
@@ -726,15 +778,15 @@
 
 .bb-stock-info-facts dd {
   margin: 0;
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 720;
   color: #101828;
   word-break: break-word;
 }
 
 .bb-stock-info-variants {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .bb-stock-info-variant-list {
@@ -742,26 +794,26 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
 .bb-stock-info-variant-list li {
   display: grid;
-  gap: 0.15rem;
-  padding: 0.7rem 0.75rem;
-  border-radius: 0.75rem;
+  gap: 0.2rem;
+  padding: 0.8rem 0.85rem;
+  border-radius: 0.85rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
 }
 
 .bb-stock-info-variant-list strong {
-  font-size: 0.86rem;
+  font-size: 0.9rem;
   font-weight: 760;
   color: #101828;
 }
 
 .bb-stock-info-variant-list span {
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   color: #667085;
 }
 
@@ -779,27 +831,31 @@
 
 .bb-stock-editor {
   display: grid;
-  gap: 0.85rem;
+  gap: 1rem;
   padding-top: 0.15rem;
 }
 
 .bb-stock-section {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.55rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fbfcfd;
 }
 
 .bb-stock-section-label {
   margin: 0;
-  font-size: 0.64rem;
-  font-weight: 740;
+  font-size: 0.66rem;
+  font-weight: 760;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #98a2b3;
+  color: #667085;
 }
 
 .bb-stock-grid {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.65rem;
 }
 
 .bb-stock-grid--2 {
@@ -811,16 +867,22 @@
 }
 
 @media (max-width: 720px) {
-  .bb-stock-grid--2,
+  .bb-stock-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .bb-stock-grid--shipping {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .bb-stock-grid--2,
-  .bb-stock-grid--shipping {
+  .bb-stock-grid--2 {
     grid-template-columns: 1fr;
+  }
+
+  .bb-stock-grid--shipping {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -843,26 +905,129 @@
 
 .bb-stock-variant-list {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
 
 .bb-stock-variant-card {
-  padding: 0.7rem 0.75rem 0.85rem;
-  border-radius: 0.85rem;
+  padding: 0.85rem 0.9rem 0.95rem;
+  border-radius: 0.95rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
+  display: grid;
+  gap: 0.35rem;
 }
 
 .bb-stock-variant-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 760;
   color: #101828;
 }
 
 .bb-stock-variant-card .bb-stock-fields {
-  padding-top: 0.65rem;
+  padding-top: 0.55rem;
+}
+
+.bb-product-info {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.bb-product-info-hero {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-product-info-media {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: #eef2f6;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-product-info-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bb-product-info-media-empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #eef2f6, #e4e7ec);
+}
+
+.bb-product-info-copy {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.bb-product-info-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.bb-product-info-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.4rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  background: #101828;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 740;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bb-product-info-badge.is-soft {
+  background: rgba(15, 23, 42, 0.06);
+  color: #475467;
+}
+
+.bb-product-info-price {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-product-info-block {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bb-product-info-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #475467;
+  white-space: pre-wrap;
+}
+
+html body .native-ui .bb-services-desk .bb-catalog-card.is-tappable {
+  cursor: pointer;
+}
+
+html body .native-ui .bb-services-desk .bb-catalog-card.is-tappable:focus-visible {
+  outline: 2px solid #755cff;
+  outline-offset: 2px;
 }
 
 .bb-stock-row-actions {

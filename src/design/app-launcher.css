@@ -883,9 +883,18 @@
   }
 }
 
-@media (max-width: 420px) {
-  .bb-miniapp-name {
-    display: none;
+@media (max-width: 899px) {
+  .bb-miniapp-tabs {
+    display: none !important;
+  }
+
+  .bb-miniapp-bar-inner {
+    gap: 0.55rem;
+    min-height: 3.1rem;
+  }
+
+  .bb-miniapp-identity {
+    flex: 1 1 auto;
   }
 }
 
