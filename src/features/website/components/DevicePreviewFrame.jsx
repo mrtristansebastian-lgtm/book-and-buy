@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PublicSurfaceRenderer } from './PublicSurfaceRenderer';
 
 /**
- * Phone/desktop frame that mounts the real public surface tree.
+ * Flush studio surface (no device bezel). Phone mode is width-only (~390px).
  */
 export function DevicePreviewFrame({
   workspace,
@@ -16,35 +16,42 @@ export function DevicePreviewFrame({
   showDrafts = false
 }) {
   const isPhone = device === 'phone';
-  const screenRef = useRef(null);
+  const surfaceRef = useRef(null);
+  const [itemId, setItemId] = useState('');
 
   useEffect(() => {
-    screenRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    setItemId('');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [page, device]);
+
+  useEffect(() => {
+    surfaceRef.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+  }, [itemId]);
 
   return (
     <div
-      className={`bb-device-preview ${
-        isPhone ? 'bb-device-preview--phone' : 'bb-device-preview--desktop'
+      ref={surfaceRef}
+      className={`bb-studio-surface bb-device-preview bb-device-screen ${
+        isPhone
+          ? 'bb-studio-surface--phone bb-device-preview--phone'
+          : 'bb-studio-surface--desktop bb-device-preview--desktop'
       }`}
     >
-      <div className="bb-device-bezel">
-        {isPhone ? <div className="bb-device-notch" aria-hidden="true" /> : null}
-        <div className="bb-device-screen" ref={screenRef}>
-          <PublicSurfaceRenderer
-            workspace={workspace}
-            page={page}
-            preview
-            editMode={editMode}
-            showHeader
-            onUpdateWebsite={onUpdateWebsite}
-            onUpdateProfile={onUpdateProfile}
-            onUpdateSocialPost={onUpdateSocialPost}
-            onAddSocialPost={onAddSocialPost}
-            showDrafts={showDrafts}
-          />
-        </div>
-      </div>
+      <PublicSurfaceRenderer
+        workspace={workspace}
+        page={page}
+        itemId={itemId}
+        preview
+        editMode={editMode}
+        showHeader
+        onOpenItem={setItemId}
+        onCloseItem={() => setItemId('')}
+        onUpdateWebsite={onUpdateWebsite}
+        onUpdateProfile={onUpdateProfile}
+        onUpdateSocialPost={onUpdateSocialPost}
+        onAddSocialPost={onAddSocialPost}
+        showDrafts={showDrafts}
+      />
     </div>
   );
 }

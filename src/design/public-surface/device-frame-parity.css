@@ -1,15 +1,17 @@
 /*
- * Studio device frames sit inside a wide browser, so viewport @media rules
+ * Studio surfaces sit inside a wide browser, so viewport @media rules
  * still apply desktop layouts to phone/narrow previews. Size layouts against
- * the device screen width so Book / Buy / Social match the live page.
+ * the studio surface width so Book / Buy / Social match the live page.
  */
 
+.bb-studio-surface,
 .bb-device-screen {
   container-type: inline-size;
   container-name: bb-device;
 }
 
-/* Phone frame closer to a real handset so type/spacing match live mobile */
+/* Phone width mode */
+.bb-studio-surface--phone,
 .bb-device-preview--phone {
   max-width: 390px;
 }
@@ -350,37 +352,18 @@
   }
 }
 
-/* Hard guarantee: desktop device mockup always 4-up like live PC */
+/* Hard guarantee: desktop studio surface always 4-up like live PC */
 .bb-device-preview--desktop .bb-public-service-list,
-.bb-device-preview--desktop .bb-public-product-grid {
+.bb-device-preview--desktop .bb-public-product-grid,
+.bb-studio-surface--desktop .bb-public-service-list,
+.bb-studio-surface--desktop .bb-public-product-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 0.55rem !important;
 }
 
-/* Desktop studio frame (~880px): keep Book/Buy height inside the device, not 100dvh */
-.bb-device-preview--desktop .bb-device-screen:has(.bb-public-profile-panel--buy),
-.bb-device-preview--desktop .bb-device-screen:has(.bb-public-profile-panel--book),
-.bb-device-preview--desktop .bb-device-screen:has(.bb-public-social--split) {
-  height: min(70vh, 720px);
-  overflow: hidden;
-}
-
-.bb-device-preview--desktop
-  .bb-device-screen:has(.bb-public-profile-panel--buy)
-  > .bb-public-surface,
-.bb-device-preview--desktop
-  .bb-device-screen:has(.bb-public-profile-panel--book)
-  > .bb-public-surface,
-.bb-device-preview--desktop
-  .bb-device-screen:has(.bb-public-social--split)
-  > .bb-public-surface {
-  height: 100%;
-  max-height: 100%;
-  min-height: 0;
-}
-
 /* Phone preview: keep live mobile type scale (avoid over-shrinking titles) */
-.bb-device-preview--phone .bb-public-catalog-intro-title {
+.bb-device-preview--phone .bb-public-catalog-intro-title,
+.bb-studio-surface--phone .bb-public-catalog-intro-title {
   font-size: 1.45rem !important;
   line-height: 1.12 !important;
 }
@@ -389,11 +372,17 @@
 .bb-device-preview--phone .bb-public-social-header h1,
 .bb-device-preview--phone .bb-public-catalog-title,
 .bb-device-preview--phone .bb-page-title.text-4xl,
-.bb-device-preview--phone .bb-page-title.text-3xl {
+.bb-device-preview--phone .bb-page-title.text-3xl,
+.bb-studio-surface--phone .bb-public-buy-header h1,
+.bb-studio-surface--phone .bb-public-social-header h1,
+.bb-studio-surface--phone .bb-public-catalog-title,
+.bb-studio-surface--phone .bb-page-title.text-4xl,
+.bb-studio-surface--phone .bb-page-title.text-3xl {
   font-size: 1.35rem !important;
   line-height: 1.15 !important;
 }
 
-.bb-device-preview--phone .bb-social-profile-tab span {
+.bb-device-preview--phone .bb-social-profile-tab span,
+.bb-studio-surface--phone .bb-social-profile-tab span {
   display: inline !important;
 }

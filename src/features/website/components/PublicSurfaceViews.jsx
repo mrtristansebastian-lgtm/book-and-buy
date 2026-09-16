@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
+import { isPublicPageEnabled } from '../../../config/eBusinessPlatform';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
 import { SocialFeed } from '../../social/components/SocialFeed';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
@@ -38,11 +39,7 @@ function resolveSectionOrder() {
 }
 
 function pageEnabled(website, pageId) {
-  if (pageId === 'home') return true;
-  if (pageId === 'content') return website.pages?.social !== false;
-  if (pageId === 'book') return website.pages?.book !== false;
-  if (pageId === 'buy') return website.pages?.buy !== false;
-  return true;
+  return isPublicPageEnabled(website?.pages, pageId);
 }
 
 function normalizeRailTab(value) {
@@ -58,6 +55,7 @@ export function PublicHomeView({
   preview = false,
   editMode = false,
   publicMode = false,
+  onOpenItem,
   onUpdateWebsite,
   onUpdateProfile,
   onUpdateSocialPost,
@@ -68,7 +66,6 @@ export function PublicHomeView({
   const venueImages = website.venueImages || [];
   const reviews = website.reviews || [];
   const reasons = website.reasons || [];
-  const products = workspace.products || [];
   const requestedTab = normalizeRailTab(railTab);
 
   const patchWebsite = (patch) => onUpdateWebsite?.(patch);
@@ -93,7 +90,7 @@ export function PublicHomeView({
 
   const order = resolveSectionOrder().filter((id) => sectionOn(website, id) || editMode);
   const tabs = PROFILE_RAIL_TABS.filter(
-    (tab) => pageEnabled(website, tab.id) || editMode
+    (tab) => pageEnabled(website, tab.id) || editMode || preview
   );
   const tabKey = tabs.map((tab) => tab.id).join('|');
   const [activeTab, setActiveTab] = useState(() =>
@@ -107,6 +104,11 @@ export function PublicHomeView({
     setActiveTab(next);
   }, [requestedTab, tabKey]);
 
+  // Studio device previews lock to one surface — no Home/Social/Book/Buy switcher.
+  const railLocked = Boolean(preview);
+  const visibleTab = railLocked ? requestedTab : activeTab;
+  const openRailTab = railLocked ? undefined : setActiveTab;
+
   const homeSections = (
     <div className="bb-public-profile-home-stack">
       <HeroSection
@@ -117,7 +119,7 @@ export function PublicHomeView({
         preview={preview}
         patchWebsite={patchWebsite}
         onUpdateProfile={onUpdateProfile}
-        onOpenRailTab={setActiveTab}
+        onOpenRailTab={openRailTab}
       />
       {order.map((id) => {
         if (id === 'offerIntro') {
@@ -204,7 +206,7 @@ export function PublicHomeView({
     </div>
   );
 
-  if (activeTab === 'content') {
+  if (visibleTab === 'content') {
     panel = (
       <div className="bb-public-profile-panel bb-public-profile-panel--content" role="tabpanel">
         <ProfileIdentitySection
@@ -228,46 +230,28 @@ export function PublicHomeView({
         />
       </div>
     );
-  } else if (activeTab === 'book') {
+  } else if (visibleTab === 'book') {
     panel = (
       <div className="bb-public-profile-panel bb-public-profile-panel--book" role="tabpanel">
         <PublicBookingFlow
           catalogWorkspace={workspace}
           workspaceName={workspace.brandName}
           hideTitle
-          preview={preview || editMode}
+          preview={preview}
           publicMode={publicMode}
+          onOpenItem={onOpenItem}
         />
       </div>
     );
-  } else if (activeTab === 'buy') {
+  } else if (visibleTab === 'buy') {
     panel = (
       <div className="bb-public-profile-panel bb-public-profile-panel--buy" role="tabpanel">
-        {editMode ? (
-          <label className="bb-public-profile-featured grid gap-1 text-xs font-semibold">
-            Featured product
-            <select
-              className="native-control-input px-3 py-2 text-sm"
-              value={website.featuredProductId || ''}
-              onChange={(event) =>
-                onUpdateWebsite?.({ featuredProductId: event.target.value })
-              }
-            >
-              <option value="">None</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name || product.title || product.id}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
         <PublicStorefront
           catalogWorkspace={workspace}
           workspaceName={workspace.brandName}
-          preview={preview || editMode}
-          featuredProductId={website.featuredProductId}
+          preview={preview}
           publicMode={publicMode}
+          onOpenItem={onOpenItem}
         />
       </div>
     );
@@ -276,10 +260,10 @@ export function PublicHomeView({
   return (
     <div className="bb-public-home-stack bb-public-profile">
       <div className="bb-public-profile-rail">
-        {tabs.length ? (
+        {!railLocked && tabs.length ? (
           <nav className="bb-public-profile-tabs bb-public-profile-tabs--top" role="tablist" aria-label="Profile">
             {tabs.map((tab) => {
-              const active = activeTab === tab.id;
+              const active = visibleTab === tab.id;
               return (
                 <button
                   key={tab.id}

@@ -1,15 +1,15 @@
-/* Business Blog studio ? premium compose desk + live library */
+/* Business Blog studio — compose desk + live library */
 
 .bb-social-studio {
   display: grid;
   gap: 1.35rem;
   width: 100%;
-  max-width: var(--bb-public-measure-wide, 64rem);
+  max-width: none;
   margin-inline: 0;
   min-width: 0;
 }
 
-/* Mobile: Instagram-style full-bleed ? no inset card */
+/* Full-bleed on mobile; tighter PC padding shared via device-frame.css */
 @media (max-width: 720px) {
   .bb-owner-main:has(> .bb-social-studio) {
     padding-inline: 0;
@@ -17,7 +17,6 @@
   }
 
   .bb-social-studio {
-    max-width: none;
     gap: 0.65rem;
   }
 
@@ -28,17 +27,6 @@
 
   .bb-social-studio-body {
     padding-bottom: 0;
-  }
-
-  .bb-social-studio-live {
-    border-radius: 0;
-    border: 0;
-    box-shadow: none;
-    background: #fff;
-  }
-
-  .bb-social-studio-live .bb-public-profile-identity {
-    border-radius: 0;
   }
 
   .bb-social-studio-live .bb-public-profile-shell {
@@ -84,10 +72,7 @@
   top: 0.25rem;
   z-index: 4;
   padding: 0.35rem 0 0.85rem;
-  background:
-    radial-gradient(120% 80% at 0% 0%, rgba(20, 167, 255, 0.07), transparent 55%),
-    radial-gradient(90% 70% at 100% 0%, rgba(15, 23, 42, 0.04), transparent 50%),
-    linear-gradient(180deg, #fbfbfb 72%, rgba(251, 251, 251, 0));
+  background: #fff;
 }
 
 .bb-social-studio-header-row {
@@ -102,6 +87,12 @@
   display: grid;
   gap: 0.25rem;
   min-width: 0;
+}
+
+.bb-social-studio-visible {
+  flex: 0 0 auto;
+  margin-left: 0;
+  align-self: center;
 }
 
 .bb-social-studio-eyebrow {
@@ -133,28 +124,28 @@
   min-width: 0;
 }
 
-/* ??? Social Studio live profile shell ??? */
+/* Flush live profile shell (no card inset on PC) */
 
 .bb-social-studio-live {
   display: grid;
   gap: 0;
   min-width: 0;
   overflow: visible;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0;
+  border: 0;
   background: #fff;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+  box-shadow: none;
 }
 
 .bb-social-studio-live .bb-public-profile-identity {
   border: 0;
   background: #fff;
-  border-radius: 1.15rem 1.15rem 0 0;
+  border-radius: 0;
   overflow: visible;
 }
 
 .bb-social-studio-live .bb-public-profile-shell {
-  padding: 0.85rem 1rem 0;
+  padding: 0.85rem 0 0;
   overflow: visible;
   max-width: min(100%, 48rem);
   margin-inline: auto;

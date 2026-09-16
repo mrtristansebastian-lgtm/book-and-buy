@@ -1239,8 +1239,7 @@ export function createDemoWorkspace() {
           q: 'Can I book privately?',
           a: 'Yes. Pick a cooking or baking package, or message us from Support.'
         }
-      ],
-      featuredProductId: 'artisan-bread-box'
+      ]
     },
     socialPosts: [
       {
@@ -1767,7 +1766,6 @@ export function hydrateDemoWorkspace(stored) {
           bookStrip: false
         },
         sectionOrder: fresh.website.sectionOrder,
-        featuredProductId: fresh.website.featuredProductId,
         heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
         logoUrl: fresh.website.logoUrl,
         socialBannerUrl: fresh.website.socialBannerUrl,

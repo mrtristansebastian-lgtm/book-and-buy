@@ -5,7 +5,7 @@
   align-items: end;
   justify-items: center;
   overflow: hidden;
-  min-height: clamp(22rem, calc(100dvh - var(--bb-public-header-h) - 9rem), 34rem);
+  min-height: clamp(22rem, calc(var(--bb-vp-h, 100dvh) - var(--bb-public-header-h) - 9rem), 34rem);
 }
 
 .bb-public-home-atmosphere {
@@ -231,8 +231,8 @@
 @media (min-width: 960px) {
   .bb-public-home-stack.bb-public-profile:has(.bb-public-profile-panel--buy),
   .bb-public-home-stack.bb-public-profile:has(.bb-public-profile-panel--book) {
-    height: 100dvh;
-    max-height: 100dvh;
+    height: var(--bb-vp-h, 100dvh);
+    max-height: var(--bb-vp-h, 100dvh);
     overflow: hidden;
     display: grid;
     grid-template-rows: minmax(0, 1fr);
@@ -393,7 +393,7 @@
     right: 0;
     z-index: 45;
     width: min(26rem, calc(100vw - 2rem));
-    height: 100dvh;
+    height: var(--bb-vp-h, 100dvh);
     overflow: auto;
     padding: 1rem 1rem 1.5rem;
     box-sizing: border-box;

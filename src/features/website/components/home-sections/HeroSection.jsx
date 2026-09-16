@@ -6,6 +6,7 @@ import {
   styleTokenColor,
   isSolidColorToken
 } from '../editable';
+import { isPublicPageEnabled } from '../../../../config/eBusinessPlatform';
 
 const DEFAULT_HERO = '/example/flour-and-flame/hero.webp';
 
@@ -28,6 +29,9 @@ export function HeroSection({
   const ctaToken = readStyleToken(website, 'hero.bookCta');
   const ctaSolid = styleTokenColor(ctaToken);
   const ctaIsSolid = isSolidColorToken(ctaToken);
+  const pages = website.pages || {};
+  const showBook = isPublicPageEnabled(pages, 'book') || editMode;
+  const showBuy = isPublicPageEnabled(pages, 'buy') || editMode;
 
   const openRail = (tabId) => {
     if (preview || editMode) return;
@@ -84,48 +88,54 @@ export function HeroSection({
               patchWebsite({ homeSubtext: value, subcopy: value })
             }
           />
-          <div className="bb-public-home-ctas">
-            <button
-              type="button"
-              className={`bb-primary-btn${ctaIsSolid ? ' bb-style-token-solid' : ''}`}
-              style={
-                ctaIsSolid
-                  ? { '--bb-cta-fill': ctaSolid, backgroundColor: ctaSolid }
-                  : undefined
-              }
-              onClick={() => openRail('book')}
-            >
-              <EditableText
-                as="span"
-                editMode={editMode}
-                value={website.ctaLabel || 'Book'}
-                placeholder="Book CTA"
-                website={website}
-                patchWebsite={patchWebsite}
-                colorTokenId="hero.bookCtaLabel"
-                fillTokenId="hero.bookCta"
-                fillAllowGradient
-                fillTitle="Button fill"
-                onChange={(value) => patchWebsite({ ctaLabel: value })}
-              />
-            </button>
-            <button
-              type="button"
-              className="bb-ghost-btn bb-public-home-ghost"
-              onClick={() => openRail('buy')}
-            >
-              <EditableText
-                as="span"
-                editMode={editMode}
-                value={website.buyCtaLabel || 'Buy'}
-                placeholder="Buy CTA"
-                website={website}
-                patchWebsite={patchWebsite}
-                colorTokenId="hero.buyCtaLabel"
-                onChange={(value) => patchWebsite({ buyCtaLabel: value })}
-              />
-            </button>
-          </div>
+          {showBook || showBuy ? (
+            <div className="bb-public-home-ctas">
+              {showBook ? (
+                <button
+                  type="button"
+                  className={`bb-primary-btn${ctaIsSolid ? ' bb-style-token-solid' : ''}`}
+                  style={
+                    ctaIsSolid
+                      ? { '--bb-cta-fill': ctaSolid, backgroundColor: ctaSolid }
+                      : undefined
+                  }
+                  onClick={() => openRail('book')}
+                >
+                  <EditableText
+                    as="span"
+                    editMode={editMode}
+                    value={website.ctaLabel || 'Book'}
+                    placeholder="Book CTA"
+                    website={website}
+                    patchWebsite={patchWebsite}
+                    colorTokenId="hero.bookCtaLabel"
+                    fillTokenId="hero.bookCta"
+                    fillAllowGradient
+                    fillTitle="Button fill"
+                    onChange={(value) => patchWebsite({ ctaLabel: value })}
+                  />
+                </button>
+              ) : null}
+              {showBuy ? (
+                <button
+                  type="button"
+                  className="bb-ghost-btn bb-public-home-ghost"
+                  onClick={() => openRail('buy')}
+                >
+                  <EditableText
+                    as="span"
+                    editMode={editMode}
+                    value={website.buyCtaLabel || 'Buy'}
+                    placeholder="Buy CTA"
+                    website={website}
+                    patchWebsite={patchWebsite}
+                    colorTokenId="hero.buyCtaLabel"
+                    onChange={(value) => patchWebsite({ buyCtaLabel: value })}
+                  />
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </EditSection>

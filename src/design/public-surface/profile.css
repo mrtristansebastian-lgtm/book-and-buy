@@ -569,8 +569,8 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
  */
 @media (min-width: 1100px) {
   .bb-public-home-stack.bb-public-profile:has(.bb-public-social--split) {
-    height: 100dvh;
-    max-height: 100dvh;
+    height: var(--bb-vp-h, 100dvh);
+    max-height: var(--bb-vp-h, 100dvh);
     overflow: hidden;
     padding: 0;
     display: grid;
@@ -857,23 +857,11 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   }
 }
 
-/*
- * The desktop studio preview is an 880px device inside a larger browser.
- * Size the fixed Social shell against that device, not the outer 100dvh.
- */
-.bb-device-preview--desktop .bb-device-screen:has(.bb-public-social--split) {
-  height: min(62vh, 620px);
-  overflow: hidden;
-}
-
-.bb-device-preview--desktop
-  .bb-device-screen:has(.bb-public-social--split)
-  > .bb-public-surface,
-.bb-device-preview--desktop
-  .bb-device-screen
-  .bb-public-home-stack.bb-public-profile:has(.bb-public-social--split) {
-  height: 100%;
-  max-height: 100%;
+/* Inside studio surfaces, Social split fills available height when needed. */
+.bb-device-preview--desktop .bb-public-home-stack.bb-public-profile:has(.bb-public-social--split),
+.bb-studio-surface--desktop .bb-public-home-stack.bb-public-profile:has(.bb-public-social--split) {
+  height: auto;
+  max-height: none;
   min-height: 0;
 }
 
@@ -884,9 +872,17 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   .bb-public-profile:has(.bb-public-social--split)
   .bb-public-profile-modules,
 .bb-device-preview--desktop
+  .bb-public-profile-panel--content:has(.bb-public-social--split),
+.bb-studio-surface--desktop
+  .bb-public-profile:has(.bb-public-social--split)
+  .bb-public-profile-rail,
+.bb-studio-surface--desktop
+  .bb-public-profile:has(.bb-public-social--split)
+  .bb-public-profile-modules,
+.bb-studio-surface--desktop
   .bb-public-profile-panel--content:has(.bb-public-social--split) {
-  height: 100%;
-  max-height: 100%;
+  height: auto;
+  max-height: none;
   min-height: 0;
 }
 
@@ -898,7 +894,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 }
 
 .bb-public-profile .bb-public-profile-hero.bb-public-home {
-  min-height: clamp(22rem, calc(100dvh - 3.25rem), 34rem);
+  min-height: clamp(22rem, calc(var(--bb-vp-h, 100dvh) - 3.25rem), 34rem);
   width: 100%;
   margin: 0;
   border-radius: 0;
@@ -1080,10 +1076,10 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading {
-  font-size: clamp(1.85rem, 3.3vw, 2.75rem);
-  font-weight: 780;
-  letter-spacing: -0.045em;
-  line-height: 1.02;
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem);
+  font-weight: 820;
+  letter-spacing: -0.038em;
+  line-height: 1.08;
   text-align: center;
   justify-items: center;
 }
@@ -1103,7 +1099,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body {
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
   line-height: 1.65;
   letter-spacing: -0.015em;
   text-align: center;
@@ -1719,10 +1715,10 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
   margin: 0;
   max-width: none;
-  font-size: clamp(1.85rem, 3.3vw, 2.75rem);
-  font-weight: 780;
-  letter-spacing: -0.045em;
-  line-height: 1.02;
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem);
+  font-weight: 820;
+  letter-spacing: -0.038em;
+  line-height: 1.08;
   color: #101828;
   text-align: center;
   justify-items: center;
@@ -1736,9 +1732,9 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 }
 
 .bb-public-about-journey-body {
-  max-width: min(28rem, 100%);
+  max-width: min(38rem, 100%);
   margin-inline: auto;
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
   text-align: center;
   text-wrap: pretty;
 }
@@ -2342,10 +2338,10 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
-  font-size: clamp(1.9rem, 3.4vw, 2.85rem);
-  font-weight: 780;
-  letter-spacing: -0.045em;
-  line-height: 1.02;
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem);
+  font-weight: 820;
+  letter-spacing: -0.038em;
+  line-height: 1.08;
   text-align: center;
   justify-items: center;
 }
@@ -2357,10 +2353,10 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-about-page-body {
-  max-width: min(34rem, 100%);
+  max-width: min(38rem, 100%);
   text-align: center;
   text-wrap: pretty;
-  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem);
 }
 
 .bb-public-section-action,
@@ -4268,17 +4264,16 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-jour
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-body {
-  font-size: clamp(1rem, 1.5vw, 1.2rem) !important;
   text-align: center !important;
-  max-width: min(28rem, 100%) !important;
+  max-width: min(38rem, 100%) !important;
   margin-inline: auto !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-title.bb-public-profile-heading {
-  font-size: clamp(1.9rem, 3.4vw, 2.85rem) !important;
-  font-weight: 780 !important;
-  letter-spacing: -0.045em !important;
-  line-height: 1.02 !important;
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem) !important;
+  font-weight: 820 !important;
+  letter-spacing: -0.038em !important;
+  line-height: 1.08 !important;
   text-align: center !important;
   justify-items: center !important;
   max-width: none !important;
@@ -4295,10 +4290,10 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-bl
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading {
-  font-size: clamp(1.85rem, 3.3vw, 2.75rem) !important;
-  font-weight: 780 !important;
-  letter-spacing: -0.045em !important;
-  line-height: 1.02 !important;
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem) !important;
+  font-weight: 820 !important;
+  letter-spacing: -0.038em !important;
+  line-height: 1.08 !important;
   text-align: center !important;
   justify-items: center !important;
   max-width: none !important;
@@ -4313,14 +4308,14 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-bl
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body {
-  font-size: clamp(1rem, 1.5vw, 1.2rem) !important;
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-title.bb-public-profile-heading {
-  font-size: clamp(1.85rem, 3.3vw, 2.75rem) !important;
-  font-weight: 780 !important;
-  letter-spacing: -0.045em !important;
-  line-height: 1.02 !important;
+  font-size: clamp(1.55rem, 2.85vw, 2.05rem) !important;
+  font-weight: 820 !important;
+  letter-spacing: -0.038em !important;
+  line-height: 1.08 !important;
   text-align: center !important;
   justify-items: center !important;
   max-width: none !important;
@@ -4340,14 +4335,14 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-jour
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-body {
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif !important;
-  font-size: clamp(1rem, 1.5vw, 1.2rem) !important;
+  font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
   font-weight: 500 !important;
   line-height: 1.65 !important;
   letter-spacing: -0.015em !important;
   color: #101828 !important;
   -webkit-font-smoothing: antialiased !important;
   text-align: center !important;
-  max-width: min(34rem, 100%) !important;
+  max-width: min(38rem, 100%) !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about--editorial .bb-public-about-title,

@@ -12,9 +12,12 @@ import {
   Package,
   Boxes,
   Share2,
+  ShoppingBag,
+  ShoppingCart,
   Users,
   Settings,
   Globe2,
+  BookOpen,
   X
 } from 'lucide-react';
 import {
@@ -39,6 +42,9 @@ const ICONS = {
   orders: ClipboardList,
   stock: Boxes,
   website: Globe2,
+  'website-book': BookOpen,
+  'website-buy': ShoppingBag,
+  'website-checkout': ShoppingCart,
   social: Share2,
   communications: MessageSquare,
   finance: CreditCard,

@@ -6,7 +6,10 @@ import {
   buildCheckoutPreviewResult
 } from '../../storefront/components/PublicCartCheckout';
 import { PublicHomeView } from './PublicSurfaceViews';
-import { isEBusinessPreviewOnlyPage } from '../../../config/eBusinessPlatform';
+import {
+  isEBusinessPreviewOnlyPage,
+  resolveVisiblePublicPage
+} from '../../../config/eBusinessPlatform';
 
 /** Map studio / URL page ids onto the profile rail tabs. */
 export function pageToRailTab(page = 'home') {
@@ -57,13 +60,21 @@ export function PublicSurfaceRenderer({
   editMode = false,
   showHeader: _showHeader = true,
   publicMode = false,
+  onOpenItem,
+  onCloseItem,
   onUpdateWebsite,
   onUpdateProfile,
   onUpdateSocialPost,
   onAddSocialPost,
   showDrafts = false
 }) {
-  const pageId = String(page || 'home').trim().toLowerCase();
+  const requestedPage = String(page || 'home').trim().toLowerCase();
+  // Studio keeps the requested surface so owners can edit hidden pages.
+  // Live public URLs fall back to Home when a page is turned off.
+  const pageId =
+    preview || editMode
+      ? requestedPage
+      : resolveVisiblePublicPage(workspace?.website?.pages, requestedPage);
   const railTab = pageToRailTab(pageId);
   const detailId = String(itemId || '').trim();
 
@@ -92,8 +103,9 @@ export function PublicSurfaceRenderer({
             workspace={workspace}
             workspaceName={workspace.brandName}
             slug={workspace.slug}
-            preview={preview || editMode}
+            preview={preview}
             publicMode={publicMode}
+            onBack={onCloseItem}
           />
         </div>
       </PublicCartProvider>
@@ -115,6 +127,7 @@ export function PublicSurfaceRenderer({
           preview={preview}
           editMode={editMode}
           publicMode={publicMode}
+          onOpenItem={onOpenItem}
           onUpdateWebsite={onUpdateWebsite}
           onUpdateProfile={onUpdateProfile}
           onUpdateSocialPost={onUpdateSocialPost}

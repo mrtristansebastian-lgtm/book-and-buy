@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { navigate, publicPagePath } from '../../../app/routing';
+import { isPublicPageEnabled } from '../../../config/eBusinessPlatform';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { BlogComposerSheet } from '../components/BlogComposerSheet';
 import { SocialStudioCompose } from '../components/SocialStudioCompose';
@@ -21,6 +22,7 @@ export function SocialStudioPage() {
   const posts = workspace.socialPosts || [];
   const website = workspace.website || {};
   const businessName = workspace.brandName || workspace.name || '';
+  const socialVisible = isPublicPageEnabled(website.pages, 'social');
 
   const openCreate = (kind) => {
     setTab(kind);
@@ -37,6 +39,15 @@ export function SocialStudioPage() {
 
   const openLive = () => navigate(publicPagePath(workspace.slug, 'social'));
 
+  const toggleSocialVisible = () => {
+    updateWebsite({
+      pages: {
+        ...website.pages,
+        social: !socialVisible
+      }
+    });
+  };
+
   return (
     <div className="bb-social-studio">
       <header className="bb-social-studio-header">
@@ -46,7 +57,18 @@ export function SocialStudioPage() {
               <div className="bb-page-header-glow" aria-hidden="true" />
               <h1 className="bb-page-title bb-social-studio-title">Social Studio</h1>
             </div>
+            <p className="bb-muted m-0 text-sm">
+              Compose posts and control whether Social appears on your public site.
+            </p>
           </div>
+          <label className="bb-studio-visible-toggle bb-social-studio-visible">
+            <input
+              type="checkbox"
+              checked={socialVisible}
+              onChange={toggleSocialVisible}
+            />
+            Page visible
+          </label>
         </div>
       </header>
 

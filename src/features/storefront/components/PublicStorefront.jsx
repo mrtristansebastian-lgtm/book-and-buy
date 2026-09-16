@@ -15,8 +15,8 @@ export function PublicStorefront({
   catalogWorkspace,
   workspaceName,
   preview = false,
-  featuredProductId = '',
-  publicMode = false
+  publicMode = false,
+  onOpenItem
 }) {
   const ctx = useWorkspace();
   const workspace = catalogWorkspace || ctx.workspace;
@@ -26,6 +26,7 @@ export function PublicStorefront({
   const [panel, setPanel] = useState('shop');
   const [categoryId, setCategoryId] = useState('all');
   const cartOpen = panel === 'cart';
+  const studioNav = typeof onOpenItem === 'function';
 
   const catalog = useMemo(
     () => products.filter((product) => isProductPubliclyVisible(product)),
@@ -37,15 +38,11 @@ export function PublicStorefront({
     [catalog, categoryId]
   );
 
-  const featured =
-    categoryId === 'all'
-      ? catalog.find((product) => product.id === featuredProductId) || null
-      : null;
-  const gridProducts = featured
-    ? filteredCatalog.filter((product) => product.id !== featured.id)
-    : filteredCatalog;
-
   const openDetail = (productId) => {
+    if (studioNav) {
+      onOpenItem(productId);
+      return;
+    }
     if (preview) return;
     navigate(publicItemPath(workspace.slug, 'buy', productId));
   };
@@ -81,17 +78,14 @@ export function PublicStorefront({
     />
   );
 
-  const renderCard = (product, featuredCard = false) => {
+  const renderCard = (product) => {
     const quote = product.quoteBased || product.priceType === 'quote';
     const hasOptions = productHasVariants(product);
     const imageSrc = product.imageUrls?.[0] || product.image || '';
     const price = formatProductPrice(product);
 
     return (
-      <article
-        key={product.id}
-        className={`bb-public-product-card${featuredCard ? ' bb-public-product-card--featured' : ''}`}
-      >
+      <article key={product.id} className="bb-public-product-card">
         <button
           type="button"
           className="bb-public-product-surface"
@@ -138,8 +132,7 @@ export function PublicStorefront({
 
   const productGrid = (
     <div className="bb-public-product-grid">
-      {featured && featuredProductId ? renderCard(featured, true) : null}
-      {gridProducts.map((product) => renderCard(product))}
+      {filteredCatalog.map((product) => renderCard(product))}
       {catalog.length === 0 ? (
         <p className="bb-muted m-0">No products published yet.</p>
       ) : filteredCatalog.length === 0 ? (
@@ -161,7 +154,7 @@ export function PublicStorefront({
     <section
       className={`bb-public-buy-section bb-public-gutter bb-public-catalog-desk${
         cartOpen ? ' is-cart-open' : ''
-      }${preview ? ' pointer-events-none' : ''}`}
+      }${preview && !studioNav ? ' pointer-events-none' : ''}`}
     >
       <div className="bb-public-measure-wide bb-public-catalog-shell">
         <div className="bb-public-catalog-layout">

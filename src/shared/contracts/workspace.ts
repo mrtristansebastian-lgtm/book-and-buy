@@ -170,6 +170,8 @@ export interface WorkspaceProduct {
 export interface WebsitePageVisibility {
   home?: boolean;
   book?: boolean;
+  buy?: boolean;
+  /** @deprecated Prefer `buy`. Kept for legacy workspaces. */
   shop?: boolean;
   social?: boolean;
 }
@@ -251,7 +253,6 @@ export interface WebsiteSettings {
   bookFaqTitle?: string;
   bookFaqEyebrow?: string;
   bookFaq?: WebsiteFaqItem[];
-  featuredProductId?: string;
   /** Home profile modules: about, gallery, faq, reviews, map (legacy: reasons, venue, offer). */
   sections?: Record<string, boolean>;
   /** Preferred order; Home currently uses createDefaultHomeSectionOrder(). */
@@ -259,7 +260,6 @@ export interface WebsiteSettings {
   ctaPrimary?: "book" | "shop" | "social" | string;
   pages?: WebsitePageVisibility;
   featuredServiceIds?: string[];
-  featuredProductIds?: string[];
   showFaq?: boolean;
   showContact?: boolean;
 }

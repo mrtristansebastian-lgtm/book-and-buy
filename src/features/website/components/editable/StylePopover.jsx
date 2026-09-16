@@ -15,8 +15,10 @@ function resolvePosition(anchorRect, panelSize, placement) {
   const vh = window.innerHeight;
 
   if (placement === 'left-of-bezel') {
-    const bezel = document.querySelector('.bb-device-bezel');
-    const frame = bezel?.getBoundingClientRect();
+    const surface =
+      document.querySelector('.bb-studio-surface') ||
+      document.querySelector('.bb-device-bezel');
+    const frame = surface?.getBoundingClientRect();
     const leftEdge = frame?.left ?? anchorRect.left;
     let left = leftEdge - width - GAP;
     if (left < VIEW_PAD) {

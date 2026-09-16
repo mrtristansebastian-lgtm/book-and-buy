@@ -146,18 +146,6 @@
   opacity: 0.78;
 }
 
-.bb-public-product-card--featured .bb-public-product-surface {
-  border-color: transparent;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent-button-gradient) border-box;
-  background-size: auto, 420% 420%;
-  background-position: 0 0, var(--native-accent-x) 50%;
-  border: 1.5px solid transparent;
-  border-bottom: 0;
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05);
-}
-
 .bb-public-product-surface > .bb-public-product-media {
   margin-inline: 0.35rem;
   margin-top: 0.35rem;
@@ -817,11 +805,11 @@
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
+  box-shadow: none;
   transition:
     border-color 150ms ease,
     background 150ms ease,
-    color 150ms ease,
-    box-shadow 150ms ease;
+    color 150ms ease;
 }
 
 .bb-public-catalog-tab:hover {
@@ -838,7 +826,7 @@
     var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x, 40%) 50%;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  box-shadow: none;
 }
 
 .bb-public-catalog-tab.is-active::after {

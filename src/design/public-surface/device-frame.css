@@ -1,0 +1,59 @@
+/* Flush studio surface — no device bezel */
+
+.bb-studio-surface {
+  width: 100%;
+  min-width: 0;
+  background: #fff;
+  container-type: inline-size;
+  container-name: bb-device;
+}
+
+.bb-studio-surface--phone {
+  max-width: 390px;
+  margin-inline: auto;
+  overflow-x: hidden;
+}
+
+.bb-studio-surface .bb-public-surface {
+  min-width: 0;
+  --bb-public-gutter: 1rem;
+  --bb-public-header-h: 3.25rem;
+}
+
+.bb-studio-surface--phone .bb-public-surface {
+  --bb-public-gutter: 0.95rem;
+  --bb-public-header-h: auto;
+}
+
+/* Shared flush padding for website + social studios on PC */
+@media (min-width: 721px) {
+  .bb-owner-main:has(> .bb-studio-canvas),
+  .bb-owner-main:has(> .bb-social-studio) {
+    padding-inline: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-owner-main:has(> .bb-studio-canvas),
+  .bb-owner-main:has(> .bb-social-studio) {
+    padding-inline: 1.25rem;
+  }
+}
+
+/* Match public site white behind flush studios */
+.bb-shell:has(.bb-studio-canvas),
+.bb-shell:has(.bb-social-studio) {
+  background: #fff;
+}
+
+.bb-owner-content:has(.bb-studio-canvas),
+.bb-owner-content:has(.bb-social-studio),
+.bb-owner-main:has(> .bb-studio-canvas),
+.bb-owner-main:has(> .bb-social-studio) {
+  background: #fff;
+}
+
+.bb-shell:has(.bb-studio-canvas) .bb-demo-banner,
+.bb-shell:has(.bb-social-studio) .bb-demo-banner {
+  background: #fff;
+}

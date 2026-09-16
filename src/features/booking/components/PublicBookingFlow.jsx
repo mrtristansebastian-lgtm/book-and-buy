@@ -21,7 +21,8 @@ export function PublicBookingFlow({
   workspaceName,
   hideTitle: _hideTitle = false,
   preview = false,
-  publicMode = false
+  publicMode = false,
+  onOpenItem
 }) {
   const ctx = useWorkspace();
   const workspace = catalogWorkspace || ctx.workspace;
@@ -32,6 +33,7 @@ export function PublicBookingFlow({
   const [categoryId, setCategoryId] = useState('all');
   const [slotService, setSlotService] = useState(null);
   const cartOpen = panel === 'cart';
+  const studioNav = typeof onOpenItem === 'function';
 
   const activeServices = useMemo(
     () => (workspace.services || []).filter((service) => service.active !== false),
@@ -47,6 +49,10 @@ export function PublicBookingFlow({
   );
 
   const openDetail = (serviceId) => {
+    if (studioNav) {
+      onOpenItem(serviceId);
+      return;
+    }
     if (preview) return;
     navigate(publicItemPath(workspace.slug, 'book', serviceId));
   };
@@ -177,7 +183,7 @@ export function PublicBookingFlow({
     <section
       className={`bb-public-buy-section bb-public-gutter bb-public-catalog-desk${
         cartOpen ? ' is-cart-open' : ''
-      }${preview ? ' pointer-events-none' : ''}`}
+      }${preview && !studioNav ? ' pointer-events-none' : ''}`}
     >
       <div className="bb-public-measure-wide bb-public-catalog-shell">
         <div className="bb-public-catalog-layout">

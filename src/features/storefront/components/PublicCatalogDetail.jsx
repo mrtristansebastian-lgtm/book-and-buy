@@ -48,13 +48,26 @@ export function PublicCatalogDetail({
   workspaceName,
   slug,
   preview = false,
-  publicMode = false
+  publicMode = false,
+  onBack
 }) {
   const cart = usePublicCart();
   const [panel, setPanel] = useState('detail');
   const [selections, setSelections] = useState({});
   const [slotSheetOpen, setSlotSheetOpen] = useState(false);
   const [serviceVariantId, setServiceVariantId] = useState('');
+  const studioBack = typeof onBack === 'function';
+  const catalogPage = kind === 'service' ? 'book' : 'buy';
+  const catalogLabel = kind === 'service' ? 'Book' : 'Buy';
+
+  const goBack = () => {
+    if (studioBack) {
+      onBack();
+      return;
+    }
+    if (preview) return;
+    navigate(publicPagePath(slug, catalogPage));
+  };
 
   const options = useMemo(() => {
     if (kind !== 'product' || !item) return [];
@@ -94,9 +107,6 @@ export function PublicCatalogDetail({
     setServiceVariantId(serviceVariants[0]?.id || '');
   }, [item?.id, kind, serviceVariants]);
 
-  const catalogPage = kind === 'service' ? 'book' : 'buy';
-  const catalogLabel = kind === 'service' ? 'Book' : 'Buy';
-
   const selectedProductVariant = useMemo(() => {
     if (kind !== 'product' || !item) return null;
     if (!productHasVariants(item)) return null;
@@ -120,10 +130,7 @@ export function PublicCatalogDetail({
           <button
             type="button"
             className="bb-ghost-btn justify-self-start"
-            onClick={() => {
-              if (preview) return;
-              navigate(publicPagePath(slug, catalogPage));
-            }}
+            onClick={goBack}
           >
             <ArrowLeft size={16} />
             Back to {catalogLabel}
@@ -204,7 +211,9 @@ export function PublicCatalogDetail({
   if (panel === 'cart') {
     return (
       <section
-        className={`bb-public-detail bb-public-gutter ${preview ? 'pointer-events-none' : ''}`}
+        className={`bb-public-detail bb-public-gutter ${
+          preview && !studioBack ? 'pointer-events-none' : ''
+        }`}
       >
         <div className="bb-public-measure-wide grid gap-6">
           <div className="flex justify-end">{cartButton}</div>
@@ -221,18 +230,13 @@ export function PublicCatalogDetail({
 
   return (
     <section
-      className={`bb-public-detail bb-public-gutter ${preview ? 'pointer-events-none' : ''}`}
+      className={`bb-public-detail bb-public-gutter ${
+        preview && !studioBack ? 'pointer-events-none' : ''
+      }`}
     >
       <div className="bb-public-measure-wide bb-public-detail-shell">
         <header className="bb-public-detail-toolbar">
-          <button
-            type="button"
-            className="bb-ghost-btn"
-            onClick={() => {
-              if (preview) return;
-              navigate(publicPagePath(slug, catalogPage));
-            }}
-          >
+          <button type="button" className="bb-ghost-btn" onClick={goBack}>
             <ArrowLeft size={16} />
             Back to {catalogLabel}
           </button>
