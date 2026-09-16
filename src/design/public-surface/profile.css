@@ -2111,8 +2111,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   min-height: 0;
   perspective: 1400px;
   transform-style: preserve-3d;
-  /* Room for a tight up-right deck peek */
-  padding: 0.55rem 0.8rem 0.35rem 0;
+  padding: 0.7rem 1rem 0.45rem 0;
   box-sizing: border-box;
 }
 
@@ -2125,19 +2124,19 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   overflow: hidden;
   border-radius: 0.15rem;
   background: #e8edf2;
-  transform-origin: 6% 100%;
+  transform-origin: 0% 100%;
   transform-style: preserve-3d;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
-  opacity: calc(1 - (var(--bb-about-stack, 0) * 0.1));
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+  opacity: calc(1 - (var(--bb-about-stack, 0) * 0.14));
   transform:
     translate3d(
-      calc(var(--bb-about-stack, 0) * 0.58rem),
-      calc(var(--bb-about-stack, 0) * -0.42rem),
-      calc(var(--bb-about-stack, 0) * -16px)
+      calc(var(--bb-about-stack, 0) * 4%),
+      calc(var(--bb-about-stack, 0) * -3%),
+      calc(var(--bb-about-stack, 0) * -26px)
     )
-    scale(calc(1 - (var(--bb-about-stack, 0) * 0.018)))
-    rotateX(calc(var(--bb-about-stack, 0) * 0.75deg))
-    rotateZ(calc(var(--bb-about-stack, 0) * -0.5deg));
+    scale(calc(1 - (var(--bb-about-stack, 0) * 0.04)))
+    rotateX(calc(var(--bb-about-stack, 0) * 1.15deg))
+    rotateZ(calc(var(--bb-about-stack, 0) * -0.8deg));
   transition:
     transform 720ms cubic-bezier(0.22, 1, 0.36, 1),
     opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -2560,16 +2559,16 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     position: absolute;
     z-index: 1;
     left: var(--bb-public-gutter, 1.25rem);
-    right: calc(var(--bb-public-gutter, 1.25rem) - 0.55rem);
+    right: calc(var(--bb-public-gutter, 1.25rem) - 0.85rem);
     top: var(--bb-about-mobile-media-top, 8.75rem);
     bottom: 2.9rem;
     width: auto;
     height: auto;
     min-height: 0;
-    /* Thin up-right peek stays inside the media band */
-    padding: 0.5rem 0.7rem 0.2rem 0;
+    /* Let the up-right deck actually show */
+    padding: 0.85rem 1rem 0.35rem 0;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .bb-public-about-page-media {
@@ -2577,7 +2576,20 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     height: 100%;
     min-height: 0;
     border-radius: 0.2rem;
-    /* Inherit shared tight up-right deck from base styles */
+    opacity: calc(1 - (var(--bb-about-stack, 0) * 0.15));
+    transform:
+      translate3d(
+        calc(var(--bb-about-stack, 0) * 5%),
+        calc(var(--bb-about-stack, 0) * -3.5%),
+        calc(var(--bb-about-stack, 0) * -22px)
+      )
+      scale(calc(1 - (var(--bb-about-stack, 0) * 0.045)))
+      rotateX(calc(var(--bb-about-stack, 0) * 1.25deg))
+      rotateZ(calc(var(--bb-about-stack, 0) * -0.9deg));
+  }
+
+  .bb-public-about-page.is-current .bb-public-about-page-media {
+    transform: translate3d(0, 0, 0) scale(1) rotateX(0deg) rotateZ(0deg);
   }
 
   .bb-public-about-page-nav {
