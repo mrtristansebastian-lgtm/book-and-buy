@@ -219,9 +219,9 @@ export function PublicCartCheckout({
   const cart = usePublicCart();
   const workspace = catalogWorkspace || ctx.workspace;
   const bookings =
-    catalogWorkspace && catalogWorkspace !== ctx.workspace
-      ? catalogWorkspace.bookings || []
-      : ctx.bookings;
+    (catalogWorkspace && catalogWorkspace !== ctx.workspace
+      ? catalogWorkspace.bookings
+      : ctx.bookings) || [];
   const services = workspace.services || ctx.services || [];
   const paymentGateways = workspace.paymentGateways || ctx.paymentGateways;
   const paymentOptions = useMemo(

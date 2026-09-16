@@ -49,7 +49,7 @@ export function PublicServiceSlotSheet({
     setTime(initialTime || '');
   }, [open, initialDateKey, initialTime, service?.id]);
 
-  const isSpot = getServiceScheduleType(service) === 'class_session';
+  const isSpot = Boolean(service) && getServiceScheduleType(service) === 'class_session';
 
   const slots = useMemo(() => {
     if (!open || !service || isSpot || !dateKey) return [];

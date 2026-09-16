@@ -7,6 +7,8 @@
   gap: 1.35rem;
   padding: 0.35rem 0 1.5rem;
   box-sizing: border-box;
+  container-type: inline-size;
+  container-name: checkout-flow;
 }
 
 .bb-checkout-flow__back {
@@ -572,4 +574,25 @@ button.bb-checkout-tile {
   .bb-checkout-flow__title {
     font-size: clamp(1.65rem, 7vw, 2.1rem);
   }
+}
+
+/* Narrow checkout containers (phone preview + slim layouts) — never two columns */
+@container checkout-flow (max-width: 36rem) {
+  .bb-checkout-form__row,
+  .bb-checkout-success__cards {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-checkout-form__row--half {
+    max-width: none;
+  }
+}
+
+.bb-device-preview--phone .bb-checkout-form__row,
+.bb-device-preview--phone .bb-checkout-success__cards {
+  grid-template-columns: 1fr !important;
+}
+
+.bb-device-preview--phone .bb-checkout-form__row--half {
+  max-width: none !important;
 }

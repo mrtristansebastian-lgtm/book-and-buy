@@ -39,8 +39,10 @@ export const normalizeScheduleType = (value) => {
   return ALIASES[key] || 'appointment';
 };
 
-export const getServiceScheduleType = (service = {}) =>
-  normalizeScheduleType(service.scheduleType || service.bookingType || service.serviceType);
+export const getServiceScheduleType = (service) => {
+  const row = service || {};
+  return normalizeScheduleType(row.scheduleType || row.bookingType || row.serviceType);
+};
 
 export const getScheduleTypeMeta = (value) =>
   SCHEDULE_TYPE_OPTIONS.find((option) => option.id === normalizeScheduleType(value)) ||
