@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Check, Copy, ExternalLink } from 'lucide-react';
+import { Check, Copy, ExternalLink, LayoutGrid, List } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { launcherApps } from '../../../config/appLauncher';
 import { useAuth } from '../../auth/AuthContext';
@@ -51,12 +51,25 @@ function plural(count, one, many) {
   return `${count} ${count === 1 ? one : many}`;
 }
 
+const LAUNCHER_VIEW_KEY = 'bb.launcherView';
+
+function readLauncherView() {
+  try {
+    const stored = window.localStorage.getItem(LAUNCHER_VIEW_KEY);
+    if (stored === 'list' || stored === 'icons') return stored;
+  } catch {
+    /* ignore */
+  }
+  return 'icons';
+}
+
 /** Home launcher: greeting, business stats strip, and every mini-app as a widget tile. */
 export function OverviewPage() {
   const { user } = useAuth();
   const { workspace, staff, bookings, orders, services } = useWorkspace();
   const { badgeFor, pendingRequests, pendingOrders, unreadSupport } = useWorkspaceBadges();
   const [copied, setCopied] = useState(false);
+  const [view, setView] = useState(readLauncherView);
   const [periodId, setPeriodId] = useState('week');
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
@@ -142,6 +155,16 @@ export function OverviewPage() {
     }
   ];
 
+  const toggleView = () => {
+    const next = view === 'icons' ? 'list' : 'icons';
+    setView(next);
+    try {
+      window.localStorage.setItem(LAUNCHER_VIEW_KEY, next);
+    } catch {
+      /* ignore */
+    }
+  };
+
   const copyPublicLink = async () => {
     const url = `${window.location.origin}${window.location.pathname}#${publicHomePath}`;
     try {
@@ -169,6 +192,20 @@ export function OverviewPage() {
         </div>
 
         <div className="bb-launcher-tools">
+          <button
+            type="button"
+            className="bb-launcher-view"
+            aria-pressed={view === 'list'}
+            aria-label={view === 'icons' ? 'Show list view' : 'Show app icons'}
+            title={view === 'icons' ? 'List view' : 'App icons'}
+            onClick={toggleView}
+          >
+            {view === 'icons' ? (
+              <List size={16} strokeWidth={2.1} absoluteStrokeWidth />
+            ) : (
+              <LayoutGrid size={16} strokeWidth={2.1} absoluteStrokeWidth />
+            )}
+          </button>
           <PeriodSegmentedControl
             variant="period"
             ariaLabel="Stats time period"
@@ -235,12 +272,12 @@ export function OverviewPage() {
       </section>
 
       <section
-        className="bb-launcher-grid"
+        className="bb-launcher-groups"
         aria-label="Apps"
         style={{ '--n': launcherApps.length }}
       >
         {launcherApps.map((app, index) => (
-          <AppTile key={app.id} app={app} badgeFor={badgeFor} index={index + 1} />
+          <AppTile key={app.id} app={app} badgeFor={badgeFor} index={index + 1} view={view} />
         ))}
       </section>
     </div>

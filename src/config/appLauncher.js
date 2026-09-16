@@ -73,7 +73,8 @@ export const launcherApps = [
     icon: CalendarDays,
     tabs: ['services', 'requests', 'staff', 'availability'],
     size: 'lg',
-    hue: 'mint'
+    hue: 'mint',
+    tint: ['#f1ff9a', '#cbffb8']
   },
   {
     id: 'buy',
@@ -82,7 +83,8 @@ export const launcherApps = [
     icon: ShoppingBag,
     tabs: ['products', 'orders', 'stock'],
     size: 'lg',
-    hue: 'sky'
+    hue: 'sky',
+    tint: ['#b7fff0', '#b9e3ff']
   },
   {
     id: 'presence',
@@ -91,7 +93,8 @@ export const launcherApps = [
     icon: Globe2,
     tabs: ['website', 'website-book', 'website-buy', 'website-checkout', 'social'],
     size: 'lg',
-    hue: 'violet'
+    hue: 'violet',
+    tint: ['#d8ccff', '#d2cbff']
   },
   {
     id: 'business',
@@ -100,7 +103,8 @@ export const launcherApps = [
     icon: BriefcaseBusiness,
     tabs: ['communications', 'finance', 'clients', 'settings'],
     size: 'lg',
-    hue: 'rose'
+    hue: 'rose',
+    tint: ['#d8ccff', '#ffd4f2']
   }
 ];
 
