@@ -348,8 +348,7 @@
   }
 
   .bb-settings.is-mobile-index {
-    padding-bottom: calc(0.5rem + var(--bb-owner-dock-pad, var(--bb-owner-dock-h, 3.4rem)));
-    transition: padding-bottom 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
   }
 
   .bb-settings.is-mobile-index .bb-settings-rail {

@@ -126,20 +126,20 @@
 
 @media (max-width: 899px) {
   .bb-owner-main:has(> .bb-studio-canvas) {
-    padding-inline: 0;
-    padding-top: 0.45rem;
-    /* No outer dock pad — it left a fixed white band above the dock */
-    padding-bottom: 0;
+    padding: 0 !important;
   }
 
   .bb-studio-canvas {
     gap: 0.55rem;
+    min-height: 100%;
+    height: 100%;
   }
 
   .bb-studio-toolbar {
     gap: 0.55rem;
     padding-inline: 1rem;
     padding-bottom: 0.55rem;
+    padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
   }
 
   .bb-studio-toolbar-top {
@@ -230,8 +230,7 @@
 
   .bb-studio-stage {
     padding-inline: 0;
-    /* Clearance lives inside the scrolling stage only — not a fixed white slab */
-    padding-bottom: calc(0.85rem + var(--bb-owner-dock-h, 3.4rem));
+    padding-bottom: 0 !important;
   }
 
   /* Phone-width catalog: keep a readable 2-up card grid */

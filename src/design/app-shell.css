@@ -468,8 +468,40 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 @media (max-width: 899px) {
+  /* Mini-app pages: no dock, no reserved pad (kills the white slab above the dock) */
+  .bb-shell.is-miniapp,
+  .bb-shell:has(.bb-studio-canvas) {
+    --bb-owner-dock-pad: 0px !important;
+    --bb-owner-dock-h: 0px !important;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-dock,
+  .bb-shell.is-miniapp .bb-owner-menu-sheet,
+  .bb-shell.is-miniapp .bb-owner-menu-backdrop,
+  .bb-shell:has(.bb-studio-canvas) .bb-owner-dock,
+  .bb-shell:has(.bb-studio-canvas) .bb-owner-menu-sheet,
+  .bb-shell:has(.bb-studio-canvas) .bb-owner-menu-backdrop {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    transform: none !important;
+    pointer-events: none !important;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main,
+  .bb-shell:has(.bb-studio-canvas) .bb-owner-main {
+    padding-bottom: 0.75rem !important;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main.is-flush,
+  .bb-shell:has(.bb-studio-canvas) .bb-owner-main {
+    padding-bottom: 0 !important;
+  }
+
   .bb-shell.is-dock-hidden:not(.is-menu-open) {
-    --bb-owner-dock-pad: 0.75rem;
+    --bb-owner-dock-pad: 0px;
   }
 
   .bb-shell.is-dock-hidden:not(.is-menu-open) .bb-owner-dock {
@@ -825,8 +857,8 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 @media (max-width: 899px) {
   .bb-owner-main.is-flush {
     padding-bottom: 0;
-    height: calc(100dvh - var(--bb-owner-dock-h));
-    max-height: calc(100dvh - var(--bb-owner-dock-h));
+    height: 100dvh;
+    max-height: 100dvh;
   }
 }
 
@@ -868,15 +900,13 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 @media (max-width: 899px) {
-  /* Keep list view above the fixed dock */
-  .bb-shell.is-support-flush {
-    height: calc(100dvh - var(--bb-owner-dock-h));
-    max-height: calc(100dvh - var(--bb-owner-dock-h));
+  .bb-shell.is-support-flush,
+  .bb-shell.is-support-flush .bb-owner-main.is-flush {
+    height: 100dvh;
+    max-height: 100dvh;
   }
 
   .bb-shell.is-support-flush .bb-owner-main.is-flush {
-    height: auto;
-    max-height: none;
     flex: 1 1 auto;
     min-height: 0;
   }
@@ -895,22 +925,9 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     background: #fbfbfb;
   }
 
-  /* Open thread: full-screen chat — hide dock + Back Office mini-app bar */
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) {
-    height: 100dvh;
-    max-height: 100dvh;
-  }
-
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-miniapp-bar,
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-dock,
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-menu-sheet,
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-menu-backdrop {
+  /* Open thread: hide Back Office mini-app bar for full-screen chat */
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-miniapp-bar {
     display: none !important;
-  }
-
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-main.is-flush {
-    height: 100dvh;
-    max-height: 100dvh;
   }
 
   .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-support-composer-wrap {
@@ -925,6 +942,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) {
     padding-inline: 0;
     padding-top: 0.55rem;
+    padding-bottom: 1rem;
     background: #fff;
   }
 
