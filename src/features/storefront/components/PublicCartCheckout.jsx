@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
+import { useAuth } from '../../auth/AuthContext';
+import { useClientProfile } from '../../client-app/ClientProfileContext';
 import { PublicServiceSlotSheet } from '../../booking/components/PublicServiceSlotSheet';
 import { formatCents } from '../../../utils/products';
 import {
@@ -218,6 +220,8 @@ export function PublicCartCheckout({
 }) {
   const ctx = useWorkspace();
   const cart = usePublicCart();
+  const { user } = useAuth();
+  const { profile, isClient, followSlug } = useClientProfile();
   const workspace = catalogWorkspace || ctx.workspace;
   const bookings =
     (catalogWorkspace && catalogWorkspace !== ctx.workspace
@@ -241,6 +245,15 @@ export function PublicCartCheckout({
     birthday: '',
     emailUpdates: true
   });
+
+  useEffect(() => {
+    if (!isClient || !profile) return;
+    setDetails((prev) => ({
+      ...prev,
+      clientName: prev.clientName || profile.displayName || '',
+      clientEmail: prev.clientEmail || profile.email || user?.email || ''
+    }));
+  }, [isClient, profile, user?.email]);
   const [submitNote, setSubmitNote] = useState('');
   const [result, setResult] = useState(() => previewResult || null);
   const [submitting, setSubmitting] = useState(false);
@@ -374,6 +387,7 @@ export function PublicCartCheckout({
       clientNote: details.clientNote.trim(),
       clientCountry: details.country.trim(),
       clientBirthday: details.birthday.trim(),
+      clientUid: isClient ? profile?.uid || user?.uid || '' : '',
       emailUpdates: Boolean(details.emailUpdates),
       status: 'pending',
       paymentStatus: 'unpaid',
@@ -411,13 +425,17 @@ export function PublicCartCheckout({
 
   const submitProducts = async (productItems) => {
     if (!productItems.length) return null;
+    const client = {
+      ...details,
+      clientUid: isClient ? profile?.uid || user?.uid || '' : ''
+    };
 
     if (publicMode && isFirebaseConfigured() && workspace.slug) {
       try {
         const remote = await firebaseCallables.createPublicProductOrder({
           slug: workspace.slug,
           items: productItems,
-          client: details,
+          client,
           paymentMethod
         });
         if (remote && typeof remote === 'object') return remote;
@@ -429,7 +447,7 @@ export function PublicCartCheckout({
     if (sameOwnerContext) {
       return ctx.placeProductOrder({
         items: productItems,
-        client: details,
+        client,
         paymentMethod
       });
     }
@@ -438,7 +456,7 @@ export function PublicCartCheckout({
       workspaceSlug: workspace.slug,
       workspaceName: workspaceName || workspace.brandName,
       items: productItems,
-      client: details,
+      client,
       paymentMethod
     });
   };
@@ -535,10 +553,16 @@ export function PublicCartCheckout({
 
         setResult({ order, bookings: bookingsCreated });
         setStep('success');
+        if (isClient && workspace?.slug) {
+          followSlug(workspace.slug).catch(() => {});
+        }
       } else if (order || bookingsCreated.length) {
         notes.push('Part of your cart went through — check the summary below.');
         setResult({ order, bookings: bookingsCreated, partial: true });
         setStep('success');
+        if (isClient && workspace?.slug) {
+          followSlug(workspace.slug).catch(() => {});
+        }
         if (order) {
           for (const item of productSnapshot) cart.removeItem(item.lineKey);
         }

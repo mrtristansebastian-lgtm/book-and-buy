@@ -18,6 +18,18 @@ export const publicWorkspaceServicesPath = (appId: string, slug: string) =>
 export const publicWorkspaceStaffPath = (appId: string, slug: string) =>
   [...publicWorkspacePath(appId, slug), "staff"] as const;
 
+export const userProfilePath = (appId: string, uid: string) =>
+  [...artifactRoot(appId), "userProfiles", uid] as const;
+
+export const clientThreadsPath = (appId: string) =>
+  [...artifactRoot(appId), "clientThreads"] as const;
+
+export const clientThreadPath = (appId: string, threadId: string) =>
+  [...clientThreadsPath(appId), threadId] as const;
+
+export const clientThreadMessagesPath = (appId: string, threadId: string) =>
+  [...clientThreadPath(appId, threadId), "messages"] as const;
+
 export const callableNames = {
   createOwnerBookingRequest: "createOwnerBookingRequest",
   createPublicBookingRequest: "createPublicBookingRequest",

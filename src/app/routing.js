@@ -44,6 +44,20 @@ export function parseAppRoute(path = getLocationPath()) {
     return { kind: 'portal' };
   }
 
+  if (parts[0] === 'app') {
+    const section = parts[1] || 'home';
+    if (section === 'auth') {
+      return { kind: 'client', section: 'auth', rest: [] };
+    }
+    const allowed = new Set(['home', 'explore', 'messages', 'account']);
+    const tab = allowed.has(section) ? section : 'home';
+    return {
+      kind: 'client',
+      section: tab,
+      rest: parts.slice(2)
+    };
+  }
+
   if (parts[0] === 'w' && parts[1]) {
     const page = normalizePublicPage(parts[2] || 'home');
     const itemId =
@@ -117,6 +131,12 @@ export function publicItemPath(slug, page, itemId) {
     return publicPagePath(slug, normalized);
   }
   return `/w/${slug}/${normalized}/${encodeURIComponent(id)}`;
+}
+
+export function clientAppPath(section = 'home', ...rest) {
+  const base = section === 'home' || !section ? '/app/home' : `/app/${section}`;
+  if (!rest.length) return base;
+  return `${base}/${rest.map((part) => encodeURIComponent(String(part))).join('/')}`;
 }
 
 export function navigate(to, { replace = false } = {}) {

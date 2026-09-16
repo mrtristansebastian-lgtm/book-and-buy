@@ -3,10 +3,12 @@ import { APP_NAME } from '../../config/appConfig';
 import { navigate } from '../../app/routing';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import { useAuth } from './AuthContext';
+import { useClientProfile } from '../client-app/ClientProfileContext';
 
 export function AppLoginScreen() {
   const { loadDemoWorkspace, startOwnerOnboarding, exitDemoMode, workspace } = useWorkspace();
   const { configured, signInEmail, signUpEmail, signInGoogle, user } = useAuth();
+  const { bootstrapClientAfterAuth } = useClientProfile();
   const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +19,19 @@ export function AppLoginScreen() {
     setBusy(true);
     setError('');
     try {
-      await action();
+      const authUser = await action();
+      // If this Firebase user already has a client profile, send them to the client app.
+      try {
+        const { loadUserProfile } = await import('../client-app/clientProfileApi');
+        const remote = authUser?.uid ? await loadUserProfile(authUser.uid) : null;
+        if (remote?.kind === 'client') {
+          await bootstrapClientAfterAuth(authUser);
+          navigate('/app/home', { replace: true });
+          return;
+        }
+      } catch {
+        /* fall through to owner flow */
+      }
       const owner = workspace.isDemo ? exitDemoMode() : workspace;
       if (owner?.onboardingComplete) {
         navigate('/dashboard/overview');
@@ -148,6 +162,9 @@ export function AppLoginScreen() {
             }}
           >
             View Demo As Guest
+          </button>
+          <button type="button" className="bb-ghost-btn" onClick={() => navigate('/app/auth')}>
+            Client app
           </button>
           <button type="button" className="bb-ghost-btn" onClick={() => navigate('/portal')}>
             Client Portal

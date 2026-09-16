@@ -144,6 +144,19 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /artifacts/{appId}/userProfiles/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create: if signedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.kind in ['client', 'owner'] &&
+        request.resource.data.email is string;
+      allow update: if signedIn() &&
+        request.auth.uid == uid &&
+        request.resource.data.kind == resource.data.kind &&
+        request.resource.data.email == resource.data.email;
+      allow delete: if false;
+    }
+
     match /artifacts/{appId}/staffAccess/{email}/workspaces/{ownerId} {
       allow read: if signedIn() && (request.auth.token.email == email || canAdmin(appId, ownerId));
       allow create, update: if canAdmin(appId, ownerId) &&

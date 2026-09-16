@@ -46,6 +46,7 @@ export function createPublicProductOrder({
     clientEmail: String(client.clientEmail || '').trim(),
     clientPhone: String(client.clientPhone || '').trim(),
     clientNote: String(client.clientNote || '').trim(),
+    clientUid: String(client.clientUid || '').trim(),
     paymentMethod: method,
     paymentStatus: isManual ? 'manual_pending' : 'unpaid',
     status: 'pending',
