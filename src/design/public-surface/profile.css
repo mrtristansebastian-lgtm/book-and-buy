@@ -2520,33 +2520,44 @@ button.bb-public-about-pillar-marker.is-icon:hover {
       'copy'
       'media'
       'nav';
-    padding: 1rem var(--bb-public-gutter, 1.25rem) 1.35rem;
-    gap: 0.85rem;
-    row-gap: 0.75rem;
+    padding: 0.35rem var(--bb-public-gutter, 1.25rem) 1.2rem;
+    gap: 0.45rem;
+    row-gap: 0.45rem;
+  }
+
+  .bb-public-about-page.is-current {
+    z-index: var(--bb-about-page-z, 3);
   }
 
   .bb-public-about-page-copy {
     grid-area: copy;
-    align-self: stretch;
+    position: relative;
+    z-index: 12;
+    align-self: start;
     align-content: start;
     justify-items: center;
     height: auto;
     max-height: none;
     max-width: none;
-    padding: 0.15rem 0 0.2rem;
+    margin: 0;
+    padding: 0 0 0.45rem;
     text-align: center;
+    background: transparent;
   }
 
   .bb-public-about-page-media-stage {
     grid-area: media;
+    position: relative;
+    z-index: 1;
     width: 100%;
     height: 100%;
     min-height: 12rem;
     justify-self: stretch;
     align-self: stretch;
-    /* Room for the up-right deck peek */
-    padding: 0 0.85rem 0.55rem 0;
+    /* Keep up-right deck peek inside the media band, clear of copy */
+    padding: 0.95rem 1.05rem 0.7rem 0;
     box-sizing: border-box;
+    overflow: visible;
   }
 
   .bb-public-about-page-media {
@@ -2554,16 +2565,16 @@ button.bb-public-about-pillar-marker.is-icon:hover {
     height: 100%;
     min-height: 12rem;
     border-radius: 0.2rem;
-    transform-origin: 50% 100%;
-    opacity: calc(1 - (var(--bb-about-stack, 0) * 0.18));
+    transform-origin: 18% 92%;
+    opacity: calc(1 - (var(--bb-about-stack, 0) * 0.12));
     transform:
       translate3d(
-        calc(var(--bb-about-stack, 0) * 0.72rem),
-        calc(var(--bb-about-stack, 0) * -0.55rem),
-        calc(var(--bb-about-stack, 0) * -18px)
+        calc(var(--bb-about-stack, 0) * 0.95rem),
+        calc(var(--bb-about-stack, 0) * -0.78rem),
+        calc(var(--bb-about-stack, 0) * -22px)
       )
-      scale(calc(1 - (var(--bb-about-stack, 0) * 0.04)))
-      rotateZ(calc(var(--bb-about-stack, 0) * -1.35deg));
+      scale(calc(1 - (var(--bb-about-stack, 0) * 0.028)))
+      rotateZ(calc(var(--bb-about-stack, 0) * -0.9deg));
   }
 
   .bb-public-about-page.is-current .bb-public-about-page-media {
