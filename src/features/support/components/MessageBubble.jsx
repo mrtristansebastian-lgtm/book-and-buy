@@ -12,7 +12,7 @@ function FileIcon({ mime = '', kind = 'file' }) {
   return <File size={16} />;
 }
 
-export function MessageTimeline({ messages = [], onOpenImage }) {
+export function MessageTimeline({ messages = [], onOpenImage, perspective = 'business' }) {
   let lastDay = '';
   return (
     <div className="bb-support-timeline">
@@ -30,17 +30,20 @@ export function MessageTimeline({ messages = [], onOpenImage }) {
           );
         }
 
-        const isBusiness = message.from === 'business';
+        const isMine =
+          perspective === 'client'
+            ? message.from === 'client'
+            : message.from === 'business';
         const attachments = message.attachments || [];
-        const tone = isBusiness ? 'business' : 'client';
+        const tone = isMine ? 'business' : 'client';
 
         return (
           <div key={message.id}>
             {showDay ? <div className="bb-support-day">{day}</div> : null}
             <div
-              className={`bb-support-bubble-row ${isBusiness ? 'is-business' : 'is-client'}`}
+              className={`bb-support-bubble-row ${isMine ? 'is-business' : 'is-client'}`}
             >
-              <div className={`bb-support-bubble ${isBusiness ? 'is-business' : 'is-client'}`}>
+              <div className={`bb-support-bubble ${isMine ? 'is-business' : 'is-client'}`}>
                 {message.body ? <div className="bb-support-bubble-text">{message.body}</div> : null}
                 {attachments.map((att) => {
                   if (att.kind === 'image' && att.url) {

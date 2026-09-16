@@ -126,6 +126,7 @@ export function ClientProfileProvider({ children }) {
         try {
           await updateClientEngagement(next.uid, {
             likedKeys: normalized.likedKeys,
+            reactionsByKey: normalized.reactionsByKey,
             savedKeys: normalized.savedKeys,
             commentsByKey: normalized.commentsByKey
           });
@@ -138,9 +139,17 @@ export function ClientProfileProvider({ children }) {
     [persist]
   );
 
-  const isLiked = useCallback(
-    (slug, postId) => (profile?.likedKeys || []).includes(socialPostKey(slug, postId)),
+  const getReaction = useCallback(
+    (slug, postId) => {
+      const key = socialPostKey(slug, postId);
+      return profile?.reactionsByKey?.[key] || null;
+    },
     [profile]
+  );
+
+  const isLiked = useCallback(
+    (slug, postId) => Boolean(getReaction(slug, postId)),
+    [getReaction]
   );
 
   const isSaved = useCallback(
@@ -157,16 +166,33 @@ export function ClientProfileProvider({ children }) {
     [profile]
   );
 
-  const toggleLike = useCallback(
-    async (slug, postId) => {
+  const setReaction = useCallback(
+    async (slug, postId, reactionId) => {
       if (!profile || !postId) return profile;
       const key = socialPostKey(slug, postId);
-      const liked = new Set(profile.likedKeys || []);
-      if (liked.has(key)) liked.delete(key);
-      else liked.add(key);
-      return syncEngagement({ ...profile, likedKeys: [...liked] });
+      const prev = { ...(profile.reactionsByKey || {}) };
+      const nextId = reactionId ? String(reactionId) : null;
+      if (!nextId || prev[key] === nextId) {
+        delete prev[key];
+      } else {
+        prev[key] = nextId;
+      }
+      return syncEngagement({
+        ...profile,
+        reactionsByKey: prev,
+        likedKeys: Object.keys(prev)
+      });
     },
     [profile, syncEngagement]
+  );
+
+  const toggleLike = useCallback(
+    async (slug, postId) => {
+      const current = getReaction(slug, postId);
+      if (current) return setReaction(slug, postId, null);
+      return setReaction(slug, postId, 'like');
+    },
+    [getReaction, setReaction]
   );
 
   const toggleSave = useCallback(
@@ -227,9 +253,11 @@ export function ClientProfileProvider({ children }) {
       unfollowSlug,
       bootstrapClientAfterAuth,
       isLiked,
+      getReaction,
       isSaved,
       getComments,
       toggleLike,
+      setReaction,
       toggleSave,
       addComment
     }),
@@ -243,9 +271,11 @@ export function ClientProfileProvider({ children }) {
       unfollowSlug,
       bootstrapClientAfterAuth,
       isLiked,
+      getReaction,
       isSaved,
       getComments,
       toggleLike,
+      setReaction,
       toggleSave,
       addComment
     ]

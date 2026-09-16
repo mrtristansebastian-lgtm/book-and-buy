@@ -4,10 +4,13 @@
   --bb-client-tab-h: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) var(--bb-client-tab-h);
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-height: 0;
   max-width: none;
   width: 100%;
   margin-inline: 0;
+  overflow: hidden;
   background: #fff;
   color: var(--bb-ink);
 }
@@ -26,8 +29,8 @@
   justify-content: space-between;
   gap: 0.75rem;
   min-height: 3.25rem;
-  padding: 0.65rem 1rem;
-  padding-top: max(0.65rem, env(safe-area-inset-top));
+  padding: 0.85rem 1rem 0.75rem;
+  padding-top: max(0.85rem, env(safe-area-inset-top));
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
@@ -36,12 +39,9 @@
   z-index: 20;
 }
 
-.bb-client-top-title {
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 1.2rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+.bb-client-top-title-wrap {
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .bb-client-top-right {
@@ -49,12 +49,117 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+/* Client messages = Support inbox surface inside shell */
+.bb-client-main:has(.bb-client-support-page) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  background: #fff;
+}
+
+.bb-client-support-page {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.bb-client-support-page .bb-support-list-head {
+  gap: 0.85rem;
+  padding: 0.95rem 1rem 0.9rem;
+}
+
+.bb-client-support-page .bb-client-ig-search {
+  width: 100%;
+}
+
+.bb-client-support-page .bb-support-chips {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+@media (min-width: 420px) {
+  .bb-client-support-page .bb-support-chips {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.bb-client-support-page .bb-support-thread {
+  grid-template-columns: 3.75rem minmax(0, 1fr) auto;
+  gap: 0.95rem;
+  padding: 1.2rem 1.05rem;
+  min-height: 5.5rem;
+}
+
+.bb-client-support-page .bb-support-avatar,
+.bb-client-support-page .bb-support-avatar.support-thread-icon-chip {
+  width: 3.75rem;
+  height: 3.75rem;
+  font-size: 1.15rem;
+}
+
+.bb-client-support-page .bb-support-thread-copy {
+  gap: 0.35rem;
+}
+
+.bb-client-support-page .bb-support-thread-copy strong {
+  font-size: 1.08rem;
+  font-weight: 760;
+  line-height: 1.2;
+}
+
+.bb-client-support-page .bb-support-thread-preview {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: #667085;
+}
+
+.bb-client-support-page .bb-support-thread.is-unread .bb-support-thread-preview {
+  color: #344054;
+  font-weight: 580;
+}
+
+.bb-client-support-page .bb-support-thread-time {
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
+.bb-client-support-chip {
+  padding-inline: 0.7rem;
+}
+
+.bb-client-support-chip-label {
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.bb-support-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
+}
+
+.bb-client-support-back {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .bb-client-support-back {
+    display: inline-flex;
+  }
 }
 
 .bb-client-main {
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: #fafafa;
 }
 
@@ -65,12 +170,16 @@
   border-top: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  position: relative;
+  z-index: 100;
+  flex-shrink: 0;
 }
 
 @media (min-width: 900px) {
   .bb-client-shell {
-    grid-template-rows: auto minmax(0, 1fr);
-    min-height: 100dvh;
+    grid-template-rows: auto minmax(0, 1fr) var(--bb-client-tab-h);
+    height: 100dvh;
+    max-height: 100dvh;
     margin-block: 0;
     border-radius: 0;
     overflow: hidden;
@@ -82,55 +191,25 @@
   }
 
   .bb-client-shell.is-headerless {
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) var(--bb-client-tab-h);
   }
 
   .bb-client-top {
-    justify-content: flex-start;
+    justify-content: space-between;
     gap: 1.25rem;
     min-height: 3.5rem;
-    padding: 0.85rem 1.75rem;
+    padding: 1rem 1.75rem 0.9rem;
     border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     background: rgba(255, 255, 255, 0.88);
   }
 
-  .bb-client-top-title {
-    font-size: 1.05rem;
-    flex: 0 0 auto;
-  }
-
-  .bb-client-desk-nav {
-    display: block;
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .bb-client-desk-segment {
-    width: max-content;
-    max-width: 100%;
-  }
-
-  .bb-client-desk-segment button {
-    position: relative;
-    gap: 0.35rem;
-  }
-
-  .bb-client-desk-badge {
-    display: inline-grid;
-    place-items: center;
-    min-width: 1.05rem;
-    height: 1.05rem;
-    padding: 0 0.28rem;
-    border-radius: 999px;
-    background: #ff3b30;
-    color: #fff;
-    font-size: 0.62rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-
   .bb-client-tabs {
-    display: none;
+    display: grid;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    background: #fff;
   }
 
   .bb-client-main {
@@ -629,23 +708,34 @@
   align-items: center;
   gap: 0.35rem;
   flex: 0 0 auto;
-  min-height: 2rem;
-  padding: 0 0.85rem;
-  border: 1px solid #dbdbdb;
+  min-height: 2.35rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 999px;
   background: #fff;
-  color: #050505;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.8rem;
+  color: #667085;
+  font: inherit;
+  font-size: 0.78rem;
   font-weight: 650;
+  letter-spacing: -0.01em;
   cursor: pointer;
   white-space: nowrap;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .bb-client-ig-chip.is-on {
-  background: #050505;
-  border-color: #050505;
-  color: #fff;
+  color: #101828;
+  border-color: transparent;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2, #ffe8a3))
+      border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 
 .bb-client-ig-accounts {
@@ -803,10 +893,18 @@
   color: #050505;
 }
 
-/* Instagram Home feed cards */
+/* Instagram Home feed */
 .bb-client-home-feed {
   background: #fff;
   min-height: 100%;
+}
+
+.bb-client-home-rail-label {
+  display: none;
+}
+
+.bb-client-home-stage {
+  min-width: 0;
 }
 
 .bb-client-home-list {
@@ -1465,6 +1563,18 @@
   background: #fff;
 }
 
+.bb-client-explore-yt {
+  padding-top: 0.15rem;
+}
+
+@media (min-width: 900px) {
+  .bb-client-explore-yt {
+    width: min(72rem, 100%);
+    margin-inline: auto;
+    background: transparent;
+  }
+}
+
 .bb-client-home-notes {
   padding: 0.25rem 0 1rem;
   background: #fff;
@@ -1484,14 +1594,87 @@
 }
 
 @media (min-width: 900px) {
-  .bb-client-home-feed.is-posts,
-  .bb-client-home-feed.is-notes {
-    width: min(42rem, 100%);
+  .bb-client-home-feed {
+    display: grid;
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    width: min(68rem, 100%);
     margin-inline: auto;
+    background: transparent;
   }
 
   .bb-client-home-feed.is-films {
-    width: min(72rem, 100%);
+    width: min(78rem, 100%);
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+  }
+
+  .bb-client-home-feed.is-vertical-open {
+    display: block;
+    width: 100%;
+  }
+
+  .bb-client-home-rail {
+    position: sticky;
+    top: 0.35rem;
+    align-self: start;
+    display: grid;
+    gap: 0.55rem;
+    padding: 0.85rem 0.7rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .bb-client-home-rail-label {
+    display: block;
+    margin: 0 0.35rem 0.15rem;
+    font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #98a2b3;
+  }
+
+  .bb-client-home-feed .bb-client-social-chips {
+    position: static;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .bb-client-home-feed .bb-client-ig-chips {
+    display: grid;
+    gap: 0.35rem;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .bb-client-home-feed .bb-client-ig-chip {
+    justify-content: flex-start;
+    width: 100%;
+    gap: 0.55rem;
+    padding: 0.62rem 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+
+  .bb-client-home-feed .bb-client-ig-chip.is-on {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  }
+
+  .bb-client-home-stage {
+    min-width: 0;
+  }
+
+  .bb-client-home-feed.is-posts .bb-client-home-stage,
+  .bb-client-home-feed.is-notes .bb-client-home-stage {
+    width: min(36rem, 100%);
     margin-inline: auto;
   }
 
@@ -1501,215 +1684,720 @@
     background: transparent;
   }
 
-  .bb-client-home-live-feed .bb-social-feed-post,
+  .bb-client-home-live-feed .bb-social-feed-list {
+    gap: 1.15rem;
+    padding-bottom: 2rem;
+  }
+
+  .bb-client-home-live-feed .bb-social-feed-post {
+    border-radius: 1rem;
+    border-color: rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+  }
+
+  .bb-client-home-live-feed .bb-social-feed-post:hover {
+    background: #fff;
+    border-color: rgba(15, 23, 42, 0.12);
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+  }
+
+  .bb-client-home-live-feed .bb-social-feed-post-head {
+    padding: 0.85rem 1rem 0.7rem;
+  }
+
+  .bb-client-home-live-feed .bb-social-feed-media,
+  .bb-client-home-live-feed .bb-social-feed-carousel {
+    max-height: min(38rem, 72vh);
+  }
+
+  .bb-client-home-live-feed .bb-social-feed-media-img,
+  .bb-client-home-live-feed .bb-social-feed-carousel img,
+  .bb-client-home-live-feed .bb-social-feed-carousel video {
+    max-height: min(38rem, 72vh);
+    object-fit: cover;
+  }
+
+  .bb-client-home-live-feed .bb-social-feed-engage {
+    padding: 0.7rem 1rem 0.2rem;
+  }
+
+  .bb-client-home-live-feed .bb-social-feed-caption-row {
+    padding: 0.35rem 1rem 1rem;
+  }
+
   .bb-client-home-notes .bb-social-note-card {
     border-radius: 0.85rem;
     overflow: hidden;
   }
+}
 
-  .bb-client-social-chips {
-    width: 100%;
+@media (min-width: 1280px) {
+  .bb-client-home-feed {
+    grid-template-columns: 12.5rem minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .bb-client-home-feed.is-posts .bb-client-home-stage,
+  .bb-client-home-feed.is-notes .bb-client-home-stage {
+    width: min(38rem, 100%);
   }
 }
 
-/* Full-page Verticals — TikTok / Reels (client app) */
-.bb-client-vertical-page,
-.bb-client-shell .bb-vertical-watch {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  width: 100%;
-  max-width: none;
-  margin-inline: 0;
-  background: #050505;
-  color: #fff;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  min-height: 100dvh;
-  height: 100dvh;
-  gap: 0;
-  overflow: hidden;
-}
+/* Verticals — mobile: between header + bottom dock; PC: live-page phone + snap */
+@media (max-width: 899px) {
+  .bb-client-shell:has(.bb-client-home-feed.is-vertical-open) .bb-client-main,
+  .bb-client-shell:has(.bb-client-ig-explore.is-immersive .bb-vertical-watch) .bb-client-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    background: #050505;
+  }
 
-.bb-client-vertical-page {
-  grid-template-rows: minmax(0, 1fr);
-}
+  .bb-client-home-feed.is-vertical-open {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    background: #050505;
+  }
 
-.bb-client-vertical-page .bb-vertical-watch {
-  position: relative;
-  inset: auto;
-  z-index: auto;
-  max-width: none;
-  min-height: 100%;
-  height: 100%;
-  gap: 0;
-  background: #050505;
-  color: #fff;
-}
+  .bb-client-home-feed.is-vertical-open .bb-client-home-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
 
-.bb-client-vertical-page .bb-vertical-watch-bar,
-.bb-client-shell .bb-vertical-watch-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 6;
-  padding: max(0.55rem, env(safe-area-inset-top)) 0.75rem 0.55rem;
-  pointer-events: none;
-}
-
-.bb-client-vertical-page .bb-vertical-watch-back,
-.bb-client-shell .bb-vertical-watch-back {
-  pointer-events: auto;
-  border: 0;
-  background: rgba(0, 0, 0, 0.42);
-  color: #fff;
-  backdrop-filter: blur(10px);
-  box-shadow: none;
-}
-
-.bb-client-vertical-page .bb-vertical-watch-back:hover,
-.bb-client-shell .bb-vertical-watch-back:hover {
-  background: rgba(0, 0, 0, 0.58);
-  color: #fff;
-}
-
-.bb-client-vertical-page .bb-vertical-watch-count,
-.bb-client-shell .bb-vertical-watch-count {
-  color: rgba(255, 255, 255, 0.78);
-  pointer-events: none;
-}
-
-.bb-client-vertical-page .bb-vertical-watch-body,
-.bb-client-shell .bb-vertical-watch-body {
-  min-height: 100%;
-  height: 100%;
-  place-items: stretch;
-}
-
-.bb-client-vertical-page .bb-vertical-watch-phone,
-.bb-client-shell .bb-vertical-watch-phone {
-  width: 100%;
-  max-width: none;
-  max-height: none;
-  height: 100%;
-  aspect-ratio: auto;
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-}
-
-.bb-client-vertical-page .bb-vertical-watch-nav,
-.bb-client-shell .bb-vertical-watch-nav {
-  display: none;
-}
-
-.bb-client-vertical-page .bb-vertical-watch-overlay,
-.bb-client-shell .bb-vertical-watch-overlay {
-  padding-bottom: max(1.35rem, env(safe-area-inset-bottom));
-}
-
-.bb-client-vertical-page .bb-vertical-watch-rail,
-.bb-client-shell .bb-vertical-watch-rail {
-  bottom: max(5.75rem, calc(4.5rem + env(safe-area-inset-bottom)));
-}
-
-/* PC: center a 9:16 stage inside the full shell */
-@media (min-width: 900px) {
+  /* Fill main only — keep top header + bottom dock visible */
   .bb-client-vertical-page,
-  .bb-client-shell .bb-vertical-watch {
+  .bb-client-shell .bb-client-ig-explore.is-immersive:has(.bb-vertical-watch) {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    background: #050505;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch {
+    position: relative !important;
+    inset: auto !important;
+    z-index: auto !important;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    height: 100% !important;
+    gap: 0;
+    background: #050505;
+    color: #fff;
+    display: flex !important;
+    flex-direction: column;
+    grid-template-rows: none;
+    overflow: hidden;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-bar,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-bar {
+    position: absolute;
     top: 0;
-    bottom: 0;
-    height: 100dvh;
-    min-height: 100dvh;
-    border-radius: 0;
-    background: #0a0a0a;
+    left: 0;
+    right: 0;
+    z-index: 6;
+    flex: 0 0 auto;
+    padding: 0.55rem 0.75rem;
+    pointer-events: none;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-back,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-back {
+    pointer-events: auto;
+    border: 0;
+    background: rgba(0, 0, 0, 0.42);
+    color: #fff;
+    backdrop-filter: blur(10px);
+    box-shadow: none;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-back:hover,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-back:hover {
+    background: rgba(0, 0, 0, 0.58);
+    color: #fff;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-count,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-count {
+    color: rgba(255, 255, 255, 0.78);
+    pointer-events: none;
   }
 
   .bb-client-vertical-page .bb-vertical-watch-body,
-  .bb-client-shell .bb-vertical-watch-body {
-    place-items: center;
-    background: #0a0a0a;
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-body {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto !important;
+    width: 100%;
+    display: flex !important;
+    place-items: stretch;
   }
 
   .bb-client-vertical-page .bb-vertical-watch-phone,
-  .bb-client-shell .bb-vertical-watch-phone {
-    width: auto;
-    height: min(100%, calc(100dvh - 2rem));
-    max-height: calc(100dvh - 2rem);
-    max-width: min(26.5rem, 100%);
-    aspect-ratio: 9 / 16;
-    border-radius: 1.15rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-phone {
+    position: relative;
+    flex: 1 1 auto;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    height: auto !important;
+    min-height: 0;
+    aspect-ratio: auto !important;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-stage,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-stage {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-slide,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-slide {
+    flex: 0 0 100%;
+    height: 100%;
+    min-height: 100%;
   }
 
   .bb-client-vertical-page .bb-vertical-watch-nav,
-  .bb-client-shell .bb-vertical-watch-nav {
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-nav {
+    display: none;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-overlay,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-overlay {
+    padding-bottom: 1.35rem;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-rail,
+  .bb-client-shell .bb-client-ig-explore.is-immersive .bb-vertical-watch-rail {
+    bottom: 5.5rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .bb-client-shell:has(.bb-client-home-feed.is-vertical-open) .bb-client-main,
+  .bb-client-shell:has(.bb-client-ig-explore.is-immersive .bb-vertical-watch) .bb-client-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .bb-client-home-feed.is-vertical-open {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    background: transparent;
+  }
+
+  .bb-client-home-feed.is-vertical-open .bb-client-home-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Match live-page VerticalWatch: in-flow phone + snap, not a black overlay */
+  .bb-client-vertical-page {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: min(56rem, 100%);
+    margin-inline: auto;
+    min-height: 0;
+    height: 100%;
+    background: transparent;
+    color: #101828;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: none;
+    min-height: min(78dvh, 46rem);
+    height: 100%;
+    gap: 0.55rem;
+    background: transparent;
+    color: #101828;
     display: grid;
-    right: max(1.5rem, calc(50% - 18rem));
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-bar,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-bar {
+    position: static;
+    padding: 0 0.15rem;
+    pointer-events: auto;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-back,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-back {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #fff;
+    color: #344054;
+    backdrop-filter: none;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-back:hover,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-back:hover {
+    background: #f8fafc;
+    color: #101828;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-count,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-count {
+    color: #667085;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-body,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-body {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    height: auto;
+    background: transparent;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-phone,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-phone {
+    position: relative;
+    width: auto;
+    height: 100%;
+    max-width: min(26.5rem, 100%);
+    max-height: 100%;
+    aspect-ratio: 9 / 16;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.12);
+    background: #111;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-nav,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-nav {
+    display: grid;
   }
 
   .bb-client-vertical-page .bb-vertical-watch-nav-btn,
-  .bb-client-shell .bb-vertical-watch-nav-btn {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.18);
-    color: #fff;
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-nav-btn {
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    color: #344054;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-overlay,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-overlay {
+    padding-bottom: 1.2rem;
+  }
+
+  .bb-client-vertical-page .bb-vertical-watch-rail,
+  .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-rail {
+    bottom: 5.5rem;
+  }
+
+  .bb-client-ig-explore.is-immersive:has(.bb-vertical-watch) {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
   }
 }
 
-/* Unique post engage chips (not IG) */
+/* Seamless post Likes / Comments */
 .bb-client-pulse {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem 0.55rem;
-  padding: 0.15rem 0;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.15rem 0 0.05rem;
+  overflow: visible;
+  position: relative;
 }
 
-.bb-client-pulse-chip {
+.bb-client-reaction-wrap.is-open {
+  z-index: 50;
+}
+
+.bb-client-reaction-glyph.is-muted {
+  opacity: 0.72;
+  filter: grayscale(0.12);
+}
+
+.bb-client-reaction-trigger:not(.is-on) .bb-client-reaction-glyph {
+  opacity: 0.72;
+  filter: grayscale(0.12);
+}
+
+.bb-client-pulse-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.bb-client-pulse-stat,
+.bb-client-reaction-trigger {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   margin: 0;
-  padding: 0.38rem 0.7rem;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 0.65rem;
-  background: #f4f6f8;
-  color: #1d2939;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #475467;
   font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 650;
+  font-size: 0.84rem;
+  font-weight: 550;
+  line-height: 1;
   cursor: pointer;
 }
 
-.bb-client-pulse-chip.is-on {
-  border-color: rgba(225, 29, 72, 0.28);
-  background: #fff1f3;
+.bb-client-pulse-stat:hover,
+.bb-client-reaction-trigger:hover {
+  color: #101828;
+}
+
+.bb-client-reaction-trigger.is-on,
+.bb-client-pulse-stat.is-on {
   color: #e11d48;
 }
 
-.bb-client-pulse-icon {
+.bb-client-pulse-num {
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  color: #101828;
+}
+
+.bb-client-reaction-trigger.is-on .bb-client-pulse-num {
+  color: #101828;
+}
+
+.bb-client-pulse-word {
+  font-weight: 520;
+  color: #667085;
+}
+
+.bb-client-pulse-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.22);
+  flex: 0 0 auto;
+}
+
+.bb-client-pulse-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex: 0 0 auto;
+}
+
+.bb-client-pulse-tool {
   display: grid;
   place-items: center;
-  width: 2.15rem;
-  height: 2.15rem;
+  width: 2rem;
+  height: 2rem;
   margin: 0;
-  margin-left: auto;
   padding: 0;
   border: 0;
-  border-radius: 0.55rem;
+  border-radius: 0.45rem;
   background: transparent;
-  color: #344054;
+  color: #667085;
   cursor: pointer;
 }
 
-.bb-client-pulse-icon + .bb-client-pulse-icon {
-  margin-left: 0;
+.bb-client-pulse-tool:hover {
+  color: #101828;
+  background: rgba(15, 23, 42, 0.04);
 }
 
-.bb-client-pulse-icon.is-on {
+.bb-client-pulse-tool.is-on {
   color: #101828;
+}
+
+.bb-client-reaction-glyph {
+  display: block;
+  object-fit: contain;
+  flex: 0 0 auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.bb-client-media-react {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  isolation: isolate;
+}
+
+.bb-client-media-react > .bb-social-feed-media,
+.bb-client-media-react > .bb-social-feed-carousel,
+.bb-client-media-react > .bb-client-home-photo {
+  width: 100%;
+}
+
+.bb-vertical-watch-slide > .bb-client-media-react {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.bb-vertical-watch-slide > .bb-client-media-react.is-open {
+  z-index: 5;
+}
+
+.bb-vertical-watch-slide > .bb-client-media-react .bb-vertical-watch-poster,
+.bb-vertical-watch-slide > .bb-client-media-react .bb-vertical-watch-player,
+.bb-vertical-watch-slide > .bb-client-media-react .bb-vertical-watch-empty {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bb-yt-watch-player > .bb-client-media-react {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.bb-yt-watch-player {
+  position: relative;
+}
+
+.bb-client-media-react-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: bb-media-react-burst 720ms ease-out forwards;
+}
+
+.bb-client-media-react-burst .bb-client-reaction-glyph {
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
+}
+
+.bb-client-media-react-tray {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.28);
+  transform: translate(-50%, -50%);
+  animation: bb-reaction-tray-in 150ms ease-out;
+}
+
+.bb-client-media-react-tray .bb-client-reaction-opt {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.bb-social-note-copy > .bb-client-media-react {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+}
+
+.bb-social-note-copy > .bb-client-media-react.is-open {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+@keyframes bb-media-react-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+.bb-client-reaction-tray {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.45rem);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.12rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.18);
+  animation: bb-reaction-tray-in 140ms ease-out;
+  pointer-events: auto;
+}
+
+.bb-client-reaction-tray--rail {
+  left: auto;
+  right: calc(100% + 0.55rem);
+  top: 50%;
+  bottom: auto;
+  flex-direction: row;
+  transform: translateY(-50%);
+  animation: bb-reaction-tray-rail-in 150ms ease-out;
+  padding: 0.5rem 0.55rem;
+  gap: 0.18rem;
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.bb-client-reaction-tray--rail .bb-client-reaction-opt {
+  width: 2.35rem;
+  height: 2.35rem;
+}
+
+.bb-client-reaction-wrap--rail {
+  position: relative;
+  z-index: 6;
+  overflow: visible;
+}
+
+.bb-client-reaction-wrap--rail.is-open {
+  z-index: 60;
+}
+
+.bb-client-reaction-opt {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.bb-client-reaction-opt img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.bb-client-reaction-opt:hover,
+.bb-client-reaction-opt.is-on {
+  transform: translateY(-4px) scale(1.18);
+}
+
+.bb-client-reaction-wrap--rail .bb-client-reaction-trigger {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bb-client-engage-actions .bb-client-reaction-wrap--bar .bb-client-reaction-trigger {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.bb-client-tweet-actions .bb-client-reaction-wrap--inline .bb-client-reaction-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: inherit;
+  font: inherit;
+}
+
+@keyframes bb-reaction-tray-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bb-reaction-tray-rail-in {
+  from {
+    opacity: 0;
+    transform: translate(10px, -50%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, -50%) scale(1);
+  }
 }
 
 .bb-yt-watch-engage {
@@ -1729,6 +2417,9 @@
   justify-items: center;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  overflow: visible;
+  position: relative;
+  z-index: 5;
 }
 
 .bb-client-tiktok-btn {

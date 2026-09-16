@@ -14,7 +14,7 @@ import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
 import { annotateSocialPosts } from '../ClientSocialShelf';
 import { FeedCard } from '../ClientHomeFeed';
-import { ClientEngagementBar } from '../ClientEngagementBar';
+import { ClientEngagementBar, wrapClientMediaReaction } from '../ClientEngagementBar';
 import { startClientMessage } from '../startClientMessage';
 
 const FILTERS = [
@@ -204,7 +204,7 @@ export function ClientExplorePage() {
     const kindPosts = filteredPosts.filter((post) => getSocialPostKind(post) === kind);
     if (kind === 'video' || kind === 'vertical') {
       return (
-        <ClientAppShell section="explore" hideHeader>
+        <ClientAppShell section="explore" title="Explore">
           <div className="bb-client-ig-explore is-immersive">
             <SocialVideosPanel
               posts={kindPosts}
@@ -215,6 +215,7 @@ export function ClientExplorePage() {
               logoUrl={activePost._logoUrl || ''}
               initialActiveId={activeId}
               onCloseVideo={() => setActiveId('')}
+              wrapMedia={wrapClientMediaReaction}
               renderWatchActions={(post) => (
                 <ClientEngagementBar
                   post={post}
@@ -230,7 +231,7 @@ export function ClientExplorePage() {
     }
     if (kind === 'text') {
       return (
-        <ClientAppShell section="explore" hideHeader>
+        <ClientAppShell section="explore" title="Explore">
           <div className="bb-client-ig-explore is-immersive bb-client-home-notes">
             <button type="button" className="bb-client-ig-back" onClick={() => setActiveId('')}>
               ← Back
@@ -241,6 +242,7 @@ export function ClientExplorePage() {
               logoUrl={activePost._logoUrl || ''}
               slug={activePost._slug || ''}
               editMode={false}
+              wrapMedia={wrapClientMediaReaction}
               renderActions={(post) => (
                 <ClientEngagementBar
                   post={post}
@@ -255,7 +257,7 @@ export function ClientExplorePage() {
       );
     }
     return (
-      <ClientAppShell section="explore" hideHeader>
+      <ClientAppShell section="explore" title="Explore">
         <div className="bb-client-ig-explore is-immersive">
           <FeedCard post={activePost} onClose={() => setActiveId('')} />
         </div>
@@ -264,7 +266,7 @@ export function ClientExplorePage() {
   }
 
   return (
-    <ClientAppShell section="explore" hideHeader>
+    <ClientAppShell section="explore" title="Explore">
       <div className="bb-client-ig-explore">
         <div className="bb-client-ig-top">
           <label className="bb-client-ig-search">
@@ -348,6 +350,26 @@ export function ClientExplorePage() {
 
         {filteredPosts.length === 0 ? (
           <p className="bb-client-empty">Nothing to explore here yet.</p>
+        ) : filter === 'films' ? (
+          <div className="bb-client-home-yt bb-client-explore-yt">
+            <SocialVideosPanel
+              posts={filteredPosts}
+              variant="films"
+              editMode={false}
+              showOwnerStats={false}
+              brandName={filteredPosts[0]?._brandName || 'Business'}
+              logoUrl={filteredPosts[0]?._logoUrl || ''}
+              wrapMedia={wrapClientMediaReaction}
+              renderWatchActions={(post) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={post._slug || ''}
+                  brandName={post._brandName || ''}
+                  variant="youtube"
+                />
+              )}
+            />
+          </div>
         ) : (
           <div className="bb-client-ig-grid" role="list">
             {filteredPosts.map((post, index) => {

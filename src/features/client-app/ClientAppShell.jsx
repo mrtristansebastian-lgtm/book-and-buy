@@ -8,7 +8,7 @@ const TABS = [
   { id: 'account', label: 'Account', icon: UserRound, path: '/app/account' }
 ];
 
-/** Client shell: mobile bottom tabs; PC full-width top bar like business mini-apps. */
+/** Client shell: bottom tab dock on mobile and PC. */
 export function ClientAppShell({
   section = 'home',
   title = '',
@@ -21,31 +21,10 @@ export function ClientAppShell({
     <div className={`bb-client-shell${hideHeader ? ' is-headerless' : ''}`}>
       {hideHeader ? null : (
         <header className="bb-client-top">
-          <h1 className="bb-client-top-title">{title || 'Book and Buy'}</h1>
-
-          <nav className="bb-client-desk-nav" aria-label="Client sections">
-            <div className="bb-segment bb-client-desk-segment" role="group">
-              {TABS.map((tab) => {
-                const active = section === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => navigate(tab.path)}
-                  >
-                    <span>{tab.label}</span>
-                    {tab.id === 'messages' && unreadMessages > 0 ? (
-                      <span className="bb-client-desk-badge">
-                        {unreadMessages > 9 ? '9+' : unreadMessages}
-                      </span>
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
-
+          <div className="bb-page-title-wrap bb-client-top-title-wrap">
+            <div className="bb-page-header-glow" aria-hidden="true" />
+            <h1 className="bb-page-title m-0">{title || 'Book and Buy'}</h1>
+          </div>
           {headerRight ? <div className="bb-client-top-right">{headerRight}</div> : null}
         </header>
       )}

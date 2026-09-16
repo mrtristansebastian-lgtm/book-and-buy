@@ -34,6 +34,7 @@ export async function ensureClientProfile(user, { displayName } = {}) {
     photoURL: user.photoURL || '',
     followedSlugs: [],
     likedKeys: [],
+    reactionsByKey: {},
     savedKeys: [],
     commentsByKey: {},
     createdAt: Date.now()
@@ -71,10 +72,14 @@ export async function updateClientFollowedSlugs(uid, followedSlugs) {
   });
 }
 
-export async function updateClientEngagement(uid, { likedKeys, savedKeys, commentsByKey }) {
+export async function updateClientEngagement(
+  uid,
+  { likedKeys, reactionsByKey, savedKeys, commentsByKey }
+) {
   const firebase = getFirebase();
   if (!firebase || !uid || String(uid).startsWith('demo')) return;
   const payload = {};
+  if (reactionsByKey) payload.reactionsByKey = reactionsByKey;
   if (likedKeys) payload.likedKeys = [...new Set(likedKeys.map(String))];
   if (savedKeys) payload.savedKeys = [...new Set(savedKeys.map(String))];
   if (commentsByKey) payload.commentsByKey = commentsByKey;

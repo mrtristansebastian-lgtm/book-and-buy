@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { navigate, publicPagePath } from '../../../app/routing';
+import { navigate } from '../../../app/routing';
 import { loadPublicWorkspaceFromFirestore } from '../../../shared/firebase/publicWorkspace';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -89,23 +89,10 @@ export function ClientHomePage() {
     });
   }, [workspace, followed, remoteFeeds]);
 
-  const primarySlug = posts[0]?._slug || workspace?.slug || 'flameandflour';
   const noFollows = !followed.length;
 
   return (
-    <ClientAppShell
-      section="home"
-      title="Home"
-      headerRight={
-        <button
-          type="button"
-          className="bb-client-text-btn"
-          onClick={() => navigate(publicPagePath(primarySlug, 'social'))}
-        >
-          Open site
-        </button>
-      }
-    >
+    <ClientAppShell section="home" title="Home">
       {noFollows ? (
         <div className="bb-client-empty-hero">
           <h2>Your feed is quiet</h2>

@@ -187,11 +187,12 @@ function FeedCarousel({ items = [] }) {
   );
 }
 
-function FeedMedia({ post, editMode, onUpdateSocialPost }) {
+function FeedMedia({ post, editMode, onUpdateSocialPost, wrapMedia = null }) {
   const kind = getSocialPostKind(post);
+  let body = null;
 
   if (kind === 'text') {
-    return (
+    body = (
       <div className="bb-social-feed-media bb-social-feed-media--text">
         {post.title || editMode ? (
           <EditableText
@@ -214,10 +215,8 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
         />
       </div>
     );
-  }
-
-  if (kind === 'video') {
-    return (
+  } else if (kind === 'video') {
+    body = (
       <div className="bb-social-feed-media bb-social-feed-media--video">
         {post.mediaUrl ? (
           <BbVideoPlayer
@@ -250,25 +249,28 @@ function FeedMedia({ post, editMode, onUpdateSocialPost }) {
         ) : null}
       </div>
     );
+  } else {
+    const media = getPostMediaItems(post);
+    if (editMode && media.length <= 1) {
+      body = (
+        <EditableImage
+          editMode
+          src={post.mediaUrl || media[0]?.url || ''}
+          className="bb-social-feed-media"
+          imgClassName="bb-social-feed-media-img"
+          storageFolder="social"
+          preset="socialPost"
+          placeholderLabel="Add photo"
+          onChange={(url) => onUpdateSocialPost?.(post.id, { mediaUrl: url, type: 'image' })}
+        />
+      );
+    } else {
+      body = <FeedCarousel items={media} />;
+    }
   }
 
-  const media = getPostMediaItems(post);
-  if (editMode && media.length <= 1) {
-    return (
-      <EditableImage
-        editMode
-        src={post.mediaUrl || media[0]?.url || ''}
-        className="bb-social-feed-media"
-        imgClassName="bb-social-feed-media-img"
-        storageFolder="social"
-        preset="socialPost"
-        placeholderLabel="Add photo"
-        onChange={(url) => onUpdateSocialPost?.(post.id, { mediaUrl: url, type: 'image' })}
-      />
-    );
-  }
-
-  return <FeedCarousel items={media} />;
+  if (!body) return null;
+  return typeof wrapMedia === 'function' ? wrapMedia(post, body) : body;
 }
 
 /**
@@ -287,6 +289,7 @@ export function SocialPostFeed({
   onRemoveSocialPost,
   showPublishToggle = true,
   renderPostActions = null,
+  wrapMedia = null,
   hideToolbar = false
 }) {
   const handle = String(slug || '')
@@ -384,6 +387,7 @@ export function SocialPostFeed({
                 post={post}
                 editMode={editMode}
                 onUpdateSocialPost={onUpdateSocialPost}
+                wrapMedia={wrapMedia}
               />
 
               {typeof renderPostActions === 'function' ? (

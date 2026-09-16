@@ -1,4 +1,5 @@
 import { APP_ID } from '../../config/appConfig';
+import { isReactionId } from './reactions';
 
 export const DEMO_CLIENT_EMAIL = 'aisha.naidoo@example.com';
 export const DEMO_CLIENT_NAME = 'Aisha Naidoo';
@@ -12,6 +13,7 @@ export function emptyClientProfile(overrides = {}) {
     photoURL: '',
     followedSlugs: [],
     likedKeys: [],
+    reactionsByKey: {},
     savedKeys: [],
     commentsByKey: {},
     createdAt: Date.now(),
@@ -20,9 +22,28 @@ export function emptyClientProfile(overrides = {}) {
   };
 }
 
+function normalizeReactionsByKey(parsed = {}) {
+  const raw =
+    parsed.reactionsByKey && typeof parsed.reactionsByKey === 'object'
+      ? parsed.reactionsByKey
+      : {};
+  const next = {};
+  Object.entries(raw).forEach(([key, value]) => {
+    if (isReactionId(value)) next[String(key)] = String(value);
+  });
+  // Migrate legacy likedKeys → like reaction
+  const liked = Array.isArray(parsed.likedKeys) ? parsed.likedKeys.map(String) : [];
+  liked.forEach((key) => {
+    if (key && !next[key]) next[key] = 'like';
+  });
+  return next;
+}
+
 function normalizeEngagement(parsed = {}) {
+  const reactionsByKey = normalizeReactionsByKey(parsed);
   return {
-    likedKeys: Array.isArray(parsed.likedKeys) ? parsed.likedKeys.map(String) : [],
+    likedKeys: Object.keys(reactionsByKey),
+    reactionsByKey,
     savedKeys: Array.isArray(parsed.savedKeys) ? parsed.savedKeys.map(String) : [],
     commentsByKey:
       parsed.commentsByKey && typeof parsed.commentsByKey === 'object'

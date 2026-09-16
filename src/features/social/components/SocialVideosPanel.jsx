@@ -52,7 +52,8 @@ function VideoWatchPage({
   onUpdateSocialPost,
   onEditPost,
   onRemoveSocialPost,
-  renderWatchActions = null
+  renderWatchActions = null,
+  wrapMedia = null
 }) {
   const related = posts.filter((item) => item.id !== post?.id);
 
@@ -93,22 +94,25 @@ function VideoWatchPage({
             className="bb-yt-watch-player"
             style={aspectStyle(post.aspectRatio, fallbackAspect)}
           >
-            {post.mediaUrl ? (
-              <BbVideoPlayer
-                key={post.id}
-                className="bb-social-video-player bb-yt-watch-player-el"
-                src={post.mediaUrl}
-                poster={post.posterUrl || ''}
-                title={post.title || 'Video'}
-                aspectRatio={Number(post.aspectRatio) || 0}
-                trimStart={Number(post.trimStart) || 0}
-                trimEnd={Number(post.trimEnd) || 0}
-              />
-            ) : (
-              <div className="bb-social-video-player bb-social-video-player--empty">
-                Video unavailable
-              </div>
-            )}
+            {(() => {
+              const player = post.mediaUrl ? (
+                <BbVideoPlayer
+                  key={post.id}
+                  className="bb-social-video-player bb-yt-watch-player-el"
+                  src={post.mediaUrl}
+                  poster={post.posterUrl || ''}
+                  title={post.title || 'Video'}
+                  aspectRatio={Number(post.aspectRatio) || 0}
+                  trimStart={Number(post.trimStart) || 0}
+                  trimEnd={Number(post.trimEnd) || 0}
+                />
+              ) : (
+                <div className="bb-social-video-player bb-social-video-player--empty">
+                  Video unavailable
+                </div>
+              );
+              return typeof wrapMedia === 'function' ? wrapMedia(post, player) : player;
+            })()}
           </div>
 
           <div className="bb-yt-watch-primary">
@@ -234,7 +238,8 @@ export function SocialVideosPanel({
   initialActiveId = '',
   onOpenVideo,
   onCloseVideo,
-  renderWatchActions = null
+  renderWatchActions = null,
+  wrapMedia = null
 }) {
   const [watchId, setWatchId] = useState(initialActiveId || '');
   const isVertical = variant === 'verticals';
@@ -285,6 +290,7 @@ export function SocialVideosPanel({
           onRemoveSocialPost={onRemoveSocialPost}
           showPublishToggle={showPublishToggle}
           renderRailActions={renderWatchActions}
+          wrapMedia={wrapMedia}
         />
       );
     }
@@ -304,6 +310,7 @@ export function SocialVideosPanel({
         onEditPost={onEditPost}
         onRemoveSocialPost={onRemoveSocialPost}
         renderWatchActions={renderWatchActions}
+        wrapMedia={wrapMedia}
       />
     );
   }

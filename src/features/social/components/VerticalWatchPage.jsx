@@ -23,6 +23,7 @@ export function VerticalWatchPage({
   onEditPost,
   onRemoveSocialPost,
   renderRailActions = null,
+  wrapMedia = null,
   hideChrome = false
 }) {
   const activeIndex = Math.max(
@@ -146,27 +147,36 @@ export function VerticalWatchPage({
                   className={`bb-vertical-watch-slide${active ? ' is-active' : ''}`}
                   aria-hidden={!active}
                 >
-                  {active && item.mediaUrl ? (
-                    <BbVideoPlayer
-                      key={item.id}
-                      className="bb-vertical-watch-player"
-                      src={item.mediaUrl}
-                      poster={item.posterUrl || ''}
-                      title={title}
-                      aspectRatio={9 / 16}
-                      trimStart={Number(item.trimStart) || 0}
-                      trimEnd={Number(item.trimEnd) || 0}
-                      fill
-                      autoPlay
-                      loop
-                      startMuted
-                      variant="reel"
-                    />
-                  ) : item.posterUrl ? (
-                    <img className="bb-vertical-watch-poster" src={item.posterUrl} alt="" />
-                  ) : (
-                    <div className="bb-vertical-watch-empty">Video unavailable</div>
-                  )}
+                  {(() => {
+                    const media = (
+                      <>
+                        {item.posterUrl ? (
+                          <img className="bb-vertical-watch-poster" src={item.posterUrl} alt="" />
+                        ) : null}
+                        {active && item.mediaUrl ? (
+                          <BbVideoPlayer
+                            key={item.id}
+                            className="bb-vertical-watch-player"
+                            src={item.mediaUrl}
+                            poster={item.posterUrl || ''}
+                            title={title}
+                            aspectRatio={9 / 16}
+                            trimStart={Number(item.trimStart) || 0}
+                            trimEnd={Number(item.trimEnd) || 0}
+                            fill
+                            autoPlay
+                            loop
+                            startMuted
+                            variant="reel"
+                          />
+                        ) : null}
+                        {!item.posterUrl && !(active && item.mediaUrl) ? (
+                          <div className="bb-vertical-watch-empty">Video unavailable</div>
+                        ) : null}
+                      </>
+                    );
+                    return typeof wrapMedia === 'function' ? wrapMedia(item, media) : media;
+                  })()}
 
                   <div className="bb-vertical-watch-overlay">
                     <div className="bb-vertical-watch-identity">

@@ -16,7 +16,8 @@ export function SocialTextTimeline({
   onUpdateSocialPost,
   onRemoveSocialPost,
   onEditPost,
-  renderActions = null
+  renderActions = null,
+  wrapMedia = null
 }) {
   const displayName = brandName.trim() || 'Business';
   const handle = (slug || displayName)
@@ -96,33 +97,40 @@ export function SocialTextTimeline({
               </header>
 
               <div className="bb-social-note-copy">
-                {editMode || post.title ? (
-                  <EditableText
-                    as="p"
-                    className="bb-social-note-title"
-                    editMode={editMode}
-                    value={post.title || ''}
-                    placeholder="Title"
-                    onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
-                  />
-                ) : null}
+                {(() => {
+                  const copy = (
+                    <>
+                      {editMode || post.title ? (
+                        <EditableText
+                          as="p"
+                          className="bb-social-note-title"
+                          editMode={editMode}
+                          value={post.title || ''}
+                          placeholder="Title"
+                          onChange={(value) => onUpdateSocialPost?.(post.id, { title: value })}
+                        />
+                      ) : null}
 
-                <EditableText
-                  as="p"
-                  className="bb-social-note-text"
-                  editMode={editMode}
-                  multiline
-                  value={post.caption || ''}
-                  placeholder="Write your update…"
-                  onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-                />
+                      <EditableText
+                        as="p"
+                        className="bb-social-note-text"
+                        editMode={editMode}
+                        multiline
+                        value={post.caption || ''}
+                        placeholder="Write your update…"
+                        onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+                      />
 
-                {place ? (
-                  <p className="bb-social-note-place">
-                    <MapPin size={13} strokeWidth={2.2} aria-hidden="true" />
-                    <span>{place}</span>
-                  </p>
-                ) : null}
+                      {place ? (
+                        <p className="bb-social-note-place">
+                          <MapPin size={13} strokeWidth={2.2} aria-hidden="true" />
+                          <span>{place}</span>
+                        </p>
+                      ) : null}
+                    </>
+                  );
+                  return typeof wrapMedia === 'function' ? wrapMedia(post, copy) : copy;
+                })()}
               </div>
 
               {typeof renderActions === 'function' ? (

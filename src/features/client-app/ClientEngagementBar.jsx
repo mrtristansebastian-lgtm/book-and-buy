@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
-import { Bookmark, Heart, MessageCircle, Repeat2, Send, Share, X } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { Bookmark, MessageCircle, Repeat2, Send, Share, X } from 'lucide-react';
 import { publicItemPath } from '../../app/routing';
 import { seedEngagementCount, socialPostKey } from './clientProfile';
 import { useClientProfile } from './ClientProfileContext';
+import { LIKE_REACTION } from './reactions';
 
 function shareUrl(slug, postId) {
   const path = publicItemPath(slug, 'social', postId);
@@ -73,12 +74,111 @@ function CommentsSheet({ open, onClose, comments, profile, draft, setDraft, onSu
   );
 }
 
+function LikeGlyph({ size = 18, className = '', muted = false }) {
+  return (
+    <img
+      src={LIKE_REACTION.src}
+      alt=""
+      className={`bb-client-reaction-glyph${muted ? ' is-muted' : ''} ${className}`.trim()}
+      style={{ width: size, height: size }}
+      draggable={false}
+    />
+  );
+}
+
+function LikeButton({
+  className = '',
+  liked = false,
+  likeCount = 0,
+  showCount = false,
+  showLabel = false,
+  children,
+  onToggle
+}) {
+  return (
+    <button
+      type="button"
+      className={`bb-client-reaction-trigger${liked ? ' is-on' : ''} ${className}`.trim()}
+      aria-pressed={liked}
+      aria-label={liked ? 'Unlike' : 'Like'}
+      onClick={onToggle}
+    >
+      {children || (
+        <>
+          <LikeGlyph size={18} muted={!liked} />
+          {showCount ? <span className="bb-client-pulse-num">{likeCount.toLocaleString()}</span> : null}
+          {showLabel ? (
+            <span className="bb-client-pulse-word">{likeCount === 1 ? 'Like' : 'Likes'}</span>
+          ) : null}
+        </>
+      )}
+    </button>
+  );
+}
+
+/** Instagram-style double-tap on media → like + heart burst. */
+export function ClientMediaReactionLayer({ post, slug = '', children, className = '' }) {
+  const { isLiked, setReaction } = useClientProfile();
+  const postId = post?.id || '';
+  const postSlug = slug || post?._slug || '';
+  const liked = isLiked(postSlug, postId);
+  const [burst, setBurst] = useState(false);
+  const lastTapAt = useRef(0);
+
+  const likeFromMedia = () => {
+    setBurst(true);
+    if (!liked) setReaction(postSlug, postId, 'like');
+    window.setTimeout(() => setBurst(false), 720);
+  };
+
+  const isInteractiveTarget = (target) => {
+    if (!(target instanceof Element)) return false;
+    return Boolean(
+      target.closest(
+        'button, a, input, textarea, select, [contenteditable="true"], .bb-vertical-watch-rail, .bb-client-tiktok-rail'
+      )
+    );
+  };
+
+  return (
+    <div
+      className={`bb-client-media-react ${className}`.trim()}
+      onPointerUp={(event) => {
+        if (event.button != null && event.button !== 0) return;
+        if (isInteractiveTarget(event.target)) return;
+        const now = Date.now();
+        if (now - lastTapAt.current < 320) {
+          event.preventDefault();
+          event.stopPropagation();
+          likeFromMedia();
+          lastTapAt.current = 0;
+          return;
+        }
+        lastTapAt.current = now;
+      }}
+      onDoubleClick={(event) => {
+        if (isInteractiveTarget(event.target)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        likeFromMedia();
+      }}
+    >
+      {children}
+      {burst ? (
+        <div className="bb-client-media-react-burst" aria-hidden="true">
+          <LikeGlyph size={92} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * Engagement UI variants:
  * - instagram / youtube: horizontal bar under media
- * - pulse: chip row for live post cards (not IG)
+ * - pulse: seamless Likes/Comments
  * - tiktok: vertical right-side rail on vertical watch
- * - twitter: compact tweet footer (reply / like / share / save)
+ * - twitter: compact tweet footer
  */
 export function ClientEngagementBar({
   post,
@@ -87,15 +187,8 @@ export function ClientEngagementBar({
   compact = false,
   variant = 'instagram'
 }) {
-  const {
-    profile,
-    isLiked,
-    isSaved,
-    getComments,
-    toggleLike,
-    toggleSave,
-    addComment
-  } = useClientProfile();
+  const { profile, isLiked, isSaved, getComments, toggleLike, toggleSave, addComment } =
+    useClientProfile();
   const postId = post?.id || '';
   const postSlug = slug || post?._slug || '';
   const key = socialPostKey(postSlug, postId);
@@ -133,6 +226,8 @@ export function ClientEngagementBar({
     setDraft('');
   };
 
+  const onToggleLike = () => toggleLike(postSlug, postId);
+
   const sheet = (
     <CommentsSheet
       open={sheetOpen}
@@ -149,16 +244,14 @@ export function ClientEngagementBar({
     return (
       <>
         <div className="bb-client-tiktok-rail" aria-label="Actions">
-          <button
-            type="button"
-            className={`bb-client-tiktok-btn${liked ? ' is-on' : ''}`}
-            aria-label={liked ? 'Unlike' : 'Like'}
-            aria-pressed={liked}
-            onClick={() => toggleLike(postSlug, postId)}
+          <LikeButton
+            className="bb-client-reaction-wrap--rail"
+            liked={liked}
+            onToggle={onToggleLike}
           >
-            <Heart size={28} strokeWidth={liked ? 0 : 2.2} fill={liked ? 'currentColor' : 'none'} />
+            <LikeGlyph size={30} muted={!liked} />
             <span>{likeCount}</span>
-          </button>
+          </LikeButton>
           <button
             type="button"
             className="bb-client-tiktok-btn"
@@ -205,16 +298,14 @@ export function ClientEngagementBar({
           <button type="button" className="bb-client-tweet-btn" aria-label="Repost" disabled>
             <Repeat2 size={16} strokeWidth={2} />
           </button>
-          <button
-            type="button"
-            className={`bb-client-tweet-btn${liked ? ' is-like' : ''}`}
-            aria-label={liked ? 'Unlike' : 'Like'}
-            aria-pressed={liked}
-            onClick={() => toggleLike(postSlug, postId)}
+          <LikeButton
+            className="bb-client-reaction-wrap--inline"
+            liked={liked}
+            onToggle={onToggleLike}
           >
-            <Heart size={16} strokeWidth={liked ? 0 : 2} fill={liked ? 'currentColor' : 'none'} />
+            <LikeGlyph size={16} muted={!liked} />
             <span>{likeCount || ''}</span>
-          </button>
+          </LikeButton>
           <button
             type="button"
             className={`bb-client-tweet-btn${saved ? ' is-on' : ''}`}
@@ -234,49 +325,46 @@ export function ClientEngagementBar({
     );
   }
 
-  /* Unique post row — not IG icon strip */
   if (variant === 'pulse') {
     return (
       <>
-        <div className="bb-client-pulse" role="group" aria-label="Reactions">
-          <button
-            type="button"
-            className={`bb-client-pulse-chip${liked ? ' is-on' : ''}`}
-            aria-pressed={liked}
-            onClick={() => toggleLike(postSlug, postId)}
-          >
-            <Heart size={15} strokeWidth={liked ? 0 : 2.2} fill={liked ? 'currentColor' : 'none'} />
-            <span>{likeCount.toLocaleString()} hearts</span>
-          </button>
-          <button
-            type="button"
-            className="bb-client-pulse-chip"
-            onClick={() => setSheetOpen(true)}
-          >
-            <MessageCircle size={15} strokeWidth={2.2} />
-            <span>
-              {commentCount
-                ? `${commentCount} note${commentCount === 1 ? '' : 's'}`
-                : 'Add a note'}
-            </span>
-          </button>
-          <button
-            type="button"
-            className={`bb-client-pulse-icon${saved ? ' is-on' : ''}`}
-            aria-label={saved ? 'Unsave' : 'Save'}
-            aria-pressed={saved}
-            onClick={() => toggleSave(postSlug, postId)}
-          >
-            <Bookmark size={18} strokeWidth={saved ? 0 : 2} fill={saved ? 'currentColor' : 'none'} />
-          </button>
-          <button
-            type="button"
-            className="bb-client-pulse-icon"
-            aria-label="Share"
-            onClick={onShare}
-          >
-            <Send size={17} strokeWidth={2} />
-          </button>
+        <div className="bb-client-pulse" role="group" aria-label="Likes and comments">
+          <div className="bb-client-pulse-stats">
+            <LikeButton
+              className="bb-client-reaction-wrap--pulse"
+              liked={liked}
+              likeCount={likeCount}
+              showCount
+              showLabel
+              onToggle={onToggleLike}
+            />
+            <span className="bb-client-pulse-sep" aria-hidden="true" />
+            <button type="button" className="bb-client-pulse-stat" onClick={() => setSheetOpen(true)}>
+              <MessageCircle size={16} strokeWidth={2} />
+              <span className="bb-client-pulse-num">{commentCount.toLocaleString()}</span>
+              <span className="bb-client-pulse-word">
+                {commentCount === 1 ? 'Comment' : 'Comments'}
+              </span>
+            </button>
+          </div>
+          <div className="bb-client-pulse-tools">
+            <button
+              type="button"
+              className={`bb-client-pulse-tool${saved ? ' is-on' : ''}`}
+              aria-label={saved ? 'Unsave' : 'Save'}
+              aria-pressed={saved}
+              onClick={() => toggleSave(postSlug, postId)}
+            >
+              <Bookmark
+                size={18}
+                strokeWidth={saved ? 0 : 2}
+                fill={saved ? 'currentColor' : 'none'}
+              />
+            </button>
+            <button type="button" className="bb-client-pulse-tool" aria-label="Share" onClick={onShare}>
+              <Send size={17} strokeWidth={2} />
+            </button>
+          </div>
         </div>
         {shareHint ? <p className="bb-client-engage-hint">{shareHint}</p> : null}
         {sheet}
@@ -292,19 +380,13 @@ export function ClientEngagementBar({
         }`}
       >
         <div className="bb-client-engage-actions">
-          <button
-            type="button"
-            className={`bb-client-engage-btn${liked ? ' is-on is-like' : ''}`}
-            aria-label={liked ? 'Unlike' : 'Like'}
-            aria-pressed={liked}
-            onClick={() => toggleLike(postSlug, postId)}
+          <LikeButton
+            className="bb-client-reaction-wrap--bar"
+            liked={liked}
+            onToggle={onToggleLike}
           >
-            <Heart
-              size={compact ? 22 : 26}
-              strokeWidth={liked ? 0 : 2}
-              fill={liked ? 'currentColor' : 'none'}
-            />
-          </button>
+            <LikeGlyph size={compact ? 22 : 26} muted={!liked} />
+          </LikeButton>
           <button
             type="button"
             className="bb-client-engage-btn"
@@ -349,4 +431,12 @@ export function ClientEngagementBar({
   );
 }
 
-export { shareUrl, sharePost };
+export { shareUrl, sharePost, LikeGlyph };
+
+export function wrapClientMediaReaction(post, node) {
+  return (
+    <ClientMediaReactionLayer post={post} slug={post?._slug || ''}>
+      {node}
+    </ClientMediaReactionLayer>
+  );
+}
