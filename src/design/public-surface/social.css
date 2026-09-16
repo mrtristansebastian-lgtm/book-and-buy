@@ -3663,13 +3663,13 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
   position: absolute;
   z-index: 1;
   left: var(--bb-public-gutter, 1.25rem);
-  right: calc(var(--bb-public-gutter, 1.25rem) - 0.15rem);
+  right: calc(var(--bb-public-gutter, 1.25rem) - 0.5rem);
   top: var(--bb-about-mobile-media-top, 8.5rem);
   bottom: 2.75rem;
   width: auto;
   height: auto;
   min-height: 0;
-  padding: 0 0.65rem 0.55rem 0;
+  padding: 0.48rem 0.65rem 0.2rem 0;
   box-sizing: border-box;
   overflow: hidden;
 }
