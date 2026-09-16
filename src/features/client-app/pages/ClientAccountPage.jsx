@@ -3,6 +3,7 @@ import { ChevronRight, MessageCircle, LogOut } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { formatDisplayDate } from '../../../utils/dates';
 import { formatCents } from '../../../utils/products';
+import { DemoModePanel } from '../../../shared/ui/DemoModePanel';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
@@ -142,6 +143,9 @@ export function ClientAccountPage({ section = 'account' }) {
                 </span>
                 <ChevronRight size={18} />
               </button>
+            ) : null}
+            {workspace?.isDemo || profile?.isDemo ? (
+              <DemoModePanel className="bb-demo-panel--account" variant="client" />
             ) : null}
           </div>
         ) : null}

@@ -214,9 +214,16 @@
 }
 
 .bb-products-chip.is-active {
-  border-color: #101828;
-  background: #101828;
-  color: #fff;
+  color: #101828;
+  border: 1.5px solid transparent;
+  background-color: transparent;
+  background-image:
+    linear-gradient(#ffffff, #ffffff),
+    var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
 }
 
 .bb-products-chip--add {
@@ -232,7 +239,7 @@
   margin-left: 0.08rem;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(15, 23, 42, 0.08);
   color: inherit;
   cursor: pointer;
   font-size: 0.68rem;

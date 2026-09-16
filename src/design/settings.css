@@ -322,6 +322,7 @@
   .bb-settings {
     grid-template-columns: 1fr;
     min-height: 0;
+    gap: 0;
   }
 
   .bb-settings-rail {
@@ -338,8 +339,110 @@
     font-size: 0.95rem;
   }
 
+  /* Flush mobile index — full-bleed list, not a floating card */
+  .bb-owner-main:has(> .bb-settings.is-mobile-index) {
+    padding-inline: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    background: #fff;
+  }
+
+  .bb-settings.is-mobile-index {
+    padding-bottom: calc(0.5rem + var(--bb-owner-dock-pad, var(--bb-owner-dock-h, 3.4rem)));
+    transition: padding-bottom 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-rail {
+    gap: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+  }
+
   .bb-settings.is-mobile-index .bb-settings-mobile-index-head {
     display: grid;
+    gap: 0.25rem;
+    padding: 0.55rem 1.1rem 0.75rem;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-mobile-index-head .bb-page-title {
+    font-size: clamp(1.7rem, 7vw, 2rem);
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-mobile-index-head p {
+    font-size: 0.95rem;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-search-wrap {
+    margin: 0 1.1rem 0.55rem;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-search {
+    min-height: 2.75rem;
+    border-radius: 0.9rem;
+    font-size: 1rem;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-nav {
+    gap: 0;
+    padding: 0;
+    border-top: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-nav-item {
+    gap: 0.95rem;
+    min-height: 3.85rem;
+    padding: 1.05rem 1.15rem;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+    font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+    font-size: 1.12rem;
+    font-weight: 680;
+    letter-spacing: -0.02em;
+    color: #101828;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-nav-item:last-child {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-nav-item:hover,
+  .bb-settings.is-mobile-index .bb-settings-nav-item:active {
+    background: rgba(15, 23, 42, 0.035);
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-nav-item.is-active {
+    background: rgba(15, 23, 42, 0.05);
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-nav-icon {
+    width: 1.55rem;
+    height: 1.55rem;
+    opacity: 0.9;
+    color: #344054;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-rail-foot {
+    margin-top: 0;
+    padding: 0.95rem 1.15rem 1.1rem;
+    border-top: 0;
+    background: #f8fafc;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-avatar {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 0.86rem;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-rail-foot strong {
+    font-size: 1rem;
+  }
+
+  .bb-settings.is-mobile-index .bb-settings-rail-foot span {
+    font-size: 0.82rem;
   }
 
   .bb-settings.is-mobile-index .bb-settings-main {

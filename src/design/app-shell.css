@@ -114,7 +114,7 @@ html body .native-ui .bb-page-title {
 
 .bb-segment button {
   appearance: none;
-  border: 0;
+  border: 1.5px solid transparent;
   background: transparent;
   color: var(--bb-muted);
   border-radius: 999px;
@@ -176,16 +176,17 @@ html body .native-ui .bb-page-title {
 }
 
 .bb-segment button[aria-pressed='true'] {
-  color: #050505;
+  color: #101828;
+  border: 1.5px solid transparent;
+  background-color: transparent;
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18)),
-    var(--native-accent-button-gradient);
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--native-accent-x) 50%;
-  background-blend-mode: soft-light, normal;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+    linear-gradient(#ffffff, #ffffff),
+    var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
 .bb-schedule-picker-day.is-range {
@@ -299,6 +300,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 /* App shell: PC left apps panel + mobile bottom dock */
 .bb-shell {
   --bb-owner-dock-h: calc(3.4rem + env(safe-area-inset-bottom, 0px));
+  --bb-owner-dock-pad: var(--bb-owner-dock-h);
   --bb-owner-side-w: 19.5rem;
 }
 
@@ -323,7 +325,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 .bb-owner-main {
-  padding: 1.25rem 1rem calc(1.25rem + var(--bb-owner-dock-h));
+  padding: 1.25rem 1rem calc(1.25rem + var(--bb-owner-dock-pad));
   min-width: 0;
   min-height: 0;
 }
@@ -360,6 +362,93 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   margin: 0;
 }
 
+.bb-demo-panel {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+  padding: 0.95rem 1rem 1rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-demo-panel-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.bb-demo-panel-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+  background: rgba(15, 23, 42, 0.05);
+  color: #101828;
+}
+
+.bb-demo-panel-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.bb-demo-panel-copy strong {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+  color: #101828;
+}
+
+.bb-demo-panel-copy p {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 550;
+  color: #667085;
+  line-height: 1.35;
+}
+
+.bb-demo-panel-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.bb-demo-panel-btn {
+  width: 100%;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 680;
+  white-space: nowrap;
+}
+
+.bb-demo-panel--nav {
+  margin-top: 0.55rem;
+}
+
+.bb-owner-menu-sheet-body .bb-demo-panel--nav {
+  margin-inline: 0.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.bb-demo-panel--account {
+  margin-top: 0.35rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+@media (max-width: 420px) {
+  .bb-demo-panel-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
 .bb-owner-dock {
   position: fixed;
   left: 0;
@@ -373,6 +462,25 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   padding-bottom: env(safe-area-inset-bottom, 0px);
   border-top: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
+  transform: translateY(0);
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+@media (max-width: 899px) {
+  .bb-shell.is-dock-hidden:not(.is-menu-open) {
+    --bb-owner-dock-pad: 0.75rem;
+  }
+
+  .bb-shell.is-dock-hidden:not(.is-menu-open) .bb-owner-dock {
+    transform: translateY(calc(100% + 2px));
+    pointer-events: none;
+  }
+
+  .bb-shell.is-menu-open .bb-owner-dock {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
 }
 
 .bb-owner-dock-btn {
@@ -636,7 +744,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 
 @media (min-width: 768px) {
   .bb-owner-main {
-    padding: 1.75rem 1.75rem calc(1.75rem + var(--bb-owner-dock-h));
+    padding: 1.75rem 1.75rem calc(1.75rem + var(--bb-owner-dock-pad));
   }
 }
 
@@ -760,9 +868,17 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 @media (max-width: 899px) {
-  .bb-shell.is-support-flush .bb-owner-main.is-flush {
+  /* Keep list view above the fixed dock */
+  .bb-shell.is-support-flush {
     height: calc(100dvh - var(--bb-owner-dock-h));
     max-height: calc(100dvh - var(--bb-owner-dock-h));
+  }
+
+  .bb-shell.is-support-flush .bb-owner-main.is-flush {
+    height: auto;
+    max-height: none;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .bb-shell.is-support-flush .bb-owner-content,
@@ -779,7 +895,78 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     background: #fbfbfb;
   }
 
+  /* Open thread: full-screen chat — hide dock + Back Office mini-app bar */
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-miniapp-bar,
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-dock,
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-menu-sheet,
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-menu-backdrop {
+    display: none !important;
+  }
+
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-owner-main.is-flush {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-support-composer-wrap {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
   .bb-owner-layout {
     position: relative;
+  }
+
+  /* Mobile app chrome — edge-to-edge pages, no floating desk cards */
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) {
+    padding-inline: 0;
+    padding-top: 0.55rem;
+    background: #fff;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .grid,
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-services-desk,
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-schedule-desk,
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-clients,
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-finance {
+    gap: 0.85rem;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .grid > header,
+  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .grid > .bb-page-title-wrap,
+  .bb-shell.is-miniapp .bb-owner-main .bb-services-desk-header,
+  .bb-shell.is-miniapp .bb-owner-main .bb-schedule-desk-header,
+  .bb-shell.is-miniapp .bb-owner-main .bb-clients-header,
+  .bb-shell.is-miniapp .bb-owner-main .bb-finance-header,
+  .bb-shell.is-miniapp .bb-owner-main .bb-stock-toolbar {
+    padding-inline: 1rem;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main .bb-ops-desk,
+  .bb-shell.is-miniapp .bb-owner-main .bb-panel {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main .bb-ops-desk {
+    padding-inline: 1rem;
+    padding-top: 0.55rem;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main .bb-panel {
+    padding-inline: 1rem;
+  }
+
+  .bb-shell.is-miniapp .bb-owner-main .bb-services-catalog-grid,
+  .bb-shell.is-miniapp .bb-owner-main .bb-stock-room,
+  .bb-shell.is-miniapp .bb-owner-main .bb-clients-board,
+  .bb-shell.is-miniapp .bb-owner-main .bb-finance-pulse {
+    padding-inline: 1rem;
   }
 }

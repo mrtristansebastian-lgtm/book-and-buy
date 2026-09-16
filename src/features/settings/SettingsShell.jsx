@@ -210,7 +210,7 @@ export function SettingsShell({ section: sectionProp }) {
                 onClick={() => go(item.id)}
                 aria-current={active ? 'page' : undefined}
               >
-                <Icon size={16} strokeWidth={2} className="bb-settings-nav-icon" />
+                <Icon size={24} strokeWidth={1.85} className="bb-settings-nav-icon" />
                 <span>{item.label}</span>
               </button>
             );

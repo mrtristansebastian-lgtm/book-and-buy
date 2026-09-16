@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { LayoutGrid, List } from 'lucide-react';
 import { launcherApps } from '../../../config/appLauncher';
+import { DemoModePanel } from '../../../shared/ui/DemoModePanel';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 import { AppTile } from './AppTile';
 
@@ -19,8 +21,10 @@ function readLauncherView() {
 /**
  * Shared apps navigator for PC left panel and mobile menu sheet.
  * Same AppTile look; icons/list toggle persisted in localStorage.
+ * Demo controls sit under Back Office when in demo mode.
  */
 export function OwnerAppsNav({ className = '', onSelect = null, showToggle = true }) {
+  const { workspace } = useWorkspace();
   const { badgeFor } = useWorkspaceBadges();
   const [view, setView] = useState(readLauncherView);
 
@@ -68,6 +72,13 @@ export function OwnerAppsNav({ className = '', onSelect = null, showToggle = tru
           />
         ))}
       </div>
+
+      {workspace?.isDemo ? (
+        <DemoModePanel
+          className="bb-demo-panel--nav"
+          onAction={() => onSelect?.('demo')}
+        />
+      ) : null}
     </div>
   );
 }

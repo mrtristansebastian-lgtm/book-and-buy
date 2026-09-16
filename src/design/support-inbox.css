@@ -26,7 +26,7 @@
 
 @media (min-width: 1024px) {
   .bb-support-stage {
-    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-columns: 340px minmax(0, 1fr);
   }
 }
 
@@ -41,10 +41,10 @@
 }
 
 .bb-support-list-head {
-  padding: 1rem 1.1rem 0.85rem;
+  padding: 0.95rem 1rem 0.9rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   display: grid;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .bb-support-list-head-copy {
@@ -85,7 +85,7 @@ html body .native-ui .bb-support-inbox-title {
 .bb-support-chips {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
 .bb-support-filter-chip {
@@ -94,12 +94,15 @@ html body .native-ui .bb-support-inbox-title {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  min-height: 2.35rem;
-  padding: 0.4rem 0.55rem;
+  min-height: 2.45rem;
+  padding: 0.45rem 0.7rem;
   border-radius: 999px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   background: #fff;
   color: #667085;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   cursor: pointer;
   transition:
     border-color 140ms ease,
@@ -115,13 +118,16 @@ html body .native-ui .bb-support-inbox-title {
 
 .bb-support-filter-chip.is-active {
   color: #101828;
-  border-color: transparent;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2, #ffe8a3))
-      border-box;
   border: 1.5px solid transparent;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  background-color: transparent;
+  background-image:
+    linear-gradient(#ffffff, #ffffff),
+    var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 
 .bb-support-filter-count {
@@ -140,8 +146,8 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 .bb-support-filter-chip.is-active .bb-support-filter-count {
-  background: #101828;
-  color: #fff;
+  background: rgba(15, 23, 42, 0.08);
+  color: #344054;
 }
 
 .bb-support-list-scroll {
@@ -151,15 +157,16 @@ html body .native-ui .bb-support-inbox-title {
 
 .bb-support-thread {
   display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
-  gap: 0.7rem;
+  grid-template-columns: 3.75rem minmax(0, 1fr) auto;
+  gap: 0.95rem;
   align-items: center;
   width: 100%;
+  min-height: 5.5rem;
   text-align: left;
   border: 0;
   border-bottom: 1px solid rgba(15, 23, 42, 0.05);
   background: transparent;
-  padding: 0.85rem 1rem;
+  padding: 1.2rem 1.05rem;
   cursor: pointer;
 }
 
@@ -173,8 +180,8 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 .bb-support-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3.75rem;
+  height: 3.75rem;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -182,16 +189,26 @@ html body .native-ui .bb-support-inbox-title {
   color: #101828;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-weight: 760;
-  font-size: 0.82rem;
+  font-size: 1.15rem;
   position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.bb-support-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
 }
 
 .bb-support-presence-dot {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 0.55rem;
-  height: 0.55rem;
+  right: 0.12rem;
+  bottom: 0.12rem;
+  width: 0.7rem;
+  height: 0.7rem;
   border-radius: 999px;
   border: 2px solid #fff;
   background: #98a2b3;
@@ -208,46 +225,53 @@ html body .native-ui .bb-support-inbox-title {
 .bb-support-thread-copy {
   min-width: 0;
   display: grid;
-  gap: 0.15rem;
+  gap: 0.35rem;
 }
 
 .bb-support-thread-copy strong {
-  font-size: 0.9rem;
-  font-weight: 720;
+  font-size: 1.08rem;
+  font-weight: 760;
   color: #101828;
   letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .bb-support-thread-preview {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.98rem;
+  line-height: 1.4;
   color: #667085;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.bb-support-thread.is-unread .bb-support-thread-preview {
+  color: #344054;
+  font-weight: 580;
+}
+
 .bb-support-thread-meta {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.4rem;
   justify-items: end;
   align-content: start;
 }
 
 .bb-support-thread-time {
-  font-size: 0.68rem;
+  font-size: 0.84rem;
   font-weight: 650;
   color: #98a2b3;
 }
 
 .bb-support-unread {
-  min-width: 1.15rem;
-  height: 1.15rem;
-  padding: 0 0.3rem;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
   border-radius: 999px;
   background: #050505;
   color: #fff;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 740;
   display: grid;
   place-items: center;
@@ -269,7 +293,7 @@ html body .native-ui .bb-support-inbox-title {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.85rem 1.1rem;
+  padding: 0.95rem 1.1rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   flex-shrink: 0;
 }
@@ -277,20 +301,20 @@ html body .native-ui .bb-support-inbox-title {
 .bb-support-header-main {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   min-width: 0;
 }
 
 .bb-support-header-copy {
   min-width: 0;
   display: grid;
-  gap: 0.1rem;
+  gap: 0.15rem;
 }
 
 .bb-support-header-copy h2 {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.12rem;
   font-weight: 760;
   letter-spacing: -0.02em;
   color: #101828;
@@ -298,7 +322,7 @@ html body .native-ui .bb-support-inbox-title {
 
 .bb-support-presence-label {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: #667085;
 }

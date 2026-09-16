@@ -2498,8 +2498,10 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   }
 
   .bb-public-about-book-stage {
-    height: min(34rem, 138vw);
-    min-height: 30rem;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 3 / 4;
+    max-height: min(28rem, 118vw);
   }
 
   .bb-public-about-page {

@@ -427,3 +427,36 @@
             background-clip: text;
             background-position: var(--native-accent-x) 50%;
         }
+
+        /* Universal filter chips — white fill, animated accent gradient border (not fill) */
+        html body .native-ui :is(
+            .bb-ops-tab.is-active,
+            .bb-segment button[aria-pressed='true'],
+            .bb-support-filter-chip.is-active,
+            .bb-clients-chip.is-active,
+            .bb-services-chip.is-active,
+            .bb-services-duration-chip.is-active,
+            .bb-products-chip.is-active
+        ) {
+            color: #101828 !important;
+            border: 1.5px solid transparent !important;
+            background-color: transparent !important;
+            background-image:
+                linear-gradient(#ffffff, #ffffff),
+                var(--native-accent-gradient) !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+            background-size: auto, 420% 420% !important;
+            background-position: 0 0, var(--native-accent-x, 40%) 50% !important;
+            background-blend-mode: normal, normal !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+        }
+
+        html body .native-ui :is(
+            .bb-ops-tab.is-active .bb-ops-tab-count,
+            .bb-support-filter-chip.is-active .bb-support-filter-count,
+            .bb-clients-chip.is-active .bb-clients-chip-count
+        ) {
+            background: rgba(15, 23, 42, 0.08) !important;
+            color: #344054 !important;
+        }

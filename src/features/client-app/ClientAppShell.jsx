@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Compass, Home, MessageCircle, UserRound } from 'lucide-react';
 import { clientAppPath, navigate } from '../../app/routing';
 
@@ -17,8 +18,92 @@ export function ClientAppShell({
   hideHeader = false,
   children
 }) {
+  const [dockHidden, setDockHidden] = useState(false);
+  const scrollTicking = useRef(false);
+
+  useEffect(() => {
+    setDockHidden(false);
+  }, [section]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const scrollTops = new WeakMap();
+    let touchStartY = 0;
+
+    const resolveScrollY = (target) => {
+      if (
+        target instanceof Element &&
+        target !== document.documentElement &&
+        target !== document.body
+      ) {
+        const style = window.getComputedStyle(target);
+        const canScroll =
+          /(auto|scroll|overlay)/.test(style.overflowY) ||
+          /(auto|scroll|overlay)/.test(style.overflow);
+        if (canScroll && target.scrollHeight > target.clientHeight + 1) {
+          return { key: target, y: target.scrollTop };
+        }
+      }
+      return {
+        key: window,
+        y: window.scrollY || document.documentElement.scrollTop || 0
+      };
+    };
+
+    const applyDockFromDelta = (y, delta) => {
+      if (y <= 56) {
+        setDockHidden(false);
+        return;
+      }
+      if (delta > 12) setDockHidden(true);
+      else if (delta < -8) setDockHidden(false);
+    };
+
+    const onScroll = (event) => {
+      if (scrollTicking.current) return;
+      scrollTicking.current = true;
+      window.requestAnimationFrame(() => {
+        scrollTicking.current = false;
+        const { key, y } = resolveScrollY(event.target);
+        const prev = scrollTops.has(key) ? scrollTops.get(key) : y;
+        const delta = y - prev;
+        scrollTops.set(key, y);
+        if (Math.abs(delta) < 6) return;
+        applyDockFromDelta(y, delta);
+      });
+    };
+
+    const onTouchStart = (event) => {
+      touchStartY = event.touches?.[0]?.clientY ?? 0;
+    };
+
+    const onTouchMove = (event) => {
+      const y = event.touches?.[0]?.clientY ?? touchStartY;
+      const delta = touchStartY - y;
+      if (Math.abs(delta) < 14) return;
+      const pageY = window.scrollY || document.documentElement.scrollTop || 0;
+      applyDockFromDelta(pageY, delta);
+      touchStartY = y;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('scroll', onScroll, { passive: true, capture: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('scroll', onScroll, { capture: true });
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+    };
+  }, [section]);
+
   return (
-    <div className={`bb-client-shell${hideHeader ? ' is-headerless' : ''}`}>
+    <div
+      className={`bb-client-shell${hideHeader ? ' is-headerless' : ''}${
+        dockHidden ? ' is-dock-hidden' : ''
+      }`}
+    >
       {hideHeader ? null : (
         <header className="bb-client-top">
           <div className="bb-page-title-wrap bb-client-top-title-wrap">

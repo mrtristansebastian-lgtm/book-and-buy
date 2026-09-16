@@ -3557,8 +3557,10 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
 }
 
 .bb-device-preview--phone .bb-public-about-book-stage {
-  height: 31rem;
+  height: auto;
   min-height: 0;
+  aspect-ratio: 3 / 4;
+  max-height: min(28rem, 118vw);
 }
 
 .bb-device-preview--phone .bb-public-about-page {
