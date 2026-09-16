@@ -3388,7 +3388,7 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
 }
 
 .bb-device-preview--desktop {
-  max-width: min(100%, 880px);
+  max-width: min(100%, 1120px);
   margin-inline: auto;
 }
 

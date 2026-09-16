@@ -281,8 +281,10 @@
   }
 }
 
-/* Product / service grid columns track the frame, not the outer viewport */
-@container bb-device (max-width: 899px) {
+/* Product / service grid columns track the frame, not the outer viewport.
+   Live desktop is 4-up from ~900px; studio desktop frame must match even when
+   slightly narrower than a full browser. Phone stays 2-up. */
+@container bb-device (max-width: 719px) {
   .bb-public-service-list,
   .bb-public-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -340,11 +342,19 @@
   }
 }
 
-@container bb-device (min-width: 900px) {
+@container bb-device (min-width: 720px) {
+  .bb-public-service-list,
   .bb-public-product-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     gap: 0.55rem !important;
   }
+}
+
+/* Hard guarantee: desktop device mockup always 4-up like live PC */
+.bb-device-preview--desktop .bb-public-service-list,
+.bb-device-preview--desktop .bb-public-product-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0.55rem !important;
 }
 
 /* Desktop studio frame (~880px): keep Book/Buy height inside the device, not 100dvh */

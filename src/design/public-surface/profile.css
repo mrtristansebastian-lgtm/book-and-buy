@@ -1487,16 +1487,6 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   .bb-public-profile .bb-public-profile-panel--buy .bb-public-product-grid,
   .bb-public-profile .bb-public-profile-panel--book .bb-public-service-list,
   .bb-public-profile .bb-public-profile-panel--buy .bb-public-service-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.55rem;
-  }
-}
-
-@media (min-width: 960px) {
-  .bb-public-profile .bb-public-profile-panel--book .bb-public-product-grid,
-  .bb-public-profile .bb-public-profile-panel--buy .bb-public-product-grid,
-  .bb-public-profile .bb-public-profile-panel--book .bb-public-service-list,
-  .bb-public-profile .bb-public-profile-panel--buy .bb-public-service-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.55rem;
   }
