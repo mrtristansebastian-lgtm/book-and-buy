@@ -230,7 +230,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
         title="About us"
         sectionId="about"
         hidden={hidden}
-        coach="Tell your story across pages — big photo, title, and body. Click the photo edges, swipe, or use arrow keys to flip."
+        coach="Tell your story across pages — big photo, title, and body. Use the arrows under the text, swipe the photos, or press arrow keys to flip."
         className={`bb-public-home-block bb-public-about-block bb-public-about-journey bb-public-about-story-block${
           editMode ? ' is-editing' : ''
         }`}
@@ -361,28 +361,6 @@ function EditorialPage({
             preset="aboutPage"
             onChange={onImage}
           />
-          {current && pageCount > 1 ? (
-            <nav className="bb-public-about-edges" aria-label="About pages">
-              <button
-                type="button"
-                className="bb-public-about-edge bb-public-about-edge--prev"
-                aria-label="Previous page"
-                disabled={activePage <= 0}
-                onClick={() => onGoToPage(activePage - 1)}
-              >
-                <ChevronLeft size={28} strokeWidth={1.7} aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className="bb-public-about-edge bb-public-about-edge--next"
-                aria-label="Next page"
-                disabled={activePage >= pageCount - 1}
-                onClick={() => onGoToPage(activePage + 1)}
-              >
-                <ChevronRight size={28} strokeWidth={1.7} aria-hidden="true" />
-              </button>
-            </nav>
-          ) : null}
         </div>
       </div>
       <div className="bb-public-about-page-copy">
@@ -410,6 +388,28 @@ function EditorialPage({
           patchWebsite={patchWebsite}
           colorTokenId={`about.page.${page.id}.body`}
         />
+        {current && pageCount > 1 ? (
+          <nav className="bb-public-about-page-nav" aria-label="About pages">
+            <button
+              type="button"
+              className="bb-public-about-page-nav-btn"
+              aria-label="Previous page"
+              disabled={activePage <= 0}
+              onClick={() => onGoToPage(activePage - 1)}
+            >
+              <ChevronLeft size={18} strokeWidth={2} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              className="bb-public-about-page-nav-btn"
+              aria-label="Next page"
+              disabled={activePage >= pageCount - 1}
+              onClick={() => onGoToPage(activePage + 1)}
+            >
+              <ChevronRight size={18} strokeWidth={2} aria-hidden="true" />
+            </button>
+          </nav>
+        ) : null}
       </div>
     </article>
   );

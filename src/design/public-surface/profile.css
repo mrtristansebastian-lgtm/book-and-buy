@@ -1028,7 +1028,9 @@
   width: min(28rem, calc(100% - (2 * var(--bb-public-gutter, 1.25rem))));
   max-width: 28rem;
   justify-self: start;
+  margin-inline: 0;
   padding-inline: var(--bb-public-gutter, 1.25rem);
+  padding-top: 0.85rem;
   margin-bottom: 1.75rem;
   justify-items: center;
   text-align: center;
@@ -1053,8 +1055,8 @@
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head > .bb-editable-text-shell {
   width: 100%;
   max-width: 100%;
-  margin-inline: 0;
-  justify-self: stretch;
+  margin-inline: auto;
+  justify-self: center;
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-body {
@@ -1066,7 +1068,7 @@
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-venue-shell {
-  justify-items: center;
+  justify-items: stretch;
 }
 
 .bb-public-profile .bb-public-gallery-block .bb-public-venue-shell > .bb-public-profile-section-head {
@@ -1707,6 +1709,7 @@
 .bb-public-about-pillar-marker {
   display: inline-grid;
   place-items: center;
+  place-content: center;
   width: 3.25rem;
   height: 3.25rem;
   padding: 0;
@@ -1719,6 +1722,8 @@
   font-size: 0.72rem;
   font-weight: 760;
   letter-spacing: 0.08em;
+  line-height: 1;
+  text-align: center;
 }
 
 .bb-public-about-pillar-marker.is-icon {
@@ -1733,17 +1738,20 @@
 
 .bb-public-about-pillar-marker.is-digit {
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  letter-spacing: -0.04em;
 }
 
 .bb-public-about-marker-digit {
   display: inline-grid;
   place-items: center;
+  place-content: center;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 1.05rem;
   font-weight: 780;
   letter-spacing: -0.04em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
 button.bb-public-about-pillar-marker {
@@ -2155,6 +2163,53 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   transform-style: flat;
   perspective: none;
   isolation: isolate;
+}
+
+.bb-public-about-page-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: 0.2rem 0 0;
+  pointer-events: auto;
+}
+
+.bb-public-about-page-nav-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin: 0;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  background: transparent;
+  color: #101828;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+}
+
+.bb-public-about-page-nav-btn:hover:not(:disabled) {
+  border-color: rgba(15, 23, 42, 0.32);
+  background: rgba(15, 23, 42, 0.03);
+}
+
+.bb-public-about-page-nav-btn:active:not(:disabled) {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.bb-public-about-page-nav-btn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.bb-public-about-page-nav-btn:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.28);
+  outline-offset: 2px;
 }
 
 .bb-public-about-page.is-current .bb-public-about-page-media {
@@ -3882,9 +3937,20 @@ html body .native-ui .bb-public-surface .bb-public-reviews-title {
 
 html body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-name {
   color: #101828 !important;
-  font-size: 0.95rem !important;
-  font-weight: 740 !important;
-  text-align: left !important;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.018em !important;
+  text-align: center !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-price {
+  color: rgba(16, 24, 40, 0.62) !important;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em !important;
+  text-align: center !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-product-stat-label {
@@ -4009,8 +4075,7 @@ html body .native-ui .bb-public-surface .bb-public-section-accent,
 html body .native-ui .bb-public-surface .bb-public-home::after,
 html body .native-ui .bb-public-surface .bb-public-section-eyebrow-mark,
 html body .native-ui .bb-public-surface .bb-public-about-media-frame,
-html body .native-ui .bb-public-surface .bb-public-map-frame-accent,
-html body .native-ui .bb-public-surface .bb-public-product-cart-btn {
+html body .native-ui .bb-public-surface .bb-public-map-frame-accent {
   background-color: #eefcff !important;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.18)),
@@ -4018,6 +4083,13 @@ html body .native-ui .bb-public-surface .bb-public-product-cart-btn {
   background-size: 100% 100%, 420% 420% !important;
   background-position: 0 0, var(--native-accent-x) 50% !important;
   background-blend-mode: soft-light, normal !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn {
+  background: #fff !important;
+  background-image: none !important;
+  color: #101828 !important;
+  box-shadow: none !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-book-strip :where(h1, h2, h3, p),
@@ -4031,10 +4103,14 @@ html body .native-ui .bb-public-surface .bb-public-home-copy .bb-primary-btn :wh
 html body .native-ui .bb-public-surface .bb-public-offer-ctas .bb-primary-btn,
 html body .native-ui .bb-public-surface .bb-public-offer-ctas .bb-primary-btn :where(span, strong, small),
 html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn,
-html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn :where(span, strong, small),
-html body .native-ui .bb-public-surface .bb-public-product-cart-btn,
-html body .native-ui .bb-public-surface .bb-public-product-cart-btn :where(span, svg) {
+html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn :where(span, strong, small) {
   color: #050505 !important;
+}
+
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn,
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn :where(span, svg),
+html body .native-ui .bb-public-surface .bb-public-product-more-btn {
+  color: #101828 !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-home-copy .bb-editable-text.is-empty:before {
@@ -4121,6 +4197,8 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-bl
   text-align: center !important;
   width: min(28rem, calc(100% - (2 * var(--bb-public-gutter, 1.25rem)))) !important;
   max-width: 28rem !important;
+  margin-inline: 0 !important;
+  padding-top: 0.85rem !important;
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-venue-title.bb-public-profile-heading {
@@ -4137,7 +4215,7 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-bl
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-gallery-block .bb-public-profile-section-head > .bb-editable-text-shell {
   width: 100% !important;
   max-width: 100% !important;
-  margin-inline: 0 !important;
+  margin-inline: auto !important;
   text-align: center !important;
 }
 

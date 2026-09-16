@@ -17,6 +17,7 @@ export function DateField({
   disabled = false,
   min = '',
   max = '',
+  isDayDisabled,
   placeholder = 'Pick date',
   className = ''
 }) {
@@ -42,6 +43,7 @@ export function DateField({
   const isDisabledDay = (key) => {
     if (min && key < min) return true;
     if (max && key > max) return true;
+    if (typeof isDayDisabled === 'function' && isDayDisabled(key)) return true;
     return false;
   };
 

@@ -5,12 +5,12 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
 import { CatalogCategoryTabs } from '../../storefront/components/CatalogCategoryTabs';
+import { PublicServiceSlotSheet } from './PublicServiceSlotSheet';
 import { formatServiceCardMeta, formatServicePrice, getServiceOpenSpots } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import {
   buildCatalogCategoryTabs,
-  filterCatalogByCategory,
-  getCatalogCategory
+  filterCatalogByCategory
 } from '../../../utils/catalogCategories';
 
 /**
@@ -30,6 +30,7 @@ export function PublicBookingFlow({
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
   const [categoryId, setCategoryId] = useState('all');
+  const [slotService, setSlotService] = useState(null);
   const cartOpen = panel === 'cart';
 
   const activeServices = useMemo(
@@ -53,6 +54,16 @@ export function PublicBookingFlow({
   const openCart = () => setPanel('cart');
   const closeCart = () => setPanel('shop');
   const toggleCart = () => setPanel(cartOpen ? 'shop' : 'cart');
+
+  const requestAddService = (item) => {
+    if (preview) return;
+    const isSpot = getServiceScheduleType(item) === 'class_session';
+    if (isSpot) {
+      if (cart.addService(item)) openCart();
+      return;
+    }
+    setSlotService(item);
+  };
 
   const introBody =
     String(website.bookSubtext || '').trim() ||
@@ -84,7 +95,6 @@ export function PublicBookingFlow({
   const serviceGrid = (
     <div className="bb-public-product-grid">
       {visibleServices.map((item) => {
-        const category = getCatalogCategory(item, 'Service');
         const imageSrc = item.imageUrls?.[0] || item.image || '';
         const price = formatServicePrice(item);
         const cardMeta = formatServiceCardMeta(item);
@@ -104,9 +114,6 @@ export function PublicBookingFlow({
             >
               <div className="bb-public-product-media">
                 {imageSrc ? <img src={imageSrc} alt="" /> : null}
-                {category ? (
-                  <span className="bb-public-product-sticker">{category}</span>
-                ) : null}
                 {cardMeta || spotsLeft != null ? (
                   <div className="bb-public-product-sticker-stack">
                     {cardMeta ? (
@@ -125,10 +132,7 @@ export function PublicBookingFlow({
               </div>
               <div className="bb-public-product-price-row">
                 <h2 className="bb-public-product-name">{item.name}</h2>
-                <span className="bb-public-product-price-meta">
-                  <span className="bb-public-product-price-label">Price</span>
-                  <span className="bb-public-product-price-value">{price || '—'}</span>
-                </span>
+                <p className="bb-public-product-price">{price || '—'}</p>
               </div>
             </button>
             <div className="bb-public-product-actions">
@@ -136,10 +140,7 @@ export function PublicBookingFlow({
                 type="button"
                 className="bb-public-product-cart-btn"
                 disabled={inCart}
-                onClick={() => {
-                  cart.addService(item);
-                  openCart();
-                }}
+                onClick={() => requestAddService(item)}
               >
                 <ShoppingBag size={12} strokeWidth={2.4} />
                 <span>{inCart ? 'In cart' : 'Add'}</span>
@@ -179,15 +180,16 @@ export function PublicBookingFlow({
       }${preview ? ' pointer-events-none' : ''}`}
     >
       <div className="bb-public-measure-wide bb-public-catalog-shell">
-        <div className="bb-public-catalog-topbar">{cartButton}</div>
-
         <div className="bb-public-catalog-layout">
           <aside className="bb-public-catalog-side">{categoryTabsEl}</aside>
 
           <div className="bb-public-catalog-main">
             <header className="bb-public-catalog-intro">
-              <h1 className="bb-public-catalog-intro-title">Our Services</h1>
-              <p className="bb-public-catalog-intro-body">{introBody}</p>
+              <div className="bb-public-catalog-intro-copy">
+                <h1 className="bb-public-catalog-intro-title">Our Services</h1>
+                <p className="bb-public-catalog-intro-body">{introBody}</p>
+              </div>
+              <div className="bb-public-catalog-intro-actions">{cartButton}</div>
             </header>
 
             <div className="bb-public-catalog-mobile-tools">
@@ -223,6 +225,21 @@ export function PublicBookingFlow({
           </>
         ) : null}
       </div>
+
+      <PublicServiceSlotSheet
+        open={Boolean(slotService)}
+        service={slotService}
+        workspace={workspace}
+        bookings={bookings}
+        confirmLabel="Add to cart"
+        onClose={() => setSlotService(null)}
+        onConfirm={(slot) => {
+          if (!slotService) return;
+          const added = cart.addService(slotService, slot);
+          setSlotService(null);
+          if (added) openCart();
+        }}
+      />
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
+import { PublicServiceSlotSheet } from '../../booking/components/PublicServiceSlotSheet';
 import {
   findVariantBySelections,
   formatCompareAtPrice,
@@ -48,6 +49,7 @@ export function PublicCatalogDetail({
   const cart = usePublicCart();
   const [panel, setPanel] = useState('detail');
   const [selections, setSelections] = useState({});
+  const [slotSheetOpen, setSlotSheetOpen] = useState(false);
 
   const options = useMemo(() => {
     if (kind !== 'product' || !item) return [];
@@ -158,8 +160,15 @@ export function PublicCatalogDetail({
 
   const addToCart = () => {
     if (cartDisabled) return;
-    if (kind === 'service') cart.addService(item);
-    else cart.addItem(item, 1, selectedVariant);
+    if (kind === 'service') {
+      if (isSpotService) {
+        if (cart.addService(item)) setPanel('cart');
+        return;
+      }
+      setSlotSheetOpen(true);
+      return;
+    }
+    cart.addItem(item, 1, selectedVariant);
     setPanel('cart');
   };
 
@@ -319,6 +328,22 @@ export function PublicCatalogDetail({
           </aside>
         </div>
       </div>
+
+      {kind === 'service' ? (
+        <PublicServiceSlotSheet
+          open={slotSheetOpen}
+          service={item}
+          workspace={workspace}
+          bookings={workspace?.bookings || []}
+          confirmLabel="Add to cart"
+          onClose={() => setSlotSheetOpen(false)}
+          onConfirm={(slot) => {
+            const added = cart.addService(item, slot);
+            setSlotSheetOpen(false);
+            if (added) setPanel('cart');
+          }}
+        />
+      ) : null}
     </section>
   );
 }

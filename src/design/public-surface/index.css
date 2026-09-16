@@ -3,5 +3,7 @@
 @import './catalog.css';
 @import './social.css';
 @import './book-buy.css';
+@import './checkout-flow.css';
+@import './public-slot-sheet.css';
 @import './studio.css';
 @import './profile.css';

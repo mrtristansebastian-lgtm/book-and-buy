@@ -3,6 +3,7 @@ import { ChevronDown, ExternalLink } from 'lucide-react';
 import {
   E_BUSINESS_PAGES,
   E_BUSINESS_PLATFORM_NAME,
+  isEBusinessPreviewOnlyPage,
   isPublicPageEnabled
 } from '../../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../../app/routing';
@@ -29,6 +30,7 @@ export function WebsiteStudioPage() {
   const [controlsOpen, setControlsOpen] = useState(false);
 
   const editMode = mode === 'edit';
+  const previewOnlySurface = isEBusinessPreviewOnlyPage(surface);
 
   const pageOptions = useMemo(
     () => E_BUSINESS_PAGES.map((page) => ({ id: page.id, label: page.label })),
@@ -57,6 +59,7 @@ export function WebsiteStudioPage() {
   };
 
   const togglePage = (pageId) => {
+    if (isEBusinessPreviewOnlyPage(pageId)) return;
     const enabled = isPublicPageEnabled(website.pages, pageId);
     updateWebsite({
       pages: {
@@ -85,7 +88,11 @@ export function WebsiteStudioPage() {
             <button
               type="button"
               className="bb-studio-action bb-studio-action--ghost"
-              onClick={() => navigate(publicPagePath(workspace.slug, surface))}
+              onClick={() =>
+                navigate(
+                  publicPagePath(workspace.slug, previewOnlySurface ? 'book' : surface)
+                )
+              }
             >
               <ExternalLink size={14} strokeWidth={2.2} />
               Open live
@@ -141,14 +148,20 @@ export function WebsiteStudioPage() {
               { id: 'desktop', label: 'Desktop' }
             ]}
           />
-          <label className="bb-studio-visible-toggle">
-            <input
-              type="checkbox"
-              checked={isPublicPageEnabled(website.pages, surface)}
-              onChange={() => togglePage(surface)}
-            />
-            Page visible
-          </label>
+          {previewOnlySurface ? (
+            <p className="bb-muted m-0 text-xs bb-studio-visible-toggle">
+              Checkout mockup — studio preview only
+            </p>
+          ) : (
+            <label className="bb-studio-visible-toggle">
+              <input
+                type="checkbox"
+                checked={isPublicPageEnabled(website.pages, surface)}
+                onChange={() => togglePage(surface)}
+              />
+              Page visible
+            </label>
+          )}
         </div>
       </header>
 

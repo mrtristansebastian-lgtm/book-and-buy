@@ -11,8 +11,10 @@ export const productLineKey = (id, variantId = '') =>
 
 export const serviceLineKey = (id) => `service:${id}`;
 
-export function useCart() {
-  const [items, setItems] = useState([]);
+export function useCart(initialItems = []) {
+  const [items, setItems] = useState(() =>
+    Array.isArray(initialItems) ? initialItems.map((item) => ({ ...item })) : []
+  );
 
   const addItem = (product, quantity = 1, variant = null) => {
     if (!product?.id) return;
@@ -61,39 +63,50 @@ export function useCart() {
     });
   };
 
-  const addService = (service) => {
-    if (!service?.id) return;
+  const addService = (service, slot = null) => {
+    if (!service?.id) return false;
     const lineKey = serviceLineKey(service.id);
     const isSpot = getServiceScheduleType(service) === 'class_session';
+    const dateKey = isSpot
+      ? service.sessionStartDate || ''
+      : String(slot?.dateKey || '').trim();
+    const time = isSpot
+      ? service.sessionStartTime || ''
+      : String(slot?.time || '').trim();
+
+    if (!isSpot && (!dateKey || !time)) return false;
+
     setItems((prev) => {
-      if (prev.some((item) => item.lineKey === lineKey)) return prev;
-      return [
-        ...prev,
-        {
-          kind: 'service',
-          lineKey,
-          serviceId: service.id,
-          id: service.id,
-          name: service.name,
-          imageUrl: service.imageUrls?.[0] || service.image || '',
-          unitPriceCents: getServiceUnitPriceCents(service),
-          currency: service.currency || 'R',
-          quantity: 1,
-          scheduleType: service.scheduleType,
-          isSpot,
-          duration: service.duration || '',
-          sessionLabel: isSpot ? formatServiceSessionLabel(service) : '',
-          sessionStartDate: service.sessionStartDate || '',
-          sessionStartTime: service.sessionStartTime || '',
-          sessionEndDate: service.sessionEndDate || '',
-          sessionEndTime: service.sessionEndTime || '',
-          capacity: service.capacity || 1,
-          priceLabel: service.priceType === 'quote' ? 'Quote after consult' : '',
-          dateKey: isSpot ? service.sessionStartDate || '' : '',
-          time: isSpot ? service.sessionStartTime || '' : ''
-        }
-      ];
+      const nextLine = {
+        kind: 'service',
+        lineKey,
+        serviceId: service.id,
+        id: service.id,
+        name: service.name,
+        imageUrl: service.imageUrls?.[0] || service.image || '',
+        unitPriceCents: getServiceUnitPriceCents(service),
+        currency: service.currency || 'R',
+        quantity: 1,
+        scheduleType: service.scheduleType,
+        isSpot,
+        duration: service.duration || '',
+        sessionLabel: isSpot ? formatServiceSessionLabel(service) : '',
+        sessionStartDate: service.sessionStartDate || '',
+        sessionStartTime: service.sessionStartTime || '',
+        sessionEndDate: service.sessionEndDate || '',
+        sessionEndTime: service.sessionEndTime || '',
+        capacity: service.capacity || 1,
+        priceLabel: service.priceType === 'quote' ? 'Quote after consult' : '',
+        dateKey,
+        time
+      };
+      const existing = prev.find((item) => item.lineKey === lineKey);
+      if (existing) {
+        return prev.map((item) => (item.lineKey === lineKey ? { ...item, ...nextLine } : item));
+      }
+      return [...prev, nextLine];
     });
+    return true;
   };
 
   const setQuantity = (lineKeyOrProductId, quantity) => {

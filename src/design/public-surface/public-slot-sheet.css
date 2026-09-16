@@ -1,0 +1,125 @@
+/* Public service slot sheet — DateField + available time chips */
+
+.bb-public-slot-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: end center;
+  padding: 0.85rem;
+  box-sizing: border-box;
+  background: rgba(15, 23, 42, 0.34);
+}
+
+@media (min-width: 720px) {
+  .bb-public-slot-sheet-backdrop {
+    place-items: center;
+  }
+}
+
+.bb-public-slot-sheet {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 28rem);
+  max-height: min(92vh, 40rem);
+  margin: 0;
+  padding: 1.15rem 1.15rem 1.05rem;
+  overflow: auto;
+  border-radius: 1.25rem 1.25rem 0.85rem 0.85rem;
+  box-sizing: border-box;
+}
+
+.bb-public-slot-sheet-head {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bb-public-slot-sheet-title {
+  margin: 0;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 760;
+  letter-spacing: -0.03em;
+  color: #101828;
+}
+
+.bb-public-slot-sheet-lede {
+  margin: 0;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 520;
+  line-height: 1.45;
+  color: rgba(15, 23, 42, 0.52);
+}
+
+.bb-public-slot-sheet-times {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.bb-public-slot-sheet-times-label {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 740;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-public-slot-sheet-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.bb-public-slot-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 0.85rem;
+  background: #fff;
+  color: #101828;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  cursor: pointer;
+}
+
+.bb-public-slot-chip:hover {
+  border-color: rgba(15, 23, 42, 0.22);
+  background: #f8fafc;
+}
+
+.bb-public-slot-chip.is-selected {
+  border-color: transparent;
+  background: #101828;
+  color: #fff;
+}
+
+.bb-public-slot-sheet-summary {
+  margin: 0;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: #101828;
+}
+
+.bb-public-slot-sheet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 0.15rem;
+}
+
+.bb-device-preview--phone .bb-public-slot-sheet-backdrop {
+  position: absolute;
+}

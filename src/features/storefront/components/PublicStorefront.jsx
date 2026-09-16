@@ -5,11 +5,10 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { PublicCartCheckout } from './PublicCartCheckout';
 import { CatalogCategoryTabs } from './CatalogCategoryTabs';
-import { formatProductPrice, formatStockNote, isProductPubliclyVisible, productHasVariants } from '../../../utils/products';
+import { formatProductPrice, isProductPubliclyVisible, productHasVariants } from '../../../utils/products';
 import {
   buildCatalogCategoryTabs,
-  filterCatalogByCategory,
-  getCatalogCategory
+  filterCatalogByCategory
 } from '../../../utils/catalogCategories';
 
 export function PublicStorefront({
@@ -87,11 +86,6 @@ export function PublicStorefront({
     const hasOptions = productHasVariants(product);
     const imageSrc = product.imageUrls?.[0] || product.image || '';
     const price = formatProductPrice(product);
-    const stock = formatStockNote(product);
-    const category = getCatalogCategory(
-      product,
-      featuredCard ? 'Featured' : 'Product'
-    );
 
     return (
       <article
@@ -106,21 +100,10 @@ export function PublicStorefront({
         >
           <div className="bb-public-product-media">
             {imageSrc ? <img src={imageSrc} alt="" /> : null}
-            {category ? (
-              <span className="bb-public-product-sticker">{category}</span>
-            ) : null}
-            {stock ? (
-              <span className="bb-public-product-sticker bb-public-product-sticker--ink bb-public-product-sticker--end">
-                {stock}
-              </span>
-            ) : null}
           </div>
           <div className="bb-public-product-price-row">
             <h2 className="bb-public-product-name">{product.name}</h2>
-            <span className="bb-public-product-price-meta">
-              <span className="bb-public-product-price-label">Price</span>
-              <span className="bb-public-product-price-value">{price || '—'}</span>
-            </span>
+            <p className="bb-public-product-price">{price || '—'}</p>
           </div>
         </button>
         <div className="bb-public-product-actions">
@@ -181,15 +164,16 @@ export function PublicStorefront({
       }${preview ? ' pointer-events-none' : ''}`}
     >
       <div className="bb-public-measure-wide bb-public-catalog-shell">
-        <div className="bb-public-catalog-topbar">{cartButton}</div>
-
         <div className="bb-public-catalog-layout">
           <aside className="bb-public-catalog-side">{categoryTabsEl}</aside>
 
           <div className="bb-public-catalog-main">
             <header className="bb-public-catalog-intro">
-              <h1 className="bb-public-catalog-intro-title">Our Products</h1>
-              <p className="bb-public-catalog-intro-body">{introBody}</p>
+              <div className="bb-public-catalog-intro-copy">
+                <h1 className="bb-public-catalog-intro-title">Our Products</h1>
+                <p className="bb-public-catalog-intro-body">{introBody}</p>
+              </div>
+              <div className="bb-public-catalog-intro-actions">{cartButton}</div>
             </header>
 
             <div className="bb-public-catalog-mobile-tools">

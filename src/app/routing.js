@@ -2,7 +2,16 @@ import { resolveWorkspaceTab } from '../config/routeConfig';
 
 const stripHash = (value = '') => value.replace(/^#/, '');
 
-const PUBLIC_PAGES = new Set(['home', 'book', 'buy', 'shop', 'social']);
+const PUBLIC_PAGES = new Set([
+  'home',
+  'book',
+  'buy',
+  'shop',
+  'social',
+  'cart',
+  'checkout',
+  'success'
+]);
 
 const normalizePublicPage = (page = 'home') => {
   if (page === 'shop') return 'buy';
@@ -69,7 +78,7 @@ export function parseAppRoute(path = getLocationPath()) {
         demo: true
       };
     }
-    if (['home', 'book', 'buy', 'shop', 'social'].includes(parts[1])) {
+    if (['home', 'book', 'buy', 'shop', 'social', 'cart', 'checkout', 'success'].includes(parts[1])) {
       const page = normalizePublicPage(parts[1]);
       const itemId =
         (page === 'book' || page === 'buy' || page === 'social') && parts[2]

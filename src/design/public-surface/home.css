@@ -130,31 +130,49 @@
 }
 
 .bb-public-catalog-intro {
-  display: grid;
-  gap: 0.45rem;
-  max-width: 40rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  width: 100%;
+  max-width: none;
   margin: 0 0 0.35rem;
-  justify-items: start;
   text-align: left;
+}
+
+.bb-public-catalog-intro-copy {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1 1 16rem;
+  justify-items: start;
+}
+
+.bb-public-catalog-intro-actions {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
 }
 
 .bb-public-catalog-intro-title {
   margin: 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-size: clamp(1.45rem, 2.5vw, 1.95rem);
   font-weight: 780;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
   color: #101828;
 }
 
 .bb-public-catalog-intro-body {
   margin: 0;
   max-width: 36rem;
-  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
   font-size: 0.95rem;
   font-weight: 500;
   line-height: 1.5;
+  letter-spacing: -0.01em;
   color: #667085;
 }
 
@@ -211,16 +229,69 @@
 }
 
 @media (min-width: 960px) {
+  .bb-public-home-stack.bb-public-profile:has(.bb-public-profile-panel--buy),
+  .bb-public-home-stack.bb-public-profile:has(.bb-public-profile-panel--book) {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .bb-public-profile:has(.bb-public-profile-panel--buy) .bb-public-profile-rail,
+  .bb-public-profile:has(.bb-public-profile-panel--book) .bb-public-profile-rail {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .bb-public-profile:has(.bb-public-profile-panel--buy) .bb-public-profile-tabs--top,
+  .bb-public-profile:has(.bb-public-profile-panel--book) .bb-public-profile-tabs--top {
+    position: relative;
+    top: auto;
+    flex: 0 0 auto;
+  }
+
+  .bb-public-profile:has(.bb-public-profile-panel--buy) .bb-public-profile-modules,
+  .bb-public-profile:has(.bb-public-profile-panel--book) .bb-public-profile-modules {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .bb-public-profile-panel--buy,
+  .bb-public-profile-panel--book {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    padding-bottom: 0.75rem;
+  }
+
+  .bb-public-catalog-desk {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: 0.5rem;
+  }
+
   .bb-public-catalog-desk .bb-public-catalog-shell {
-    gap: 0.75rem;
+    height: 100%;
+    min-height: 0;
+    gap: 0;
     padding-inline: 0.25rem;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .bb-public-catalog-desk .bb-public-catalog-topbar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    min-height: 2.45rem;
+    display: none;
   }
 
   .bb-public-catalog-desk .bb-public-catalog-mobile-tools,
@@ -230,16 +301,22 @@
 
   .bb-public-catalog-desk .bb-public-catalog-layout {
     grid-template-columns: 11.5rem minmax(0, 1fr);
-    gap: 1.15rem 1.25rem;
-    align-items: start;
+    gap: 1.15rem 1.35rem;
+    align-items: stretch;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .bb-public-catalog-desk .bb-public-catalog-side {
     display: block;
-    position: sticky;
-    top: 4.75rem;
-    align-self: start;
+    align-self: stretch;
     min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    overflow: auto;
+    padding-top: 0.15rem;
+    scrollbar-width: thin;
   }
 
   .bb-public-catalog-desk .bb-public-catalog-side .bb-public-catalog-tabs {
@@ -264,13 +341,36 @@
     text-align: left;
   }
 
+  .bb-public-catalog-desk .bb-public-catalog-main {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 0.85rem;
+    overflow: hidden;
+  }
+
   .bb-public-catalog-desk .bb-public-catalog-intro {
-    margin-bottom: 0.15rem;
+    margin: 0;
+    padding: 0.15rem 0 0.65rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-intro-actions {
+    display: inline-flex;
   }
 
   .bb-public-catalog-desk .bb-public-catalog-desk-grid {
     display: block;
     min-width: 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
   }
 
   .bb-public-catalog-desk .bb-public-catalog-cart-scrim {

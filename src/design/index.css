@@ -3,6 +3,7 @@
 @import './native-gradient-primitives.css';
 @import './native-motion-keyframes.css';
 @import './native-typography-consistency.css';
+@import './native-centering-consistency.css';
 @import './native-booking-theme.css';
 @import './app-shell.css';
 @import './public-surface/index.css';

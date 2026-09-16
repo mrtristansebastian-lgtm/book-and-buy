@@ -3,8 +3,8 @@ import { useCart } from './hooks/useCart';
 
 const PublicCartContext = createContext(null);
 
-export function PublicCartProvider({ children }) {
-  const cart = useCart();
+export function PublicCartProvider({ children, initialItems = [] }) {
+  const cart = useCart(initialItems);
   return <PublicCartContext.Provider value={cart}>{children}</PublicCartContext.Provider>;
 }
 

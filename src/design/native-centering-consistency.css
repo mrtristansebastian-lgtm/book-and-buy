@@ -1,0 +1,130 @@
+/* Universal dead-center for circular chips and bordered text controls */
+
+html body .native-ui {
+  --bb-dead-center-nudge: 0.04em;
+}
+
+/* Opt-in utilities */
+html body .native-ui .bb-dead-center {
+  display: inline-grid !important;
+  place-items: center !important;
+  place-content: center !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+
+html body .native-ui .bb-dead-center-chip {
+  display: inline-grid !important;
+  place-items: center !important;
+  place-content: center !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Circular / equal-box number + icon chips */
+html body .native-ui :where(
+  .bb-public-about-pillar-marker,
+  .bb-public-about-marker-digit,
+  .bb-public-catalog-cart-count,
+  .bb-style-icon-grid button,
+  .bb-style-icon-digit,
+  .bb-public-profile-chip,
+  .bb-public-coverflow-dot,
+  .bb-social-profile-avatar-ring,
+  .bb-public-profile-avatar-ring
+) {
+  display: inline-grid !important;
+  place-items: center !important;
+  place-content: center !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+}
+
+html body .native-ui :where(
+  .bb-public-about-pillar-marker,
+  .bb-style-icon-grid button,
+  .bb-style-icon-digit
+) {
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+html body .native-ui :where(
+  .bb-public-catalog-cart-count
+) {
+  line-height: 1 !important;
+}
+
+html body .native-ui :where(
+  .bb-public-about-marker-digit,
+  .bb-public-catalog-cart-count,
+  .bb-style-icon-digit .bb-public-about-marker-digit
+) {
+  font-variant-numeric: tabular-nums;
+  line-height: 1 !important;
+  /* Optical nudge: Plus Jakarta / Figtree sit slightly low in geometric boxes */
+  transform: translateY(var(--bb-dead-center-nudge));
+}
+
+html body .native-ui :where(
+  .bb-public-about-pillar-marker.is-icon,
+  .bb-style-icon-grid button:not(.bb-style-icon-digit)
+) {
+  transform: none;
+}
+
+html body .native-ui :where(
+  .bb-public-about-pillar-marker.is-icon > svg,
+  .bb-style-icon-grid button > svg
+) {
+  display: block;
+  transform: none;
+}
+
+/* Bordered text buttons / pills — geometric center for label + icon */
+html body .native-ui :where(
+  .bb-primary-btn,
+  .bb-ghost-btn,
+  .bb-public-catalog-cart,
+  .bb-public-catalog-tab,
+  .bb-public-section-action,
+  .bb-public-about-add-page,
+  .bb-public-about-page-remove,
+  .bb-public-product-cart-btn,
+  .bb-public-product-more-btn,
+  .bb-finance-period-pill,
+  .bb-blog-status-pill,
+  .native-control-pill
+) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  text-align: center !important;
+}
+
+html body .native-ui :where(
+  .bb-primary-btn,
+  .bb-ghost-btn,
+  .bb-public-catalog-cart,
+  .bb-public-catalog-tab,
+  .bb-public-section-action,
+  .bb-public-about-add-page,
+  .bb-public-about-page-remove
+) {
+  line-height: 1.1 !important;
+}
+
+html body .native-ui :where(
+  .bb-primary-btn > svg,
+  .bb-ghost-btn > svg,
+  .bb-public-catalog-cart > svg,
+  .bb-public-section-action > svg
+) {
+  display: block;
+  flex-shrink: 0;
+}

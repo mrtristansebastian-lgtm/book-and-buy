@@ -1,6 +1,12 @@
 import { PublicCartProvider } from '../../storefront/PublicCartContext';
 import { PublicCatalogDetail } from '../../storefront/components/PublicCatalogDetail';
+import {
+  PublicCartCheckout,
+  buildCheckoutPreviewCartItems,
+  buildCheckoutPreviewResult
+} from '../../storefront/components/PublicCartCheckout';
 import { PublicHomeView } from './PublicSurfaceViews';
+import { isEBusinessPreviewOnlyPage } from '../../../config/eBusinessPlatform';
 
 /** Map studio / URL page ids onto the profile rail tabs. */
 export function pageToRailTab(page = 'home') {
@@ -9,6 +15,34 @@ export function pageToRailTab(page = 'home') {
   if (id === 'book') return 'book';
   if (id === 'buy') return 'buy';
   return 'home';
+}
+
+function CheckoutFlowPreview({ workspace, page, preview = false }) {
+  const forceStep =
+    page === 'checkout' ? 'details' : page === 'success' ? 'success' : 'review';
+  const seedItems = buildCheckoutPreviewCartItems(workspace);
+  const previewResult =
+    forceStep === 'success' ? buildCheckoutPreviewResult(seedItems) : null;
+
+  return (
+    <PublicCartProvider initialItems={seedItems}>
+      <div
+        className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''}`}
+        data-page={page}
+      >
+        <div className="bb-public-gutter bb-public-buy-section" style={{ paddingTop: '1.5rem' }}>
+          <PublicCartCheckout
+            catalogWorkspace={workspace}
+            workspaceName={workspace.brandName}
+            forceStep={forceStep}
+            previewResult={previewResult}
+            lockedPreview
+            onBack={() => {}}
+          />
+        </div>
+      </div>
+    </PublicCartProvider>
+  );
 }
 
 /**
@@ -29,12 +63,19 @@ export function PublicSurfaceRenderer({
   onAddSocialPost,
   showDrafts = false
 }) {
-  const railTab = pageToRailTab(page);
+  const pageId = String(page || 'home').trim().toLowerCase();
+  const railTab = pageToRailTab(pageId);
   const detailId = String(itemId || '').trim();
 
-  if (detailId && (page === 'book' || page === 'buy')) {
-    const kind = page === 'book' ? 'service' : 'product';
-    const items = page === 'book' ? workspace.services || [] : workspace.products || [];
+  if (isEBusinessPreviewOnlyPage(pageId)) {
+    return (
+      <CheckoutFlowPreview workspace={workspace} page={pageId} preview={preview || editMode} />
+    );
+  }
+
+  if (detailId && (pageId === 'book' || pageId === 'buy')) {
+    const kind = pageId === 'book' ? 'service' : 'product';
+    const items = pageId === 'book' ? workspace.services || [] : workspace.products || [];
     const item = items.find((row) => row.id === detailId && row.active !== false) || null;
 
     return (
@@ -43,7 +84,7 @@ export function PublicSurfaceRenderer({
           className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''} ${
             editMode ? 'bb-public-surface--edit' : ''
           }`}
-          data-page={page}
+          data-page={pageId}
         >
           <PublicCatalogDetail
             kind={kind}
@@ -65,7 +106,7 @@ export function PublicSurfaceRenderer({
         className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''} ${
           editMode ? 'bb-public-surface--edit' : ''
         }`}
-        data-page={page}
+        data-page={pageId}
         data-rail={railTab}
       >
         <PublicHomeView
