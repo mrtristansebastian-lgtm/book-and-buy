@@ -1,18 +1,75 @@
-/* Canvas-first studio */
+/* Canvas-first studio — fixed toolbar, scrolling page surface */
 .bb-studio-canvas {
-  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
   width: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  /* visible so page-title glow can sit in the corner like other desks */
+  overflow: visible;
+}
+
+/* Lock shell to viewport so only the stage scrolls (not Social Studio) */
+.bb-shell:has(.bb-studio-canvas) {
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bb-shell:has(.bb-studio-canvas) .bb-demo-banner {
+  flex: 0 0 auto;
+}
+
+.bb-shell:has(.bb-studio-canvas) .bb-owner-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  align-content: stretch;
+}
+
+.bb-shell:has(.bb-studio-canvas) .bb-owner-content {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-owner-main:has(> .bb-studio-canvas) {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* clip stage scroll, but don’t kill title-corner glow */
+  overflow-x: visible;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 901px) {
+  .bb-shell:has(.bb-studio-canvas) .bb-owner-sidebar {
+    height: auto;
+    max-height: 100%;
+    align-self: stretch;
+    overflow: auto;
+  }
 }
 
 .bb-studio-toolbar {
   position: relative;
-  z-index: 5;
+  z-index: 8;
+  flex: 0 0 auto;
   display: grid;
   gap: 0.85rem;
-  padding: 0;
+  padding: 0 0 0.75rem;
   background: transparent;
   border: 0;
   box-shadow: none;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  overflow: visible;
 }
 
 .bb-studio-toolbar-top {
@@ -81,6 +138,7 @@
   .bb-studio-toolbar {
     gap: 0.55rem;
     padding-inline: 1rem;
+    padding-bottom: 0.65rem;
   }
 
   .bb-studio-toolbar-lede {
@@ -162,6 +220,7 @@
 
   .bb-studio-stage {
     padding-inline: 0;
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
   }
 
   /* Preview already has page switching in the studio bar — drop sticky public nav chrome */
@@ -247,6 +306,65 @@
   width: 100%;
   justify-items: stretch;
   min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/*
+ * Book / Buy catalog in studio: fill the stage like live 100dvh desk.
+ * Heading + categories stay put; only the card grid scrolls.
+ * No empty overscroll when cards don’t fill the pane.
+ */
+.bb-studio-stage:has(.bb-public-catalog-desk) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-studio-stage:has(.bb-public-catalog-desk) > .bb-studio-edit-hint {
+  flex: 0 0 auto;
+}
+
+.bb-studio-stage:has(.bb-public-catalog-desk) > .bb-studio-surface {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-surface,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-home-stack.bb-public-profile,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-profile-rail,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-profile-modules,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-profile-panel--book,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-profile-panel--buy,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-desk,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-shell,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-layout,
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-main {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-side {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-desk-grid {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: none;
 }
 
 .bb-studio-edit-hint {

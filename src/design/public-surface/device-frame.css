@@ -25,35 +25,7 @@
   --bb-public-header-h: auto;
 }
 
-/* Shared flush padding for website + social studios on PC */
-@media (min-width: 721px) {
-  .bb-owner-main:has(> .bb-studio-canvas),
-  .bb-owner-main:has(> .bb-social-studio) {
-    padding-inline: 1rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .bb-owner-main:has(> .bb-studio-canvas),
-  .bb-owner-main:has(> .bb-social-studio) {
-    padding-inline: 1.25rem;
-  }
-}
-
-/* Match public site white behind flush studios */
-.bb-shell:has(.bb-studio-canvas),
-.bb-shell:has(.bb-social-studio) {
-  background: #fff;
-}
-
-.bb-owner-content:has(.bb-studio-canvas),
-.bb-owner-content:has(.bb-social-studio),
-.bb-owner-main:has(> .bb-studio-canvas),
-.bb-owner-main:has(> .bb-social-studio) {
-  background: #fff;
-}
-
-.bb-shell:has(.bb-studio-canvas) .bb-demo-banner,
-.bb-shell:has(.bb-social-studio) .bb-demo-banner {
-  background: #fff;
-}
+/*
+ * Preview surface stays white; shell/main keep the same ambient corner
+ * glow + padding as Services / Products so page titles sit identically.
+ */

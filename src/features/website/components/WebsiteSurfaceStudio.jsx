@@ -92,7 +92,7 @@ export function WebsiteSurfaceStudio({
   };
 
   return (
-    <div className="bb-studio-canvas grid gap-4">
+    <div className="bb-studio-canvas">
       <header className={`bb-studio-toolbar${controlsOpen ? ' is-controls-open' : ''}`}>
         <div className="bb-studio-toolbar-top">
           <div className="bb-studio-toolbar-copy min-w-0">
