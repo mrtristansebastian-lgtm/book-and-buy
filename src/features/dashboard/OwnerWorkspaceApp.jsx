@@ -16,24 +16,12 @@ import { SupportInboxPage } from '../support/pages/SupportInboxPage';
 import { FinancePage } from '../finance/pages/FinancePage';
 import { ClientsPage } from '../clients/pages/ClientsPage';
 import { SettingsShell } from '../settings/SettingsShell';
-import { useWorkspace } from '../workspace/WorkspaceContext';
 
 export function OwnerWorkspaceApp({ tab, rest = [] }) {
-  const { bookings, orders, threads } = useWorkspace();
-  const pending = bookings.filter((booking) => ['pending', 'waitlist'].includes(booking.status)).length;
-  const pendingOrders = orders.filter((order) =>
-    ['pending', 'accepted', 'shipped'].includes(order.status)
-  ).length;
-  const unreadSupport = (threads || []).filter((thread) => thread.unread).length;
-
   return (
     <OwnerWorkspaceShell tab={tab}>
       {tab === 'overview' ? (
-        <OverviewPage
-          pendingRequests={pending}
-          pendingOrders={pendingOrders}
-          unreadSupport={unreadSupport}
-        />
+        <OverviewPage />
       ) : tab === 'services' ? (
         <ServicesPage />
       ) : tab === 'requests' ? (

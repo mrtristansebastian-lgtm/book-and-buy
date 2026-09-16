@@ -193,47 +193,6 @@ html body .native-ui .bb-page-title {
   color: #1d4ed8;
 }
 
-.bb-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: var(--bb-muted);
-  border-radius: 0.85rem;
-  padding: 0.7rem 0.85rem;
-  font-size: 0.9rem;
-  font-weight: 620;
-  text-align: left;
-  cursor: pointer;
-}
-
-.bb-nav-item.is-nested {
-  margin-left: 0.55rem;
-  padding: 0.55rem 0.75rem;
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--bb-faint);
-  border-left: 1px solid var(--bb-border);
-  border-radius: 0 0.75rem 0.75rem 0;
-}
-
-.bb-nav-item[aria-current='page'] {
-  /* Pastel accent fill — always black label */
-  color: #050505;
-  background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.22)),
-    var(--native-accent-button-gradient);
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--native-accent-x) 50%;
-}
-
-.bb-nav-item.is-nested[aria-current='page'] {
-  color: #050505;
-  border-left-color: transparent;
-}
-
 .bb-primary-btn {
   display: inline-flex;
   align-items: center;
@@ -337,39 +296,14 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   padding: 1.5rem;
 }
 
+/* App shell: single column — navigation lives on the Home launcher + mini-app bar */
 .bb-owner-layout {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   width: 100%;
   max-width: none;
   margin: 0;
   min-height: 100dvh;
-}
-
-.bb-owner-sidebar {
-  position: sticky;
-  top: 0;
-  align-self: start;
-  height: 100dvh;
-  overflow: auto;
-  border-right: 1px solid var(--bb-border);
-  background: var(--bb-sidebar-bg);
-  padding: 1.15rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  z-index: 20;
-}
-
-.bb-owner-sidebar-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.bb-owner-nav-close {
-  display: none;
 }
 
 .bb-owner-content {
@@ -377,14 +311,6 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   min-height: 0;
   display: flex;
   flex-direction: column;
-}
-
-.bb-owner-mobile-bar {
-  display: none;
-}
-
-.bb-owner-nav-backdrop {
-  display: none;
 }
 
 .bb-owner-main {
@@ -437,26 +363,18 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   align-content: stretch;
 }
 
-/* Desktop only — mobile uses the fixed bottom sheet (see max-width: 900px). */
-@media (min-width: 901px) {
-  .bb-shell.is-support-flush .bb-owner-sidebar {
-    height: auto;
-    max-height: 100%;
-    align-self: stretch;
-    position: relative;
-    overflow: auto;
-  }
-}
-
 .bb-shell.is-support-flush .bb-owner-content {
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .bb-shell.is-support-flush .bb-owner-main.is-flush {
   min-height: 0;
-  height: 100%;
+  height: auto;
+  flex: 1 1 auto;
   overflow: hidden;
 }
 
@@ -464,26 +382,6 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   .bb-shell.is-support-flush {
     height: 100dvh;
     max-height: 100dvh;
-  }
-
-  /* Keep More-menu sheet off-canvas unless opened — do not reflow into Inbox. */
-  .bb-shell.is-support-flush .bb-owner-sidebar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: auto;
-    width: 100%;
-    height: min(78dvh, 36rem);
-    max-height: calc(100dvh - 4.5rem);
-    align-self: auto;
-    z-index: 50;
-    transform: translateY(110%);
-    overflow: auto;
-  }
-
-  .bb-shell.is-support-flush .bb-owner-sidebar.is-open {
-    transform: translateY(0);
   }
 
   .bb-shell.is-support-flush .bb-owner-content,
@@ -501,195 +399,14 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   }
 
   .bb-owner-layout {
-    grid-template-columns: 1fr;
     position: relative;
   }
 
-  /* No top-left hamburger — More lives in the bottom dock */
-  .bb-owner-mobile-bar {
-    display: none !important;
-  }
-
-  .bb-owner-nav-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 40;
-    border: 0;
-    background: rgba(15, 23, 42, 0.4);
-    cursor: pointer;
-  }
-
-  .bb-owner-sidebar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: auto;
-    width: 100%;
-    height: min(78dvh, 36rem);
-    max-height: calc(100dvh - 4.5rem);
-    z-index: 50;
-    transform: translateY(110%);
-    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-    box-shadow: none;
-    padding: 0.85rem 0.85rem max(1rem, env(safe-area-inset-bottom));
-    border-right: 0;
-    border-top: 1px solid var(--bb-border);
-    border-radius: 1.25rem 1.25rem 0 0;
-    align-self: auto;
-    background: var(--bb-sidebar-bg);
-  }
-
-  .bb-owner-sidebar.is-open {
-    transform: translateY(0);
-    box-shadow: 0 -18px 48px rgba(15, 23, 42, 0.2);
-  }
-
-  /* More sheet: two flowing columns (no tall-row gaps) */
-  .bb-owner-sidebar .bb-owner-sidebar-nav {
-    display: block;
-    columns: 2;
-    column-gap: 0.65rem;
-    gap: 0;
-    overflow: auto;
-    min-height: 0;
-    padding-bottom: 0.25rem;
-  }
-
-  .bb-owner-sidebar .bb-owner-sidebar-nav > div {
-    display: grid;
-    gap: 0.2rem;
-    min-width: 0;
-    align-content: start;
-    break-inside: avoid;
-    margin: 0 0 0.85rem;
-  }
-
-  .bb-owner-sidebar .bb-owner-nav-group-label {
-    padding: 0 0.35rem 0.15rem;
-    font-size: 0.62rem;
-  }
-
-  .bb-owner-sidebar .bb-nav-item {
-    min-height: 2.35rem;
-    padding: 0.45rem 0.55rem;
-    font-size: 0.82rem;
-    gap: 0.45rem;
-  }
-
-  .bb-owner-sidebar .bb-nav-item.is-nested {
-    margin-left: 0;
-    padding-left: 0.55rem;
-  }
-
-  .bb-owner-nav-close {
-    display: grid;
-    place-items: center;
-    width: 2.15rem;
-    height: 2.15rem;
-    border: 0;
-    border-radius: 0.55rem;
-    background: rgba(15, 23, 42, 0.05);
-    color: #344054;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
   .bb-owner-main {
-    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
   }
 
   .bb-owner-main.is-flush {
-    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    padding-bottom: 0;
   }
-
-  .bb-mobile-dock {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: stretch;
-    gap: 0.15rem;
-    padding: 0.45rem 0.75rem max(0.45rem, env(safe-area-inset-bottom));
-    border-top: 1px solid var(--bb-border);
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(14px);
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 55;
-  }
-
-  .bb-shell.is-more-open {
-    overflow: hidden;
-  }
-}
-
-.bb-mobile-dock {
-  display: none;
-}
-
-.bb-mobile-dock-item {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--bb-muted);
-  display: grid;
-  justify-items: center;
-  gap: 0.2rem;
-  padding: 0.35rem 0.25rem;
-  border-radius: 0.85rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.68rem;
-  font-weight: 720;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-}
-
-.bb-mobile-dock-item[aria-current='page'],
-.bb-mobile-dock-item[aria-current='true'] {
-  color: var(--bb-ink);
-  background: rgba(18, 240, 207, 0.12);
-}
-
-.bb-mobile-dock-icon-wrap {
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-
-.bb-mobile-dock-badge {
-  position: absolute;
-  top: -0.35rem;
-  right: -0.55rem;
-  min-width: 1rem;
-  height: 1rem;
-  padding: 0 0.25rem;
-  border-radius: 999px;
-  background: #0f766e;
-  color: #fff;
-  font-size: 0.58rem;
-  font-weight: 780;
-  line-height: 1rem;
-  text-align: center;
-}
-
-.bb-owner-sidebar-nav {
-  flex: 1 1 auto;
-  display: grid;
-  gap: 1rem;
-}
-
-.bb-owner-sidebar-nav > div {
-  display: grid;
-  gap: 0.25rem;
-}
-
-.bb-owner-nav-group-label {
-  padding: 0 0.5rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bb-faint);
 }

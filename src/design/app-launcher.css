@@ -1,0 +1,893 @@
+/*
+ * App launcher (Home) + mini-app bar.
+ * The dashboard behaves like a native app: a bento grid of mini-apps on Home,
+ * and an immersive app view with a Back bar instead of a sidebar.
+ */
+
+:root {
+  --bb-tile-radius: 1.6rem;
+  --bb-tile-border: rgba(15, 23, 42, 0.07);
+  --bb-tile-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(15, 23, 42, 0.18);
+  --bb-tile-shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.05), 0 22px 44px -20px rgba(15, 23, 42, 0.28);
+  --bb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Living bento: one pulse of the native accent gradient travels through the
+ * tiles in order (first → last), then loops. Every tile shares one cycle and
+ * offsets itself by its index, so the wave follows a path.
+ */
+:root {
+  --bb-pulse-cycle: 22s;
+}
+
+/* ---------- Launcher page ---------- */
+
+.bb-launcher {
+  display: grid;
+  gap: 1.35rem;
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  min-width: 0;
+}
+
+.bb-launcher-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
+}
+
+.bb-launcher-header-copy {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.bb-launcher-lede {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 560;
+}
+
+.bb-launcher-dot {
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+.bb-launcher-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.3rem 0.3rem 0.85rem;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 14px 30px -20px rgba(15, 23, 42, 0.28);
+}
+
+.bb-launcher-live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+  animation: bb-live-pulse 2.4s ease-in-out infinite;
+}
+
+.bb-launcher-live-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--bb-ink);
+  margin-right: 0.25rem;
+}
+
+.bb-launcher-live-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--bb-muted);
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.bb-launcher-live-btn:hover {
+  background: rgba(15, 23, 42, 0.05);
+  color: var(--bb-ink);
+}
+
+.bb-launcher-live-btn.is-primary {
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+}
+
+/* ---------- Widget grid ---------- */
+
+.bb-launcher-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.bb-app-tile {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  padding: 1.35rem 1.4rem 1.1rem;
+  border: 0;
+  border-radius: 1.75rem;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 24px 48px -32px rgba(15, 23, 42, 0.25);
+  overflow: hidden;
+  transform: translateZ(0);
+  transition:
+    transform 280ms var(--bb-ease-out),
+    box-shadow 280ms var(--bb-ease-out);
+}
+
+/* Order in the wave: header is --i 0, so tiles start at 0 */
+.bb-app-tile {
+  --k: calc(var(--i, 1) - 1);
+  --pulse-delay: calc(var(--k) * (var(--bb-pulse-cycle) / var(--n, 6)));
+}
+
+/* Accent wash: the full native gradient, blurred, sweeping across the tile
+   as the pulse passes through (always faintly present so nothing looks dead) */
+.bb-app-tile::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 55%;
+  z-index: -1;
+  pointer-events: none;
+  /* Exactly the app's live accent: same gradient, same 420% sweep driven by --native-accent-x */
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+  filter: blur(30px);
+  opacity: 0;
+  transform: translateX(-120%);
+  animation: bb-tile-pulse var(--bb-pulse-cycle) linear infinite;
+  animation-delay: var(--pulse-delay);
+  will-change: transform, opacity;
+}
+
+/* Accent hairline on the top edge lights as the pulse arrives */
+.bb-app-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  pointer-events: none;
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+  opacity: 0;
+  animation: bb-tile-pulse-line var(--bb-pulse-cycle) linear infinite;
+  animation-delay: var(--pulse-delay);
+}
+
+/* The app icon chip breathes as the band passes under it */
+.bb-app-tile-icon {
+  animation: bb-tile-pulse-chip var(--bb-pulse-cycle) var(--bb-ease-out) infinite;
+  animation-delay: var(--pulse-delay);
+}
+
+/*
+ * Tunnel shimmer: the band enters from the tile's left edge, travels right,
+ * and as it starts leaving the right edge the next tile's band is already
+ * entering from its left — like one light passing through connected rooms.
+ * Each tile owns 1/n of the cycle (~16.7% for 6 tiles) but the sweep lasts
+ * 30%, so the exit of one overlaps the entrance of the next.
+ */
+@keyframes bb-tile-pulse {
+  0% {
+    opacity: 0;
+    transform: translateX(-120%);
+  }
+  4% {
+    opacity: 0.6;
+  }
+  26% {
+    opacity: 0.6;
+  }
+  30% {
+    opacity: 0;
+    transform: translateX(200%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(200%);
+  }
+}
+
+/* Hairline reveals left→right with the band, then wipes out on the right */
+@keyframes bb-tile-pulse-line {
+  0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+  2% { opacity: 0.9; }
+  16% { opacity: 0.9; clip-path: inset(0 0 0 0); }
+  30%, 100% { opacity: 0; clip-path: inset(0 0 0 100%); }
+}
+
+@keyframes bb-tile-pulse-chip {
+  0%, 3% { transform: scale(1) translateY(0); }
+  9% { transform: scale(1.1) translateY(-2px); }
+  20%, 100% { transform: scale(1) translateY(0); }
+}
+
+@media (hover: hover) {
+  .bb-app-tile:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 2px 4px rgba(15, 23, 42, 0.04),
+      0 36px 64px -36px rgba(15, 23, 42, 0.34);
+  }
+}
+
+.bb-app-tile:has(.bb-app-tile-hit:active) {
+  transform: scale(0.988);
+  transition-duration: 90ms;
+}
+
+/* Full-tile hit target beneath the content */
+.bb-app-tile-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.bb-app-tile-hit:focus-visible {
+  outline: 2px solid #755cff;
+  outline-offset: -2px;
+}
+
+/* Content floats above the hit target but lets taps fall through,
+   except for the real controls (list rows). */
+.bb-app-tile > :not(.bb-app-tile-hit) {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.bb-app-tile-row {
+  pointer-events: auto;
+}
+
+/* ---------- Lead: eyebrow + hero ---------- */
+
+.bb-app-tile-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.bb-app-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Bare glyph — no chip, no border. Thin, crisp strokes with a soft drop
+   so it reads as an object sitting on the card rather than a UI icon. */
+.bb-app-tile-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--bb-ink);
+  transform-origin: center;
+}
+
+.bb-app-tile-icon svg {
+  display: block;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 6px 10px rgba(15, 23, 42, 0.12));
+}
+
+/* Quiet "something's waiting" dot; counts live on the rows and stats strip */
+.bb-app-tile-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #050505;
+  animation: bb-badge-pop 420ms var(--bb-ease-out) both;
+}
+
+.bb-app-tile-copy {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bb-app-tile-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: clamp(1.5rem, 2.2vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--bb-ink);
+}
+
+.bb-app-tile-blurb {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 540;
+  line-height: 1.35;
+  color: var(--bb-muted);
+}
+
+/* ---------- Stats strip ---------- */
+
+.bb-launcher-stats {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.bb-stat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 1rem 1.1rem 0.95rem;
+  border: 0;
+  border-radius: 1.35rem;
+  background: #fff;
+  color: var(--bb-ink);
+  text-align: left;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  cursor: pointer;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 18px 36px -28px rgba(15, 23, 42, 0.25);
+  transition:
+    transform 240ms var(--bb-ease-out),
+    box-shadow 240ms var(--bb-ease-out);
+}
+
+.bb-stat:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.04),
+    0 28px 48px -30px rgba(15, 23, 42, 0.32);
+}
+
+.bb-stat:active {
+  transform: scale(0.985);
+  transition-duration: 90ms;
+}
+
+.bb-stat:focus-visible {
+  outline: 2px solid #755cff;
+  outline-offset: 2px;
+}
+
+/* Featured (revenue) stat carries the live accent as ink on a white card */
+.bb-stat.is-featured .bb-stat-value {
+  background-image: var(--native-accent-button-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bb-stat.is-alert .bb-stat-head::after {
+  content: '';
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #050505;
+  margin-left: 0.1rem;
+}
+
+.bb-stat-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--bb-muted);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.bb-stat-label {
+  font-size: 0.7rem;
+  font-weight: 740;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bb-stat-value {
+  font-size: clamp(1.6rem, 2.2vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  animation: bb-number-in 560ms var(--bb-ease-out) both;
+  animation-delay: 140ms;
+}
+
+.bb-stat.is-featured .bb-stat-value {
+  font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+}
+
+.bb-stat-hint {
+  font-size: 0.76rem;
+  font-weight: 540;
+  color: var(--bb-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ---------- Pages list ---------- */
+
+.bb-app-tile-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.25rem;
+  margin-top: auto;
+}
+
+.bb-app-tile-row-wrap {
+  min-width: 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-app-tile-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 3.35rem;
+  margin: 0;
+  padding: 0.55rem 0.5rem 0.55rem 0.15rem;
+  border: 0;
+  border-radius: 0.8rem;
+  background: transparent;
+  color: var(--bb-ink);
+  text-align: left;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  cursor: pointer;
+  transition: background 140ms ease, transform 160ms var(--bb-ease-out);
+}
+
+.bb-app-tile-row:hover {
+  background: rgba(15, 23, 42, 0.035);
+}
+
+.bb-app-tile-row:hover .bb-app-tile-row-chevron {
+  color: var(--bb-ink);
+  transform: translateX(2px);
+}
+
+.bb-app-tile-row:hover .bb-app-tile-row-icon {
+  color: var(--bb-ink);
+}
+
+.bb-app-tile-row:active {
+  transform: scale(0.985);
+}
+
+.bb-app-tile-row:focus-visible {
+  outline: 2px solid #755cff;
+  outline-offset: -2px;
+}
+
+.bb-app-tile-row-icon {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: var(--bb-muted);
+  transition: color 140ms ease;
+}
+
+.bb-app-tile-row-text {
+  display: grid;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.bb-app-tile-row-label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-app-tile-row-hint {
+  font-size: 0.7rem;
+  font-weight: 540;
+  line-height: 1.25;
+  color: var(--bb-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-app-tile-row-count {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--bb-ink);
+  font-variant-numeric: tabular-nums;
+  padding-right: 0.15rem;
+}
+
+.bb-app-tile-row-chevron {
+  color: var(--bb-faint);
+  transition: color 140ms ease, transform 180ms var(--bb-ease-out);
+}
+
+@keyframes bb-number-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Mini-app bar ---------- */
+
+.bb-miniapp-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex: 0 0 auto;
+  background: rgba(251, 251, 251, 0.82);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.bb-miniapp-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.5rem;
+  padding: 0.45rem 1rem;
+  padding-top: max(0.45rem, env(safe-area-inset-top));
+}
+
+@media (min-width: 768px) {
+  .bb-miniapp-bar-inner {
+    padding-inline: 1.75rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-miniapp-bar-inner {
+    padding-inline: 2.25rem;
+  }
+}
+
+.bb-miniapp-back {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  color: var(--bb-ink);
+  cursor: pointer;
+  transition: transform 180ms var(--bb-ease-out), background 140ms ease, border-color 140ms ease;
+}
+
+.bb-miniapp-back:hover {
+  background: #f6f7f9;
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+.bb-miniapp-back:hover svg {
+  transform: translateX(-1px);
+}
+
+.bb-miniapp-back:active {
+  transform: scale(0.94);
+}
+
+.bb-miniapp-back svg {
+  transition: transform 180ms var(--bb-ease-out);
+}
+
+.bb-miniapp-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.bb-miniapp-chip {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.6rem;
+  color: #050505;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
+    var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.bb-miniapp-name {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--bb-ink);
+  white-space: nowrap;
+}
+
+.bb-miniapp-tabs {
+  margin-left: auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bb-miniapp-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.bb-miniapp-segment {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.bb-miniapp-segment button {
+  gap: 0.35rem;
+}
+
+.bb-miniapp-tab-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background: #050505;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+/* Mini-app content enters with a soft rise */
+.bb-miniapp-enter {
+  animation: bb-miniapp-rise 360ms var(--bb-ease-out) both;
+}
+
+/* Studio + Support already lock the shell; keep the bar out of their scroll math */
+.bb-shell:has(.bb-studio-canvas) .bb-miniapp-bar,
+.bb-shell.is-support-flush .bb-miniapp-bar {
+  position: relative;
+}
+
+/* ---------- Motion ---------- */
+
+.bb-launcher-enter {
+  animation: bb-launcher-rise 520ms var(--bb-ease-out) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+@keyframes bb-launcher-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bb-miniapp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bb-badge-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bb-live-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(34, 197, 94, 0.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-launcher-enter,
+  .bb-miniapp-enter,
+  .bb-app-tile-dot,
+  .bb-stat-value,
+  .bb-launcher-live-dot,
+  .bb-app-tile::before,
+  .bb-app-tile::after,
+  .bb-app-tile-icon {
+    animation: none;
+  }
+
+  .bb-app-tile::before {
+    opacity: 0.22;
+  }
+
+  .bb-app-tile,
+  .bb-app-tile::before,
+  .bb-app-tile-row,
+  .bb-stat,
+  .bb-miniapp-back {
+    transition: none;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+  .bb-launcher-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bb-launcher-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bb-stat.is-featured {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .bb-launcher {
+    gap: 1rem;
+  }
+
+  .bb-launcher-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bb-launcher-live {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .bb-launcher-live-btn {
+    padding-inline: 0.65rem;
+  }
+
+  .bb-launcher-live-btn.is-primary {
+    margin-left: auto;
+  }
+
+  .bb-launcher-grid {
+    gap: 0.8rem;
+  }
+
+  .bb-app-tile {
+    padding: 1.1rem 1.1rem 0.85rem;
+    gap: 1rem;
+    border-radius: 1.5rem;
+  }
+
+  .bb-launcher-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .bb-stat {
+    padding: 0.85rem 0.95rem 0.8rem;
+    border-radius: 1.15rem;
+  }
+
+  .bb-app-tile-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bb-app-tile-row {
+    min-height: 3.1rem;
+  }
+
+  .bb-miniapp-bar-inner {
+    gap: 0.55rem;
+    min-height: 3.25rem;
+  }
+
+  .bb-miniapp-name {
+    font-size: 0.92rem;
+  }
+
+  .bb-miniapp-tabs {
+    flex: 1 1 auto;
+    margin-left: 0;
+  }
+
+  .bb-miniapp-segment button {
+    padding: 0.45rem 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .bb-miniapp-name {
+    display: none;
+  }
+}

@@ -49,15 +49,6 @@
   flex-direction: column;
 }
 
-@media (min-width: 901px) {
-  .bb-shell:has(.bb-studio-canvas) .bb-owner-sidebar {
-    height: auto;
-    max-height: 100%;
-    align-self: stretch;
-    overflow: auto;
-  }
-}
-
 .bb-studio-toolbar {
   position: relative;
   z-index: 8;
