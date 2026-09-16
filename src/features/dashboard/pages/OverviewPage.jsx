@@ -1,25 +1,21 @@
 import { useMemo, useState } from 'react';
-import {
-  CalendarCheck,
-  Check,
-  Copy,
-  ExternalLink,
-  Inbox,
-  MessageSquare,
-  Package,
-  Wallet
-} from 'lucide-react';
+import { Check, Copy, ExternalLink } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { launcherApps } from '../../../config/appLauncher';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import {
+  FINANCE_PERIODS,
   buildFinanceLedger,
   computeFinanceMetrics,
   filterLedgerByPeriod,
-  formatMoney
+  formatMoney,
+  getPeriodBounds,
+  periodTitle
 } from '../../finance/utils/financeLedger';
+import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
+import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 import { AppTile } from '../components/AppTile';
 
@@ -61,6 +57,15 @@ export function OverviewPage() {
   const { workspace, staff, bookings, orders, services } = useWorkspace();
   const { badgeFor, pendingRequests, pendingOrders, unreadSupport } = useWorkspaceBadges();
   const [copied, setCopied] = useState(false);
+  const [periodId, setPeriodId] = useState('week');
+  const [customRange, setCustomRange] = useState({ from: '', to: '' });
+  const [customPickerOpen, setCustomPickerOpen] = useState(false);
+  const periodOptions = FINANCE_PERIODS.map((period) => ({
+    id: period.id,
+    label: period.label,
+    shortLabel: period.shortLabel
+  }));
+  const periodLabel = periodTitle(periodId, customRange).toLowerCase();
   const todayKey = toDateKey(new Date());
   const publicHomePath = publicPagePath(workspace.slug || 'your-business', 'home');
   const personName = resolvePersonName({ user, staff, workspace });
@@ -68,46 +73,52 @@ export function OverviewPage() {
   const waiting = pendingRequests + pendingOrders + unreadSupport;
   const currency = workspace.currency || 'R';
 
-  const todayBookings = useMemo(
-    () =>
-      (bookings || []).filter(
-        (booking) =>
-          (booking.dateKey || booking.date) === todayKey &&
-          !['cancelled', 'declined'].includes(booking.status)
-      ).length,
-    [bookings, todayKey]
-  );
+  // Upcoming = from today forward, capped by the selected period's end.
+  const upcomingBookings = useMemo(() => {
+    const { start, end } = getPeriodBounds(periodId, customRange);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const from = Math.max(todayStart.getTime(), start ?? 0);
+    return (bookings || []).filter((booking) => {
+      if (['cancelled', 'declined'].includes(booking.status)) return false;
+      const key = booking.dateKey || booking.date;
+      if (!key) return false;
+      const [y, m, d] = String(key).split('-').map(Number);
+      if (!y || !m || !d) return false;
+      const ts = new Date(y, m - 1, d, 12).getTime();
+      if (ts < from) return false;
+      if (end != null && ts > end) return false;
+      return true;
+    }).length;
+  }, [bookings, periodId, customRange]);
 
-  const weekRevenue = useMemo(() => {
+  const revenue = useMemo(() => {
     const ledger = buildFinanceLedger({ bookings, orders, services, brandName: workspace.brandName });
-    return computeFinanceMetrics(filterLedgerByPeriod(ledger, 'week'), 'week');
-  }, [bookings, orders, services, workspace.brandName]);
+    return computeFinanceMetrics(filterLedgerByPeriod(ledger, periodId, customRange), periodId);
+  }, [bookings, orders, services, workspace.brandName, periodId, customRange]);
 
   const stats = [
     {
       id: 'revenue',
-      icon: Wallet,
-      label: 'Revenue this week',
-      value: formatMoney(weekRevenue.totalRevenueInCents, currency),
+      label: `Revenue ${periodLabel}`,
+      value: formatMoney(revenue.totalRevenueInCents, currency),
       hint:
-        weekRevenue.pendingInCents > 0
-          ? `${formatMoney(weekRevenue.pendingInCents, currency)} pending`
-          : `${plural(weekRevenue.paidCount, 'payment', 'payments')}`,
+        revenue.pendingInCents > 0
+          ? `${formatMoney(revenue.pendingInCents, currency)} pending`
+          : `${plural(revenue.paidCount, 'payment', 'payments')}`,
       to: 'finance',
       featured: true
     },
     {
-      id: 'today',
-      icon: CalendarCheck,
-      label: 'Bookings today',
-      value: todayBookings,
-      hint: todayBookings > 0 ? 'on the schedule' : 'nothing booked',
+      id: 'bookings',
+      label: periodId === 'all' ? 'Upcoming bookings' : `Upcoming bookings ${periodLabel}`,
+      value: upcomingBookings,
+      hint: upcomingBookings > 0 ? 'on the schedule' : 'nothing booked',
       to: 'staff'
     },
     {
       id: 'requests',
-      icon: Inbox,
-      label: 'Requests',
+      label: 'Booking requests',
       value: pendingRequests,
       hint: pendingRequests > 0 ? 'waiting for approval' : 'all clear',
       to: 'requests',
@@ -115,8 +126,7 @@ export function OverviewPage() {
     },
     {
       id: 'orders',
-      icon: Package,
-      label: 'Open orders',
+      label: 'Orders to ship',
       value: pendingOrders,
       hint: pendingOrders > 0 ? 'to fulfil & ship' : 'up to date',
       to: 'orders',
@@ -124,7 +134,6 @@ export function OverviewPage() {
     },
     {
       id: 'messages',
-      icon: MessageSquare,
       label: 'Unread messages',
       value: unreadSupport,
       hint: unreadSupport > 0 ? 'from clients' : 'inbox clear',
@@ -159,6 +168,16 @@ export function OverviewPage() {
           </p>
         </div>
 
+        <div className="bb-launcher-tools">
+          <PeriodSegmentedControl
+            variant="period"
+            ariaLabel="Stats time period"
+            value={periodId}
+            options={periodOptions}
+            onChange={setPeriodId}
+            onCustomSelect={() => setCustomPickerOpen(true)}
+          />
+
         <div className="bb-launcher-live">
           <span className="bb-launcher-live-dot" aria-hidden="true" />
           <span className="bb-launcher-live-label">Live site</span>
@@ -180,7 +199,20 @@ export function OverviewPage() {
             Open
           </button>
         </div>
+        </div>
       </header>
+
+      <PeriodCustomPicker
+        open={customPickerOpen}
+        from={customRange.from || ''}
+        to={customRange.to || customRange.from || ''}
+        onClose={() => setCustomPickerOpen(false)}
+        onApply={({ from, to }) => {
+          setCustomRange({ from, to });
+          setPeriodId('custom');
+          setCustomPickerOpen(false);
+        }}
+      />
 
       <section
         className="bb-launcher-stats bb-launcher-enter"
@@ -188,7 +220,6 @@ export function OverviewPage() {
         style={{ '--i': 1 }}
       >
         {stats.map((stat) => {
-          const Icon = stat.icon;
           return (
             <button
               key={stat.id}
@@ -196,12 +227,8 @@ export function OverviewPage() {
               className={`bb-stat${stat.featured ? ' is-featured' : ''}${stat.alert ? ' is-alert' : ''}`}
               onClick={() => navigate(`/dashboard/${stat.to}`)}
             >
-              <span className="bb-stat-head">
-                <Icon size={16} strokeWidth={2.2} aria-hidden="true" />
-                <span className="bb-stat-label">{stat.label}</span>
-              </span>
               <span className="bb-stat-value">{stat.value}</span>
-              <span className="bb-stat-hint">{stat.hint}</span>
+              <span className="bb-stat-label">{stat.label}</span>
             </button>
           );
         })}

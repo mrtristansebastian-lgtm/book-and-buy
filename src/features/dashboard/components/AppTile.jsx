@@ -26,17 +26,14 @@ export function AppTile({ app, badgeFor, index = 0 }) {
       />
 
       <div className="bb-app-tile-lead">
-        <div className="bb-app-tile-top">
-          <span className="bb-app-tile-icon" aria-hidden="true">
-            <Icon size={30} strokeWidth={1.6} absoluteStrokeWidth />
-          </span>
-          {total > 0 ? <span className="bb-app-tile-dot" aria-label={`${total} waiting`} /> : null}
-        </div>
-
+        <span className="bb-app-tile-icon" aria-hidden="true">
+          <Icon size={30} strokeWidth={1.6} absoluteStrokeWidth />
+        </span>
         <div className="bb-app-tile-copy">
           <h2 className="bb-app-tile-title">{app.label}</h2>
           <p className="bb-app-tile-blurb">{app.blurb}</p>
         </div>
+        {total > 0 ? <span className="bb-app-tile-dot" aria-label={`${total} waiting`} /> : null}
       </div>
 
       <ul className="bb-app-tile-list" aria-label={`${app.label} pages`}>
