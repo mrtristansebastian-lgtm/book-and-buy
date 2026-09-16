@@ -6,7 +6,7 @@ import { formatCents } from '../../../utils/products';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
-import { ensureClientThread, isFirebaseConfigured } from '../clientThreadsApi';
+import { startClientMessage } from '../startClientMessage';
 
 function StatusPill({ children }) {
   return <span className="bb-client-pill">{children}</span>;
@@ -43,46 +43,19 @@ export function ClientAccountPage({ section = 'account' }) {
 
   const messageAbout = async (kind, item) => {
     if (!item) return;
-    try {
-      if (
-        isFirebaseConfigured() &&
-        (workspace?.ownerId || workspace?.id) &&
-        profile?.email
-      ) {
-        const subject =
-          kind === 'booking'
-            ? `Re: ${item.serviceName || 'Booking'}`
-            : `Order · ${item.id || 'Products'}`;
-        const thread = await ensureClientThread({
-          ownerId: workspace.ownerId || workspace.id,
-          clientEmail: profile.email,
-          clientName: profile.displayName || item.clientName || '',
-          clientUid: profile.uid || '',
-          subject,
-          brandName: workspace.brandName || '',
-          workspaceSlug: workspace.slug || ''
-        });
-        if (thread?.id) {
-          navigate(`/app/messages/${thread.id}`);
-          if (workspace?.slug) followSlug(workspace.slug);
-          return;
-        }
-      }
-      if (kind === 'booking' && startThreadFromBooking) {
-        const thread = startThreadFromBooking(item);
-        if (thread?.id) navigate(`/app/messages/${thread.id}`);
-        else navigate('/app/messages');
-      } else if (kind === 'order' && startThreadFromOrder) {
-        const thread = startThreadFromOrder(item);
-        if (thread?.id) navigate(`/app/messages/${thread.id}`);
-        else navigate('/app/messages');
-      } else {
-        navigate('/app/messages');
-      }
-    } catch {
-      navigate('/app/messages');
-    }
-    if (workspace?.slug) followSlug(workspace.slug);
+    await startClientMessage({
+      profile,
+      followSlug,
+      workspace,
+      startThreadFromBooking,
+      startThreadFromOrder,
+      ownerId: workspace?.ownerId || workspace?.id || '',
+      slug: workspace?.slug || '',
+      brandName: workspace?.brandName || '',
+      logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl || '',
+      booking: kind === 'booking' ? item : null,
+      order: kind === 'order' ? item : null
+    });
   };
 
   return (

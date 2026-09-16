@@ -51,7 +51,8 @@ function VideoWatchPage({
   onChangeActive,
   onUpdateSocialPost,
   onEditPost,
-  onRemoveSocialPost
+  onRemoveSocialPost,
+  renderWatchActions = null
 }) {
   const related = posts.filter((item) => item.id !== post?.id);
 
@@ -149,6 +150,10 @@ function VideoWatchPage({
               </div>
             </div>
 
+            {typeof renderWatchActions === 'function' ? (
+              <div className="bb-yt-watch-engage">{renderWatchActions(post)}</div>
+            ) : null}
+
             {editMode || String(post.caption || '').trim() ? (
               <div className="bb-yt-watch-desc">
                 <p className="bb-yt-watch-desc-label">Description</p>
@@ -228,7 +233,8 @@ export function SocialVideosPanel({
   onEditPost,
   initialActiveId = '',
   onOpenVideo,
-  onCloseVideo
+  onCloseVideo,
+  renderWatchActions = null
 }) {
   const [watchId, setWatchId] = useState(initialActiveId || '');
   const isVertical = variant === 'verticals';
@@ -278,6 +284,7 @@ export function SocialVideosPanel({
           onEditPost={onEditPost}
           onRemoveSocialPost={onRemoveSocialPost}
           showPublishToggle={showPublishToggle}
+          renderRailActions={renderWatchActions}
         />
       );
     }
@@ -296,6 +303,7 @@ export function SocialVideosPanel({
         onUpdateSocialPost={onUpdateSocialPost}
         onEditPost={onEditPost}
         onRemoveSocialPost={onRemoveSocialPost}
+        renderWatchActions={renderWatchActions}
       />
     );
   }

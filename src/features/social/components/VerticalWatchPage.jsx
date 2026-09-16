@@ -21,7 +21,9 @@ export function VerticalWatchPage({
   onChangeActive,
   onUpdateSocialPost,
   onEditPost,
-  onRemoveSocialPost
+  onRemoveSocialPost,
+  renderRailActions = null,
+  hideChrome = false
 }) {
   const activeIndex = Math.max(
     0,
@@ -103,26 +105,33 @@ export function VerticalWatchPage({
   if (!post || !count) return null;
 
   return (
-    <div className="bb-vertical-watch" role="dialog" aria-modal="true" aria-label="Verticals">
-      <header className="bb-vertical-watch-bar">
-        <button type="button" className="bb-vertical-watch-back" onClick={onClose} aria-label="Back">
-          <ArrowLeft size={18} strokeWidth={2.2} />
-          <span>Back</span>
-        </button>
-        <p className="bb-vertical-watch-count">
-          {activeIndex + 1} / {count}
-        </p>
-        {onEditPost || onRemoveSocialPost || onUpdateSocialPost ? (
-          <SocialPostManageMenu
-            post={post}
-            onEditPost={onEditPost}
-            onRemoveSocialPost={onRemoveSocialPost}
-            onUpdateSocialPost={onUpdateSocialPost}
-            showPublishToggle={showPublishToggle && Boolean(onUpdateSocialPost)}
-            className="bb-social-post-menu--watch"
-          />
-        ) : null}
-      </header>
+    <div
+      className={`bb-vertical-watch${hideChrome ? ' is-feed' : ''}`}
+      role="dialog"
+      aria-modal={!hideChrome}
+      aria-label="Verticals"
+    >
+      {hideChrome ? null : (
+        <header className="bb-vertical-watch-bar">
+          <button type="button" className="bb-vertical-watch-back" onClick={onClose} aria-label="Back">
+            <ArrowLeft size={18} strokeWidth={2.2} />
+            <span>Back</span>
+          </button>
+          <p className="bb-vertical-watch-count">
+            {activeIndex + 1} / {count}
+          </p>
+          {onEditPost || onRemoveSocialPost || onUpdateSocialPost ? (
+            <SocialPostManageMenu
+              post={post}
+              onEditPost={onEditPost}
+              onRemoveSocialPost={onRemoveSocialPost}
+              onUpdateSocialPost={onUpdateSocialPost}
+              showPublishToggle={showPublishToggle && Boolean(onUpdateSocialPost)}
+              className="bb-social-post-menu--watch"
+            />
+          ) : null}
+        </header>
+      )}
 
       <div className="bb-vertical-watch-body">
         <div className="bb-vertical-watch-phone">
@@ -162,10 +171,16 @@ export function VerticalWatchPage({
                   <div className="bb-vertical-watch-overlay">
                     <div className="bb-vertical-watch-identity">
                       <span className="bb-vertical-watch-avatar" aria-hidden="true">
-                        {logoUrl ? <img src={logoUrl} alt="" /> : channelInitial(brandName)}
+                        {(item._logoUrl || logoUrl) ? (
+                          <img src={item._logoUrl || logoUrl} alt="" />
+                        ) : (
+                          channelInitial(item._brandName || brandName)
+                        )}
                       </span>
                       <div className="bb-vertical-watch-identity-copy">
-                        <p className="bb-vertical-watch-brand">{brandName || 'Business'}</p>
+                        <p className="bb-vertical-watch-brand">
+                          {item._brandName || brandName || 'Business'}
+                        </p>
                         {formatNoteStamp(item.createdAt) ? (
                           <p className="bb-vertical-watch-stamp">{formatNoteStamp(item.createdAt)}</p>
                         ) : null}
@@ -195,6 +210,10 @@ export function VerticalWatchPage({
                       />
                     ) : null}
                   </div>
+
+                  {active && typeof renderRailActions === 'function' ? (
+                    <div className="bb-vertical-watch-rail">{renderRailActions(item)}</div>
+                  ) : null}
                 </article>
               );
             })}

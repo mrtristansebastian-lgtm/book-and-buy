@@ -15,14 +15,14 @@ export function SocialTextTimeline({
   showPublishToggle = true,
   onUpdateSocialPost,
   onRemoveSocialPost,
-  onEditPost
+  onEditPost,
+  renderActions = null
 }) {
   const displayName = brandName.trim() || 'Business';
   const handle = (slug || displayName)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '')
     .slice(0, 18);
-  const initial = displayName.charAt(0).toUpperCase() || 'B';
 
   if (!posts.length) {
     return (
@@ -38,22 +38,29 @@ export function SocialTextTimeline({
         const relative = formatSocialTime(post.createdAt);
         const stamp = formatNoteStamp(post.createdAt);
         const place = String(post.location || '').trim();
+        const rowName = String(post._brandName || displayName).trim() || 'Business';
+        const rowLogo = post._logoUrl || logoUrl;
+        const rowHandle = String(post._slug || handle || rowName)
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '')
+          .slice(0, 18);
+        const rowInitial = rowName.charAt(0).toUpperCase() || 'B';
 
         return (
           <article key={post.id} className="bb-social-note" role="listitem">
-            {logoUrl ? (
-              <img src={logoUrl} alt="" className="bb-social-note-avatar" />
+            {rowLogo ? (
+              <img src={rowLogo} alt="" className="bb-social-note-avatar" />
             ) : (
               <span className="bb-social-note-avatar bb-social-note-avatar--fallback" aria-hidden="true">
-                {initial}
+                {rowInitial}
               </span>
             )}
 
             <div className="bb-social-note-main">
               <header className="bb-social-note-head">
                 <div className="bb-social-note-identity">
-                  <span className="bb-social-note-name">{displayName}</span>
-                  {handle ? <span className="bb-social-note-handle">@{handle}</span> : null}
+                  <span className="bb-social-note-name">{rowName}</span>
+                  {rowHandle ? <span className="bb-social-note-handle">@{rowHandle}</span> : null}
                   {relative ? (
                     <>
                       <span className="bb-social-note-dot" aria-hidden="true">
@@ -117,6 +124,10 @@ export function SocialTextTimeline({
                   </p>
                 ) : null}
               </div>
+
+              {typeof renderActions === 'function' ? (
+                <div className="bb-social-note-engage">{renderActions(post)}</div>
+              ) : null}
 
               {editMode && !onEditPost ? (
                 <div className="bb-social-edit-actions bb-social-note-actions">

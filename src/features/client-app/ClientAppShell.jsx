@@ -8,20 +8,47 @@ const TABS = [
   { id: 'account', label: 'Account', icon: UserRound, path: '/app/account' }
 ];
 
-/** Instagram-style client shell with fixed bottom tabs. */
+/** Client shell: mobile bottom tabs; PC full-width top bar like business mini-apps. */
 export function ClientAppShell({
   section = 'home',
   title = '',
   unreadMessages = 0,
   headerRight = null,
+  hideHeader = false,
   children
 }) {
   return (
-    <div className="bb-client-shell">
-      <header className="bb-client-top">
-        <h1 className="bb-client-top-title">{title || 'Book and Buy'}</h1>
-        {headerRight ? <div className="bb-client-top-right">{headerRight}</div> : null}
-      </header>
+    <div className={`bb-client-shell${hideHeader ? ' is-headerless' : ''}`}>
+      {hideHeader ? null : (
+        <header className="bb-client-top">
+          <h1 className="bb-client-top-title">{title || 'Book and Buy'}</h1>
+
+          <nav className="bb-client-desk-nav" aria-label="Client sections">
+            <div className="bb-segment bb-client-desk-segment" role="group">
+              {TABS.map((tab) => {
+                const active = section === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => navigate(tab.path)}
+                  >
+                    <span>{tab.label}</span>
+                    {tab.id === 'messages' && unreadMessages > 0 ? (
+                      <span className="bb-client-desk-badge">
+                        {unreadMessages > 9 ? '9+' : unreadMessages}
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+
+          {headerRight ? <div className="bb-client-top-right">{headerRight}</div> : null}
+        </header>
+      )}
 
       <main className="bb-client-main">{children}</main>
 

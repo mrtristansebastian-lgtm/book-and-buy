@@ -285,7 +285,9 @@ export function SocialPostFeed({
   onUpdateSocialPost,
   onEditPost,
   onRemoveSocialPost,
-  showPublishToggle = true
+  showPublishToggle = true,
+  renderPostActions = null,
+  hideToolbar = false
 }) {
   const handle = String(slug || '')
     .trim()
@@ -314,17 +316,19 @@ export function SocialPostFeed({
 
   return (
     <div className="bb-social-feed">
-      <div className="bb-social-feed-toolbar">
-        <button
-          type="button"
-          className="bb-social-feed-back"
-          onClick={onBack}
-          aria-label="Back to profile"
-        >
-          <ArrowLeft size={18} strokeWidth={2.2} />
-          <span>{backLabel}</span>
-        </button>
-      </div>
+      {hideToolbar ? null : (
+        <div className="bb-social-feed-toolbar">
+          <button
+            type="button"
+            className="bb-social-feed-back"
+            onClick={onBack}
+            aria-label="Back to profile"
+          >
+            <ArrowLeft size={18} strokeWidth={2.2} />
+            <span>{backLabel}</span>
+          </button>
+        </div>
+      )}
 
       <div ref={listRef} className="bb-social-feed-list">
         {posts.map((post) => {
@@ -332,6 +336,10 @@ export function SocialPostFeed({
           const kind = getSocialPostKind(post);
           const isText = kind === 'text';
           const stamp = formatNoteStamp(post.createdAt);
+          const rowBrand = post._brandName || displayName;
+          const rowSlug = post._slug || username;
+          const rowLogo = post._logoUrl || logoUrl;
+          const rowInitial = String(rowBrand).charAt(0).toUpperCase() || 'B';
 
           return (
             <article
@@ -343,19 +351,19 @@ export function SocialPostFeed({
               id={`social-post-${post.id}`}
             >
               <header className="bb-social-feed-post-head">
-                {logoUrl ? (
-                  <img src={logoUrl} alt="" className="bb-social-feed-avatar" />
+                {rowLogo ? (
+                  <img src={rowLogo} alt="" className="bb-social-feed-avatar" />
                 ) : (
                   <span
                     className="bb-social-feed-avatar bb-social-feed-avatar--fallback"
                     aria-hidden="true"
                   >
-                    {initial}
+                    {rowInitial}
                   </span>
                 )}
                 <div className="bb-social-feed-author">
-                  <span className="bb-social-feed-brand">{displayName}</span>
-                  <span className="bb-social-feed-user">@{username}</span>
+                  <span className="bb-social-feed-brand">{rowBrand}</span>
+                  <span className="bb-social-feed-user">@{rowSlug}</span>
                 </div>
                 {editMode && post.published === false ? (
                   <span className="bb-edit-section-badge bb-social-draft-badge">Draft</span>
@@ -377,6 +385,10 @@ export function SocialPostFeed({
                 editMode={editMode}
                 onUpdateSocialPost={onUpdateSocialPost}
               />
+
+              {typeof renderPostActions === 'function' ? (
+                <div className="bb-social-feed-engage">{renderPostActions(post)}</div>
+              ) : null}
 
               {!isText ? (
                 <div className="bb-social-feed-caption-row">

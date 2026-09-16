@@ -33,10 +33,43 @@ function mapThread(id, data = {}, messages = []) {
     id,
     ...data,
     clientEmail: normalizeEmail(data.clientEmail),
+    bookingId: data.bookingId || '',
+    orderId: data.orderId || '',
+    brandName: data.brandName || '',
+    workspaceSlug: data.workspaceSlug || '',
+    logoUrl: data.logoUrl || '',
     messages,
     unread: Boolean(data.unreadForClient ?? data.unread),
     updatedAt: data.updatedAt || data.lastMessageAt || 0
   };
+}
+
+function findReusableThread(existing, { ownerId, bookingId, orderId, subject, workspaceSlug }) {
+  if (bookingId) {
+    const hit = existing.find(
+      (thread) => thread.ownerId === ownerId && thread.bookingId === bookingId
+    );
+    if (hit) return hit;
+  }
+  if (orderId) {
+    const hit = existing.find(
+      (thread) => thread.ownerId === ownerId && thread.orderId === orderId
+    );
+    if (hit) return hit;
+  }
+  if (!bookingId && !orderId) {
+    const hit = existing.find(
+      (thread) =>
+        thread.ownerId === ownerId &&
+        !thread.bookingId &&
+        !thread.orderId &&
+        (thread.workspaceSlug === workspaceSlug ||
+          thread.subject === subject ||
+          String(thread.subject || '').startsWith('Message ·'))
+    );
+    if (hit) return hit;
+  }
+  return null;
 }
 
 /** List threads for a client email (Firestore). */
@@ -119,18 +152,23 @@ export async function ensureClientThread({
   clientUid = '',
   subject = 'Message',
   brandName = '',
-  workspaceSlug = ''
+  workspaceSlug = '',
+  logoUrl = '',
+  bookingId = '',
+  orderId = ''
 }) {
   const firebase = getFirebase();
   const email = authEmail(clientEmail);
   if (!firebase || !ownerId || !email) return null;
 
   const existing = await listClientThreadsByEmail(email);
-  const reuse = existing.find(
-    (thread) =>
-      thread.ownerId === ownerId &&
-      (!subject || thread.subject === subject || thread.workspaceSlug === workspaceSlug)
-  );
+  const reuse = findReusableThread(existing, {
+    ownerId,
+    bookingId,
+    orderId,
+    subject,
+    workspaceSlug
+  });
   if (reuse) return reuse;
 
   const now = Date.now();
@@ -143,14 +181,27 @@ export async function ensureClientThread({
     subject,
     brandName: brandName || '',
     workspaceSlug: workspaceSlug || '',
+    logoUrl: logoUrl || '',
+    bookingId: bookingId || '',
+    orderId: orderId || '',
     unread: false,
     unreadForClient: false,
     updatedAt: now,
     lastMessageAt: now,
-    createdAt: now
+    createdAt: now,
+    lastMessagePreview: ''
   };
   await setDoc(ref, payload);
   return mapThread(ref.id, payload, []);
+}
+
+/** Clear unread for the client on a thread. */
+export async function markClientThreadRead(threadId) {
+  const firebase = getFirebase();
+  if (!firebase || !threadId) return;
+  await updateDoc(doc(firebase.db, ...clientThreadPath(APP_ID, threadId)), {
+    unreadForClient: false
+  });
 }
 
 /** Send a client message into a thread. */

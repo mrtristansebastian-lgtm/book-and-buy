@@ -2,14 +2,15 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from '../../shared/firebase/client';
 import { userProfilePath } from '../../shared/firebase/paths';
-import { emptyClientProfile } from './clientProfile';
+import { emptyClientProfile, normalizeEngagement } from './clientProfile';
 
 export async function loadUserProfile(uid) {
   const firebase = getFirebase();
   if (!firebase || !uid) return null;
   const snap = await getDoc(doc(firebase.db, ...userProfilePath(APP_ID, uid)));
   if (!snap.exists()) return null;
-  return { uid, id: snap.id, ...(snap.data() || {}) };
+  const data = snap.data() || {};
+  return { uid, id: snap.id, ...data, ...normalizeEngagement(data) };
 }
 
 export async function ensureClientProfile(user, { displayName } = {}) {
@@ -20,7 +21,7 @@ export async function ensureClientProfile(user, { displayName } = {}) {
   const snap = await getDoc(ref);
   if (snap.exists()) {
     const data = snap.data() || {};
-    return { uid: user.uid, id: snap.id, ...data };
+    return { uid: user.uid, id: snap.id, ...data, ...normalizeEngagement(data) };
   }
   const profile = emptyClientProfile({
     kind: 'client',
@@ -32,6 +33,9 @@ export async function ensureClientProfile(user, { displayName } = {}) {
       'Client',
     photoURL: user.photoURL || '',
     followedSlugs: [],
+    likedKeys: [],
+    savedKeys: [],
+    commentsByKey: {},
     createdAt: Date.now()
   });
   await setDoc(ref, profile);
@@ -65,6 +69,17 @@ export async function updateClientFollowedSlugs(uid, followedSlugs) {
   await updateDoc(doc(firebase.db, ...userProfilePath(APP_ID, uid)), {
     followedSlugs: [...new Set((followedSlugs || []).map(String).filter(Boolean))]
   });
+}
+
+export async function updateClientEngagement(uid, { likedKeys, savedKeys, commentsByKey }) {
+  const firebase = getFirebase();
+  if (!firebase || !uid || String(uid).startsWith('demo')) return;
+  const payload = {};
+  if (likedKeys) payload.likedKeys = [...new Set(likedKeys.map(String))];
+  if (savedKeys) payload.savedKeys = [...new Set(savedKeys.map(String))];
+  if (commentsByKey) payload.commentsByKey = commentsByKey;
+  if (!Object.keys(payload).length) return;
+  await updateDoc(doc(firebase.db, ...userProfilePath(APP_ID, uid)), payload);
 }
 
 export async function addFollowedSlug(uid, slug, current = []) {

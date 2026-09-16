@@ -3,32 +3,25 @@ import { navigate, publicPagePath } from '../../../app/routing';
 import { loadPublicWorkspaceFromFirestore } from '../../../shared/firebase/publicWorkspace';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { SocialPostFeed } from '../../social/components/SocialPostFeed';
-import { getSocialPostKind } from '../../social/utils/socialPostType';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
+import { annotateSocialPosts } from '../ClientSocialShelf';
+import { ClientHomeFeed } from '../ClientHomeFeed';
 
-function publishedPosts(socialPosts = [], brandMeta = {}) {
-  return (socialPosts || [])
-    .filter((post) => {
-      if (post.visibility && post.visibility !== 'published') return false;
-      const kind = getSocialPostKind(post);
-      return kind === 'post' || kind === 'note' || !kind;
-    })
-    .map((post) => ({
-      ...post,
-      _brandName: brandMeta.brandName,
-      _slug: brandMeta.slug,
-      _logoUrl: brandMeta.logoUrl || ''
-    }));
-}
-
-/** Aggregated feed from followed businesses. */
+/** Instagram home feed from followed businesses. */
 export function ClientHomePage() {
-  const { workspace } = useWorkspace();
+  const { workspace, loadDemoWorkspace } = useWorkspace();
   const { profile } = useClientProfile();
   const followed = profile?.followedSlugs || [];
   const [remoteFeeds, setRemoteFeeds] = useState([]);
+
+  useEffect(() => {
+    const wantsFlame =
+      followed.includes('flameandflour') || followed.includes(workspace?.slug || '');
+    if (wantsFlame && !(workspace?.socialPosts || []).length && loadDemoWorkspace) {
+      loadDemoWorkspace();
+    }
+  }, [followed, workspace?.slug, workspace?.socialPosts?.length, loadDemoWorkspace]);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +38,7 @@ export function ClientHomePage() {
             return {
               slug,
               brandName: snap.brandName || slug,
-              logoUrl: snap.logoUrl || '',
+              logoUrl: snap.logoUrl || snap.website?.logoUrl || '',
               socialPosts: snap.socialPosts || []
             };
           } catch {
@@ -68,18 +61,18 @@ export function ClientHomePage() {
 
     if (watchingLocal) {
       buckets.push(
-        ...publishedPosts(workspace?.socialPosts || [], {
+        ...annotateSocialPosts(workspace?.socialPosts || [], {
           slug: localSlug,
           brandName: workspace?.brandName || 'Flame & Flour',
-          logoUrl: workspace?.logoUrl || ''
+          logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl || ''
         })
       );
     }
 
     remoteFeeds.forEach((feed) => {
-      if (feed.slug === localSlug) return;
+      if (feed.slug === localSlug && watchingLocal) return;
       buckets.push(
-        ...publishedPosts(feed.socialPosts || [], {
+        ...annotateSocialPosts(feed.socialPosts || [], {
           slug: feed.slug,
           brandName: feed.brandName,
           logoUrl: feed.logoUrl
@@ -88,19 +81,16 @@ export function ClientHomePage() {
     });
 
     const seen = new Set();
-    return buckets
-      .filter((post) => {
-        const key = post.id || `${post._slug}-${post.createdAt || post.at || post.caption}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .sort((a, b) => (b.createdAt || b.at || 0) - (a.createdAt || a.at || 0));
+    return buckets.filter((post) => {
+      const key = post.id || `${post._slug}-${post.createdAt || post.at || post.caption}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   }, [workspace, followed, remoteFeeds]);
 
   const primarySlug = posts[0]?._slug || workspace?.slug || 'flameandflour';
-  const primaryBrand = posts[0]?._brandName || workspace?.brandName || 'Flame & Flour';
-  const empty = !followed.length || posts.length === 0;
+  const noFollows = !followed.length;
 
   return (
     <ClientAppShell
@@ -116,29 +106,25 @@ export function ClientHomePage() {
         </button>
       }
     >
-      {empty ? (
+      {noFollows ? (
         <div className="bb-client-empty-hero">
           <h2>Your feed is quiet</h2>
           <p className="bb-muted">
-            Follow businesses in Explore to see their posts here — same vibe as Instagram, for your
-            bookings world.
+            Follow businesses in Explore to see their posts, films, verticals, and notes here.
           </p>
           <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/explore')}>
-            Explore businesses
+            Explore
           </button>
         </div>
       ) : (
-        <div className="bb-client-feed">
-          <SocialPostFeed
-            posts={posts}
-            brandName={primaryBrand}
-            slug={primarySlug}
-            logoUrl={posts[0]?._logoUrl || workspace?.logoUrl || ''}
-            editMode={false}
-            showPublishToggle={false}
-            onBack={() => navigate(publicPagePath(primarySlug, 'social'))}
-          />
-        </div>
+        <ClientHomeFeed
+          posts={posts}
+          emptyCta={
+            <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/explore')}>
+              Explore
+            </button>
+          }
+        />
       )}
     </ClientAppShell>
   );

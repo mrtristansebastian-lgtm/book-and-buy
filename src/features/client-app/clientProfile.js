@@ -11,9 +11,23 @@ export function emptyClientProfile(overrides = {}) {
     displayName: '',
     photoURL: '',
     followedSlugs: [],
+    likedKeys: [],
+    savedKeys: [],
+    commentsByKey: {},
     createdAt: Date.now(),
     isDemo: false,
     ...overrides
+  };
+}
+
+function normalizeEngagement(parsed = {}) {
+  return {
+    likedKeys: Array.isArray(parsed.likedKeys) ? parsed.likedKeys.map(String) : [],
+    savedKeys: Array.isArray(parsed.savedKeys) ? parsed.savedKeys.map(String) : [],
+    commentsByKey:
+      parsed.commentsByKey && typeof parsed.commentsByKey === 'object'
+        ? parsed.commentsByKey
+        : {}
   };
 }
 
@@ -26,7 +40,8 @@ export function readLocalClientProfile() {
     return {
       ...emptyClientProfile(),
       ...parsed,
-      followedSlugs: Array.isArray(parsed.followedSlugs) ? parsed.followedSlugs : []
+      followedSlugs: Array.isArray(parsed.followedSlugs) ? parsed.followedSlugs : [],
+      ...normalizeEngagement(parsed)
     };
   } catch {
     return null;
@@ -59,4 +74,20 @@ export function makeDemoClientProfile() {
   });
 }
 
-export { APP_ID };
+/** Stable key for engagement across businesses. */
+export function socialPostKey(slug, postId) {
+  return `${String(slug || '').trim()}:${String(postId || '').trim()}`;
+}
+
+export function seedEngagementCount(post, field, postKey = '') {
+  const raw = Number(post?.[field]);
+  if (Number.isFinite(raw) && raw > 0) return Math.floor(raw);
+  let hash = 0;
+  const seed = `${postKey || post?.id || ''}:${field}`;
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  if (field === 'likeCount') return 12 + (hash % 240);
+  if (field === 'commentCount') return 1 + (hash % 28);
+  return 0;
+}
+
+export { APP_ID, normalizeEngagement };

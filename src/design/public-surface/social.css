@@ -1782,6 +1782,7 @@
   display: grid;
   gap: 0.32rem;
   padding: 3.4rem 1rem 1.2rem;
+  padding-right: 4.25rem;
   background: linear-gradient(
     to top,
     rgba(0, 0, 0, 0.72) 0%,
@@ -1790,6 +1791,14 @@
   );
   pointer-events: none;
   color: #fff;
+}
+
+.bb-vertical-watch-rail {
+  position: absolute;
+  right: 0.55rem;
+  bottom: 5.5rem;
+  z-index: 4;
+  pointer-events: auto;
 }
 
 .bb-vertical-watch-title,
