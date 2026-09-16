@@ -6,7 +6,7 @@ import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
 import { CatalogCategoryTabs } from '../../storefront/components/CatalogCategoryTabs';
 import { PublicServiceSlotSheet } from './PublicServiceSlotSheet';
-import { formatServiceCardMeta, formatServicePrice, getServiceOpenSpots } from '../../../utils/services';
+import { formatServiceCardMeta, formatServicePrice, getServiceOpenSpots, serviceHasVariants } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import {
   buildCatalogCategoryTabs,
@@ -58,7 +58,7 @@ export function PublicBookingFlow({
   const requestAddService = (item) => {
     if (preview) return;
     const isSpot = getServiceScheduleType(item) === 'class_session';
-    if (isSpot) {
+    if (isSpot && !serviceHasVariants(item)) {
       if (cart.addService(item)) openCart();
       return;
     }
@@ -100,7 +100,7 @@ export function PublicBookingFlow({
         const cardMeta = formatServiceCardMeta(item);
         const isSpot = getServiceScheduleType(item) === 'class_session';
         const spotsLeft = isSpot ? getServiceOpenSpots(item, bookings) : null;
-        const inCart = cart.items.some((row) => row.lineKey === `service:${item.id}`);
+        const inCart = cart.items.some((row) => row.serviceId === item.id);
         return (
           <article
             key={item.id}
@@ -235,7 +235,11 @@ export function PublicBookingFlow({
         onClose={() => setSlotService(null)}
         onConfirm={(slot) => {
           if (!slotService) return;
-          const added = cart.addService(slotService, slot);
+          const added = cart.addService(
+            slotService,
+            slot,
+            slot?.variant || null
+          );
           setSlotService(null);
           if (added) openCart();
         }}

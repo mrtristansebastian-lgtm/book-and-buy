@@ -19,7 +19,8 @@ export function ProductEditorVariantsStep({
         <div>
           <h3 className="bb-services-section-title">Variants</h3>
           <p className="bb-services-section-lede">
-            Add up to 3 options. Manage SKU and quantity on Stock.
+            Add up to 3 options and set each variant’s price here. SKU and stock
+            live on Stock.
           </p>
         </div>
         <button
@@ -128,7 +129,10 @@ export function ProductEditorVariantsStep({
               <tr>
                 <th>Variant</th>
                 <th>Price</th>
-                <th>Compare-at</th>
+                <th>
+                  Compare-at{' '}
+                  <span className="bb-products-field-optional">Optional</span>
+                </th>
                 <th>On</th>
               </tr>
             </thead>
@@ -145,6 +149,7 @@ export function ProductEditorVariantsStep({
                     <input
                       type="text"
                       value={variant.price ?? ''}
+                      placeholder="0.00"
                       onChange={(event) =>
                         patchVariant(variant.id, {
                           price: event.target.value
@@ -156,6 +161,7 @@ export function ProductEditorVariantsStep({
                     <input
                       type="text"
                       value={variant.compareAtPrice ?? ''}
+                      placeholder="—"
                       onChange={(event) =>
                         patchVariant(variant.id, {
                           compareAtPrice: event.target.value

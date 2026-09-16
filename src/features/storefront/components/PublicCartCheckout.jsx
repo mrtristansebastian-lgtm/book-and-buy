@@ -15,6 +15,7 @@ import { usePublicCart } from '../PublicCartContext';
 import { PublicServiceSlotSheet } from '../../booking/components/PublicServiceSlotSheet';
 import { formatCents } from '../../../utils/products';
 import {
+  findServiceVariant,
   formatServiceDuration,
   formatServicePrice,
   formatServiceSessionLabel,
@@ -28,10 +29,10 @@ import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import { createPublicProductOrder } from '../../../utils/orders';
 import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
+import { serviceLineKey } from '../hooks/useCart';
 import { firebaseCallables } from '../../../shared/firebase/callables';
 import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
-import { serviceLineKey } from '../hooks/useCart';
 
 function readCheckoutReturnParams() {
   const hash = window.location.hash || '';
@@ -341,6 +342,10 @@ export function PublicCartCheckout({
 
   const submitBooking = async (item) => {
     const service = services.find((row) => row.id === item.serviceId);
+    const variant =
+      item.variantId && service
+        ? findServiceVariant(service, item.variantId)
+        : null;
     const isSpot =
       item.isSpot || getServiceScheduleType(service || item) === 'class_session';
     const dateKey = isSpot
@@ -352,13 +357,17 @@ export function PublicCartCheckout({
     const payload = {
       serviceId: item.serviceId,
       serviceName: item.name,
+      variantId: item.variantId || '',
+      variantName: item.variantName || variant?.name || '',
       scheduleType: item.scheduleType || service?.scheduleType,
       date: dateKey,
       dateKey,
       time,
       sessionEndDate: isSpot ? service?.sessionEndDate || item.sessionEndDate || '' : '',
       sessionEndTime: isSpot ? service?.sessionEndTime || item.sessionEndTime || '' : '',
-      durationMinutes: service ? getServiceDurationMinutes(service) : 60,
+      durationMinutes: service
+        ? getServiceDurationMinutes(service, variant)
+        : item.durationMinutes || 60,
       clientName: details.clientName.trim(),
       clientEmail: details.clientEmail.trim(),
       clientPhone: details.clientPhone.trim(),
@@ -370,8 +379,9 @@ export function PublicCartCheckout({
       paymentStatus: 'unpaid',
       paymentMethod,
       amountInCents: (() => {
-        const price = Number(service?.price ?? item.unitPriceCents ?? item.price);
         if (item.unitPriceCents != null) return Math.round(Number(item.unitPriceCents) || 0);
+        if (service) return getServiceUnitPriceCents(service, variant);
+        const price = Number(service?.price ?? item.price);
         if (Number.isFinite(price) && price > 50) return Math.round(price);
         if (Number.isFinite(price)) return Math.round(price * 100);
         return 0;
@@ -533,7 +543,11 @@ export function PublicCartCheckout({
           for (const item of productSnapshot) cart.removeItem(item.lineKey);
         }
         for (const booking of bookingsCreated) {
-          if (booking?.serviceId) cart.removeItem(`service:${booking.serviceId}`);
+          if (booking?.serviceId) {
+            cart.removeItem(
+              serviceLineKey(booking.serviceId, booking.variantId || '')
+            );
+          }
         }
       } else {
         notes.push('Nothing could be submitted. Try again.');
@@ -596,6 +610,10 @@ export function PublicCartCheckout({
     const calendarService = firstBooking
       ? services.find((row) => row.id === firstBooking.serviceId)
       : null;
+    const calendarVariant =
+      firstBooking?.variantId && calendarService
+        ? findServiceVariant(calendarService, firstBooking.variantId)
+        : null;
     const calendarUrl = firstBooking
       ? buildBookingCalendarUrl({
           serviceName: firstBooking.serviceName,
@@ -603,7 +621,7 @@ export function PublicCartCheckout({
           dateKey: firstBooking.dateKey,
           time: firstBooking.time,
           durationMinutes: calendarService
-            ? getServiceDurationMinutes(calendarService)
+            ? getServiceDurationMinutes(calendarService, calendarVariant)
             : 60,
           address: workspace.website?.address || '',
           note: firstBooking.clientNote || ''
@@ -1034,7 +1052,8 @@ export function PublicCartCheckout({
                 id: slotEditItem.serviceId,
                 name: slotEditItem.name,
                 scheduleType: slotEditItem.scheduleType,
-                duration: slotEditItem.duration
+                duration: slotEditItem.duration,
+                variants: []
               }
             : null
         }
@@ -1042,11 +1061,15 @@ export function PublicCartCheckout({
         bookings={bookings}
         initialDateKey={slotEditItem?.dateKey || ''}
         initialTime={slotEditItem?.time || ''}
+        initialVariantId={slotEditItem?.variantId || ''}
         confirmLabel="Update slot"
         onClose={() => setSlotEditItem(null)}
         onConfirm={(slot) => {
           if (!slotEditItem) return;
-          cart.updateServiceSlot(slotEditItem.lineKey, slot);
+          cart.updateServiceSlot(slotEditItem.lineKey, {
+            dateKey: slot.dateKey,
+            time: slot.time
+          });
           setSlotEditItem(null);
         }}
       />
@@ -1058,7 +1081,7 @@ export function PublicCartCheckout({
 export function buildCheckoutPreviewCartItems(workspace = {}) {
   const services = workspace.services || [];
   const service =
-    services.find((row) => row.id === 'baking-6-month') ||
+    services.find((row) => row.id === 'baking') ||
     services.find((row) => getServiceScheduleType(row) === 'appointment') ||
     services.find((row) => row.active !== false) ||
     null;
@@ -1085,20 +1108,30 @@ export function buildCheckoutPreviewCartItems(workspace = {}) {
   }
 
   const isSpot = getServiceScheduleType(service) === 'class_session';
+  const variant =
+    (Array.isArray(service.variants) ? service.variants : []).find(
+      (row) => row.id === 'baking-6-month'
+    ) ||
+    (Array.isArray(service.variants) ? service.variants : [])[0] ||
+    null;
+  const variantId = variant?.id || '';
   return [
     {
       kind: 'service',
-      lineKey: serviceLineKey(service.id),
+      lineKey: serviceLineKey(service.id, variantId),
       serviceId: service.id,
+      variantId,
+      variantName: variant?.name || '',
       id: service.id,
-      name: service.name,
+      name: variant?.name ? `${service.name} · ${variant.name}` : service.name,
       imageUrl: service.imageUrls?.[0] || service.image || '',
-      unitPriceCents: getServiceUnitPriceCents(service),
+      unitPriceCents: getServiceUnitPriceCents(service, variant),
       currency: service.currency || workspace.currency || 'R',
       quantity: 1,
       scheduleType: service.scheduleType,
       isSpot,
-      duration: service.duration || '',
+      duration: variant?.minDuration || service.duration || '',
+      durationMinutes: getServiceDurationMinutes(service, variant),
       sessionLabel: isSpot ? formatServiceSessionLabel(service) : '',
       sessionStartDate: service.sessionStartDate || '',
       sessionStartTime: service.sessionStartTime || '',

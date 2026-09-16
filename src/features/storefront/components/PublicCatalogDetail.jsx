@@ -16,10 +16,14 @@ import {
 import {
   formatServiceCardMeta,
   formatServicePrice,
-  getServiceOpenSpots
+  findServiceVariant,
+  getServiceActiveVariants,
+  getServiceOpenSpots,
+  serviceHasVariants
 } from '../../../utils/services';
 import { getCatalogCategory } from '../../../utils/catalogCategories';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
+import { serviceLineKey } from '../../storefront/hooks/useCart';
 
 function collectImages(item = {}, variant = null) {
   const urls = Array.isArray(item.imageUrls)
@@ -50,12 +54,18 @@ export function PublicCatalogDetail({
   const [panel, setPanel] = useState('detail');
   const [selections, setSelections] = useState({});
   const [slotSheetOpen, setSlotSheetOpen] = useState(false);
+  const [serviceVariantId, setServiceVariantId] = useState('');
 
   const options = useMemo(() => {
     if (kind !== 'product' || !item) return [];
     return (Array.isArray(item.options) ? item.options : [])
       .map(normalizeProductOption)
       .filter((option) => option.name && option.values.length);
+  }, [item, kind]);
+
+  const serviceVariants = useMemo(() => {
+    if (kind !== 'service' || !item) return [];
+    return getServiceActiveVariants(item);
   }, [item, kind]);
 
   useEffect(() => {
@@ -76,16 +86,29 @@ export function PublicCatalogDetail({
     setSelections(next);
   }, [item?.id, kind, options]);
 
+  useEffect(() => {
+    if (kind !== 'service' || !item) {
+      setServiceVariantId('');
+      return;
+    }
+    setServiceVariantId(serviceVariants[0]?.id || '');
+  }, [item?.id, kind, serviceVariants]);
+
   const catalogPage = kind === 'service' ? 'book' : 'buy';
   const catalogLabel = kind === 'service' ? 'Book' : 'Buy';
 
-  const selectedVariant = useMemo(() => {
+  const selectedProductVariant = useMemo(() => {
     if (kind !== 'product' || !item) return null;
     if (!productHasVariants(item)) return null;
     return findVariantBySelections(item, selections);
   }, [item, kind, selections]);
 
-  const images = collectImages(item, selectedVariant);
+  const selectedServiceVariant = useMemo(() => {
+    if (kind !== 'service' || !item || !serviceVariantId) return null;
+    return findServiceVariant(item, serviceVariantId);
+  }, [item, kind, serviceVariantId]);
+
+  const images = collectImages(item, selectedProductVariant);
 
   if (!item) {
     return (
@@ -116,35 +139,41 @@ export function PublicCatalogDetail({
       : item.priceType === 'quote';
   const price =
     kind === 'service'
-      ? formatServicePrice(item)
-      : formatProductPrice(item, selectedVariant);
+      ? formatServicePrice(item, selectedServiceVariant)
+      : formatProductPrice(item, selectedProductVariant);
   const compareAt =
-    kind === 'product' ? formatCompareAtPrice(item, selectedVariant) : '';
-  const timingMeta = kind === 'service' ? formatServiceCardMeta(item) : '';
+    kind === 'product' ? formatCompareAtPrice(item, selectedProductVariant) : '';
+  const timingMeta =
+    kind === 'service'
+      ? formatServiceCardMeta(item, selectedServiceVariant)
+      : '';
   const isSpotService =
     kind === 'service' && getServiceScheduleType(item) === 'class_session';
   const spotsLeft = isSpotService
     ? getServiceOpenSpots(item, workspace?.bookings || [])
     : null;
   const stock =
-    kind === 'product' ? formatStockNote(item, selectedVariant) : '';
+    kind === 'product' ? formatStockNote(item, selectedProductVariant) : '';
   const meta =
     kind === 'service'
       ? getCatalogCategory(item, 'Service')
       : getCatalogCategory(item, 'Product');
 
-  const needsVariant = kind === 'product' && productHasVariants(item);
+  const needsProductVariant = kind === 'product' && productHasVariants(item);
+  const needsServiceVariant = kind === 'service' && serviceHasVariants(item);
   const purchasable =
     kind === 'service'
-      ? true
-      : !quote && isVariantPurchasable(item, selectedVariant);
+      ? !needsServiceVariant || Boolean(selectedServiceVariant)
+      : !quote && isVariantPurchasable(item, selectedProductVariant);
   const lineKey =
     kind === 'service'
-      ? `service:${item.id}`
-      : `product:${item.id}:${selectedVariant?.id || 'base'}`;
+      ? serviceLineKey(item.id, selectedServiceVariant?.id || '')
+      : `product:${item.id}:${selectedProductVariant?.id || 'base'}`;
   const inCart = cart.items.some((row) => row.lineKey === lineKey);
   const cartDisabled =
-    kind === 'service' ? inCart : !purchasable || (needsVariant && !selectedVariant);
+    kind === 'service'
+      ? inCart || (needsServiceVariant && !selectedServiceVariant)
+      : !purchasable || (needsProductVariant && !selectedProductVariant);
 
   const cartButton = (
     <button
@@ -161,14 +190,14 @@ export function PublicCatalogDetail({
   const addToCart = () => {
     if (cartDisabled) return;
     if (kind === 'service') {
-      if (isSpotService) {
-        if (cart.addService(item)) setPanel('cart');
+      if (isSpotService && !needsServiceVariant) {
+        if (cart.addService(item, null, selectedServiceVariant)) setPanel('cart');
         return;
       }
       setSlotSheetOpen(true);
       return;
     }
-    cart.addItem(item, 1, selectedVariant);
+    cart.addItem(item, 1, selectedProductVariant);
     setPanel('cart');
   };
 
@@ -297,6 +326,46 @@ export function PublicCatalogDetail({
               </div>
             ) : null}
 
+            {kind === 'service' && serviceVariants.length ? (
+              <div className="bb-public-service-variants">
+                <span className="bb-products-public-option-label">Options</span>
+                <div className="bb-public-service-variant-list">
+                  {serviceVariants.map((variant) => {
+                    const active = serviceVariantId === variant.id;
+                    return (
+                      <button
+                        key={variant.id}
+                        type="button"
+                        className={`bb-public-service-variant${
+                          active ? ' is-active' : ''
+                        }`}
+                        onClick={() => setServiceVariantId(variant.id)}
+                      >
+                        <span className="bb-public-service-variant-name">
+                          {variant.name}
+                        </span>
+                        {variant.description ? (
+                          <span className="bb-public-service-variant-desc">
+                            {variant.description}
+                          </span>
+                        ) : null}
+                        <span className="bb-public-service-variant-meta">
+                          {[
+                            formatServicePrice(item, variant) || null,
+                            variant.minDuration
+                              ? `${variant.minDuration} min`
+                              : null
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
             {item.description ? (
               <div className="bb-public-detail-body">
                 <h2 className="bb-public-detail-section-label">About</h2>
@@ -315,10 +384,12 @@ export function PublicCatalogDetail({
                 {kind === 'service'
                   ? inCart
                     ? 'In cart'
-                    : 'Add to cart'
+                    : needsServiceVariant && !selectedServiceVariant
+                      ? 'Select an option'
+                      : 'Add to cart'
                   : quote
                     ? 'Quote only'
-                    : needsVariant && !selectedVariant
+                    : needsProductVariant && !selectedProductVariant
                       ? 'Select options'
                       : !purchasable
                         ? 'Unavailable'
@@ -335,10 +406,15 @@ export function PublicCatalogDetail({
           service={item}
           workspace={workspace}
           bookings={workspace?.bookings || []}
+          initialVariantId={serviceVariantId}
           confirmLabel="Add to cart"
           onClose={() => setSlotSheetOpen(false)}
           onConfirm={(slot) => {
-            const added = cart.addService(item, slot);
+            const added = cart.addService(
+              item,
+              slot,
+              slot?.variant || selectedServiceVariant
+            );
             setSlotSheetOpen(false);
             if (added) setPanel('cart');
           }}

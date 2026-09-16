@@ -28,6 +28,12 @@ export function ServiceEditorReviewStep({
             <dt>Price</dt>
             <dd>{String(draft.price || '').trim() || '—'}</dd>
           </div>
+          {(draft.variants || []).length ? (
+            <div>
+              <dt>Variants</dt>
+              <dd>{draft.variants.length} options</dd>
+            </div>
+          ) : null}
           <div>
             <dt>Type</dt>
             <dd>

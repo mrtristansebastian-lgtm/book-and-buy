@@ -13,8 +13,8 @@ export const DEMO_WEBSITE_SCHEMA = 32;
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
 export const DEMO_SOCIAL_SCHEMA = 11;
 
-/** Bump when demo services gain spot session windows (start/end date + time). */
-export const DEMO_SERVICES_SCHEMA = 11;
+/** Bump when demo services collapse to Cooking/Baking with package variants. */
+export const DEMO_SERVICES_SCHEMA = 12;
 
 /** Bump when demo staff availability / closed-days / staff photos change. */
 export const DEMO_AVAILABILITY_SCHEMA = 2;
@@ -33,90 +33,90 @@ function startOfToday() {
 
 export const DEMO_SERVICES = normalizeServiceList([
   {
-    id: 'cooking-1-month',
-    name: 'Cooking 1 Month',
-    category: 'Cooking packages',
+    id: 'cooking',
+    name: 'Cooking',
+    category: 'Cooking',
     price: 2800,
     duration: 180,
-    scheduleType: 'class_session',
-    capacity: 8,
-    sessionStartDate: toDateKey(addDays(today, 4)),
-    sessionStartTime: '17:30',
-    sessionEndDate: toDateKey(addDays(today, 4)),
-    sessionEndTime: '20:30',
-    description:
-      'Four weeks. Four kitchens. One seat at our bench.\n\nYou’ll cook Italian pasta night, a Cape Malay supper, a fast Asian stir-fry, and a French bistro plate. Enough range to feel dangerous in a good way. We eat what we make. You leave with notes you will actually use.',
-    imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
-    staffIds: ['jordan-lee', 'maya-patel']
-  },
-  {
-    id: 'cooking-6-month',
-    name: 'Cooking 6 Months',
-    category: 'Cooking packages',
-    price: 8900,
-    duration: 180,
+    fixedDuration: true,
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'Half a year of showing up hungry.\n\nTwice a month we rotate through Italian, Cape Malay, East Asian, French bistro, and seasonal wild cards so your knife work, sauces, and plating stop feeling like a fluke. Think of it as a long apprenticeship with better snacks.',
+      'Hands-on cooking at our Cape Town bench.\n\nPick a package length below — from a focused month to a full year of rotating kitchens: Italian, Cape Malay, East Asian, French bistro, and seasonal wild cards. We cook, we eat, you leave with notes that stick.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
-    staffIds: ['jordan-lee', 'sofia-martins']
+    staffIds: ['jordan-lee', 'maya-patel', 'sofia-martins'],
+    variants: [
+      {
+        id: 'cooking-1-month',
+        name: '1 Month',
+        description:
+          'Four weeks. Four kitchens. Italian pasta, Cape Malay supper, Asian stir-fry, and a French bistro plate.',
+        price: 2800,
+        minDuration: 180,
+        available: true
+      },
+      {
+        id: 'cooking-6-month',
+        name: '6 Months',
+        description:
+          'Twice a month for half a year — knife work, sauces, and plating that stop feeling like a fluke.',
+        price: 8900,
+        minDuration: 180,
+        available: true
+      },
+      {
+        id: 'cooking-1-year',
+        name: '1 Year',
+        description:
+          'A full year through weeknight stir-fries, weekend Italian, Cape Malay feasts, and roast Sundays.',
+        price: 15500,
+        minDuration: 180,
+        available: true
+      }
+    ]
   },
   {
-    id: 'cooking-1-year',
-    name: 'Cooking 1 Year',
-    category: 'Cooking packages',
-    price: 15500,
-    duration: 180,
-    scheduleType: 'appointment',
-    capacity: 1,
-    description:
-      'A full year of cooking like you mean it.\n\nYou’ll work through weeknight stir-fries, weekend Italian, Cape Malay feasts, French sauces, and roast Sundays until the muscle memory sticks. Priority booking, deeper technique, and the kind of confidence that makes dinner guests nervous in the best way.',
-    imageUrls: ['/example/flour-and-flame/services/ff-cover-cooking.png'],
-    staffIds: ['jordan-lee', 'maya-patel']
-  },
-  {
-    id: 'baking-1-month',
-    name: 'Baking 1 Month',
-    category: 'Baking packages',
+    id: 'baking',
+    name: 'Baking',
+    category: 'Baking',
     price: 2950,
     duration: 210,
-    scheduleType: 'class_session',
-    capacity: 8,
-    sessionStartDate: toDateKey(addDays(today, 6)),
-    sessionStartTime: '09:00',
-    sessionEndDate: toDateKey(addDays(today, 6)),
-    sessionEndTime: '12:30',
-    description:
-      'One month. Flour on your apron. Butter under your nails.\n\nWe move from sourdough loaves to laminated croissants to a proper pastry finish. Enough variety that your home oven finally feels like a studio. Take-home bakes. Honest notes. No fluff.',
-    imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
-    staffIds: ['thando-mokoena', 'maya-patel']
-  },
-  {
-    id: 'baking-6-month',
-    name: 'Baking 6 Months',
-    category: 'Baking packages',
-    price: 9800,
-    duration: 210,
+    fixedDuration: true,
     scheduleType: 'appointment',
     capacity: 1,
     description:
-      'Six months of dough that actually listens to you.\n\nTwice a month we cycle bread, lamination, enriched doughs, and pastry, from sourdough and croissants to focaccia, tarts, and celebration cakes, so fermentation, butter, and sugar stop being mysteries. Slow skill. Real craft. Worth every sticky counter.',
+      'Flour, butter, and honest craft in the Woodstock studio.\n\nChoose how long you want to stay with the dough — from a one-month intro to a year of bread, lamination, and pastry. Take-home bakes. Real notes. No fluff.',
     imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
-    staffIds: ['thando-mokoena', 'jordan-lee']
-  },
-  {
-    id: 'baking-1-year',
-    name: 'Baking 1 Year',
-    category: 'Baking packages',
-    price: 16800,
-    duration: 210,
-    scheduleType: 'appointment',
-    capacity: 1,
-    description:
-      'A year inside the bake.\n\nYou’ll live through country loaves, laminated mornings, pastry nights, and holiday sweets until shaping, proofing, and finishing feel like second nature. Priority seats, deeper feedback, and the quiet flex of bringing something that looks and tastes like it came from a bakery.',
-    imageUrls: ['/example/flour-and-flame/services/ff-cover-baking.png'],
-    staffIds: ['thando-mokoena', 'sofia-martins']
+    staffIds: ['thando-mokoena', 'maya-patel', 'jordan-lee', 'sofia-martins'],
+    variants: [
+      {
+        id: 'baking-1-month',
+        name: '1 Month',
+        description:
+          'Sourdough, laminated croissants, and a proper pastry finish — enough to make your home oven feel like a studio.',
+        price: 2950,
+        minDuration: 210,
+        available: true
+      },
+      {
+        id: 'baking-6-month',
+        name: '6 Months',
+        description:
+          'Twice a month through bread, lamination, enriched doughs, focaccia, tarts, and celebration cakes.',
+        price: 9800,
+        minDuration: 210,
+        available: true
+      },
+      {
+        id: 'baking-1-year',
+        name: '1 Year',
+        description:
+          'Country loaves, laminated mornings, pastry nights, and holiday sweets until shaping feels second nature.',
+        price: 16800,
+        minDuration: 210,
+        available: true
+      }
+    ]
   }
 ]);
 
@@ -873,15 +873,18 @@ const sampleOrders = [
 const sampleBookings = [
   {
     id: 'bk-1',
-    serviceId: 'baking-1-month',
-    serviceName: 'Baking 1 Month',
-    scheduleType: 'class_session',
+    serviceId: 'baking',
+    serviceName: 'Baking · 1 Month',
+    variantId: 'baking-1-month',
+    variantName: '1 Month',
+    scheduleType: 'appointment',
     clientName: 'Aisha Naidoo',
     clientEmail: 'aisha.naidoo@example.com',
     clientPhone: '+27 72 555 1001',
     date: toDateKey(today),
     dateKey: toDateKey(today),
     time: '09:00',
+    durationMinutes: 210,
     status: 'confirmed',
     paymentStatus: 'paid',
     paymentMethod: 'stripe',
@@ -895,8 +898,10 @@ const sampleBookings = [
   },
   {
     id: 'bk-2',
-    serviceId: 'baking-6-month',
-    serviceName: 'Baking 6 Months',
+    serviceId: 'baking',
+    serviceName: 'Baking · 6 Months',
+    variantId: 'baking-6-month',
+    variantName: '6 Months',
     scheduleType: 'appointment',
     clientName: 'Daniel Botha',
     clientEmail: 'daniel.botha@example.com',
@@ -904,6 +909,7 @@ const sampleBookings = [
     date: toDateKey(today),
     dateKey: toDateKey(today),
     time: '14:00',
+    durationMinutes: 210,
     status: 'pending',
     paymentStatus: 'unpaid',
     paymentMethod: 'manual_eft',
@@ -916,15 +922,18 @@ const sampleBookings = [
   },
   {
     id: 'bk-3',
-    serviceId: 'cooking-1-month',
-    serviceName: 'Cooking 1 Month',
-    scheduleType: 'class_session',
+    serviceId: 'cooking',
+    serviceName: 'Cooking · 1 Month',
+    variantId: 'cooking-1-month',
+    variantName: '1 Month',
+    scheduleType: 'appointment',
     clientName: 'Lerato Dlamini',
     clientEmail: 'lerato.dlamini@example.com',
     clientPhone: '+27 72 555 1003',
     date: toDateKey(addDays(today, 1)),
     dateKey: toDateKey(addDays(today, 1)),
     time: '17:30',
+    durationMinutes: 180,
     status: 'pending',
     paymentStatus: 'manual_pending',
     paymentMethod: 'manual_eft',
@@ -937,14 +946,17 @@ const sampleBookings = [
   },
   {
     id: 'bk-4',
-    serviceId: 'baking-1-year',
-    serviceName: 'Baking 1 Year',
+    serviceId: 'baking',
+    serviceName: 'Baking · 1 Year',
+    variantId: 'baking-1-year',
+    variantName: '1 Year',
     scheduleType: 'appointment',
     clientName: 'Nandi Maseko',
     clientEmail: 'nandi.maseko@example.com',
     date: toDateKey(addDays(today, 2)),
     dateKey: toDateKey(addDays(today, 2)),
     time: '11:00',
+    durationMinutes: 210,
     status: 'waitlist',
     paymentStatus: 'unpaid',
     amountInCents: 1680000,
@@ -956,14 +968,17 @@ const sampleBookings = [
   },
   {
     id: 'bk-5',
-    serviceId: 'cooking-6-month',
-    serviceName: 'Cooking 6 Months',
+    serviceId: 'cooking',
+    serviceName: 'Cooking · 6 Months',
+    variantId: 'cooking-6-month',
+    variantName: '6 Months',
     scheduleType: 'appointment',
     clientName: 'Owen du Plessis',
     clientEmail: 'owen.duplessis@example.com',
     date: toDateKey(addDays(today, -7)),
     dateKey: toDateKey(addDays(today, -7)),
     time: '10:00',
+    durationMinutes: 180,
     status: 'confirmed',
     paymentStatus: 'paid',
     paymentMethod: 'paystack',
@@ -977,14 +992,17 @@ const sampleBookings = [
   },
   {
     id: 'bk-6',
-    serviceId: 'cooking-1-year',
-    serviceName: 'Cooking 1 Year',
+    serviceId: 'cooking',
+    serviceName: 'Cooking · 1 Year',
+    variantId: 'cooking-1-year',
+    variantName: '1 Year',
     scheduleType: 'appointment',
     clientName: 'Fatima Abrahams',
     clientEmail: 'fatima.abrahams@example.com',
     date: toDateKey(addDays(today, -21)),
     dateKey: toDateKey(addDays(today, -21)),
     time: '09:00',
+    durationMinutes: 180,
     status: 'confirmed',
     paymentStatus: 'paid',
     paymentMethod: 'cash',
@@ -1591,8 +1609,8 @@ export function createDemoWorkspace() {
     }),
     services: DEMO_SERVICES,
     serviceCategories: collectServiceCategories(DEMO_SERVICES, [
-      'Cooking packages',
-      'Baking packages'
+      'Cooking',
+      'Baking'
     ]),
     staff: DEMO_STAFF,
     staffAvailability: createStaffAvailabilityForRoster(DEMO_STAFF, '09:00', '17:00', 8),

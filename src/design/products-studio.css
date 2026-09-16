@@ -245,7 +245,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.72rem;
-  min-width: 24rem;
+  min-width: 0;
 }
 
 .bb-products-variant-table th,
@@ -281,6 +281,16 @@
   font-weight: 700;
   color: #101828;
   white-space: nowrap;
+}
+
+.bb-products-field-optional {
+  margin-left: 0.2rem;
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 620;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #98a2b3;
 }
 
 .bb-products-compare-at {

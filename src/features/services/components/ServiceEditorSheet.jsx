@@ -12,6 +12,7 @@ import { ServiceEditorDurationStep } from './ServiceEditorDurationStep';
 import { ServiceEditorPhotoStep } from './ServiceEditorPhotoStep';
 import { ServiceEditorReviewStep } from './ServiceEditorReviewStep';
 import { ServiceEditorTypeStep } from './ServiceEditorTypeStep';
+import { ServiceEditorVariantsStep } from './ServiceEditorVariantsStep';
 import { ServiceEditorWhenStep } from './ServiceEditorWhenStep';
 import { buildSetupSteps } from './serviceEditorUtils';
 
@@ -124,6 +125,19 @@ export function ServiceEditorSheet({
         return false;
       }
     }
+    if (id === 'variants') {
+      const rows = Array.isArray(draft.variants) ? draft.variants : [];
+      for (const variant of rows) {
+        if (!String(variant.name || '').trim()) {
+          setError('Each variant needs a name.');
+          return false;
+        }
+        if (!parseDurationMinutes(variant.minDuration)) {
+          setError(`Set a minimum duration for “${variant.name || 'each variant'}”.`);
+          return false;
+        }
+      }
+    }
     if (id === 'duration') {
       if (draft.fixedDuration === false) {
         if (!parseDurationMinutes(draft.minDuration)) {
@@ -195,6 +209,10 @@ export function ServiceEditorSheet({
     }
     if (!validateStep('details')) {
       setStep('details');
+      return;
+    }
+    if (!validateStep('variants')) {
+      setStep('variants');
       return;
     }
     if (isSpot) {
@@ -281,6 +299,10 @@ export function ServiceEditorSheet({
                 patch={patch}
                 showCapacity={showCapacity}
               />
+            ) : null}
+
+            {step === 'variants' ? (
+              <ServiceEditorVariantsStep draft={draft} patch={patch} />
             ) : null}
 
             {step === 'photo' ? (

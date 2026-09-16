@@ -254,7 +254,7 @@ export function VenueSection({
               </div>
 
               {flowCount > 1 ? (
-                <>
+                <div className="bb-public-coverflow-controls">
                   <div className="bb-public-coverflow-nav bb-public-coverflow-nav--arrows">
                     <button
                       type="button"
@@ -292,7 +292,7 @@ export function VenueSection({
                       />
                     ))}
                   </div>
-                </>
+                </div>
               ) : null}
             </div>
           ) : null}

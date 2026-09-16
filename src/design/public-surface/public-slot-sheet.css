@@ -123,3 +123,59 @@
 .bb-device-preview--phone .bb-public-slot-sheet-backdrop {
   position: absolute;
 }
+
+.bb-public-service-variants {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.15rem 0 0.35rem;
+}
+
+.bb-public-service-variant-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bb-public-service-variant {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.bb-public-service-variant:hover {
+  border-color: rgba(15, 23, 42, 0.22);
+  background: #f8fafc;
+}
+
+.bb-public-service-variant.is-active {
+  border-color: rgba(15, 23, 42, 0.55);
+  background: #f8fafc;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.2);
+}
+
+.bb-public-service-variant-name {
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 720;
+  letter-spacing: -0.015em;
+  color: #101828;
+}
+
+.bb-public-service-variant-desc {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: #667085;
+}
+
+.bb-public-service-variant-meta {
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: #475467;
+}

@@ -768,6 +768,56 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   color: #98a2b3;
 }
 
+.bb-services-step-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.bb-services-variant-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bb-services-variant-card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+}
+
+.bb-services-variant-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bb-services-variant-card-title {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 740;
+  letter-spacing: -0.01em;
+  color: #101828;
+}
+
+.bb-services-variant-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+@media (max-width: 720px) {
+  .bb-services-variant-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .bb-services-fields {
   display: grid;
   gap: 0.65rem;

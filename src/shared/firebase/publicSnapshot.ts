@@ -43,10 +43,29 @@ function publicServices(services: unknown) {
       name: service.name,
       description: service.description || '',
       duration: service.duration,
+      minDuration: service.minDuration,
+      fixedDuration: service.fixedDuration !== false,
       price: service.price,
       currency: service.currency,
+      priceType: service.priceType,
       scheduleType: service.scheduleType,
+      category: service.category || '',
+      capacity: service.capacity,
+      sessionStartDate: service.sessionStartDate,
+      sessionStartTime: service.sessionStartTime,
+      sessionEndDate: service.sessionEndDate,
+      sessionEndTime: service.sessionEndTime,
       imageUrls: service.imageUrls || [],
+      variants: Array.isArray(service.variants)
+        ? service.variants.map((variant: AnyRecord) => ({
+            id: variant.id,
+            name: variant.name,
+            description: variant.description || '',
+            price: variant.price,
+            minDuration: variant.minDuration,
+            available: variant.available !== false
+          }))
+        : [],
       active: true
     }));
 }

@@ -44,7 +44,9 @@ export function ProductEditorDetailsStep({ draft, patch }) {
             </div>
           </label>
           <label className="bb-services-field">
-            <span>Compare-at</span>
+            <span>
+              Compare-at <em className="bb-products-field-optional">Optional</em>
+            </span>
             <div className="bb-products-money">
               <span className="bb-products-money-prefix">
                 {draft.currency || 'R'}
@@ -52,7 +54,7 @@ export function ProductEditorDetailsStep({ draft, patch }) {
               <input
                 className="native-control-input bb-services-control native-control-nest"
                 value={draft.compareAtPrice || ''}
-                placeholder="0.00"
+                placeholder="—"
                 disabled={draft.quoteBased}
                 onChange={(event) =>
                   patch({ compareAtPrice: event.target.value })

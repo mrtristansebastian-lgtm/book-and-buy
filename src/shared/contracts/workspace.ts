@@ -73,6 +73,16 @@ export interface StaffAvailabilityEntry {
   blocks?: StaffAvailabilityBlock[];
 }
 
+export interface WorkspaceServiceVariant {
+  id: string;
+  name: string;
+  description?: string;
+  price?: string | number;
+  /** Minimum duration in minutes for this package / option. */
+  minDuration?: string | number;
+  available?: boolean;
+}
+
 export interface WorkspaceService {
   id: string;
   name: string;
@@ -96,6 +106,7 @@ export interface WorkspaceService {
   staffIds?: string[];
   sortOrder?: number;
   photoURL?: string;
+  variants?: WorkspaceServiceVariant[];
 }
 
 export interface WorkspaceProductOption {

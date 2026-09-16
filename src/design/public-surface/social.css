@@ -3746,11 +3746,16 @@ html body .native-ui .bb-public-surface .bb-yt-watch-desc-label {
 }
 
 .bb-device-preview--phone .bb-public-coverflow-nav--arrows {
-  display: none !important;
+  display: inline-flex !important;
 }
 
 .bb-device-preview--phone .bb-public-coverflow-dots {
   display: inline-flex !important;
+}
+
+.bb-device-preview--phone .bb-public-coverflow-controls {
+  gap: 0.4rem;
+  padding-top: 0.35rem;
 }
 
 .bb-device-preview--phone .bb-public-profile-card {

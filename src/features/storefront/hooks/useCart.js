@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { getProductUnitPriceCents, isVariantPurchasable } from '../../../utils/products';
 import {
   formatServiceSessionLabel,
+  getServiceDurationMinutes,
   getServiceUnitPriceCents
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
@@ -9,7 +10,8 @@ import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 export const productLineKey = (id, variantId = '') =>
   variantId ? `product:${id}:${variantId}` : `product:${id}:base`;
 
-export const serviceLineKey = (id) => `service:${id}`;
+export const serviceLineKey = (id, variantId = '') =>
+  variantId ? `service:${id}:${variantId}` : `service:${id}`;
 
 export function useCart(initialItems = []) {
   const [items, setItems] = useState(() =>
@@ -63,9 +65,10 @@ export function useCart(initialItems = []) {
     });
   };
 
-  const addService = (service, slot = null) => {
+  const addService = (service, slot = null, variant = null) => {
     if (!service?.id) return false;
-    const lineKey = serviceLineKey(service.id);
+    const variantId = variant?.id || '';
+    const lineKey = serviceLineKey(service.id, variantId);
     const isSpot = getServiceScheduleType(service) === 'class_session';
     const dateKey = isSpot
       ? service.sessionStartDate || ''
@@ -76,20 +79,28 @@ export function useCart(initialItems = []) {
 
     if (!isSpot && (!dateKey || !time)) return false;
 
+    const durationMinutes = getServiceDurationMinutes(service, variant);
+    const variantName = String(variant?.name || '').trim();
+
     setItems((prev) => {
       const nextLine = {
         kind: 'service',
         lineKey,
         serviceId: service.id,
+        variantId,
+        variantName,
         id: service.id,
-        name: service.name,
+        name: variantName ? `${service.name} · ${variantName}` : service.name,
         imageUrl: service.imageUrls?.[0] || service.image || '',
-        unitPriceCents: getServiceUnitPriceCents(service),
+        unitPriceCents: getServiceUnitPriceCents(service, variant),
         currency: service.currency || 'R',
         quantity: 1,
         scheduleType: service.scheduleType,
         isSpot,
-        duration: service.duration || '',
+        duration: variant
+          ? String(variant.minDuration || durationMinutes || '')
+          : service.duration || '',
+        durationMinutes,
         sessionLabel: isSpot ? formatServiceSessionLabel(service) : '',
         sessionStartDate: service.sessionStartDate || '',
         sessionStartTime: service.sessionStartTime || '',

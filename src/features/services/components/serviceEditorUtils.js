@@ -12,7 +12,12 @@ export function buildSetupSteps(scheduleType) {
     {
       id: 'details',
       label: 'Details',
-      lede: 'Name it, describe it, and set the price.'
+      lede: 'Name it, describe it, and set the base price.'
+    },
+    {
+      id: 'variants',
+      label: 'Variants',
+      lede: 'Optional packages with their own price and minimum duration.'
     },
     {
       id: 'photo',

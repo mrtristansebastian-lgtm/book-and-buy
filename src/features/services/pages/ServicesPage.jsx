@@ -26,7 +26,8 @@ const emptyDraft = () => ({
   sessionEndTime: '12:00',
   staffIds: [],
   image: '',
-  active: true
+  active: true,
+  variants: []
 });
 
 export function ServicesPage() {
@@ -70,7 +71,17 @@ export function ServicesPage() {
       sessionEndTime: service.sessionEndTime || '12:00',
       staffIds: service.staffIds || [],
       image: service.imageUrls?.[0] || '',
-      active: service.active !== false
+      active: service.active !== false,
+      variants: Array.isArray(service.variants)
+        ? service.variants.map((variant) => ({
+            id: variant.id,
+            name: variant.name || '',
+            description: variant.description || '',
+            price: String(variant.price ?? ''),
+            minDuration: String(variant.minDuration ?? ''),
+            available: variant.available !== false
+          }))
+        : []
     });
     setDraftOpen(true);
   };

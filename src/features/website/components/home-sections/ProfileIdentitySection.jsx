@@ -1,4 +1,5 @@
 import { EditableText, EditableImage, EditSection } from '../editable';
+import { formatUsernameDisplay } from '../../../social/utils/instagramUsername';
 
 function messageHref(workspace) {
   const email = String(workspace.email || '').trim();
@@ -17,6 +18,7 @@ export function ProfileIdentitySection({
   onUpdateProfile
 }) {
   const displayName = String(workspace.brandName || 'Business').trim() || 'Business';
+  const username = formatUsernameDisplay(workspace.slug || '', displayName);
   const bio =
     website.homeSubtext ||
     website.subcopy ||
@@ -90,6 +92,8 @@ export function ProfileIdentitySection({
                 patchWebsite({ homeHeadline: next, headline: next });
               }}
             />
+
+            <p className="bb-public-profile-username">@{username}</p>
 
             {showMeta ? (
               <div className="bb-public-profile-meta">
