@@ -37,6 +37,18 @@ export function ClientProfileProvider({ children }) {
     return normalized;
   }, []);
 
+  /** Merge explore prefs against latest profile so rapid patches don't stomp each other. */
+  const updateExplorePrefs = useCallback((patch = {}) => {
+    let saved = null;
+    setProfile((prev) => {
+      const base = prev || emptyClientProfile({ isDemo: true });
+      saved = withEngagement({ ...base, ...patch });
+      writeLocalClientProfile(saved);
+      return saved;
+    });
+    return saved;
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -285,20 +297,6 @@ export function ClientProfileProvider({ children }) {
         }
       }
       return saved;
-    },
-    [profile, persist]
-  );
-
-  const updateExplorePrefs = useCallback(
-    (patch = {}) => {
-      if (!profile) {
-        const seeded = persist({
-          ...emptyClientProfile({ isDemo: true }),
-          ...patch
-        });
-        return seeded;
-      }
-      return persist({ ...profile, ...patch });
     },
     [profile, persist]
   );

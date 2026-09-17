@@ -1,40 +1,53 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
+  Bike,
+  BookOpen,
   Car,
   ChevronRight,
   Clock3,
+  Cookie,
+  Download,
   Dumbbell,
+  Flower,
+  Gem,
   Globe2,
   GraduationCap,
+  Hand,
   Home,
+  Image,
+  Lamp,
+  Layers,
   MapPin,
   Navigation,
   PartyPopper,
   PawPrint,
   Search,
+  Shirt,
   ShoppingBag,
+  Smartphone,
   Sparkles,
   Ticket,
   UtensilsCrossed,
   X
 } from 'lucide-react';
 import {
-  BUSINESS_CATEGORY_GROUPS,
   EXPLORE_MODE_FILTERS,
-  categoriesForMode,
+  bookCategoryGroups,
+  buyCategoryGroups,
   categoriesInGroup,
   categoryLabel,
   getCategoryGroupById,
+  groupsForExploreMode,
   isExploreGroupFilterId,
   isExploreModeFilterId,
+  resolveExploreChipFromLabel,
   searchCategories,
   searchCategoryGroups
 } from '../../config/businessCategories';
 import { DistanceRingControl } from './DistanceRingControl';
 
 const HISTORY_MAX = 5;
-const MODE_GROUP_PREFIX = 'mode-group:';
 
 const GROUP_ICONS = {
   Sparkles,
@@ -46,12 +59,24 @@ const GROUP_ICONS = {
   Car,
   PartyPopper,
   Ticket,
-  ShoppingBag
+  ShoppingBag,
+  Shirt,
+  Gem,
+  Image,
+  Hand,
+  Bike,
+  BookOpen,
+  Smartphone,
+  Download,
+  Lamp,
+  Cookie,
+  Flower
 };
 
 const MODE_ICONS = {
   book: Sparkles,
-  buy: ShoppingBag
+  buy: ShoppingBag,
+  both: Layers
 };
 
 function pushHistory(prev = [], term = '') {
@@ -61,17 +86,36 @@ function pushHistory(prev = [], term = '') {
   return cleaned.slice(0, HISTORY_MAX);
 }
 
-function modeGroupId(mode) {
-  return `${MODE_GROUP_PREFIX}${mode}`;
+function selectedModeId(categoryIds = []) {
+  return categoryIds.find((id) => isExploreModeFilterId(id)) || '';
 }
 
-function parseModeGroup(id) {
-  if (!String(id || '').startsWith(MODE_GROUP_PREFIX)) return '';
-  return String(id).slice(MODE_GROUP_PREFIX.length);
+function modeKeyFromChip(id) {
+  if (id === 'mode:book') return 'book';
+  if (id === 'mode:buy') return 'buy';
+  if (id === 'mode:both') return 'both';
+  return 'all';
+}
+
+function PickCell({ icon: Icon, label, selected = false, onClick, size = 20 }) {
+  return (
+    <button
+      type="button"
+      className={`bb-explore-pick${selected ? ' is-on' : ''}`}
+      aria-pressed={selected}
+      onClick={onClick}
+    >
+      <span className="bb-explore-pick-icon" aria-hidden="true">
+        <Icon size={size} strokeWidth={1.75} />
+      </span>
+      <span className="bb-explore-pick-label">{label}</span>
+    </button>
+  );
 }
 
 /**
- * Local-first discovery: Book/Buy + parent groups → chips in the search field.
+ * Wizard discovery: Book/Buy/Both → categories → subcategories as matching tiles.
+ * Every tile becomes a removable pill; Done & Search closes with current filters.
  */
 export function ExploreDiscoveryBar({
   mode = 'local',
@@ -95,17 +139,25 @@ export function ExploreDiscoveryBar({
   const inputRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(queryText);
+  /** Wizard step: mode → groups → leaves */
+  const [step, setStep] = useState('mode');
   const [activeGroupId, setActiveGroupId] = useState('');
+
   const selected = useMemo(() => new Set(categoryIds.map(String)), [categoryIds]);
   const selectedList = useMemo(() => [...selected], [selected]);
+  const modeChip = selectedModeId(selectedList);
+  const modeKey = modeKeyFromChip(modeChip);
 
   useEffect(() => {
     setDraft(queryText);
   }, [queryText]);
 
   useEffect(() => {
-    if (!open) setActiveGroupId('');
-  }, [open]);
+    if (!open) {
+      setStep(modeChip ? 'groups' : 'mode');
+      setActiveGroupId('');
+    }
+  }, [open, modeChip]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -114,8 +166,14 @@ export function ExploreDiscoveryBar({
     };
     const onKey = (event) => {
       if (event.key === 'Escape') {
-        if (activeGroupId) setActiveGroupId('');
-        else setOpen(false);
+        if (step === 'leaves') {
+          setStep('groups');
+          setActiveGroupId('');
+        } else if (step === 'groups' && modeChip) {
+          setStep('mode');
+        } else {
+          setOpen(false);
+        }
       }
     };
     document.addEventListener('mousedown', onPointer);
@@ -124,21 +182,42 @@ export function ExploreDiscoveryBar({
       document.removeEventListener('mousedown', onPointer);
       document.removeEventListener('keydown', onKey);
     };
-  }, [open, activeGroupId]);
+  }, [open, step, modeChip]);
 
-  const activeModeBrowse = parseModeGroup(activeGroupId);
-  const activeGroup = !activeModeBrowse && activeGroupId ? getCategoryGroupById(activeGroupId) : null;
+  const activeGroup = activeGroupId ? getCategoryGroupById(activeGroupId) : null;
+  const visibleGroups = useMemo(() => groupsForExploreMode(modeKey), [modeKey]);
+  const bookGroups = useMemo(() => bookCategoryGroups(), []);
+  const buyGroups = useMemo(() => buyCategoryGroups(), []);
   const leafCategories = useMemo(() => {
-    if (activeModeBrowse) return categoriesForMode(activeModeBrowse);
-    if (activeGroupId) return categoriesInGroup(activeGroupId);
-    return [];
-  }, [activeGroupId, activeModeBrowse]);
+    if (!activeGroupId) return [];
+    const leaves = categoriesInGroup(activeGroupId);
+    if (modeKey === 'all' || modeKey === 'both') return leaves;
+    return leaves.filter((item) => item.modes.includes(modeKey));
+  }, [activeGroupId, modeKey]);
+
+  const renderGroupGrid = (groups) => (
+    <div className="bb-explore-pick-grid">
+      {groups.map((group) => {
+        const Icon = GROUP_ICONS[group.icon] || Sparkles;
+        const chipId = `group:${group.id}`;
+        return (
+          <PickCell
+            key={group.id}
+            icon={Icon}
+            label={group.label}
+            selected={selected.has(chipId)}
+            onClick={() => pickGroup(group.id)}
+          />
+        );
+      })}
+    </div>
+  );
 
   const typed = draft.trim();
   const matchingGroups = useMemo(() => searchCategoryGroups(typed), [typed]);
   const matchingLeaves = useMemo(
-    () => (typed ? searchCategories(typed, 'all').slice(0, 10) : []),
-    [typed]
+    () => (typed ? searchCategories(typed, modeKey === 'both' ? 'all' : modeKey).slice(0, 10) : []),
+    [typed, modeKey]
   );
   const matchingModes = useMemo(() => {
     if (!typed) return EXPLORE_MODE_FILTERS;
@@ -154,68 +233,127 @@ export function ExploreDiscoveryBar({
       ? clientCountryCode
       : 'Near you';
 
+  const keepOpenFocus = () => {
+    setOpen(true);
+    inputRef.current?.focus();
+  };
+
+  const rememberLabel = (id) => {
+    const label = categoryLabel(id);
+    if (label) onSearchHistoryChange?.(pushHistory(searchHistory, label));
+  };
+
+  const setChips = (nextIds, historyId) => {
+    onCategoryIdsChange?.(nextIds);
+    if (historyId) rememberLabel(historyId);
+  };
+
+  const clearCategory = (id) => {
+    const next = categoryIds.filter((item) => item !== id);
+    onCategoryIdsChange?.(next);
+    if (isExploreModeFilterId(id)) {
+      setStep('mode');
+      setActiveGroupId('');
+    } else if (isExploreGroupFilterId(id) && activeGroupId === id.slice('group:'.length)) {
+      setStep('groups');
+      setActiveGroupId('');
+    }
+    keepOpenFocus();
+  };
+
+  const pickMode = (modeId) => {
+    const withoutModes = selectedList.filter((id) => !isExploreModeFilterId(id));
+    setChips([...withoutModes, modeId], modeId);
+    setStep('groups');
+    setActiveGroupId('');
+    setDraft('');
+    onQueryChange?.('');
+    keepOpenFocus();
+  };
+
+  const pickGroup = (groupId, { ensureMode = false } = {}) => {
+    const chipId = `group:${groupId}`;
+    const withoutModes = selectedList.filter((id) => !isExploreModeFilterId(id));
+    const withoutGroups = withoutModes.filter((id) => !isExploreGroupFilterId(id));
+    const modeId = modeChip || (ensureMode ? 'mode:both' : '');
+    const next = [
+      ...(modeId ? [modeId] : []),
+      ...withoutGroups.filter((id) => id !== chipId),
+      chipId
+    ];
+    setChips(next, chipId);
+    setActiveGroupId(groupId);
+    setStep('leaves');
+    setDraft('');
+    onQueryChange?.('');
+    keepOpenFocus();
+  };
+
+  const toggleLeaf = (id) => {
+    const next = new Set(selected);
+    const wasOn = next.has(id);
+    if (wasOn) next.delete(id);
+    else next.add(id);
+    setChips([...next], wasOn ? '' : id);
+    keepOpenFocus();
+  };
+
   const commitSearch = (term = draft) => {
     const next = String(term || '').trim();
+    setDraft(next);
     onQueryChange?.(next);
     if (next) onSearchHistoryChange?.(pushHistory(searchHistory, next));
     setOpen(false);
     setActiveGroupId('');
   };
 
-  const toggleCategory = (id) => {
-    const next = new Set(selected);
-    const wasOn = next.has(id);
-    if (wasOn) next.delete(id);
-    else next.add(id);
-    onCategoryIdsChange?.([...next]);
-    if (!wasOn) {
-      const label = categoryLabel(id);
-      if (label) onSearchHistoryChange?.(pushHistory(searchHistory, label));
+  const applyRecent = (term) => {
+    const chipId = resolveExploreChipFromLabel(term);
+    if (chipId) {
+      setDraft('');
+      onQueryChange?.('');
+      if (isExploreModeFilterId(chipId)) {
+        pickMode(chipId);
+        return;
+      }
+      if (isExploreGroupFilterId(chipId)) {
+        pickGroup(chipId.slice('group:'.length), { ensureMode: true });
+        return;
+      }
+      const next = selected.has(chipId) ? selectedList : [...selectedList, chipId];
+      setChips(next, chipId);
+      setStep(modeChip ? 'groups' : 'mode');
+      keepOpenFocus();
+      return;
     }
-    inputRef.current?.focus();
+    commitSearch(term);
   };
 
-  const ensureChip = (id) => {
-    if (selected.has(id)) return;
-    const next = [...selectedList, id];
-    onCategoryIdsChange?.(next);
-    const label = categoryLabel(id);
-    if (label) onSearchHistoryChange?.(pushHistory(searchHistory, label));
-  };
-
-  const openModeBrowse = (mode) => {
-    ensureChip(`mode:${mode}`);
-    setActiveGroupId(modeGroupId(mode));
-    setDraft('');
-    onQueryChange?.('');
-    inputRef.current?.focus();
-  };
-
-  const openGroupBrowse = (groupId) => {
-    ensureChip(`group:${groupId}`);
-    setActiveGroupId(groupId);
-    setDraft('');
-    onQueryChange?.('');
-    inputRef.current?.focus();
-  };
-
-  const clearCategory = (id) => {
-    onCategoryIdsChange?.(categoryIds.filter((item) => item !== id));
+  const goBack = () => {
+    if (step === 'leaves') {
+      setStep('groups');
+      setActiveGroupId('');
+    } else if (step === 'groups') {
+      setStep('mode');
+    }
+    keepOpenFocus();
   };
 
   const chipClassName = (id) => {
-    if (isExploreModeFilterId(id)) return 'bb-explore-search-chip is-mode';
-    if (isExploreGroupFilterId(id)) return 'bb-explore-search-chip is-group';
-    return 'bb-explore-search-chip';
+    if (isExploreModeFilterId(id)) return 'bb-explore-chip is-mode';
+    if (isExploreGroupFilterId(id)) return 'bb-explore-chip is-group';
+    return 'bb-explore-chip';
   };
 
   const hasChips = selectedList.length > 0;
   const showPanel = open;
-  const browseTitle = activeModeBrowse
-    ? activeModeBrowse === 'book'
-      ? 'Book'
-      : 'Buy'
-    : activeGroup?.label || 'Categories';
+  const groupIcon = activeGroup ? GROUP_ICONS[activeGroup.icon] || Sparkles : Sparkles;
+  const stepTitle =
+    step === 'mode'
+      ? 'Book or buy?'
+      : step === 'groups'
+        ? 'Categories'
+        : activeGroup?.label || 'Industries';
 
   return (
     <div className="bb-explore-discovery" ref={rootRef}>
@@ -278,14 +416,11 @@ export function ExploreDiscoveryBar({
         }`}
       >
         <div
-          className={`bb-search-field bb-explore-search-field${hasChips ? ' has-chips' : ''}`}
-          onClick={() => {
-            setOpen(true);
-            inputRef.current?.focus();
-          }}
+          className={`bb-explore-chip-field${hasChips ? ' has-chips' : ''}`}
+          onClick={() => keepOpenFocus()}
         >
-          <Search size={16} strokeWidth={2.2} className="bb-search-field-icon" aria-hidden="true" />
-          <div className="bb-explore-search-inner">
+          <Search size={16} strokeWidth={2.2} className="bb-explore-chip-field-icon" aria-hidden="true" />
+          <div className="bb-explore-chip-field-inner">
             {selectedList.map((id) => (
               <button
                 key={id}
@@ -298,14 +433,14 @@ export function ExploreDiscoveryBar({
                 }}
               >
                 <span>{categoryLabel(id, id)}</span>
-                <X size={11} strokeWidth={2.6} aria-hidden="true" />
+                <X size={12} strokeWidth={2.6} aria-hidden="true" />
               </button>
             ))}
             <input
               ref={inputRef}
               id={searchId}
-              type="search"
-              className="native-search-input"
+              type="text"
+              className="bb-explore-chip-input"
               value={draft}
               placeholder={hasChips ? 'Add more…' : 'Search places, posts, or industries'}
               autoCapitalize="none"
@@ -319,7 +454,6 @@ export function ExploreDiscoveryBar({
                 setDraft(next);
                 onQueryChange?.(next);
                 setOpen(true);
-                if (next.trim()) setActiveGroupId('');
               }}
               onKeyDown={(event) => {
                 if (event.key === 'Backspace' && !draft && selectedList.length) {
@@ -336,16 +470,16 @@ export function ExploreDiscoveryBar({
           {draft || hasChips ? (
             <button
               type="button"
-              className="bb-explore-search-clear"
+              className="bb-explore-chip-field-clear"
               aria-label="Clear search"
               onClick={(event) => {
                 event.stopPropagation();
                 setDraft('');
                 onQueryChange?.('');
                 onCategoryIdsChange?.([]);
+                setStep('mode');
                 setActiveGroupId('');
-                inputRef.current?.focus();
-                setOpen(true);
+                keepOpenFocus();
               }}
             >
               <X size={14} strokeWidth={2.4} />
@@ -360,7 +494,7 @@ export function ExploreDiscoveryBar({
             role="listbox"
             aria-label="Search suggestions"
           >
-            {searchHistory.length > 0 && !typed && !activeGroupId ? (
+            {searchHistory.length > 0 && !typed && step === 'mode' ? (
               <section className="bb-explore-search-section">
                 <header className="bb-explore-search-section-head">
                   <span>Recent</span>
@@ -378,10 +512,7 @@ export function ExploreDiscoveryBar({
                       <button
                         type="button"
                         className="bb-explore-search-history-item"
-                        onClick={() => {
-                          setDraft(term);
-                          commitSearch(term);
-                        }}
+                        onClick={() => applyRecent(term)}
                       >
                         <Clock3 size={14} strokeWidth={2.2} aria-hidden="true" />
                         <span>{term}</span>
@@ -394,68 +525,54 @@ export function ExploreDiscoveryBar({
 
             <section className="bb-explore-search-section">
               <header className="bb-explore-search-section-head">
-                {activeGroupId ? (
-                  <button
-                    type="button"
-                    className="bb-explore-search-back"
-                    onClick={() => setActiveGroupId('')}
-                  >
+                {step !== 'mode' && !typed ? (
+                  <button type="button" className="bb-explore-search-back" onClick={goBack}>
                     <ArrowLeft size={14} strokeWidth={2.3} aria-hidden="true" />
-                    {browseTitle}
+                    {stepTitle}
                   </button>
                 ) : (
-                  <span>{typed ? 'Results' : 'Categories'}</span>
+                  <span>{typed ? 'Results' : stepTitle}</span>
                 )}
               </header>
 
-              {activeGroupId ? (
+              {typed ? (
                 <div className="bb-explore-search-cat-list">
-                  {leafCategories.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={`bb-explore-search-cat${selected.has(item.id) ? ' is-on' : ''}`}
-                      onClick={() => toggleCategory(item.id)}
-                    >
-                      <span>{item.label}</span>
-                      <span className="bb-explore-search-cat-mode">
-                        {item.modes.includes('book') && item.modes.includes('buy')
-                          ? 'Book · Buy'
-                          : item.modes[0] === 'book'
-                            ? 'Book'
-                            : 'Buy'}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              ) : typed ? (
-                <div className="bb-explore-search-cat-list">
-                  {matchingModes.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      className={`bb-explore-search-cat${selected.has(item.id) ? ' is-on' : ''}`}
-                      onClick={() => openModeBrowse(item.mode)}
-                    >
-                      <span>{item.label}</span>
-                      <span className="bb-explore-search-cat-mode">All</span>
-                    </button>
-                  ))}
+                  {matchingModes.map((item) => {
+                    const Icon = MODE_ICONS[item.mode] || Sparkles;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        className={`bb-explore-pick-row${selected.has(item.id) ? ' is-on' : ''}`}
+                        onClick={() => pickMode(item.id)}
+                      >
+                        <span className="bb-explore-pick-icon" aria-hidden="true">
+                          <Icon size={16} strokeWidth={1.9} />
+                        </span>
+                        <span className="bb-explore-pick-row-copy">
+                          <strong>{item.label}</strong>
+                          <span className="bb-explore-pick-row-meta">Filter</span>
+                        </span>
+                        <ChevronRight size={16} strokeWidth={2.2} aria-hidden="true" />
+                      </button>
+                    );
+                  })}
                   {matchingGroups.map((group) => {
                     const Icon = GROUP_ICONS[group.icon] || Sparkles;
+                    const chipId = `group:${group.id}`;
                     return (
                       <button
                         key={`g-${group.id}`}
                         type="button"
-                        className="bb-explore-search-parent is-row"
-                        onClick={() => openGroupBrowse(group.id)}
+                        className={`bb-explore-pick-row${selected.has(chipId) ? ' is-on' : ''}`}
+                        onClick={() => pickGroup(group.id, { ensureMode: true })}
                       >
-                        <span className="bb-explore-search-parent-icon" aria-hidden="true">
+                        <span className="bb-explore-pick-icon" aria-hidden="true">
                           <Icon size={16} strokeWidth={1.9} />
                         </span>
-                        <span className="bb-explore-search-parent-copy">
+                        <span className="bb-explore-pick-row-copy">
                           <strong>{group.label}</strong>
-                          <span className="bb-explore-search-parent-meta">
+                          <span className="bb-explore-pick-row-meta">
                             {group.categoryIds.length} industries
                           </span>
                         </span>
@@ -467,12 +584,21 @@ export function ExploreDiscoveryBar({
                     <button
                       key={item.id}
                       type="button"
-                      className={`bb-explore-search-cat${selected.has(item.id) ? ' is-on' : ''}`}
-                      onClick={() => toggleCategory(item.id)}
+                      className={`bb-explore-pick-row${selected.has(item.id) ? ' is-on' : ''}`}
+                      onClick={() => toggleLeaf(item.id)}
                     >
-                      <span>{item.label}</span>
-                      <span className="bb-explore-search-cat-mode">
-                        {item.modes[0] === 'book' ? 'Book' : 'Buy'}
+                      <span className="bb-explore-pick-icon" aria-hidden="true">
+                        <Sparkles size={16} strokeWidth={1.9} />
+                      </span>
+                      <span className="bb-explore-pick-row-copy">
+                        <strong>{item.label}</strong>
+                        <span className="bb-explore-pick-row-meta">
+                          {item.modes.includes('book') && item.modes.includes('buy')
+                            ? 'Book · Buy'
+                            : item.modes[0] === 'book'
+                              ? 'Book'
+                              : 'Buy'}
+                        </span>
                       </span>
                     </button>
                   ))}
@@ -481,60 +607,64 @@ export function ExploreDiscoveryBar({
                   matchingLeaves.length === 0 ? (
                     <p className="bb-explore-search-empty">No categories match that.</p>
                   ) : null}
-                  <button
-                    type="button"
-                    className="bb-explore-search-submit"
-                    onClick={() => commitSearch(draft)}
-                  >
-                    Search “{typed}”
-                  </button>
                 </div>
+              ) : step === 'mode' ? (
+                <div className="bb-explore-pick-grid bb-explore-pick-modes-grid">
+                  {EXPLORE_MODE_FILTERS.map((item) => {
+                    const Icon = MODE_ICONS[item.mode] || Sparkles;
+                    return (
+                      <PickCell
+                        key={item.id}
+                        icon={Icon}
+                        label={item.label}
+                        size={22}
+                        selected={selected.has(item.id)}
+                        onClick={() => pickMode(item.id)}
+                      />
+                    );
+                  })}
+                </div>
+              ) : step === 'groups' ? (
+                modeKey === 'both' ? (
+                  <div className="bb-explore-pick-split-wrap">
+                    <div className="bb-explore-pick-split-block">
+                      <p className="bb-explore-pick-split-label">Book</p>
+                      {renderGroupGrid(bookGroups)}
+                    </div>
+                    <div className="bb-explore-pick-split" role="separator" aria-hidden="true" />
+                    <div className="bb-explore-pick-split-block">
+                      <p className="bb-explore-pick-split-label">Buy</p>
+                      {renderGroupGrid(buyGroups)}
+                    </div>
+                  </div>
+                ) : (
+                  renderGroupGrid(visibleGroups)
+                )
               ) : (
-                <>
-                  <div className="bb-explore-search-mode-tiles">
-                    {EXPLORE_MODE_FILTERS.map((item) => {
-                      const Icon = MODE_ICONS[item.mode] || Sparkles;
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className={`bb-explore-search-parent bb-explore-search-mode-tile${
-                            selected.has(item.id) ? ' is-on' : ''
-                          }`}
-                          onClick={() => openModeBrowse(item.mode)}
-                        >
-                          <span className="bb-explore-search-parent-icon" aria-hidden="true">
-                            <Icon size={18} strokeWidth={1.85} />
-                          </span>
-                          <span className="bb-explore-search-parent-label">{item.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className="bb-explore-search-parent-grid">
-                    {BUSINESS_CATEGORY_GROUPS.map((group) => {
-                      const Icon = GROUP_ICONS[group.icon] || Sparkles;
-                      const chipId = `group:${group.id}`;
-                      return (
-                        <button
-                          key={group.id}
-                          type="button"
-                          className={`bb-explore-search-parent${
-                            selected.has(chipId) ? ' is-on' : ''
-                          }`}
-                          onClick={() => openGroupBrowse(group.id)}
-                        >
-                          <span className="bb-explore-search-parent-icon" aria-hidden="true">
-                            <Icon size={18} strokeWidth={1.85} />
-                          </span>
-                          <span className="bb-explore-search-parent-label">{group.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
+                <div className="bb-explore-pick-grid">
+                  {leafCategories.map((item) => (
+                    <PickCell
+                      key={item.id}
+                      icon={groupIcon}
+                      label={item.label}
+                      selected={selected.has(item.id)}
+                      onClick={() => toggleLeaf(item.id)}
+                    />
+                  ))}
+                  {leafCategories.length === 0 ? (
+                    <p className="bb-explore-search-empty">No industries in this category.</p>
+                  ) : null}
+                </div>
               )}
             </section>
+
+            <button
+              type="button"
+              className="bb-explore-search-submit"
+              onClick={() => commitSearch(draft)}
+            >
+              Done &amp; search
+            </button>
           </div>
         ) : null}
       </div>

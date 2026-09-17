@@ -157,7 +157,12 @@ export function ClientExplorePage() {
   const directory = useMemo(() => {
     const map = new Map();
     const localSlug = String(workspace?.slug || '').trim();
-    if (localSlug && (isDemo || workspace?.brandName)) {
+    if (
+      localSlug &&
+      (isDemo || workspace?.brandName) &&
+      localSlug !== 'flameandflour' &&
+      localSlug !== 'flour-and-flame'
+    ) {
       const local = normalizeBiz({
         slug: localSlug,
         ownerId: workspace?.ownerId || workspace?.id || '',
@@ -169,27 +174,9 @@ export function ClientExplorePage() {
       if (local) map.set(local.slug, local);
     }
     remote.forEach((biz) => {
-      if (!isDemo && (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame')) return;
+      if (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame') return;
       map.set(biz.slug, biz);
     });
-    if (isDemo && !map.has('flameandflour')) {
-      map.set(
-        'flameandflour',
-        normalizeBiz({
-          slug: 'flameandflour',
-          brandName: 'Flame & Flour',
-          tagline: 'Artisan bakery · book tastings, buy boxes.',
-          categoryId: 'cooking_classes',
-          categoryLabel: 'Cooking classes & culinary studios',
-          venueMode: 'hybrid',
-          locationLat: -33.9285,
-          locationLng: 18.4574,
-          countryCode: 'ZA',
-          city: 'Cape Town',
-          servesCountries: ['ZA', '*']
-        })
-      );
-    }
     return [...map.values()];
   }, [workspace, remote, isDemo]);
 
@@ -224,7 +211,10 @@ export function ClientExplorePage() {
     (async () => {
       const localSlug = String(workspace?.slug || '').trim();
       const localPosts =
-        localSlug && (isDemo || (workspace?.socialPosts || []).length)
+        localSlug &&
+        localSlug !== 'flameandflour' &&
+        localSlug !== 'flour-and-flame' &&
+        (isDemo || (workspace?.socialPosts || []).length)
           ? annotateSocialPosts(workspace?.socialPosts || [], {
               slug: localSlug,
               brandName: workspace?.brandName || localSlug,
@@ -236,7 +226,7 @@ export function ClientExplorePage() {
       if (isFirebaseConfigured()) {
         for (const biz of directory) {
           if (biz.slug === localSlug) continue;
-          if (!isDemo && (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame')) continue;
+          if (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame') continue;
           try {
             const snap = await loadPublicWorkspaceFromFirestore(biz.slug);
             if (!snap || cancelled) continue;
@@ -443,9 +433,7 @@ export function ClientExplorePage() {
             onMaxKmChange={(km) =>
               startTransition(() => updateExplorePrefs({ exploreMaxKm: km }))
             }
-            onCategoryIdsChange={(ids) =>
-              startTransition(() => updateExplorePrefs({ exploreCategoryIds: ids }))
-            }
+            onCategoryIdsChange={(ids) => updateExplorePrefs({ exploreCategoryIds: ids })}
             onQueryChange={(value) => startTransition(() => setQueryText(value))}
             onSearchHistoryChange={(history) =>
               updateExplorePrefs({ exploreSearchHistory: history })

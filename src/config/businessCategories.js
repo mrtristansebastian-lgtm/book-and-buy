@@ -177,13 +177,41 @@ export const BUSINESS_CATEGORIES = [
     icon: 'Baby',
     keywords: ['kids', 'children', 'play', 'activities']
   },
-  // Buy
+  // Buy — legacy leaves (kept for existing categoryId values) + new subcategories
   {
     id: 'fashion',
     label: 'Fashion & apparel',
     modes: ['buy'],
     icon: 'Shirt',
     keywords: ['fashion', 'apparel', 'clothing', 'clothes']
+  },
+  {
+    id: 'fashion_womens',
+    label: 'Women’s fashion',
+    modes: ['buy'],
+    icon: 'Shirt',
+    keywords: ['women', 'womens', 'fashion', 'dress']
+  },
+  {
+    id: 'fashion_mens',
+    label: 'Men’s fashion',
+    modes: ['buy'],
+    icon: 'Shirt',
+    keywords: ['men', 'mens', 'fashion']
+  },
+  {
+    id: 'fashion_kids',
+    label: 'Kids’ fashion',
+    modes: ['buy'],
+    icon: 'Shirt',
+    keywords: ['kids', 'children', 'fashion']
+  },
+  {
+    id: 'fashion_streetwear',
+    label: 'Streetwear',
+    modes: ['buy'],
+    icon: 'Shirt',
+    keywords: ['streetwear', 'sneakers', 'urban']
   },
   {
     id: 'jewelry',
@@ -193,11 +221,32 @@ export const BUSINESS_CATEGORIES = [
     keywords: ['jewelry', 'jewellery', 'accessories']
   },
   {
-    id: 'home_decor',
-    label: 'Home & decor',
+    id: 'jewelry_fine',
+    label: 'Fine jewelry',
     modes: ['buy'],
-    icon: 'Lamp',
-    keywords: ['home', 'decor', 'furniture']
+    icon: 'Gem',
+    keywords: ['fine', 'gold', 'diamond', 'jewelry']
+  },
+  {
+    id: 'jewelry_fashion',
+    label: 'Fashion jewelry',
+    modes: ['buy'],
+    icon: 'Gem',
+    keywords: ['fashion', 'costume', 'jewelry']
+  },
+  {
+    id: 'jewelry_watches',
+    label: 'Watches',
+    modes: ['buy'],
+    icon: 'Gem',
+    keywords: ['watch', 'watches', 'timepiece']
+  },
+  {
+    id: 'jewelry_bags',
+    label: 'Bags & wallets',
+    modes: ['buy'],
+    icon: 'Gem',
+    keywords: ['bag', 'handbag', 'wallet', 'purse']
   },
   {
     id: 'art_prints',
@@ -207,6 +256,27 @@ export const BUSINESS_CATEGORIES = [
     keywords: ['art', 'prints', 'gallery']
   },
   {
+    id: 'art_originals',
+    label: 'Original art',
+    modes: ['buy'],
+    icon: 'Image',
+    keywords: ['original', 'painting', 'artwork']
+  },
+  {
+    id: 'art_print_editions',
+    label: 'Print editions',
+    modes: ['buy'],
+    icon: 'Image',
+    keywords: ['print', 'poster', 'edition']
+  },
+  {
+    id: 'art_photo_prints',
+    label: 'Photo prints',
+    modes: ['buy'],
+    icon: 'Image',
+    keywords: ['photo', 'print', 'photography']
+  },
+  {
     id: 'handmade',
     label: 'Handmade & craft goods',
     modes: ['buy'],
@@ -214,11 +284,221 @@ export const BUSINESS_CATEGORIES = [
     keywords: ['handmade', 'craft', 'artisan']
   },
   {
+    id: 'handmade_ceramics',
+    label: 'Ceramics',
+    modes: ['buy'],
+    icon: 'Hand',
+    keywords: ['ceramic', 'pottery', 'clay']
+  },
+  {
+    id: 'handmade_textiles',
+    label: 'Textiles',
+    modes: ['buy'],
+    icon: 'Hand',
+    keywords: ['textile', 'fabric', 'woven']
+  },
+  {
+    id: 'handmade_gifts',
+    label: 'Handmade gifts',
+    modes: ['buy'],
+    icon: 'Hand',
+    keywords: ['gift', 'handmade', 'present']
+  },
+  {
+    id: 'vintage_thrift',
+    label: 'Vintage & thrift',
+    modes: ['buy'],
+    icon: 'ShoppingBag',
+    keywords: ['vintage', 'thrift', 'secondhand']
+  },
+  {
+    id: 'vintage_clothing',
+    label: 'Vintage clothing',
+    modes: ['buy'],
+    icon: 'ShoppingBag',
+    keywords: ['vintage', 'clothing', 'thrift']
+  },
+  {
+    id: 'vintage_home',
+    label: 'Vintage home',
+    modes: ['buy'],
+    icon: 'ShoppingBag',
+    keywords: ['vintage', 'home', 'furniture']
+  },
+  {
+    id: 'vintage_collectibles',
+    label: 'Collectibles',
+    modes: ['buy'],
+    icon: 'ShoppingBag',
+    keywords: ['collectible', 'antique', 'rare']
+  },
+  {
+    id: 'sports_gear',
+    label: 'Sports & outdoor gear',
+    modes: ['buy'],
+    icon: 'Bike',
+    keywords: ['sports', 'gear', 'outdoor', 'equipment']
+  },
+  {
+    id: 'sports_apparel',
+    label: 'Sports apparel',
+    modes: ['buy'],
+    icon: 'Bike',
+    keywords: ['sports', 'apparel', 'athleisure']
+  },
+  {
+    id: 'sports_equipment',
+    label: 'Sports equipment',
+    modes: ['buy'],
+    icon: 'Bike',
+    keywords: ['equipment', 'gear', 'sports']
+  },
+  {
+    id: 'sports_outdoor',
+    label: 'Outdoor gear',
+    modes: ['buy'],
+    icon: 'Bike',
+    keywords: ['outdoor', 'camping', 'hiking']
+  },
+  {
+    id: 'books_stationery',
+    label: 'Books & stationery',
+    modes: ['buy'],
+    icon: 'BookOpen',
+    keywords: ['books', 'stationery', 'paper']
+  },
+  {
+    id: 'books_reading',
+    label: 'Books',
+    modes: ['buy'],
+    icon: 'BookOpen',
+    keywords: ['book', 'reading', 'novel']
+  },
+  {
+    id: 'books_stationery_supplies',
+    label: 'Stationery',
+    modes: ['buy'],
+    icon: 'BookOpen',
+    keywords: ['stationery', 'pen', 'notebook']
+  },
+  {
+    id: 'books_journals',
+    label: 'Journals & planners',
+    modes: ['buy'],
+    icon: 'BookOpen',
+    keywords: ['journal', 'planner', 'diary']
+  },
+  {
+    id: 'electronics_acc',
+    label: 'Electronics accessories',
+    modes: ['buy'],
+    icon: 'Smartphone',
+    keywords: ['electronics', 'accessories', 'gadgets']
+  },
+  {
+    id: 'electronics_phone',
+    label: 'Phone accessories',
+    modes: ['buy'],
+    icon: 'Smartphone',
+    keywords: ['phone', 'case', 'charger']
+  },
+  {
+    id: 'electronics_audio',
+    label: 'Audio',
+    modes: ['buy'],
+    icon: 'Smartphone',
+    keywords: ['audio', 'headphones', 'earbuds']
+  },
+  {
+    id: 'electronics_gifts',
+    label: 'Tech gifts',
+    modes: ['buy'],
+    icon: 'Smartphone',
+    keywords: ['tech', 'gadget', 'gift']
+  },
+  {
+    id: 'digital_goods',
+    label: 'Digital downloads & creative assets',
+    modes: ['buy'],
+    icon: 'Download',
+    keywords: ['digital', 'download', 'assets', 'templates']
+  },
+  {
+    id: 'digital_templates',
+    label: 'Templates',
+    modes: ['buy'],
+    icon: 'Download',
+    keywords: ['template', 'canva', 'digital']
+  },
+  {
+    id: 'digital_fonts',
+    label: 'Fonts & graphics',
+    modes: ['buy'],
+    icon: 'Download',
+    keywords: ['font', 'graphic', 'illustration']
+  },
+  {
+    id: 'digital_courses',
+    label: 'Digital courses',
+    modes: ['buy'],
+    icon: 'Download',
+    keywords: ['course', 'ebook', 'download']
+  },
+  {
     id: 'beauty_retail',
     label: 'Beauty & cosmetics retail',
     modes: ['buy'],
     icon: 'Sparkles',
     keywords: ['beauty', 'cosmetics', 'skincare']
+  },
+  {
+    id: 'beauty_skincare',
+    label: 'Skincare',
+    modes: ['buy'],
+    icon: 'Sparkles',
+    keywords: ['skincare', 'serum', 'moisturizer']
+  },
+  {
+    id: 'beauty_makeup',
+    label: 'Makeup',
+    modes: ['buy'],
+    icon: 'Sparkles',
+    keywords: ['makeup', 'cosmetics', 'lipstick']
+  },
+  {
+    id: 'beauty_haircare',
+    label: 'Haircare',
+    modes: ['buy'],
+    icon: 'Sparkles',
+    keywords: ['haircare', 'shampoo', 'hair']
+  },
+  {
+    id: 'home_decor',
+    label: 'Home & decor',
+    modes: ['buy'],
+    icon: 'Lamp',
+    keywords: ['home', 'decor', 'furniture']
+  },
+  {
+    id: 'home_furniture',
+    label: 'Furniture',
+    modes: ['buy'],
+    icon: 'Lamp',
+    keywords: ['furniture', 'sofa', 'table']
+  },
+  {
+    id: 'home_soft',
+    label: 'Soft furnishings',
+    modes: ['buy'],
+    icon: 'Lamp',
+    keywords: ['cushion', 'linen', 'rug', 'textile']
+  },
+  {
+    id: 'home_accents',
+    label: 'Home accents',
+    modes: ['buy'],
+    icon: 'Lamp',
+    keywords: ['accent', 'vase', 'candle', 'decor']
   },
   {
     id: 'bakery_specialty',
@@ -235,11 +515,53 @@ export const BUSINESS_CATEGORIES = [
     keywords: ['restaurant', 'takeaway', 'takeout', 'cafe', 'dining', 'food', 'delivery']
   },
   {
+    id: 'food_bakery',
+    label: 'Bakery boxes',
+    modes: ['buy'],
+    icon: 'Cookie',
+    keywords: ['bakery', 'pastry', 'cake']
+  },
+  {
+    id: 'food_pantry',
+    label: 'Specialty pantry',
+    modes: ['buy'],
+    icon: 'Cookie',
+    keywords: ['pantry', 'specialty', 'gourmet']
+  },
+  {
+    id: 'food_prepared',
+    label: 'Prepared meals',
+    modes: ['buy'],
+    icon: 'UtensilsCrossed',
+    keywords: ['prepared', 'meal', 'takeaway']
+  },
+  {
     id: 'florists_retail',
     label: 'Florists',
     modes: ['buy'],
     icon: 'Flower',
     keywords: ['florist', 'flowers', 'bouquet']
+  },
+  {
+    id: 'florist_bouquets',
+    label: 'Bouquets',
+    modes: ['buy'],
+    icon: 'Flower',
+    keywords: ['bouquet', 'flowers', 'arrangement']
+  },
+  {
+    id: 'florist_plants',
+    label: 'Plants',
+    modes: ['buy'],
+    icon: 'Flower',
+    keywords: ['plant', 'succulent', 'indoor']
+  },
+  {
+    id: 'florist_events',
+    label: 'Event flowers',
+    modes: ['buy'],
+    icon: 'Flower',
+    keywords: ['wedding', 'event', 'flowers']
   },
   {
     id: 'pet_supplies',
@@ -249,39 +571,25 @@ export const BUSINESS_CATEGORIES = [
     keywords: ['pet', 'supplies', 'food']
   },
   {
-    id: 'sports_gear',
-    label: 'Sports & outdoor gear',
+    id: 'pet_food',
+    label: 'Pet food',
     modes: ['buy'],
-    icon: 'Bike',
-    keywords: ['sports', 'gear', 'outdoor', 'equipment']
+    icon: 'PawPrint',
+    keywords: ['pet', 'food', 'treats']
   },
   {
-    id: 'books_stationery',
-    label: 'Books & stationery',
+    id: 'pet_toys',
+    label: 'Pet toys',
     modes: ['buy'],
-    icon: 'BookOpen',
-    keywords: ['books', 'stationery', 'paper']
+    icon: 'PawPrint',
+    keywords: ['pet', 'toy', 'play']
   },
   {
-    id: 'electronics_acc',
-    label: 'Electronics accessories',
+    id: 'pet_grooming_products',
+    label: 'Grooming products',
     modes: ['buy'],
-    icon: 'Smartphone',
-    keywords: ['electronics', 'accessories', 'gadgets']
-  },
-  {
-    id: 'vintage_thrift',
-    label: 'Vintage & thrift',
-    modes: ['buy'],
-    icon: 'ShoppingBag',
-    keywords: ['vintage', 'thrift', 'secondhand']
-  },
-  {
-    id: 'digital_goods',
-    label: 'Digital downloads & creative assets',
-    modes: ['buy'],
-    icon: 'Download',
-    keywords: ['digital', 'download', 'assets', 'templates']
+    icon: 'PawPrint',
+    keywords: ['pet', 'grooming', 'shampoo']
   }
 ];
 
@@ -295,6 +603,7 @@ export function categoryLabel(id, fallback = '') {
   const key = String(id || '').trim();
   if (key === 'mode:book') return 'Book';
   if (key === 'mode:buy') return 'Buy';
+  if (key === 'mode:both') return 'Both';
   if (key.startsWith('group:')) {
     const group = getCategoryGroupById(key.slice('group:'.length));
     return group?.label || String(fallback || '').trim();
@@ -305,23 +614,51 @@ export function categoryLabel(id, fallback = '') {
   return hit?.label || String(fallback || '').trim();
 }
 
-/** Explore search chips for Book / Buy mode filters. */
+/** Explore search chips for Book / Buy / Both mode filters. */
 export const EXPLORE_MODE_FILTERS = [
   { id: 'mode:book', label: 'Book', mode: 'book' },
-  { id: 'mode:buy', label: 'Buy', mode: 'buy' }
+  { id: 'mode:buy', label: 'Buy', mode: 'buy' },
+  { id: 'mode:both', label: 'Both', mode: 'both' }
 ];
 
 export function isExploreModeFilterId(id) {
-  return id === 'mode:book' || id === 'mode:buy';
+  return id === 'mode:book' || id === 'mode:buy' || id === 'mode:both';
 }
 
 export function isExploreGroupFilterId(id) {
   return String(id || '').startsWith('group:');
 }
 
+/**
+ * Map a Recent history label back to a chip id (mode / group / leaf), or '' if free text.
+ */
+export function resolveExploreChipFromLabel(label = '') {
+  const q = String(label || '')
+    .trim()
+    .toLowerCase();
+  if (!q) return '';
+
+  for (const item of EXPLORE_MODE_FILTERS) {
+    if (item.label.toLowerCase() === q || item.mode === q) return item.id;
+  }
+
+  for (const group of BUSINESS_CATEGORY_GROUPS) {
+    if (group.label.toLowerCase() === q || group.id.toLowerCase() === q) {
+      return `group:${group.id}`;
+    }
+  }
+
+  for (const item of BUSINESS_CATEGORIES) {
+    if (item.label.toLowerCase() === q || item.id.toLowerCase() === q) return item.id;
+  }
+
+  return '';
+}
+
 export function exploreModeFromFilterId(id) {
   if (id === 'mode:book') return 'book';
   if (id === 'mode:buy') return 'buy';
+  if (id === 'mode:both') return 'both';
   return '';
 }
 
@@ -332,8 +669,22 @@ export function exploreGroupIdFromFilterId(id) {
 }
 
 export function categoriesForMode(mode = 'all') {
-  if (mode === 'all') return BUSINESS_CATEGORIES;
+  if (mode === 'all' || mode === 'both') return BUSINESS_CATEGORIES;
   return BUSINESS_CATEGORIES.filter((item) => item.modes.includes(mode));
+}
+
+/** Category groups for the given explore mode (uses group.mode). */
+export function groupsForExploreMode(mode = 'all') {
+  if (!mode || mode === 'all' || mode === 'both') return BUSINESS_CATEGORY_GROUPS;
+  return BUSINESS_CATEGORY_GROUPS.filter((group) => group.mode === mode);
+}
+
+export function bookCategoryGroups() {
+  return BUSINESS_CATEGORY_GROUPS.filter((group) => group.mode === 'book');
+}
+
+export function buyCategoryGroups() {
+  return BUSINESS_CATEGORY_GROUPS.filter((group) => group.mode === 'buy');
 }
 
 /**
@@ -349,6 +700,11 @@ export function expandExploreCategoryFilter(categoryIds = []) {
     const id = String(raw || '').trim();
     if (!id) continue;
     const mode = exploreModeFromFilterId(id);
+    if (mode === 'both') {
+      modes.add('book');
+      modes.add('buy');
+      continue;
+    }
     if (mode) {
       modes.add(mode);
       continue;
@@ -415,23 +771,26 @@ export const DISTANCE_RINGS_KM = [5, 15, 30, 50, 100];
 export const BUSINESS_CATEGORY_GROUPS = [
   {
     id: 'beauty_body',
-    label: 'Beauty & body',
+    label: 'Beauty',
+    mode: 'book',
     icon: 'Sparkles',
-    keywords: ['beauty', 'hair', 'nails', 'spa', 'tattoo'],
-    categoryIds: ['beauty_hair', 'nails_brows', 'spa_wellness', 'body_art', 'beauty_retail']
+    keywords: ['beauty', 'hair', 'nails', 'spa', 'tattoo', 'body'],
+    categoryIds: ['beauty_hair', 'nails_brows', 'spa_wellness', 'body_art']
   },
   {
     id: 'fitness_movement',
-    label: 'Fitness & movement',
+    label: 'Fitness',
+    mode: 'book',
     icon: 'Dumbbell',
-    keywords: ['fitness', 'gym', 'yoga', 'dance', 'sports'],
+    keywords: ['fitness', 'gym', 'yoga', 'dance', 'sports', 'movement'],
     categoryIds: ['fitness_pt', 'yoga_pilates', 'dance', 'martial_arts', 'sports_coaching']
   },
   {
     id: 'learn_create',
-    label: 'Learn & create',
+    label: 'Learn',
+    mode: 'book',
     icon: 'GraduationCap',
-    keywords: ['learn', 'class', 'workshop', 'photo', 'music', 'tutor'],
+    keywords: ['learn', 'class', 'workshop', 'photo', 'music', 'tutor', 'create'],
     categoryIds: [
       'tutoring',
       'music_lessons',
@@ -442,62 +801,196 @@ export const BUSINESS_CATEGORY_GROUPS = [
   },
   {
     id: 'food_drink',
-    label: 'Food & drink',
+    label: 'Food',
+    mode: 'book',
     icon: 'UtensilsCrossed',
-    keywords: ['food', 'restaurant', 'bakery', 'catering', 'cafe'],
-    categoryIds: ['restaurants_takeaways', 'bakery_specialty', 'catering']
+    keywords: ['food', 'catering', 'culinary', 'class'],
+    categoryIds: ['catering']
   },
   {
     id: 'home_property',
-    label: 'Home & property',
+    label: 'Home',
+    mode: 'book',
     icon: 'Home',
-    keywords: ['home', 'clean', 'handyman', 'decor'],
-    categoryIds: ['home_cleaning', 'home_services', 'home_decor']
+    keywords: ['home', 'clean', 'handyman', 'property'],
+    categoryIds: ['home_cleaning', 'home_services']
   },
   {
     id: 'pets',
     label: 'Pets',
+    mode: 'book',
     icon: 'PawPrint',
     keywords: ['pet', 'dog', 'cat', 'grooming'],
-    categoryIds: ['pet_grooming', 'pet_supplies']
+    categoryIds: ['pet_grooming']
   },
   {
     id: 'auto',
     label: 'Auto',
+    mode: 'book',
     icon: 'Car',
     keywords: ['auto', 'car', 'detail', 'wash'],
     categoryIds: ['auto_detail']
   },
   {
     id: 'events_celebrate',
-    label: 'Events & celebrate',
+    label: 'Events',
+    mode: 'book',
     icon: 'PartyPopper',
-    keywords: ['event', 'wedding', 'party', 'florist', 'rental'],
-    categoryIds: ['events', 'wedding_vendors', 'florists_retail', 'rentals']
+    keywords: ['event', 'wedding', 'party', 'rental', 'celebrate'],
+    categoryIds: ['events', 'wedding_vendors', 'rentals']
   },
   {
     id: 'experiences_kids',
-    label: 'Experiences & kids',
+    label: 'Experiences',
+    mode: 'book',
     icon: 'Ticket',
     keywords: ['tour', 'kids', 'experience', 'studio', 'play'],
     categoryIds: ['tours_experiences', 'kids_activities', 'studios_spaces']
   },
   {
-    id: 'shop_style',
-    label: 'Shop & style',
-    icon: 'ShoppingBag',
-    keywords: ['shop', 'fashion', 'retail', 'vintage', 'digital'],
+    id: 'buy_fashion',
+    label: 'Fashion',
+    mode: 'buy',
+    icon: 'Shirt',
+    keywords: ['fashion', 'apparel', 'clothing', 'clothes'],
     categoryIds: [
       'fashion',
-      'jewelry',
-      'art_prints',
-      'handmade',
-      'vintage_thrift',
-      'sports_gear',
-      'books_stationery',
-      'electronics_acc',
-      'digital_goods'
+      'fashion_womens',
+      'fashion_mens',
+      'fashion_kids',
+      'fashion_streetwear'
     ]
+  },
+  {
+    id: 'buy_jewelry',
+    label: 'Jewelry',
+    mode: 'buy',
+    icon: 'Gem',
+    keywords: ['jewelry', 'jewellery', 'accessories', 'watches'],
+    categoryIds: [
+      'jewelry',
+      'jewelry_fine',
+      'jewelry_fashion',
+      'jewelry_watches',
+      'jewelry_bags'
+    ]
+  },
+  {
+    id: 'buy_art',
+    label: 'Art',
+    mode: 'buy',
+    icon: 'Image',
+    keywords: ['art', 'prints', 'gallery'],
+    categoryIds: ['art_prints', 'art_originals', 'art_print_editions', 'art_photo_prints']
+  },
+  {
+    id: 'buy_handmade',
+    label: 'Handmade',
+    mode: 'buy',
+    icon: 'Hand',
+    keywords: ['handmade', 'craft', 'artisan'],
+    categoryIds: ['handmade', 'handmade_ceramics', 'handmade_textiles', 'handmade_gifts']
+  },
+  {
+    id: 'buy_vintage',
+    label: 'Vintage',
+    mode: 'buy',
+    icon: 'ShoppingBag',
+    keywords: ['vintage', 'thrift', 'secondhand'],
+    categoryIds: [
+      'vintage_thrift',
+      'vintage_clothing',
+      'vintage_home',
+      'vintage_collectibles'
+    ]
+  },
+  {
+    id: 'buy_sports',
+    label: 'Sports',
+    mode: 'buy',
+    icon: 'Bike',
+    keywords: ['sports', 'gear', 'outdoor', 'equipment'],
+    categoryIds: ['sports_gear', 'sports_apparel', 'sports_equipment', 'sports_outdoor']
+  },
+  {
+    id: 'buy_books',
+    label: 'Books',
+    mode: 'buy',
+    icon: 'BookOpen',
+    keywords: ['books', 'stationery', 'paper'],
+    categoryIds: [
+      'books_stationery',
+      'books_reading',
+      'books_stationery_supplies',
+      'books_journals'
+    ]
+  },
+  {
+    id: 'buy_electronics',
+    label: 'Electronics',
+    mode: 'buy',
+    icon: 'Smartphone',
+    keywords: ['electronics', 'accessories', 'gadgets'],
+    categoryIds: [
+      'electronics_acc',
+      'electronics_phone',
+      'electronics_audio',
+      'electronics_gifts'
+    ]
+  },
+  {
+    id: 'buy_digital',
+    label: 'Digital',
+    mode: 'buy',
+    icon: 'Download',
+    keywords: ['digital', 'download', 'assets', 'templates'],
+    categoryIds: ['digital_goods', 'digital_templates', 'digital_fonts', 'digital_courses']
+  },
+  {
+    id: 'buy_beauty',
+    label: 'Beauty retail',
+    mode: 'buy',
+    icon: 'Sparkles',
+    keywords: ['beauty', 'cosmetics', 'skincare'],
+    categoryIds: ['beauty_retail', 'beauty_skincare', 'beauty_makeup', 'beauty_haircare']
+  },
+  {
+    id: 'buy_home',
+    label: 'Home decor',
+    mode: 'buy',
+    icon: 'Lamp',
+    keywords: ['home', 'decor', 'furniture'],
+    categoryIds: ['home_decor', 'home_furniture', 'home_soft', 'home_accents']
+  },
+  {
+    id: 'buy_food',
+    label: 'Food & drink',
+    mode: 'buy',
+    icon: 'Cookie',
+    keywords: ['food', 'bakery', 'restaurant', 'pantry'],
+    categoryIds: [
+      'bakery_specialty',
+      'restaurants_takeaways',
+      'food_bakery',
+      'food_pantry',
+      'food_prepared'
+    ]
+  },
+  {
+    id: 'buy_florists',
+    label: 'Florists',
+    mode: 'buy',
+    icon: 'Flower',
+    keywords: ['florist', 'flowers', 'bouquet'],
+    categoryIds: ['florists_retail', 'florist_bouquets', 'florist_plants', 'florist_events']
+  },
+  {
+    id: 'buy_pets',
+    label: 'Pet supplies',
+    mode: 'buy',
+    icon: 'PawPrint',
+    keywords: ['pet', 'supplies', 'food'],
+    categoryIds: ['pet_supplies', 'pet_food', 'pet_toys', 'pet_grooming_products']
   }
 ];
 
