@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   CalendarDays,
   ChevronLeft,
@@ -12,7 +12,9 @@ import {
 import { navigate, publicPagePath } from '../../../app/routing';
 import { formatDisplayDate } from '../../../utils/dates';
 import { formatCents } from '../../../utils/products';
+import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { DemoModePanel } from '../../../shared/ui/DemoModePanel';
+import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
@@ -83,6 +85,30 @@ function ProfilePreview({ profile, onOpen }) {
 }
 
 function GeneralSettings({ profile, updateClientProfile }) {
+  const { configured } = useAuth();
+  const fileRef = useRef(null);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState('');
+
+  const onPickPhoto = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setPhotoBusy(true);
+    setPhotoError('');
+    try {
+      const result = await uploadPublicImage(file, 'account-avatars');
+      if (result.localOnly && configured) {
+        throw new Error('Sign in with a verified account to upload a profile photo.');
+      }
+      await updateClientProfile({ photoURL: result.url });
+    } catch (err) {
+      setPhotoError(err?.message || 'Could not upload photo.');
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
   return (
     <div className="grid gap-4 max-w-xl">
       <section className="bb-panel p-5 grid gap-3">
@@ -94,7 +120,25 @@ function GeneralSettings({ profile, updateClientProfile }) {
               initials(profile?.displayName, profile?.email)
             )}
           </span>
-          <p className="bb-muted m-0 text-sm">Shown on messages and bookings.</p>
+          <div className="grid gap-2">
+            <p className="bb-muted m-0 text-sm">Shown on messages and bookings.</p>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              className="sr-only"
+              onChange={onPickPhoto}
+            />
+            <button
+              type="button"
+              className="bb-ghost-btn justify-self-start"
+              disabled={photoBusy}
+              onClick={() => fileRef.current?.click()}
+            >
+              {photoBusy ? 'Uploading…' : 'Upload photo'}
+            </button>
+            {photoError ? <p className="m-0 text-sm text-[#b42318]">{photoError}</p> : null}
+          </div>
         </div>
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Display name</span>
@@ -118,7 +162,7 @@ function GeneralSettings({ profile, updateClientProfile }) {
           <input
             className="native-control-input px-4"
             value={profile?.photoURL || ''}
-            placeholder="https://…"
+            placeholder="https://… or upload above"
             onChange={(event) => updateClientProfile({ photoURL: event.target.value })}
           />
         </label>

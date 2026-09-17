@@ -1,9 +1,11 @@
 import { useSupportInbox } from '../hooks/useSupportInbox';
+import { useKeyboardInset } from '../hooks/useKeyboardInset';
 import { ThreadList } from '../components/ThreadList';
 import { ConversationPane } from '../components/ConversationPane';
 
 export function SupportInboxPage() {
   const inbox = useSupportInbox();
+  useKeyboardInset(true);
 
   return (
     <div className="bb-support-page">

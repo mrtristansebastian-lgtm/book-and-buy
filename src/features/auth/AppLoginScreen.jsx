@@ -17,6 +17,7 @@ export function AppLoginScreen() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
   const isIndividual = audience === 'individual';
@@ -27,6 +28,7 @@ export function AppLoginScreen() {
     setStep('auth');
     setMode('signin');
     setError('');
+    setNotice('');
     setEmail('');
     setPassword('');
     setDisplayName('');
@@ -36,6 +38,7 @@ export function AppLoginScreen() {
     setStep('role');
     setAudience(null);
     setError('');
+    setNotice('');
     setBusy(false);
   };
 
@@ -56,11 +59,20 @@ export function AppLoginScreen() {
     navigate('/app/home', { replace: true });
   };
 
-  const runAuth = async (action) => {
+  const runAuth = async (action, { justSignedUp = false } = {}) => {
     setBusy(true);
     setError('');
+    setNotice('');
     try {
       const authUser = await action();
+      /* Redirect Google flow returns null until the page reloads with a session. */
+      if (!authUser) {
+        setNotice('Continuing with Google in this window…');
+        return;
+      }
+      if (justSignedUp && authUser?.email && !authUser.emailVerified) {
+        setNotice('Check your email to verify your account before uploading or saving to the cloud.');
+      }
       if (isIndividual) {
         await finishIndividual(authUser);
         return;
@@ -158,10 +170,15 @@ export function AppLoginScreen() {
                 className="bb-welcome-form"
                 onSubmit={(event) => {
                   event.preventDefault();
-                  runAuth(async () => {
-                    if (mode === 'signin') return signInEmail(email, password);
-                    return signUpEmail(email, password);
-                  });
+                  runAuth(
+                    async () => {
+                      if (mode === 'signin') return signInEmail(email, password);
+                      return signUpEmail(email, password, {
+                        displayName: isIndividual ? displayName : ''
+                      });
+                    },
+                    { justSignedUp: mode === 'signup' }
+                  );
                 }}
               >
                 <div className="bb-segment">
@@ -209,6 +226,7 @@ export function AppLoginScreen() {
                   autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
                 />
                 {error ? <p className="bb-welcome-error">{error}</p> : null}
+                {notice ? <p className="bb-welcome-notice">{notice}</p> : null}
                 <button type="submit" className="bb-primary-btn" disabled={busy}>
                   {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
                 </button>
@@ -224,7 +242,9 @@ export function AppLoginScreen() {
             ) : (
               <div className="bb-welcome-form">
                 <p className="bb-welcome-local-note">
-                  Local mode — continue without Firebase, or open a demo.
+                  Firebase is not configured — running in local/demo mode. Add{' '}
+                  <code>VITE_FIREBASE_CONFIG</code> to <code>.env.local</code> (see{' '}
+                  <code>docs/firebase-launch-checklist.md</code>).
                 </p>
                 {error ? <p className="bb-welcome-error">{error}</p> : null}
                 <button

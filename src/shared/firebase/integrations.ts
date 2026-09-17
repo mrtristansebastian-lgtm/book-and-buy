@@ -17,7 +17,15 @@ import { buildPublicWorkspaceSnapshot } from './publicSnapshot';
 export const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
 function sanitizeFolder(pathHint: string) {
-  const allowed = new Set(['brand', 'venue', 'services', 'website', 'social', 'account-avatars']);
+  const allowed = new Set([
+    'brand',
+    'venue',
+    'services',
+    'website',
+    'products',
+    'social',
+    'account-avatars'
+  ]);
   const folder = String(pathHint || 'website')
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '');
@@ -115,7 +123,7 @@ function runResumableUpload(
 
 /**
  * Upload a public site image to Firebase Storage when configured + signed in.
- * Falls back to a local data URL so Pages studio still works offline/demo.
+ * Local data-URL fallback only when Firebase is not configured (demo mode).
  */
 export async function uploadPublicImage(
   file: File,
@@ -147,34 +155,37 @@ export async function uploadPublicImage(
 
   const ownerId = firebase.auth.currentUser?.uid;
   if (!ownerId) {
-    const url = await fileToDataUrl(file);
-    return {
-      ok: true as const,
-      localOnly: true,
-      url,
-      reason: 'Sign in to upload to Storage. Saved locally for now.'
-    };
+    throw new Error('Sign in to upload images to Storage.');
   }
 
-  const storage = getStorage(firebase.app);
-  const folder = sanitizeFolder(pathHint);
-  const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'image.jpg')}`;
-  const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
-  const storageRef = ref(storage, objectPath);
-  const url = await runResumableUpload(
-    storageRef,
-    file,
-    { contentType: file.type },
-    options
-  );
-  return { ok: true as const, localOnly: false, url };
+  try {
+    const storage = getStorage(firebase.app);
+    const folder = sanitizeFolder(pathHint);
+    const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'image.jpg')}`;
+    const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
+    const storageRef = ref(storage, objectPath);
+    const url = await runResumableUpload(
+      storageRef,
+      file,
+      { contentType: file.type },
+      options
+    );
+    return { ok: true as const, localOnly: false, url };
+  } catch (error) {
+    if (isUploadCanceled(error)) throw error;
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : 'Upload failed. Check Storage rules and that your email is verified.';
+    throw new Error(message);
+  }
 }
 
 export const MAX_VIDEO_BYTES = 48 * 1024 * 1024;
 
 /**
  * Upload a short social video clip to Storage when configured + signed in.
- * Falls back to a local object/data URL for demo / offline.
+ * Local object-URL fallback only when Firebase is not configured (demo mode).
  */
 export async function uploadPublicVideo(
   file: File,
@@ -206,27 +217,33 @@ export async function uploadPublicVideo(
 
   const ownerId = firebase.auth.currentUser?.uid;
   if (!ownerId) {
-    const url = URL.createObjectURL(file);
-    return {
-      ok: true as const,
-      localOnly: true,
-      url,
-      reason: 'Sign in to upload to Storage. Saved locally for now.'
-    };
+    throw new Error('Sign in to upload video to Storage.');
   }
 
-  const storage = getStorage(firebase.app);
-  const folder = sanitizeFolder(pathHint);
-  const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'video.mp4')}`;
-  const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
-  const storageRef = ref(storage, objectPath);
-  const url = await runResumableUpload(
-    storageRef,
-    file,
-    { contentType: file.type },
-    options
-  );
-  return { ok: true as const, localOnly: false, url };
+  try {
+    const storage = getStorage(firebase.app);
+    const folder = sanitizeFolder(pathHint === 'social' ? 'social' : pathHint);
+    if (folder !== 'social') {
+      throw new Error('Videos can only be uploaded to the social folder.');
+    }
+    const fileName = `${Date.now()}-${sanitizeFileName(file.name || 'video.mp4')}`;
+    const objectPath = `artifacts/${APP_ID}/users/${ownerId}/${folder}/${fileName}`;
+    const storageRef = ref(storage, objectPath);
+    const url = await runResumableUpload(
+      storageRef,
+      file,
+      { contentType: file.type },
+      options
+    );
+    return { ok: true as const, localOnly: false, url };
+  } catch (error) {
+    if (isUploadCanceled(error)) throw error;
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : 'Video upload failed. Check Storage rules and that your email is verified.';
+    throw new Error(message);
+  }
 }
 
 const MAX_CHAT_ATTACHMENT_BYTES = 25 * 1024 * 1024;

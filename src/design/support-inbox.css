@@ -941,7 +941,8 @@ html body .native-ui .bb-support-inbox-title {
   resize: none;
   margin: 0;
   padding: 0 0.45rem;
-  font-size: 0.875rem;
+  /* 16px minimum — prevents iOS focus zoom */
+  font-size: 16px;
   line-height: 2.5rem;
   color: #101828;
   overflow: hidden;

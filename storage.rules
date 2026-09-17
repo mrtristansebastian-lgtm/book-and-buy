@@ -18,11 +18,11 @@ service firebase.storage {
     }
 
     function isOwner(userId) {
-      return signedIn() && request.auth.uid == userId;
+      return verifiedSignedIn() && request.auth.uid == userId;
     }
 
     function hasStaffAccess(appId, userId) {
-      return signedIn() &&
+      return verifiedSignedIn() &&
         request.auth.token.email != null &&
         firestore.exists(/databases/(default)/documents/artifacts/$(appId)/staffAccess/$(request.auth.token.email)/workspaces/$(userId)) &&
         firestore.get(/databases/(default)/documents/artifacts/$(appId)/staffAccess/$(request.auth.token.email)/workspaces/$(userId)).data.status == 'active';
@@ -47,13 +47,23 @@ service firebase.storage {
     }
 
     function isPublicWorkspaceFolder(folder) {
-      return folder in ['brand', 'venue', 'services', 'website', 'social', 'account-avatars'];
+      return folder in ['brand', 'venue', 'services', 'website', 'products', 'social', 'account-avatars'];
     }
 
     function validImageUpload() {
       return request.resource != null &&
         request.resource.size < 6 * 1024 * 1024 &&
         request.resource.contentType.matches('image/.*');
+    }
+
+    function validVideoUpload() {
+      return request.resource != null &&
+        request.resource.size <= 48 * 1024 * 1024 &&
+        request.resource.contentType.matches('video/.*');
+    }
+
+    function validWorkspaceUpload(folder) {
+      return validImageUpload() || (folder == 'social' && validVideoUpload());
     }
 
     function validChatUpload() {
@@ -79,7 +89,7 @@ service firebase.storage {
 
     match /artifacts/{appId}/users/{userId}/{folder}/{fileName} {
       allow read: if isPublicWorkspaceFolder(folder) || canManageWorkspaceAsset(appId, userId);
-      allow create, update: if canManageWorkspaceAsset(appId, userId) && validImageUpload();
+      allow create, update: if canManageWorkspaceAsset(appId, userId) && validWorkspaceUpload(folder);
       allow delete: if canManageWorkspaceAsset(appId, userId);
     }
 

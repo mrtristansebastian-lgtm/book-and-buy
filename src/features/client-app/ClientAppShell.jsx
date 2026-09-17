@@ -56,7 +56,18 @@ export function ClientAppShell({
       };
     };
 
+    const verticalsOpen = () =>
+      Boolean(
+        document.querySelector(
+          '.bb-client-home-feed.is-vertical-open, .bb-client-ig-explore.is-immersive .bb-vertical-watch'
+        )
+      );
+
     const applyDockFromDelta = (y, delta) => {
+      if (verticalsOpen()) {
+        setDockHidden(false);
+        return;
+      }
       if (y <= 56) {
         setDockHidden(false);
         return;
@@ -70,6 +81,10 @@ export function ClientAppShell({
       scrollTicking.current = true;
       window.requestAnimationFrame(() => {
         scrollTicking.current = false;
+        if (verticalsOpen()) {
+          setDockHidden(false);
+          return;
+        }
         const { key, y } = resolveScrollY(event.target);
         const prev = scrollTops.has(key) ? scrollTops.get(key) : y;
         const delta = y - prev;
@@ -84,6 +99,10 @@ export function ClientAppShell({
     };
 
     const onTouchMove = (event) => {
+      if (verticalsOpen()) {
+        setDockHidden(false);
+        return;
+      }
       const y = event.touches?.[0]?.clientY ?? touchStartY;
       const delta = touchStartY - y;
       if (Math.abs(delta) < 14) return;

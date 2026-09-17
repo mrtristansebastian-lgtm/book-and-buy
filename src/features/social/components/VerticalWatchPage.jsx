@@ -221,7 +221,7 @@ export function VerticalWatchPage({
                     ) : null}
                   </div>
 
-                  {active && typeof renderRailActions === 'function' ? (
+                  {typeof renderRailActions === 'function' ? (
                     <div className="bb-vertical-watch-rail">{renderRailActions(item)}</div>
                   ) : null}
                 </article>

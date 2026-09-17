@@ -15,6 +15,7 @@ export function ClientAuthPage() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
   const finish = async (user) => {
@@ -22,11 +23,19 @@ export function ClientAuthPage() {
     navigate('/app/home', { replace: true });
   };
 
-  const run = async (action) => {
+  const run = async (action, { justSignedUp = false } = {}) => {
     setBusy(true);
     setError('');
+    setNotice('');
     try {
       const user = await action();
+      if (!user) {
+        setNotice('Continuing with Google in this window…');
+        return;
+      }
+      if (justSignedUp && user?.email && !user.emailVerified) {
+        setNotice('Check your email to verify your account before cloud uploads.');
+      }
       await finish(user);
     } catch (err) {
       setError(err?.message || 'Something went wrong');
@@ -51,11 +60,13 @@ export function ClientAuthPage() {
             className="bb-client-auth-form"
             onSubmit={(event) => {
               event.preventDefault();
-              run(async () => {
-                if (mode === 'signin') return signInEmail(email, password);
-                const user = await signUpEmail(email, password);
-                return user;
-              });
+              run(
+                async () => {
+                  if (mode === 'signin') return signInEmail(email, password);
+                  return signUpEmail(email, password, { displayName });
+                },
+                { justSignedUp: mode === 'signup' }
+              );
             }}
           >
             <div className="bb-segment">
@@ -92,6 +103,7 @@ export function ClientAuthPage() {
               onChange={(event) => setPassword(event.target.value)}
             />
             {error ? <p className="bb-client-auth-error">{error}</p> : null}
+            {notice ? <p className="bb-client-auth-notice">{notice}</p> : null}
             <button type="submit" className="bb-primary-btn" disabled={busy}>
               {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create client account'}
             </button>
@@ -107,7 +119,8 @@ export function ClientAuthPage() {
         ) : (
           <div className="bb-client-auth-form">
             <p className="bb-muted m-0 text-sm">
-              Local mode — open a demo client session against Flame &amp; Flour sample data.
+              Firebase is not configured — local/demo mode. Add{' '}
+              <code>VITE_FIREBASE_CONFIG</code> to enable Google and email auth.
             </p>
             <button
               type="button"

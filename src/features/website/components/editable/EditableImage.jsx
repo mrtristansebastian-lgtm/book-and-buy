@@ -66,7 +66,12 @@ export function EditableImage({
     setError('');
     try {
       const result = await uploadPublicImage(file, storageFolder);
-      if (result.url) {
+      if (!result?.url) throw new Error('Upload failed.');
+      if (result.localOnly) {
+        /* Demo mode only — still apply so studio works offline */
+        onChange?.(result.url);
+        setDraft(result.url);
+      } else {
         onChange?.(result.url);
         setDraft(result.url);
       }

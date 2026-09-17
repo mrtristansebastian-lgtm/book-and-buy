@@ -10,6 +10,7 @@ import {
 import { navigate } from '../../../app/routing';
 import { MessageTimeline } from '../../support/components/MessageBubble';
 import { ChatComposer } from '../../support/components/ChatComposer';
+import { useKeyboardInset } from '../../support/hooks/useKeyboardInset';
 import { formatRelativeTime, messagePreview } from '../../support/utils/supportFormat';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
@@ -169,6 +170,7 @@ export function ClientMessagesPage({ threadId = '' }) {
   const unreadTotal = counts.unread || 0;
   const stageMode = active ? 'is-chat' : 'is-list';
   const activeName = active ? brandLabel(active, workspace) : '';
+  useKeyboardInset(Boolean(active));
 
   useEffect(() => {
     if (!active?.id) return;

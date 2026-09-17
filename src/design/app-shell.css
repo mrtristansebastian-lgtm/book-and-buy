@@ -1115,8 +1115,18 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 /* Support flush + dock: leave room above the dock on all breakpoints */
 .bb-shell.is-support-flush,
 .bb-shell.is-support-flush .bb-owner-main.is-flush {
-  height: calc(100dvh - var(--bb-owner-dock-h));
-  max-height: calc(100dvh - var(--bb-owner-dock-h));
+  height: calc(100dvh - var(--bb-owner-dock-h) - var(--bb-keyboard-inset, 0px));
+  max-height: calc(100dvh - var(--bb-owner-dock-h) - var(--bb-keyboard-inset, 0px));
+}
+
+html.bb-keyboard-open .bb-shell.is-support-flush,
+html.bb-keyboard-open .bb-shell.is-support-flush .bb-owner-main.is-flush {
+  height: calc(100dvh - var(--bb-keyboard-inset, 0px));
+  max-height: calc(100dvh - var(--bb-keyboard-inset, 0px));
+}
+
+html.bb-keyboard-open .bb-shell.is-support-flush .bb-owner-dock {
+  display: none;
 }
 
 .bb-shell.is-support-flush .bb-owner-main.is-flush {
