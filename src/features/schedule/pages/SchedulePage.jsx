@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, Info, Pencil } from 'lucide-react';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
@@ -237,15 +238,77 @@ export function SchedulePage() {
 
   return (
     <div className="bb-schedule-desk">
-      <header className="bb-schedule-desk-header">
-        <div className="bb-schedule-desk-copy">
-          <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-schedule-desk-title">Schedule</h1>
+      <div className="bb-page-chrome">
+        <header className="bb-schedule-desk-header">
+          <div className="bb-schedule-desk-copy">
+            <div className="bb-page-title-wrap">
+              <PageBackButton />
+              <span className="bb-page-title-main">
+                <div className="bb-page-header-glow" aria-hidden="true" />
+                <h1 className="bb-page-title bb-schedule-desk-title">Schedule</h1>
+              </span>
+            </div>
           </div>
-        </div>
+        </header>
 
-        <div className="bb-schedule-desk-tools">
+        <section className="bb-schedule-toolbar" aria-label="Schedule tools">
+          <PeriodSegmentedControl
+            variant="period"
+            ariaLabel="Period"
+            value={period}
+            options={PERIOD_OPTIONS}
+            onChange={setPeriod}
+            onCustomSelect={() => setCustomPickerOpen(true)}
+          />
+
+          <div className="bb-schedule-toolbar-end">
+            <div className="bb-schedule-day-nav">
+              <button
+                type="button"
+                className="bb-ghost-btn px-3"
+                onClick={() => setDay(shiftPeriod(day, period, -1))}
+                aria-label="Previous period"
+                disabled={period === 'all' || period === 'custom'}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                type="button"
+                className="bb-schedule-day-label"
+                onClick={() => {
+                  if (period === 'custom') setCustomPickerOpen(true);
+                  else setPickerOpen(true);
+                }}
+                aria-label="Pick day or period"
+                title="Pick day or period"
+              >
+                {periodLabel}
+                <Pencil size={13} strokeWidth={2.2} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className="bb-ghost-btn px-3"
+                onClick={() => setDay(shiftPeriod(day, period, 1))}
+                aria-label="Next period"
+                disabled={period === 'all' || period === 'custom'}
+              >
+                <ChevronRight size={18} />
+              </button>
+              <button
+                type="button"
+                className="bb-schedule-today-btn"
+                onClick={() => {
+                  setDay(toDateKey(new Date()));
+                  setPeriod('day');
+                }}
+              >
+                Today
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div className="bb-schedule-stage-filters">
           <div className="bb-schedule-mode" role="tablist" aria-label="Schedule mode">
             <button
               type="button"
@@ -269,68 +332,6 @@ export function SchedulePage() {
               Spots
             </button>
           </div>
-        </div>
-      </header>
-
-      <section className="bb-schedule-toolbar" aria-label="Schedule tools">
-        <PeriodSegmentedControl
-          variant="period"
-          ariaLabel="Period"
-          value={period}
-          options={PERIOD_OPTIONS}
-          onChange={setPeriod}
-          onCustomSelect={() => setCustomPickerOpen(true)}
-        />
-
-        <div className="bb-schedule-toolbar-end">
-          <div className="bb-schedule-day-nav">
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, period, -1))}
-              aria-label="Previous period"
-              disabled={period === 'all' || period === 'custom'}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              type="button"
-              className="bb-schedule-day-label"
-              onClick={() => {
-                if (period === 'custom') setCustomPickerOpen(true);
-                else setPickerOpen(true);
-              }}
-              aria-label="Pick day or period"
-              title="Pick day or period"
-            >
-              {periodLabel}
-              <Pencil size={13} strokeWidth={2.2} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, period, 1))}
-              aria-label="Next period"
-              disabled={period === 'all' || period === 'custom'}
-            >
-              <ChevronRight size={18} />
-            </button>
-            <button
-              type="button"
-              className="bb-schedule-today-btn"
-              onClick={() => {
-                setDay(toDateKey(new Date()));
-                setPeriod('day');
-              }}
-            >
-              Today
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <div className="bb-schedule-stage" key={`${mode}-${period}-${day}`}>
-        <div className="bb-schedule-stage-filters">
           {renderStaffFilter()}
           <SortField
             value={mode === 'spots' && sortBy === 'client' ? 'oldest' : sortBy}
@@ -344,7 +345,9 @@ export function SchedulePage() {
             }
           />
         </div>
+      </div>
 
+      <div className="bb-schedule-stage" key={`${mode}-${period}-${day}`}>
         {mode === 'slots' ? (
           period !== 'day' && agendaBookings.length === 0 ? (
             <div className="bb-schedule-empty">

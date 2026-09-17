@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Info, Pencil, Search, X } from 'lucide-react';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
@@ -642,29 +643,20 @@ export function StockPage({ routeRest = [] }) {
 
   return (
     <div className="bb-services-desk bb-stock-desk">
-      <header className="bb-services-desk-header">
-        <div className="bb-services-desk-copy">
-          <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-services-desk-title">Stock</h1>
+      <div className="bb-page-chrome">
+        <header className="bb-services-desk-header">
+          <div className="bb-services-desk-copy">
+            <div className="bb-page-title-wrap">
+              <PageBackButton />
+              <span className="bb-page-title-main">
+                <div className="bb-page-header-glow" aria-hidden="true" />
+                <h1 className="bb-page-title bb-services-desk-title">Stock</h1>
+              </span>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {products.length === 0 ? (
-        <div className="bb-services-catalog-empty">
-          No products yet.{' '}
-          <button
-            type="button"
-            className="bb-stock-link"
-            onClick={() => navigate('/dashboard/products')}
-          >
-            Add products
-          </button>{' '}
-          first, then set stock here.
-        </div>
-      ) : (
-        <>
+        {products.length > 0 ? (
           <div className="bb-stock-toolbar">
             <label className="bb-stock-search bb-search-field">
               <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
@@ -693,24 +685,36 @@ export function StockPage({ routeRest = [] }) {
               ))}
             </div>
           </div>
+        ) : null}
+      </div>
 
-          {filtered.length === 0 ? (
-            <div className="bb-services-catalog-empty">
-              No products match this filter.
-            </div>
-          ) : (
-            <div className="bb-stock-room">
-              {filtered.map((product) => (
-                <StockProductCard
-                  key={product.id}
-                  product={product}
-                  onInfo={openInfo}
-                  onEdit={openEdit}
-                />
-              ))}
-            </div>
-          )}
-        </>
+      {products.length === 0 ? (
+        <div className="bb-services-catalog-empty">
+          No products yet.{' '}
+          <button
+            type="button"
+            className="bb-stock-link"
+            onClick={() => navigate('/dashboard/products')}
+          >
+            Add products
+          </button>{' '}
+          first, then set stock here.
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bb-services-catalog-empty">
+          No products match this filter.
+        </div>
+      ) : (
+        <div className="bb-stock-room">
+          {filtered.map((product) => (
+            <StockProductCard
+              key={product.id}
+              product={product}
+              onInfo={openInfo}
+              onEdit={openEdit}
+            />
+          ))}
+        </div>
       )}
 
       {!isMobile && liveInfoProduct ? (

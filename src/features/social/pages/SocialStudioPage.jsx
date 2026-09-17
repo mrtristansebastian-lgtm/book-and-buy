@@ -50,28 +50,6 @@ export function SocialStudioPage() {
 
   return (
     <div className="bb-social-studio">
-      <header className="bb-social-studio-header">
-        <div className="bb-social-studio-header-row">
-          <div className="bb-social-studio-header-copy">
-            <div className="bb-page-title-wrap">
-              <div className="bb-page-header-glow" aria-hidden="true" />
-              <h1 className="bb-page-title bb-social-studio-title">Social Studio</h1>
-            </div>
-            <p className="bb-muted m-0 text-sm">
-              Compose posts and control whether Social appears on your public site.
-            </p>
-          </div>
-          <label className="bb-studio-visible-toggle bb-social-studio-visible">
-            <input
-              type="checkbox"
-              checked={socialVisible}
-              onChange={toggleSocialVisible}
-            />
-            Page visible
-          </label>
-        </div>
-      </header>
-
       <div className="bb-social-studio-body">
         <div className="bb-social-studio-live">
           <SocialStudioCompose
@@ -87,6 +65,8 @@ export function SocialStudioPage() {
             }
             category={website.profileCategory || ''}
             location={website.profileLocation || ''}
+            pageVisible={socialVisible}
+            onTogglePageVisible={toggleSocialVisible}
             onUpdateWebsite={updateWebsite}
             onUpdateProfile={updateProfile}
             onOpenCreate={openCreate}

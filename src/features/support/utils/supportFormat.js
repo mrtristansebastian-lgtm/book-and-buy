@@ -1,3 +1,11 @@
+export {
+  formatPresenceLabel,
+  isPresenceVisible,
+  normalizePresenceStatus,
+  formatLastSeen,
+  buildPresence
+} from './presence';
+
 export function clientInitials(name = '') {
   const parts = String(name || '')
     .trim()
@@ -42,16 +50,6 @@ export function formatDayLabel(at) {
     month: 'short',
     day: 'numeric'
   });
-}
-
-export function formatPresenceLabel(presence) {
-  const status = presence?.status || 'offline';
-  if (status === 'online') return 'Online';
-  if (status === 'away') return 'Away';
-  const lastSeenAt = Number(presence?.lastSeenAt) || 0;
-  if (!lastSeenAt) return 'Offline';
-  const rel = formatRelativeTime(lastSeenAt);
-  return rel === 'Just now' ? 'Last seen just now' : `Last seen ${rel} ago`;
 }
 
 export function formatFileSize(bytes = 0) {

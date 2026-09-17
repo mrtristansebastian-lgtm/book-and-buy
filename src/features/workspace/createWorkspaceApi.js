@@ -387,7 +387,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
             logoUrl: prev.logoUrl || prev.website?.logoUrl || '',
             unread: false,
             updatedAt: now,
-            presence: { status: 'offline', lastSeenAt: now },
+            presence: { status: 'offline', lastSeenAt: now, visible: true },
             messages: [
               {
                 id: `m-${now}`,
@@ -453,7 +453,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
             logoUrl: prev.logoUrl || prev.website?.logoUrl || '',
             unread: false,
             updatedAt: now,
-            presence: { status: 'offline', lastSeenAt: now },
+            presence: { status: 'offline', lastSeenAt: now, visible: true },
             messages: [
               {
                 id: `m-${now}`,
@@ -508,7 +508,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
             logoUrl: prev.logoUrl || prev.website?.logoUrl || '',
             unread: false,
             updatedAt: now,
-            presence: { status: 'offline', lastSeenAt: now },
+            presence: { status: 'offline', lastSeenAt: now, visible: true },
             messages: [
               {
                 id: `m-${now}`,
@@ -573,7 +573,58 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
           ...prev,
           threads: (prev.threads || []).map((thread) =>
             thread.id === threadId
-              ? { ...thread, presence: { ...(thread.presence || {}), ...presence } }
+              ? {
+                  ...thread,
+                  presence: {
+                    status: 'offline',
+                    lastSeenAt: Date.now(),
+                    visible: true,
+                    ...(thread.presence || {}),
+                    ...presence,
+                    status:
+                      String(presence?.status || thread.presence?.status || '').toLowerCase() ===
+                      'online'
+                        ? 'online'
+                        : 'offline'
+                  }
+                }
+              : thread
+          )
+        }));
+      },
+      setWorkspacePresence: (presence) => {
+        setWorkspace((prev) => ({
+          ...prev,
+          presence: {
+            status: 'offline',
+            lastSeenAt: Date.now(),
+            visible: prev.notifications?.showActivityStatus !== false,
+            ...(prev.presence || {}),
+            ...presence
+          }
+        }));
+      },
+      setClientPresence: (clientEmail, presence) => {
+        const email = String(clientEmail || '').toLowerCase();
+        if (!email) return;
+        setWorkspace((prev) => ({
+          ...prev,
+          threads: (prev.threads || []).map((thread) =>
+            String(thread.clientEmail || '').toLowerCase() === email
+              ? {
+                  ...thread,
+                  presence: {
+                    status: 'offline',
+                    lastSeenAt: Date.now(),
+                    visible: true,
+                    ...(thread.presence || {}),
+                    ...presence,
+                    status:
+                      String(presence?.status || '').toLowerCase() === 'online'
+                        ? 'online'
+                        : 'offline'
+                  }
+                }
               : thread
           )
         }));

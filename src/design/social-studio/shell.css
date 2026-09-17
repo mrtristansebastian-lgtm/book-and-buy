@@ -2,27 +2,18 @@
 
 .bb-social-studio {
   display: grid;
-  gap: 1.35rem;
+  gap: 0;
   width: 100%;
   max-width: none;
   margin-inline: 0;
   min-width: 0;
 }
 
-/* Full-bleed on mobile; tighter PC padding shared via device-frame.css */
+/* Full-bleed banner start — Instagram-style profile chrome */
 @media (max-width: 720px) {
   .bb-owner-main:has(> .bb-social-studio) {
     padding-inline: 0;
-    padding-top: 0.55rem;
-  }
-
-  .bb-social-studio {
-    gap: 0.65rem;
-  }
-
-  .bb-social-studio-header {
-    padding-inline: 1rem;
-    top: 0;
+    padding-top: 0;
   }
 
   .bb-social-studio-body {
@@ -30,11 +21,19 @@
   }
 
   .bb-social-studio-live .bb-public-profile-shell {
-    padding: 0.75rem 1rem 0;
+    padding: 0;
+    max-width: none;
   }
 
   .bb-social-studio-live .bb-public-profile-banner-wrap {
-    border-radius: 0.65rem;
+    border-radius: 0;
+    height: clamp(10.5rem, 34vw, 13rem);
+    min-height: 10.5rem;
+    max-height: 13rem;
+  }
+
+  .bb-social-studio-live .bb-public-profile-card {
+    padding-inline: 1rem;
   }
 
   .bb-social-library--live .bb-social-library-surface--live {
@@ -51,9 +50,19 @@
   }
 }
 
+@media (min-width: 721px) {
+  .bb-owner-main:has(> .bb-social-studio) {
+    padding-top: 0.85rem;
+  }
+
+  .bb-social-studio-live .bb-public-profile-shell {
+    padding-top: 0;
+  }
+}
+
 @media (min-width: 1100px) {
   .bb-social-studio {
-    gap: 1.55rem;
+    gap: 0;
   }
 }
 
@@ -65,34 +74,23 @@
   }
 }
 
-.bb-social-studio-header {
-  display: grid;
-  gap: 0.85rem;
-  position: sticky;
-  top: 0.25rem;
-  z-index: 4;
-  padding: 0.35rem 0 0.85rem;
-  background: transparent;
-  overflow: visible;
+.bb-social-studio-back {
+  position: absolute;
+  top: max(0.7rem, env(safe-area-inset-top, 0px));
+  left: 0.7rem;
+  z-index: 6;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
-.bb-social-studio-header-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.bb-social-studio-header-copy {
-  display: grid;
-  gap: 0.25rem;
-  min-width: 0;
+.bb-social-studio-back:hover {
+  background: #fff;
 }
 
 .bb-social-studio-visible {
   flex: 0 0 auto;
-  margin-left: 0;
+  margin: 0;
   align-self: center;
 }
 
@@ -120,7 +118,7 @@
 
 .bb-social-studio-body {
   display: grid;
-  gap: 1.65rem;
+  gap: 0;
   padding-bottom: 0;
   min-width: 0;
 }
@@ -146,7 +144,7 @@
 }
 
 .bb-social-studio-live .bb-public-profile-shell {
-  padding: 0.85rem 0 0;
+  padding: 0;
   overflow: visible;
   max-width: min(100%, 48rem);
   margin-inline: auto;
@@ -155,11 +153,21 @@
 }
 
 .bb-social-studio-live .bb-public-profile-banner-wrap {
+  position: relative;
   height: clamp(9.5rem, 18vw, 12.5rem);
   min-height: 9.5rem;
   max-height: 12.5rem;
   aspect-ratio: unset;
   border-radius: 0.85rem;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(185, 227, 255, 0.55), rgba(210, 203, 255, 0.45) 55%, rgba(255, 214, 232, 0.4));
+}
+
+.bb-social-studio-live .bb-public-profile-banner--empty {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
 }
 
 .bb-social-studio-live .bb-public-profile-card {
@@ -279,6 +287,10 @@
   justify-content: center;
   gap: 0.5rem;
   max-width: none;
+}
+
+.bb-social-studio-profile-aside .bb-studio-visible-toggle {
+  margin-left: 0;
 }
 
 .bb-social-studio-profile-post {

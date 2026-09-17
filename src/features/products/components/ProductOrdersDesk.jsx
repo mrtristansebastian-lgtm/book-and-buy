@@ -97,7 +97,7 @@ function compareOrders(a, b, sortBy) {
   return -chronoCompare;
 }
 
-export function ProductOrdersDesk() {
+export function ProductOrdersDesk({ heading = null }) {
   const {
     orders,
     acceptOrder,
@@ -160,63 +160,66 @@ export function ProductOrdersDesk() {
 
   return (
     <section className="bb-ops-desk">
-      <OpsDeskTabs
-        ariaLabel="Product order filters"
-        value={filter}
-        onChange={setFilter}
-        options={[
-          { id: 'new', label: 'New', count: counts.new },
-          { id: 'accepted', label: 'Accepted', count: counts.accepted },
-          { id: 'shipped', label: 'Shipped', count: counts.shipped },
-          { id: 'fulfilled', label: 'Fulfilled', count: counts.fulfilled },
-          { id: 'cancelled', label: 'Cancelled', count: counts.cancelled },
-          { id: 'all', label: 'All', count: counts.all }
-        ]}
-      />
+      <div className="bb-page-chrome">
+        {heading}
+        <div className="bb-ops-toolbar" aria-label="Product order period">
+          <PeriodSegmentedControl
+            variant="period"
+            ariaLabel="Product order period"
+            value={period}
+            onChange={setPeriod}
+            options={PERIOD_OPTIONS}
+            onCustomSelect={() => setCustomPickerOpen(true)}
+          />
 
-      <div className="bb-ops-toolbar" aria-label="Product order period">
-        <PeriodSegmentedControl
-          variant="period"
-          ariaLabel="Product order period"
-          value={period}
-          onChange={setPeriod}
-          options={PERIOD_OPTIONS}
-          onCustomSelect={() => setCustomPickerOpen(true)}
-        />
-
-        <div className="bb-ops-toolbar-tools">
-          <div className="bb-schedule-day-nav">
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, period, -1))}
-              aria-label="Previous period"
-              disabled={period === 'all' || period === 'custom'}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <div className="bb-schedule-day-label">{periodLabel}</div>
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, period, 1))}
-              aria-label="Next period"
-              disabled={period === 'all' || period === 'custom'}
-            >
-              <ChevronRight size={18} />
-            </button>
+          <div className="bb-ops-toolbar-tools">
+            <div className="bb-schedule-day-nav">
+              <button
+                type="button"
+                className="bb-ghost-btn px-3"
+                onClick={() => setDay(shiftPeriod(day, period, -1))}
+                aria-label="Previous period"
+                disabled={period === 'all' || period === 'custom'}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className="bb-schedule-day-label">{periodLabel}</div>
+              <button
+                type="button"
+                className="bb-ghost-btn px-3"
+                onClick={() => setDay(shiftPeriod(day, period, 1))}
+                aria-label="Next period"
+                disabled={period === 'all' || period === 'custom'}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="bb-ops-list-sort">
-        <SortField
-          value={sortBy}
-          onChange={setSortBy}
-          options={SORT_OPTIONS}
-          pickerTitle="Sort orders"
-          pickerHint="Order product orders in the selected period."
+        <OpsDeskTabs
+          ariaLabel="Product order filters"
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { id: 'new', label: 'New', count: counts.new },
+            { id: 'accepted', label: 'Accepted', count: counts.accepted },
+            { id: 'shipped', label: 'Shipped', count: counts.shipped },
+            { id: 'fulfilled', label: 'Fulfilled', count: counts.fulfilled },
+            { id: 'cancelled', label: 'Cancelled', count: counts.cancelled },
+            { id: 'all', label: 'All', count: counts.all }
+          ]}
         />
+
+        <div className="bb-ops-list-sort">
+          <SortField
+            value={sortBy}
+            onChange={setSortBy}
+            options={SORT_OPTIONS}
+            pickerTitle="Sort orders"
+            pickerHint="Order product orders in the selected period."
+          />
+        </div>
       </div>
 
       <div className="bb-ops-rows">

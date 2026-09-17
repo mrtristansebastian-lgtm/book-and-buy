@@ -7,7 +7,8 @@ const EMAIL_TOGGLES = [
 ];
 
 export function NotificationsSettingsPage() {
-  const { workspace, updateNotifications } = useWorkspace();
+  const { workspace, updateNotifications, setWorkspacePresence } = useWorkspace();
+  const showActivity = workspace.notifications?.showActivityStatus !== false;
 
   return (
     <div className="grid gap-4 max-w-xl">
@@ -23,6 +24,33 @@ export function NotificationsSettingsPage() {
             {label}
           </label>
         ))}
+      </section>
+
+      <section className="bb-panel p-5 grid gap-3">
+        <h2 className="bb-page-title text-xl m-0">Activity status</h2>
+        <label className="flex items-start gap-3 text-sm font-semibold">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={showActivity}
+            onChange={(event) => {
+              const next = event.target.checked;
+              updateNotifications({ showActivityStatus: next });
+              setWorkspacePresence?.({
+                status: next && !document.hidden ? 'online' : 'offline',
+                lastSeenAt: Date.now(),
+                visible: next
+              });
+            }}
+          />
+          <span>
+            Show activity status in chats
+            <span className="block font-normal text-[#667085] mt-0.5">
+              Clients see a green online dot or last seen when you are away. Turn off to hide your
+              status completely.
+            </span>
+          </span>
+        </label>
       </section>
 
       <section className="bb-panel p-5 grid gap-2">

@@ -149,27 +149,8 @@
 
   .bb-studio-toolbar-copy {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    gap: 0.55rem 0.65rem;
-  }
-
-  .bb-studio-toolbar-copy .bb-page-title-wrap {
-    grid-column: 2;
-  }
-
-  .bb-studio-back {
-    display: grid;
-    place-items: center;
-    width: 2.35rem;
-    height: 2.35rem;
-    margin: 0;
-    padding: 0;
-    border-radius: 50%;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    background: #fff;
-    color: #101828;
-    cursor: pointer;
+    gap: 0.35rem;
+    min-width: 0;
   }
 
   .bb-studio-toolbar-lede {
@@ -268,7 +249,7 @@
   }
 
   /* Studio pages already have an in-toolbar back control */
-  .bb-shell:has(.bb-studio-canvas) .bb-miniapp-bar {
+  .bb-shell:has(.bb-studio-canvas) .bb-miniapp-tabs-bar {
     display: none;
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Settings } from 'lucide-react';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
@@ -48,8 +49,11 @@ export function AvailabilityPage() {
         <div className="bb-schedule-desk-copy">
           <div className="bb-schedule-avail-title-row">
             <div className="bb-page-title-wrap">
-              <div className="bb-page-header-glow" aria-hidden="true" />
-              <h1 className="bb-page-title bb-schedule-desk-title">Availability Studio</h1>
+              <PageBackButton />
+              <span className="bb-page-title-main">
+                <div className="bb-page-header-glow" aria-hidden="true" />
+                <h1 className="bb-page-title bb-schedule-desk-title">Availability Studio</h1>
+              </span>
             </div>
             {canEditRules ? (
               <button

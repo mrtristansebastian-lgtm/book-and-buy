@@ -1,5 +1,6 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
@@ -333,12 +334,16 @@ export function ProductsPage({ routeRest = [] }) {
       <header className="bb-services-desk-header">
         <div className="bb-services-desk-copy">
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-services-desk-title">Products</h1>
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title bb-services-desk-title">Products</h1>
+            </span>
           </div>
         </div>
-        <button type="button" className="bb-primary-btn" onClick={openCreate}>
-          <Plus size={16} /> Add product
+        <button type="button" className="bb-page-action" onClick={openCreate}>
+          <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
+          Add product
         </button>
       </header>
 

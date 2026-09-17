@@ -16,6 +16,7 @@ import {
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
 import { navigate } from '../../../app/routing';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
 
 const emptyClient = () => ({
@@ -251,8 +252,11 @@ export function ClientsPage() {
       <header className="bb-clients-header">
         <div className="bb-clients-header-copy">
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-clients-title">Client book</h1>
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title bb-clients-title">Client book</h1>
+            </span>
           </div>
         </div>
         <div className="bb-clients-tools">
@@ -267,8 +271,9 @@ export function ClientsPage() {
               aria-label="Search clients"
             />
           </label>
-          <button type="button" className="bb-primary-btn" onClick={() => openEdit()}>
-            <Plus size={16} /> Add client
+          <button type="button" className="bb-page-action" onClick={() => openEdit()}>
+            <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
+            Add client
           </button>
         </div>
       </header>

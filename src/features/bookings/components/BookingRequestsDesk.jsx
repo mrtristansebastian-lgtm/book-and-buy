@@ -98,7 +98,7 @@ function compareBookings(a, b, sortBy) {
   return chronoCompare;
 }
 
-export function BookingRequestsDesk() {
+export function BookingRequestsDesk({ heading = null }) {
   const {
     bookings,
     services,
@@ -166,63 +166,66 @@ export function BookingRequestsDesk() {
 
   return (
     <section className="bb-ops-desk">
-      <OpsDeskTabs
-        ariaLabel="Booking request filters"
-        value={filter}
-        onChange={setFilter}
-        options={[
-          { id: 'upcoming', label: 'Upcoming', count: counts.upcoming },
-          { id: 'review', label: 'Review', count: counts.review },
-          { id: 'confirmed', label: 'Confirmed', count: counts.confirmed },
-          { id: 'waitlist', label: 'Waitlist', count: counts.waitlist },
-          { id: 'history', label: 'History', count: counts.history },
-          { id: 'all', label: 'All', count: counts.all }
-        ]}
-      />
+      <div className="bb-page-chrome">
+        {heading}
+        <div className="bb-ops-toolbar" aria-label="Booking request period">
+          <PeriodSegmentedControl
+            variant="period"
+            ariaLabel="Booking request period"
+            value={period}
+            onChange={setPeriod}
+            options={PERIOD_OPTIONS}
+            onCustomSelect={() => setCustomPickerOpen(true)}
+          />
 
-      <div className="bb-ops-toolbar" aria-label="Booking request period">
-        <PeriodSegmentedControl
-          variant="period"
-          ariaLabel="Booking request period"
-          value={period}
-          onChange={setPeriod}
-          options={PERIOD_OPTIONS}
-          onCustomSelect={() => setCustomPickerOpen(true)}
-        />
-
-        <div className="bb-ops-toolbar-tools">
-          <div className="bb-schedule-day-nav">
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, period, -1))}
-              aria-label="Previous period"
-              disabled={period === 'all' || period === 'custom'}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <div className="bb-schedule-day-label">{periodLabel}</div>
-            <button
-              type="button"
-              className="bb-ghost-btn px-3"
-              onClick={() => setDay(shiftPeriod(day, period, 1))}
-              aria-label="Next period"
-              disabled={period === 'all' || period === 'custom'}
-            >
-              <ChevronRight size={18} />
-            </button>
+          <div className="bb-ops-toolbar-tools">
+            <div className="bb-schedule-day-nav">
+              <button
+                type="button"
+                className="bb-ghost-btn px-3"
+                onClick={() => setDay(shiftPeriod(day, period, -1))}
+                aria-label="Previous period"
+                disabled={period === 'all' || period === 'custom'}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className="bb-schedule-day-label">{periodLabel}</div>
+              <button
+                type="button"
+                className="bb-ghost-btn px-3"
+                onClick={() => setDay(shiftPeriod(day, period, 1))}
+                aria-label="Next period"
+                disabled={period === 'all' || period === 'custom'}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="bb-ops-list-sort">
-        <SortField
-          value={sortBy}
-          onChange={setSortBy}
-          options={SORT_OPTIONS}
-          pickerTitle="Sort requests"
-          pickerHint="Order booking requests in the selected period."
+        <OpsDeskTabs
+          ariaLabel="Booking request filters"
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { id: 'upcoming', label: 'Upcoming', count: counts.upcoming },
+            { id: 'review', label: 'Review', count: counts.review },
+            { id: 'confirmed', label: 'Confirmed', count: counts.confirmed },
+            { id: 'waitlist', label: 'Waitlist', count: counts.waitlist },
+            { id: 'history', label: 'History', count: counts.history },
+            { id: 'all', label: 'All', count: counts.all }
+          ]}
         />
+
+        <div className="bb-ops-list-sort">
+          <SortField
+            value={sortBy}
+            onChange={setSortBy}
+            options={SORT_OPTIONS}
+            pickerTitle="Sort requests"
+            pickerHint="Order booking requests in the selected period."
+          />
+        </div>
       </div>
 
       <div className="bb-ops-rows">

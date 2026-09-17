@@ -1,5 +1,6 @@
 import { ArrowLeft, UserRound } from 'lucide-react';
-import { clientInitials, formatPresenceLabel } from '../utils/supportFormat';
+import { formatPresenceLabel } from '../utils/supportFormat';
+import { PresenceAvatar } from './PresenceAvatar';
 import { QuickActionsMenu } from './QuickActionsMenu';
 
 export function ChatHeader({
@@ -11,7 +12,8 @@ export function ChatHeader({
 }) {
   if (!thread) return null;
   const presenceLabel = formatPresenceLabel(thread.presence);
-  const status = thread.presence?.status || 'offline';
+  const subject = thread.subject ? String(thread.subject) : '';
+  const subtitle = [presenceLabel, subject].filter(Boolean).join(' · ');
 
   return (
     <header className="bb-support-header">
@@ -21,18 +23,12 @@ export function ChatHeader({
             <ArrowLeft size={16} />
           </button>
         ) : null}
-        <span className="bb-support-avatar" aria-hidden="true">
-          {clientInitials(thread.clientName)}
-          <span
-            className={`bb-support-presence-dot is-${status === 'online' || status === 'away' ? status : 'offline'}`}
-          />
-        </span>
+        <PresenceAvatar name={thread.clientName} presence={thread.presence} />
         <div className="bb-support-header-copy">
           <h2>{thread.clientName}</h2>
-          <p className="support-presence-label bb-support-presence-label">
-            {presenceLabel}
-            {thread.subject ? ` · ${thread.subject}` : ''}
-          </p>
+          {subtitle ? (
+            <p className="support-presence-label bb-support-presence-label">{subtitle}</p>
+          ) : null}
         </div>
       </div>
       <div className="bb-support-header-actions">

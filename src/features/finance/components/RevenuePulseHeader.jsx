@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { CURRENCY_OPTIONS, FINANCE_PERIODS, periodTitle } from '../utils/financeLedger';
 
 export function RevenuePulseHeader({
@@ -23,8 +24,11 @@ export function RevenuePulseHeader({
       <div className="bb-finance-header-top">
         <div className="bb-finance-header-copy">
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-finance-title">{periodTitle(periodId, customRange)}</h1>
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title bb-finance-title">{periodTitle(periodId, customRange)}</h1>
+            </span>
           </div>
         </div>
 

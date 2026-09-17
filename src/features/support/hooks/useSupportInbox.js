@@ -48,19 +48,27 @@ export function useSupportInbox() {
     if (active?.id && active.unread) markThreadRead(active.id);
   }, [active?.id, active?.unread, markThreadRead]);
 
-  /* Soft presence drift for demo realism */
+  /* Soft presence drift for demo realism (online ↔ offline only) */
   useEffect(() => {
-    if (!active?.id || !active.presence) return undefined;
+    if (!active?.id || !active.presence || active.presence.visible === false) return undefined;
     const timer = window.setInterval(() => {
-      const status = active.presence?.status || 'offline';
-      if (status === 'online' && Math.random() > 0.7) {
-        setThreadPresence(active.id, { status: 'away', lastSeenAt: Date.now() });
-      } else if (status === 'away' && Math.random() > 0.85) {
-        setThreadPresence(active.id, { status: 'offline', lastSeenAt: Date.now() });
+      const status = active.presence?.status === 'online' ? 'online' : 'offline';
+      if (status === 'online' && Math.random() > 0.82) {
+        setThreadPresence(active.id, {
+          status: 'offline',
+          lastSeenAt: Date.now(),
+          visible: true
+        });
+      } else if (status === 'offline' && Math.random() > 0.9) {
+        setThreadPresence(active.id, {
+          status: 'online',
+          lastSeenAt: Date.now(),
+          visible: true
+        });
       }
-    }, 45000);
+    }, 60000);
     return () => window.clearInterval(timer);
-  }, [active?.id, active?.presence?.status, setThreadPresence]);
+  }, [active?.id, active?.presence?.status, active?.presence?.visible, setThreadPresence]);
 
   const matchedClient = useMemo(() => {
     if (!active) return null;

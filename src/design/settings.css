@@ -456,10 +456,6 @@
     display: none;
   }
 
-  .bb-settings.is-mobile-detail .bb-settings-back {
-    display: inline-flex;
-  }
-
   .bb-settings-plan-grid {
     grid-template-columns: 1fr;
   }

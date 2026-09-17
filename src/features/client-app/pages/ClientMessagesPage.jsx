@@ -11,7 +11,10 @@ import { navigate } from '../../../app/routing';
 import { MessageTimeline } from '../../support/components/MessageBubble';
 import { ChatComposer } from '../../support/components/ChatComposer';
 import { useKeyboardInset } from '../../support/hooks/useKeyboardInset';
-import { formatRelativeTime, messagePreview } from '../../support/utils/supportFormat';
+import { formatRelativeTime, formatPresenceLabel, messagePreview } from '../../support/utils/supportFormat';
+import { buildPresence } from '../../support/utils/presence';
+import { PresenceAvatar } from '../../support/components/PresenceAvatar';
+import { useOwnChatPresence } from '../../support/hooks/useOwnChatPresence';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
@@ -88,7 +91,7 @@ function lastMessage(thread) {
 /** Client messages — same Support inbox UI, client filter set + bubble perspective. */
 export function ClientMessagesPage({ threadId = '' }) {
   const { profile } = useClientProfile();
-  const { threads, sendThreadMessage, markThreadRead, workspace } = useWorkspace();
+  const { threads, sendThreadMessage, markThreadRead, workspace, setClientPresence } = useWorkspace();
   const email = String(profile?.email || '').toLowerCase();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('all');
@@ -171,6 +174,18 @@ export function ClientMessagesPage({ threadId = '' }) {
   const stageMode = active ? 'is-chat' : 'is-list';
   const activeName = active ? brandLabel(active, workspace) : '';
   useKeyboardInset(Boolean(active));
+
+  useOwnChatPresence({
+    enabled: Boolean(profile?.email),
+    showActivity: profile?.showActivityStatus !== false,
+    publish: (presence) => setClientPresence?.(profile?.email, presence)
+  });
+
+  const businessPresence = buildPresence({
+    status: workspace?.presence?.status || 'offline',
+    lastSeenAt: workspace?.presence?.lastSeenAt || Date.now() - 1000 * 60 * 12,
+    visible: workspace?.notifications?.showActivityStatus !== false
+  });
 
   useEffect(() => {
     if (!active?.id) return;
@@ -272,15 +287,13 @@ export function ClientMessagesPage({ threadId = '' }) {
                       }${unread ? ' is-unread' : ''}`}
                       onClick={() => navigate(`/app/messages/${thread.id}`)}
                     >
-                      {thread.logoUrl ? (
-                        <span className="bb-support-avatar support-thread-icon-chip" aria-hidden="true">
-                          <img src={thread.logoUrl} alt="" />
-                        </span>
-                      ) : (
-                        <span className="bb-support-avatar support-thread-icon-chip" aria-hidden="true">
-                          {name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
+                      <PresenceAvatar
+                        name={name}
+                        photoUrl={thread.logoUrl || ''}
+                        presence={businessPresence}
+                        className="support-thread-icon-chip"
+                        size="sm"
+                      />
                       <span className="bb-support-thread-copy">
                         <strong>{name}</strong>
                         <p className="bb-support-thread-preview support-thread-preview">
@@ -322,19 +335,17 @@ export function ClientMessagesPage({ threadId = '' }) {
                   >
                     <ArrowLeft size={16} />
                   </button>
-                  {active.logoUrl ? (
-                    <span className="bb-support-avatar" aria-hidden="true">
-                      <img src={active.logoUrl} alt="" />
-                    </span>
-                  ) : (
-                    <span className="bb-support-avatar" aria-hidden="true">
-                      {activeName.charAt(0).toUpperCase()}
-                    </span>
-                  )}
+                  <PresenceAvatar
+                    name={activeName}
+                    photoUrl={active.logoUrl || ''}
+                    presence={businessPresence}
+                  />
                   <div className="bb-support-header-copy">
                     <h2>{activeName}</h2>
                     <p className="support-presence-label bb-support-presence-label">
-                      {active.subject || 'Direct message'}
+                      {[formatPresenceLabel(businessPresence), active.subject || 'Direct message']
+                        .filter(Boolean)
+                        .join(' · ')}
                     </p>
                   </div>
                 </div>

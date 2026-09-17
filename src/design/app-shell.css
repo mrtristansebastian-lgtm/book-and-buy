@@ -37,8 +37,53 @@ html body .native-ui .bb-page-title {
 .bb-page-title-wrap {
   position: relative;
   isolation: isolate;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
   width: max-content;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.bb-page-back {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--bb-ink);
+  cursor: pointer;
+  z-index: 2;
+  transition:
+    transform 180ms var(--bb-ease-out),
+    background 140ms ease,
+    border-color 140ms ease;
+}
+
+.bb-page-back:hover {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.18);
+}
+
+.bb-page-back:hover svg {
+  transform: translateX(-1px);
+}
+
+.bb-page-back:active {
+  transform: scale(0.94);
+}
+
+.bb-page-back svg {
+  transition: transform 180ms var(--bb-ease-out);
+}
+
+.bb-page-title-main {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
   max-width: 100%;
 }
 
@@ -52,6 +97,10 @@ html body .native-ui .bb-page-title {
   height: 5.75rem;
   transform: translateY(-52%);
   overflow: visible;
+}
+
+.bb-page-title-main .bb-page-header-glow {
+  left: -1.1rem;
 }
 
 .bb-page-header-glow::before,
@@ -233,6 +282,56 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   cursor: pointer;
 }
 
+/* Compact create / add actions in page headings */
+.bb-page-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  flex: 0 0 auto;
+  min-height: 2.05rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  background: #fff;
+  color: #101828;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 740;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 160ms var(--bb-ease-out, ease);
+}
+
+.bb-page-action:hover {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+.bb-page-action:active {
+  transform: scale(0.97);
+}
+
+.bb-page-action svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  stroke-width: 2.35;
+}
+
+html body .native-ui .bb-page-action,
+html body .native-ui .bb-page-action :where(span, strong, small) {
+  color: #101828 !important;
+  font-size: 0.8rem !important;
+  font-weight: 740 !important;
+}
+
 .bb-ghost-btn {
   display: inline-flex;
   align-items: center;
@@ -328,6 +427,109 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   padding: 1.25rem 1rem calc(1.25rem + var(--bb-owner-dock-pad));
   min-width: 0;
   min-height: 0;
+}
+
+/*
+ * Universal page frame: shell fills the viewport; MiniAppBar stays put;
+ * only .bb-owner-main scrolls; page headings stick to the top of that scroller.
+ */
+.bb-shell.is-launcher,
+.bb-shell.is-miniapp:not(.is-support-flush) {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-shell.is-launcher .bb-owner-layout,
+.bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.bb-shell.is-launcher .bb-owner-content,
+.bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.bb-shell.is-launcher .bb-owner-main,
+.bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bb-owner-main :is(
+  .bb-page-chrome,
+  .bb-launcher-header,
+  .bb-clients-header,
+  .bb-finance-header,
+  .bb-analytics-header,
+  .bb-studio-toolbar,
+  .bb-settings-mobile-index-head,
+  .bb-settings-main-head,
+  .bb-schedule-desk-header,
+  .bb-services-desk-header
+),
+.bb-owner-main > .grid > header:first-child,
+.bb-owner-main > .grid > .bb-page-title-wrap:first-child {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+}
+
+/* One sticky band: heading + period toggles / filters / search */
+.bb-owner-main .bb-page-chrome {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.1rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.bb-owner-main .bb-page-chrome .bb-services-desk-header,
+.bb-owner-main .bb-page-chrome .bb-schedule-desk-header,
+.bb-owner-main .bb-page-chrome .bb-stock-toolbar,
+.bb-owner-main .bb-page-chrome .bb-schedule-toolbar,
+.bb-owner-main .bb-page-chrome .bb-schedule-stage-filters,
+.bb-owner-main .bb-page-chrome .bb-ops-tabs,
+.bb-owner-main .bb-page-chrome .bb-ops-toolbar,
+.bb-owner-main .bb-page-chrome .bb-ops-list-sort {
+  position: static;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.bb-owner-main .bb-launcher-header,
+.bb-owner-main .bb-clients-header,
+.bb-owner-main .bb-finance-header,
+.bb-owner-main .bb-analytics-header,
+.bb-owner-main .bb-studio-toolbar {
+  padding-top: 0.15rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.15rem;
+}
+
+.bb-owner-main .bb-ops-desk > .bb-page-chrome {
+  margin-inline: -0.15rem;
+  padding-inline: 0.15rem;
 }
 
 .bb-owner-apps-nav {
@@ -455,8 +657,10 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   align-items: stretch;
   min-height: var(--bb-owner-dock-h);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fff;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
   transform: translateY(0);
   transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
@@ -525,7 +729,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 .bb-owner-dock-btn.is-active {
-  color: #101828;
+  color: #050505;
   font-weight: 500;
 }
 
@@ -534,8 +738,12 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 .bb-owner-dock-btn svg {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
+  stroke-width: 2;
+}
+
+.bb-owner-dock-btn.is-active svg {
   stroke-width: 2;
 }
 
@@ -543,22 +751,26 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   position: relative;
   display: grid;
   place-items: center;
-  min-width: 2.65rem;
-  min-height: 2.65rem;
-  padding: 0.35rem;
-  border: 1.5px solid transparent;
-  border-radius: 0.9rem;
-  background-clip: padding-box, border-box;
-  background-origin: border-box;
+  width: 2.7rem;
+  height: 2.7rem;
+  min-width: 2.7rem;
+  min-height: 2.7rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.95rem;
+  background: transparent;
+  transition: background 160ms ease, color 160ms ease, transform 160ms var(--bb-ease-out, ease);
 }
 
 .bb-owner-dock-btn.is-active .bb-owner-dock-icon {
+  color: #050505;
   background-color: transparent;
   background-image:
-    linear-gradient(#ffffff, #ffffff),
-    var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
-  background-size: auto, 420% 420%;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
 }
 
 .bb-owner-dock-badge {
@@ -1138,7 +1350,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   background: #fbfbfb;
 }
 
-.bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-miniapp-bar {
+.bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-miniapp-tabs-bar {
   display: none !important;
 }
 

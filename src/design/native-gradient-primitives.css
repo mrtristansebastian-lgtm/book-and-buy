@@ -44,6 +44,16 @@
             text-align: center;
         }
 
+        /* Presence avatars keep a fixed circle — don't let the chip helper flatten them */
+        .native-ui :where(.bb-support-avatar.support-thread-icon-chip) {
+            display: grid;
+            width: 3rem;
+            height: 3rem;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
         .native-ui :where(.support-thread-icon-chip) > svg {
             display: block;
             flex: 0 0 auto;

@@ -12,15 +12,22 @@
   color: var(--bb-ink);
 }
 
+.bb-ops-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
 /* —— Filter tabs —— */
 .bb-ops-tabs {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.15rem 0 0.85rem;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-  margin-bottom: 0.2rem;
+  padding: 0.15rem 0 0.55rem;
 }
 
 .bb-ops-toolbar {
@@ -29,7 +36,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem 1rem;
-  padding: 0.75rem 0 0.95rem;
+  padding: 0.15rem 0 0.75rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 

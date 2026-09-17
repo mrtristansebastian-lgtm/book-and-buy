@@ -8,11 +8,9 @@ import {
   RefreshCw,
   Search
 } from 'lucide-react';
-import {
-  clientInitials,
-  formatRelativeTime,
-  messagePreview
-} from '../utils/supportFormat';
+import { formatRelativeTime, messagePreview } from '../utils/supportFormat';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
+import { PresenceAvatar } from './PresenceAvatar';
 
 const FILTERS = [
   { id: 'all', label: 'All messages', Icon: MessageSquare },
@@ -79,8 +77,11 @@ export function ThreadList({ threads, activeId, onSelect }) {
       <div className="bb-support-list-head">
         <div className="bb-support-list-head-copy">
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h2 className="bb-page-title bb-support-inbox-title">Inbox</h2>
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h2 className="bb-page-title bb-support-inbox-title">Inbox</h2>
+            </span>
           </div>
           <p className="bb-muted m-0 text-xs mt-1">Bookings, orders, and client messages</p>
         </div>
@@ -126,7 +127,6 @@ export function ThreadList({ threads, activeId, onSelect }) {
         ) : (
           visible.map((thread) => {
             const last = lastMessage(thread);
-            const status = thread.presence?.status || 'offline';
             return (
               <button
                 key={thread.id}
@@ -134,12 +134,12 @@ export function ThreadList({ threads, activeId, onSelect }) {
                 className={`bb-support-thread ${activeId === thread.id ? 'is-active' : ''}`}
                 onClick={() => onSelect(thread.id)}
               >
-                <span className="bb-support-avatar support-thread-icon-chip" aria-hidden="true">
-                  {clientInitials(thread.clientName)}
-                  <span
-                    className={`bb-support-presence-dot is-${status === 'online' || status === 'away' ? status : 'offline'}`}
-                  />
-                </span>
+                <PresenceAvatar
+                  name={thread.clientName}
+                  presence={thread.presence}
+                  className="support-thread-icon-chip"
+                  size="sm"
+                />
                 <span className="bb-support-thread-copy">
                   <strong>{thread.clientName}</strong>
                   <p className="bb-support-thread-preview support-thread-preview">

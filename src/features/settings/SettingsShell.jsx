@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Bell,
-  ChevronLeft,
   CreditCard,
   Globe2,
   Lock,
@@ -18,6 +17,7 @@ import {
   WalletCards
 } from 'lucide-react';
 import { navigate } from '../../app/routing';
+import { PageBackButton } from '../../shared/ui/PageBackButton';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import {
   DEFAULT_SETTINGS_SECTION,
@@ -180,8 +180,11 @@ export function SettingsShell({ section: sectionProp }) {
       <aside className="bb-settings-rail" aria-label="Settings categories">
         <header className="bb-settings-mobile-index-head">
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title">Settings</h1>
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title">Settings</h1>
+            </span>
           </div>
           <p className="bb-muted">Business, billing, and account.</p>
         </header>
@@ -233,13 +236,12 @@ export function SettingsShell({ section: sectionProp }) {
 
       <div className="bb-settings-main">
         <header className="bb-settings-main-head">
-          <button type="button" className="bb-settings-back" onClick={goList}>
-            <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
-            Settings
-          </button>
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title">{copy.title}</h1>
+            <PageBackButton ariaLabel="Back to Settings" onClick={goList} />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title">{copy.title}</h1>
+            </span>
           </div>
           <p className="bb-muted">{copy.lede}</p>
         </header>

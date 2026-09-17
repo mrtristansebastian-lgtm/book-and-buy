@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import {
   isEBusinessPreviewOnlyPage,
   isHomePageAlwaysVisible,
   isPublicPageEnabled
 } from '../../../config/eBusinessPlatform';
-import { LAUNCHER_TAB } from '../../../config/appLauncher';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { DevicePreviewFrame } from '../components/DevicePreviewFrame';
 
@@ -136,19 +136,12 @@ export function WebsiteSurfaceStudio({
       <header className="bb-studio-toolbar">
         <div className="bb-studio-toolbar-top">
           <div className="bb-studio-toolbar-copy min-w-0">
-            {isMobile ? (
-              <button
-                type="button"
-                className="bb-studio-back"
-                aria-label="Back to Home"
-                onClick={() => navigate(`/dashboard/${LAUNCHER_TAB}`)}
-              >
-                <ArrowLeft size={18} strokeWidth={2.4} />
-              </button>
-            ) : null}
             <div className="bb-page-title-wrap">
-              <div className="bb-page-header-glow" aria-hidden="true" />
-              <h1 className="bb-page-title m-0">{title}</h1>
+              <PageBackButton />
+              <span className="bb-page-title-main">
+                <div className="bb-page-header-glow" aria-hidden="true" />
+                <h1 className="bb-page-title m-0">{title}</h1>
+              </span>
             </div>
             <p className="bb-muted m-0 text-sm bb-studio-toolbar-lede">{lede}</p>
           </div>

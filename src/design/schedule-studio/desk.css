@@ -570,15 +570,15 @@
 }
 
 .bb-schedule-day-meter.is-leave {
-  background: linear-gradient(90deg, #93c5fd, #3b82f6);
+  background: linear-gradient(90deg, #cfe8ff, #9fd4ff);
 }
 
 .bb-schedule-day-meter.is-off {
-  background: linear-gradient(90deg, #c084fc, #a855f7);
+  background: linear-gradient(90deg, #ead9ff, #d8b8ff);
 }
 
 .bb-schedule-day-meter.is-closed {
-  background: linear-gradient(90deg, #fecaca, #f87171);
+  background: linear-gradient(90deg, #f1f3f5, #e6e8ec);
 }
 
 .bb-schedule-day-meter-seg {
@@ -590,12 +590,12 @@
 }
 
 .bb-schedule-day-meter-seg.is-open {
-  background: #22c55e;
+  background: #7dffb2;
 }
 
 .bb-schedule-day-meter-seg.is-break {
-  background: #f97316;
-  box-shadow: 0 0 0 1px rgba(194, 65, 12, 0.28);
+  background: #ffc28a;
+  box-shadow: none;
   z-index: 1;
 }
 
@@ -771,19 +771,19 @@
 }
 
 .bb-schedule-day-meter-legend-item.is-open i {
-  background: #22c55e;
+  background: #7dffb2;
 }
 
 .bb-schedule-day-meter-legend-item.is-break i {
-  background: #f97316;
+  background: #ffc28a;
 }
 
 .bb-schedule-day-meter-legend-item.is-off i {
-  background: #a855f7;
+  background: #d8b8ff;
 }
 
 .bb-schedule-day-meter-legend-item.is-leave i {
-  background: #3b82f6;
+  background: #9fd4ff;
 }
 
 .bb-schedule-day-meter-legend-item.is-booking i {

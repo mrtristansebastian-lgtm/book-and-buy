@@ -1,4 +1,5 @@
 import { useAnalyticsLive } from '../hooks/useAnalyticsLive';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { AnalyticsLiveStrip } from '../components/AnalyticsLiveStrip';
 import { AnalyticsActiveCarts } from '../components/AnalyticsActiveCarts';
 import { AnalyticsRankTable } from '../components/AnalyticsRankTable';
@@ -13,8 +14,11 @@ export function LiveStatsPage() {
         <div className="bb-analytics-header-copy">
           <p className="bb-analytics-eyebrow">Live Stats</p>
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-analytics-title">Right now</h1>
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title bb-analytics-title">Right now</h1>
+            </span>
           </div>
           <p className="bb-analytics-demo-note">
             {data.usingDemo

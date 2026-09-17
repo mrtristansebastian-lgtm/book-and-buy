@@ -18,6 +18,7 @@ export function emptyClientProfile(overrides = {}) {
     commentsByKey: {},
     createdAt: Date.now(),
     isDemo: false,
+    showActivityStatus: true,
     ...overrides
   };
 }

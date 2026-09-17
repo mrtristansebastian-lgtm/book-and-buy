@@ -567,105 +567,34 @@
     0 14px 28px -14px rgba(15, 23, 42, 0.4);
 }
 
-/* ---------- Mini-app bar ---------- */
+/* ---------- Mini-app sub-page tabs (no category header) ---------- */
 
-.bb-miniapp-bar {
+.bb-miniapp-tabs-bar {
   position: sticky;
   top: 0;
   z-index: 30;
   flex: 0 0 auto;
-  background: rgba(251, 251, 251, 0.82);
+  background: rgba(251, 251, 251, 0.88);
   backdrop-filter: blur(18px) saturate(1.4);
   -webkit-backdrop-filter: blur(18px) saturate(1.4);
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-}
-
-.bb-miniapp-bar-inner {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 3.5rem;
   padding: 0.45rem 1rem;
   padding-top: max(0.45rem, env(safe-area-inset-top));
 }
 
 @media (min-width: 768px) {
-  .bb-miniapp-bar-inner {
+  .bb-miniapp-tabs-bar {
     padding-inline: 1.75rem;
   }
 }
 
 @media (min-width: 1280px) {
-  .bb-miniapp-bar-inner {
+  .bb-miniapp-tabs-bar {
     padding-inline: 2.25rem;
   }
 }
 
-.bb-miniapp-back {
-  display: grid;
-  place-items: center;
-  width: 2.4rem;
-  height: 2.4rem;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  background: #fff;
-  color: var(--bb-ink);
-  cursor: pointer;
-  transition: transform 180ms var(--bb-ease-out), background 140ms ease, border-color 140ms ease;
-}
-
-.bb-miniapp-back:hover {
-  background: #f6f7f9;
-  border-color: rgba(15, 23, 42, 0.16);
-}
-
-.bb-miniapp-back:hover svg {
-  transform: translateX(-1px);
-}
-
-.bb-miniapp-back:active {
-  transform: scale(0.94);
-}
-
-.bb-miniapp-back svg {
-  transition: transform 180ms var(--bb-ease-out);
-}
-
-.bb-miniapp-identity {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-width: 0;
-  flex: 0 0 auto;
-}
-
-.bb-miniapp-chip {
-  display: grid;
-  place-items: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 0.6rem;
-  color: #050505;
-  background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2)),
-    var(--native-accent-button-gradient);
-  background-size: 100% 100%, 420% 420%;
-  background-position: 0 0, var(--native-accent-x) 50%;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-}
-
-.bb-miniapp-name {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 0.98rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--bb-ink);
-  white-space: nowrap;
-}
-
 .bb-miniapp-tabs {
-  margin-left: auto;
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
@@ -704,8 +633,8 @@
 }
 
 /* Studio + Support already lock the shell; keep the bar out of their scroll math */
-.bb-shell:has(.bb-studio-canvas) .bb-miniapp-bar,
-.bb-shell.is-support-flush .bb-miniapp-bar {
+.bb-shell:has(.bb-studio-canvas) .bb-miniapp-tabs-bar,
+.bb-shell.is-support-flush .bb-miniapp-tabs-bar {
   position: relative;
 }
 
@@ -771,7 +700,7 @@
   .bb-app-tile-row,
   .bb-launcher-view,
   .bb-stat,
-  .bb-miniapp-back {
+  .bb-page-back {
     transition: none;
   }
 }
@@ -864,13 +793,8 @@
     border-radius: 0;
   }
 
-  .bb-miniapp-bar-inner {
-    gap: 0.55rem;
-    min-height: 3.25rem;
-  }
-
-  .bb-miniapp-name {
-    font-size: 0.92rem;
+  .bb-miniapp-tabs-bar {
+    padding-block: 0.4rem;
   }
 
   .bb-miniapp-tabs {
@@ -884,17 +808,8 @@
 }
 
 @media (max-width: 899px) {
-  .bb-miniapp-tabs {
+  .bb-miniapp-tabs-bar {
     display: none !important;
-  }
-
-  .bb-miniapp-bar-inner {
-    gap: 0.55rem;
-    min-height: 3.1rem;
-  }
-
-  .bb-miniapp-identity {
-    flex: 1 1 auto;
   }
 }
 

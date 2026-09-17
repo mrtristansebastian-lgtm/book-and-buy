@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { Clapperboard, ExternalLink, ImagePlus, PenLine, Plus, Radio, RectangleVertical, X } from 'lucide-react';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { EditableImage } from '../../website/components/editable';
 import { MAX_MEDIA } from '../utils/mediaIntake';
 import {
@@ -438,6 +439,8 @@ export function SocialStudioCompose({
   bio = '',
   category = '',
   location = '',
+  pageVisible = true,
+  onTogglePageVisible,
   onUpdateWebsite,
   onUpdateProfile,
   onOpenCreate,
@@ -485,11 +488,14 @@ export function SocialStudioCompose({
       >
         <div className="bb-public-profile-shell">
           <div className="bb-public-profile-banner-wrap">
+            <PageBackButton className="bb-social-studio-back" />
             {bannerUrl ? (
               <div className="bb-public-profile-banner">
                 <img src={bannerUrl} alt="" className="bb-public-profile-banner-img" />
               </div>
-            ) : null}
+            ) : (
+              <div className="bb-public-profile-banner bb-public-profile-banner--empty" aria-hidden="true" />
+            )}
           </div>
 
           <div className="bb-public-profile-card">
@@ -529,6 +535,16 @@ export function SocialStudioCompose({
             </div>
 
             <div className="bb-public-profile-aside bb-social-studio-profile-aside">
+              {onTogglePageVisible ? (
+                <label className="bb-studio-visible-toggle bb-social-studio-visible">
+                  <input
+                    type="checkbox"
+                    checked={pageVisible}
+                    onChange={onTogglePageVisible}
+                  />
+                  Page visible
+                </label>
+              ) : null}
               <button
                 type="button"
                 className="bb-ghost-btn bb-public-profile-action bb-public-profile-action--compact"

@@ -219,7 +219,7 @@ export const DEMO_THREADS = [
     bookingId: 'bk-1',
     unread: true,
     updatedAt: Date.now() - 1000 * 60 * 25,
-    presence: { status: 'online', lastSeenAt: Date.now() - 1000 * 60 * 2 },
+    presence: { status: 'online', lastSeenAt: Date.now() - 1000 * 60 * 2, visible: true },
     messages: [
       {
         id: 'm1',
@@ -270,7 +270,7 @@ export const DEMO_THREADS = [
     bookingId: 'bk-2',
     unread: false,
     updatedAt: Date.now() - 1000 * 60 * 180,
-    presence: { status: 'away', lastSeenAt: Date.now() - 1000 * 60 * 45 },
+    presence: { status: 'offline', lastSeenAt: Date.now() - 1000 * 60 * 45, visible: true },
     messages: [
       {
         id: 'm4',
@@ -316,7 +316,7 @@ export const DEMO_THREADS = [
     orderId: 'ord-2',
     unread: false,
     updatedAt: Date.now() - 1000 * 60 * 90,
-    presence: { status: 'offline', lastSeenAt: Date.now() - 1000 * 60 * 60 * 8 },
+    presence: { status: 'offline', lastSeenAt: Date.now() - 1000 * 60 * 60 * 8, visible: true },
     messages: [
       {
         id: 'm6',
@@ -1056,8 +1056,10 @@ export function createDemoWorkspace() {
     notifications: {
       emailBookingRequests: true,
       emailProductOrders: true,
-      emailSupportMessages: true
+      emailSupportMessages: true,
+      showActivityStatus: true
     },
+    presence: { status: 'online', lastSeenAt: Date.now() - 1000 * 60 * 3, visible: true },
     paymentGateways: DEMO_PAYMENT_GATEWAYS,
     clients: DEMO_CLIENTS,
     threads: DEMO_THREADS,

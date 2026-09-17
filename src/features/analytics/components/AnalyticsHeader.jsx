@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { ANALYTICS_PERIODS, periodTitle } from '../utils/analyticsMetrics';
 
 export function AnalyticsHeader({
@@ -24,10 +25,13 @@ export function AnalyticsHeader({
         <div className="bb-analytics-header-copy">
           <p className="bb-analytics-eyebrow">{title}</p>
           <div className="bb-page-title-wrap">
-            <div className="bb-page-header-glow" aria-hidden="true" />
-            <h1 className="bb-page-title bb-analytics-title">
-              {periodTitle(periodId, customRange)}
-            </h1>
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title bb-analytics-title">
+                {periodTitle(periodId, customRange)}
+              </h1>
+            </span>
           </div>
           {usingDemo ? (
             <p className="bb-analytics-demo-note">Demo data — connect Firebase for live tracking.</p>

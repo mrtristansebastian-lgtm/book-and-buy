@@ -84,7 +84,7 @@ function ProfilePreview({ profile, onOpen }) {
   );
 }
 
-function GeneralSettings({ profile, updateClientProfile }) {
+function GeneralSettings({ profile, updateClientProfile, setClientPresence }) {
   const { configured } = useAuth();
   const fileRef = useRef(null);
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -166,6 +166,29 @@ function GeneralSettings({ profile, updateClientProfile }) {
             onChange={(event) => updateClientProfile({ photoURL: event.target.value })}
           />
         </label>
+        <label className="flex items-start gap-3 text-sm font-semibold pt-1">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={profile?.showActivityStatus !== false}
+            onChange={(event) => {
+              const next = event.target.checked;
+              updateClientProfile({ showActivityStatus: next });
+              setClientPresence?.(profile?.email, {
+                status: next && !document.hidden ? 'online' : 'offline',
+                lastSeenAt: Date.now(),
+                visible: next
+              });
+            }}
+          />
+          <span>
+            Show activity status
+            <span className="block font-normal text-[#667085] mt-0.5">
+              Green when you are online, grey with last seen when you are not. Turn off to hide
+              status from businesses entirely.
+            </span>
+          </span>
+        </label>
       </section>
     </div>
   );
@@ -196,7 +219,7 @@ function AccountSettings({ clearClientSession, showDemo }) {
 /** Account = settings-style index with profile preview + section pages. */
 export function ClientAccountPage({ section = '' }) {
   const { profile, clearClientSession, followSlug, updateClientProfile } = useClientProfile();
-  const { bookings, orders, workspace, startThreadFromBooking, startThreadFromOrder } =
+  const { bookings, orders, workspace, startThreadFromBooking, startThreadFromOrder, setClientPresence } =
     useWorkspace();
   const email = String(profile?.email || '').toLowerCase();
   const active = SECTIONS.find((item) => item.id === section) || null;
@@ -245,7 +268,13 @@ export function ClientAccountPage({ section = '' }) {
 
   let body = null;
   if (active?.id === 'general') {
-    body = <GeneralSettings profile={profile} updateClientProfile={updateClientProfile} />;
+    body = (
+      <GeneralSettings
+        profile={profile}
+        updateClientProfile={updateClientProfile}
+        setClientPresence={setClientPresence}
+      />
+    );
   } else if (active?.id === 'bookings') {
     body = (
       <div className="bb-client-stack">

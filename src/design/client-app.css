@@ -32,11 +32,12 @@
   padding: 0.85rem 1rem 0.75rem;
   padding-top: max(0.85rem, env(safe-area-inset-top));
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 20;
+  flex-shrink: 0;
 }
 
 .bb-client-top-mark {
@@ -117,8 +118,10 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   align-items: stretch;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fff;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   position: relative;
   z-index: 100;
@@ -190,8 +193,10 @@
   }
 
   .bb-client-tab-icon {
-    min-width: 2.45rem;
-    min-height: 2.45rem;
+    width: 2.55rem;
+    height: 2.55rem;
+    min-width: 2.55rem;
+    min-height: 2.55rem;
   }
 
   .bb-client-tab-icon svg {
@@ -234,7 +239,7 @@
 }
 
 .bb-client-tab.is-active {
-  color: #101828;
+  color: #050505;
   font-weight: 500;
 }
 
@@ -242,30 +247,37 @@
   position: relative;
   display: grid;
   place-items: center;
-  min-width: 2.65rem;
-  min-height: 2.65rem;
-  padding: 0.35rem;
-  border: 1.5px solid transparent;
-  border-radius: 0.9rem;
-  background-clip: padding-box, border-box;
-  background-origin: border-box;
+  width: 2.7rem;
+  height: 2.7rem;
+  min-width: 2.7rem;
+  min-height: 2.7rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.95rem;
+  background: transparent;
+  transition: background 160ms ease, color 160ms ease;
 }
 
 .bb-client-tab-icon svg {
   display: block;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   stroke-width: 2;
 }
 
 .bb-client-tab.is-active .bb-client-tab-icon {
-  color: #101828;
+  color: #050505;
   background-color: transparent;
   background-image:
-    linear-gradient(#ffffff, #ffffff),
-    var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
-  background-size: auto, 420% 420%;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
+}
+
+.bb-client-tab.is-active .bb-client-tab-icon svg {
+  stroke-width: 2;
 }
 
 .bb-client-tab-badge {
@@ -322,6 +334,12 @@
   gap: 0.25rem;
   padding: 0.75rem 1.1rem 0.85rem;
   padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
 }
 
 .bb-client-settings .bb-settings-mobile-index-head .bb-page-title {
@@ -475,6 +493,13 @@
 
 .bb-client-settings.is-mobile-detail .bb-settings-main-head {
   margin-bottom: 0.85rem;
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  padding-bottom: 0.65rem;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
 }
 
 .bb-client-settings.is-mobile-detail .bb-settings-back {
@@ -2933,7 +2958,7 @@
   html.bb-chat-open .bb-shell.is-support-flush .bb-owner-dock,
   html.bb-chat-open .bb-shell.is-support-flush .bb-owner-menu-sheet,
   html.bb-chat-open .bb-shell.is-support-flush .bb-owner-menu-backdrop,
-  html.bb-chat-open .bb-shell.is-support-flush .bb-miniapp-bar {
+  html.bb-chat-open .bb-shell.is-support-flush .bb-miniapp-tabs-bar {
     display: none !important;
   }
 
