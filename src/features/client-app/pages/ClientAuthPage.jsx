@@ -7,7 +7,7 @@ import { useClientProfile } from '../ClientProfileContext';
 
 /** Client login / signup for the Instagram-style app. */
 export function ClientAuthPage() {
-  const { configured, signInEmail, signUpEmail, signInGoogle, isLocalMode } = useAuth();
+  const { configured, signInEmail, signUpEmail, signInGoogle } = useAuth();
   const { loadDemoWorkspace } = useWorkspace();
   const { bootstrapClientAfterAuth, enterDemoClient } = useClientProfile();
   const [mode, setMode] = useState('signin');
@@ -140,19 +140,17 @@ export function ClientAuthPage() {
           <button type="button" className="bb-ghost-btn" onClick={() => navigate('/')}>
             Business owner login
           </button>
-          {isLocalMode || !configured ? (
-            <button
-              type="button"
-              className="bb-ghost-btn"
-              onClick={() => {
-                loadDemoWorkspace?.();
-                enterDemoClient();
-                navigate('/app/home', { replace: true });
-              }}
-            >
-              Demo client
-            </button>
-          ) : null}
+          <button
+            type="button"
+            className="bb-ghost-btn"
+            onClick={() => {
+              loadDemoWorkspace?.();
+              enterDemoClient();
+              navigate('/app/home', { replace: true });
+            }}
+          >
+            Demo client
+          </button>
         </footer>
       </div>
     </div>

@@ -1243,6 +1243,36 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   background: linear-gradient(145deg, #e2e8f0, #f8fafc);
 }
 
+.bb-public-coverflow-hit--blank {
+  cursor: default;
+  pointer-events: none;
+}
+
+.bb-public-coverflow-blank,
+.bb-public-coverflow-slide.is-blank .bb-blank-media,
+.bb-public-coverflow-slide.is-blank .bb-editable-image-empty,
+.bb-public-coverflow-slide.is-blank .bb-editable-image.is-empty,
+.bb-public-coverflow-slide.is-blank .bb-editable-image-blank-media {
+  width: min(42vw, 14rem);
+  min-width: min(42vw, 14rem);
+  max-width: min(86vw, 28rem);
+  aspect-ratio: 4 / 5;
+  height: auto;
+  min-height: clamp(14rem, 48vw, 28rem);
+}
+
+.bb-public-coverflow-slide.is-blank .bb-public-coverflow-media,
+.bb-public-coverflow-slide.is-blank .bb-editable-image,
+.bb-public-coverflow-slide.is-blank .bb-editable-image-empty {
+  width: min(42vw, 14rem);
+  max-width: min(86vw, 28rem);
+  min-height: clamp(14rem, 48vw, 28rem);
+}
+
+.bb-public-coverflow-slide.is-blank .bb-editable-image-blank {
+  min-height: clamp(14rem, 48vw, 28rem);
+}
+
 .bb-public-coverflow-nav {
   position: relative;
   z-index: 5;

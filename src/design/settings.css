@@ -374,8 +374,12 @@
     font-size: 0.95rem;
   }
 
-  .bb-settings.is-mobile-index .bb-settings-search-wrap {
+  /* width:auto so horizontal margin does not push past the viewport */
+  html body .native-ui .bb-settings.is-mobile-index .bb-settings-search-wrap {
     margin: 0 1.1rem 0.55rem;
+    width: auto !important;
+    max-width: none;
+    box-sizing: border-box;
   }
 
   .bb-settings.is-mobile-index .bb-settings-search {

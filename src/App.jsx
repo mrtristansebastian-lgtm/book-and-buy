@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { parseAppRoute, useHashRoute, navigate } from './app/routing';
+import { parseAppRoute, useHashRoute, navigate, scrollAppToTop } from './app/routing';
 import { AppLoginScreen } from './features/auth/AppLoginScreen';
 import { useAuth } from './features/auth/AuthContext';
 import { OwnerWorkspaceApp } from './features/dashboard/OwnerWorkspaceApp';
@@ -21,6 +21,20 @@ export default function App() {
   useViewportZoomGate();
 
   useEffect(() => useHashRoute(setRoute), []);
+
+  // Guarantee every screen opens at the top after React paints the new route.
+  const routeKey = [
+    route.kind,
+    route.tab,
+    route.section,
+    route.page,
+    route.slug,
+    route.itemId,
+    ...(route.rest || [])
+  ].join('/');
+  useEffect(() => {
+    scrollAppToTop();
+  }, [routeKey]);
 
   useEffect(() => {
     document.documentElement.classList.add('app-idle');

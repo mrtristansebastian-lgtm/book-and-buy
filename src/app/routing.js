@@ -139,14 +139,59 @@ export function clientAppPath(section = 'home', ...rest) {
   return `${base}/${rest.map((part) => encodeURIComponent(String(part))).join('/')}`;
 }
 
+/** Primary page scrollers — reset these on every screen change so new routes open at top. */
+const SCROLL_ROOT_SELECTORS = [
+  '.bb-owner-main',
+  '.bb-client-main',
+  '.bb-public-surface',
+  '.bb-studio-stage',
+  '.bb-studio-surface',
+  '.bb-device-screen',
+  '.bb-owner-menu-sheet-body',
+  '[data-scroll-root]'
+].join(', ');
+
+/**
+ * Jump every page-level scroller to the top. Safe to call on hash changes;
+ * chat panes that intentionally scroll to the latest message can re-apply after.
+ */
+export function scrollAppToTop() {
+  if (typeof window === 'undefined') return;
+
+  const run = () => {
+    window.scrollTo(0, 0);
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+
+    document.querySelectorAll(SCROLL_ROOT_SELECTORS).forEach((el) => {
+      if (el.scrollTop) el.scrollTop = 0;
+      if (el.scrollLeft) el.scrollLeft = 0;
+    });
+  };
+
+  run();
+  // After React paints the next screen (nested scroll roots may remount).
+  requestAnimationFrame(() => {
+    run();
+    requestAnimationFrame(run);
+  });
+}
+
 export function navigate(to, { replace = false } = {}) {
   const next = to.startsWith('#') ? to : `#${to.startsWith('/') ? to : `/${to}`}`;
+  const prevHash = stripHash(window.location.hash || '');
+  const nextHash = stripHash(next);
   if (replace) window.location.replace(next);
-  else window.location.hash = next.replace(/^#/, '');
+  else window.location.hash = nextHash;
+  // Same-hash navigations do not fire hashchange — still land at top.
+  if (prevHash === nextHash) scrollAppToTop();
 }
 
 export function useHashRoute(onChange) {
-  const handler = () => onChange(parseAppRoute());
+  const handler = () => {
+    scrollAppToTop();
+    onChange(parseAppRoute());
+  };
   window.addEventListener('hashchange', handler);
   return () => window.removeEventListener('hashchange', handler);
 }

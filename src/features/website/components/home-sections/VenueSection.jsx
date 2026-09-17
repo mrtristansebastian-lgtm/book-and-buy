@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { BlankMedia } from '../../../../shared/ui/BlankMedia';
 import { EditableText, EditableImage, EditSection } from '../editable';
 
 const SWIPE_THRESHOLD_PX = 42;
+const EMPTY_GALLERY_SLOTS = 3;
 
 function circularOffsets(index, activeIndex, count) {
   if (count < 2) return [index - activeIndex];
@@ -10,6 +12,15 @@ function circularOffsets(index, activeIndex, count) {
   if (offset > Math.floor(count / 2)) offset -= count;
   if (count === 2 && offset === 1) return [1, -1];
   return [offset];
+}
+
+function makePlaceholderSlides(count = EMPTY_GALLERY_SLOTS) {
+  return Array.from({ length: count }, (_, index) => ({
+    id: `gallery-empty-${index}`,
+    url: '',
+    caption: '',
+    placeholder: true
+  }));
 }
 
 export function VenueSection({
@@ -27,7 +38,9 @@ export function VenueSection({
   const stepFlowRef = useRef(() => {});
   const viewable = venueImages.filter((image) => Boolean(image.url));
   const active = viewerIndex == null ? null : viewable[viewerIndex] || null;
-  const flowImages = editMode ? venueImages : viewable;
+  const realFlow = editMode ? venueImages : viewable;
+  const isEmptyGallery = realFlow.length === 0;
+  const flowImages = isEmptyGallery ? makePlaceholderSlides() : realFlow;
   const flowCount = flowImages.length;
 
   useEffect(() => {
@@ -132,6 +145,15 @@ export function VenueSection({
     setActiveIndex(index);
   };
 
+  const onPlaceholderUpload = (slotIndex, url) => {
+    const next = makePlaceholderSlides().map((slot, index) => ({
+      id: `v-${Date.now()}-${index}`,
+      url: index === slotIndex ? url : '',
+      caption: ''
+    }));
+    patchWebsite({ venueImages: next });
+  };
+
   return (
     <EditSection
       editMode={editMode}
@@ -172,34 +194,30 @@ export function VenueSection({
             ) : null}
           </header>
 
-          {flowCount === 0 && editMode ? (
-            <p className="bb-edit-section-coach m-0">Add photos to this section.</p>
-          ) : null}
-
-          {flowCount > 0 ? (
-            <div className="bb-public-coverflow">
-              <div
-                ref={stageRef}
-                className="bb-public-coverflow-stage"
-                role="list"
-                aria-label="Photos"
-                aria-roledescription="carousel"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === 'ArrowRight') {
-                    event.preventDefault();
-                    stepFlow(1);
-                  }
-                  if (event.key === 'ArrowLeft') {
-                    event.preventDefault();
-                    stepFlow(-1);
-                  }
-                }}
-              >
-                {flowImages.flatMap((image, index) => {
-                  const canOpen = !editMode && Boolean(image.url);
-                  const offsets = circularOffsets(index, activeIndex, flowCount);
-                  return offsets.map((offset) => {
+          <div className={`bb-public-coverflow${isEmptyGallery ? ' is-empty' : ''}`}>
+            <div
+              ref={stageRef}
+              className="bb-public-coverflow-stage"
+              role="list"
+              aria-label="Photos"
+              aria-roledescription="carousel"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (isEmptyGallery && !editMode) return;
+                if (event.key === 'ArrowRight') {
+                  event.preventDefault();
+                  stepFlow(1);
+                }
+                if (event.key === 'ArrowLeft') {
+                  event.preventDefault();
+                  stepFlow(-1);
+                }
+              }}
+            >
+              {flowImages.flatMap((image, index) => {
+                const canOpen = !editMode && Boolean(image.url);
+                const offsets = circularOffsets(index, activeIndex, flowCount);
+                return offsets.map((offset) => {
                   const abs = Math.abs(offset);
                   if (abs > 3) return null;
                   const isCenter = offset === 0;
@@ -210,7 +228,7 @@ export function VenueSection({
                       role="listitem"
                       className={`bb-public-coverflow-slide${isCenter ? ' is-active' : ''}${
                         canOpen ? ' is-openable' : ''
-                      }`}
+                      }${image.placeholder || !image.url ? ' is-blank' : ''}`}
                       style={{
                         '--cf-offset': offset,
                         '--cf-abs': abs,
@@ -225,9 +243,13 @@ export function VenueSection({
                           imgClassName="bb-public-coverflow-img"
                           storageFolder="venue"
                           preset="venue"
-                          onChange={(url) => patchVenue(image.id, 'url', url)}
+                          placeholderLabel="Upload photo"
+                          onChange={(url) => {
+                            if (image.placeholder) onPlaceholderUpload(index, url);
+                            else patchVenue(image.id, 'url', url);
+                          }}
                         />
-                      ) : (
+                      ) : image.url ? (
                         <button
                           type="button"
                           className="bb-public-coverflow-hit"
@@ -240,62 +262,65 @@ export function VenueSection({
                           }
                           aria-current={isCenter ? 'true' : undefined}
                         >
-                          {image.url ? (
-                            <img src={image.url} alt="" className="bb-public-coverflow-img" />
-                          ) : (
-                            <span className="bb-public-coverflow-empty" />
-                          )}
+                          <img src={image.url} alt="" className="bb-public-coverflow-img" />
                         </button>
+                      ) : (
+                        <div className="bb-public-coverflow-hit bb-public-coverflow-hit--blank">
+                          <BlankMedia
+                            variant="image"
+                            className="bb-public-coverflow-blank"
+                            label="Photo coming soon"
+                          />
+                        </div>
                       )}
                     </figure>
                   );
-                  });
-                })}
-              </div>
-
-              {flowCount > 1 ? (
-                <div className="bb-public-coverflow-controls">
-                  <div className="bb-public-coverflow-nav bb-public-coverflow-nav--arrows">
-                    <button
-                      type="button"
-                      className="bb-public-coverflow-btn"
-                      aria-label="Previous photo"
-                      onClick={() => stepFlow(-1)}
-                    >
-                      <ChevronLeft size={18} strokeWidth={2.2} />
-                    </button>
-                    <button
-                      type="button"
-                      className="bb-public-coverflow-btn"
-                      aria-label="Next photo"
-                      onClick={() => stepFlow(1)}
-                    >
-                      <ChevronRight size={18} strokeWidth={2.2} />
-                    </button>
-                  </div>
-                  <div
-                    className="bb-public-coverflow-dots"
-                    role="tablist"
-                    aria-label="Photos"
-                  >
-                    {flowImages.map((image, index) => (
-                      <button
-                        key={image.id}
-                        type="button"
-                        role="tab"
-                        className={`bb-public-coverflow-dot${
-                          index === activeIndex ? ' is-active' : ''
-                        }`}
-                        aria-label={`Show photo ${index + 1}`}
-                        aria-selected={index === activeIndex}
-                        onClick={() => selectFlow(index)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : null}
+                });
+              })}
             </div>
-          ) : null}
+
+            {flowCount > 1 ? (
+              <div className="bb-public-coverflow-controls">
+                <div className="bb-public-coverflow-nav bb-public-coverflow-nav--arrows">
+                  <button
+                    type="button"
+                    className="bb-public-coverflow-btn"
+                    aria-label="Previous photo"
+                    onClick={() => stepFlow(-1)}
+                  >
+                    <ChevronLeft size={18} strokeWidth={2.2} />
+                  </button>
+                  <button
+                    type="button"
+                    className="bb-public-coverflow-btn"
+                    aria-label="Next photo"
+                    onClick={() => stepFlow(1)}
+                  >
+                    <ChevronRight size={18} strokeWidth={2.2} />
+                  </button>
+                </div>
+                <div
+                  className="bb-public-coverflow-dots"
+                  role="tablist"
+                  aria-label="Photos"
+                >
+                  {flowImages.map((image, index) => (
+                    <button
+                      key={image.id}
+                      type="button"
+                      role="tab"
+                      className={`bb-public-coverflow-dot${
+                        index === activeIndex ? ' is-active' : ''
+                      }`}
+                      aria-label={`Show photo ${index + 1}`}
+                      aria-selected={index === activeIndex}
+                      onClick={() => selectFlow(index)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
 
           {editMode && venueImages.length < 8 ? (
             <button
@@ -303,7 +328,16 @@ export function VenueSection({
               className="bb-ghost-btn justify-self-start"
               onClick={() =>
                 patchWebsite({
-                  venueImages: [...venueImages, { id: `v-${Date.now()}`, url: '', caption: '' }]
+                  venueImages: [
+                    ...(venueImages.length
+                      ? venueImages
+                      : makePlaceholderSlides().map((slot, index) => ({
+                          id: `v-${Date.now()}-${index}`,
+                          url: '',
+                          caption: ''
+                        }))),
+                    { id: `v-${Date.now()}-extra`, url: '', caption: '' }
+                  ].slice(0, 8)
                 })
               }
             >
