@@ -8,7 +8,8 @@ export function AnalyticsHeader({
   onPeriodChange,
   customRange,
   onCustomRangeChange,
-  usingDemo = false
+  usingDemo = false,
+  title = 'Reports'
 }) {
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
   const periodOptions = ANALYTICS_PERIODS.map((period) => ({
@@ -21,7 +22,7 @@ export function AnalyticsHeader({
     <header className="bb-analytics-header">
       <div className="bb-analytics-header-top">
         <div className="bb-analytics-header-copy">
-          <p className="bb-analytics-eyebrow">Analytics</p>
+          <p className="bb-analytics-eyebrow">{title}</p>
           <div className="bb-page-title-wrap">
             <div className="bb-page-header-glow" aria-hidden="true" />
             <h1 className="bb-page-title bb-analytics-title">

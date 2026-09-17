@@ -127,47 +127,173 @@ export function computeFunnel({ events = [], sessions = [] } = {}) {
   }));
 }
 
-export function buildSalesSeries({
+/** Metrics the reports chart can plot. */
+export const CHART_METRICS = [
+  { id: 'revenue', label: 'Revenue', format: 'money', lede: 'Paid revenue over time' },
+  { id: 'profit', label: 'Product profit', format: 'money', lede: 'Revenue minus product cost' },
+  { id: 'sessions', label: 'Sessions', format: 'count', lede: 'Sessions started per day' },
+  { id: 'visitors', label: 'Visitors', format: 'count', lede: 'Unique sessions per day' },
+  { id: 'conversion', label: 'Conversion rate', format: 'percent', lede: 'Purchases ÷ sessions' },
+  { id: 'add_to_cart', label: 'Add to carts', format: 'count', lede: 'Add-to-cart events' },
+  { id: 'abandoned', label: 'Abandoned carts', format: 'count', lede: 'Carts marked abandoned' }
+];
+
+function dayKey(at) {
+  const day = new Date(Number(at) || 0);
+  day.setHours(0, 0, 0, 0);
+  return day.getTime();
+}
+
+export function buildSalesSeries(opts = {}) {
+  return buildMetricSeries({ ...opts, metricId: 'revenue' });
+}
+
+/**
+ * Build a day-bucketed series for the selected chart metric.
+ * amountInCents holds chartable values:
+ * - money: cents
+ * - count: count * 100 (so geometry stays integer-friendly)
+ * - percent: rate*10 stored as cents-like (12.5% → 1250) — formatted specially
+ */
+export function buildMetricSeries({
+  metricId = 'revenue',
   events = [],
+  sessions = [],
+  carts = [],
   orders = [],
   bookings = [],
+  products = [],
   periodId = 'week',
   customRange = {}
 } = {}) {
   const { start, end } = getPeriodBounds(periodId, customRange);
+  const meta = CHART_METRICS.find((m) => m.id === metricId) || CHART_METRICS[0];
   const points = new Map();
 
-  const bump = (at, cents) => {
+  const ensure = (at) => {
     const t = Number(at) || 0;
-    if (!inBounds(t, start, end)) return;
-    const day = new Date(t);
-    day.setHours(0, 0, 0, 0);
-    const key = day.getTime();
-    const prev = points.get(key) || { at: key, label: '', valueCents: 0, amountInCents: 0 };
-    prev.valueCents += cents;
-    prev.amountInCents = prev.valueCents;
-    prev.label = day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-    points.set(key, prev);
+    if (!inBounds(t, start, end)) return null;
+    const key = dayKey(t);
+    if (!points.has(key)) {
+      const d = new Date(key);
+      points.set(key, {
+        at: key,
+        label: d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+        amountInCents: 0,
+        valueCents: 0,
+        raw: 0,
+        sessions: 0,
+        purchases: 0
+      });
+    }
+    return points.get(key);
   };
 
-  for (const e of events) {
-    if (e.type === 'purchase' || e.type === 'booking_confirmed') {
-      bump(e.at, Number(e.valueCents) || 0);
+  const bumpMoney = (at, cents) => {
+    const row = ensure(at);
+    if (!row) return;
+    row.raw += cents;
+    row.valueCents = row.raw;
+    row.amountInCents = row.raw;
+  };
+
+  const bumpCount = (at, n = 1) => {
+    const row = ensure(at);
+    if (!row) return;
+    row.raw += n;
+    row.valueCents = row.raw;
+    // Store count×100 so finance chart scale stays well-behaved
+    row.amountInCents = row.raw * 100;
+  };
+
+  if (metricId === 'revenue') {
+    for (const e of events) {
+      if (e.type === 'purchase' || e.type === 'booking_confirmed') {
+        bumpMoney(e.at, Number(e.valueCents) || 0);
+      }
     }
-  }
-  for (const o of orders || []) {
-    if (String(o.paymentStatus || '').toLowerCase() === 'paid') {
-      bump(o.timestamp || o.paidAt, Number(o.totalCents) || Number(o.amountInCents) || 0);
+    for (const o of orders || []) {
+      if (String(o.paymentStatus || '').toLowerCase() === 'paid') {
+        bumpMoney(o.timestamp || o.paidAt, Number(o.totalCents) || Number(o.amountInCents) || 0);
+      }
     }
-  }
-  for (const b of bookings || []) {
-    if (String(b.paymentStatus || '').toLowerCase() === 'paid') {
-      bump(b.paidAt || b.timestamp, Number(b.amountInCents) || 0);
+    for (const b of bookings || []) {
+      if (String(b.paymentStatus || '').toLowerCase() === 'paid') {
+        bumpMoney(b.paidAt || b.timestamp, Number(b.amountInCents) || 0);
+      }
+    }
+  } else if (metricId === 'profit') {
+    // Lazy import avoided — use inline parse matching getProductUnitCostCents
+    const costOf = (line) => {
+      const list = products || [];
+      const product =
+        list.find((p) => p.id === line.productId || p.id === line.id) ||
+        list.find((p) => p.name === line.name);
+      if (!product) return 0;
+      const variant =
+        (product.variants || []).find((v) => v.id === line.variantId) || null;
+      const source = variant?.cost ?? product.cost;
+      const digits = String(source ?? '').replace(/[^\d.]/g, '');
+      const value = Number(digits);
+      if (!Number.isFinite(value)) return 0;
+      return Math.round(value * 100);
+    };
+    for (const o of orders || []) {
+      if (String(o.paymentStatus || '').toLowerCase() !== 'paid') continue;
+      const at = o.timestamp || o.paidAt;
+      const items = o.items || o.lineItems || [];
+      if (!items.length) {
+        bumpMoney(at, Number(o.totalCents) || Number(o.amountInCents) || 0);
+        continue;
+      }
+      let profit = 0;
+      for (const line of items) {
+        const qty = Number(line.quantity) || 1;
+        const lineTotal =
+          Number(line.lineTotalCents) ||
+          (Number(line.unitPriceCents) || 0) * qty;
+        profit += lineTotal - costOf(line) * qty;
+      }
+      bumpMoney(at, Math.max(0, profit));
+    }
+  } else if (metricId === 'sessions' || metricId === 'visitors') {
+    for (const s of sessions || []) {
+      bumpCount(s.startedAt || s.lastSeenAt, 1);
+    }
+  } else if (metricId === 'add_to_cart') {
+    for (const e of events || []) {
+      if (e.type === 'add_to_cart') bumpCount(e.at, 1);
+    }
+  } else if (metricId === 'abandoned') {
+    for (const c of carts || []) {
+      if (c.status === 'abandoned') bumpCount(c.updatedAt, 1);
+    }
+  } else if (metricId === 'conversion') {
+    for (const s of sessions || []) {
+      const row = ensure(s.startedAt || s.lastSeenAt);
+      if (row) row.sessions += 1;
+    }
+    for (const e of events || []) {
+      if (e.type === 'purchase' || e.type === 'booking_confirmed') {
+        const row = ensure(e.at);
+        if (row) row.purchases += 1;
+      }
+    }
+    for (const o of orders || []) {
+      if (String(o.paymentStatus || '').toLowerCase() === 'paid') {
+        const row = ensure(o.timestamp || o.paidAt);
+        if (row) row.purchases += 1;
+      }
+    }
+    for (const row of points.values()) {
+      const pct = row.sessions > 0 ? (row.purchases / row.sessions) * 100 : 0;
+      row.raw = Math.round(pct * 10) / 10;
+      row.valueCents = row.raw;
+      row.amountInCents = Math.round(row.raw * 100);
     }
   }
 
   let series = [...points.values()].sort((a, b) => a.at - b.at);
-
   if (!series.length) {
     const from = start ?? Date.now() - 7 * DAY_MS;
     const to = end ?? Date.now();
@@ -177,13 +303,33 @@ export function buildSalesSeries({
       series.push({
         at: d.getTime(),
         label: d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+        amountInCents: 0,
         valueCents: 0,
-        amountInCents: 0
+        raw: 0
       });
     }
   }
-
+  void meta;
   return series;
+}
+
+export function formatChartValue(value, format = 'money', currency = 'R') {
+  if (format === 'count') {
+    return String(Math.round(Number(value) || 0));
+  }
+  if (format === 'percent') {
+    const n = Number(value) || 0;
+    return `${n % 1 ? n.toFixed(1) : n}%`;
+  }
+  return formatMoney(value, currency);
+}
+
+/** Map series point amountInCents → display number for tooltips / axis. */
+export function chartPointDisplay(point, format = 'money') {
+  const amount = Number(point?.amountInCents) || 0;
+  if (format === 'count') return Math.round(amount / 100);
+  if (format === 'percent') return amount / 100;
+  return amount;
 }
 
 export function rankCounts(values = []) {

@@ -8,8 +8,6 @@ import {
 } from '../editable';
 import { isPublicPageEnabled } from '../../../../config/eBusinessPlatform';
 
-const DEFAULT_HERO = '/example/flour-and-flame/hero.webp';
-
 export function HeroSection({
   workspace,
   website,
@@ -25,7 +23,7 @@ export function HeroSection({
     website.subcopy ||
     workspace.tagline ||
     '';
-  const heroSrc = website.heroImageUrl || website.heroImage || DEFAULT_HERO;
+  const heroSrc = website.heroImageUrl || website.heroImage || '';
   const ctaToken = readStyleToken(website, 'hero.bookCta');
   const ctaSolid = styleTokenColor(ctaToken);
   const ctaIsSolid = isSolidColorToken(ctaToken);

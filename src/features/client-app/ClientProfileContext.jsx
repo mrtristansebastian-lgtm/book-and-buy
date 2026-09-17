@@ -45,7 +45,14 @@ export function ClientProfileProvider({ children }) {
           const remote = await loadUserProfile(user.uid);
           if (cancelled) return;
           if (remote?.kind === 'client') {
-            persist(remote);
+            const cleaned = {
+              ...remote,
+              isDemo: false,
+              followedSlugs: (remote.followedSlugs || []).filter(
+                (slug) => slug !== 'flameandflour' && slug !== 'flour-and-flame'
+              )
+            };
+            persist(cleaned);
           } else {
             setProfile(null);
           }
@@ -235,7 +242,13 @@ export function ClientProfileProvider({ children }) {
     async (authUser, { displayName } = {}) => {
       const remote = await ensureClientProfile(authUser, { displayName });
       if (remote?.kind === 'client') {
-        persist(remote);
+        persist({
+          ...remote,
+          isDemo: false,
+          followedSlugs: (remote.followedSlugs || []).filter(
+            (slug) => slug !== 'flameandflour' && slug !== 'flour-and-flame'
+          )
+        });
       }
       return remote;
     },

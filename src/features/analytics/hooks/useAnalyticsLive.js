@@ -13,7 +13,7 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
   activeCartRows,
   buildDemoAnalytics,
-  buildSalesSeries,
+  buildMetricSeries,
   computeAnalyticsKpis,
   computeFunnel,
   computeLiveStrip,
@@ -28,11 +28,13 @@ function mapDocs(snap) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
-export function useAnalyticsLive(periodId = 'week', customRange = {}) {
+export function useAnalyticsLive(periodId = 'week', customRange = {}, options = {}) {
+  const { metricId = 'revenue' } = options;
   const { user, isLocalMode } = useAuth();
-  const { workspace, orders, bookings } = useWorkspace();
+  const { workspace, orders, bookings, products } = useWorkspace();
   const ownerId = user?.uid || workspace?.ownerId || '';
-  const configured = isFirebaseConfigured() && !isLocalMode && Boolean(ownerId);
+  const allowDemo = Boolean(workspace?.isDemo) || (!user && (isLocalMode || !isFirebaseConfigured()));
+  const configured = isFirebaseConfigured() && !isLocalMode && Boolean(ownerId) && !workspace?.isDemo;
 
   const [sessions, setSessions] = useState([]);
   const [events, setEvents] = useState([]);
@@ -40,7 +42,7 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}) {
   const [loading, setLoading] = useState(configured);
   const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now());
-  const [usingDemo, setUsingDemo] = useState(!configured);
+  const [usingDemo, setUsingDemo] = useState(allowDemo);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 4000);
@@ -49,22 +51,28 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}) {
 
   useEffect(() => {
     if (!configured) {
-      const demo = buildDemoAnalytics();
-      setSessions(demo.sessions);
-      setEvents(demo.events);
-      setCarts(demo.carts);
-      setUsingDemo(true);
+      if (allowDemo) {
+        const demo = buildDemoAnalytics();
+        setSessions(demo.sessions);
+        setEvents(demo.events);
+        setCarts(demo.carts);
+        setUsingDemo(true);
+      } else {
+        setSessions([]);
+        setEvents([]);
+        setCarts([]);
+        setUsingDemo(false);
+      }
       setLoading(false);
       return undefined;
     }
 
     const firebase = getFirebase();
     if (!firebase) {
-      const demo = buildDemoAnalytics();
-      setSessions(demo.sessions);
-      setEvents(demo.events);
-      setCarts(demo.carts);
-      setUsingDemo(true);
+      setSessions([]);
+      setEvents([]);
+      setCarts([]);
+      setUsingDemo(false);
       setLoading(false);
       return undefined;
     }
@@ -93,11 +101,10 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}) {
           (err) => {
             setError(err.message || 'Could not load sessions');
             setLoading(false);
-            const demo = buildDemoAnalytics();
-            setSessions(demo.sessions);
-            setEvents(demo.events);
-            setCarts(demo.carts);
-            setUsingDemo(true);
+            setSessions([]);
+            setEvents([]);
+            setCarts([]);
+            setUsingDemo(false);
           }
         )
       );
@@ -137,16 +144,15 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}) {
       );
     } catch (err) {
       setError(err?.message || 'Analytics unavailable');
-      const demo = buildDemoAnalytics();
-      setSessions(demo.sessions);
-      setEvents(demo.events);
-      setCarts(demo.carts);
-      setUsingDemo(true);
+      setSessions([]);
+      setEvents([]);
+      setCarts([]);
+      setUsingDemo(false);
       setLoading(false);
     }
 
     return () => unsubscribers.forEach((unsub) => unsub());
-  }, [configured, ownerId]);
+  }, [configured, ownerId, allowDemo]);
 
   const periodSessions = useMemo(
     () => filterByPeriod(sessions, periodId, customRange, 'startedAt'),
@@ -185,14 +191,28 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}) {
 
   const series = useMemo(
     () =>
-      buildSalesSeries({
+      buildMetricSeries({
+        metricId,
         events: periodEvents,
+        sessions: periodSessions,
+        carts: periodCarts,
         orders,
         bookings,
+        products,
         periodId,
         customRange
       }),
-    [periodEvents, orders, bookings, periodId, customRange]
+    [
+      metricId,
+      periodEvents,
+      periodSessions,
+      periodCarts,
+      orders,
+      bookings,
+      products,
+      periodId,
+      customRange
+    ]
   );
 
   const geo = useMemo(() => rollupGeo(periodSessions), [periodSessions]);

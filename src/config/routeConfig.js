@@ -17,6 +17,7 @@ export const workspaceTabIds = [
   'social',
   'communications',
   'finance',
+  'live-stats',
   'analytics',
   'clients',
   'settings'
@@ -59,6 +60,9 @@ export const workspaceTabAliases = {
   analytics: 'analytics',
   stats: 'analytics',
   insights: 'analytics',
+  'live-stats': 'live-stats',
+  live: 'live-stats',
+  presence: 'live-stats',
   profile: 'settings'
 };
 
@@ -78,6 +82,7 @@ export const workspaceTabGroups = {
   social: 'presence',
   communications: 'run',
   finance: 'run',
+  'live-stats': 'run',
   analytics: 'run',
   clients: 'run',
   settings: 'run'
@@ -99,7 +104,8 @@ export const workspaceTabLabels = {
   social: 'Social studio',
   communications: 'Support',
   finance: 'Finance',
-  analytics: 'Analytics',
+  'live-stats': 'Live Stats',
+  analytics: 'Reports',
   clients: 'Clients',
   settings: 'Settings'
 };

@@ -6,6 +6,8 @@ import { navigate, publicPagePath } from '../../../app/routing';
 import { getFirebase, isFirebaseConfigured } from '../../../shared/firebase/client';
 import { artifactRoot } from '../../../shared/firebase/paths';
 import { loadPublicWorkspaceFromFirestore } from '../../../shared/firebase/publicWorkspace';
+import { EmptyState } from '../../../shared/ui/EmptyState';
+import { BlankMedia } from '../../../shared/ui/BlankMedia';
 import { getPostMediaItems, getSocialPostKind } from '../../social/utils/socialPostType';
 import { SocialVideosPanel } from '../../social/components/SocialVideosPanel';
 import { SocialTextTimeline } from '../../social/components/SocialTextTimeline';
@@ -52,7 +54,7 @@ function tileMedia(post) {
 
 /** Instagram Explore: search, chip filters, dense media grid. */
 export function ClientExplorePage() {
-  const { workspace, loadDemoWorkspace, startThreadFromClient } = useWorkspace();
+  const { workspace, startThreadFromClient } = useWorkspace();
   const { profile, followSlug, unfollowSlug } = useClientProfile();
   const [queryText, setQueryText] = useState('');
   const [filter, setFilter] = useState('posts');
@@ -60,6 +62,7 @@ export function ClientExplorePage() {
   const [catalog, setCatalog] = useState([]);
   const [activeId, setActiveId] = useState('');
   const [messagingSlug, setMessagingSlug] = useState('');
+  const isDemo = Boolean(workspace?.isDemo || profile?.isDemo);
 
   const messageBiz = async (biz) => {
     if (!biz?.slug) return;
@@ -79,12 +82,6 @@ export function ClientExplorePage() {
       setMessagingSlug('');
     }
   };
-
-  useEffect(() => {
-    if (!(workspace?.socialPosts || []).length && loadDemoWorkspace) {
-      loadDemoWorkspace();
-    }
-  }, [workspace?.socialPosts?.length, loadDemoWorkspace]);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,16 +109,22 @@ export function ClientExplorePage() {
 
   const directory = useMemo(() => {
     const map = new Map();
-    const local = normalizeBiz({
-      slug: workspace?.slug || 'flameandflour',
-      ownerId: workspace?.ownerId || workspace?.id || '',
-      brandName: workspace?.brandName || 'Flame & Flour',
-      blurb: workspace?.website?.hero?.subhead || 'Book services and buy products.',
-      logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl
+    const localSlug = String(workspace?.slug || '').trim();
+    if (localSlug && (isDemo || workspace?.brandName)) {
+      const local = normalizeBiz({
+        slug: localSlug,
+        ownerId: workspace?.ownerId || workspace?.id || '',
+        brandName: workspace?.brandName || localSlug,
+        blurb: workspace?.website?.hero?.subhead || workspace?.tagline || '',
+        logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl
+      });
+      if (local) map.set(local.slug, local);
+    }
+    remote.forEach((biz) => {
+      if (!isDemo && (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame')) return;
+      map.set(biz.slug, biz);
     });
-    if (local) map.set(local.slug, local);
-    remote.forEach((biz) => map.set(biz.slug, biz));
-    if (!map.has('flameandflour')) {
+    if (isDemo && !map.has('flameandflour')) {
       map.set('flameandflour', {
         slug: 'flameandflour',
         brandName: 'Flame & Flour',
@@ -130,22 +133,26 @@ export function ClientExplorePage() {
       });
     }
     return [...map.values()];
-  }, [workspace, remote]);
+  }, [workspace, remote, isDemo]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const localSlug = workspace?.slug || 'flameandflour';
-      const localPosts = annotateSocialPosts(workspace?.socialPosts || [], {
-        slug: localSlug,
-        brandName: workspace?.brandName || 'Flame & Flour',
-        logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl || ''
-      });
+      const localSlug = String(workspace?.slug || '').trim();
+      const localPosts =
+        localSlug && (isDemo || (workspace?.socialPosts || []).length)
+          ? annotateSocialPosts(workspace?.socialPosts || [], {
+              slug: localSlug,
+              brandName: workspace?.brandName || localSlug,
+              logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl || ''
+            })
+          : [];
 
       const extras = [];
       if (isFirebaseConfigured()) {
         for (const biz of directory) {
-          if (biz.slug === localSlug || biz.slug === 'flameandflour') continue;
+          if (biz.slug === localSlug) continue;
+          if (!isDemo && (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame')) continue;
           try {
             const snap = await loadPublicWorkspaceFromFirestore(biz.slug);
             if (!snap || cancelled) continue;
@@ -167,7 +174,7 @@ export function ClientExplorePage() {
     return () => {
       cancelled = true;
     };
-  }, [workspace, directory]);
+  }, [workspace, directory, isDemo]);
 
   const filterMeta = FILTERS.find((item) => item.id === filter) || FILTERS[0];
   const filteredPosts = useMemo(() => {
@@ -316,7 +323,11 @@ export function ClientExplorePage() {
                     onClick={() => navigate(publicPagePath(biz.slug, 'home'))}
                   >
                     <span className="bb-client-avatar is-sm" aria-hidden="true">
-                      {biz.brandName.charAt(0).toUpperCase()}
+                      {biz.logoUrl ? (
+                        <img src={biz.logoUrl} alt="" />
+                      ) : (
+                        <BlankMedia variant="avatar" />
+                      )}
                     </span>
                     <span>
                       <strong>{biz.brandName}</strong>
@@ -349,7 +360,11 @@ export function ClientExplorePage() {
         ) : null}
 
         {filteredPosts.length === 0 ? (
-          <p className="bb-client-empty">Nothing to explore here yet.</p>
+          <EmptyState
+            compact
+            title="Nothing to explore yet"
+            description="When businesses publish posts, films, and verticals, they show up here."
+          />
         ) : filter === 'films' ? (
           <div className="bb-client-home-yt bb-client-explore-yt">
             <SocialVideosPanel
@@ -395,7 +410,7 @@ export function ClientExplorePage() {
                   ) : thumb ? (
                     <img src={thumb} alt="" />
                   ) : (
-                    <span className="bb-client-ig-empty" />
+                    <BlankMedia variant="square" />
                   )}
                   {kind === 'video' || kind === 'vertical' ? (
                     <span className="bb-client-ig-play" aria-hidden="true">

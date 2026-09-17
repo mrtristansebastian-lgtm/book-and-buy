@@ -1,17 +1,31 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { buildChartGeometry, formatMoney } from '../utils/analyticsMetrics';
+import { ChevronDown } from 'lucide-react';
+import {
+  buildChartGeometry,
+  CHART_METRICS,
+  chartPointDisplay,
+  formatChartValue
+} from '../utils/analyticsMetrics';
 
 const PAD_DESKTOP = { top: 18, right: 18, bottom: 40, left: 56 };
-const PAD_MOBILE = { top: 12, right: 10, bottom: 34, left: 40 };
+const PAD_MOBILE = { top: 12, right: 10, bottom: 34, left: 44 };
 
-export function AnalyticsSalesChart({ series = [], currency = 'R' }) {
+export function AnalyticsSalesChart({
+  series = [],
+  currency = 'R',
+  metricId = 'revenue',
+  onMetricChange
+}) {
   const gradientId = useId().replace(/:/g, '');
   const wrapRef = useRef(null);
+  const menuRef = useRef(null);
   const [width, setWidth] = useState(640);
   const [active, setActive] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const mobile = width < 560;
   const height = mobile ? 220 : 280;
   const pad = mobile ? PAD_MOBILE : PAD_DESKTOP;
+  const metric = CHART_METRICS.find((m) => m.id === metricId) || CHART_METRICS[0];
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -23,6 +37,17 @@ export function AnalyticsSalesChart({ series = [], currency = 'R' }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onDoc = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [menuOpen]);
 
   const geometry = useMemo(
     () => buildChartGeometry(series, { width, height, pad, yTickCount: 5 }),
@@ -47,14 +72,54 @@ export function AnalyticsSalesChart({ series = [], currency = 'R' }) {
 
   const { pad: chartPad, plot } = geometry;
   const baseline = chartPad.top + plot.height;
+  const formatTick = (valueCents) =>
+    formatChartValue(
+      chartPointDisplay({ amountInCents: valueCents }, metric.format),
+      metric.format,
+      currency
+    );
 
   return (
     <div className="bb-analytics-chart" ref={wrapRef}>
+      <div className="bb-analytics-chart-toolbar" ref={menuRef}>
+        <button
+          type="button"
+          className="bb-analytics-metric-btn"
+          aria-haspopup="listbox"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span>{metric.label}</span>
+          <ChevronDown size={16} strokeWidth={2.2} aria-hidden="true" />
+        </button>
+        {menuOpen ? (
+          <ul className="bb-analytics-metric-menu" role="listbox" aria-label="Chart metric">
+            {CHART_METRICS.map((option) => (
+              <li key={option.id}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={option.id === metric.id}
+                  className={option.id === metric.id ? 'is-active' : ''}
+                  onClick={() => {
+                    onMetricChange?.(option.id);
+                    setMenuOpen(false);
+                    setActive(null);
+                  }}
+                >
+                  {option.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+
       <svg
         className="bb-analytics-chart-svg"
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="Sales over time"
+        aria-label={`${metric.label} over time`}
         onPointerMove={handlePointer}
         onPointerLeave={() => setActive(null)}
       >
@@ -74,8 +139,13 @@ export function AnalyticsSalesChart({ series = [], currency = 'R' }) {
               y2={tick.y}
               className="bb-analytics-chart-grid"
             />
-            <text x={chartPad.left - 8} y={tick.y + 4} textAnchor="end" className="bb-analytics-chart-axis">
-              {formatMoney(tick.valueCents, currency, { decimals: false })}
+            <text
+              x={chartPad.left - 8}
+              y={tick.y + 4}
+              textAnchor="end"
+              className="bb-analytics-chart-axis"
+            >
+              {formatTick(tick.valueCents)}
             </text>
           </g>
         ))}
@@ -115,7 +185,11 @@ export function AnalyticsSalesChart({ series = [], currency = 'R' }) {
         <div className="bb-analytics-chart-tooltip">
           <div className="bb-analytics-chart-tooltip-when">{active.label}</div>
           <div className="bb-analytics-chart-tooltip-value">
-            {formatMoney(active.amountInCents ?? active.valueCents, currency)}
+            {formatChartValue(
+              chartPointDisplay(active, metric.format),
+              metric.format,
+              currency
+            )}
           </div>
         </div>
       ) : null}

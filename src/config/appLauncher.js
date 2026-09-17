@@ -12,6 +12,7 @@ import {
   Inbox,
   MessageSquare,
   Package,
+  Radio,
   Settings,
   Share2,
   ShoppingBag,
@@ -37,6 +38,7 @@ export const TAB_ICONS = {
   communications: MessageSquare,
   finance: CreditCard,
   analytics: ChartColumn,
+  'live-stats': Radio,
   clients: Users,
   settings: Settings
 };
@@ -57,7 +59,8 @@ export const TAB_HINTS = {
   social: 'Posts & blog',
   communications: 'Client messages',
   finance: 'Payments & payouts',
-  analytics: 'Visitors, carts & sales',
+  analytics: 'Reports & trends',
+  'live-stats': 'Visitors & carts now',
   clients: 'People & history',
   settings: 'Business & team'
 };
@@ -101,9 +104,9 @@ export const launcherApps = [
   {
     id: 'analytics',
     label: 'Analytics',
-    blurb: 'Live visitors, carts and conversion.',
+    blurb: 'Live presence and commerce reports.',
     icon: ChartColumn,
-    tabs: ['analytics'],
+    tabs: ['live-stats', 'analytics'],
     size: 'md',
     hue: 'sky',
     tint: ['#b9e3ff', '#cbffb8']

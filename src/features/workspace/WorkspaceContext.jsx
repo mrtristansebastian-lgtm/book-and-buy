@@ -1,20 +1,60 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { hydrateDemoWorkspace } from '../../data/demoWorkspace';
+import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { useAuth } from '../auth/AuthContext';
 import {
   loadOwnerWorkspaceFromFirestore,
   saveOwnerWorkspaceToFirestore
 } from '../../shared/firebase/ownerWorkspace';
 import { createWorkspaceApi } from './createWorkspaceApi';
-import { persistWorkspace, readInitialWorkspace } from './workspacePersistence';
+import {
+  MODE_KEY,
+  OWNER_KEY,
+  persistWorkspace,
+  readInitialWorkspace,
+  safeParse
+} from './workspacePersistence';
 
 const WorkspaceContext = createContext(null);
+
+export function isDemoWorkspace(ws) {
+  if (!ws) return false;
+  if (ws.isDemo) return true;
+  const slug = String(ws.slug || '').toLowerCase();
+  return slug === 'flameandflour' || slug === 'flour-and-flame';
+}
+
+function ownerShellFromUser(user, prior = {}) {
+  const base = createBlankWorkspace({
+    onboardingComplete: Boolean(prior.onboardingComplete),
+    ownerId: user.uid,
+    isDemo: false,
+    email: prior.email || user.email || '',
+    brandName: isDemoWorkspace(prior) ? '' : prior.brandName || '',
+    slug: isDemoWorkspace(prior) ? '' : prior.slug || ''
+  });
+  if (!isDemoWorkspace(prior) && prior.onboardingComplete) {
+    return {
+      ...prior,
+      ...base,
+      ...prior,
+      ownerId: user.uid,
+      isDemo: false,
+      website: {
+        ...base.website,
+        ...(prior.website || {})
+      }
+    };
+  }
+  return base;
+}
 
 export function WorkspaceProvider({ children }) {
   const { user, configured } = useAuth();
   const [workspace, setWorkspace] = useState(() => readInitialWorkspace());
   const cloudHydratedRef = useRef(false);
   const skipNextCloudSaveRef = useRef(false);
+  const clearedDemoForUid = useRef('');
 
   useEffect(() => {
     persistWorkspace(workspace);
@@ -43,30 +83,55 @@ export function WorkspaceProvider({ children }) {
     if (workspace.isDemo) cloudHydratedRef.current = false;
   }, [workspace.isDemo]);
 
-  /** Bind ownerId + hydrate owner settings from Firestore when signed in. */
+  /**
+   * Real signed-in accounts must never keep Flame & Flour / demo state.
+   */
   useEffect(() => {
     let cancelled = false;
     async function hydrateOwner() {
       if (!configured || !user?.uid) {
         cloudHydratedRef.current = false;
+        clearedDemoForUid.current = '';
         return;
       }
-      if (workspace.isDemo) return;
 
-      setWorkspace((prev) => {
-        if (prev.isDemo) return prev;
-        if (prev.ownerId === user.uid) return prev;
-        return { ...prev, ownerId: user.uid, isDemo: false };
-      });
+      if (clearedDemoForUid.current !== user.uid) {
+        clearedDemoForUid.current = user.uid;
+        setWorkspace((prev) => {
+          if (!isDemoWorkspace(prev)) {
+            if (prev.ownerId === user.uid && !prev.isDemo) return prev;
+            return { ...prev, ownerId: user.uid, isDemo: false };
+          }
+          const stored = safeParse(localStorage.getItem(OWNER_KEY), null);
+          const cleaned = ownerShellFromUser(
+            user,
+            stored && !isDemoWorkspace(stored) ? stored : { email: user.email || '' }
+          );
+          localStorage.setItem(MODE_KEY, 'owner');
+          localStorage.setItem(OWNER_KEY, JSON.stringify(cleaned));
+          skipNextCloudSaveRef.current = true;
+          cloudHydratedRef.current = false;
+          return cleaned;
+        });
+      }
 
       if (cloudHydratedRef.current) return;
       cloudHydratedRef.current = true;
       try {
         const remote = await loadOwnerWorkspaceFromFirestore(user.uid);
-        if (cancelled || !remote) return;
+        if (cancelled || !remote || isDemoWorkspace(remote)) return;
         skipNextCloudSaveRef.current = true;
         setWorkspace((prev) => {
-          if (prev.isDemo) return prev;
+          if (isDemoWorkspace(prev)) {
+            return {
+              ...createBlankWorkspace({
+                ...remote,
+                ownerId: user.uid,
+                isDemo: false,
+                onboardingComplete: Boolean(remote.onboardingComplete)
+              })
+            };
+          }
           return {
             ...prev,
             ...remote,
@@ -86,13 +151,11 @@ export function WorkspaceProvider({ children }) {
     return () => {
       cancelled = true;
     };
-    // Only re-run on auth identity; workspace.isDemo checked inside.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configured, user?.uid, workspace.isDemo]);
+  }, [configured, user?.uid, user?.email]);
 
   /** Debounced owner settings write-through. */
   useEffect(() => {
-    if (!configured || !user?.uid || workspace.isDemo) return;
+    if (!configured || !user?.uid || isDemoWorkspace(workspace)) return;
     if (workspace.ownerId && workspace.ownerId !== user.uid) return;
     if (skipNextCloudSaveRef.current) {
       skipNextCloudSaveRef.current = false;
@@ -101,7 +164,8 @@ export function WorkspaceProvider({ children }) {
     const timer = window.setTimeout(() => {
       saveOwnerWorkspaceToFirestore(user.uid, {
         ...workspace,
-        ownerId: user.uid
+        ownerId: user.uid,
+        isDemo: false
       }).catch(() => {});
     }, 900);
     return () => window.clearTimeout(timer);

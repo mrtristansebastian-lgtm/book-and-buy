@@ -1,4 +1,6 @@
-import { Play } from 'lucide-react';
+import { ImagePlus, Play } from 'lucide-react';
+import { EmptyState } from '../../../shared/ui/EmptyState';
+import { BlankMedia } from '../../../shared/ui/BlankMedia';
 import { getPostMediaItems } from '../utils/socialPostType';
 
 /**
@@ -14,10 +16,15 @@ export function SocialPostsGrid({
 }) {
   if (!posts.length) {
     return (
-      <div className="bb-public-empty">
-        {emptyLabel ||
-          (editMode ? 'Add a photo post to fill the gallery.' : 'No posts published yet.')}
-      </div>
+      <EmptyState
+        compact
+        icon={ImagePlus}
+        title={editMode ? 'Add your first post' : 'No posts yet'}
+        description={
+          emptyLabel ||
+          (editMode ? 'Publish a photo to fill this gallery.' : 'No posts published yet.')
+        }
+      />
     );
   }
 
@@ -58,9 +65,7 @@ export function SocialPostsGrid({
                     className="bb-social-square-tile-img"
                   />
                 ) : (
-                  <span className="bb-social-square-tile-empty">
-                    {editMode ? 'Add media' : 'No media'}
-                  </span>
+                  <BlankMedia variant="square" className="bb-social-square-tile-img" />
                 )}
                 {first?.kind === 'video' ? (
                   <span className="bb-social-ig-video-badge" aria-hidden="true">

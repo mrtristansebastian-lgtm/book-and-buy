@@ -1,0 +1,244 @@
+/* Universal empty states + blank media */
+
+.bb-blank-media {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  background:
+    linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #9ca3af;
+  overflow: hidden;
+}
+
+.bb-blank-media-glyph {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+.bb-blank-media--avatar {
+  border-radius: 999px;
+  background: #e8eaed;
+}
+
+.bb-blank-media--avatar .bb-blank-media-glyph {
+  width: 58%;
+  height: 58%;
+  background: transparent;
+  box-shadow: none;
+  color: #b0b7c3;
+}
+
+.bb-blank-media--banner {
+  min-height: 7.5rem;
+  background: linear-gradient(135deg, #eef0f3 0%, #e2e5ea 100%);
+}
+
+.bb-blank-media--square {
+  aspect-ratio: 1;
+  min-height: 0;
+}
+
+.bb-blank-media--hero {
+  min-height: 16rem;
+  background: linear-gradient(165deg, #eceef2 0%, #dde1e7 100%);
+}
+
+.bb-empty-state {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.55rem;
+  padding: 2.25rem 1.35rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.88)),
+    radial-gradient(120% 100% at 50% 0%, rgba(185, 227, 255, 0.16), transparent 55%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.bb-empty-state.is-compact {
+  padding: 1.35rem 1rem;
+  gap: 0.4rem;
+}
+
+.bb-empty-state-icon {
+  display: grid;
+  place-items: center;
+  width: 3.1rem;
+  height: 3.1rem;
+  margin-bottom: 0.15rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.bb-empty-state-eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 740;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #98a2b3;
+}
+
+.bb-empty-state-title {
+  margin: 0;
+  max-width: 18ch;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 760;
+  letter-spacing: -0.03em;
+  color: #101828;
+  line-height: 1.25;
+}
+
+.bb-empty-state.is-compact .bb-empty-state-title {
+  font-size: 1.02rem;
+}
+
+.bb-empty-state-copy {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: #667085;
+}
+
+.bb-empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 0.55rem;
+}
+
+.bb-empty-state .bb-primary-btn,
+.bb-empty-state .bb-ghost-btn {
+  min-height: 2.55rem;
+}
+
+/* EditableImage empty (view + edit) uses blank media language */
+.bb-editable-image-empty {
+  position: relative;
+  overflow: hidden;
+  background: #e8eaed;
+}
+
+.bb-editable-image-empty .bb-blank-media {
+  position: absolute;
+  inset: 0;
+}
+
+.bb-editable-image.is-empty {
+  background: #e8eaed;
+}
+
+.bb-editable-image-blank {
+  background: transparent;
+}
+
+.bb-editable-image-blank-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.bb-editable-image-blank-frame {
+  z-index: 1;
+  border-color: rgba(15, 23, 42, 0.12);
+  border-style: solid;
+  background: transparent;
+}
+
+.bb-editable-image-upload {
+  gap: 0.45rem;
+  min-height: 2.55rem;
+  padding: 0.65rem 1.05rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+/* Social tile / profile avatar empty */
+.bb-social-square-tile-empty {
+  display: grid !important;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: #e8eaed !important;
+  color: #9ca3af !important;
+  font-size: 0;
+}
+
+.bb-social-square-tile-empty::before {
+  content: '';
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background:
+    center / 1.1rem no-repeat
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 21'/%3E%3C/svg%3E"),
+    rgba(255, 255, 255, 0.55);
+}
+
+.bb-public-profile-avatar-wrap:has(.bb-editable-image-empty),
+.bb-public-profile-avatar-wrap:has(.bb-editable-image.is-empty) {
+  background: #e8eaed;
+}
+
+.bb-client-empty-hero {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.55rem;
+  padding: 2.5rem 1.25rem;
+}
+
+.bb-client-empty-hero h2 {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 760;
+  letter-spacing: -0.03em;
+}
+
+.bb-public-empty {
+  display: grid;
+  place-items: center;
+  gap: 0.35rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  color: #667085;
+  font-size: 0.92rem;
+  background: transparent;
+  border: 0;
+}
+
+.bb-client-avatar {
+  position: relative;
+  overflow: hidden;
+  background: #e8eaed;
+}
+
+.bb-client-avatar img,
+.bb-client-avatar .bb-blank-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bb-client-ig-cell .bb-blank-media {
+  position: absolute;
+  inset: 0;
+}

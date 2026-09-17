@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react';
+import { ImagePlus, Clapperboard, RectangleVertical, PenLine } from 'lucide-react';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getSocialPostKind } from '../utils/socialPostType';
 import { SocialPostsGrid } from './SocialPostsGrid';
@@ -76,6 +78,24 @@ export function SocialStudioLibrary({
     showPublishToggle: Boolean(onUpdateSocialPost)
   };
 
+  const emptyIcon =
+    kind === 'video'
+      ? Clapperboard
+      : kind === 'vertical'
+        ? RectangleVertical
+        : kind === 'text'
+          ? PenLine
+          : ImagePlus;
+
+  const emptyTitle =
+    kind === 'video'
+      ? 'No films yet'
+      : kind === 'vertical'
+        ? 'No verticals yet'
+        : kind === 'text'
+          ? 'No notes yet'
+          : 'No posts yet';
+
   return (
     <section className={`bb-social-library bb-social-library--live${items.length ? '' : ' is-empty'}`}>
       {!feedOpen ? (
@@ -96,18 +116,23 @@ export function SocialStudioLibrary({
             {...manageProps}
           />
         ) : !items.length ? (
-          <div className="bb-social-library-empty">
-            <p className="bb-social-library-empty-copy">{emptyCopy}</p>
-            {onCreate ? (
-              <button
-                type="button"
-                className="bb-primary-btn"
-                onClick={() => onCreate(tab === 'videos' ? 'films' : tab)}
-              >
-                {createLabel}
-              </button>
-            ) : null}
-          </div>
+          <EmptyState
+            className="bb-social-library-empty"
+            icon={emptyIcon}
+            title={emptyTitle}
+            description={emptyCopy}
+            action={
+              onCreate ? (
+                <button
+                  type="button"
+                  className="bb-primary-btn"
+                  onClick={() => onCreate(tab === 'videos' ? 'films' : tab)}
+                >
+                  {createLabel}
+                </button>
+              ) : null
+            }
+          />
         ) : kind === 'image' ? (
           <SocialPostsGrid
             posts={items}

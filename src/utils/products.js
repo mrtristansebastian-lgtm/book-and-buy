@@ -108,6 +108,7 @@ export const normalizeProductVariant = (variant = {}, index = 0) => {
     optionValues,
     price: variant.price ?? '',
     compareAtPrice: variant.compareAtPrice ?? '',
+    cost: variant.cost ?? '',
     sku: String(variant.sku || '').trim(),
     stockAvailable: variant.stockAvailable ?? '',
     weight: variant.weight ?? '',
@@ -205,6 +206,15 @@ export const getProductUnitPriceCents = (product = {}, variant = null) => {
   return Math.round(value * 100);
 };
 
+/** Unit cost in cents — set on Stock for profit analytics. */
+export const getProductUnitCostCents = (product = {}, variant = null) => {
+  const source = variant?.cost ?? product.cost;
+  const digits = String(source ?? '').replace(/[^\d.]/g, '');
+  const value = Number(digits);
+  if (!Number.isFinite(value)) return 0;
+  return Math.round(value * 100);
+};
+
 export const formatCents = (cents = 0, currency = 'R') =>
   `${currency}${(Number(cents || 0) / 100).toFixed(0)}`;
 
@@ -261,6 +271,7 @@ export const normalizeProduct = (product = {}, index = 0) => {
     ? buildVariantMatrix(options, product.variants || [], {
         price: product.price,
         compareAtPrice: product.compareAtPrice,
+        cost: product.cost,
         sku: product.sku,
         stockAvailable: product.stockAvailable,
         weight: product.weight,
@@ -282,6 +293,7 @@ export const normalizeProduct = (product = {}, index = 0) => {
     description: product.description || '',
     price: product.price ?? '',
     compareAtPrice: product.compareAtPrice ?? '',
+    cost: product.cost ?? '',
     currency: product.currency || 'R',
     priceType: product.quoteBased ? 'quote' : product.priceType || 'fixed',
     quoteBased: Boolean(product.quoteBased || product.priceType === 'quote'),

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ImagePlus, Trash2, Upload } from 'lucide-react';
 import { uploadPublicImage } from '../../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../../media/ImageCropModal';
+import { BlankMedia } from '../../../../shared/ui/BlankMedia';
 
 /**
  * Image with crop-to-preset upload + URL popover in Edit mode.
@@ -86,7 +87,13 @@ export function EditableImage({
   };
 
   if (!editMode) {
-    if (!src) return <div className={`bb-editable-image-empty ${className}`} aria-hidden="true" />;
+    if (!src) {
+      return (
+        <div className={`bb-editable-image-empty ${className}`} aria-hidden="true">
+          <BlankMedia variant={preset === 'logo' ? 'avatar' : preset === 'hero' ? 'hero' : preset === 'socialBanner' ? 'banner' : 'image'} />
+        </div>
+      );
+    }
     return (
       <div className={className}>
         <img src={src} alt={alt} className={imgClassName || 'w-full h-full object-cover'} />
@@ -106,6 +113,18 @@ export function EditableImage({
           <img src={src} alt={alt} className={imgClassName || 'w-full h-full object-cover'} />
         ) : (
           <div className="bb-editable-image-blank">
+            <BlankMedia
+              variant={
+                preset === 'logo'
+                  ? 'avatar'
+                  : preset === 'hero'
+                    ? 'hero'
+                    : preset === 'socialBanner'
+                      ? 'banner'
+                      : 'image'
+              }
+              className="bb-editable-image-blank-media"
+            />
             <div className="bb-editable-image-blank-frame" aria-hidden="true" />
             <button
               type="button"
@@ -114,7 +133,7 @@ export function EditableImage({
               onClick={() => fileRef.current?.click()}
             >
               <Upload size={18} strokeWidth={2.1} aria-hidden="true" />
-              <span>{busy ? 'Uploading…' : placeholderLabel}</span>
+              <span>{busy ? 'Uploading…' : placeholderLabel || 'Upload image'}</span>
             </button>
             <button
               type="button"

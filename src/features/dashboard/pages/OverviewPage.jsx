@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Check, Copy, ExternalLink } from 'lucide-react';
+import { Check, Copy, ExternalLink, Globe2, Share2, Sparkles } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -15,6 +15,7 @@ import {
 } from '../../finance/utils/financeLedger';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 
 function greetingForHour(hour) {
@@ -70,6 +71,13 @@ export function OverviewPage() {
   const greeting = `${greetingForHour(new Date().getHours())}, ${personName}`;
   const waiting = pendingRequests + pendingOrders + unreadSupport;
   const currency = workspace.currency || 'R';
+  const isFresh =
+    !workspace.isDemo &&
+    (!(workspace.services || []).length &&
+      !(workspace.products || []).length &&
+      !(workspace.socialPosts || []).length &&
+      !workspace.website?.logoUrl &&
+      !workspace.website?.heroImageUrl);
 
   const upcomingBookings = useMemo(() => {
     const { start, end } = getPeriodBounds(periodId, customRange);
@@ -210,6 +218,37 @@ export function OverviewPage() {
           setCustomPickerOpen(false);
         }}
       />
+
+      {isFresh ? (
+        <section className="bb-launcher-enter" style={{ '--i': 0.5 }} aria-label="Get started">
+          <EmptyState
+            icon={Sparkles}
+            eyebrow="Fresh workspace"
+            title="Make it yours"
+            description="Add a logo, build your home page, and publish your first post. No sample content — just your business."
+            action={
+              <button
+                type="button"
+                className="bb-primary-btn"
+                onClick={() => navigate('/dashboard/website')}
+              >
+                <Globe2 size={16} strokeWidth={2.2} aria-hidden="true" />
+                Set up home page
+              </button>
+            }
+            secondaryAction={
+              <button
+                type="button"
+                className="bb-ghost-btn"
+                onClick={() => navigate('/dashboard/social')}
+              >
+                <Share2 size={16} strokeWidth={2.2} aria-hidden="true" />
+                Open Social
+              </button>
+            }
+          />
+        </section>
+      ) : null}
 
       <section
         className="bb-launcher-stats bb-launcher-enter"

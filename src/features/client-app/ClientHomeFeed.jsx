@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Clapperboard, Grid3X3, MessageCircle, PenLine, RectangleVertical } from 'lucide-react';
+import { EmptyState } from '../../shared/ui/EmptyState';
 import { navigate, publicPagePath } from '../../app/routing';
 import {
   formatNoteStamp,
@@ -252,11 +253,11 @@ export function ClientHomeFeed({ posts = [], emptyCta = null }) {
 
       <div className="bb-client-home-stage">
         {visible.length === 0 ? (
-          <div className="bb-client-empty-hero">
-            <h2>Nothing in this feed</h2>
-            <p className="bb-muted">Switch filters or follow more businesses in Explore.</p>
-            {emptyCta}
-          </div>
+          <EmptyState
+            title="Nothing in this feed"
+            description="Switch filters or follow more businesses in Explore."
+            action={emptyCta}
+          />
         ) : filter === 'films' ? (
           <div className="bb-client-home-yt">
             <SocialVideosPanel

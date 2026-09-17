@@ -16,16 +16,20 @@ export function safeParse(raw, fallback) {
 export function readInitialWorkspace() {
   try {
     const mode = localStorage.getItem(MODE_KEY);
-    if (mode === 'owner') {
-      return safeParse(localStorage.getItem(OWNER_KEY), createBlankWorkspace({ onboardingComplete: false }));
-    }
     if (mode === 'demo') {
       return hydrateDemoWorkspace(safeParse(localStorage.getItem(DEMO_KEY), null));
+    }
+    if (mode === 'owner' || mode === 'blank') {
+      return safeParse(
+        localStorage.getItem(OWNER_KEY),
+        createBlankWorkspace({ onboardingComplete: false, isDemo: false })
+      );
     }
   } catch {
     /* ignore */
   }
-  return createDemoWorkspace();
+  // Fresh install / unknown mode: blank owner shell — never auto-load Flame & Flour.
+  return createBlankWorkspace({ onboardingComplete: false, isDemo: false });
 }
 
 export function persistWorkspace(next) {

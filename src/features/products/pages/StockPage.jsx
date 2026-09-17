@@ -77,6 +77,20 @@ function InventoryFields({
               }
             />
           </label>
+          <label className="bb-products-field bb-stock-span">
+            <span>Cost (your cost)</span>
+            <input
+              className="native-control-input bb-services-control"
+              inputMode="decimal"
+              value={values.cost ?? ''}
+              placeholder="0.00"
+              onChange={(event) =>
+                onChange({
+                  cost: event.target.value.replace(/[^\d.]/g, '')
+                })
+              }
+            />
+          </label>
         </div>
       </div>
 
