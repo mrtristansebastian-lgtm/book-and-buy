@@ -87,6 +87,17 @@ export async function updateClientEngagement(
   await updateDoc(doc(firebase.db, ...userProfilePath(APP_ID, uid)), payload);
 }
 
+export async function updateClientProfileFields(uid, patch = {}) {
+  const firebase = getFirebase();
+  if (!firebase || !uid || String(uid).startsWith('demo')) return;
+  const allowed = {};
+  if (patch.displayName != null) allowed.displayName = String(patch.displayName);
+  if (patch.email != null) allowed.email = String(patch.email).trim().toLowerCase();
+  if (patch.photoURL != null) allowed.photoURL = String(patch.photoURL).trim();
+  if (!Object.keys(allowed).length) return;
+  await updateDoc(doc(firebase.db, ...userProfilePath(APP_ID, uid)), allowed);
+}
+
 export async function addFollowedSlug(uid, slug, current = []) {
   const next = [...new Set([...(current || []), String(slug || '').trim()].filter(Boolean))];
   if (isFirebaseConfigured() && uid && !String(uid).startsWith('demo')) {

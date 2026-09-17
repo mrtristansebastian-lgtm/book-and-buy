@@ -34,7 +34,7 @@ export function ClientApp({ section = 'home', rest = [] }) {
   if (section === 'explore') return <ClientExplorePage />;
   if (section === 'messages') return <ClientMessagesPage threadId={rest[0] || ''} />;
   if (section === 'account') {
-    return <ClientAccountPage section={rest[0] || 'account'} />;
+    return <ClientAccountPage section={rest[0] || ''} />;
   }
   return <ClientHomePage />;
 }

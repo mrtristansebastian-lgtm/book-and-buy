@@ -19,8 +19,7 @@ function readLauncherView() {
 }
 
 /**
- * Shared apps navigator for PC left panel and mobile menu sheet.
- * Same AppTile look; icons/list toggle persisted in localStorage.
+ * Apps navigator for the Menu sheet (and legacy side rail).
  * Demo controls sit under Back Office when in demo mode.
  */
 export function OwnerAppsNav({ className = '', onSelect = null, showToggle = true }) {

@@ -6,6 +6,8 @@
 @import './native-centering-consistency.css';
 @import './native-booking-theme.css';
 @import './app-shell.css';
+@import './brand.css';
+@import './welcome.css';
 @import './public-surface/index.css';
 @import './social-studio/index.css';
 @import './support-inbox.css';

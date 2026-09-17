@@ -13,7 +13,8 @@ import {
   ensureClientProfile,
   isFirebaseConfigured,
   loadUserProfile,
-  updateClientEngagement
+  updateClientEngagement,
+  updateClientProfileFields
 } from './clientProfileApi';
 
 const ClientProfileContext = createContext(null);
@@ -241,6 +242,37 @@ export function ClientProfileProvider({ children }) {
     [persist]
   );
 
+  const updateClientProfile = useCallback(
+    async (patch = {}) => {
+      if (!profile) return null;
+      const next = {
+        ...profile,
+        ...patch,
+        email:
+          patch.email != null
+            ? String(patch.email).trim().toLowerCase()
+            : profile.email,
+        displayName:
+          patch.displayName != null ? String(patch.displayName) : profile.displayName,
+        photoURL: patch.photoURL != null ? String(patch.photoURL).trim() : profile.photoURL
+      };
+      const saved = persist(next);
+      if (isFirebaseConfigured() && next.uid && !String(next.uid).startsWith('demo')) {
+        try {
+          await updateClientProfileFields(next.uid, {
+            displayName: saved.displayName,
+            email: saved.email,
+            photoURL: saved.photoURL
+          });
+        } catch {
+          /* keep local */
+        }
+      }
+      return saved;
+    },
+    [profile, persist]
+  );
+
   const value = useMemo(
     () => ({
       profile,
@@ -252,6 +284,7 @@ export function ClientProfileProvider({ children }) {
       followSlug,
       unfollowSlug,
       bootstrapClientAfterAuth,
+      updateClientProfile,
       isLiked,
       getReaction,
       isSaved,
@@ -270,6 +303,7 @@ export function ClientProfileProvider({ children }) {
       followSlug,
       unfollowSlug,
       bootstrapClientAfterAuth,
+      updateClientProfile,
       isLiked,
       getReaction,
       isSaved,

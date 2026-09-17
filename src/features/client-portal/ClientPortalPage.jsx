@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { APP_NAME } from '../../config/appConfig';
 import { navigate } from '../../app/routing';
+import { BrandMark } from '../../shared/ui/BrandMark';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../utils/dates';
 import { formatCents } from '../../utils/products';
@@ -25,13 +25,13 @@ export function ClientPortalPage() {
     <div className="bb-shell native-ui min-h-screen flex justify-center px-5 py-10">
       <div className="w-full max-w-xl grid gap-6 content-start">
         <header className="grid gap-2">
-          <button
+          <BrandMark
+            as="button"
             type="button"
-            className="bb-brand-mark text-2xl bg-transparent border-0 p-0 justify-self-start cursor-pointer"
+            size="lg"
+            className="bb-portal-brand bg-transparent border-0 p-0 cursor-pointer"
             onClick={() => navigate('/')}
-          >
-            {APP_NAME}
-          </button>
+          />
           <h1 className="bb-page-title text-3xl m-0">Client portal</h1>
           <p className="bb-muted m-0">Look up your booking requests and product orders by email.</p>
         </header>

@@ -17,7 +17,6 @@ import {
   ShoppingCart,
   Users
 } from 'lucide-react';
-import { E_BUSINESS_PLATFORM_NAME } from './eBusinessPlatform';
 
 /** Icon per workspace tab — shared by launcher tiles and the mini-app bar. */
 export const TAB_ICONS = {
@@ -88,7 +87,7 @@ export const launcherApps = [
   },
   {
     id: 'presence',
-    label: E_BUSINESS_PLATFORM_NAME,
+    label: 'E-Business',
     blurb: 'Your public pages and social.',
     icon: Globe2,
     tabs: ['website', 'website-book', 'website-buy', 'website-checkout', 'social'],
@@ -98,7 +97,7 @@ export const launcherApps = [
   },
   {
     id: 'business',
-    label: 'Back Office',
+    label: 'Office',
     blurb: 'Support, finance, clients and settings.',
     icon: BriefcaseBusiness,
     tabs: ['communications', 'finance', 'clients', 'settings'],

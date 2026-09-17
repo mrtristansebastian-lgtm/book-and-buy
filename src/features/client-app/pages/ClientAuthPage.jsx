@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { APP_NAME } from '../../../config/appConfig';
 import { navigate } from '../../../app/routing';
+import { BrandMark } from '../../../shared/ui/BrandMark';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { useClientProfile } from '../ClientProfileContext';
@@ -39,7 +39,7 @@ export function ClientAuthPage() {
     <div className="bb-client-auth">
       <div className="bb-client-auth-card">
         <header className="bb-client-auth-head">
-          <div className="bb-brand-mark text-2xl">{APP_NAME}</div>
+          <BrandMark size="lg" />
           <h1 className="bb-client-auth-title">Your bookings, feed &amp; messages</h1>
           <p className="bb-muted m-0">
             Sign in as a client to follow businesses, chat, and manage bookings and orders.

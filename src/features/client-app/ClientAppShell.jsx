@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Compass, Home, MessageCircle, UserRound } from 'lucide-react';
 import { clientAppPath, navigate } from '../../app/routing';
+import { BrandMark } from '../../shared/ui/BrandMark';
 
 const TABS = [
   { id: 'home', label: 'Home', icon: Home, path: '/app/home' },
@@ -27,6 +28,11 @@ export function ClientAppShell({
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
+    /* Keep dock pinned in inbox / messages */
+    if (section === 'messages') {
+      setDockHidden(false);
+      return undefined;
+    }
     const scrollTops = new WeakMap();
     let touchStartY = 0;
 
@@ -106,6 +112,12 @@ export function ClientAppShell({
     >
       {hideHeader ? null : (
         <header className="bb-client-top">
+          <BrandMark
+            size="sm"
+            showWordmark={false}
+            className="bb-client-top-mark"
+            aria-hidden="true"
+          />
           <div className="bb-page-title-wrap bb-client-top-title-wrap">
             <div className="bb-page-header-glow" aria-hidden="true" />
             <h1 className="bb-page-title m-0">{title || 'Book and Buy'}</h1>
@@ -126,17 +138,22 @@ export function ClientAppShell({
               type="button"
               className={`bb-client-tab${active ? ' is-active' : ''}`}
               aria-current={active ? 'page' : undefined}
+              aria-label={tab.label}
+              title={tab.label}
               onClick={() => navigate(tab.path)}
             >
               <span className="bb-client-tab-icon">
-                <Icon size={24} strokeWidth={active ? 2.4 : 1.9} absoluteStrokeWidth />
+                <Icon
+                  size={22}
+                  strokeWidth={2}
+                  absoluteStrokeWidth
+                />
                 {tab.id === 'messages' && unreadMessages > 0 ? (
                   <span className="bb-client-tab-badge">
                     {unreadMessages > 99 ? '99+' : unreadMessages}
                   </span>
                 ) : null}
               </span>
-              <span className="bb-client-tab-label">{tab.label}</span>
             </button>
           );
         })}

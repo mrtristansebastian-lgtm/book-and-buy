@@ -9,6 +9,7 @@ import { ClientPortalPage } from './features/client-portal/ClientPortalPage';
 import { ClientApp } from './features/client-app/ClientApp';
 import { useClientProfile } from './features/client-app/ClientProfileContext';
 import { useWorkspace } from './features/workspace/WorkspaceContext';
+import { BrandMark } from './shared/ui/BrandMark';
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAppRoute());
@@ -34,8 +35,8 @@ export default function App() {
 
   if (!ready || !profileReady) {
     return (
-      <div className="bb-shell native-ui min-h-screen grid place-items-center bb-muted">
-        Loading…
+      <div className="bb-shell native-ui min-h-screen grid place-items-center">
+        <BrandMark size="lg" className="bb-welcome-brand-slot" />
       </div>
     );
   }

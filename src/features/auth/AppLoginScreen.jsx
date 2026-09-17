@@ -1,46 +1,71 @@
 import { useState } from 'react';
-import { APP_NAME } from '../../config/appConfig';
 import { navigate } from '../../app/routing';
+import { BrandMark } from '../../shared/ui/BrandMark';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import { useAuth } from './AuthContext';
 import { useClientProfile } from '../client-app/ClientProfileContext';
 
 export function AppLoginScreen() {
   const { loadDemoWorkspace, startOwnerOnboarding, exitDemoMode, workspace } = useWorkspace();
-  const { configured, signInEmail, signUpEmail, signInGoogle, user } = useAuth();
-  const { bootstrapClientAfterAuth } = useClientProfile();
+  const { configured, signInEmail, signUpEmail, signInGoogle } = useAuth();
+  const { bootstrapClientAfterAuth, enterDemoClient } = useClientProfile();
+
+  const [step, setStep] = useState('role');
+  const [audience, setAudience] = useState(null);
   const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+
+  const isIndividual = audience === 'individual';
+  const isBusiness = audience === 'business';
+
+  const chooseAudience = (next) => {
+    setAudience(next);
+    setStep('auth');
+    setMode('signin');
+    setError('');
+    setEmail('');
+    setPassword('');
+    setDisplayName('');
+  };
+
+  const goBack = () => {
+    setStep('role');
+    setAudience(null);
+    setError('');
+    setBusy(false);
+  };
+
+  const finishBusiness = () => {
+    const owner = workspace.isDemo ? exitDemoMode() : workspace;
+    if (owner?.onboardingComplete) {
+      navigate('/dashboard/overview');
+      return;
+    }
+    startOwnerOnboarding();
+    navigate('/onboarding');
+  };
+
+  const finishIndividual = async (authUser) => {
+    if (authUser) {
+      await bootstrapClientAfterAuth(authUser, { displayName });
+    }
+    navigate('/app/home', { replace: true });
+  };
 
   const runAuth = async (action) => {
     setBusy(true);
     setError('');
     try {
       const authUser = await action();
-      // If this Firebase user already has a client profile, send them to the client app.
-      try {
-        const { loadUserProfile } = await import('../client-app/clientProfileApi');
-        const remote = authUser?.uid ? await loadUserProfile(authUser.uid) : null;
-        if (remote?.kind === 'client') {
-          await bootstrapClientAfterAuth(authUser);
-          navigate('/app/home', { replace: true });
-          return;
-        }
-      } catch {
-        /* fall through to owner flow */
+      if (isIndividual) {
+        await finishIndividual(authUser);
+        return;
       }
-      const owner = workspace.isDemo ? exitDemoMode() : workspace;
-      if (owner?.onboardingComplete) {
-        navigate('/dashboard/overview');
-      } else if (!owner || owner.isDemo) {
-        startOwnerOnboarding();
-        navigate('/onboarding');
-      } else {
-        navigate('/onboarding');
-      }
+      finishBusiness();
     } catch (err) {
       setError(err?.message || 'Sign-in failed');
     } finally {
@@ -48,134 +73,185 @@ export function AppLoginScreen() {
     }
   };
 
-  return (
-    <div className="bb-shell native-ui min-h-screen flex items-center justify-center px-5 py-10">
-      <div className="w-full max-w-md grid gap-8">
-        <header className="grid gap-3">
-          <div className="bb-brand-mark text-3xl">{APP_NAME}</div>
-          <h1 className="bb-page-title text-4xl m-0">
-            Welcome to <span className="native-accent-text">{APP_NAME}</span>.
-          </h1>
-          <p className="bb-muted m-0 text-base leading-relaxed">
-            {configured
-              ? 'Sign in with Firebase, create a workspace, or open the Flame & Flour demo dashboard.'
-              : 'Local mode — open a workspace or the Flame & Flour demo. Add VITE_FIREBASE_CONFIG for real Auth.'}
-          </p>
-        </header>
+  const runLocalContinue = () => {
+    setBusy(true);
+    setError('');
+    try {
+      if (isIndividual) {
+        loadDemoWorkspace?.();
+        enterDemoClient();
+        navigate('/app/home', { replace: true });
+        return;
+      }
+      startOwnerOnboarding();
+      navigate('/onboarding');
+    } catch (err) {
+      setError(err?.message || 'Something went wrong');
+    } finally {
+      setBusy(false);
+    }
+  };
 
-        {configured ? (
-          <form
-            className="grid gap-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              runAuth(() =>
-                mode === 'signin'
-                  ? signInEmail(email, password)
-                  : signUpEmail(email, password)
-              );
-            }}
-          >
-            <div className="bb-segment">
+  const viewDemo = () => {
+    setBusy(true);
+    setError('');
+    try {
+      if (isIndividual) {
+        loadDemoWorkspace?.();
+        enterDemoClient();
+        navigate('/app/home', { replace: true });
+        return;
+      }
+      loadDemoWorkspace();
+      navigate('/demo');
+    } catch (err) {
+      setError(err?.message || 'Could not open demo');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="bb-welcome native-ui">
+      <div className="bb-welcome-atmosphere" aria-hidden="true" />
+      <div className={`bb-welcome-stage${step === 'auth' ? ' is-auth' : ''}`}>
+        {step === 'role' ? (
+          <section className="bb-welcome-panel bb-welcome-panel--role" key="role">
+            <BrandMark size="hero" className="bb-welcome-brand-slot" />
+            <p className="bb-welcome-lead">Book, buy, and run your day in one place.</p>
+            <div className="bb-welcome-choices" role="group" aria-label="How will you use Book and Buy?">
               <button
                 type="button"
-                aria-pressed={mode === 'signin'}
-                onClick={() => setMode('signin')}
+                className="bb-welcome-choice"
+                onClick={() => chooseAudience('individual')}
               >
-                Sign in
+                <span className="bb-welcome-choice-label">I’m an individual</span>
+                <span className="bb-welcome-choice-hint">Book, follow, and message businesses</span>
               </button>
               <button
                 type="button"
-                aria-pressed={mode === 'signup'}
-                onClick={() => setMode('signup')}
+                className="bb-welcome-choice"
+                onClick={() => chooseAudience('business')}
               >
-                Create account
+                <span className="bb-welcome-choice-label">I’m a business</span>
+                <span className="bb-welcome-choice-hint">Run bookings, storefront, and clients</span>
               </button>
             </div>
-            <input
-              className="native-control-input px-4"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
-            <input
-              className="native-control-input px-4"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              minLength={6}
-            />
-            {error ? <p className="m-0 text-sm text-[#b45309]">{error}</p> : null}
-            <button type="submit" className="bb-primary-btn" disabled={busy}>
-              {mode === 'signin' ? 'Sign in' : 'Create account'}
+          </section>
+        ) : (
+          <section className="bb-welcome-panel bb-welcome-panel--auth" key="auth">
+            <button type="button" className="bb-welcome-back" onClick={goBack} disabled={busy}>
+              Back
             </button>
+            <BrandMark size="lg" className="bb-welcome-brand-slot" />
+            <h1 className="bb-welcome-auth-title">
+              {isIndividual ? 'Continue as an individual' : 'Continue as a business'}
+            </h1>
+            <p className="bb-welcome-auth-copy">
+              {isIndividual
+                ? 'Sign in, create an account, or explore the individual demo.'
+                : 'Sign in, create an account, or explore the business demo.'}
+            </p>
+
+            {configured ? (
+              <form
+                className="bb-welcome-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  runAuth(async () => {
+                    if (mode === 'signin') return signInEmail(email, password);
+                    return signUpEmail(email, password);
+                  });
+                }}
+              >
+                <div className="bb-segment">
+                  <button
+                    type="button"
+                    aria-pressed={mode === 'signin'}
+                    onClick={() => setMode('signin')}
+                  >
+                    Sign in
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={mode === 'signup'}
+                    onClick={() => setMode('signup')}
+                  >
+                    Create account
+                  </button>
+                </div>
+                {isIndividual && mode === 'signup' ? (
+                  <input
+                    className="native-control-input px-4"
+                    placeholder="Your name"
+                    value={displayName}
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    autoComplete="name"
+                  />
+                ) : null}
+                <input
+                  className="native-control-input px-4"
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                  autoComplete="email"
+                />
+                <input
+                  className="native-control-input px-4"
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                  minLength={6}
+                  autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                />
+                {error ? <p className="bb-welcome-error">{error}</p> : null}
+                <button type="submit" className="bb-primary-btn" disabled={busy}>
+                  {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
+                </button>
+                <button
+                  type="button"
+                  className="bb-ghost-btn"
+                  disabled={busy}
+                  onClick={() => runAuth(() => signInGoogle())}
+                >
+                  Continue with Google
+                </button>
+              </form>
+            ) : (
+              <div className="bb-welcome-form">
+                <p className="bb-welcome-local-note">
+                  Local mode — continue without Firebase, or open a demo.
+                </p>
+                {error ? <p className="bb-welcome-error">{error}</p> : null}
+                <button
+                  type="button"
+                  className="bb-primary-btn"
+                  disabled={busy}
+                  onClick={runLocalContinue}
+                >
+                  {busy
+                    ? 'Please wait…'
+                    : isBusiness
+                      ? 'Create account'
+                      : 'Get started'}
+                </button>
+              </div>
+            )}
+
             <button
               type="button"
-              className="bb-ghost-btn"
+              className="bb-welcome-demo"
               disabled={busy}
-              onClick={() => runAuth(() => signInGoogle())}
+              onClick={viewDemo}
             >
-              Continue with Google
+              {isIndividual ? 'View individual demo' : 'View business demo'}
             </button>
-            {user ? (
-              <p className="bb-muted m-0 text-xs">Signed in as {user.email}</p>
-            ) : null}
-          </form>
-        ) : null}
-
-        <div className="grid gap-3">
-          <button
-            type="button"
-            className="bb-ink-btn"
-            onClick={() => {
-              if (workspace.onboardingComplete && !workspace.isDemo) {
-                navigate('/dashboard/overview');
-                return;
-              }
-              startOwnerOnboarding();
-              navigate('/onboarding');
-            }}
-          >
-            Open Workspace
-          </button>
-          {!configured ? (
-            <button
-              type="button"
-              className="bb-primary-btn"
-              onClick={() => {
-                startOwnerOnboarding();
-                navigate('/onboarding');
-              }}
-            >
-              Create Account
-            </button>
-          ) : null}
-          <button
-            type="button"
-            className="bb-ghost-btn"
-            onClick={() => {
-              loadDemoWorkspace();
-              navigate('/demo');
-            }}
-          >
-            View Demo As Guest
-          </button>
-          <button type="button" className="bb-ghost-btn" onClick={() => navigate('/app/auth')}>
-            Client app
-          </button>
-          <button type="button" className="bb-ghost-btn" onClick={() => navigate('/portal')}>
-            Client Portal
-          </button>
-        </div>
-
-        <footer className="flex flex-wrap gap-4 text-sm bb-muted">
-          <span>Privacy</span>
-          <span>Terms</span>
-          <span>Support</span>
-        </footer>
+          </section>
+        )}
       </div>
     </div>
   );

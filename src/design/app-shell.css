@@ -299,7 +299,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 
 /* App shell: PC left apps panel + mobile bottom dock */
 .bb-shell {
-  --bb-owner-dock-h: calc(3.4rem + env(safe-area-inset-bottom, 0px));
+  --bb-owner-dock-h: calc(3.25rem + env(safe-area-inset-bottom, 0px));
   --bb-owner-dock-pad: var(--bb-owner-dock-h);
   --bb-owner-side-w: 19.5rem;
 }
@@ -430,12 +430,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 .bb-demo-panel--nav {
-  margin-top: 0.55rem;
-}
-
-.bb-owner-menu-sheet-body .bb-demo-panel--nav {
-  margin-inline: 0.1rem;
-  margin-bottom: 0.35rem;
+  margin-top: 0.35rem;
 }
 
 .bb-demo-panel--account {
@@ -467,41 +462,41 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   will-change: transform;
 }
 
+/* Mini-app pages: no dock reserve (inbox/support keeps dock). All breakpoints. */
+.bb-shell.is-miniapp:not(.is-support-flush),
+.bb-shell:has(.bb-studio-canvas):not(.is-support-flush) {
+  --bb-owner-dock-pad: 0px !important;
+  --bb-owner-dock-h: 0px !important;
+}
+
+.bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-dock,
+.bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-menu-sheet,
+.bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-menu-backdrop,
+.bb-shell:has(.bb-studio-canvas):not(.is-support-flush) .bb-owner-dock,
+.bb-shell:has(.bb-studio-canvas):not(.is-support-flush) .bb-owner-menu-sheet,
+.bb-shell:has(.bb-studio-canvas):not(.is-support-flush) .bb-owner-menu-backdrop {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  transform: none !important;
+  pointer-events: none !important;
+}
+
+.bb-shell.is-dock-hidden:not(.is-menu-open) {
+  --bb-owner-dock-pad: 0px;
+}
+
 @media (max-width: 899px) {
-  /* Mini-app pages: no dock, no reserved pad (kills the white slab above the dock) */
-  .bb-shell.is-miniapp,
-  .bb-shell:has(.bb-studio-canvas) {
-    --bb-owner-dock-pad: 0px !important;
-    --bb-owner-dock-h: 0px !important;
-  }
-
-  .bb-shell.is-miniapp .bb-owner-dock,
-  .bb-shell.is-miniapp .bb-owner-menu-sheet,
-  .bb-shell.is-miniapp .bb-owner-menu-backdrop,
-  .bb-shell:has(.bb-studio-canvas) .bb-owner-dock,
-  .bb-shell:has(.bb-studio-canvas) .bb-owner-menu-sheet,
-  .bb-shell:has(.bb-studio-canvas) .bb-owner-menu-backdrop {
-    display: none !important;
-    height: 0 !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    border: 0 !important;
-    transform: none !important;
-    pointer-events: none !important;
-  }
-
-  .bb-shell.is-miniapp .bb-owner-main,
-  .bb-shell:has(.bb-studio-canvas) .bb-owner-main {
+  .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main,
+  .bb-shell:has(.bb-studio-canvas):not(.is-support-flush) .bb-owner-main {
     padding-bottom: 0.75rem !important;
   }
 
-  .bb-shell.is-miniapp .bb-owner-main.is-flush,
-  .bb-shell:has(.bb-studio-canvas) .bb-owner-main {
+  .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main.is-flush,
+  .bb-shell:has(.bb-studio-canvas):not(.is-support-flush) .bb-owner-main {
     padding-bottom: 0 !important;
-  }
-
-  .bb-shell.is-dock-hidden:not(.is-menu-open) {
-    --bb-owner-dock-pad: 0px;
   }
 
   .bb-shell.is-dock-hidden:not(.is-menu-open) .bb-owner-dock {
@@ -518,39 +513,58 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 .bb-owner-dock-btn {
   appearance: none;
   display: grid;
-  justify-items: center;
-  align-content: center;
-  gap: 0.15rem;
+  place-items: center;
   margin: 0;
-  padding: 0.4rem 0.35rem 0.35rem;
+  padding: 0.35rem 0.25rem;
   border: 0;
   background: transparent;
   color: #667085;
   font: inherit;
-  font-size: 0.64rem;
-  font-weight: 650;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .bb-owner-dock-btn.is-active {
   color: #101828;
+  font-weight: 500;
+}
+
+.bb-owner-dock-btn > span:not(.bb-owner-dock-icon) {
+  display: none;
 }
 
 .bb-owner-dock-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
+  stroke-width: 2;
 }
 
 .bb-owner-dock-icon {
   position: relative;
   display: grid;
   place-items: center;
+  min-width: 2.65rem;
+  min-height: 2.65rem;
+  padding: 0.35rem;
+  border: 1.5px solid transparent;
+  border-radius: 0.9rem;
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+}
+
+.bb-owner-dock-btn.is-active .bb-owner-dock-icon {
+  background-color: transparent;
+  background-image:
+    linear-gradient(#ffffff, #ffffff),
+    var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
 }
 
 .bb-owner-dock-badge {
   position: absolute;
-  top: -0.28rem;
-  right: -0.45rem;
+  top: 0.05rem;
+  right: 0.05rem;
   min-width: 0.95rem;
   height: 0.95rem;
   padding: 0 0.22rem;
@@ -601,18 +615,25 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.65rem;
   flex: 0 0 auto;
-  padding: 0.7rem 0.9rem 0.55rem;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+  padding: 0.75rem 0.9rem 0.7rem;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   background: #fff;
 }
 
-.bb-owner-menu-sheet-head strong {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
-  font-size: 1rem;
+.bb-owner-menu-brand.bb-brand-lockup--md {
+  gap: 0.55rem;
+}
+
+.bb-owner-menu-brand .bb-brand-lockup-mark {
+  height: 1.55rem;
+}
+
+.bb-owner-menu-brand .bb-brand-lockup-word {
+  font-size: 1.05rem;
   font-weight: 780;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .bb-owner-menu-close {
@@ -651,17 +672,23 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   display: none;
 }
 
+.bb-owner-menu-sheet-body .bb-owner-apps-nav-brand {
+  display: none;
+}
+
 .bb-owner-menu-sheet-body .bb-owner-apps-nav-groups {
   grid-template-columns: 1fr;
   gap: 0.65rem;
 }
 
-/* Readable mobile menu — full-width 4-up icons, no tiny truncated labels */
+/* Mobile menu — readable sizing (desktop overrides below at 900px+) */
 .bb-owner-menu-sheet-body .bb-appgroup {
   gap: 0.75rem;
   padding: 0.85rem 0.8rem 0.9rem;
   border-radius: 1rem;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 0;
+  background: #fff;
 }
 
 .bb-owner-menu-sheet-body .bb-appgroup-head {
@@ -680,9 +707,10 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 .bb-owner-menu-sheet-body .bb-appgroup-title {
-  font-size: 1.05rem;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  font-size: 0.92rem;
+  font-weight: 780;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
 
 .bb-owner-menu-sheet-body .bb-appgroup-blurb {
@@ -707,6 +735,9 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 }
 
 .bb-owner-menu-sheet-body .bb-appicon-glyph {
+  width: var(--size);
+  height: var(--size);
+  border-radius: 0.85rem;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     0 1px 2px rgba(15, 23, 42, 0.1),
@@ -739,6 +770,41 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   right: -0.28rem;
 }
 
+.bb-owner-menu-sheet-body .bb-demo-panel--nav {
+  margin: 0.35rem 0.1rem 0.35rem;
+  padding: 0.95rem 1rem 1rem;
+  border-radius: 1rem;
+  gap: 0.75rem;
+}
+
+.bb-owner-menu-sheet-body .bb-demo-panel-head {
+  gap: 0.7rem;
+}
+
+.bb-owner-menu-sheet-body .bb-demo-panel-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+}
+
+.bb-owner-menu-sheet-body .bb-demo-panel-copy strong {
+  font-size: 0.92rem;
+}
+
+.bb-owner-menu-sheet-body .bb-demo-panel-copy p {
+  font-size: 0.78rem;
+}
+
+.bb-owner-menu-sheet-body .bb-demo-panel-actions {
+  gap: 0.4rem;
+}
+
+.bb-owner-menu-sheet-body .bb-demo-panel-btn {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.35rem;
+  font-size: 0.72rem;
+}
+
 .bb-owner-menu-sheet-body .bb-app-tile-list {
   grid-template-columns: 1fr;
   column-gap: 0;
@@ -768,7 +834,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   display: none;
 }
 
-@media (min-width: 560px) {
+@media (min-width: 560px) and (max-width: 899px) {
   .bb-owner-menu-sheet-body .bb-owner-apps-nav-groups {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -782,6 +848,10 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
 
 @media (min-width: 900px) {
   .bb-shell {
+    --bb-owner-dock-w: 4.35rem;
+    --bb-owner-dock-h: 0px;
+    --bb-owner-dock-pad: 0px;
+    --bb-owner-dock-inline: var(--bb-owner-dock-w);
     height: 100dvh;
     max-height: 100dvh;
     overflow: hidden;
@@ -789,31 +859,20 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     flex-direction: column;
   }
 
+  .bb-shell.is-miniapp:not(.is-support-flush),
+  .bb-shell.is-dock-hidden:not(.is-menu-open) {
+    --bb-owner-dock-inline: 0px;
+  }
+
   .bb-owner-layout {
     flex: 1 1 auto;
     min-height: 0;
-    grid-template-columns: var(--bb-owner-side-w) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     overflow: hidden;
   }
 
   .bb-owner-side {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    overflow: auto;
-    padding: 1.15rem 0.95rem 1.35rem;
-    border-right: 1px solid rgba(15, 23, 42, 0.07);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(14px);
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .bb-owner-side .bb-owner-apps-nav-groups {
-    grid-template-columns: 1fr;
-  }
-
-  .bb-owner-side .bb-appgroup-row {
-    flex-wrap: wrap;
+    display: none !important;
   }
 
   .bb-owner-content {
@@ -824,23 +883,177 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
     overflow: auto;
     flex: 1 1 auto;
     padding: 1.75rem 1.75rem 1.75rem;
+    padding-left: calc(1.75rem + var(--bb-owner-dock-inline));
     -webkit-overflow-scrolling: touch;
   }
 
-  .bb-owner-dock,
-  .bb-owner-menu-sheet,
+  .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main {
+    padding-left: 1.75rem;
+    padding-bottom: 1.25rem;
+  }
+
+  /* Left vertical dock */
+  .bb-owner-dock {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, auto);
+    align-content: center;
+    justify-items: center;
+    gap: 0.35rem;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: var(--bb-owner-dock-w);
+    min-height: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0.75rem 0.35rem;
+    padding-bottom: 0.75rem;
+    border: 0;
+    border-right: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .bb-shell.is-menu-open .bb-owner-dock,
+  .bb-shell.is-dock-hidden:not(.is-menu-open) .bb-owner-dock {
+    transform: none;
+  }
+
+  .bb-shell.is-dock-hidden:not(.is-menu-open) .bb-owner-dock {
+    transform: translateX(calc(-100% - 2px));
+    pointer-events: none;
+  }
+
+  .bb-owner-dock-btn {
+    width: 100%;
+    padding: 0.25rem 0;
+  }
+
   .bb-owner-menu-backdrop {
-    display: none !important;
+    inset: 0 0 0 var(--bb-owner-dock-w);
+  }
+
+  /* Panel slides out to the right of the dock */
+  .bb-owner-menu-sheet {
+    top: 0;
+    bottom: 0;
+    left: var(--bb-owner-dock-w);
+    right: auto;
+    width: min(22.5rem, calc(100vw - var(--bb-owner-dock-w) - 1.5rem));
+    height: 100dvh;
+    max-height: 100dvh;
+    transform: translateX(-105%);
+    border-radius: 0;
+    border-top: 0;
+    border-right: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 18px 0 48px -28px rgba(15, 23, 42, 0.35);
+  }
+
+  .bb-owner-menu-sheet.is-open {
+    transform: translateX(0);
+  }
+
+  .bb-owner-menu-sheet-head {
+    padding: 0.85rem 0.9rem 0.75rem;
+  }
+
+  .bb-owner-menu-brand .bb-brand-lockup-mark {
+    height: 1.65rem;
+  }
+
+  .bb-owner-menu-brand .bb-brand-lockup-word {
+    font-size: 1.08rem;
+  }
+
+  .bb-owner-menu-sheet-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0.65rem 0.7rem 0.85rem;
+  }
+
+  .bb-owner-menu-sheet-body .bb-owner-apps-nav {
+    min-height: 0;
+    gap: 0.5rem;
+  }
+
+  /* Categories stacked vertically */
+  .bb-owner-menu-sheet-body .bb-owner-apps-nav-groups {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appgroup {
+    gap: 0.6rem;
+    padding: 0.7rem 0.7rem 0.75rem;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appgroup-head {
+    gap: 0.5rem;
+    min-height: 0;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appgroup-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appgroup-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appgroup-title {
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appicon {
+    --size: 2.75rem;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appicon-glyph svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .bb-owner-menu-sheet-body .bb-appicon-label {
+    font-size: 0.66rem;
+  }
+
+  .bb-owner-menu-sheet-body .bb-demo-panel--nav {
+    margin: 0.15rem 0 0;
+  }
+
+  .bb-shell.is-support-flush,
+  .bb-shell.is-support-flush .bb-owner-main.is-flush {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .bb-shell.is-support-flush .bb-owner-main.is-flush {
+    padding-left: var(--bb-owner-dock-inline);
   }
 }
 
 @media (min-width: 1280px) {
-  .bb-shell {
-    --bb-owner-side-w: 21rem;
-  }
-
   .bb-owner-main {
     padding: 1.85rem 2.25rem 2rem;
+    padding-left: calc(1.85rem + var(--bb-owner-dock-inline));
+  }
+
+  .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main {
+    padding-left: 1.85rem;
+  }
+
+  .bb-owner-menu-sheet {
+    width: min(24rem, calc(100vw - var(--bb-owner-dock-w) - 2rem));
   }
 }
 
@@ -899,46 +1112,45 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   overflow: hidden;
 }
 
+/* Support flush + dock: leave room above the dock on all breakpoints */
+.bb-shell.is-support-flush,
+.bb-shell.is-support-flush .bb-owner-main.is-flush {
+  height: calc(100dvh - var(--bb-owner-dock-h));
+  max-height: calc(100dvh - var(--bb-owner-dock-h));
+}
+
+.bb-shell.is-support-flush .bb-owner-main.is-flush {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.bb-shell.is-support-flush .bb-owner-content,
+.bb-shell.is-support-flush .bb-owner-main.is-flush,
+.bb-shell.is-support-flush .bb-support-page,
+.bb-shell.is-support-flush .bb-support-stage {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  isolation: isolate;
+}
+
+.bb-shell.is-support-flush .bb-support-list {
+  background: #fbfbfb;
+}
+
+.bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-miniapp-bar {
+  display: none !important;
+}
+
+.bb-shell.is-support-flush .bb-support-composer-wrap {
+  padding-bottom: 0.75rem;
+}
+
+.bb-owner-layout {
+  position: relative;
+}
+
 @media (max-width: 899px) {
-  .bb-shell.is-support-flush,
-  .bb-shell.is-support-flush .bb-owner-main.is-flush {
-    height: 100dvh;
-    max-height: 100dvh;
-  }
-
-  .bb-shell.is-support-flush .bb-owner-main.is-flush {
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-
-  .bb-shell.is-support-flush .bb-owner-content,
-  .bb-shell.is-support-flush .bb-owner-main.is-flush,
-  .bb-shell.is-support-flush .bb-support-page,
-  .bb-shell.is-support-flush .bb-support-stage {
-    position: relative;
-    z-index: 1;
-    background: #fff;
-    isolation: isolate;
-  }
-
-  .bb-shell.is-support-flush .bb-support-list {
-    background: #fbfbfb;
-  }
-
-  /* Open thread: hide Back Office mini-app bar for full-screen chat */
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-miniapp-bar {
-    display: none !important;
-  }
-
-  .bb-shell.is-support-flush:has(.bb-support-stage.is-chat) .bb-support-composer-wrap {
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
-  }
-
-  .bb-owner-layout {
-    position: relative;
-  }
-
-  /* Mobile app chrome — edge-to-edge pages, no floating desk cards */
   .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) {
     padding-inline: 0;
     padding-top: 0.55rem;

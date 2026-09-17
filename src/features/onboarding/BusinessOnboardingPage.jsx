@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { APP_NAME } from '../../config/appConfig';
 import { E_BUSINESS_PLATFORM_NAME } from '../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../app/routing';
+import { BrandMark } from '../../shared/ui/BrandMark';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 
 const STEPS = ['business', 'pages', 'ready'];
@@ -53,7 +53,7 @@ export function BusinessOnboardingPage() {
     <div className="bb-shell native-ui min-h-screen flex items-center justify-center px-5 py-10">
       <div className="w-full max-w-lg grid gap-6">
         <header className="grid gap-2">
-          <div className="bb-brand-mark text-2xl">{APP_NAME}</div>
+          <BrandMark size="lg" className="bb-onboarding-brand" />
           <h1 className="bb-page-title text-3xl m-0">Set up your workspace</h1>
           <p className="bb-muted m-0">
             Step {STEPS.indexOf(step) + 1} of {STEPS.length} — then publish your {E_BUSINESS_PLATFORM_NAME}.
