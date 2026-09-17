@@ -94,12 +94,22 @@ export const launcherApps = [
   {
     id: 'presence',
     label: 'E-Business',
-    blurb: 'Your public pages and social.',
+    blurb: 'Your public pages and storefront.',
     icon: Globe2,
-    tabs: ['website', 'website-book', 'website-buy', 'website-checkout', 'social'],
+    tabs: ['website', 'website-book', 'website-buy', 'website-checkout'],
     size: 'lg',
     hue: 'violet',
     tint: ['#d8ccff', '#d2cbff']
+  },
+  {
+    id: 'social',
+    label: 'Social',
+    blurb: 'Posts, studio and client messages.',
+    icon: Share2,
+    tabs: ['social', 'communications'],
+    size: 'md',
+    hue: 'rose',
+    tint: ['#ffd4f2', '#d8ccff']
   },
   {
     id: 'analytics',
@@ -114,12 +124,12 @@ export const launcherApps = [
   {
     id: 'business',
     label: 'Office',
-    blurb: 'Support, finance, clients and settings.',
+    blurb: 'Finance, clients and settings.',
     icon: BriefcaseBusiness,
-    tabs: ['communications', 'finance', 'clients', 'settings'],
+    tabs: ['finance', 'clients', 'settings'],
     size: 'lg',
-    hue: 'rose',
-    tint: ['#d8ccff', '#ffd4f2']
+    hue: 'mint',
+    tint: ['#cbffb8', '#f1ff9a']
   }
 ];
 

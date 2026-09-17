@@ -35,6 +35,8 @@ import { ChangeDayStatusSheet } from './ChangeDayStatusSheet';
 import { SelectRangeSheet } from './SelectRangeSheet';
 import {
   WEEKDAY_LABELS,
+  BUSINESS_STATUS_OPTIONS,
+  STAFF_PAINT_OPTIONS,
   formatWindowDate,
   sameMonth,
   clampMonthAnchor,
@@ -363,7 +365,10 @@ export function ScheduleAvailabilityEditor({
     return 'Working';
   };
 
-  const applyStatusFromSheet = ({ status, startDate, endDate, startTime, endTime }) => {
+  const applyStatusFromSheet = (
+    { status, startDate, endDate, startTime, endTime },
+    { quiet = false } = {}
+  ) => {
     const rangeLabel =
       startDate === endDate
         ? formatDisplayDate(startDate)
@@ -379,7 +384,7 @@ export function ScheduleAvailabilityEditor({
       }
       setSelectedDay(startDate);
       setSelectRangeOpen(false);
-      showSaveNotice('Range saved', `${statusName} · ${rangeLabel}`);
+      if (!quiet) showSaveNotice('Range saved', `${statusName} · ${rangeLabel}`);
       return;
     }
     if (!canEditSelected && status !== 'business-closed') return;
@@ -387,7 +392,7 @@ export function ScheduleAvailabilityEditor({
       if (!canEditRules) return;
       onUpdateRules?.(applyBusinessClosedToRange(availabilityRules, startDate, endDate, true));
       setSelectRangeOpen(false);
-      showSaveNotice('Range saved', `${statusName} · ${rangeLabel}`);
+      if (!quiet) showSaveNotice('Range saved', `${statusName} · ${rangeLabel}`);
       return;
     }
     if (!staffId || !entry) return;
@@ -413,7 +418,49 @@ export function ScheduleAvailabilityEditor({
     onSaveEntry?.(staffId, next);
     setSelectedDay(startDate);
     setSelectRangeOpen(false);
-    showSaveNotice('Range saved', `${statusName} · ${rangeLabel}`);
+    if (!quiet) showSaveNotice('Range saved', `${statusName} · ${rangeLabel}`);
+  };
+
+  const paintBrushOptions = useMemo(() => {
+    if (isBusinessFocus) return BUSINESS_STATUS_OPTIONS;
+    return STAFF_PAINT_OPTIONS;
+  }, [isBusinessFocus]);
+
+  const nextCycledStatus = (current) => {
+    const options = paintBrushOptions;
+    if (!options.length) return 'open';
+    const idx = options.findIndex((option) => option.id === current);
+    return options[(idx + 1) % options.length].id;
+  };
+
+  const resolveDayStatusForPaint = (dateKey) => {
+    if (isBusinessFocus) {
+      return isBusinessOpenOnDate(dateKey, availabilityRules) ? 'open' : 'business-closed';
+    }
+    return resolveCalendarDayStatus(
+      staffId,
+      dateKey,
+      { [staffId]: entry },
+      availabilityRules
+    );
+  };
+
+  const handleActiveEditDayTap = (key) => {
+    if (!activeEdit) return;
+    if (!isDateWithinAdvanceWindow(key, availabilityRules, { todayKey })) return;
+    const current = resolveDayStatusForPaint(key);
+    if (!isBusinessFocus && (current === 'business-closed' || current === 'break')) return;
+    const next = nextCycledStatus(current === 'break' ? 'open' : current);
+    applyStatusFromSheet(
+      {
+        status: next,
+        startDate: key,
+        endDate: key,
+        startTime: openTime,
+        endTime: closeTime
+      },
+      { quiet: true }
+    );
   };
 
   const saveDay = (overrides = {}) => {
@@ -660,10 +707,11 @@ export function ScheduleAvailabilityEditor({
         {activeEdit ? (
           <div className="bb-schedule-avail-paint-bar" role="status">
             <div className="bb-schedule-avail-paint-bar-copy">
-              <p className="bb-schedule-avail-paint-bar-title">Active edit on</p>
+              <p className="bb-schedule-avail-paint-bar-title">Tap a day to change its colour</p>
               <p className="bb-schedule-avail-paint-bar-hint">
-                Tap a day to review it below, or use Select range to set a start date, end date, and
-                status — then save.
+                {isBusinessFocus
+                  ? 'Each tap switches Available or Closed. Need many days? Use Select range.'
+                  : 'Each tap cycles Working → Off day → Leave. Need many days? Use Select range.'}
               </p>
             </div>
             <button
@@ -723,7 +771,7 @@ export function ScheduleAvailabilityEditor({
           ))}
         </div>
 
-        <div className={`bb-schedule-picker-grid${activeEdit ? ' is-editing' : ''}`}>
+        <div className={`bb-schedule-picker-grid${activeEdit ? ' is-painting' : ''}`}>
           {monthDays.map((date) => {
             const key = toDateKey(date);
             const inMonth = date.getMonth() === monthAnchor.getMonth();
@@ -735,18 +783,26 @@ export function ScheduleAvailabilityEditor({
               : resolveCalendarDayStatus(staffId, key, { [staffId]: entry }, availabilityRules);
             const displayStatus = status === 'break' ? 'open' : status;
             const isFocusDay = key === selectedDay;
+            const paintable = Boolean(activeEdit) && inWindow;
             return (
               <button
                 key={key}
                 type="button"
                 className={`bb-schedule-picker-day is-${displayStatus}${
                   isFocusDay ? ' is-selected' : ''
-                }${inMonth ? '' : ' is-outside'}${inWindow ? '' : ' is-outside-window'}`}
+                }${inMonth ? '' : ' is-outside'}${inWindow ? '' : ' is-outside-window'}${
+                  paintable ? ' is-paintable' : ''
+                }`}
                 aria-label={`${formatDisplayDate(key)}, ${statusTileLabel(
                   displayStatus,
                   isBusinessFocus
                 )}`}
+                disabled={Boolean(activeEdit) && !inWindow}
                 onClick={() => {
+                  if (activeEdit) {
+                    handleActiveEditDayTap(key);
+                    return;
+                  }
                   setSelectedDay(key);
                   if (date.getMonth() !== monthAnchor.getMonth()) {
                     setMonthAnchor(

@@ -808,8 +808,13 @@
 }
 
 @media (max-width: 899px) {
-  .bb-miniapp-tabs-bar {
-    display: none !important;
+  .bb-miniapp-segment button {
+    padding: 0.45rem 0.75rem;
   }
+}
+
+/* Hidden on all breakpoints — page headings + launcher handle navigation */
+.bb-miniapp-tabs-bar {
+  display: none !important;
 }
 

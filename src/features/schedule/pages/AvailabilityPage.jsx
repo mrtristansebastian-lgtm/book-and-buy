@@ -45,40 +45,42 @@ export function AvailabilityPage() {
 
   return (
     <div className="bb-schedule-desk">
-      <header className="bb-schedule-desk-header bb-schedule-avail-page-header">
-        <div className="bb-schedule-desk-copy">
-          <div className="bb-schedule-avail-title-row">
-            <div className="bb-page-title-wrap">
-              <PageBackButton />
-              <span className="bb-page-title-main">
-                <div className="bb-page-header-glow" aria-hidden="true" />
-                <h1 className="bb-page-title bb-schedule-desk-title">Availability Studio</h1>
-              </span>
+      <div className="bb-page-chrome">
+        <header className="bb-schedule-desk-header bb-schedule-avail-page-header">
+          <div className="bb-schedule-desk-copy">
+            <div className="bb-schedule-avail-title-row">
+              <div className="bb-page-title-wrap">
+                <PageBackButton />
+                <span className="bb-page-title-main">
+                  <div className="bb-page-header-glow" aria-hidden="true" />
+                  <h1 className="bb-page-title bb-schedule-desk-title">Availability Studio</h1>
+                </span>
+              </div>
+              {canEditRules ? (
+                <button
+                  type="button"
+                  className="bb-schedule-avail-studio-settings"
+                  aria-label="Availability settings"
+                  title="Settings"
+                  onClick={() => setStudioSettingsOpen(true)}
+                >
+                  <Settings size={18} strokeWidth={2.2} aria-hidden="true" />
+                </button>
+              ) : null}
             </div>
-            {canEditRules ? (
-              <button
-                type="button"
-                className="bb-schedule-avail-studio-settings"
-                aria-label="Availability settings"
-                title="Settings"
-                onClick={() => setStudioSettingsOpen(true)}
-              >
-                <Settings size={18} strokeWidth={2.2} aria-hidden="true" />
-              </button>
-            ) : null}
           </div>
-        </div>
-        <div className="bb-schedule-desk-tools bb-schedule-avail-header-tools">
-          <StaffAvailabilitySwitcher
-            staff={visibleStaff}
-            staffId={staffId}
-            onSelect={setStaffId}
-            businessName={workspace.brandName || 'Business'}
-            businessLogoUrl={workspace.website?.logoUrl || ''}
-            showBusiness
-          />
-        </div>
-      </header>
+          <div className="bb-schedule-desk-tools bb-schedule-avail-header-tools">
+            <StaffAvailabilitySwitcher
+              staff={visibleStaff}
+              staffId={staffId}
+              onSelect={setStaffId}
+              businessName={workspace.brandName || 'Business'}
+              businessLogoUrl={workspace.website?.logoUrl || ''}
+              showBusiness
+            />
+          </div>
+        </header>
+      </div>
 
       <ScheduleAvailabilityEditor
         staff={staff}

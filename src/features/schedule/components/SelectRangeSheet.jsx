@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { AppSheet } from '../../../shared/ui/AppSheet';
 import { DateField } from '../../../shared/ui/DateField';
 import { BUSINESS_STATUS_OPTIONS, STAFF_PAINT_OPTIONS } from './availabilityEditorUtils';
 
@@ -30,79 +31,19 @@ export function SelectRangeSheet({
   );
 
   return (
-    <div
-      className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4"
-      role="presentation"
-      onClick={onClose}
-    >
-      <div
-        className="bb-panel bb-schedule-avail-status-sheet bb-schedule-avail-select-range-sheet w-full max-w-md p-5 grid gap-4 max-h-[90vh] overflow-auto"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="avail-select-range-title"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="bb-schedule-avail-status-sheet-head">
-          <h2 id="avail-select-range-title" className="bb-page-title text-2xl m-0">
-            Select range
-          </h2>
-          <p className="bb-schedule-avail-hint m-0">
-            {businessOnly
-              ? 'Pick a start and end date, choose Available or Closed, then save.'
-              : `Pick dates and a status for ${staffName || 'this staff member'}, then save.`}
-          </p>
-        </div>
-
-        <div className="bb-schedule-avail-status-sheet-fields">
-          <DateField
-            label="Start date"
-            value={startDate}
-            onChange={(next) => {
-              setStartDate(next);
-              if (endDate && endDate < next) setEndDate(next);
-            }}
-          />
-          <DateField
-            label="End date"
-            value={endDate}
-            min={startDate || undefined}
-            onChange={setEndDate}
-          />
-        </div>
-
-        <div className="bb-schedule-avail-range-status-block">
-          <p className="bb-schedule-avail-range-status-label">Status for this period</p>
-          <div className="bb-schedule-avail-status" role="tablist" aria-label="Availability status">
-            {statusOptions.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                role="tab"
-                aria-selected={status === option.id}
-                className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
-                  status === option.id ? ' is-active' : ''
-                }`}
-                onClick={() => setStatus(option.id)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <p className="bb-schedule-avail-hint m-0">
-          {businessOnly
-            ? status === 'business-closed'
-              ? 'Closed days override weekly open days for the whole business.'
-              : 'Available clears closed dates in this range. Weekly open days still apply.'
-            : status === 'leave'
-              ? `Leave marks ${staffName || 'this staff member'} unavailable for the selected dates.`
-              : status === 'off'
-                ? `Off day marks ${staffName || 'this staff member'} as not working.`
-                : 'Working days use business hours. Refine shifts per day on the calendar after saving.'}
-        </p>
-
-        <div className="bb-schedule-avail-status-sheet-actions">
+    <AppSheet
+      onClose={onClose}
+      eyebrow="Availability"
+      title="Select range"
+      lede={
+        businessOnly
+          ? 'Pick start and end dates, choose Available or Closed, then save.'
+          : `Pick dates and a status for ${staffName || 'this staff member'}, then save.`
+      }
+      labelledBy="avail-select-range-title"
+      panelClassName="bb-schedule-avail-sheet-panel"
+      footer={
+        <div className="bb-services-sheet-footer-actions">
           <button type="button" className="bb-ghost-btn" onClick={onClose}>
             Cancel
           </button>
@@ -124,7 +65,56 @@ export function SelectRangeSheet({
             Save {activeLabel.toLowerCase()}
           </button>
         </div>
+      }
+    >
+      <div className="bb-schedule-avail-status-sheet-fields">
+        <DateField
+          label="Start date"
+          value={startDate}
+          onChange={(next) => {
+            setStartDate(next);
+            if (endDate && endDate < next) setEndDate(next);
+          }}
+        />
+        <DateField
+          label="End date"
+          value={endDate}
+          min={startDate || undefined}
+          onChange={setEndDate}
+        />
       </div>
-    </div>
+
+      <div className="bb-schedule-avail-range-status-block">
+        <p className="bb-schedule-avail-range-status-label">Status for this period</p>
+        <div className="bb-schedule-avail-status" role="tablist" aria-label="Availability status">
+          {statusOptions.map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              aria-selected={status === option.id}
+              className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
+                status === option.id ? ' is-active' : ''
+              }`}
+              onClick={() => setStatus(option.id)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <p className="bb-schedule-avail-hint m-0">
+        {businessOnly
+          ? status === 'business-closed'
+            ? 'Closed days override weekly open days for the whole business.'
+            : 'Available clears closed dates in this range. Weekly open days still apply.'
+          : status === 'leave'
+            ? `Leave marks ${staffName || 'this staff member'} unavailable for the selected dates.`
+            : status === 'off'
+              ? `Off day marks ${staffName || 'this staff member'} as not working.`
+              : 'Working days use business hours. Refine shifts per day on the calendar after saving.'}
+      </p>
+    </AppSheet>
   );
 }

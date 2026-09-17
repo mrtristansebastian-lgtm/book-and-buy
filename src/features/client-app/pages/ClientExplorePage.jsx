@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Clapperboard, Grid3X3, MessageCircle, PenLine, Play, RectangleVertical, Search, UserPlus, UserCheck } from 'lucide-react';
+import { MessageCircle, Play, Search, UserPlus, UserCheck } from 'lucide-react';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
@@ -11,20 +11,22 @@ import { BlankMedia } from '../../../shared/ui/BlankMedia';
 import { getPostMediaItems, getSocialPostKind } from '../../social/utils/socialPostType';
 import { SocialVideosPanel } from '../../social/components/SocialVideosPanel';
 import { SocialTextTimeline } from '../../social/components/SocialTextTimeline';
+import { SocialPostFeed } from '../../social/components/SocialPostFeed';
+import { VerticalWatchPage } from '../../social/components/VerticalWatchPage';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
+import { ClientDeskLayout } from '../ClientDeskLayout';
 import { useClientProfile } from '../ClientProfileContext';
 import { annotateSocialPosts } from '../ClientSocialShelf';
-import { FeedCard } from '../ClientHomeFeed';
 import { ClientEngagementBar, wrapClientMediaReaction } from '../ClientEngagementBar';
 import { startClientMessage } from '../startClientMessage';
 
-const FILTERS = [
-  { id: 'posts', label: 'Posts', kind: 'image', Icon: Grid3X3 },
-  { id: 'films', label: 'Films', kind: 'video', Icon: Clapperboard },
-  { id: 'verticals', label: 'Verticals', kind: 'vertical', Icon: RectangleVertical },
-  { id: 'text', label: 'Notes', kind: 'text', Icon: PenLine }
-];
+const FILTER_KIND = {
+  posts: 'image',
+  films: 'video',
+  verticals: 'vertical',
+  text: 'text'
+};
 
 function normalizeBiz(raw = {}) {
   const slug = String(raw.slug || raw.id || '').trim();
@@ -61,6 +63,7 @@ export function ClientExplorePage() {
   const [remote, setRemote] = useState([]);
   const [catalog, setCatalog] = useState([]);
   const [activeId, setActiveId] = useState('');
+  const [activeVerticalId, setActiveVerticalId] = useState('');
   const [messagingSlug, setMessagingSlug] = useState('');
   const isDemo = Boolean(workspace?.isDemo || profile?.isDemo);
 
@@ -176,11 +179,11 @@ export function ClientExplorePage() {
     };
   }, [workspace, directory, isDemo]);
 
-  const filterMeta = FILTERS.find((item) => item.id === filter) || FILTERS[0];
+  const filterKind = FILTER_KIND[filter] || FILTER_KIND.posts;
   const filteredPosts = useMemo(() => {
     const needle = queryText.trim().toLowerCase();
     return catalog
-      .filter((post) => getSocialPostKind(post) === filterMeta.kind)
+      .filter((post) => getSocialPostKind(post) === filterKind)
       .filter((post) => {
         if (!needle) return true;
         const hay = `${post._brandName || ''} ${post.caption || ''} ${post.title || ''} ${
@@ -188,7 +191,7 @@ export function ClientExplorePage() {
         }`.toLowerCase();
         return hay.includes(needle);
       });
-  }, [catalog, filterMeta.kind, queryText]);
+  }, [catalog, filterKind, queryText]);
 
   const accountHits = useMemo(() => {
     const needle = queryText.trim().toLowerCase();
@@ -202,79 +205,121 @@ export function ClientExplorePage() {
   const followed = new Set(profile?.followedSlugs || []);
   const activePost = filteredPosts.find((post) => post.id === activeId) || null;
 
+  useEffect(() => {
+    if (filter !== 'verticals') {
+      setActiveVerticalId('');
+      return;
+    }
+    if (!filteredPosts.length) {
+      setActiveVerticalId('');
+      return;
+    }
+    setActiveVerticalId((prev) =>
+      filteredPosts.some((post) => post.id === prev) ? prev : filteredPosts[0].id
+    );
+  }, [filter, filteredPosts]);
+
+  const activeVertical =
+    filteredPosts.find((post) => post.id === activeVerticalId) || filteredPosts[0] || null;
+  const verticalOpen = filter === 'verticals' && Boolean(activeVertical);
+
+  const exitVerticals = () => {
+    setFilter('posts');
+    setActiveVerticalId('');
+    setActiveId('');
+  };
+
   const openTile = (post) => {
+    if (getSocialPostKind(post) === 'vertical') {
+      setFilter('verticals');
+      setActiveVerticalId(post.id);
+      return;
+    }
     setActiveId(post.id);
   };
 
-  if (activePost) {
-    const kind = getSocialPostKind(activePost);
-    const kindPosts = filteredPosts.filter((post) => getSocialPostKind(post) === kind);
-    if (kind === 'video' || kind === 'vertical') {
-      return (
-        <ClientAppShell section="explore" title="Explore">
-          <div className="bb-client-ig-explore is-immersive">
-            <SocialVideosPanel
-              posts={kindPosts}
-              variant={kind === 'vertical' ? 'verticals' : 'films'}
-              editMode={false}
-              showOwnerStats={false}
-              brandName={activePost._brandName || ''}
-              logoUrl={activePost._logoUrl || ''}
-              initialActiveId={activeId}
-              onCloseVideo={() => setActiveId('')}
-              wrapMedia={wrapClientMediaReaction}
-              renderWatchActions={(post) => (
-                <ClientEngagementBar
-                  post={post}
-                  slug={post._slug || ''}
-                  brandName={post._brandName || ''}
-                  variant={kind === 'vertical' ? 'tiktok' : 'youtube'}
-                />
-              )}
-            />
-          </div>
-        </ClientAppShell>
-      );
-    }
-    if (kind === 'text') {
-      return (
-        <ClientAppShell section="explore" title="Explore">
-          <div className="bb-client-ig-explore is-immersive bb-client-home-notes">
-            <button type="button" className="bb-client-ig-back" onClick={() => setActiveId('')}>
-              ← Back
-            </button>
-            <SocialTextTimeline
-              posts={kindPosts}
-              brandName={activePost._brandName || ''}
-              logoUrl={activePost._logoUrl || ''}
-              slug={activePost._slug || ''}
-              editMode={false}
-              wrapMedia={wrapClientMediaReaction}
-              renderActions={(post) => (
-                <ClientEngagementBar
-                  post={post}
-                  slug={post._slug || ''}
-                  brandName={post._brandName || ''}
-                  variant="twitter"
-                />
-              )}
-            />
-          </div>
-        </ClientAppShell>
-      );
-    }
-    return (
-      <ClientAppShell section="explore" title="Explore">
-        <div className="bb-client-ig-explore is-immersive">
-          <FeedCard post={activePost} onClose={() => setActiveId('')} />
-        </div>
-      </ClientAppShell>
-    );
-  }
+  const setContentTab = (id) => {
+    setFilter(id);
+    setActiveId('');
+  };
 
-  return (
-    <ClientAppShell section="explore" title="Explore">
-      <div className="bb-client-ig-explore">
+  const stageBody = (() => {
+    if (verticalOpen && activeVertical) {
+      return (
+        <div className="bb-client-vertical-page" aria-label="Verticals">
+          <VerticalWatchPage
+            post={activeVertical}
+            posts={filteredPosts}
+            brandName={activeVertical._brandName || ''}
+            logoUrl={activeVertical._logoUrl || ''}
+            editMode={false}
+            onClose={exitVerticals}
+            onChangeActive={setActiveVerticalId}
+            wrapMedia={wrapClientMediaReaction}
+            renderRailActions={(post) => (
+              <ClientEngagementBar
+                post={post}
+                slug={post._slug || ''}
+                brandName={post._brandName || ''}
+                variant="tiktok"
+              />
+            )}
+          />
+        </div>
+      );
+    }
+
+    if (activePost) {
+      const kind = getSocialPostKind(activePost);
+      const kindPosts = filteredPosts.filter((post) => getSocialPostKind(post) === kind);
+      if (kind === 'video') {
+        return (
+          <SocialVideosPanel
+            posts={kindPosts}
+            variant="films"
+            editMode={false}
+            showOwnerStats={false}
+            brandName={activePost._brandName || ''}
+            logoUrl={activePost._logoUrl || ''}
+            initialActiveId={activeId}
+            onCloseVideo={() => setActiveId('')}
+            wrapMedia={wrapClientMediaReaction}
+            renderWatchActions={(post) => (
+              <ClientEngagementBar
+                post={post}
+                slug={post._slug || ''}
+                brandName={post._brandName || ''}
+                variant="youtube"
+              />
+            )}
+          />
+        );
+      }
+      return (
+        <SocialPostFeed
+          posts={kindPosts}
+          initialPostId={activeId}
+          brandName={activePost._brandName || ''}
+          slug={activePost._slug || ''}
+          logoUrl={activePost._logoUrl || ''}
+          editMode={false}
+          hideToolbar={false}
+          onBack={() => setActiveId('')}
+          wrapMedia={wrapClientMediaReaction}
+          renderPostActions={(post) => (
+            <ClientEngagementBar
+              post={post}
+              slug={post._slug || ''}
+              brandName={post._brandName || ''}
+              variant="pulse"
+            />
+          )}
+        />
+      );
+    }
+
+    return (
+      <>
         <div className="bb-client-ig-top">
           <label className="bb-client-ig-search">
             <Search size={15} strokeWidth={2.2} aria-hidden="true" />
@@ -288,8 +333,9 @@ export function ClientExplorePage() {
             />
           </label>
 
-          <div className="bb-client-ig-chips" role="tablist" aria-label="Content type">
-            {FILTERS.map(({ id, label, Icon }) => {
+          <div className="bb-client-ig-chips bb-client-desk-mobile-tabs" role="tablist" aria-label="Content type">
+            {['posts', 'films', 'verticals', 'text'].map((id) => {
+              const labels = { posts: 'Posts', films: 'Films', verticals: 'Verticals', text: 'Notes' };
               const active = filter === id;
               return (
                 <button
@@ -298,13 +344,9 @@ export function ClientExplorePage() {
                   role="tab"
                   aria-selected={active}
                   className={`bb-client-ig-chip${active ? ' is-on' : ''}`}
-                  onClick={() => {
-                    setFilter(id);
-                    setActiveId('');
-                  }}
+                  onClick={() => setContentTab(id)}
                 >
-                  <Icon size={14} strokeWidth={active ? 2.4 : 2} aria-hidden="true" />
-                  {label}
+                  {labels[id]}
                 </button>
               );
             })}
@@ -385,34 +427,41 @@ export function ClientExplorePage() {
               )}
             />
           </div>
+        ) : filter === 'text' ? (
+          <div className="bb-client-home-notes bb-client-explore-notes">
+            <SocialTextTimeline
+              posts={filteredPosts}
+              brandName={filteredPosts[0]?._brandName || 'Business'}
+              logoUrl={filteredPosts[0]?._logoUrl || ''}
+              slug={filteredPosts[0]?._slug || ''}
+              editMode={false}
+              wrapMedia={wrapClientMediaReaction}
+              renderActions={(post) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={post._slug || ''}
+                  brandName={post._brandName || ''}
+                  variant="twitter"
+                />
+              )}
+            />
+          </div>
         ) : (
           <div className="bb-client-ig-grid" role="list">
             {filteredPosts.map((post, index) => {
               const { kind, thumb, caption } = tileMedia(post);
-              const featured =
-                (kind === 'video' || kind === 'vertical') && (index % 7 === 0 || index % 7 === 4);
+              const featured = kind === 'video' && (index % 7 === 0 || index % 7 === 4);
               return (
                 <button
                   key={post.id}
                   type="button"
                   role="listitem"
-                  className={`bb-client-ig-cell${featured ? ' is-tall' : ''}${
-                    kind === 'text' ? ' is-note' : ''
-                  }`}
+                  className={`bb-client-ig-cell${featured ? ' is-tall' : ''}`}
                   onClick={() => openTile(post)}
                   aria-label={caption || post.title || 'Open'}
                 >
-                  {kind === 'text' ? (
-                    <span className="bb-client-ig-note">
-                      <span className="bb-client-ig-note-brand">{post._brandName || 'Note'}</span>
-                      <span className="bb-client-ig-note-body">{caption || 'Note'}</span>
-                    </span>
-                  ) : thumb ? (
-                    <img src={thumb} alt="" />
-                  ) : (
-                    <BlankMedia variant="square" />
-                  )}
-                  {kind === 'video' || kind === 'vertical' ? (
+                  {thumb ? <img src={thumb} alt="" /> : <BlankMedia variant="square" />}
+                  {kind === 'video' ? (
                     <span className="bb-client-ig-play" aria-hidden="true">
                       <Play size={14} fill="currentColor" />
                     </span>
@@ -422,7 +471,22 @@ export function ClientExplorePage() {
             })}
           </div>
         )}
-      </div>
+      </>
+    );
+  })();
+
+  return (
+    <ClientAppShell section="explore" title="Explore">
+      <ClientDeskLayout
+        className={`bb-client-ig-explore${
+          verticalOpen ? ' is-vertical-open is-immersive' : ''
+        }${activePost && !verticalOpen ? ' is-immersive' : ''}`}
+        showContentTabs
+        contentTab={filter}
+        onContentTabChange={setContentTab}
+      >
+        {stageBody}
+      </ClientDeskLayout>
     </ClientAppShell>
   );
 }

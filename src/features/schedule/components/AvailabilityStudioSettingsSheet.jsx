@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Clock, CalendarDays, X } from 'lucide-react';
 import { TimeField } from '../../../shared/ui/TimeField';
 import { WEEKDAY_KEYS, normalizeAvailabilityRules } from '../../../utils/staffAvailability';
@@ -144,9 +145,24 @@ export function AvailabilityStudioSettingsSheet({
           lede: 'How far ahead clients can book on your calendar.'
         };
 
-  return (
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (event) => {
+      if (event.key === 'Escape') onClose?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
-      className="bb-services-sheet"
+      className="bb-services-sheet bb-app-sheet"
       role="dialog"
       aria-modal="true"
       aria-label="Availability settings"
@@ -168,55 +184,58 @@ export function AvailabilityStudioSettingsSheet({
           </button>
         </header>
 
-        <div className="bb-schedule-avail-settings-layout">
-          <aside className="bb-schedule-avail-settings-rail" aria-label="Settings sections">
-            <nav className="bb-schedule-avail-settings-nav">
-              {sections.map((section) => {
-                const Icon = section.Icon;
-                const selected = section.id === active?.id;
-                return (
-                  <button
-                    key={section.id}
-                    type="button"
-                    className={`bb-schedule-avail-settings-nav-item${
-                      selected ? ' is-active' : ''
-                    }`}
-                    aria-current={selected ? 'page' : undefined}
-                    onClick={() => setSectionId(section.id)}
-                  >
-                    <Icon size={16} strokeWidth={2.2} aria-hidden="true" />
-                    <span>{section.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-          </aside>
+        <div className="bb-services-sheet-body bb-schedule-avail-settings-body">
+          <div className="bb-schedule-avail-settings-layout">
+            <aside className="bb-schedule-avail-settings-rail" aria-label="Settings sections">
+              <nav className="bb-schedule-avail-settings-nav">
+                {sections.map((section) => {
+                  const Icon = section.Icon;
+                  const selected = section.id === active?.id;
+                  return (
+                    <button
+                      key={section.id}
+                      type="button"
+                      className={`bb-schedule-avail-settings-nav-item${
+                        selected ? ' is-active' : ''
+                      }`}
+                      aria-current={selected ? 'page' : undefined}
+                      onClick={() => setSectionId(section.id)}
+                    >
+                      <Icon size={16} strokeWidth={2.2} aria-hidden="true" />
+                      <span>{section.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </aside>
 
-          <div className="bb-schedule-avail-settings-main">
-            <header className="bb-schedule-avail-settings-main-head">
-              <h3>{copy.title}</h3>
-              <p>{copy.lede}</p>
-            </header>
+            <div className="bb-schedule-avail-settings-main">
+              <header className="bb-schedule-avail-settings-main-head">
+                <h3>{copy.title}</h3>
+                <p>{copy.lede}</p>
+              </header>
 
-            {active?.id === 'hours' ? (
-              <HoursSection
-                availabilityRules={availabilityRules}
-                onUpdateRules={onUpdateRules}
-              />
-            ) : null}
-
-            {active?.id === 'window' ? (
-              <div className="bb-schedule-avail-settings-section">
-                <AdvanceBookingField
-                  days={availabilityRules.maxAdvanceBookingDays ?? 90}
-                  until={availabilityRules.maxAdvanceBookingUntil || ''}
-                  onChange={(patch) => onUpdateRules?.(patch)}
+              {active?.id === 'hours' ? (
+                <HoursSection
+                  availabilityRules={availabilityRules}
+                  onUpdateRules={onUpdateRules}
                 />
-              </div>
-            ) : null}
+              ) : null}
+
+              {active?.id === 'window' ? (
+                <div className="bb-schedule-avail-settings-section">
+                  <AdvanceBookingField
+                    days={availabilityRules.maxAdvanceBookingDays ?? 90}
+                    until={availabilityRules.maxAdvanceBookingUntil || ''}
+                    onChange={(patch) => onUpdateRules?.(patch)}
+                  />
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

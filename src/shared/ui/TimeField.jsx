@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
   formatTimeValue,
@@ -116,19 +117,20 @@ export function TimeField({
         </button>
       </div>
 
-      {open ? (
-        <div
-          className="bb-time-picker-backdrop"
-          role="presentation"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="bb-panel bb-time-picker-sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={`${fieldId}-title`}
-            onClick={(event) => event.stopPropagation()}
-          >
+      {open && typeof document !== 'undefined'
+        ? createPortal(
+            <div
+              className="bb-time-picker-backdrop"
+              role="presentation"
+              onClick={() => setOpen(false)}
+            >
+              <div
+                className="bb-panel bb-time-picker-sheet"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={`${fieldId}-title`}
+                onClick={(event) => event.stopPropagation()}
+              >
             <header className="bb-time-picker-head">
               <h2 id={`${fieldId}-title`} className="bb-time-picker-title">
                 {label ? `Set ${label.toLowerCase()}` : 'Set time'}
@@ -267,8 +269,10 @@ export function TimeField({
               </button>
             </footer>
           </div>
-        </div>
-      ) : null}
+        </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { E_BUSINESS_PLATFORM_NAME } from './eBusinessPlatform';
 
-/** Owner workspace tabs — page studios + Social under the presence group. */
+/** Owner workspace tabs — Social studio + messages live in the Social group. */
 export const workspaceTabIds = [
   'overview',
   'services',
@@ -79,8 +79,8 @@ export const workspaceTabGroups = {
   'website-book': 'presence',
   'website-buy': 'presence',
   'website-checkout': 'presence',
-  social: 'presence',
-  communications: 'run',
+  social: 'social',
+  communications: 'social',
   finance: 'run',
   'live-stats': 'run',
   analytics: 'run',
@@ -102,7 +102,7 @@ export const workspaceTabLabels = {
   'website-buy': 'Buy page',
   'website-checkout': 'Cart & checkout',
   social: 'Social studio',
-  communications: 'Support',
+  communications: 'Messages',
   finance: 'Finance',
   'live-stats': 'Live Stats',
   analytics: 'Reports',
@@ -115,6 +115,7 @@ export const workspaceGroupLabels = {
   book: 'Book',
   buy: 'Buy',
   presence: E_BUSINESS_PLATFORM_NAME,
+  social: 'Social',
   run: 'Run'
 };
 

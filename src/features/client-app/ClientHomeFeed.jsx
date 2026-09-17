@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Clapperboard, Grid3X3, MessageCircle, PenLine, RectangleVertical } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { navigate, publicPagePath } from '../../app/routing';
 import {
@@ -10,18 +10,13 @@ import {
 import { SocialVideosPanel } from '../social/components/SocialVideosPanel';
 import { SocialTextTimeline } from '../social/components/SocialTextTimeline';
 import { SocialPostFeed } from '../social/components/SocialPostFeed';
+import { SOCIAL_PROFILE_TABS } from '../social/components/SocialProfileTabs';
 import { VerticalWatchPage } from '../social/components/VerticalWatchPage';
 import { useWorkspace } from '../workspace/WorkspaceContext';
+import { ClientDeskLayout } from './ClientDeskLayout';
 import { useClientProfile } from './ClientProfileContext';
 import { ClientEngagementBar, wrapClientMediaReaction } from './ClientEngagementBar';
 import { startClientMessage } from './startClientMessage';
-
-const CHIP_FILTERS = [
-  { id: 'posts', label: 'Posts', kind: 'image', Icon: Grid3X3 },
-  { id: 'films', label: 'Films', kind: 'video', Icon: Clapperboard },
-  { id: 'verticals', label: 'Verticals', kind: 'vertical', Icon: RectangleVertical },
-  { id: 'text', label: 'Notes', kind: 'text', Icon: PenLine }
-];
 
 function FeedMedia({ post }) {
   const media = getPostMediaItems(post);
@@ -186,7 +181,7 @@ function postFeedActions(post) {
 export function ClientHomeFeed({ posts = [], emptyCta = null }) {
   const [filter, setFilter] = useState('posts');
   const [activeVerticalId, setActiveVerticalId] = useState('');
-  const active = CHIP_FILTERS.find((item) => item.id === filter) || CHIP_FILTERS[0];
+  const active = SOCIAL_PROFILE_TABS.find((item) => item.id === filter) || SOCIAL_PROFILE_TABS[0];
 
   const visible = useMemo(
     () =>
@@ -220,98 +215,75 @@ export function ClientHomeFeed({ posts = [], emptyCta = null }) {
   };
 
   return (
-    <div
+    <ClientDeskLayout
       className={`bb-client-home-feed${verticalOpen ? ' is-vertical-open' : ''}${
         filter === 'films' ? ' is-films' : ''
-      }${filter === 'text' ? ' is-notes' : ''}${filter === 'posts' ? ' is-posts' : ''}`}
+      }${filter === 'text' ? ' is-notes' : ''}${filter === 'posts' ? ' is-posts' : ''}${
+        filter === 'verticals' ? ' is-verticals' : ''
+      }`}
+      showContentTabs
+      contentTab={filter}
+      onContentTabChange={setFilter}
     >
-      {verticalOpen ? null : (
-        <aside className="bb-client-home-rail" aria-label="Feed categories">
-          <p className="bb-client-home-rail-label">Browse</p>
-          <div className="bb-client-social-chips">
-            <div className="bb-client-ig-chips" role="tablist" aria-label="Content type">
-              {CHIP_FILTERS.map(({ id, label, Icon }) => {
-                const on = filter === id;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    role="tab"
-                    aria-selected={on}
-                    className={`bb-client-ig-chip${on ? ' is-on' : ''}`}
-                    onClick={() => setFilter(id)}
-                  >
-                    <Icon size={16} strokeWidth={on ? 2.4 : 2} aria-hidden="true" />
-                    <span>{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </aside>
-      )}
-
-      <div className="bb-client-home-stage">
-        {visible.length === 0 ? (
-          <EmptyState
-            title="Nothing in this feed"
-            description="Switch filters or follow more businesses in Explore."
-            action={emptyCta}
+      {visible.length === 0 ? (
+        <EmptyState
+          title="Nothing in this feed"
+          description="Switch filters or follow more businesses in Explore."
+          action={emptyCta}
+        />
+      ) : filter === 'films' ? (
+        <div className="bb-client-home-yt">
+          <SocialVideosPanel
+            posts={visible}
+            variant="films"
+            editMode={false}
+            showOwnerStats={false}
+            brandName={watchBrand(visible)}
+            logoUrl={watchLogo(visible)}
+            renderWatchActions={filmWatchActions}
+            wrapMedia={wrapClientMediaReaction}
           />
-        ) : filter === 'films' ? (
-          <div className="bb-client-home-yt">
-            <SocialVideosPanel
-              posts={visible}
-              variant="films"
-              editMode={false}
-              showOwnerStats={false}
-              brandName={watchBrand(visible)}
-              logoUrl={watchLogo(visible)}
-              renderWatchActions={filmWatchActions}
-              wrapMedia={wrapClientMediaReaction}
-            />
-          </div>
-        ) : filter === 'verticals' && activeVertical ? (
-          <div className="bb-client-vertical-page" role="dialog" aria-modal="true" aria-label="Verticals">
-            <VerticalWatchPage
-              post={activeVertical}
-              posts={visible}
-              brandName={activeVertical._brandName || watchBrand(visible)}
-              logoUrl={activeVertical._logoUrl || watchLogo(visible)}
-              editMode={false}
-              onClose={exitVerticals}
-              onChangeActive={setActiveVerticalId}
-              renderRailActions={verticalWatchActions}
-              wrapMedia={wrapClientMediaReaction}
-            />
-          </div>
-        ) : filter === 'text' ? (
-          <div className="bb-client-home-notes">
-            <SocialTextTimeline
-              posts={visible}
-              brandName={watchBrand(visible)}
-              logoUrl={watchLogo(visible)}
-              slug={visible[0]?._slug || ''}
-              editMode={false}
-              renderActions={noteActions}
-              wrapMedia={wrapClientMediaReaction}
-            />
-          </div>
-        ) : (
-          <div className="bb-client-home-live-feed">
-            <SocialPostFeed
-              posts={visible}
-              brandName={watchBrand(visible)}
-              slug={visible[0]?._slug || ''}
-              logoUrl={watchLogo(visible)}
-              editMode={false}
-              hideToolbar
-              renderPostActions={postFeedActions}
-              wrapMedia={wrapClientMediaReaction}
-            />
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      ) : filter === 'verticals' && activeVertical ? (
+        <div className="bb-client-vertical-page" aria-label="Verticals">
+          <VerticalWatchPage
+            post={activeVertical}
+            posts={visible}
+            brandName={activeVertical._brandName || watchBrand(visible)}
+            logoUrl={activeVertical._logoUrl || watchLogo(visible)}
+            editMode={false}
+            onClose={exitVerticals}
+            onChangeActive={setActiveVerticalId}
+            renderRailActions={verticalWatchActions}
+            wrapMedia={wrapClientMediaReaction}
+          />
+        </div>
+      ) : filter === 'text' ? (
+        <div className="bb-client-home-notes">
+          <SocialTextTimeline
+            posts={visible}
+            brandName={watchBrand(visible)}
+            logoUrl={watchLogo(visible)}
+            slug={visible[0]?._slug || ''}
+            editMode={false}
+            renderActions={noteActions}
+            wrapMedia={wrapClientMediaReaction}
+          />
+        </div>
+      ) : (
+        <div className="bb-client-home-live-feed">
+          <SocialPostFeed
+            posts={visible}
+            brandName={watchBrand(visible)}
+            slug={visible[0]?._slug || ''}
+            logoUrl={watchLogo(visible)}
+            editMode={false}
+            hideToolbar
+            renderPostActions={postFeedActions}
+            wrapMedia={wrapClientMediaReaction}
+          />
+        </div>
+      )}
+    </ClientDeskLayout>
   );
 }

@@ -96,11 +96,16 @@
 .bb-date-picker-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 70;
+  z-index: 140;
   display: grid;
   place-items: end center;
-  padding: 1rem;
+  padding: max(0.75rem, env(safe-area-inset-top, 0px))
+    max(0.75rem, env(safe-area-inset-right, 0px))
+    max(0.75rem, env(safe-area-inset-bottom, 0px))
+    max(0.75rem, env(safe-area-inset-left, 0px));
   background: rgba(15, 23, 42, 0.32);
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 @media (min-width: 768px) {
@@ -111,6 +116,7 @@
 
 .bb-date-picker-sheet {
   width: min(100%, 22rem);
+  max-height: min(92dvh, calc(100dvh - 1.5rem));
   display: grid;
   gap: 0.85rem;
   padding: 1.25rem 1.25rem 1.15rem;
@@ -118,6 +124,20 @@
   background: #fff;
   border: 1px solid rgba(15, 23, 42, 0.08);
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+@media (max-width: 767px) {
+  .bb-date-picker-backdrop {
+    place-items: end center;
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .bb-date-picker-sheet {
+    width: 100%;
+    max-width: none;
+    border-radius: 1rem 1rem 0 0;
+  }
 }
 
 .bb-date-picker-head {

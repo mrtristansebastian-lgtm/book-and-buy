@@ -70,6 +70,15 @@
   background: #fff;
 }
 
+@media (min-width: 900px) {
+  /* Flush to left dock — dock width only, no content gutter */
+  .bb-client-shell .bb-client-main:has(.bb-client-support-page),
+  .bb-client-shell.is-headerless .bb-client-main:has(.bb-client-support-page) {
+    padding: 0;
+    padding-left: var(--bb-client-dock-w);
+  }
+}
+
 .bb-client-support-page {
   flex: 1 1 auto;
   min-height: 0;
@@ -150,7 +159,11 @@
   }
 
   .bb-client-shell {
-    grid-template-rows: auto minmax(0, 1fr) var(--bb-client-tab-h);
+    --bb-client-dock-w: 4.35rem;
+    --bb-client-tab-h: 0px;
+    display: flex;
+    flex-direction: column;
+    grid-template-rows: none;
     height: 100dvh;
     max-height: 100dvh;
     margin-block: 0;
@@ -164,7 +177,7 @@
   }
 
   .bb-client-shell.is-headerless {
-    grid-template-rows: minmax(0, 1fr) var(--bb-client-tab-h);
+    grid-template-rows: none;
   }
 
   .bb-client-top {
@@ -172,55 +185,91 @@
     gap: 1.25rem;
     min-height: 3.5rem;
     padding: 1rem 1.75rem 0.9rem;
+    padding-left: calc(1.75rem + var(--bb-client-dock-w));
     border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     background: rgba(255, 255, 255, 0.88);
+    flex: 0 0 auto;
   }
 
+  /* Left vertical dock — same chrome as business owner dock */
   .bb-client-tabs {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    z-index: 100;
     display: grid;
-    width: min(28rem, 100%);
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
+    align-content: center;
+    justify-items: center;
+    gap: 0.35rem;
+    width: var(--bb-client-dock-w);
     max-width: none;
-    margin-inline: auto;
-    border-top: 1px solid rgba(15, 23, 42, 0.08);
-    border-inline: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 1.1rem 1.1rem 0 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0.75rem 0.35rem;
+    border: 0;
+    border-right: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0;
     background: #fff;
-    box-shadow: 0 -12px 40px -28px rgba(15, 23, 42, 0.35);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transform: none;
   }
 
   .bb-client-tab {
     padding: 0.3rem 0.2rem;
+    width: 100%;
   }
 
   .bb-client-tab-icon {
-    width: 2.55rem;
-    height: 2.55rem;
-    min-width: 2.55rem;
-    min-height: 2.55rem;
+    width: 2.7rem;
+    height: 2.7rem;
+    min-width: 2.7rem;
+    min-height: 2.7rem;
   }
 
   .bb-client-tab-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .bb-client-tab-label {
+    display: none;
   }
 
   .bb-client-main {
+    flex: 1 1 auto;
+    min-height: 0;
     padding: 1.75rem 1.75rem 1.75rem;
+    padding-left: calc(1.75rem + var(--bb-client-dock-w));
     background: transparent;
+  }
+
+  .bb-client-shell.is-headerless .bb-client-main {
+    padding-left: calc(1.75rem + var(--bb-client-dock-w));
   }
 }
 
 @media (min-width: 1280px) {
   .bb-client-top {
     padding-inline: 2.25rem;
-  }
-
-  .bb-client-tabs {
-    width: min(30rem, 100%);
+    padding-left: calc(2.25rem + var(--bb-client-dock-w, 4.35rem));
   }
 
   .bb-client-main {
     padding: 1.85rem 2.25rem 2rem;
+    padding-left: calc(2.25rem + var(--bb-client-dock-w, 4.35rem));
+  }
+
+  .bb-client-shell .bb-client-main:has(.bb-client-support-page),
+  .bb-client-shell.is-headerless .bb-client-main:has(.bb-client-support-page) {
+    padding: 0;
+    padding-left: var(--bb-client-dock-w, 4.35rem);
   }
 }
 
@@ -1135,12 +1184,28 @@
   min-height: 100%;
 }
 
+.bb-client-home-profile {
+  display: none;
+}
+
 .bb-client-home-rail-label {
   display: none;
 }
 
 .bb-client-home-stage {
   min-width: 0;
+}
+
+.bb-client-home-feed .bb-client-social-chips {
+  padding: 0;
+  border-bottom: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.bb-client-home-feed .bb-social-profile-tabs {
+  margin: 0;
+  border-inline: 0;
 }
 
 .bb-client-home-list {
@@ -1919,46 +1984,122 @@
 @media (min-width: 900px) {
   .bb-client-home-feed {
     display: grid;
-    grid-template-columns: 11.5rem minmax(0, 1fr);
-    gap: 1.5rem;
-    align-items: start;
+    grid-template-columns: 4.85rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: stretch;
     width: min(68rem, 100%);
+    max-width: none;
     margin-inline: auto;
+    min-height: calc(100dvh - 5.5rem);
     background: transparent;
+  }
+
+  .bb-client-home-feed.is-films,
+  .bb-client-home-feed.is-vertical-open,
+  .bb-client-home-feed.is-verticals {
+    width: min(68rem, 100%);
+    grid-template-columns: 4.85rem minmax(0, 1fr);
+    align-items: stretch;
   }
 
   .bb-client-home-feed.is-films {
     width: min(78rem, 100%);
-    grid-template-columns: 11.5rem minmax(0, 1fr);
   }
 
-  .bb-client-home-feed.is-vertical-open {
-    display: block;
+  .bb-client-home-profile {
+    display: none !important;
+  }
+
+  .bb-client-home-profile-shell {
     width: 100%;
+    padding: 0.65rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 1rem;
+    background: #fff;
+    box-sizing: border-box;
+  }
+
+  .bb-client-home-profile-card {
+    appearance: none;
+    display: grid;
+    justify-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    margin: 0;
+    padding: 0.55rem 0.35rem 0.45rem;
+    border: 0;
+    background: transparent;
+    text-align: center;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .bb-client-home-profile-avatar {
+    display: grid;
+    place-items: center;
+    width: 4.75rem;
+    height: 4.75rem;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #eef2f6;
+    color: #344054;
+    font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .bb-client-home-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .bb-client-home-profile-copy {
+    display: grid;
+    gap: 0.2rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .bb-client-home-profile-name {
+    display: block;
+    font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #101828;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bb-client-home-profile-meta {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 650;
+    color: #98a2b3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .bb-client-home-rail {
     position: sticky;
     top: 0.35rem;
-    align-self: start;
+    align-self: center;
     display: grid;
-    gap: 0.55rem;
-    padding: 0.85rem 0.7rem;
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(15, 23, 42, 0.06);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    gap: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .bb-client-home-rail-label {
-    display: block;
-    margin: 0 0.35rem 0.15rem;
-    font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #98a2b3;
+    display: none;
   }
 
   .bb-client-home-feed .bb-client-social-chips {
@@ -1969,42 +2110,69 @@
     backdrop-filter: none;
   }
 
-  .bb-client-home-feed .bb-client-ig-chips {
+  /* Middle vertical toolbar — same as business social split tabs */
+  .bb-client-home-feed .bb-social-profile-tabs {
     display: grid;
-    gap: 0.35rem;
-    overflow: visible;
-    padding: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+    border: 0;
+    border-inline-end: 1px solid rgba(15, 23, 42, 0.1);
+    padding-right: 0.4rem;
+    height: fit-content;
+    background: transparent;
   }
 
-  .bb-client-home-feed .bb-client-ig-chip {
-    justify-content: flex-start;
-    width: 100%;
-    gap: 0.55rem;
-    padding: 0.62rem 0.75rem;
-    border-radius: 0.75rem;
-    font-size: 0.78rem;
-    font-weight: 650;
-    letter-spacing: -0.01em;
+  .bb-client-home-feed .bb-social-profile-tab {
+    flex-direction: column;
+    gap: 0.28rem;
+    min-height: 4.1rem;
+    padding: 0.55rem 0.2rem;
+    border-radius: 0.55rem;
+    letter-spacing: 0.06em;
+    font-size: 0.58rem;
   }
 
-  .bb-client-home-feed .bb-client-ig-chip.is-on {
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  .bb-client-home-feed .bb-social-profile-tab.is-active {
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  .bb-client-home-feed .bb-social-profile-tab.is-active::after {
+    left: auto;
+    right: -0.4rem;
+    top: 18%;
+    bottom: 18%;
+    width: 2px;
+    height: auto;
+    border-radius: 999px;
   }
 
   .bb-client-home-stage {
     min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.1rem 0.35rem 1.25rem 0.15rem;
   }
 
   .bb-client-home-feed.is-posts .bb-client-home-stage,
   .bb-client-home-feed.is-notes .bb-client-home-stage {
-    width: min(36rem, 100%);
-    margin-inline: auto;
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
   }
 
   .bb-client-home-yt,
   .bb-client-home-notes,
   .bb-client-home-live-feed {
     background: transparent;
+  }
+
+  .bb-client-home-live-feed,
+  .bb-client-home-notes {
+    width: min(36rem, 100%);
+    margin-inline: auto;
   }
 
   .bb-client-home-live-feed .bb-social-feed-list {
@@ -2057,12 +2225,18 @@
 
 @media (min-width: 1280px) {
   .bb-client-home-feed {
-    grid-template-columns: 12.5rem minmax(0, 1fr);
-    gap: 2rem;
+    grid-template-columns: 4.85rem minmax(0, 1fr);
+    gap: 1.15rem;
   }
 
-  .bb-client-home-feed.is-posts .bb-client-home-stage,
-  .bb-client-home-feed.is-notes .bb-client-home-stage {
+  .bb-client-home-feed.is-films,
+  .bb-client-home-feed.is-vertical-open,
+  .bb-client-home-feed.is-verticals {
+    grid-template-columns: 4.85rem minmax(0, 1fr);
+  }
+
+  .bb-client-home-live-feed,
+  .bb-client-home-notes {
     width: min(38rem, 100%);
   }
 }
@@ -2086,6 +2260,11 @@
     min-height: 0;
     height: 100%;
     background: #050505;
+  }
+
+  .bb-client-home-feed.is-vertical-open .bb-client-home-rail,
+  .bb-client-home-feed.is-vertical-open .bb-client-home-profile {
+    display: none;
   }
 
   .bb-client-home-feed.is-vertical-open .bb-client-home-stage {
@@ -2228,31 +2407,51 @@
 }
 
 @media (min-width: 900px) {
-  .bb-client-shell:has(.bb-client-home-feed.is-vertical-open) .bb-client-main,
-  .bb-client-shell:has(.bb-client-ig-explore.is-immersive .bb-vertical-watch) .bb-client-main {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  .bb-client-shell:has(.bb-client-home-feed.is-vertical-open) .bb-client-main {
+    display: block;
+    overflow: auto;
     min-height: 0;
   }
 
-  .bb-client-home-feed.is-vertical-open {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    width: 100%;
-    min-height: 0;
-    height: 100%;
+  .bb-client-home-feed.is-vertical-open,
+  .bb-client-home-feed.is-verticals {
+    display: grid;
+    grid-template-columns: 4.85rem minmax(0, 1fr);
+    width: min(68rem, 100%);
+    max-width: none;
+    margin-inline: auto;
+    align-items: stretch;
+    flex: none;
+    height: auto;
+    min-height: calc(100dvh - 5.5rem);
     background: transparent;
   }
 
+  .bb-client-home-feed.is-vertical-open .bb-client-home-profile {
+    display: none !important;
+  }
+
+  .bb-client-home-feed.is-vertical-open .bb-client-home-rail {
+    display: grid;
+  }
+
   .bb-client-home-feed.is-vertical-open .bb-client-home-stage {
-    flex: 1 1 auto;
+    flex: none;
     min-height: 0;
     width: 100%;
     margin: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* No Back on PC — switch categories from the left rail instead */
+  .bb-client-home-feed.is-vertical-open .bb-vertical-watch-bar {
+    display: none !important;
+  }
+
+  .bb-client-home-feed.is-vertical-open .bb-vertical-watch {
+    grid-template-rows: minmax(0, 1fr) !important;
   }
 
   /* Match live-page VerticalWatch: in-flow phone + snap, not a black overlay */
@@ -2325,6 +2524,8 @@
     min-height: 0;
     height: auto;
     background: transparent;
+    /* Room so up/down controls sit clear of the phone edge */
+    padding-right: 3.35rem;
   }
 
   .bb-client-vertical-page .bb-vertical-watch-phone,
@@ -2344,6 +2545,8 @@
   .bb-client-vertical-page .bb-vertical-watch-nav,
   .bb-client-shell .bb-client-ig-explore .bb-vertical-watch-nav {
     display: grid;
+    right: 0.15rem;
+    left: auto;
   }
 
   .bb-client-vertical-page .bb-vertical-watch-nav-btn,
@@ -3008,5 +3211,283 @@
   html.bb-chat-open body {
     overscroll-behavior: none;
     overflow: hidden;
+  }
+}
+
+/* ——— Client PC desk: profile | vertical tabs | stage ——— */
+.bb-client-desk {
+  display: grid;
+  gap: 0;
+  min-height: 100%;
+  background: #fff;
+}
+
+.bb-client-desk-profile {
+  display: none;
+}
+
+.bb-client-desk-rail {
+  display: none;
+}
+
+.bb-client-desk-stage {
+  min-width: 0;
+  min-height: 0;
+}
+
+.bb-client-desk.has-tabs .bb-client-desk-rail {
+  display: block;
+}
+
+@media (min-width: 900px) {
+  .bb-client-desk {
+    align-items: stretch;
+    min-height: calc(100dvh - 5.5rem);
+    background: transparent;
+    gap: 0;
+    width: 100%;
+    margin-inline: 0;
+  }
+
+  .bb-client-desk.has-tabs {
+    /* Left gap | stage | right gap — keeps stage centered; tabs sit in left gap */
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(56rem, 100%)) minmax(0, 1fr);
+  }
+
+  .bb-client-desk:not(.has-tabs) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bb-client-desk-profile {
+    display: none !important;
+  }
+
+  .bb-client-desk-rail {
+    display: grid;
+    justify-self: center;
+    align-self: center;
+    align-content: center;
+    width: max-content;
+    z-index: 2;
+  }
+
+  .bb-client-desk.has-tabs .bb-client-desk-stage {
+    grid-column: 2;
+  }
+
+  .bb-client-desk.has-tabs .bb-social-profile-tabs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
+    border: 0;
+    padding: 0;
+    height: fit-content;
+    background: transparent;
+  }
+
+  .bb-client-desk.has-tabs .bb-social-profile-tab {
+    flex-direction: column;
+    gap: 0.28rem;
+    min-height: 4.1rem;
+    padding: 0.55rem 0.35rem;
+    border-radius: 0.55rem;
+    letter-spacing: 0.06em;
+    font-size: 0.58rem;
+  }
+
+  .bb-client-desk.has-tabs .bb-social-profile-tab.is-active {
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  .bb-client-desk.has-tabs .bb-social-profile-tab.is-active::after {
+    display: none;
+  }
+
+  .bb-client-desk-stage {
+    align-self: stretch;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .bb-client-desk-mobile-tabs {
+    display: none !important;
+  }
+
+  .bb-client-home-feed.bb-client-desk,
+  .bb-client-home-feed.bb-client-desk.is-films,
+  .bb-client-home-feed.bb-client-desk.is-vertical-open,
+  .bb-client-home-feed.bb-client-desk.is-verticals,
+  .bb-client-ig-explore.bb-client-desk {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(56rem, 100%)) minmax(0, 1fr);
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    background: transparent;
+  }
+
+  .bb-client-home-feed.bb-client-desk.is-films {
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(78rem, 100%)) minmax(0, 1fr);
+  }
+
+  /* Verticals: stage hugs the phone so tabs center in dock↔phone whitespace */
+  .bb-client-home-feed.bb-client-desk.is-vertical-open,
+  .bb-client-home-feed.bb-client-desk.is-verticals,
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .bb-client-home-feed.bb-client-desk.is-vertical-open .bb-client-vertical-page,
+  .bb-client-home-feed.bb-client-desk.is-verticals .bb-client-vertical-page,
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open .bb-client-vertical-page {
+    width: max-content;
+    max-width: min(100%, 42rem);
+    margin-inline: 0;
+    overflow: visible;
+  }
+
+  .bb-client-home-feed.bb-client-desk.is-vertical-open .bb-client-desk-stage,
+  .bb-client-home-feed.bb-client-desk.is-verticals .bb-client-desk-stage,
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open .bb-client-desk-stage {
+    overflow: visible;
+  }
+
+  .bb-client-home-feed.bb-client-desk.is-posts .bb-client-home-live-feed,
+  .bb-client-home-feed.bb-client-desk.is-notes .bb-client-home-notes {
+    width: min(36rem, 100%);
+    margin-inline: auto;
+  }
+
+  .bb-client-ig-explore.bb-client-desk .bb-client-desk-stage {
+    background: #fff;
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    padding: 0.85rem 1rem 1.25rem;
+  }
+
+  /* Explore verticals — match Home: no Back, fill stage, no card chrome */
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open {
+    min-height: calc(100dvh - 5.5rem);
+    align-items: stretch;
+  }
+
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open.is-immersive {
+    background: transparent;
+  }
+
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open .bb-client-desk-stage {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open .bb-client-vertical-page {
+    flex: 1 1 auto;
+    width: max-content;
+    max-width: min(100%, 42rem);
+    height: 100%;
+    min-height: 0;
+    background: transparent;
+    color: #101828;
+  }
+
+  .bb-client-ig-explore.is-vertical-open .bb-vertical-watch-bar,
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open .bb-vertical-watch-bar {
+    display: none !important;
+  }
+
+  .bb-client-ig-explore.is-vertical-open .bb-vertical-watch,
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open .bb-vertical-watch {
+    grid-template-rows: minmax(0, 1fr) !important;
+    min-height: 0;
+    height: 100%;
+    background: transparent;
+    color: #101828;
+  }
+
+  .bb-client-main:has(.bb-client-ig-explore.bb-client-desk.is-vertical-open) {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bb-client-main:has(.bb-client-ig-explore.bb-client-desk.is-vertical-open) .bb-client-ig-explore {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .bb-client-shell:has(.bb-client-support-page) {
+    grid-template-rows: minmax(0, 1fr) var(--bb-client-tab-h, 0px);
+  }
+
+  .bb-client-shell:has(.bb-client-support-page).is-headerless {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .bb-client-shell .bb-client-main:has(.bb-client-support-page),
+  .bb-client-shell.is-headerless .bb-client-main:has(.bb-client-support-page) {
+    padding: 0;
+    padding-left: var(--bb-client-dock-w);
+    background: #fff;
+  }
+
+  .bb-client-support-page {
+    height: 100%;
+  }
+
+  .bb-client-support-page .bb-support-chips {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .bb-client-support-chip-label {
+    display: none;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bb-client-desk.has-tabs,
+  .bb-client-home-feed.bb-client-desk,
+  .bb-client-home-feed.bb-client-desk.is-films,
+  .bb-client-ig-explore.bb-client-desk {
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(56rem, 100%)) minmax(0, 1fr);
+  }
+
+  .bb-client-home-feed.bb-client-desk.is-films {
+    grid-template-columns: minmax(0, 1fr) minmax(0, min(78rem, 100%)) minmax(0, 1fr);
+  }
+
+  .bb-client-home-feed.bb-client-desk.is-vertical-open,
+  .bb-client-home-feed.bb-client-desk.is-verticals,
+  .bb-client-ig-explore.bb-client-desk.is-vertical-open {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
+  .bb-client-desk:not(.has-tabs) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 899px) {
+  .bb-client-desk.has-tabs .bb-client-desk-rail {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .bb-client-desk.has-tabs .bb-social-profile-tabs {
+    border-top: 0;
   }
 }

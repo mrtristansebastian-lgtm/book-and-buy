@@ -698,6 +698,11 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
     padding-bottom: 0.75rem !important;
   }
 
+  .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main:has(.bb-schedule-avail),
+  .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main:has(.bb-schedule-desk) {
+    padding-bottom: calc(1.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
   .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main.is-flush,
   .bb-shell:has(.bb-studio-canvas):not(.is-support-flush) .bb-owner-main {
     padding-bottom: 0 !important;

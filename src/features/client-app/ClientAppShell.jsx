@@ -10,7 +10,7 @@ const TABS = [
   { id: 'account', label: 'Account', icon: UserRound, path: '/app/account' }
 ];
 
-/** Client shell: bottom tab dock on mobile and PC. */
+/** Client shell: bottom tab dock on mobile; left icon dock on PC (like business). */
 export function ClientAppShell({
   section = 'home',
   title = '',
@@ -59,7 +59,7 @@ export function ClientAppShell({
     const verticalsOpen = () =>
       Boolean(
         document.querySelector(
-          '.bb-client-home-feed.is-vertical-open, .bb-client-ig-explore.is-immersive .bb-vertical-watch'
+          '.bb-client-home-feed.is-vertical-open, .bb-client-vertical-page, .bb-client-ig-explore.is-vertical-open .bb-vertical-watch, .bb-client-ig-explore.is-immersive .bb-vertical-watch'
         )
       );
 
@@ -147,7 +147,7 @@ export function ClientAppShell({
 
       <main className="bb-client-main">{children}</main>
 
-      <nav className="bb-client-tabs" aria-label="Client app">
+      <nav className="bb-client-tabs" aria-label="Client navigation">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const active = section === tab.id;
@@ -162,17 +162,14 @@ export function ClientAppShell({
               onClick={() => navigate(tab.path)}
             >
               <span className="bb-client-tab-icon">
-                <Icon
-                  size={22}
-                  strokeWidth={2}
-                  absoluteStrokeWidth
-                />
+                <Icon size={22} strokeWidth={2} absoluteStrokeWidth />
                 {tab.id === 'messages' && unreadMessages > 0 ? (
                   <span className="bb-client-tab-badge">
                     {unreadMessages > 99 ? '99+' : unreadMessages}
                   </span>
                 ) : null}
               </span>
+              <span className="bb-client-tab-label">{tab.label}</span>
             </button>
           );
         })}

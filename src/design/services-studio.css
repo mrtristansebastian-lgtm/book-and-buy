@@ -413,7 +413,12 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   z-index: 120;
   display: grid;
   place-items: center;
-  padding: 1rem;
+  padding: max(0.75rem, env(safe-area-inset-top, 0px))
+    max(0.75rem, env(safe-area-inset-right, 0px))
+    max(0.75rem, env(safe-area-inset-bottom, 0px))
+    max(0.75rem, env(safe-area-inset-left, 0px));
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .bb-services-sheet.is-page {
@@ -473,7 +478,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   width: min(34rem, 100%);
-  max-height: min(44rem, calc(100vh - 2rem));
+  max-height: min(44rem, calc(100dvh - 1.5rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
   min-width: 0;
   overflow: hidden;
   border-radius: 1.05rem;
@@ -1128,12 +1133,13 @@ html body .native-ui .bb-services-sheet .bb-services-sheet-title {
   .bb-services-sheet {
     place-items: end center;
     padding: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   .bb-services-sheet-panel,
   .bb-services-sheet-panel--setup {
     width: 100%;
-    max-height: min(92vh, 48rem);
+    max-height: min(92dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 0.5rem));
     border-radius: 1rem 1rem 0 0;
   }
 }

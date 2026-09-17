@@ -207,21 +207,28 @@ export function ClientMessagesPage({ threadId = '' }) {
   };
 
   return (
-    <ClientAppShell section="messages" title="Messages" unreadMessages={unreadTotal}>
+    <ClientAppShell section="messages" title="Messages" unreadMessages={unreadTotal} hideHeader>
       <div className="bb-support-page bb-client-support-page">
         <section className={`bb-support-stage ${stageMode}`}>
           <aside className="bb-support-list">
             <div className="bb-support-list-head">
               <div className="bb-support-list-head-copy">
-                <p className="bb-muted m-0 text-xs">
+                <div className="bb-page-title-wrap">
+                  <span className="bb-page-title-main">
+                    <div className="bb-page-header-glow" aria-hidden="true" />
+                    <h2 className="bb-page-title bb-support-inbox-title">Inbox</h2>
+                  </span>
+                </div>
+                <p className="bb-muted m-0 text-xs mt-1">
                   Bookings, orders, and business chats
                 </p>
               </div>
 
-              <label className="bb-client-ig-search">
-                <Search size={15} strokeWidth={2.2} aria-hidden="true" />
+              <label className="bb-support-search bb-search-field">
+                <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
                 <input
                   type="search"
+                  className="native-search-input"
                   placeholder="Search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -238,16 +245,13 @@ export function ClientMessagesPage({ threadId = '' }) {
                     <button
                       key={id}
                       type="button"
-                      className={`bb-support-filter-chip bb-client-support-chip${
-                        on ? ' is-active' : ''
-                      }`}
+                      className={`bb-support-filter-chip${on ? ' is-active' : ''}`}
                       aria-pressed={on}
                       aria-label={`${label}, ${counts[id] || 0}`}
                       title={label}
                       onClick={() => setFilter(id)}
                     >
                       <Icon size={15} strokeWidth={on ? 2.35 : 2} aria-hidden="true" />
-                      <span className="bb-client-support-chip-label">{label}</span>
                       <span className="bb-support-filter-count">{counts[id] || 0}</span>
                     </button>
                   );

@@ -71,8 +71,10 @@ export function ClientProfileProvider({ children }) {
         }
         return;
       }
+      /* Firebase on, no signed-in user: keep local demo client so Demo doesn't bounce to auth */
       if (!cancelled) {
-        setProfile(null);
+        const local = readLocalClientProfile();
+        setProfile(local?.isDemo ? withEngagement(local) : null);
         setProfileReady(true);
       }
     })();
