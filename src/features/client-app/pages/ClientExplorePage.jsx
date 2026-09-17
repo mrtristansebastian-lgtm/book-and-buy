@@ -10,12 +10,15 @@ import { formatDistanceKm } from '../../../shared/geo/haversine';
 import { EmptyState } from '../../../shared/ui/EmptyState';
 import { BlankMedia } from '../../../shared/ui/BlankMedia';
 import { AppSheet } from '../../../shared/ui/AppSheet';
+import { formatProductPrice, isProductPubliclyVisible } from '../../../utils/products';
+import { formatServicePrice } from '../../../utils/services';
 import { getPostMediaItems, getSocialPostKind } from '../../social/utils/socialPostType';
 import { SocialVideosPanel } from '../../social/components/SocialVideosPanel';
 import { SocialTextTimeline } from '../../social/components/SocialTextTimeline';
 import { SocialPostFeed } from '../../social/components/SocialPostFeed';
 import { VerticalWatchPage } from '../../social/components/VerticalWatchPage';
 import { PlaceLocationField } from '../../social/components/PlaceLocationField';
+import { EXPLORE_CONTENT_TABS } from '../../social/components/SocialProfileTabs';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { ClientDeskLayout } from '../ClientDeskLayout';
@@ -24,6 +27,7 @@ import { annotateSocialPosts } from '../ClientSocialShelf';
 import { ClientEngagementBar, wrapClientMediaReaction } from '../ClientEngagementBar';
 import { startClientMessage } from '../startClientMessage';
 import { ExploreDiscoveryBar } from '../ExploreDiscoveryBar';
+import { ExploreBusinessOffers } from '../ExploreBusinessOffers';
 import { filterDiscoverBusinesses, normalizeBiz } from '../exploreDiscovery';
 
 const FILTER_KIND = {
@@ -32,6 +36,8 @@ const FILTER_KIND = {
   verticals: 'vertical',
   text: 'text'
 };
+
+const PREVIEW_LIMIT = 3;
 
 function tileMedia(post) {
   const kind = getSocialPostKind(post);
@@ -47,6 +53,34 @@ function tileMedia(post) {
   return { kind, thumb, caption: String(post.caption || post.title || '').trim() };
 }
 
+function itemMatchesNeedle(item, needle) {
+  if (!needle) return true;
+  const hay = `${item?.name || ''} ${item?.description || ''} ${item?.category || ''}`.toLowerCase();
+  return hay.includes(needle);
+}
+
+function mapProductPreview(product) {
+  return {
+    id: product.id,
+    name: product.name || 'Product',
+    description: product.description || '',
+    image: product.image,
+    imageUrls: product.imageUrls,
+    priceLabel: formatProductPrice(product) || '—'
+  };
+}
+
+function mapServicePreview(service) {
+  return {
+    id: service.id,
+    name: service.name || 'Service',
+    description: service.description || '',
+    image: service.image,
+    imageUrls: service.imageUrls,
+    priceLabel: formatServicePrice(service) || '—'
+  };
+}
+
 /** Instagram Explore: discovery filters + dense media grid. */
 export function ClientExplorePage() {
   const { workspace, startThreadFromClient } = useWorkspace();
@@ -55,6 +89,7 @@ export function ClientExplorePage() {
   const [filter, setFilter] = useState('posts');
   const [remote, setRemote] = useState([]);
   const [catalog, setCatalog] = useState([]);
+  const [offerCatalogBySlug, setOfferCatalogBySlug] = useState({});
   const [activeId, setActiveId] = useState('');
   const [activeVerticalId, setActiveVerticalId] = useState('');
   const [messagingSlug, setMessagingSlug] = useState('');
@@ -210,10 +245,11 @@ export function ClientExplorePage() {
     let cancelled = false;
     (async () => {
       const localSlug = String(workspace?.slug || '').trim();
+      const skipFlame =
+        localSlug === 'flameandflour' || localSlug === 'flour-and-flame';
       const localPosts =
         localSlug &&
-        localSlug !== 'flameandflour' &&
-        localSlug !== 'flour-and-flame' &&
+        !skipFlame &&
         (isDemo || (workspace?.socialPosts || []).length)
           ? annotateSocialPosts(workspace?.socialPosts || [], {
               slug: localSlug,
@@ -221,6 +257,16 @@ export function ClientExplorePage() {
               logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl || ''
             })
           : [];
+
+      const nextOffers = {};
+      if (localSlug && !skipFlame) {
+        nextOffers[localSlug] = {
+          products: Array.isArray(workspace?.products) ? workspace.products : [],
+          services: Array.isArray(workspace?.services) ? workspace.services : [],
+          brandName: workspace?.brandName || localSlug,
+          logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl || ''
+        };
+      }
 
       const extras = [];
       if (isFirebaseConfigured()) {
@@ -237,13 +283,22 @@ export function ClientExplorePage() {
                 logoUrl: snap.logoUrl || biz.logoUrl || ''
               })
             );
+            nextOffers[biz.slug] = {
+              products: Array.isArray(snap.products) ? snap.products : [],
+              services: Array.isArray(snap.services) ? snap.services : [],
+              brandName: snap.brandName || biz.brandName || biz.slug,
+              logoUrl: snap.logoUrl || biz.logoUrl || ''
+            };
           } catch {
             /* skip */
           }
         }
       }
 
-      if (!cancelled) setCatalog([...localPosts, ...extras]);
+      if (!cancelled) {
+        setCatalog([...localPosts, ...extras]);
+        setOfferCatalogBySlug(nextOffers);
+      }
     })();
     return () => {
       cancelled = true;
@@ -296,6 +351,53 @@ export function ClientExplorePage() {
       })
       .slice(0, needle ? 12 : 8);
   }, [directory, discovered, queryText]);
+
+  const businessOffers = useMemo(() => {
+    if (filter !== 'book' && filter !== 'buy') return [];
+    const needle = queryText.trim().toLowerCase();
+    const wantServices = filter === 'book';
+
+    return discovered
+      .map((biz) => {
+        const bag = offerCatalogBySlug[biz.slug] || {};
+        const raw = wantServices
+          ? (Array.isArray(bag.services) ? bag.services : []).filter(
+              (service) => service && service.active !== false
+            )
+          : (Array.isArray(bag.products) ? bag.products : []).filter((product) =>
+              isProductPubliclyVisible(product)
+            );
+
+        const brandHit =
+          !needle ||
+          biz.brandName.toLowerCase().includes(needle) ||
+          biz.slug.toLowerCase().includes(needle) ||
+          (biz.categoryLabel || '').toLowerCase().includes(needle);
+
+        const matched = needle
+          ? raw.filter((item) => itemMatchesNeedle(item, needle))
+          : raw;
+
+        if (!brandHit && matched.length === 0) return null;
+        const previewSource = needle && matched.length ? matched : brandHit ? raw : matched;
+        if (!previewSource.length) return null;
+
+        const items = previewSource
+          .slice(0, PREVIEW_LIMIT)
+          .map((item) => (wantServices ? mapServicePreview(item) : mapProductPreview(item)));
+
+        return {
+          slug: biz.slug,
+          brandName: bag.brandName || biz.brandName,
+          logoUrl: bag.logoUrl || biz.logoUrl || '',
+          meta: [biz.categoryLabel, biz.city, formatDistanceKm(biz.distanceKm)]
+            .filter(Boolean)
+            .join(' · '),
+          items
+        };
+      })
+      .filter(Boolean);
+  }, [filter, discovered, offerCatalogBySlug, queryText]);
 
   const followed = new Set(profile?.followedSlugs || []);
   const activePost = filteredPosts.find((post) => post.id === activeId) || null;
@@ -441,28 +543,22 @@ export function ClientExplorePage() {
             onRequestGeo={requestGeo}
             onPickManualLocation={() => setPlaceSheetOpen(true)}
           />
-
-          <div className="bb-client-ig-chips bb-client-desk-mobile-tabs" role="tablist" aria-label="Content type">
-            {['posts', 'films', 'verticals', 'text'].map((id) => {
-              const labels = { posts: 'Posts', films: 'Films', verticals: 'Verticals', text: 'Notes' };
-              const active = filter === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  className={`bb-client-ig-chip${active ? ' is-on' : ''}`}
-                  onClick={() => setContentTab(id)}
-                >
-                  {labels[id]}
-                </button>
-              );
-            })}
-          </div>
         </div>
 
-        {accountHits.length ? (
+        {filter === 'book' || filter === 'buy' ? (
+          <ExploreBusinessOffers
+            kind={filter}
+            businesses={businessOffers}
+            emptyTitle={
+              filter === 'book' ? 'No bookable services nearby' : 'No products nearby'
+            }
+            emptyDescription={
+              clientLat == null && exploreMode === 'local'
+                ? 'Share your location or pick a city, then browse Book or Buy.'
+                : 'Widen the distance ring, adjust categories, or try International.'
+            }
+          />
+        ) : accountHits.length ? (
           <div className="bb-client-ig-accounts" aria-label="Places">
             <p className="bb-explore-places-label">
               {exploreMode === 'local' ? 'Places near you' : 'Ships / books to you'}
@@ -546,7 +642,7 @@ export function ClientExplorePage() {
           />
         ) : null}
 
-        {filteredPosts.length === 0 &&
+        {filter !== 'book' && filter !== 'buy' && filteredPosts.length === 0 &&
         accountHits.length === 0 &&
         !(exploreMode === 'local' && (clientLat == null || discovered.length === 0)) ? (
           <EmptyState
@@ -554,7 +650,7 @@ export function ClientExplorePage() {
             title="Nothing to explore yet"
             description="When businesses publish posts, films, and verticals, they show up here."
           />
-        ) : filteredPosts.length === 0 ? null : filter === 'films' ? (
+        ) : filter === 'book' || filter === 'buy' || filteredPosts.length === 0 ? null : filter === 'films' ? (
           <div className="bb-client-home-yt bb-client-explore-yt">
             <SocialVideosPanel
               posts={filteredPosts}
@@ -654,6 +750,7 @@ export function ClientExplorePage() {
         }${activePost && !verticalOpen ? ' is-immersive' : ''}`}
         showContentTabs
         contentTab={filter}
+        contentTabs={EXPLORE_CONTENT_TABS}
         onContentTabChange={setContentTab}
       >
         {stageBody}

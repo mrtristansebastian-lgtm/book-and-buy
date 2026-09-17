@@ -1,18 +1,25 @@
-import { Clapperboard, Grid3X3, PenLine, RectangleVertical } from 'lucide-react';
+import { Clapperboard, Grid3X3, PenLine, RectangleVertical, ShoppingBag, Sparkles } from 'lucide-react';
 
-const TABS = [
+export const SOCIAL_PROFILE_TABS = [
   { id: 'posts', label: 'Posts', kind: 'image', Icon: Grid3X3 },
   { id: 'films', label: 'Films', kind: 'video', Icon: Clapperboard },
   { id: 'verticals', label: 'Verticals', kind: 'vertical', Icon: RectangleVertical },
   { id: 'text', label: 'Notes', kind: 'text', Icon: PenLine }
 ];
 
-export function SocialProfileTabs({ value = 'posts', onChange }) {
+export const EXPLORE_CONTENT_TABS = [
+  ...SOCIAL_PROFILE_TABS,
+  { id: 'book', label: 'Book', kind: 'book', Icon: Sparkles },
+  { id: 'buy', label: 'Buy', kind: 'buy', Icon: ShoppingBag }
+];
+
+export function SocialProfileTabs({ value = 'posts', onChange, tabs = SOCIAL_PROFILE_TABS }) {
   const activeId = value === 'videos' ? 'films' : value;
+  const list = Array.isArray(tabs) && tabs.length ? tabs : SOCIAL_PROFILE_TABS;
 
   return (
-    <div className="bb-social-profile-tabs" role="tablist" aria-label="Social">
-      {TABS.map(({ id, label, Icon }) => {
+    <div className="bb-social-profile-tabs" role="tablist" aria-label="Content type">
+      {list.map(({ id, label, Icon }) => {
         const active = activeId === id;
         return (
           <button
@@ -31,5 +38,3 @@ export function SocialProfileTabs({ value = 'posts', onChange }) {
     </div>
   );
 }
-
-export const SOCIAL_PROFILE_TABS = TABS;

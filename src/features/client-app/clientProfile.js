@@ -72,9 +72,11 @@ export function readLocalClientProfile() {
       ...parsed,
       followedSlugs: Array.isArray(parsed.followedSlugs) ? parsed.followedSlugs : [],
       exploreMode: parsed.exploreMode === 'international' ? 'international' : 'local',
-      exploreMaxKm: Number.isFinite(Number(parsed.exploreMaxKm))
-        ? Number(parsed.exploreMaxKm)
-        : 30,
+      exploreMaxKm: (() => {
+        const n = Math.round(Number(parsed.exploreMaxKm));
+        if (!Number.isFinite(n)) return 30;
+        return Math.min(100, Math.max(1, n));
+      })(),
       exploreCategoryIds: Array.isArray(parsed.exploreCategoryIds)
         ? parsed.exploreCategoryIds.map(String)
         : [],

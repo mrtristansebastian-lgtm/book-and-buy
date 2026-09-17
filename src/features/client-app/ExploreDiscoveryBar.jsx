@@ -415,32 +415,35 @@ export function ExploreDiscoveryBar({
           draft || hasChips ? ' has-value' : ''
         }`}
       >
-        <div
-          className={`bb-explore-chip-field${hasChips ? ' has-chips' : ''}`}
-          onClick={() => keepOpenFocus()}
-        >
-          <Search size={16} strokeWidth={2.2} className="bb-explore-chip-field-icon" aria-hidden="true" />
-          <div className="bb-explore-chip-field-inner">
+        {hasChips ? (
+          <div className="bb-explore-search-chips" aria-label="Active filters">
             {selectedList.map((id) => (
               <button
                 key={id}
                 type="button"
                 className={chipClassName(id)}
                 aria-label={`Remove ${categoryLabel(id, id)}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  clearCategory(id);
-                }}
+                onClick={() => clearCategory(id)}
               >
                 <span>{categoryLabel(id, id)}</span>
                 <X size={12} strokeWidth={2.6} aria-hidden="true" />
               </button>
             ))}
+          </div>
+        ) : null}
+
+        <div className="bb-explore-search-anchor">
+          <label
+            className={`bb-search-field bb-explore-search-field${
+              draft || hasChips ? ' has-clear' : ''
+            }`}
+          >
+            <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
             <input
               ref={inputRef}
               id={searchId}
-              type="text"
-              className="bb-explore-chip-input"
+              type="search"
+              className="native-search-input"
               value={draft}
               placeholder={hasChips ? 'Add more…' : 'Search places, posts, or industries'}
               autoCapitalize="none"
@@ -448,6 +451,7 @@ export function ExploreDiscoveryBar({
               autoComplete="off"
               aria-expanded={showPanel}
               aria-controls={`${searchId}-panel`}
+              aria-label="Search places, posts, or industries"
               onFocus={() => setOpen(true)}
               onChange={(event) => {
                 const next = event.target.value;
@@ -466,34 +470,33 @@ export function ExploreDiscoveryBar({
                 }
               }}
             />
-          </div>
-          {draft || hasChips ? (
-            <button
-              type="button"
-              className="bb-explore-chip-field-clear"
-              aria-label="Clear search"
-              onClick={(event) => {
-                event.stopPropagation();
-                setDraft('');
-                onQueryChange?.('');
-                onCategoryIdsChange?.([]);
-                setStep('mode');
-                setActiveGroupId('');
-                keepOpenFocus();
-              }}
-            >
-              <X size={14} strokeWidth={2.4} />
-            </button>
-          ) : null}
-        </div>
+            {draft || hasChips ? (
+              <button
+                type="button"
+                className="bb-search-field-clear"
+                aria-label="Clear search"
+                onClick={(event) => {
+                  event.preventDefault();
+                  setDraft('');
+                  onQueryChange?.('');
+                  onCategoryIdsChange?.([]);
+                  setStep('mode');
+                  setActiveGroupId('');
+                  keepOpenFocus();
+                }}
+              >
+                <X size={14} strokeWidth={2.4} />
+              </button>
+            ) : null}
+          </label>
 
-        {showPanel ? (
-          <div
-            id={`${searchId}-panel`}
-            className="bb-explore-search-panel"
-            role="listbox"
-            aria-label="Search suggestions"
-          >
+          {showPanel ? (
+            <div
+              id={`${searchId}-panel`}
+              className="bb-explore-search-panel"
+              role="listbox"
+              aria-label="Search suggestions"
+            >
             {searchHistory.length > 0 && !typed && step === 'mode' ? (
               <section className="bb-explore-search-section">
                 <header className="bb-explore-search-section-head">
@@ -666,7 +669,8 @@ export function ExploreDiscoveryBar({
               Done &amp; search
             </button>
           </div>
-        ) : null}
+          ) : null}
+        </div>
       </div>
     </div>
   );

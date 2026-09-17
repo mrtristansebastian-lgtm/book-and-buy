@@ -1,14 +1,14 @@
 import { SocialProfileTabs } from '../social/components/SocialProfileTabs';
 
 /**
- * PC desk: optional vertical content tabs + stage (no profile column).
- * Mobile: tabs sit above stage.
+ * Content tabs (Posts / Films / …) sit horizontally above the stage on all breakpoints.
  */
 export function ClientDeskLayout({
   className = '',
   contentTab = '',
   onContentTabChange = null,
   showContentTabs = false,
+  contentTabs = null,
   children
 }) {
   return (
@@ -19,7 +19,11 @@ export function ClientDeskLayout({
     >
       {showContentTabs ? (
         <aside className="bb-client-desk-rail" aria-label="Content type">
-          <SocialProfileTabs value={contentTab} onChange={onContentTabChange} />
+          <SocialProfileTabs
+            value={contentTab}
+            onChange={onContentTabChange}
+            tabs={contentTabs || undefined}
+          />
         </aside>
       ) : null}
       <div className="bb-client-desk-stage">{children}</div>

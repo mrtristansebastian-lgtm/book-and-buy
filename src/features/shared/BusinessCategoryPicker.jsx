@@ -30,10 +30,11 @@ export function BusinessCategoryPicker({
   return (
     <div className={`bb-biz-cat-picker${compact ? ' is-compact' : ''}`}>
       <div className="bb-biz-cat-picker-tools">
-        <label className="bb-biz-cat-picker-search">
-          <Search size={15} strokeWidth={2.2} aria-hidden="true" />
+        <label className="bb-biz-cat-picker-search bb-search-field">
+          <Search size={15} strokeWidth={2.2} className="bb-search-field-icon" aria-hidden="true" />
           <input
             type="search"
+            className="native-search-input"
             value={query}
             placeholder="Search industries"
             onChange={(event) => setQuery(event.target.value)}

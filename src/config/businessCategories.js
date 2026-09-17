@@ -765,6 +765,9 @@ export const SERVE_COUNTRY_OPTIONS = [
   { code: 'KE', label: 'Kenya' }
 ];
 
+export const DISTANCE_MIN_KM = 1;
+export const DISTANCE_MAX_KM = 100;
+/** @deprecated Prefer DISTANCE_MIN_KM / DISTANCE_MAX_KM continuous slider. */
 export const DISTANCE_RINGS_KM = [5, 15, 30, 50, 100];
 
 /** Parent groups for Explore browse — leaves stay as BUSINESS_CATEGORIES ids. */
