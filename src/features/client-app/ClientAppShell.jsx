@@ -125,7 +125,7 @@ export function ClientAppShell({
 
   return (
     <div
-      className={`bb-client-shell${hideHeader ? ' is-headerless' : ''}${
+      className={`bb-client-shell native-ui${hideHeader ? ' is-headerless' : ''}${
         dockHidden ? ' is-dock-hidden' : ''
       }`}
     >

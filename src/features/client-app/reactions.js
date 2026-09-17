@@ -1,7 +1,6 @@
 export const LIKE_REACTION = {
   id: 'like',
-  label: 'Like',
-  src: '/reactions/like.png'
+  label: 'Like'
 };
 
 export const REACTIONS = [LIKE_REACTION];

@@ -1,9 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
-import { Bookmark, MessageCircle, Repeat2, Send, Share, X } from 'lucide-react';
+import { Bookmark, Heart, MessageCircle, Repeat2, Send, Share, X } from 'lucide-react';
 import { publicItemPath } from '../../app/routing';
 import { seedEngagementCount, socialPostKey } from './clientProfile';
 import { useClientProfile } from './ClientProfileContext';
-import { LIKE_REACTION } from './reactions';
 
 function shareUrl(slug, postId) {
   const path = publicItemPath(slug, 'social', postId);
@@ -74,14 +73,26 @@ function CommentsSheet({ open, onClose, comments, profile, draft, setDraft, onSu
   );
 }
 
-function LikeGlyph({ size = 18, className = '', muted = false }) {
+/** Instagram-style heart — outline idle; native animated gradient when liked. */
+function LikeGlyph({ size = 28, liked = false, className = '', burst = false }) {
+  if (liked || burst) {
+    return (
+      <span
+        className={`bb-client-like-heart is-on${burst ? ' is-burst' : ''} ${className}`.trim()}
+        style={{ width: size, height: size }}
+        aria-hidden="true"
+      />
+    );
+  }
+
   return (
-    <img
-      src={LIKE_REACTION.src}
-      alt=""
-      className={`bb-client-reaction-glyph${muted ? ' is-muted' : ''} ${className}`.trim()}
-      style={{ width: size, height: size }}
-      draggable={false}
+    <Heart
+      className={`bb-client-like-heart ${className}`.trim()}
+      size={size}
+      strokeWidth={2}
+      absoluteStrokeWidth
+      fill="none"
+      aria-hidden="true"
     />
   );
 }
@@ -92,6 +103,7 @@ function LikeButton({
   likeCount = 0,
   showCount = false,
   showLabel = false,
+  heartSize = 28,
   children,
   onToggle
 }) {
@@ -105,7 +117,7 @@ function LikeButton({
     >
       {children || (
         <>
-          <LikeGlyph size={18} muted={!liked} />
+          <LikeGlyph size={heartSize} liked={liked} />
           {showCount ? <span className="bb-client-pulse-num">{likeCount.toLocaleString()}</span> : null}
           {showLabel ? (
             <span className="bb-client-pulse-word">{likeCount === 1 ? 'Like' : 'Likes'}</span>
@@ -166,7 +178,7 @@ export function ClientMediaReactionLayer({ post, slug = '', children, className 
       {children}
       {burst ? (
         <div className="bb-client-media-react-burst" aria-hidden="true">
-          <LikeGlyph size={92} />
+          <LikeGlyph size={108} burst />
         </div>
       ) : null}
     </div>
@@ -245,11 +257,12 @@ export function ClientEngagementBar({
       <>
         <div className="bb-client-tiktok-rail" aria-label="Actions">
           <LikeButton
-            className="bb-client-reaction-wrap--rail"
+            className="bb-client-reaction-wrap--rail bb-client-tiktok-btn"
             liked={liked}
+            heartSize={34}
             onToggle={onToggleLike}
           >
-            <LikeGlyph size={30} muted={!liked} />
+            <LikeGlyph size={34} liked={liked} />
             <span>{likeCount}</span>
           </LikeButton>
           <button
@@ -258,11 +271,11 @@ export function ClientEngagementBar({
             aria-label="Comment"
             onClick={() => setSheetOpen(true)}
           >
-            <MessageCircle size={28} strokeWidth={2.2} />
+            <MessageCircle size={32} strokeWidth={2} absoluteStrokeWidth />
             <span>{commentCount}</span>
           </button>
           <button type="button" className="bb-client-tiktok-btn" aria-label="Share" onClick={onShare}>
-            <Share size={26} strokeWidth={2.2} />
+            <Share size={30} strokeWidth={2} absoluteStrokeWidth />
             <span>Share</span>
           </button>
           <button
@@ -272,7 +285,12 @@ export function ClientEngagementBar({
             aria-pressed={saved}
             onClick={() => toggleSave(postSlug, postId)}
           >
-            <Bookmark size={26} strokeWidth={saved ? 0 : 2.2} fill={saved ? 'currentColor' : 'none'} />
+            <Bookmark
+              size={30}
+              strokeWidth={saved ? 0 : 2}
+              absoluteStrokeWidth
+              fill={saved ? 'currentColor' : 'none'}
+            />
             <span>Save</span>
           </button>
           {shareHint ? <span className="bb-client-tiktok-hint">{shareHint}</span> : null}
@@ -301,9 +319,10 @@ export function ClientEngagementBar({
           <LikeButton
             className="bb-client-reaction-wrap--inline"
             liked={liked}
+            heartSize={18}
             onToggle={onToggleLike}
           >
-            <LikeGlyph size={16} muted={!liked} />
+            <LikeGlyph size={18} liked={liked} />
             <span>{likeCount || ''}</span>
           </LikeButton>
           <button
@@ -336,11 +355,12 @@ export function ClientEngagementBar({
               likeCount={likeCount}
               showCount
               showLabel
+              heartSize={22}
               onToggle={onToggleLike}
             />
             <span className="bb-client-pulse-sep" aria-hidden="true" />
             <button type="button" className="bb-client-pulse-stat" onClick={() => setSheetOpen(true)}>
-              <MessageCircle size={16} strokeWidth={2} />
+              <MessageCircle size={20} strokeWidth={2} absoluteStrokeWidth />
               <span className="bb-client-pulse-num">{commentCount.toLocaleString()}</span>
               <span className="bb-client-pulse-word">
                 {commentCount === 1 ? 'Comment' : 'Comments'}
@@ -383,9 +403,10 @@ export function ClientEngagementBar({
           <LikeButton
             className="bb-client-reaction-wrap--bar"
             liked={liked}
+            heartSize={compact ? 28 : 30}
             onToggle={onToggleLike}
           >
-            <LikeGlyph size={compact ? 22 : 26} muted={!liked} />
+            <LikeGlyph size={compact ? 28 : 30} liked={liked} />
           </LikeButton>
           <button
             type="button"
@@ -393,10 +414,10 @@ export function ClientEngagementBar({
             aria-label="Comment"
             onClick={() => setSheetOpen(true)}
           >
-            <MessageCircle size={compact ? 22 : 26} strokeWidth={2} />
+            <MessageCircle size={compact ? 28 : 30} strokeWidth={2} absoluteStrokeWidth />
           </button>
           <button type="button" className="bb-client-engage-btn" aria-label="Share" onClick={onShare}>
-            <Send size={compact ? 21 : 24} strokeWidth={2} />
+            <Send size={compact ? 26 : 28} strokeWidth={2} absoluteStrokeWidth />
           </button>
           <button
             type="button"
@@ -406,8 +427,9 @@ export function ClientEngagementBar({
             onClick={() => toggleSave(postSlug, postId)}
           >
             <Bookmark
-              size={compact ? 22 : 26}
+              size={compact ? 28 : 30}
               strokeWidth={saved ? 0 : 2}
+              absoluteStrokeWidth
               fill={saved ? 'currentColor' : 'none'}
             />
           </button>

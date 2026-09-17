@@ -85,6 +85,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
         page={page || 'home'}
         itemId={itemId || ''}
         publicMode={Boolean(remote) || !localMatch}
+        trackAnalytics
       />
     </div>
   );

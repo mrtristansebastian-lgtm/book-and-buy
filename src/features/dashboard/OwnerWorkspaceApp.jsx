@@ -14,6 +14,7 @@ import { CheckoutStudioPage } from '../website/pages/CheckoutStudioPage';
 import { SocialStudioPage } from '../social/pages/SocialStudioPage';
 import { SupportInboxPage } from '../support/pages/SupportInboxPage';
 import { FinancePage } from '../finance/pages/FinancePage';
+import { AnalyticsPage } from '../analytics/pages/AnalyticsPage';
 import { ClientsPage } from '../clients/pages/ClientsPage';
 import { SettingsShell } from '../settings/SettingsShell';
 
@@ -50,6 +51,8 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
         <SupportInboxPage />
       ) : tab === 'finance' ? (
         <FinancePage />
+      ) : tab === 'analytics' ? (
+        <AnalyticsPage />
       ) : tab === 'clients' ? (
         <ClientsPage />
       ) : tab === 'settings' ? (

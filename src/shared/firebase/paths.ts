@@ -30,6 +30,30 @@ export const clientThreadPath = (appId: string, threadId: string) =>
 export const clientThreadMessagesPath = (appId: string, threadId: string) =>
   [...clientThreadPath(appId, threadId), "messages"] as const;
 
+export const analyticsSessionsPath = (appId: string) =>
+  [...artifactRoot(appId), "analyticsSessions"] as const;
+
+export const analyticsSessionPath = (appId: string, sessionId: string) =>
+  [...analyticsSessionsPath(appId), sessionId] as const;
+
+export const analyticsEventsPath = (appId: string) =>
+  [...artifactRoot(appId), "analyticsEvents"] as const;
+
+export const analyticsEventPath = (appId: string, eventId: string) =>
+  [...analyticsEventsPath(appId), eventId] as const;
+
+export const analyticsCartsPath = (appId: string) =>
+  [...artifactRoot(appId), "analyticsCarts"] as const;
+
+export const analyticsCartPath = (appId: string, cartId: string) =>
+  [...analyticsCartsPath(appId), cartId] as const;
+
+export const analyticsDailyPath = (appId: string) =>
+  [...artifactRoot(appId), "analyticsDaily"] as const;
+
+export const analyticsDailyDocPath = (appId: string, docId: string) =>
+  [...analyticsDailyPath(appId), docId] as const;
+
 export const callableNames = {
   createOwnerBookingRequest: "createOwnerBookingRequest",
   createPublicBookingRequest: "createPublicBookingRequest",

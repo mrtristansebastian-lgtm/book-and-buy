@@ -10,12 +10,15 @@ import { ClientApp } from './features/client-app/ClientApp';
 import { useClientProfile } from './features/client-app/ClientProfileContext';
 import { useWorkspace } from './features/workspace/WorkspaceContext';
 import { BrandMark } from './shared/ui/BrandMark';
+import { useViewportZoomGate } from './shared/ui/useViewportZoomGate';
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAppRoute());
   const { workspace, loadDemoWorkspace } = useWorkspace();
   const { ready, configured, user, isLocalMode } = useAuth();
   const { isClient, profileReady } = useClientProfile();
+
+  useViewportZoomGate();
 
   useEffect(() => useHashRoute(setRoute), []);
 

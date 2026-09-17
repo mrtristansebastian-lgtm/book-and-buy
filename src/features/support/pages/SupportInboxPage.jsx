@@ -5,7 +5,7 @@ import { ConversationPane } from '../components/ConversationPane';
 
 export function SupportInboxPage() {
   const inbox = useSupportInbox();
-  useKeyboardInset(true);
+  useKeyboardInset(Boolean(inbox.mobileShowChat));
 
   return (
     <div className="bb-support-page">

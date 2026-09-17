@@ -4,6 +4,7 @@ import {
   BriefcaseBusiness,
   CalendarClock,
   CalendarDays,
+  ChartColumn,
   ClipboardList,
   CreditCard,
   Globe2,
@@ -35,6 +36,7 @@ export const TAB_ICONS = {
   social: Share2,
   communications: MessageSquare,
   finance: CreditCard,
+  analytics: ChartColumn,
   clients: Users,
   settings: Settings
 };
@@ -55,6 +57,7 @@ export const TAB_HINTS = {
   social: 'Posts & blog',
   communications: 'Client messages',
   finance: 'Payments & payouts',
+  analytics: 'Visitors, carts & sales',
   clients: 'People & history',
   settings: 'Business & team'
 };
@@ -94,6 +97,16 @@ export const launcherApps = [
     size: 'lg',
     hue: 'violet',
     tint: ['#d8ccff', '#d2cbff']
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    blurb: 'Live visitors, carts and conversion.',
+    icon: ChartColumn,
+    tabs: ['analytics'],
+    size: 'md',
+    hue: 'sky',
+    tint: ['#b9e3ff', '#cbffb8']
   },
   {
     id: 'business',

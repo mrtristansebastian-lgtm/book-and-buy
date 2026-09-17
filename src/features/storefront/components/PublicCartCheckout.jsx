@@ -35,6 +35,10 @@ import { serviceLineKey } from '../hooks/useCart';
 import { firebaseCallables } from '../../../shared/firebase/callables';
 import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
+import {
+  trackAnalyticsEvent,
+  upsertAnalyticsCart
+} from '../../../shared/analytics/beacon';
 
 function readCheckoutReturnParams() {
   const hash = window.location.hash || '';
@@ -277,6 +281,24 @@ export function PublicCartCheckout({
   }, [previewResult]);
 
   useEffect(() => {
+    if (!publicMode || lockedPreview || step !== 'details') return;
+    const ownerId = workspace?.ownerId;
+    const slug = workspace?.slug;
+    if (!ownerId || !slug) return;
+    void trackAnalyticsEvent('begin_checkout', { slug, ownerId }, {
+      valueCents: cart.subtotalCents
+    });
+    void upsertAnalyticsCart(
+      { slug, ownerId },
+      {
+        items: cart.items,
+        status: 'checkout',
+        valueCents: cart.subtotalCents
+      }
+    );
+  }, [step, publicMode, lockedPreview, workspace?.ownerId, workspace?.slug]);
+
+  useEffect(() => {
     const params = readCheckoutReturnParams();
     if (!params.paid && !params.cancelled) return undefined;
     let cancelled = false;
@@ -504,6 +526,32 @@ export function PublicCartCheckout({
 
       if (productsOk && servicesOk) {
         cart.clear();
+
+        const ownerId = workspace?.ownerId;
+        const slug = workspace?.slug;
+        if (publicMode && ownerId && slug) {
+          const valueCents = productSnapshot.reduce(
+            (sum, item) => sum + (item.unitPriceCents || 0) * (item.quantity || 0),
+            0
+          ) + serviceSnapshot.reduce(
+            (sum, item) => sum + (item.unitPriceCents || 0) * (item.quantity || 0),
+            0
+          );
+          void trackAnalyticsEvent('purchase', { slug, ownerId }, {
+            valueCents,
+            orderId: order?.id || '',
+            bookingCount: bookingsCreated.length
+          });
+          if (bookingsCreated.length) {
+            void trackAnalyticsEvent('booking_confirmed', { slug, ownerId }, {
+              bookingCount: bookingsCreated.length
+            });
+          }
+          void upsertAnalyticsCart(
+            { slug, ownerId },
+            { items: [], status: 'converted', valueCents }
+          );
+        }
 
         const online = ONLINE_GATEWAYS.includes(paymentMethod);
         if (online && publicMode && isFirebaseConfigured() && workspace.slug) {

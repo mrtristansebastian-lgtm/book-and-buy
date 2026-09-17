@@ -365,5 +365,107 @@ service cloud.firestore {
       allow read: if canAdmin(appId, ownerId);
       allow write: if false;
     }
+
+    function analyticsSessionValid() {
+      return request.resource.data.sessionId is string &&
+        request.resource.data.sessionId.size() >= 8 &&
+        request.resource.data.sessionId.size() <= 80 &&
+        request.resource.data.slug is string &&
+        request.resource.data.slug.size() >= 1 &&
+        request.resource.data.slug.size() <= 120 &&
+        request.resource.data.ownerId is string &&
+        request.resource.data.ownerId.size() >= 1 &&
+        request.resource.data.ownerId.size() <= 128 &&
+        request.resource.data.startedAt is number &&
+        request.resource.data.lastSeenAt is number &&
+        request.resource.data.path is string &&
+        request.resource.data.path.size() <= 500;
+    }
+
+    function analyticsEventValid() {
+      return request.resource.data.type is string &&
+        request.resource.data.type in [
+          'page_view',
+          'product_view',
+          'add_to_cart',
+          'begin_checkout',
+          'purchase',
+          'booking_started',
+          'booking_confirmed'
+        ] &&
+        request.resource.data.sessionId is string &&
+        request.resource.data.sessionId.size() >= 8 &&
+        request.resource.data.sessionId.size() <= 80 &&
+        request.resource.data.slug is string &&
+        request.resource.data.slug.size() >= 1 &&
+        request.resource.data.slug.size() <= 120 &&
+        request.resource.data.ownerId is string &&
+        request.resource.data.ownerId.size() >= 1 &&
+        request.resource.data.ownerId.size() <= 128 &&
+        request.resource.data.at is number;
+    }
+
+    function analyticsCartValid() {
+      return request.resource.data.cartId is string &&
+        request.resource.data.cartId.size() >= 8 &&
+        request.resource.data.cartId.size() <= 80 &&
+        request.resource.data.sessionId is string &&
+        request.resource.data.sessionId.size() >= 8 &&
+        request.resource.data.sessionId.size() <= 80 &&
+        request.resource.data.slug is string &&
+        request.resource.data.slug.size() >= 1 &&
+        request.resource.data.slug.size() <= 120 &&
+        request.resource.data.ownerId is string &&
+        request.resource.data.ownerId.size() >= 1 &&
+        request.resource.data.ownerId.size() <= 128 &&
+        request.resource.data.status in ['active', 'checkout', 'abandoned', 'converted'] &&
+        request.resource.data.valueCents is number &&
+        request.resource.data.valueCents >= 0 &&
+        request.resource.data.valueCents <= 100000000 &&
+        request.resource.data.updatedAt is number &&
+        request.resource.data.items is list &&
+        request.resource.data.items.size() <= 50;
+    }
+
+    match /artifacts/{appId}/analyticsSessions/{sessionId} {
+      allow create: if analyticsSessionValid() &&
+        request.resource.data.sessionId == sessionId;
+      allow update: if analyticsSessionValid() &&
+        resource.data.sessionId == sessionId &&
+        request.resource.data.sessionId == sessionId &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.slug == resource.data.slug &&
+        request.resource.data.startedAt == resource.data.startedAt;
+      allow read: if resource.data.ownerId is string &&
+        canStaff(appId, resource.data.ownerId);
+      allow delete: if false;
+    }
+
+    match /artifacts/{appId}/analyticsEvents/{eventId} {
+      allow create: if analyticsEventValid();
+      allow read: if resource.data.ownerId is string &&
+        canStaff(appId, resource.data.ownerId);
+      allow update, delete: if false;
+    }
+
+    match /artifacts/{appId}/analyticsCarts/{cartId} {
+      allow create: if analyticsCartValid() &&
+        request.resource.data.cartId == cartId;
+      allow update: if analyticsCartValid() &&
+        resource.data.cartId == cartId &&
+        request.resource.data.cartId == cartId &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.slug == resource.data.slug &&
+        request.resource.data.sessionId == resource.data.sessionId;
+      allow read: if resource.data.ownerId is string &&
+        canStaff(appId, resource.data.ownerId);
+      allow delete: if false;
+    }
+
+    match /artifacts/{appId}/analyticsDaily/{docId} {
+      allow read: if resource.data.ownerId is string &&
+        canStaff(appId, resource.data.ownerId);
+      allow write: if false;
+    }
   }
 }

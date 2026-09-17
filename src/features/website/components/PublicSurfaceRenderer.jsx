@@ -5,6 +5,7 @@ import {
   buildCheckoutPreviewCartItems,
   buildCheckoutPreviewResult
 } from '../../storefront/components/PublicCartCheckout';
+import { PublicAnalyticsLayer } from '../../../shared/analytics/PublicAnalyticsLayer';
 import { PublicHomeView } from './PublicSurfaceViews';
 import {
   isEBusinessPreviewOnlyPage,
@@ -60,6 +61,7 @@ export function PublicSurfaceRenderer({
   editMode = false,
   showHeader: _showHeader = true,
   publicMode = false,
+  trackAnalytics = false,
   onOpenItem,
   onCloseItem,
   onUpdateWebsite,
@@ -77,6 +79,7 @@ export function PublicSurfaceRenderer({
       : resolveVisiblePublicPage(workspace?.website?.pages, requestedPage);
   const railTab = pageToRailTab(pageId);
   const detailId = String(itemId || '').trim();
+  const analyticsOn = Boolean(trackAnalytics) && !preview && !editMode;
 
   if (isEBusinessPreviewOnlyPage(pageId)) {
     return (
@@ -91,6 +94,12 @@ export function PublicSurfaceRenderer({
 
     return (
       <PublicCartProvider>
+        <PublicAnalyticsLayer
+          workspace={workspace}
+          page={pageId}
+          itemId={detailId}
+          enabled={analyticsOn}
+        />
         <div
           className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''} ${
             editMode ? 'bb-public-surface--edit' : ''
@@ -114,6 +123,12 @@ export function PublicSurfaceRenderer({
 
   return (
     <PublicCartProvider>
+      <PublicAnalyticsLayer
+        workspace={workspace}
+        page={pageId}
+        itemId={detailId}
+        enabled={analyticsOn}
+      />
       <div
         className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''} ${
           editMode ? 'bb-public-surface--edit' : ''

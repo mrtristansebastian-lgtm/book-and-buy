@@ -13,6 +13,7 @@
 @import './support-inbox.css';
 @import './ops-desk.css';
 @import './finance.css';
+@import './analytics.css';
 @import './settings.css';
 @import './overview-home.css';
 @import './app-launcher.css';
@@ -36,12 +37,36 @@ body,
   min-height: 100%;
 }
 
+html {
+  overscroll-behavior: none;
+}
+
+html.bb-zoom-locked,
+html.bb-zoom-locked body {
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+html.bb-zoom-allowed body {
+  touch-action: manipulation;
+}
+
+html.bb-zoom-allowed .bb-client-home-feed.is-posts,
+html.bb-zoom-allowed .bb-client-home-feed.is-vertical-open,
+html.bb-zoom-allowed .bb-client-vertical-page,
+html.bb-zoom-allowed .bb-vertical-watch,
+html.bb-zoom-allowed .bb-client-ig-explore.is-immersive,
+html.bb-zoom-allowed .bb-client-ig-grid {
+  touch-action: pan-x pan-y pinch-zoom;
+}
+
 body {
   margin: 0;
   font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
   color: var(--bb-ink);
   background: var(--bb-bg);
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 
 button,

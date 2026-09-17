@@ -102,47 +102,6 @@
   .bb-client-support-back {
     display: inline-flex;
   }
-
-  /* Open message thread: keep dock; composer sits in the row above it */
-  .bb-client-shell:has(.bb-support-stage.is-chat) {
-    grid-template-rows: minmax(0, 1fr) var(--bb-client-tab-h);
-    height: calc(100dvh - var(--bb-keyboard-inset, 0px));
-    max-height: calc(100dvh - var(--bb-keyboard-inset, 0px));
-  }
-
-  .bb-client-shell:has(.bb-support-stage.is-chat) .bb-client-top {
-    display: none !important;
-  }
-
-  .bb-client-shell:has(.bb-support-stage.is-chat) .bb-client-tabs {
-    display: grid !important;
-  }
-
-  /* Keyboard open: hide dock so composer sits flush above keyboard (IG/WA) */
-  html.bb-keyboard-open .bb-client-shell:has(.bb-support-stage.is-chat) {
-    grid-template-rows: minmax(0, 1fr);
-  }
-
-  html.bb-keyboard-open .bb-client-shell:has(.bb-support-stage.is-chat) .bb-client-tabs {
-    display: none !important;
-  }
-
-  .bb-client-shell:has(.bb-support-stage.is-chat) .bb-client-main {
-    min-height: 0;
-    height: auto;
-    max-height: none;
-    overflow: hidden;
-  }
-
-  .bb-client-shell:has(.bb-support-stage.is-chat) .bb-support-composer-wrap,
-  .bb-client-shell:has(.bb-support-stage.is-chat) .bb-client-dm-composer {
-    padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
-  }
-
-  html.bb-keyboard-open .bb-client-shell:has(.bb-support-stage.is-chat) .bb-support-composer-wrap,
-  html.bb-keyboard-open .bb-client-shell:has(.bb-support-stage.is-chat) .bb-client-dm-composer {
-    padding-bottom: 0.55rem;
-  }
 }
 
 .bb-client-main {
@@ -1330,39 +1289,48 @@
 /* Engagement bar + comments sheet */
 .bb-client-engage {
   display: grid;
-  gap: 0.25rem;
-  padding: 0.55rem 0.85rem 0.15rem;
+  gap: 0.35rem;
+  padding: 0.7rem 0.9rem 0.2rem;
 }
 
 .bb-client-engage-actions {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 1.05rem;
 }
 
 .bb-client-engage-btn {
   display: inline-grid;
   place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   color: #050505;
   cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), color 140ms ease;
+}
+
+.bb-client-engage-btn:active {
+  transform: scale(0.92);
 }
 
 .bb-client-engage-btn.is-end {
   margin-left: auto;
 }
 
-.bb-client-engage-btn.is-like {
-  color: #ed4956;
+.bb-client-engage-btn.is-on {
+  color: #050505;
 }
 
 .bb-client-engage-likes {
   margin: 0;
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+  color: #050505;
 }
 
 .bb-client-engage-view-comments {
@@ -1372,9 +1340,87 @@
   background: transparent;
   text-align: left;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   color: #8e8e8e;
   cursor: pointer;
+}
+
+/* Instagram-style like heart */
+.bb-client-like-heart {
+  display: block;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.bb-client-like-heart.is-on {
+  display: block;
+  flex: 0 0 auto;
+  background-image: var(
+    --native-accent-button-gradient,
+    linear-gradient(115deg, #cbffb8, #b9e3ff, #d2cbff, #ffd4f2, #cbffb8)
+  );
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 30%) 50%;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation:
+    bb-like-pop 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    bb-like-gradient-shift var(--native-accent-duration, 24s) var(--native-accent-easing, ease-in-out)
+      infinite;
+}
+
+.bb-client-like-heart.is-burst {
+  animation:
+    bb-like-burst 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    bb-like-gradient-shift var(--native-accent-duration, 24s) var(--native-accent-easing, ease-in-out)
+      infinite;
+}
+
+@keyframes bb-like-gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bb-client-reaction-trigger.is-on {
+  color: #050505;
+}
+
+.bb-client-reaction-trigger:active .bb-client-like-heart {
+  transform: scale(0.9);
+}
+
+@keyframes bb-like-pop {
+  0% {
+    transform: scale(0.72);
+  }
+  55% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes bb-like-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
 }
 
 .bb-client-engage-hint {
@@ -2317,16 +2363,6 @@
   z-index: 50;
 }
 
-.bb-client-reaction-glyph.is-muted {
-  opacity: 0.72;
-  filter: grayscale(0.12);
-}
-
-.bb-client-reaction-trigger:not(.is-on) .bb-client-reaction-glyph {
-  opacity: 0.72;
-  filter: grayscale(0.12);
-}
-
 .bb-client-pulse-stats {
   display: inline-flex;
   align-items: center;
@@ -2358,7 +2394,7 @@
 
 .bb-client-reaction-trigger.is-on,
 .bb-client-pulse-stat.is-on {
-  color: #e11d48;
+  color: #050505;
 }
 
 .bb-client-pulse-num {
@@ -2412,14 +2448,6 @@
 
 .bb-client-pulse-tool.is-on {
   color: #101828;
-}
-
-.bb-client-reaction-glyph {
-  display: block;
-  object-fit: contain;
-  flex: 0 0 auto;
-  pointer-events: none;
-  user-select: none;
 }
 
 .bb-client-media-react {
@@ -2478,8 +2506,8 @@
   animation: bb-media-react-burst 720ms ease-out forwards;
 }
 
-.bb-client-media-react-burst .bb-client-reaction-glyph {
-  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
+.bb-client-media-react-burst .bb-client-like-heart {
+  filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.35));
 }
 
 .bb-client-media-react-tray {
@@ -2569,6 +2597,23 @@
   position: relative;
   z-index: 6;
   overflow: visible;
+}
+
+.bb-client-reaction-wrap--rail.bb-client-tiktok-btn,
+.bb-client-reaction-wrap--rail.bb-client-reaction-trigger {
+  display: grid;
+  gap: 0.28rem;
+  justify-items: center;
+  color: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.bb-client-engage-actions .bb-client-reaction-wrap--bar .bb-client-reaction-trigger,
+.bb-client-engage-actions .bb-client-reaction-trigger.bb-client-reaction-wrap--bar {
+  width: 2.15rem;
+  height: 2.15rem;
+  justify-content: center;
 }
 
 .bb-client-reaction-wrap--rail.is-open {
@@ -2667,10 +2712,10 @@
 /* TikTok right rail */
 .bb-client-tiktok-rail {
   display: grid;
-  gap: 0.85rem;
+  gap: 1.05rem;
   justify-items: center;
   color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   overflow: visible;
   position: relative;
   z-index: 5;
@@ -2678,7 +2723,7 @@
 
 .bb-client-tiktok-btn {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.28rem;
   justify-items: center;
   margin: 0;
   padding: 0;
@@ -2686,19 +2731,34 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bb-client-tiktok-btn:active {
+  transform: scale(0.92);
 }
 
 .bb-client-tiktok-btn.is-on {
-  color: #fe2c55;
+  color: #fff;
+}
+
+.bb-client-tiktok-rail .bb-client-like-heart:not(.is-on) {
+  color: #fff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.bb-client-tiktok-rail .bb-client-like-heart.is-on {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
 }
 
 .bb-client-tiktok-hint {
-  max-width: 3.5rem;
+  max-width: 3.75rem;
   text-align: center;
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: #fff;
 }
 
@@ -2819,4 +2879,106 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: space-between;
+}
+
+/*
+ * Chat keyboard lock (html.bb-chat-open from useKeyboardInset).
+ * Client: lock the flat client shell (proven path).
+ * Business: hide dock + fill height; only lock .bb-support-page while keyboard is open
+ * so the composer row is never clipped when just viewing a thread.
+ */
+@media (max-width: 1023px) {
+  /* —— Client —— */
+  html.bb-chat-open .bb-client-shell {
+    --bb-client-tab-h: 0px;
+    grid-template-rows: minmax(0, 1fr);
+    position: fixed;
+    top: var(--bb-vv-top, 0px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: var(--bb-vv-height, 100dvh);
+    max-height: var(--bb-vv-height, 100dvh);
+    z-index: 120;
+    overflow: hidden;
+    transition:
+      top 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  html.bb-chat-open .bb-client-shell .bb-client-top,
+  html.bb-chat-open .bb-client-shell .bb-client-tabs {
+    display: none !important;
+  }
+
+  html.bb-chat-open .bb-client-shell .bb-client-main,
+  html.bb-chat-open .bb-client-support-page,
+  html.bb-chat-open .bb-client-support-page .bb-support-stage,
+  html.bb-chat-open .bb-client-support-page .bb-support-pane {
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* —— Business: dock away, full-height chat, composer always in grid —— */
+  html.bb-chat-open .bb-shell.is-support-flush {
+    --bb-owner-dock-h: 0px;
+    --bb-owner-dock-pad: 0px;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  html.bb-chat-open .bb-shell.is-support-flush .bb-owner-dock,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-owner-menu-sheet,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-owner-menu-backdrop,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-miniapp-bar {
+    display: none !important;
+  }
+
+  html.bb-chat-open .bb-shell.is-support-flush .bb-owner-layout,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-owner-content,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-owner-main.is-flush,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-support-page,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-support-stage,
+  html.bb-chat-open .bb-shell.is-support-flush .bb-support-pane {
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+  }
+
+  html.bb-chat-open .bb-shell.is-support-flush .bb-support-page {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  /* Keyboard up: pin support page to visualViewport (same idea as client shell) */
+  html.bb-chat-open.bb-keyboard-open .bb-shell.is-support-flush .bb-support-page {
+    position: fixed;
+    top: var(--bb-vv-top, 0px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: var(--bb-vv-height, 100dvh);
+    max-height: var(--bb-vv-height, 100dvh);
+    z-index: 120;
+    margin: 0;
+    transition:
+      top 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  html.bb-chat-open .bb-support-composer-wrap,
+  html.bb-chat-open .bb-client-dm-composer {
+    flex-shrink: 0;
+    padding-bottom: max(0.55rem, env(safe-area-inset-bottom, 0px));
+    transition: padding-bottom 180ms ease;
+  }
+
+  html.bb-chat-open.bb-keyboard-open .bb-support-composer-wrap,
+  html.bb-chat-open.bb-keyboard-open .bb-client-dm-composer {
+    padding-bottom: 0.4rem;
+  }
 }
