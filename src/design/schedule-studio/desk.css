@@ -570,7 +570,7 @@
 }
 
 .bb-schedule-day-meter.is-leave {
-  background: linear-gradient(90deg, #cfe8ff, #9fd4ff);
+  background: linear-gradient(90deg, #fff0b8, #ffe07a);
 }
 
 .bb-schedule-day-meter.is-off {
@@ -783,7 +783,7 @@
 }
 
 .bb-schedule-day-meter-legend-item.is-leave i {
-  background: #9fd4ff;
+  background: #ffe07a;
 }
 
 .bb-schedule-day-meter-legend-item.is-booking i {
