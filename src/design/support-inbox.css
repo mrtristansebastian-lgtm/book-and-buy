@@ -283,6 +283,7 @@ html body .native-ui .bb-support-inbox-title {
   min-height: 0;
   min-width: 0;
   height: 100%;
+  max-height: 100%;
   overflow: hidden;
   background: #fff;
 }
@@ -296,6 +297,10 @@ html body .native-ui .bb-support-inbox-title {
   padding: 0.95rem 1.1rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fff;
 }
 
 .bb-support-header-main {
@@ -500,6 +505,9 @@ html body .native-ui .bb-support-inbox-title {
   display: grid;
   gap: 0.65rem;
   align-content: start;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   background:
     radial-gradient(900px 280px at 10% 0%, rgba(185, 227, 255, 0.12), transparent 55%),
     radial-gradient(700px 240px at 90% 0%, rgba(255, 212, 242, 0.1), transparent 50%),
@@ -745,8 +753,9 @@ html body .native-ui .bb-support-inbox-title {
   background: #fff;
   transition: background 0.15s ease;
   flex-shrink: 0;
-  position: relative;
-  z-index: 2;
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
 }
 
 .bb-support-composer-wrap.is-dragover {

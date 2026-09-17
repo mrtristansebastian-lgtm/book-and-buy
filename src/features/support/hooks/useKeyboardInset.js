@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 
 /**
- * Shared WhatsApp / IG chat keyboard lock for client + business Support.
- * When enabled (thread open): html.bb-chat-open + --bb-vv-height / --bb-vv-top.
+ * Shared WhatsApp / IG chat frame lock for client + business Support.
+ * When enabled (thread open): html.bb-chat-open + --bb-vv-height / --bb-vv-top,
+ * body locked so only the message list scrolls.
  * When keyboard covers bottom: html.bb-keyboard-open.
  */
 export function useKeyboardInset(enabled = true) {
@@ -22,16 +23,6 @@ export function useKeyboardInset(enabled = true) {
       root.classList.remove('bb-chat-open');
     };
 
-    if (!enabled) {
-      clearAll();
-      return undefined;
-    }
-
-    root.classList.add('bb-chat-open');
-
-    const vv = window.visualViewport;
-    let raf = 0;
-
     const unlockBody = () => {
       if (document.body.style.position !== 'fixed') return;
       const y = Number(document.body.dataset.bbScrollY || 0);
@@ -43,6 +34,28 @@ export function useKeyboardInset(enabled = true) {
       window.scrollTo(0, y);
     };
 
+    const lockBody = () => {
+      if (document.body.style.position === 'fixed') return;
+      document.body.dataset.bbScrollY = String(window.scrollY || 0);
+      document.body.style.position = 'fixed';
+      document.body.style.inset = '0';
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
+    };
+
+    if (!enabled) {
+      unlockBody();
+      clearAll();
+      return undefined;
+    }
+
+    root.classList.add('bb-chat-open');
+    lockBody();
+
+    const vv = window.visualViewport;
+    let raf = 0;
+
     const update = () => {
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
@@ -52,7 +65,7 @@ export function useKeyboardInset(enabled = true) {
           root.style.setProperty('--bb-vv-top', '0px');
           root.style.setProperty('--bb-keyboard-inset', '0px');
           root.classList.remove('bb-keyboard-open');
-          unlockBody();
+          lockBody();
           return;
         }
 
@@ -65,18 +78,8 @@ export function useKeyboardInset(enabled = true) {
         root.style.setProperty('--bb-vv-top', `${top}px`);
         root.style.setProperty('--bb-keyboard-inset', `${keyboardOpen ? inset : 0}px`);
         root.classList.toggle('bb-keyboard-open', keyboardOpen);
-
-        if (keyboardOpen) {
-          if (document.body.style.position !== 'fixed') {
-            document.body.dataset.bbScrollY = String(window.scrollY || 0);
-            document.body.style.position = 'fixed';
-            document.body.style.inset = '0';
-            document.body.style.width = '100%';
-            document.body.style.overflow = 'hidden';
-          }
-        } else {
-          unlockBody();
-        }
+        // Keep the chat chrome solid — only the message list scrolls.
+        lockBody();
       });
     };
 
