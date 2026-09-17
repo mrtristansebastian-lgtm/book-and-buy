@@ -498,7 +498,7 @@ export function ExploreDiscoveryBar({
                         <button
                           key={item.id}
                           type="button"
-                          className={`bb-explore-search-mode-tile${
+                          className={`bb-explore-search-parent bb-explore-search-mode-tile${
                             selected.has(item.id) ? ' is-on' : ''
                           }`}
                           onClick={() => openModeBrowse(item.mode)}
@@ -506,12 +506,11 @@ export function ExploreDiscoveryBar({
                           <span className="bb-explore-search-parent-icon" aria-hidden="true">
                             <Icon size={18} strokeWidth={1.85} />
                           </span>
-                          <span className="bb-explore-search-mode-tile-label">{item.label}</span>
+                          <span className="bb-explore-search-parent-label">{item.label}</span>
                         </button>
                       );
                     })}
                   </div>
-                  <p className="bb-explore-search-hint">Or pick an industry group</p>
                   <div className="bb-explore-search-parent-grid">
                     {BUSINESS_CATEGORY_GROUPS.map((group) => {
                       const Icon = GROUP_ICONS[group.icon] || Sparkles;
