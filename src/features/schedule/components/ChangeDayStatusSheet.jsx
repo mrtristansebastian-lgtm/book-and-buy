@@ -65,7 +65,7 @@ export function ChangeDayStatusSheet({
               onClose?.();
             }}
           >
-            Apply
+            Save changes
           </button>
         </div>
       </div>

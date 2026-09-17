@@ -183,5 +183,3 @@ export const paypalWebhook = onRequest({ cors: false }, async (req, res) => {
   }
 });
 
-// Keep plain helpers exported for unit-style imports / local tooling
-export { createPublicProductOrderHelper as createPublicProductOrder, buildPublicAvailability };
