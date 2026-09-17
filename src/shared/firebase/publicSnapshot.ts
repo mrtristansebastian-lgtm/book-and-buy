@@ -143,6 +143,20 @@ function publicStaff(staff: unknown) {
 export function buildPublicWorkspaceSnapshot(workspace: AnyRecord) {
   const ownerId = String(workspace.ownerId || '');
   const slug = String(workspace.slug || '');
+  const website = (workspace.website || {}) as AnyRecord;
+  const categoryId = String(website.categoryId || '').trim();
+  const categoryLabel = String(website.profileCategory || '').trim();
+  const venueMode = String(website.venueMode || 'physical').trim() || 'physical';
+  const locationLat = Number(website.locationLat);
+  const locationLng = Number(website.locationLng);
+  const countryCode = String(website.countryCode || '')
+    .trim()
+    .toUpperCase();
+  const city = String(website.city || website.profileLocation || '').trim();
+  const servesCountries = Array.isArray(website.servesCountries)
+    ? website.servesCountries.map((code) => String(code || '').trim().toUpperCase()).filter(Boolean)
+    : [];
+
   return {
     ownerId,
     slug,
@@ -151,7 +165,16 @@ export function buildPublicWorkspaceSnapshot(workspace: AnyRecord) {
     email: workspace.email || '',
     phone: workspace.phone || '',
     welcomeMessage: workspace.welcomeMessage || '',
-    website: workspace.website || {},
+    website,
+    // Denormalized discovery fields for Explore directory reads
+    categoryId,
+    categoryLabel,
+    venueMode,
+    locationLat: Number.isFinite(locationLat) ? locationLat : null,
+    locationLng: Number.isFinite(locationLng) ? locationLng : null,
+    countryCode,
+    city,
+    servesCountries,
     socialPosts: publicSocialPosts(workspace.socialPosts),
     services: publicServices(workspace.services),
     products: publicProducts(workspace.products),

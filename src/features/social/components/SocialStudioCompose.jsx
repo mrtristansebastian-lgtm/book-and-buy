@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import { Clapperboard, ExternalLink, ImagePlus, PenLine, Plus, Radio, RectangleVertical, X } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
+import { BusinessCategoryPicker } from '../../shared/BusinessCategoryPicker';
 import { EditableImage } from '../../website/components/editable';
 import { MAX_MEDIA } from '../utils/mediaIntake';
 import {
@@ -136,6 +137,7 @@ function ProfileEditModal({
   bannerUrl,
   bio,
   category,
+  categoryId = '',
   location,
   onSave
 }) {
@@ -145,6 +147,7 @@ function ProfileEditModal({
   const [draftUsername, setDraftUsername] = useState('');
   const [draftBio, setDraftBio] = useState('');
   const [draftCategory, setDraftCategory] = useState('');
+  const [draftCategoryId, setDraftCategoryId] = useState('');
   const [draftLocation, setDraftLocation] = useState('');
   const [draftLogo, setDraftLogo] = useState('');
   const [draftBanner, setDraftBanner] = useState('');
@@ -159,12 +162,13 @@ function ProfileEditModal({
     setDraftUsername(formatUsernameDisplay(slug, displayName));
     setDraftBio(String(bio || ''));
     setDraftCategory(String(category || ''));
+    setDraftCategoryId(String(categoryId || '').trim());
     setDraftLocation(String(location || ''));
     setDraftLogo(logoUrl || '');
     setDraftBanner(bannerUrl || '');
     setNameError('');
     setUsernameError('');
-  }, [open, brandName, slug, bio, category, location, logoUrl, bannerUrl]);
+  }, [open, brandName, slug, bio, category, categoryId, location, logoUrl, bannerUrl]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -197,6 +201,7 @@ function ProfileEditModal({
       slug: userResult.value,
       bio: draftBio.trim(),
       category: draftCategory.trim(),
+      categoryId: draftCategoryId.trim(),
       location: draftLocation.trim(),
       logoUrl: draftLogo,
       bannerUrl: draftBanner
@@ -384,31 +389,29 @@ function ProfileEditModal({
 
               {activeSection.id === 'discover' ? (
                 <div className="bb-social-profile-edit-section-body">
-                  <div className="bb-social-profile-edit-field-row">
-                    <label className="bb-social-profile-edit-field">
-                      <span className="bb-social-profile-edit-field-label">Category</span>
-                      <input
-                        className="bb-social-profile-edit-input"
-                        type="text"
-                        value={draftCategory}
-                        maxLength={40}
-                        placeholder="e.g. Bakery"
-                        onChange={(event) => setDraftCategory(event.target.value.slice(0, 40))}
-                      />
-                    </label>
-
-                    <label className="bb-social-profile-edit-field">
-                      <span className="bb-social-profile-edit-field-label">Location</span>
-                      <input
-                        className="bb-social-profile-edit-input"
-                        type="text"
-                        value={draftLocation}
-                        maxLength={60}
-                        placeholder="e.g. Cape Town"
-                        onChange={(event) => setDraftLocation(event.target.value.slice(0, 60))}
-                      />
-                    </label>
+                  <div className="bb-social-profile-edit-field">
+                    <span className="bb-social-profile-edit-field-label">Category</span>
+                    <BusinessCategoryPicker
+                      compact
+                      value={draftCategoryId}
+                      onChange={({ categoryId: nextId, label }) => {
+                        setDraftCategoryId(nextId);
+                        setDraftCategory(label);
+                      }}
+                    />
                   </div>
+
+                  <label className="bb-social-profile-edit-field">
+                    <span className="bb-social-profile-edit-field-label">Location</span>
+                    <input
+                      className="bb-social-profile-edit-input"
+                      type="text"
+                      value={draftLocation}
+                      maxLength={60}
+                      placeholder="e.g. Cape Town"
+                      onChange={(event) => setDraftLocation(event.target.value.slice(0, 60))}
+                    />
+                  </label>
                 </div>
               ) : null}
             </div>
@@ -438,6 +441,7 @@ export function SocialStudioCompose({
   bannerUrl = '',
   bio = '',
   category = '',
+  categoryId = '',
   location = '',
   pageVisible = true,
   onTogglePageVisible,
@@ -462,6 +466,7 @@ export function SocialStudioCompose({
     slug: nextSlug,
     bio: nextBio,
     category: nextCategory,
+    categoryId: nextCategoryId,
     location: nextLocation,
     logoUrl: nextLogo,
     bannerUrl: nextBanner
@@ -474,6 +479,7 @@ export function SocialStudioCompose({
       subcopy: nextBio,
       socialSubtext: nextBio,
       profileCategory: nextCategory,
+      categoryId: nextCategoryId || '',
       profileLocation: nextLocation,
       logoUrl: nextLogo,
       socialBannerUrl: nextBanner
@@ -585,6 +591,7 @@ export function SocialStudioCompose({
         bannerUrl={bannerUrl}
         bio={bio}
         category={category}
+        categoryId={categoryId}
         location={location}
         onSave={saveProfile}
       />

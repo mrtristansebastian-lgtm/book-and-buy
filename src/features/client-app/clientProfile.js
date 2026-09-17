@@ -19,6 +19,14 @@ export function emptyClientProfile(overrides = {}) {
     createdAt: Date.now(),
     isDemo: false,
     showActivityStatus: true,
+    exploreMode: 'local',
+    exploreMaxKm: 30,
+    exploreCategoryIds: [],
+    exploreSearchHistory: [],
+    clientLat: null,
+    clientLng: null,
+    clientCountryCode: '',
+    clientCity: '',
     ...overrides
   };
 }
@@ -63,6 +71,22 @@ export function readLocalClientProfile() {
       ...emptyClientProfile(),
       ...parsed,
       followedSlugs: Array.isArray(parsed.followedSlugs) ? parsed.followedSlugs : [],
+      exploreMode: parsed.exploreMode === 'international' ? 'international' : 'local',
+      exploreMaxKm: Number.isFinite(Number(parsed.exploreMaxKm))
+        ? Number(parsed.exploreMaxKm)
+        : 30,
+      exploreCategoryIds: Array.isArray(parsed.exploreCategoryIds)
+        ? parsed.exploreCategoryIds.map(String)
+        : [],
+      exploreSearchHistory: Array.isArray(parsed.exploreSearchHistory)
+        ? parsed.exploreSearchHistory.map(String).filter(Boolean).slice(0, 5)
+        : [],
+      clientLat: Number.isFinite(Number(parsed.clientLat)) ? Number(parsed.clientLat) : null,
+      clientLng: Number.isFinite(Number(parsed.clientLng)) ? Number(parsed.clientLng) : null,
+      clientCountryCode: String(parsed.clientCountryCode || '')
+        .trim()
+        .toUpperCase(),
+      clientCity: String(parsed.clientCity || '').trim(),
       ...normalizeEngagement(parsed)
     };
   } catch {
@@ -92,7 +116,13 @@ export function makeDemoClientProfile() {
     displayName: DEMO_CLIENT_NAME,
     followedSlugs: ['flameandflour'],
     isDemo: true,
-    uid: 'demo-client'
+    uid: 'demo-client',
+    exploreMode: 'local',
+    exploreMaxKm: 30,
+    clientLat: -33.9249,
+    clientLng: 18.4241,
+    clientCountryCode: 'ZA',
+    clientCity: 'Cape Town'
   });
 }
 

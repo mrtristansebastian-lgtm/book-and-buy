@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useAuth } from '../auth/AuthContext';
 import {
   clearLocalClientProfile,
+  emptyClientProfile,
   makeDemoClientProfile,
   normalizeEngagement,
   readLocalClientProfile,
@@ -288,6 +289,20 @@ export function ClientProfileProvider({ children }) {
     [profile, persist]
   );
 
+  const updateExplorePrefs = useCallback(
+    (patch = {}) => {
+      if (!profile) {
+        const seeded = persist({
+          ...emptyClientProfile({ isDemo: true }),
+          ...patch
+        });
+        return seeded;
+      }
+      return persist({ ...profile, ...patch });
+    },
+    [profile, persist]
+  );
+
   const value = useMemo(
     () => ({
       profile,
@@ -300,6 +315,7 @@ export function ClientProfileProvider({ children }) {
       unfollowSlug,
       bootstrapClientAfterAuth,
       updateClientProfile,
+      updateExplorePrefs,
       isLiked,
       getReaction,
       isSaved,
@@ -319,6 +335,7 @@ export function ClientProfileProvider({ children }) {
       unfollowSlug,
       bootstrapClientAfterAuth,
       updateClientProfile,
+      updateExplorePrefs,
       isLiked,
       getReaction,
       isSaved,

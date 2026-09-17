@@ -201,13 +201,27 @@ export interface WebsiteFaqItem {
   a?: string;
 }
 
+export type VenueMode = "physical" | "online" | "hybrid";
+
 export interface WebsiteSettings {
   homeHeadline?: string;
   homeSubtext?: string;
+  /** Preset industry id from businessCategories.js */
+  categoryId?: string;
   /** Instagram-style business category under the profile name. */
   profileCategory?: string;
   /** Short location line under the profile name (e.g. city). */
   profileLocation?: string;
+  /** How clients discover this business geographically. */
+  venueMode?: VenueMode;
+  locationLat?: number | null;
+  locationLng?: number | null;
+  /** ISO-3166-1 alpha-2 */
+  countryCode?: string;
+  region?: string;
+  city?: string;
+  /** Online/hybrid: countries served; include "*" for worldwide. */
+  servesCountries?: string[];
   headline?: string;
   subcopy?: string;
   bookHeadline?: string;

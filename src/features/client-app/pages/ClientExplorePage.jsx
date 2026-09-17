@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useState } from 'react';
-import { MessageCircle, Play, Search, UserPlus, UserCheck } from 'lucide-react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
+import { MessageCircle, Play, UserPlus, UserCheck } from 'lucide-react';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { getFirebase, isFirebaseConfigured } from '../../../shared/firebase/client';
 import { artifactRoot } from '../../../shared/firebase/paths';
 import { loadPublicWorkspaceFromFirestore } from '../../../shared/firebase/publicWorkspace';
+import { formatDistanceKm } from '../../../shared/geo/haversine';
 import { EmptyState } from '../../../shared/ui/EmptyState';
 import { BlankMedia } from '../../../shared/ui/BlankMedia';
+import { AppSheet } from '../../../shared/ui/AppSheet';
 import { getPostMediaItems, getSocialPostKind } from '../../social/utils/socialPostType';
 import { SocialVideosPanel } from '../../social/components/SocialVideosPanel';
 import { SocialTextTimeline } from '../../social/components/SocialTextTimeline';
 import { SocialPostFeed } from '../../social/components/SocialPostFeed';
 import { VerticalWatchPage } from '../../social/components/VerticalWatchPage';
+import { PlaceLocationField } from '../../social/components/PlaceLocationField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { ClientDeskLayout } from '../ClientDeskLayout';
@@ -20,6 +23,8 @@ import { useClientProfile } from '../ClientProfileContext';
 import { annotateSocialPosts } from '../ClientSocialShelf';
 import { ClientEngagementBar, wrapClientMediaReaction } from '../ClientEngagementBar';
 import { startClientMessage } from '../startClientMessage';
+import { ExploreDiscoveryBar } from '../ExploreDiscoveryBar';
+import { filterDiscoverBusinesses, normalizeBiz } from '../exploreDiscovery';
 
 const FILTER_KIND = {
   posts: 'image',
@@ -27,18 +32,6 @@ const FILTER_KIND = {
   verticals: 'vertical',
   text: 'text'
 };
-
-function normalizeBiz(raw = {}) {
-  const slug = String(raw.slug || raw.id || '').trim();
-  if (!slug) return null;
-  return {
-    slug,
-    ownerId: String(raw.ownerId || '').trim(),
-    brandName: String(raw.brandName || raw.name || slug).trim() || slug,
-    blurb: String(raw.tagline || raw.blurb || raw.about || '').trim(),
-    logoUrl: raw.logoUrl || raw.logo || ''
-  };
-}
 
 function tileMedia(post) {
   const kind = getSocialPostKind(post);
@@ -54,10 +47,10 @@ function tileMedia(post) {
   return { kind, thumb, caption: String(post.caption || post.title || '').trim() };
 }
 
-/** Instagram Explore: search, chip filters, dense media grid. */
+/** Instagram Explore: discovery filters + dense media grid. */
 export function ClientExplorePage() {
   const { workspace, startThreadFromClient } = useWorkspace();
-  const { profile, followSlug, unfollowSlug } = useClientProfile();
+  const { profile, followSlug, unfollowSlug, updateExplorePrefs } = useClientProfile();
   const [queryText, setQueryText] = useState('');
   const [filter, setFilter] = useState('posts');
   const [remote, setRemote] = useState([]);
@@ -65,7 +58,19 @@ export function ClientExplorePage() {
   const [activeId, setActiveId] = useState('');
   const [activeVerticalId, setActiveVerticalId] = useState('');
   const [messagingSlug, setMessagingSlug] = useState('');
+  const [geoStatus, setGeoStatus] = useState('idle');
+  const [placeSheetOpen, setPlaceSheetOpen] = useState(false);
   const isDemo = Boolean(workspace?.isDemo || profile?.isDemo);
+
+  const exploreMode = profile?.exploreMode === 'international' ? 'international' : 'local';
+  const exploreMaxKm = Number(profile?.exploreMaxKm) || 30;
+  const exploreCategoryIds = Array.isArray(profile?.exploreCategoryIds)
+    ? profile.exploreCategoryIds
+    : [];
+  const clientLat = Number.isFinite(Number(profile?.clientLat)) ? Number(profile.clientLat) : null;
+  const clientLng = Number.isFinite(Number(profile?.clientLng)) ? Number(profile.clientLng) : null;
+  const clientCountryCode = String(profile?.clientCountryCode || '').trim().toUpperCase();
+  const clientCity = String(profile?.clientCity || '').trim();
 
   const messageBiz = async (biz) => {
     if (!biz?.slug) return;
@@ -85,6 +90,45 @@ export function ClientExplorePage() {
       setMessagingSlug('');
     }
   };
+
+  const requestGeo = () => {
+    if (!navigator?.geolocation) {
+      setGeoStatus('error');
+      setPlaceSheetOpen(true);
+      return;
+    }
+    setGeoStatus('loading');
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        updateExplorePrefs({
+          clientLat: pos.coords.latitude,
+          clientLng: pos.coords.longitude
+        });
+        setGeoStatus('ready');
+      },
+      () => {
+        setGeoStatus('denied');
+        setPlaceSheetOpen(true);
+      },
+      { enableHighAccuracy: false, timeout: 12000, maximumAge: 120000 }
+    );
+  };
+
+  useEffect(() => {
+    if (clientLat != null && clientLng != null) {
+      setGeoStatus('ready');
+      return;
+    }
+    if (isDemo) {
+      updateExplorePrefs({
+        clientLat: -33.9249,
+        clientLng: 18.4241,
+        clientCountryCode: clientCountryCode || 'ZA',
+        clientCity: clientCity || 'Cape Town'
+      });
+      setGeoStatus('ready');
+    }
+  }, [clientLat, clientLng, isDemo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let cancelled = false;
@@ -118,8 +162,9 @@ export function ClientExplorePage() {
         slug: localSlug,
         ownerId: workspace?.ownerId || workspace?.id || '',
         brandName: workspace?.brandName || localSlug,
-        blurb: workspace?.website?.hero?.subhead || workspace?.tagline || '',
-        logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl
+        tagline: workspace?.tagline || '',
+        logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl,
+        website: workspace?.website || {}
       });
       if (local) map.set(local.slug, local);
     }
@@ -128,15 +173,51 @@ export function ClientExplorePage() {
       map.set(biz.slug, biz);
     });
     if (isDemo && !map.has('flameandflour')) {
-      map.set('flameandflour', {
-        slug: 'flameandflour',
-        brandName: 'Flame & Flour',
-        blurb: 'Artisan bakery · book tastings, buy boxes.',
-        logoUrl: ''
-      });
+      map.set(
+        'flameandflour',
+        normalizeBiz({
+          slug: 'flameandflour',
+          brandName: 'Flame & Flour',
+          tagline: 'Artisan bakery · book tastings, buy boxes.',
+          categoryId: 'cooking_classes',
+          categoryLabel: 'Cooking classes & culinary studios',
+          venueMode: 'hybrid',
+          locationLat: -33.9285,
+          locationLng: 18.4574,
+          countryCode: 'ZA',
+          city: 'Cape Town',
+          servesCountries: ['ZA', '*']
+        })
+      );
     }
     return [...map.values()];
   }, [workspace, remote, isDemo]);
+
+  const discovered = useMemo(
+    () =>
+      filterDiscoverBusinesses(directory, {
+        mode: exploreMode,
+        maxKm: exploreMaxKm,
+        categoryIds: exploreCategoryIds,
+        clientLat,
+        clientLng,
+        clientCountryCode
+      }),
+    [
+      directory,
+      exploreMode,
+      exploreMaxKm,
+      exploreCategoryIds,
+      clientLat,
+      clientLng,
+      clientCountryCode
+    ]
+  );
+
+  const discoveredSlugs = useMemo(
+    () => new Set(discovered.map((biz) => biz.slug)),
+    [discovered]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -182,8 +263,18 @@ export function ClientExplorePage() {
   const filterKind = FILTER_KIND[filter] || FILTER_KIND.posts;
   const filteredPosts = useMemo(() => {
     const needle = queryText.trim().toLowerCase();
+    const discoveryActive =
+      exploreCategoryIds.length > 0 ||
+      exploreMode === 'international' ||
+      (exploreMode === 'local' && clientLat != null);
+
     return catalog
       .filter((post) => getSocialPostKind(post) === filterKind)
+      .filter((post) => {
+        if (!discoveryActive) return true;
+        const slug = post._slug || '';
+        return !slug || discoveredSlugs.has(slug);
+      })
       .filter((post) => {
         if (!needle) return true;
         const hay = `${post._brandName || ''} ${post.caption || ''} ${post.title || ''} ${
@@ -191,16 +282,30 @@ export function ClientExplorePage() {
         }`.toLowerCase();
         return hay.includes(needle);
       });
-  }, [catalog, filterKind, queryText]);
+  }, [
+    catalog,
+    filterKind,
+    queryText,
+    discoveredSlugs,
+    exploreCategoryIds,
+    exploreMode,
+    clientLat
+  ]);
 
   const accountHits = useMemo(() => {
     const needle = queryText.trim().toLowerCase();
-    if (!needle) return [];
-    return directory.filter(
-      (biz) =>
-        biz.brandName.toLowerCase().includes(needle) || biz.slug.toLowerCase().includes(needle)
-    );
-  }, [directory, queryText]);
+    const pool = needle ? directory : discovered;
+    return pool
+      .filter((biz) => {
+        if (!needle) return true;
+        return (
+          biz.brandName.toLowerCase().includes(needle) ||
+          biz.slug.toLowerCase().includes(needle) ||
+          (biz.categoryLabel || '').toLowerCase().includes(needle)
+        );
+      })
+      .slice(0, needle ? 12 : 8);
+  }, [directory, discovered, queryText]);
 
   const followed = new Set(profile?.followedSlugs || []);
   const activePost = filteredPosts.find((post) => post.id === activeId) || null;
@@ -321,17 +426,33 @@ export function ClientExplorePage() {
     return (
       <>
         <div className="bb-client-ig-top">
-          <label className="bb-client-ig-search">
-            <Search size={15} strokeWidth={2.2} aria-hidden="true" />
-            <input
-              type="search"
-              placeholder="Search"
-              value={queryText}
-              onChange={(event) => setQueryText(event.target.value)}
-              autoCapitalize="none"
-              autoCorrect="off"
-            />
-          </label>
+          <ExploreDiscoveryBar
+            mode={exploreMode}
+            maxKm={exploreMaxKm}
+            categoryIds={exploreCategoryIds}
+            queryText={queryText}
+            searchHistory={
+              Array.isArray(profile?.exploreSearchHistory) ? profile.exploreSearchHistory : []
+            }
+            clientCity={clientCity}
+            clientCountryCode={clientCountryCode}
+            geoStatus={geoStatus}
+            onModeChange={(mode) =>
+              startTransition(() => updateExplorePrefs({ exploreMode: mode }))
+            }
+            onMaxKmChange={(km) =>
+              startTransition(() => updateExplorePrefs({ exploreMaxKm: km }))
+            }
+            onCategoryIdsChange={(ids) =>
+              startTransition(() => updateExplorePrefs({ exploreCategoryIds: ids }))
+            }
+            onQueryChange={(value) => startTransition(() => setQueryText(value))}
+            onSearchHistoryChange={(history) =>
+              updateExplorePrefs({ exploreSearchHistory: history })
+            }
+            onRequestGeo={requestGeo}
+            onPickManualLocation={() => setPlaceSheetOpen(true)}
+          />
 
           <div className="bb-client-ig-chips bb-client-desk-mobile-tabs" role="tablist" aria-label="Content type">
             {['posts', 'films', 'verticals', 'text'].map((id) => {
@@ -354,7 +475,10 @@ export function ClientExplorePage() {
         </div>
 
         {accountHits.length ? (
-          <div className="bb-client-ig-accounts">
+          <div className="bb-client-ig-accounts" aria-label="Places">
+            <p className="bb-explore-places-label">
+              {exploreMode === 'local' ? 'Places near you' : 'Ships / books to you'}
+            </p>
             {accountHits.map((biz) => {
               const isFollowed = followed.has(biz.slug);
               return (
@@ -373,7 +497,15 @@ export function ClientExplorePage() {
                     </span>
                     <span>
                       <strong>{biz.brandName}</strong>
-                      <span className="bb-muted">{biz.blurb || `@${biz.slug}`}</span>
+                      <span className="bb-muted">
+                        {[
+                          biz.categoryLabel,
+                          biz.city,
+                          formatDistanceKm(biz.distanceKm)
+                        ]
+                          .filter(Boolean)
+                          .join(' · ') || biz.blurb || `@${biz.slug}`}
+                      </span>
                     </span>
                   </button>
                   <div className="bb-client-home-head-actions">
@@ -399,15 +531,42 @@ export function ClientExplorePage() {
               );
             })}
           </div>
+        ) : exploreMode === 'local' && (clientLat == null || discovered.length === 0) ? (
+          <EmptyState
+            compact
+            title={clientLat == null ? 'Share your location' : 'No places in range'}
+            description={
+              clientLat == null
+                ? 'Turn on location or pick a city to see Nearby businesses.'
+                : 'Widen the distance ring or try International for online businesses.'
+            }
+            action={
+              clientLat == null ? (
+                <button type="button" className="bb-primary-btn" onClick={requestGeo}>
+                  Use my location
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="bb-primary-btn"
+                  onClick={() => updateExplorePrefs({ exploreMode: 'international' })}
+                >
+                  Try International
+                </button>
+              )
+            }
+          />
         ) : null}
 
-        {filteredPosts.length === 0 ? (
+        {filteredPosts.length === 0 &&
+        accountHits.length === 0 &&
+        !(exploreMode === 'local' && (clientLat == null || discovered.length === 0)) ? (
           <EmptyState
             compact
             title="Nothing to explore yet"
             description="When businesses publish posts, films, and verticals, they show up here."
           />
-        ) : filter === 'films' ? (
+        ) : filteredPosts.length === 0 ? null : filter === 'films' ? (
           <div className="bb-client-home-yt bb-client-explore-yt">
             <SocialVideosPanel
               posts={filteredPosts}
@@ -471,6 +630,30 @@ export function ClientExplorePage() {
             })}
           </div>
         )}
+
+        {placeSheetOpen ? (
+          <AppSheet
+            onClose={() => setPlaceSheetOpen(false)}
+            title="Set your location"
+            lede="Used for Nearby distance. We only store it on this device profile."
+          >
+            <PlaceLocationField
+              label="City or address"
+              placeholder="Search a place near you"
+              onChange={(place) => {
+                if (!place) return;
+                updateExplorePrefs({
+                  clientLat: place.lat || null,
+                  clientLng: place.lng || null,
+                  clientCountryCode: place.countryCode || '',
+                  clientCity: place.city || place.label || ''
+                });
+                setGeoStatus(place.lat ? 'ready' : 'error');
+                if (place.lat) setPlaceSheetOpen(false);
+              }}
+            />
+          </AppSheet>
+        ) : null}
       </>
     );
   })();

@@ -64,6 +64,7 @@ export function SocialStudioPage() {
               ''
             }
             category={website.profileCategory || ''}
+            categoryId={website.categoryId || ''}
             location={website.profileLocation || ''}
             pageVisible={socialVisible}
             onTogglePageVisible={toggleSocialVisible}

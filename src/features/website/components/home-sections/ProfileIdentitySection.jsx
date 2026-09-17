@@ -1,5 +1,7 @@
 import { EditableText, EditableImage, EditSection } from '../editable';
 import { formatUsernameDisplay } from '../../../social/utils/instagramUsername';
+import { BusinessCategoryPicker } from '../../../shared/BusinessCategoryPicker';
+import { categoryLabel } from '../../../../config/businessCategories';
 
 function messageHref(workspace) {
   const email = String(workspace.email || '').trim();
@@ -24,7 +26,9 @@ export function ProfileIdentitySection({
     website.subcopy ||
     workspace.tagline ||
     '';
-  const category = String(website.profileCategory || '').trim();
+  const category = String(
+    website.profileCategory || categoryLabel(website.categoryId) || ''
+  ).trim();
   const location = String(
     website.profileLocation || website.address || ''
   ).trim();
@@ -99,14 +103,13 @@ export function ProfileIdentitySection({
               <div className="bb-public-profile-meta">
                 {showCategory ? (
                   <span className="bb-public-profile-chip bb-public-profile-chip--category">
-                    <EditableText
-                      as="span"
-                      className="bb-public-profile-category"
-                      editMode={editMode}
-                      value={category}
-                      placeholder="Category"
-                      onChange={(value) => patchWebsite({ profileCategory: value })}
-                    />
+                    {editMode ? (
+                      <span className="bb-public-profile-category">
+                        {category || 'Pick a category'}
+                      </span>
+                    ) : (
+                      <span className="bb-public-profile-category">{category}</span>
+                    )}
                   </span>
                 ) : null}
                 {showLocation ? (
@@ -125,6 +128,18 @@ export function ProfileIdentitySection({
                     />
                   </span>
                 ) : null}
+              </div>
+            ) : null}
+
+            {editMode ? (
+              <div className="bb-public-profile-cat-edit">
+                <BusinessCategoryPicker
+                  compact
+                  value={website.categoryId || ''}
+                  onChange={({ categoryId, label }) =>
+                    patchWebsite({ categoryId, profileCategory: label })
+                  }
+                />
               </div>
             ) : null}
 
