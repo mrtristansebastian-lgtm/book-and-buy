@@ -47,9 +47,24 @@ export function ExploreBusinessOffers({
             </span>
             <span className="bb-explore-biz-card-head-copy">
               <strong>{biz.brandName}</strong>
-              {biz.blurb ? <span className="bb-find-biz-bio">{biz.blurb}</span> : null}
-              {biz.locationLabel ? <span className="bb-find-biz-location">{biz.locationLabel}</span> : null}
-              {biz.categoryLabel ? <span className="bb-find-biz-category">{biz.categoryLabel}</span> : null}
+              {biz.categoryLabel || biz.locationLabel ? (
+                <span className="bb-public-profile-meta bb-find-biz-profile-meta">
+                  {biz.categoryLabel ? (
+                    <span className="bb-public-profile-chip bb-public-profile-chip--category">
+                      <span className="bb-public-profile-category">{biz.categoryLabel}</span>
+                    </span>
+                  ) : null}
+                  {biz.locationLabel ? (
+                    <span className="bb-public-profile-chip bb-public-profile-chip--location">
+                      <span className="bb-public-profile-chip-icon" aria-hidden="true" />
+                      <span className="bb-public-profile-location">{biz.locationLabel}</span>
+                    </span>
+                  ) : null}
+                </span>
+              ) : null}
+              {biz.distanceLabel ? (
+                <span className="bb-find-biz-distance">{biz.distanceLabel} from you</span>
+              ) : null}
             </span>
           </button>
 

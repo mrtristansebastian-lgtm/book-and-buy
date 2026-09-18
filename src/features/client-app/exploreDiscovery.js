@@ -49,6 +49,25 @@ export function normalizeBiz(raw = {}) {
   };
 }
 
+/** The shared category/location values shown on public and Find business profiles. */
+export function getBusinessProfileMeta(biz = {}) {
+  const category = String(biz.categoryLabel || '').trim();
+  const onlineOnly = String(biz.venueMode || '').trim() === 'online';
+  const location = onlineOnly
+    ? 'Online'
+    : String(biz.city || biz.address || '').trim();
+
+  return { category, location, onlineOnly };
+}
+
+/** A compact text fallback for places rows. Find offer cards use the profile badges instead. */
+export function formatBusinessCategoryLocation(biz = {}) {
+  const { category, location, onlineOnly } = getBusinessProfileMeta(biz);
+
+  if (category && location) return onlineOnly ? `${category} · ${location}` : `${category} in ${location}`;
+  return category || location;
+}
+
 /** Item-level Explore tags are deliberately independent from business profile categories. */
 export function itemMatchesExploreCategories(item = {}, expandedCategoryIds = null) {
   if (!expandedCategoryIds) return true;

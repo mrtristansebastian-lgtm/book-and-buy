@@ -4601,36 +4601,30 @@
   font-weight: 760;
 }
 
-.bb-find-biz-bio {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  color: #475467;
-  font-size: 0.64rem;
-  font-weight: 560;
-  line-height: 1.25;
+.bb-client-ig-explore.is-find .bb-find-biz-profile-meta {
+  width: 100%;
+  max-width: 100%;
+  gap: 0.25rem;
+  margin-top: 0.05rem;
 }
 
-.bb-find-biz-location {
-  color: #667085;
-  font-size: 0.62rem;
-  font-weight: 650;
-  line-height: 1.2;
+.bb-client-ig-explore.is-find .bb-find-biz-profile-meta .bb-public-profile-chip {
+  max-width: 100%;
 }
 
-.bb-find-biz-category {
-  display: -webkit-box;
+.bb-client-ig-explore.is-find .bb-find-biz-profile-meta .bb-public-profile-category,
+.bb-client-ig-explore.is-find .bb-find-biz-profile-meta .bb-public-profile-location {
   max-width: 100%;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  color: #344054;
-  font-size: 0.58rem;
-  font-weight: 780;
-  letter-spacing: 0.055em;
-  line-height: 1.2;
-  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-find-biz-distance {
+  color: #667085;
+  font-size: 0.6rem;
+  font-weight: 650;
+  line-height: 1.15;
 }
 
 .bb-client-ig-explore.is-find .bb-explore-biz-preview.bb-public-product-grid {

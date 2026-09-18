@@ -31,6 +31,8 @@ import { ExploreDiscoveryBar } from '../ExploreDiscoveryBar';
 import { ExploreBusinessOffers } from '../ExploreBusinessOffers';
 import {
   filterDiscoverBusinesses,
+  formatBusinessCategoryLocation,
+  getBusinessProfileMeta,
   itemMatchesExploreCategories,
   normalizeBiz
 } from '../exploreDiscovery';
@@ -379,6 +381,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
 
     return discovered
       .map((biz) => {
+        const profileMeta = getBusinessProfileMeta(biz);
         const bag = offerCatalogBySlug[biz.slug] || {};
         const raw = wantServices
           ? (Array.isArray(bag.services) ? bag.services : []).filter(
@@ -413,11 +416,9 @@ export function ClientExplorePage({ mediaOnly = false }) {
           brandName: bag.brandName || biz.brandName,
           logoUrl: bag.logoUrl || biz.logoUrl || '',
           heroImageUrl: biz.heroImageUrl || '',
-          blurb: biz.blurb || '',
-          locationLabel: [biz.city, formatDistanceKm(biz.distanceKm)]
-            .filter(Boolean)
-            .join(' · '),
-          categoryLabel: biz.categoryLabel || '',
+          categoryLabel: profileMeta.category,
+          locationLabel: profileMeta.location,
+          distanceLabel: profileMeta.onlineOnly ? '' : formatDistanceKm(biz.distanceKm),
           items
         };
       })
@@ -655,13 +656,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
                     <span>
                       <strong>{biz.brandName}</strong>
                       <span className="bb-muted">
-                        {[
-                          biz.categoryLabel,
-                          biz.city,
-                          formatDistanceKm(biz.distanceKm)
-                        ]
-                          .filter(Boolean)
-                          .join(' · ') || biz.blurb || `@${biz.slug}`}
+                        {formatBusinessCategoryLocation(biz) || biz.blurb || biz.brandName}
                       </span>
                     </span>
                   </button>
