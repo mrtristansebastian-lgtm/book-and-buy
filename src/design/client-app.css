@@ -4630,10 +4630,16 @@
 
 .bb-client-ig-explore.is-find .bb-explore-biz-preview {
   display: grid;
-  grid-template-columns: repeat(3, minmax(9rem, 12rem));
+  grid-template-columns: repeat(3, 12.5rem);
+  grid-auto-rows: 12.5rem;
   justify-content: start;
   gap: 0.45rem;
   min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 0.1rem;
+  padding: 0.05rem 0.45rem 0.2rem 0.05rem;
 }
 
 .bb-find-offer-preview {
@@ -4645,6 +4651,7 @@
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 0;
   background: #fff;
+  scroll-snap-align: start;
 }
 
 .bb-find-offer-preview-hit {
