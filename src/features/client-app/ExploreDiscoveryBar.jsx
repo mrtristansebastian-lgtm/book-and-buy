@@ -97,7 +97,7 @@ function modeKeyFromChip(id) {
   return 'all';
 }
 
-function PickCell({ icon: Icon, label, selected = false, onClick, size = 20 }) {
+function PickCell({ label, selected = false, onClick }) {
   return (
     <button
       type="button"
@@ -105,16 +105,13 @@ function PickCell({ icon: Icon, label, selected = false, onClick, size = 20 }) {
       aria-pressed={selected}
       onClick={onClick}
     >
-      <span className="bb-explore-pick-icon" aria-hidden="true">
-        <Icon size={size} strokeWidth={1.75} />
-      </span>
       <span className="bb-explore-pick-label">{label}</span>
     </button>
   );
 }
 
 /**
- * Wizard discovery: Book/Buy/Both → categories → subcategories as matching tiles.
+ * Wizard discovery: Book/Buy/Both → categories → subcategories as matching pills.
  * Every tile becomes a removable pill; Done & Search closes with current filters.
  */
 export function ExploreDiscoveryBar({
@@ -198,12 +195,10 @@ export function ExploreDiscoveryBar({
   const renderGroupGrid = (groups) => (
     <div className="bb-explore-pick-grid">
       {groups.map((group) => {
-        const Icon = GROUP_ICONS[group.icon] || Sparkles;
         const chipId = `group:${group.id}`;
         return (
           <PickCell
             key={group.id}
-            icon={Icon}
             label={group.label}
             selected={selected.has(chipId)}
             onClick={() => pickGroup(group.id)}
@@ -347,7 +342,6 @@ export function ExploreDiscoveryBar({
 
   const hasChips = selectedList.length > 0;
   const showPanel = open;
-  const groupIcon = activeGroup ? GROUP_ICONS[activeGroup.icon] || Sparkles : Sparkles;
   const stepTitle =
     step === 'mode'
       ? 'Book or buy?'
@@ -614,13 +608,10 @@ export function ExploreDiscoveryBar({
               ) : step === 'mode' ? (
                 <div className="bb-explore-pick-grid bb-explore-pick-modes-grid">
                   {EXPLORE_MODE_FILTERS.map((item) => {
-                    const Icon = MODE_ICONS[item.mode] || Sparkles;
                     return (
                       <PickCell
                         key={item.id}
-                        icon={Icon}
                         label={item.label}
-                        size={22}
                         selected={selected.has(item.id)}
                         onClick={() => pickMode(item.id)}
                       />
@@ -648,7 +639,6 @@ export function ExploreDiscoveryBar({
                   {leafCategories.map((item) => (
                     <PickCell
                       key={item.id}
-                      icon={groupIcon}
                       label={item.label}
                       selected={selected.has(item.id)}
                       onClick={() => toggleLeaf(item.id)}

@@ -1065,8 +1065,8 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   max-width: 45%;
   padding: 0.35rem 0.55rem;
   border-radius: 999px;
-  background: rgba(199, 255, 205, 0.55);
-  color: #101828;
+  background: #f2f4f7;
+  color: #344054;
   font-size: 0.72rem;
   font-weight: 750;
   text-align: right;
@@ -1085,9 +1085,9 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 }
 
 .bb-explore-category-main-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
 }
 
 .bb-explore-category-main,
@@ -1097,37 +1097,51 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   align-items: center;
   justify-content: space-between;
   gap: 0.45rem;
-  width: 100%;
-  min-height: 2.6rem;
-  padding: 0.55rem 0.65rem;
+  width: auto;
+  min-height: 2.2rem;
+  padding: 0.42rem 0.72rem;
   border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 0.7rem;
+  border-radius: 999px;
   background: #fff;
   color: #344054;
   font: inherit;
-  font-size: 0.78rem;
-  font-weight: 720;
+  font-size: 0.74rem;
+  font-weight: 740;
   text-align: left;
   cursor: pointer;
 }
 
+.bb-explore-category-main {
+  color: #475467;
+}
+
+.bb-explore-category-main:hover,
+.bb-explore-category-sub:hover {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #f8fafc;
+  color: #101828;
+}
+
+.bb-explore-category-main:focus-visible,
+.bb-explore-category-sub:focus-visible {
+  outline: 2px solid rgba(15, 23, 42, 0.42);
+  outline-offset: 2px;
+}
+
 .bb-explore-category-main.is-active,
 .bb-explore-category-sub.is-active {
-  border-color: transparent;
-  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  background-size: auto, 420% 420%;
-  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  border-color: #101828;
+  background: #f2f4f7;
   color: #101828;
 }
 
 .bb-explore-category-sub-list {
-  display: grid;
-  gap: 0.35rem;
-  max-height: 15.2rem;
-  overflow-y: auto;
-  padding-right: 0.15rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
 }
 
 .bb-explore-category-empty {
@@ -1247,7 +1261,7 @@ html body .native-ui .bb-services-sheet .bb-services-sheet-title {
   }
 
   .bb-explore-category-main-grid {
-    grid-template-columns: 1fr;
+    gap: 0.38rem;
   }
 
   .bb-explore-category-sub-list {

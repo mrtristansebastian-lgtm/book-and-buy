@@ -47,7 +47,9 @@ export function ExploreBusinessOffers({
             </span>
             <span className="bb-explore-biz-card-head-copy">
               <strong>{biz.brandName}</strong>
-              {biz.meta ? <span className="bb-muted">{biz.meta}</span> : null}
+              {biz.blurb ? <span className="bb-find-biz-bio">{biz.blurb}</span> : null}
+              {biz.locationLabel ? <span className="bb-find-biz-location">{biz.locationLabel}</span> : null}
+              {biz.categoryLabel ? <span className="bb-find-biz-category">{biz.categoryLabel}</span> : null}
             </span>
           </button>
 

@@ -1,12 +1,9 @@
-import * as Icons from 'lucide-react';
 import {
   categoriesInGroup,
   categoryLabel,
   groupsForExploreMode,
   isValidExploreCategoryPair
 } from '../../config/businessCategories';
-
-const FallbackIcon = Icons.Tags;
 
 /** Curated, item-level classification used only by individual Explore. */
 export function ExploreCategoryPicker({ mode, value = {}, onChange, itemLabel = 'item', optional = false }) {
@@ -47,7 +44,6 @@ export function ExploreCategoryPicker({ mode, value = {}, onChange, itemLabel = 
           <span className="bb-explore-category-label">1. Main category</span>
           <div className="bb-explore-category-main-grid">
             {groups.map((group) => {
-              const Icon = Icons[group.icon] || FallbackIcon;
               const selected = group.id === mainId;
               return (
                 <button
@@ -57,7 +53,6 @@ export function ExploreCategoryPicker({ mode, value = {}, onChange, itemLabel = 
                   aria-pressed={selected}
                   onClick={() => chooseMain(group.id)}
                 >
-                  <Icon size={17} strokeWidth={2} aria-hidden="true" />
                   <span>{group.label}</span>
                 </button>
               );
@@ -81,7 +76,6 @@ export function ExploreCategoryPicker({ mode, value = {}, onChange, itemLabel = 
                     onClick={() => onChange?.({ exploreMainCategoryId: mainId, exploreSubcategoryId: leaf.id })}
                   >
                     <span>{leaf.label}</span>
-                    {selected ? <Icons.Check size={16} strokeWidth={2.6} aria-hidden="true" /> : null}
                   </button>
                 );
               })}

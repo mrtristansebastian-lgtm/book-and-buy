@@ -413,9 +413,11 @@ export function ClientExplorePage({ mediaOnly = false }) {
           brandName: bag.brandName || biz.brandName,
           logoUrl: bag.logoUrl || biz.logoUrl || '',
           heroImageUrl: biz.heroImageUrl || '',
-          meta: [biz.categoryLabel, biz.city, formatDistanceKm(biz.distanceKm)]
+          blurb: biz.blurb || '',
+          locationLabel: [biz.city, formatDistanceKm(biz.distanceKm)]
             .filter(Boolean)
             .join(' · '),
+          categoryLabel: biz.categoryLabel || '',
           items
         };
       })
