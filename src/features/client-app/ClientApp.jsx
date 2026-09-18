@@ -31,7 +31,8 @@ export function ClientApp({ section = 'home', rest = [] }) {
     return <ClientAuthPage />;
   }
 
-  if (section === 'explore') return <ClientExplorePage />;
+  if (section === 'find') return <ClientExplorePage />;
+  if (section === 'explore') return <ClientExplorePage mediaOnly />;
   if (section === 'messages') return <ClientMessagesPage threadId={rest[0] || ''} />;
   if (section === 'account') {
     return <ClientAccountPage section={rest[0] || ''} />;

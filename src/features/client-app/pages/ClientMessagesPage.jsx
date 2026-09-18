@@ -271,9 +271,9 @@ export function ClientMessagesPage({ threadId = '' }) {
                     <button
                       type="button"
                       className="bb-primary-btn mt-3"
-                      onClick={() => navigate('/app/explore')}
+                      onClick={() => navigate('/app/find')}
                     >
-                      Explore
+                      Find businesses
                     </button>
                   ) : null}
                 </div>

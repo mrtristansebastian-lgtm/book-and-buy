@@ -93,8 +93,8 @@ export function ClientHomePage() {
           title="Your feed is quiet"
           description="Follow businesses in Explore to see their posts, films, verticals, and notes here."
           action={
-            <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/explore')}>
-              Explore
+            <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/find')}>
+              Find businesses
             </button>
           }
         />
@@ -102,8 +102,8 @@ export function ClientHomePage() {
         <ClientHomeFeed
           posts={posts}
           emptyCta={
-            <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/explore')}>
-              Explore
+            <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/find')}>
+              Find businesses
             </button>
           }
         />

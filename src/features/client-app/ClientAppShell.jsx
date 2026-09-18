@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Compass, Home, MessageCircle, UserRound } from 'lucide-react';
+import { Compass, Home, MessageCircle, Search, UserRound } from 'lucide-react';
 import { clientAppPath, navigate } from '../../app/routing';
 import { BrandMark } from '../../shared/ui/BrandMark';
 
 const TABS = [
   { id: 'home', label: 'Home', icon: Home, path: '/app/home' },
+  { id: 'find', label: 'Find', icon: Search, path: '/app/find' },
   { id: 'explore', label: 'Explore', icon: Compass, path: '/app/explore' },
   { id: 'messages', label: 'Messages', icon: MessageCircle, path: '/app/messages' },
   { id: 'account', label: 'Account', icon: UserRound, path: '/app/account' }

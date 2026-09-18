@@ -15,15 +15,18 @@ function copyFor(post) {
 
 /** One latest matching piece of content per business keeps Explore balanced. */
 export function ExploreBusinessContent({ posts = [], kind = 'posts', onOpen }) {
-  const latestByBusiness = new Map();
+  const byBusiness = new Map();
   posts.forEach((post) => {
     const key = post._slug || post._brandName || post.id;
-    if (!latestByBusiness.has(key)) latestByBusiness.set(key, post);
+    const group = byBusiness.get(key) || [];
+    group.push(post);
+    byBusiness.set(key, group);
   });
 
   return (
     <div className={`bb-explore-content-list bb-explore-content-list--${kind}`}>
-      {[...latestByBusiness.values()].map((post) => {
+      {[...byBusiness.values()].map((businessPosts) => {
+        const post = businessPosts[0];
         const media = imageFor(post);
         const postKind = getSocialPostKind(post);
         const isFilm = postKind === 'video';
@@ -38,7 +41,25 @@ export function ExploreBusinessContent({ posts = [], kind = 'posts', onOpen }) {
                 <span>{post._slug ? `@${post._slug}` : 'Latest post'}</span>
               </span>
             </button>
-            <button type="button" className="bb-explore-content-preview" onClick={() => onOpen?.(post)}>
+            {kind === 'posts' ? (
+              <div className="bb-explore-content-media-rail" aria-label={`Latest from ${post._brandName || 'business'}`}>
+                {businessPosts.slice(0, 3).map((item) => {
+                  const itemMedia = imageFor(item);
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="bb-explore-content-image-preview"
+                      onClick={() => onOpen?.(item)}
+                      aria-label={copyFor(item)}
+                    >
+                      {itemMedia ? <img src={itemMedia} alt="" /> : <BlankMedia variant="square" />}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <button type="button" className="bb-explore-content-preview" onClick={() => onOpen?.(post)}>
               {kind === 'notes' ? (
                 <span className="bb-explore-content-note">{copyFor(post)}</span>
               ) : media ? (
@@ -47,8 +68,9 @@ export function ExploreBusinessContent({ posts = [], kind = 'posts', onOpen }) {
                 <BlankMedia variant="square" />
               )}
               {isFilm ? <Play className="bb-explore-content-play" size={18} fill="currentColor" /> : null}
-              {kind !== 'notes' ? <span className="bb-explore-content-title">{copyFor(post)}</span> : null}
-            </button>
+              {kind === 'films' ? <span className="bb-explore-content-title">{copyFor(post)}</span> : null}
+              </button>
+            )}
           </article>
         );
       })}

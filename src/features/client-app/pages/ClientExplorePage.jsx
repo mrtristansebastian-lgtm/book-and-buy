@@ -18,7 +18,7 @@ import { SocialTextTimeline } from '../../social/components/SocialTextTimeline';
 import { SocialPostFeed } from '../../social/components/SocialPostFeed';
 import { VerticalWatchPage } from '../../social/components/VerticalWatchPage';
 import { PlaceLocationField } from '../../social/components/PlaceLocationField';
-import { EXPLORE_CONTENT_TABS } from '../../social/components/SocialProfileTabs';
+import { EXPLORE_CONTENT_TABS, SOCIAL_PROFILE_TABS } from '../../social/components/SocialProfileTabs';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { ClientDeskLayout } from '../ClientDeskLayout';
@@ -88,7 +88,7 @@ function mapServicePreview(service) {
 }
 
 /** Instagram Explore: discovery filters + dense media grid. */
-export function ClientExplorePage() {
+export function ClientExplorePage({ mediaOnly = false }) {
   const { workspace, startThreadFromClient } = useWorkspace();
   const { profile, followSlug, unfollowSlug, updateExplorePrefs } = useClientProfile();
   const [queryText, setQueryText] = useState('');
@@ -238,8 +238,8 @@ export function ClientExplorePage() {
   );
 
   const discoveredSlugs = useMemo(
-    () => new Set(discovered.map((biz) => biz.slug)),
-    [discovered]
+    () => new Set((mediaOnly ? directory : discovered).map((biz) => biz.slug)),
+    [directory, discovered, mediaOnly]
   );
   const expandedExploreCategories = useMemo(
     () => expandExploreCategoryFilter(exploreCategoryIds),
@@ -309,10 +309,10 @@ export function ClientExplorePage() {
   const filterKind = FILTER_KIND[filter] || FILTER_KIND.posts;
   const filteredPosts = useMemo(() => {
     const needle = queryText.trim().toLowerCase();
-    const discoveryActive =
+    const discoveryActive = !mediaOnly && (
       exploreCategoryIds.length > 0 ||
       exploreMode === 'international' ||
-      (exploreMode === 'local' && clientLat != null);
+      (exploreMode === 'local' && clientLat != null));
 
     return catalog
       .filter((post) => getSocialPostKind(post) === filterKind)
@@ -341,10 +341,12 @@ export function ClientExplorePage() {
     exploreCategoryIds,
     exploreMode,
     clientLat,
-    expandedExploreCategories
+    expandedExploreCategories,
+    mediaOnly
   ]);
 
   const accountHits = useMemo(() => {
+    if (mediaOnly) return [];
     const needle = queryText.trim().toLowerCase();
     const pool = needle ? directory : discovered;
     return pool
@@ -357,7 +359,7 @@ export function ClientExplorePage() {
         );
       })
       .slice(0, needle ? 12 : 8);
-  }, [directory, discovered, queryText]);
+  }, [directory, discovered, queryText, mediaOnly]);
 
   const businessOffers = useMemo(() => {
     if (filter !== 'book' && filter !== 'buy') return [];
@@ -528,7 +530,17 @@ export function ClientExplorePage() {
     return (
       <>
         <div className="bb-client-ig-top">
-          <ExploreDiscoveryBar
+          {mediaOnly ? (
+            <label className="bb-client-ig-search">
+              <span aria-hidden="true">⌕</span>
+              <input
+                value={queryText}
+                placeholder="Search posts, films, notes, or businesses"
+                onChange={(event) => setQueryText(event.target.value)}
+              />
+            </label>
+          ) : (
+            <ExploreDiscoveryBar
             mode={exploreMode}
             maxKm={exploreMaxKm}
             categoryIds={exploreCategoryIds}
@@ -551,11 +563,12 @@ export function ClientExplorePage() {
               updateExplorePrefs({ exploreSearchHistory: history })
             }
             onRequestGeo={requestGeo}
-            onPickManualLocation={() => setPlaceSheetOpen(true)}
-          />
+              onPickManualLocation={() => setPlaceSheetOpen(true)}
+            />
+          )}
         </div>
 
-        {filter === 'book' || filter === 'buy' ? (
+        {!mediaOnly && (filter === 'book' || filter === 'buy') ? (
           <ExploreBusinessOffers
             kind={filter}
             businesses={businessOffers}
@@ -568,7 +581,7 @@ export function ClientExplorePage() {
                 : 'Widen the distance ring, adjust categories, or try International.'
             }
           />
-        ) : accountHits.length ? (
+        ) : !mediaOnly && accountHits.length ? (
           <div className="bb-client-ig-accounts" aria-label="Places">
             <p className="bb-explore-places-label">
               {exploreMode === 'local' ? 'Places near you' : 'Ships / books to you'}
@@ -625,7 +638,7 @@ export function ClientExplorePage() {
               );
             })}
           </div>
-        ) : exploreMode === 'local' && (clientLat == null || discovered.length === 0) ? (
+        ) : !mediaOnly && exploreMode === 'local' && (clientLat == null || discovered.length === 0) ? (
           <EmptyState
             compact
             title={clientLat == null ? 'Share your location' : 'No places in range'}
@@ -652,7 +665,7 @@ export function ClientExplorePage() {
           />
         ) : null}
 
-        {filter !== 'book' && filter !== 'buy' && filteredPosts.length === 0 &&
+        {(mediaOnly || (filter !== 'book' && filter !== 'buy')) && filteredPosts.length === 0 &&
         accountHits.length === 0 &&
         !(exploreMode === 'local' && (clientLat == null || discovered.length === 0)) ? (
           <EmptyState
@@ -660,7 +673,7 @@ export function ClientExplorePage() {
             title="Nothing to explore yet"
             description="When businesses publish posts, films, and verticals, they show up here."
           />
-        ) : filter === 'book' || filter === 'buy' || filteredPosts.length === 0 ? null : (
+        ) : (!mediaOnly && (filter === 'book' || filter === 'buy')) || filteredPosts.length === 0 ? null : (
           <ExploreBusinessContent
             posts={filteredPosts}
             kind={filter === 'films' ? 'films' : filter === 'text' ? 'notes' : 'posts'}
@@ -696,14 +709,14 @@ export function ClientExplorePage() {
   })();
 
   return (
-    <ClientAppShell section="explore" title="Explore">
+    <ClientAppShell section={mediaOnly ? 'explore' : 'find'} title={mediaOnly ? 'Explore' : 'Find'}>
       <ClientDeskLayout
         className={`bb-client-ig-explore${
           verticalOpen ? ' is-vertical-open is-immersive' : ''
         }${activePost && !verticalOpen ? ' is-immersive' : ''}`}
         showContentTabs
         contentTab={filter}
-        contentTabs={EXPLORE_CONTENT_TABS}
+        contentTabs={mediaOnly ? SOCIAL_PROFILE_TABS : EXPLORE_CONTENT_TABS}
         onContentTabChange={setContentTab}
       >
         {stageBody}
