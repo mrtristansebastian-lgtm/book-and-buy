@@ -4711,6 +4711,9 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
 }
 
 .bb-find-offer-preview-action.bb-public-product-more-btn {
+  width: auto;
+  min-width: 0;
+  box-sizing: border-box;
   min-height: 1.8rem;
   margin: 0 0.3rem 0.3rem;
   padding: 0.42rem 0.35rem;
