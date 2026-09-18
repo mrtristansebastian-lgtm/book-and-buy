@@ -4561,7 +4561,7 @@
   min-height: 4.4rem;
   padding: 0.65rem 0.7rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 0.85rem;
+  border-radius: 0;
   background: #fff;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
 }
@@ -4588,7 +4588,7 @@
   grid-template-columns: 10.75rem minmax(0, 1fr);
   gap: 0.7rem;
   padding: 0.6rem;
-  border-radius: 0.95rem;
+  border-radius: 0;
   background: #fff;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.055);
 }
@@ -4600,7 +4600,7 @@
 
 .bb-client-ig-explore.is-find .bb-explore-biz-card-banner {
   height: 4.35rem;
-  border-radius: 0.62rem;
+  border-radius: 0;
 }
 
 .bb-client-ig-explore.is-find .bb-explore-biz-card-head-copy strong {
@@ -4627,16 +4627,17 @@
 .bb-find-offer-preview {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
+  aspect-ratio: 1;
   min-width: 0;
   overflow: hidden;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 0.62rem;
+  border-radius: 0;
   background: #fff;
 }
 
 .bb-find-offer-preview-hit {
   display: grid;
-  grid-template-rows: 4.5rem auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   padding: 0.3rem 0.3rem 0.15rem;
   border: 0;
@@ -4648,7 +4649,7 @@
 
 .bb-find-offer-preview-media {
   overflow: hidden;
-  border-radius: 0.42rem;
+  border-radius: 0;
   background: #f3f5f7;
 }
 
@@ -4695,7 +4696,7 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
   margin: 0 0.3rem 0.3rem;
   padding: 0.42rem 0.35rem;
   border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 0.4rem;
+  border-radius: 0;
   font-size: 0.66rem;
 }
 
@@ -4724,6 +4725,7 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
     grid-column: 1;
     width: 5.5rem;
     height: 3.6rem;
+    border-radius: 0;
   }
 
   .bb-client-ig-explore.is-find .bb-explore-biz-card-head > .bb-client-avatar {
