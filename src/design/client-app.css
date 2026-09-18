@@ -4639,7 +4639,7 @@
   overflow-y: hidden;
   scroll-snap-type: x proximity;
   scroll-padding-inline: 0.1rem;
-  padding: 0.05rem 0.45rem 0.2rem 0.05rem;
+  padding-inline: 0.05rem 0.45rem;
 }
 
 .bb-find-offer-preview {
