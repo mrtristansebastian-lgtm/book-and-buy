@@ -4540,7 +4540,7 @@
 }
 
 .bb-client-ig-explore.is-find .bb-explore-biz-card {
-  grid-template-columns: 11.75rem minmax(0, 1fr);
+  grid-template-columns: 16rem minmax(0, 1fr);
   gap: 0.7rem;
   padding: 0.6rem;
   border-radius: 0;
@@ -4552,7 +4552,7 @@
   position: relative;
   grid-template-columns: 1fr;
   grid-template-rows: 3.65rem minmax(0, 1fr);
-  min-height: 11.75rem;
+  min-height: 12.5rem;
   overflow: hidden;
   gap: 0;
   border: 1px solid rgba(15, 23, 42, 0.09);
@@ -4614,10 +4614,7 @@
 
 .bb-client-ig-explore.is-find .bb-find-biz-profile-meta .bb-public-profile-category,
 .bb-client-ig-explore.is-find .bb-find-biz-profile-meta .bb-public-profile-location {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
 }
 
 .bb-find-biz-distance {
