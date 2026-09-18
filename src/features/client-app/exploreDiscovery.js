@@ -36,6 +36,7 @@ export function normalizeBiz(raw = {}) {
     brandName: String(raw.brandName || raw.name || slug).trim() || slug,
     blurb: String(raw.tagline || raw.blurb || raw.about || website.homeSubtext || '').trim(),
     logoUrl: raw.logoUrl || raw.logo || website.logoUrl || '',
+    heroImageUrl: raw.heroImageUrl || raw.bannerUrl || website.heroImageUrl || website.socialBannerUrl || '',
     categoryId,
     categoryLabel: categoryLabelText,
     venueMode,
@@ -46,6 +47,13 @@ export function normalizeBiz(raw = {}) {
     servesCountries: servesCountries.map((c) => String(c || '').trim().toUpperCase()).filter(Boolean),
     address: String(website.address || raw.address || '').trim()
   };
+}
+
+/** Item-level Explore tags are deliberately independent from business profile categories. */
+export function itemMatchesExploreCategories(item = {}, expandedCategoryIds = null) {
+  if (!expandedCategoryIds) return true;
+  const id = String(item.exploreSubcategoryId || '').trim();
+  return Boolean(id && expandedCategoryIds.has(id));
 }
 
 function hasCoords(biz) {

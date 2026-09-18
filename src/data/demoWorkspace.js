@@ -11,10 +11,13 @@ import {
 export const DEMO_WEBSITE_SCHEMA = 32;
 
 /** Bump when demo social feed gains Posts / Videos / Text mix. */
-export const DEMO_SOCIAL_SCHEMA = 11;
+export const DEMO_SOCIAL_SCHEMA = 12;
 
 /** Bump when demo services collapse to Cooking/Baking with package variants. */
-export const DEMO_SERVICES_SCHEMA = 12;
+export const DEMO_SERVICES_SCHEMA = 13;
+
+/** Bump when demo products gain required catalog/discovery fields. */
+export const DEMO_PRODUCTS_SCHEMA = 1;
 
 /** Bump when demo staff availability / closed-days / staff photos change. */
 export const DEMO_AVAILABILITY_SCHEMA = 2;
@@ -36,6 +39,8 @@ export const DEMO_SERVICES = normalizeServiceList([
     id: 'cooking',
     name: 'Cooking',
     category: 'Cooking',
+    exploreMainCategoryId: 'learn_create',
+    exploreSubcategoryId: 'cooking_classes',
     price: 2800,
     duration: 180,
     fixedDuration: true,
@@ -79,6 +84,8 @@ export const DEMO_SERVICES = normalizeServiceList([
     id: 'baking',
     name: 'Baking',
     category: 'Baking',
+    exploreMainCategoryId: 'learn_create',
+    exploreSubcategoryId: 'cooking_classes',
     price: 2950,
     duration: 210,
     fixedDuration: true,
@@ -421,6 +428,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'artisan-bread-box',
     name: 'Artisan Bread Box',
     category: 'Baked goods',
+    exploreMainCategoryId: 'buy_food',
+    exploreSubcategoryId: 'food_bakery',
     price: 320,
     stockAvailable: 12,
     sku: 'BREAD-BOX',
@@ -441,6 +450,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'fresh-pasta-starter-set',
     name: 'Fresh Pasta Starter Set',
     category: 'Kits',
+    exploreMainCategoryId: 'buy_food',
+    exploreSubcategoryId: 'food_pantry',
     price: 480,
     compareAtPrice: 540,
     stockAvailable: 8,
@@ -466,6 +477,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'studio-apron',
     name: 'Studio Apron Set',
     category: 'Merch',
+    exploreMainCategoryId: 'buy_handmade',
+    exploreSubcategoryId: 'handmade_textiles',
     price: 420,
     compareAtPrice: 480,
     productType: 'Apparel',
@@ -549,6 +562,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'kitchen-notes',
     name: 'Kitchen Notes',
     category: 'Books',
+    exploreMainCategoryId: 'buy_books',
+    exploreSubcategoryId: 'books_reading',
     price: 260,
     stockAvailable: 20,
     sku: 'BOOK-NOTES',
@@ -573,6 +588,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'chef-knife-set',
     name: 'Chef’s Knife Set',
     category: 'Tools',
+    exploreMainCategoryId: 'buy_home',
+    exploreSubcategoryId: 'home_accents',
     price: 890,
     compareAtPrice: 980,
     stockAvailable: 6,
@@ -598,6 +615,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'ceramic-plate-set',
     name: 'Ceramic Plate Set',
     category: 'Tableware',
+    exploreMainCategoryId: 'buy_handmade',
+    exploreSubcategoryId: 'handmade_ceramics',
     price: 560,
     stockAvailable: 10,
     sku: 'PLATE-SET',
@@ -622,6 +641,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'mixing-bowl-set',
     name: 'Mixing Bowl Set',
     category: 'Tools',
+    exploreMainCategoryId: 'buy_home',
+    exploreSubcategoryId: 'home_accents',
     price: 340,
     stockAvailable: 14,
     sku: 'BOWL-SET',
@@ -646,6 +667,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'wooden-rolling-pin',
     name: 'Wooden Rolling Pin',
     category: 'Tools',
+    exploreMainCategoryId: 'buy_handmade',
+    exploreSubcategoryId: 'handmade_gifts',
     price: 185,
     stockAvailable: 18,
     sku: 'ROLL-PIN',
@@ -670,6 +693,8 @@ export const DEMO_PRODUCTS = normalizeProductList([
     id: 'weekend-bake-kit',
     name: 'Weekend Bake Kit',
     category: 'Kits',
+    exploreMainCategoryId: 'buy_food',
+    exploreSubcategoryId: 'food_bakery',
     price: 390,
     compareAtPrice: 450,
     stockAvailable: 9,
@@ -1017,7 +1042,7 @@ const sampleBookings = [
 ];
 
 export function createDemoWorkspace() {
-  return {
+  const workspace = {
     slug: 'flameandflour',
     brandName: 'Flame & Flour',
     tagline: 'Baking studio in Cape Town',
@@ -1048,6 +1073,7 @@ export function createDemoWorkspace() {
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
     servicesSchema: DEMO_SERVICES_SCHEMA,
+    productsSchema: DEMO_PRODUCTS_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
     financeSchema: DEMO_FINANCE_SCHEMA,
@@ -1635,6 +1661,12 @@ export function createDemoWorkspace() {
     ]),
     orders: sampleOrders
   };
+  workspace.socialPosts = workspace.socialPosts.map((post) => ({
+    ...post,
+    exploreMainCategoryId: 'learn_create',
+    exploreSubcategoryId: 'cooking_classes'
+  }));
+  return workspace;
 }
 
 /**
@@ -1713,6 +1745,13 @@ export function hydrateDemoWorkspace(stored) {
     !Array.isArray(stored.services) ||
     stored.services.length < 6 ||
     spotServicesMissingSessions;
+
+  const staleProducts =
+    Number(stored.productsSchema || 0) < DEMO_PRODUCTS_SCHEMA ||
+    !Array.isArray(stored.products) ||
+    stored.products.some(
+      (product) => !product?.exploreMainCategoryId || !product?.exploreSubcategoryId
+    );
 
   const staleAvailability =
     Number(stored.availabilitySchema || 0) < DEMO_AVAILABILITY_SCHEMA ||
@@ -1821,6 +1860,7 @@ export function hydrateDemoWorkspace(stored) {
     websiteSchema: DEMO_WEBSITE_SCHEMA,
     socialSchema: DEMO_SOCIAL_SCHEMA,
     servicesSchema: DEMO_SERVICES_SCHEMA,
+    productsSchema: DEMO_PRODUCTS_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
     ordersSchema: DEMO_ORDERS_SCHEMA,
     financeSchema: DEMO_FINANCE_SCHEMA,
@@ -1837,7 +1877,7 @@ export function hydrateDemoWorkspace(stored) {
         };
       }
     ),
-    products: staleWebsite ? fresh.products : stored.products || fresh.products,
+    products: staleWebsite || staleProducts ? fresh.products : stored.products || fresh.products,
     services: staleWebsite || staleServices ? fresh.services : stored.services || fresh.services,
     availabilityRules: staleAvailability
       ? fresh.availabilityRules

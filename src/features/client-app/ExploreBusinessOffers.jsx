@@ -39,6 +39,9 @@ export function ExploreBusinessOffers({
             className="bb-explore-biz-card-head"
             onClick={() => navigate(publicPagePath(biz.slug, 'home'))}
           >
+            <span className="bb-explore-biz-card-banner" aria-hidden="true">
+              {biz.heroImageUrl ? <img src={biz.heroImageUrl} alt="" /> : <BlankMedia variant="banner" />}
+            </span>
             <span className="bb-client-avatar is-sm" aria-hidden="true">
               {biz.logoUrl ? <img src={biz.logoUrl} alt="" /> : <BlankMedia variant="avatar" />}
             </span>

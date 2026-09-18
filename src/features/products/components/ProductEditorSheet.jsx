@@ -12,6 +12,7 @@ import { ProductEditorDetailsStep } from './ProductEditorDetailsStep';
 import { ProductEditorMediaStep } from './ProductEditorMediaStep';
 import { ProductEditorReviewStep } from './ProductEditorReviewStep';
 import { ProductEditorVariantsStep } from './ProductEditorVariantsStep';
+import { isValidExploreCategoryPair } from '../../../config/businessCategories';
 
 const SETUP_STEPS = [
   {
@@ -27,7 +28,7 @@ const SETUP_STEPS = [
   {
     id: 'category',
     label: 'Category',
-    lede: 'Optional — helps clients browse your Buy page.'
+    lede: 'Set flexible Buy navigation and required Explore discovery tags.'
   },
   {
     id: 'variants',
@@ -211,6 +212,14 @@ export function ProductEditorSheet({
         return false;
       }
     }
+    if (id === 'category' && !isValidExploreCategoryPair(
+      draft.exploreMainCategoryId,
+      draft.exploreSubcategoryId,
+      'buy'
+    )) {
+      setError('Choose an Explore main category and matching subcategory.');
+      return false;
+    }
     setError('');
     return true;
   };
@@ -243,8 +252,8 @@ export function ProductEditorSheet({
   };
 
   const save = () => {
-    if (!validateStep('details')) {
-      setStep('details');
+    if (!validateStep('details') || !validateStep('category')) {
+      setStep(!String(draft.name || '').trim() ? 'details' : 'category');
       return;
     }
     setError('');

@@ -4,8 +4,24 @@ import { formatDurationLabel } from '../../utils/socialPostType';
 import { aspectStyle } from '../../utils/videoMedia';
 import { CAPTION_SOFT_LIMIT } from './composerMeta';
 import { CharacterCount } from './CharacterCount';
+import { ExploreCategoryPicker } from '../../../../shared/ui/ExploreCategoryPicker';
 
 export function ComposerReviewStep({ c }) {
+  const discoveryPicker = (
+    <ExploreCategoryPicker
+      mode="all"
+      itemLabel={c.type === 'video' ? 'film' : c.type === 'vertical' ? 'vertical' : 'post'}
+      optional
+      value={{
+        exploreMainCategoryId: c.exploreMainCategoryId,
+        exploreSubcategoryId: c.exploreSubcategoryId
+      }}
+      onChange={({ exploreMainCategoryId, exploreSubcategoryId }) => {
+        c.setExploreMainCategoryId(exploreMainCategoryId);
+        c.setExploreSubcategoryId(exploreSubcategoryId);
+      }}
+    />
+  );
   if (c.type === 'image') {
     return (
       <div className="bb-composer-caption-step">
@@ -127,6 +143,7 @@ export function ComposerReviewStep({ c }) {
             disabled={c.busy}
             placeholder="Search for a place or address"
           />
+          {discoveryPicker}
         </div>
       </div>
     );
@@ -189,6 +206,7 @@ export function ComposerReviewStep({ c }) {
         disabled={c.busy}
         placeholder="Search for a place or address"
       />
+      {discoveryPicker}
     </div>
   );
 }

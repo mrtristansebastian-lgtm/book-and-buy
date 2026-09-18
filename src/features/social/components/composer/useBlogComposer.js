@@ -59,6 +59,8 @@ export function useBlogComposer({
   const [stepIndex, setStepIndex] = useState(0);
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
+  const [exploreMainCategoryId, setExploreMainCategoryId] = useState('');
+  const [exploreSubcategoryId, setExploreSubcategoryId] = useState('');
   const [location, setLocation] = useState(null);
   const [coverPickerOpen, setCoverPickerOpen] = useState(false);
   const [items, setItems] = useState([]);
@@ -225,6 +227,8 @@ export function useBlogComposer({
     if (post) {
       setTitle(post.title || '');
       setCaption(post.caption || '');
+      setExploreMainCategoryId(post.exploreMainCategoryId || '');
+      setExploreSubcategoryId(post.exploreSubcategoryId || '');
       setLocation(
         post.location
           ? {
@@ -292,6 +296,8 @@ export function useBlogComposer({
     }
     setTitle(draft?.title || '');
     setCaption(draft?.caption || '');
+    setExploreMainCategoryId(draft?.exploreMainCategoryId || '');
+    setExploreSubcategoryId(draft?.exploreSubcategoryId || '');
     setLocation(null);
     setItems([]);
     setActiveId('');
@@ -318,13 +324,16 @@ export function useBlogComposer({
     }
     const timer = setTimeout(() => {
       try {
-        sessionStorage.setItem(key, JSON.stringify({ title, caption }));
+        sessionStorage.setItem(
+          key,
+          JSON.stringify({ title, caption, exploreMainCategoryId, exploreSubcategoryId })
+        );
       } catch {
         /* private mode / quota */
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [title, caption, isEdit, kind]);
+  }, [title, caption, exploreMainCategoryId, exploreSubcategoryId, isEdit, kind]);
 
   const clearDraft = useCallback(() => {
     try {
@@ -1018,6 +1027,8 @@ export function useBlogComposer({
         type,
         title: title.trim() || (isLongVideo ? `Untitled ${videoNoun}` : ""),
         caption: caption.trim(),
+        exploreMainCategoryId,
+        exploreSubcategoryId,
         published: true,
         location: location?.label || '',
         locationPlaceId: location?.placeId || '',
@@ -1141,6 +1152,10 @@ export function useBlogComposer({
     setTitle,
     caption,
     setCaption,
+    exploreMainCategoryId,
+    setExploreMainCategoryId,
+    exploreSubcategoryId,
+    setExploreSubcategoryId,
     location,
     setLocation,
     coverPickerOpen,

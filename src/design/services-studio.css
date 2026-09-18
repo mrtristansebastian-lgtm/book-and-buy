@@ -488,7 +488,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 }
 
 .bb-services-sheet-panel--setup {
-  width: min(42rem, 100%);
+  width: min(58rem, 100%);
   max-height: min(46rem, calc(100vh - 2rem));
 }
 
@@ -1035,6 +1035,110 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   align-items: center;
 }
 
+.bb-explore-category-picker {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.bb-explore-category-picker-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.bb-services-section-kicker,
+.bb-explore-category-label {
+  margin: 0 0 0.25rem;
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.bb-explore-category-selected {
+  flex: 0 0 auto;
+  max-width: 45%;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(199, 255, 205, 0.55);
+  color: #101828;
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-align: right;
+}
+
+.bb-explore-category-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(12rem, 0.8fr);
+  gap: 0.9rem;
+}
+
+.bb-explore-category-column {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+}
+
+.bb-explore-category-main-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.bb-explore-category-main,
+.bb-explore-category-sub {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.7rem;
+  background: #fff;
+  color: #344054;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 720;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-explore-category-main.is-active,
+.bb-explore-category-sub.is-active {
+  border-color: transparent;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  color: #101828;
+}
+
+.bb-explore-category-sub-list {
+  display: grid;
+  gap: 0.35rem;
+  max-height: 15.2rem;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.bb-explore-category-empty {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.7rem;
+  background: #f8fafc;
+  color: #98a2b3;
+  font-size: 0.78rem;
+}
+
 .bb-services-staff {
   display: grid;
   gap: 0.4rem;
@@ -1128,6 +1232,26 @@ html body .native-ui .bb-services-sheet .bb-services-sheet-title {
 
   .bb-services-category-add {
     grid-template-columns: 1fr;
+  }
+
+  .bb-explore-category-picker-head,
+  .bb-explore-category-columns {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .bb-explore-category-selected {
+    max-width: none;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .bb-explore-category-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-explore-category-sub-list {
+    max-height: 15rem;
   }
 
   .bb-services-sheet {

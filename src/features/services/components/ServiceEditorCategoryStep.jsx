@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react';
+import { ExploreCategoryPicker } from '../../../shared/ui/ExploreCategoryPicker';
 
 export function ServiceEditorCategoryStep({
   draft,
@@ -13,6 +14,7 @@ export function ServiceEditorCategoryStep({
   return (
     <section className="bb-services-section">
       <h3 className="bb-services-section-title">Category</h3>
+      <p className="bb-services-section-lede">Store categories stay flexible and shape your Book page navigation.</p>
       <div className="bb-services-category-chips">
         <button
           type="button"
@@ -73,6 +75,7 @@ export function ServiceEditorCategoryStep({
           </button>
         </div>
       ) : null}
+      <ExploreCategoryPicker mode="book" value={draft} onChange={patch} />
     </section>
   );
 }

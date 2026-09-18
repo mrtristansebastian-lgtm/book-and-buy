@@ -1,3 +1,5 @@
+import { categoryLabel } from '../../../config/businessCategories';
+
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active — visible on Buy' },
   { value: 'draft', label: 'Draft — owner only' },
@@ -34,6 +36,14 @@ export function ProductEditorReviewStep({
           <div>
             <dt>Category</dt>
             <dd>{String(draft.category || '').trim() || 'None'}</dd>
+          </div>
+          <div>
+            <dt>Explore</dt>
+            <dd>
+              {draft.exploreMainCategoryId && draft.exploreSubcategoryId
+                ? `${categoryLabel(draft.exploreMainCategoryId)} · ${categoryLabel(draft.exploreSubcategoryId)}`
+                : 'Not set'}
+            </dd>
           </div>
           <div>
             <dt>Variants</dt>

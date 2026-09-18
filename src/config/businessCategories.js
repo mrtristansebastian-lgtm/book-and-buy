@@ -1009,6 +1009,14 @@ export function categoriesInGroup(groupId) {
   return group.categoryIds.map((id) => getCategoryById(id)).filter(Boolean);
 }
 
+/** A product/service Explore classification is always one approved group + leaf pair. */
+export function isValidExploreCategoryPair(groupId, categoryId, mode = 'all') {
+  const group = getCategoryGroupById(groupId);
+  const category = getCategoryById(categoryId);
+  if (!group || !category || !group.categoryIds.includes(category.id)) return false;
+  return !mode || mode === 'all' || group.mode === mode;
+}
+
 export function searchCategoryGroups(query = '') {
   const q = String(query || '')
     .trim()

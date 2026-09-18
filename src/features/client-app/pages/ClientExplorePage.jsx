@@ -28,7 +28,13 @@ import { ClientEngagementBar, wrapClientMediaReaction } from '../ClientEngagemen
 import { startClientMessage } from '../startClientMessage';
 import { ExploreDiscoveryBar } from '../ExploreDiscoveryBar';
 import { ExploreBusinessOffers } from '../ExploreBusinessOffers';
-import { filterDiscoverBusinesses, normalizeBiz } from '../exploreDiscovery';
+import { ExploreBusinessContent } from '../ExploreBusinessContent';
+import {
+  filterDiscoverBusinesses,
+  itemMatchesExploreCategories,
+  normalizeBiz
+} from '../exploreDiscovery';
+import { categoryLabel, expandExploreCategoryFilter } from '../../../config/businessCategories';
 
 const FILTER_KIND = {
   posts: 'image',
@@ -192,26 +198,19 @@ export function ClientExplorePage() {
   const directory = useMemo(() => {
     const map = new Map();
     const localSlug = String(workspace?.slug || '').trim();
-    if (
-      localSlug &&
-      (isDemo || workspace?.brandName) &&
-      localSlug !== 'flameandflour' &&
-      localSlug !== 'flour-and-flame'
-    ) {
+    if (localSlug && (isDemo || workspace?.brandName)) {
       const local = normalizeBiz({
         slug: localSlug,
         ownerId: workspace?.ownerId || workspace?.id || '',
         brandName: workspace?.brandName || localSlug,
         tagline: workspace?.tagline || '',
         logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl,
+        heroImageUrl: workspace?.website?.heroImageUrl || workspace?.website?.socialBannerUrl || '',
         website: workspace?.website || {}
       });
       if (local) map.set(local.slug, local);
     }
-    remote.forEach((biz) => {
-      if (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame') return;
-      map.set(biz.slug, biz);
-    });
+    remote.forEach((biz) => map.set(biz.slug, biz));
     return [...map.values()];
   }, [workspace, remote, isDemo]);
 
@@ -220,7 +219,8 @@ export function ClientExplorePage() {
       filterDiscoverBusinesses(directory, {
         mode: exploreMode,
         maxKm: exploreMaxKm,
-        categoryIds: exploreCategoryIds,
+        // Book/Buy filters classify offers, not the business profile itself.
+        categoryIds: filter === 'book' || filter === 'buy' ? [] : exploreCategoryIds,
         clientLat,
         clientLng,
         clientCountryCode
@@ -230,6 +230,7 @@ export function ClientExplorePage() {
       exploreMode,
       exploreMaxKm,
       exploreCategoryIds,
+      filter,
       clientLat,
       clientLng,
       clientCountryCode
@@ -240,16 +241,17 @@ export function ClientExplorePage() {
     () => new Set(discovered.map((biz) => biz.slug)),
     [discovered]
   );
+  const expandedExploreCategories = useMemo(
+    () => expandExploreCategoryFilter(exploreCategoryIds),
+    [exploreCategoryIds]
+  );
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const localSlug = String(workspace?.slug || '').trim();
-      const skipFlame =
-        localSlug === 'flameandflour' || localSlug === 'flour-and-flame';
       const localPosts =
         localSlug &&
-        !skipFlame &&
         (isDemo || (workspace?.socialPosts || []).length)
           ? annotateSocialPosts(workspace?.socialPosts || [], {
               slug: localSlug,
@@ -259,7 +261,7 @@ export function ClientExplorePage() {
           : [];
 
       const nextOffers = {};
-      if (localSlug && !skipFlame) {
+      if (localSlug) {
         nextOffers[localSlug] = {
           products: Array.isArray(workspace?.products) ? workspace.products : [],
           services: Array.isArray(workspace?.services) ? workspace.services : [],
@@ -272,7 +274,6 @@ export function ClientExplorePage() {
       if (isFirebaseConfigured()) {
         for (const biz of directory) {
           if (biz.slug === localSlug) continue;
-          if (biz.slug === 'flameandflour' || biz.slug === 'flour-and-flame') continue;
           try {
             const snap = await loadPublicWorkspaceFromFirestore(biz.slug);
             if (!snap || cancelled) continue;
@@ -321,10 +322,15 @@ export function ClientExplorePage() {
         return !slug || discoveredSlugs.has(slug);
       })
       .filter((post) => {
+        if (expandedExploreCategories && !itemMatchesExploreCategories(post, expandedExploreCategories)) {
+          return false;
+        }
         if (!needle) return true;
         const hay = `${post._brandName || ''} ${post.caption || ''} ${post.title || ''} ${
           post._slug || ''
-        }`.toLowerCase();
+        } ${categoryLabel(post.exploreMainCategoryId)} ${categoryLabel(
+          post.exploreSubcategoryId
+        )}`.toLowerCase();
         return hay.includes(needle);
       });
   }, [
@@ -334,7 +340,8 @@ export function ClientExplorePage() {
     discoveredSlugs,
     exploreCategoryIds,
     exploreMode,
-    clientLat
+    clientLat,
+    expandedExploreCategories
   ]);
 
   const accountHits = useMemo(() => {
@@ -368,18 +375,20 @@ export function ClientExplorePage() {
               isProductPubliclyVisible(product)
             );
 
-        const brandHit =
-          !needle ||
-          biz.brandName.toLowerCase().includes(needle) ||
-          biz.slug.toLowerCase().includes(needle) ||
-          (biz.categoryLabel || '').toLowerCase().includes(needle);
-
+        const categoryMatched = raw.filter((item) =>
+          itemMatchesExploreCategories(item, expandedExploreCategories)
+        );
+        const brandHaystack = `${biz.brandName} ${biz.slug} ${biz.categoryLabel || ''}`.toLowerCase();
+        const brandHit = !needle || brandHaystack.includes(needle);
         const matched = needle
-          ? raw.filter((item) => itemMatchesNeedle(item, needle))
-          : raw;
+          ? categoryMatched.filter((item) => {
+              const tagLabels = `${categoryLabel(item.exploreMainCategoryId)} ${categoryLabel(item.exploreSubcategoryId)}`;
+              return itemMatchesNeedle(item, needle) || tagLabels.toLowerCase().includes(needle);
+            })
+          : categoryMatched;
 
-        if (!brandHit && matched.length === 0) return null;
-        const previewSource = needle && matched.length ? matched : brandHit ? raw : matched;
+        if (!matched.length && !brandHit) return null;
+        const previewSource = matched.length ? matched : categoryMatched;
         if (!previewSource.length) return null;
 
         const items = previewSource
@@ -390,6 +399,7 @@ export function ClientExplorePage() {
           slug: biz.slug,
           brandName: bag.brandName || biz.brandName,
           logoUrl: bag.logoUrl || biz.logoUrl || '',
+          heroImageUrl: biz.heroImageUrl || '',
           meta: [biz.categoryLabel, biz.city, formatDistanceKm(biz.distanceKm)]
             .filter(Boolean)
             .join(' · '),
@@ -397,7 +407,7 @@ export function ClientExplorePage() {
         };
       })
       .filter(Boolean);
-  }, [filter, discovered, offerCatalogBySlug, queryText]);
+  }, [filter, discovered, offerCatalogBySlug, queryText, expandedExploreCategories]);
 
   const followed = new Set(profile?.followedSlugs || []);
   const activePost = filteredPosts.find((post) => post.id === activeId) || null;
@@ -650,69 +660,12 @@ export function ClientExplorePage() {
             title="Nothing to explore yet"
             description="When businesses publish posts, films, and verticals, they show up here."
           />
-        ) : filter === 'book' || filter === 'buy' || filteredPosts.length === 0 ? null : filter === 'films' ? (
-          <div className="bb-client-home-yt bb-client-explore-yt">
-            <SocialVideosPanel
-              posts={filteredPosts}
-              variant="films"
-              editMode={false}
-              showOwnerStats={false}
-              brandName={filteredPosts[0]?._brandName || 'Business'}
-              logoUrl={filteredPosts[0]?._logoUrl || ''}
-              wrapMedia={wrapClientMediaReaction}
-              renderWatchActions={(post) => (
-                <ClientEngagementBar
-                  post={post}
-                  slug={post._slug || ''}
-                  brandName={post._brandName || ''}
-                  variant="youtube"
-                />
-              )}
-            />
-          </div>
-        ) : filter === 'text' ? (
-          <div className="bb-client-home-notes bb-client-explore-notes">
-            <SocialTextTimeline
-              posts={filteredPosts}
-              brandName={filteredPosts[0]?._brandName || 'Business'}
-              logoUrl={filteredPosts[0]?._logoUrl || ''}
-              slug={filteredPosts[0]?._slug || ''}
-              editMode={false}
-              wrapMedia={wrapClientMediaReaction}
-              renderActions={(post) => (
-                <ClientEngagementBar
-                  post={post}
-                  slug={post._slug || ''}
-                  brandName={post._brandName || ''}
-                  variant="twitter"
-                />
-              )}
-            />
-          </div>
-        ) : (
-          <div className="bb-client-ig-grid" role="list">
-            {filteredPosts.map((post, index) => {
-              const { kind, thumb, caption } = tileMedia(post);
-              const featured = kind === 'video' && (index % 7 === 0 || index % 7 === 4);
-              return (
-                <button
-                  key={post.id}
-                  type="button"
-                  role="listitem"
-                  className={`bb-client-ig-cell${featured ? ' is-tall' : ''}`}
-                  onClick={() => openTile(post)}
-                  aria-label={caption || post.title || 'Open'}
-                >
-                  {thumb ? <img src={thumb} alt="" /> : <BlankMedia variant="square" />}
-                  {kind === 'video' ? (
-                    <span className="bb-client-ig-play" aria-hidden="true">
-                      <Play size={14} fill="currentColor" />
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
+        ) : filter === 'book' || filter === 'buy' || filteredPosts.length === 0 ? null : (
+          <ExploreBusinessContent
+            posts={filteredPosts}
+            kind={filter === 'films' ? 'films' : filter === 'text' ? 'notes' : 'posts'}
+            onOpen={openTile}
+          />
         )}
 
         {placeSheetOpen ? (

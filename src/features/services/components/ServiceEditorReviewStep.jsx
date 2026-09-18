@@ -1,5 +1,6 @@
 import { formatServiceSessionLabel } from '../../../utils/services';
 import { durationSummary, typeSummary } from './serviceEditorUtils';
+import { categoryLabel } from '../../../config/businessCategories';
 
 export function ServiceEditorReviewStep({
   draft,
@@ -52,6 +53,14 @@ export function ServiceEditorReviewStep({
           <div>
             <dt>Category</dt>
             <dd>{String(draft.category || '').trim() || 'None'}</dd>
+          </div>
+          <div>
+            <dt>Explore</dt>
+            <dd>
+              {draft.exploreMainCategoryId && draft.exploreSubcategoryId
+                ? `${categoryLabel(draft.exploreMainCategoryId)} · ${categoryLabel(draft.exploreSubcategoryId)}`
+                : 'Not set'}
+            </dd>
           </div>
           {String(draft.description || '').trim() ? (
             <div className="bb-services-review-desc">

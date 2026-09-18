@@ -15,6 +15,7 @@ import { ServiceEditorTypeStep } from './ServiceEditorTypeStep';
 import { ServiceEditorVariantsStep } from './ServiceEditorVariantsStep';
 import { ServiceEditorWhenStep } from './ServiceEditorWhenStep';
 import { buildSetupSteps } from './serviceEditorUtils';
+import { isValidExploreCategoryPair } from '../../../config/businessCategories';
 
 export function ServiceEditorSheet({
   open,
@@ -126,6 +127,14 @@ export function ServiceEditorSheet({
         return false;
       }
     }
+    if (id === 'category' && !isValidExploreCategoryPair(
+      draft.exploreMainCategoryId,
+      draft.exploreSubcategoryId,
+      'book'
+    )) {
+      setError('Choose an Explore main category and matching subcategory.');
+      return false;
+    }
     if (id === 'variants') {
       const rows = Array.isArray(draft.variants) ? draft.variants : [];
       for (const variant of rows) {
@@ -210,6 +219,10 @@ export function ServiceEditorSheet({
     }
     if (!validateStep('details')) {
       setStep('details');
+      return;
+    }
+    if (!validateStep('category')) {
+      setStep('category');
       return;
     }
     if (!validateStep('variants')) {

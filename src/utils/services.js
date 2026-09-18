@@ -1,5 +1,6 @@
 import { getServiceScheduleType } from './scheduleTypes';
 import { parseDateKey } from './dates';
+import { isValidExploreCategoryPair } from '../config/businessCategories';
 
 export const createServiceId = () =>
   `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -218,11 +219,20 @@ export const normalizeService = (service = {}, index = 0) => {
   const variants = (Array.isArray(service.variants) ? service.variants : [])
     .map(normalizeServiceVariant)
     .filter((variant) => String(variant.name || '').trim());
+  const exploreMainCategoryId = String(service.exploreMainCategoryId || '').trim();
+  const exploreSubcategoryId = String(service.exploreSubcategoryId || '').trim();
+  const hasExploreCategory = isValidExploreCategoryPair(
+    exploreMainCategoryId,
+    exploreSubcategoryId,
+    'book'
+  );
   return {
     ...service,
     id: service.id || createServiceId(),
     name: service.name || `Service ${index + 1}`,
     category: service.category || '',
+    exploreMainCategoryId: hasExploreCategory ? exploreMainCategoryId : '',
+    exploreSubcategoryId: hasExploreCategory ? exploreSubcategoryId : '',
     description: service.description || '',
     price: service.price ?? '',
     currency: service.currency || 'R',

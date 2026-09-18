@@ -1,6 +1,7 @@
 import { PlaceLocationField } from '../PlaceLocationField';
 import { TEXT_SOFT_LIMIT } from './composerMeta';
 import { CharacterCount } from './CharacterCount';
+import { ExploreCategoryPicker } from '../../../../shared/ui/ExploreCategoryPicker';
 
 export function ComposerTextStep({ c }) {
   return (
@@ -38,6 +39,19 @@ export function ComposerTextStep({ c }) {
             onChange={c.setLocation}
             disabled={c.busy}
             placeholder="Search for a place or address"
+          />
+          <ExploreCategoryPicker
+            mode="all"
+            itemLabel="note"
+            optional
+            value={{
+              exploreMainCategoryId: c.exploreMainCategoryId,
+              exploreSubcategoryId: c.exploreSubcategoryId
+            }}
+            onChange={({ exploreMainCategoryId, exploreSubcategoryId }) => {
+              c.setExploreMainCategoryId(exploreMainCategoryId);
+              c.setExploreSubcategoryId(exploreSubcategoryId);
+            }}
           />
         </div>
       </div>

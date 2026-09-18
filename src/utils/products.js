@@ -1,3 +1,5 @@
+import { isValidExploreCategoryPair } from '../config/businessCategories';
+
 export const createProductId = () =>
   `product-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -285,6 +287,13 @@ export const normalizeProduct = (product = {}, index = 0) => {
     : [];
 
   const dims = normalizeDimensions(product);
+  const exploreMainCategoryId = String(product.exploreMainCategoryId || '').trim();
+  const exploreSubcategoryId = String(product.exploreSubcategoryId || '').trim();
+  const hasExploreCategory = isValidExploreCategoryPair(
+    exploreMainCategoryId,
+    exploreSubcategoryId,
+    'buy'
+  );
 
   return {
     ...product,
@@ -298,6 +307,8 @@ export const normalizeProduct = (product = {}, index = 0) => {
     priceType: product.quoteBased ? 'quote' : product.priceType || 'fixed',
     quoteBased: Boolean(product.quoteBased || product.priceType === 'quote'),
     category: product.category || product.mainCategory || '',
+    exploreMainCategoryId: hasExploreCategory ? exploreMainCategoryId : '',
+    exploreSubcategoryId: hasExploreCategory ? exploreSubcategoryId : '',
     productType: String(product.productType || '').trim(),
     vendor: String(product.vendor || '').trim(),
     tags: cleanStringList(product.tags),
