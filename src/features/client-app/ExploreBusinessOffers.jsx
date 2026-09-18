@@ -3,7 +3,7 @@ import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { EmptyState } from '../../shared/ui/EmptyState';
 
 function itemImage(item = {}) {
-  return item.imageUrls?.[0] || item.image || '';
+  return item.imageUrls?.[0] || item.imageUrl || item.image || '';
 }
 
 /**
@@ -51,42 +51,33 @@ export function ExploreBusinessOffers({
             </span>
           </button>
 
-          <div className="bb-explore-biz-preview bb-public-product-grid">
+          <div className="bb-explore-biz-preview">
             {biz.items.map((item) => {
               const imageSrc = itemImage(item);
               const page = kind === 'book' ? 'book' : 'buy';
               return (
-                <article key={item.id} className="bb-public-product-card bb-explore-biz-preview-item">
+                <article key={item.id} className="bb-find-offer-preview">
                   <button
                     type="button"
-                    className="bb-public-product-surface"
+                    className="bb-find-offer-preview-hit"
                     onClick={() => navigate(publicItemPath(biz.slug, page, item.id))}
                     aria-label={`View ${item.name}`}
                   >
-                    <div className="bb-public-product-media">
-                      {imageSrc ? <img src={imageSrc} alt="" /> : null}
+                    <div className="bb-find-offer-preview-media">
+                      {imageSrc ? <img src={imageSrc} alt="" /> : <BlankMedia variant="square" />}
                     </div>
-                    <div className="bb-public-product-price-row">
-                      <h2 className="bb-public-product-name">{item.name}</h2>
-                      <p className="bb-public-product-price">{item.priceLabel || '—'}</p>
+                    <div className="bb-find-offer-preview-copy">
+                      <h2>{item.name}</h2>
+                      <p>{item.priceLabel || '—'}</p>
                     </div>
                   </button>
-                  <div className="bb-public-product-actions">
-                    <button
-                      type="button"
-                      className="bb-public-product-cart-btn"
-                      onClick={() => navigate(publicItemPath(biz.slug, page, item.id))}
-                    >
-                      <span>{kind === 'book' ? 'Book' : 'Buy'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="bb-public-product-more-btn"
-                      onClick={() => navigate(publicItemPath(biz.slug, page, item.id))}
-                    >
-                      View
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="bb-public-product-more-btn bb-find-offer-preview-action"
+                    onClick={() => navigate(publicItemPath(biz.slug, page, item.id))}
+                  >
+                    View
+                  </button>
                 </article>
               );
             })}

@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useMemo, useState } from 'react';
-import { MessageCircle, Play, UserPlus, UserCheck } from 'lucide-react';
+import { MapPin, MessageCircle, Search, UserPlus, UserCheck, X } from 'lucide-react';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
@@ -16,6 +16,7 @@ import { getPostMediaItems, getSocialPostKind } from '../../social/utils/socialP
 import { SocialVideosPanel } from '../../social/components/SocialVideosPanel';
 import { SocialTextTimeline } from '../../social/components/SocialTextTimeline';
 import { SocialPostFeed } from '../../social/components/SocialPostFeed';
+import { SocialPostsGrid } from '../../social/components/SocialPostsGrid';
 import { VerticalWatchPage } from '../../social/components/VerticalWatchPage';
 import { PlaceLocationField } from '../../social/components/PlaceLocationField';
 import { EXPLORE_CONTENT_TABS, SOCIAL_PROFILE_TABS } from '../../social/components/SocialProfileTabs';
@@ -28,7 +29,6 @@ import { ClientEngagementBar, wrapClientMediaReaction } from '../ClientEngagemen
 import { startClientMessage } from '../startClientMessage';
 import { ExploreDiscoveryBar } from '../ExploreDiscoveryBar';
 import { ExploreBusinessOffers } from '../ExploreBusinessOffers';
-import { ExploreBusinessContent } from '../ExploreBusinessContent';
 import {
   filterDiscoverBusinesses,
   itemMatchesExploreCategories,
@@ -44,6 +44,10 @@ const FILTER_KIND = {
 };
 
 const PREVIEW_LIMIT = 3;
+const FIND_CONTENT_TABS = [
+  { id: 'places', label: 'Places', kind: 'places', Icon: MapPin },
+  ...EXPLORE_CONTENT_TABS.filter((tab) => tab.id === 'book' || tab.id === 'buy')
+];
 
 function tileMedia(post) {
   const kind = getSocialPostKind(post);
@@ -92,7 +96,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
   const { workspace, startThreadFromClient } = useWorkspace();
   const { profile, followSlug, unfollowSlug, updateExplorePrefs } = useClientProfile();
   const [queryText, setQueryText] = useState('');
-  const [filter, setFilter] = useState('posts');
+  const [filter, setFilter] = useState(mediaOnly ? 'posts' : 'places');
   const [remote, setRemote] = useState([]);
   const [catalog, setCatalog] = useState([]);
   const [offerCatalogBySlug, setOfferCatalogBySlug] = useState({});
@@ -102,6 +106,12 @@ export function ClientExplorePage({ mediaOnly = false }) {
   const [geoStatus, setGeoStatus] = useState('idle');
   const [placeSheetOpen, setPlaceSheetOpen] = useState(false);
   const isDemo = Boolean(workspace?.isDemo || profile?.isDemo);
+
+  useEffect(() => {
+    setFilter(mediaOnly ? 'posts' : 'places');
+    setActiveId('');
+    setActiveVerticalId('');
+  }, [mediaOnly]);
 
   const exploreMode = profile?.exploreMode === 'international' ? 'international' : 'local';
   const exploreMaxKm = Number(profile?.exploreMaxKm) || 30;
@@ -238,8 +248,8 @@ export function ClientExplorePage({ mediaOnly = false }) {
   );
 
   const discoveredSlugs = useMemo(
-    () => new Set((mediaOnly ? directory : discovered).map((biz) => biz.slug)),
-    [directory, discovered, mediaOnly]
+    () => new Set(discovered.map((biz) => biz.slug)),
+    [discovered]
   );
   const expandedExploreCategories = useMemo(
     () => expandExploreCategoryFilter(exploreCategoryIds),
@@ -309,10 +319,11 @@ export function ClientExplorePage({ mediaOnly = false }) {
   const filterKind = FILTER_KIND[filter] || FILTER_KIND.posts;
   const filteredPosts = useMemo(() => {
     const needle = queryText.trim().toLowerCase();
-    const discoveryActive = !mediaOnly && (
-      exploreCategoryIds.length > 0 ||
-      exploreMode === 'international' ||
-      (exploreMode === 'local' && clientLat != null));
+    const discoveryActive = mediaOnly
+      ? exploreMode === 'international' || (exploreMode === 'local' && clientLat != null)
+      : exploreCategoryIds.length > 0 ||
+        exploreMode === 'international' ||
+        (exploreMode === 'local' && clientLat != null);
 
     return catalog
       .filter((post) => getSocialPostKind(post) === filterKind)
@@ -322,7 +333,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
         return !slug || discoveredSlugs.has(slug);
       })
       .filter((post) => {
-        if (expandedExploreCategories && !itemMatchesExploreCategories(post, expandedExploreCategories)) {
+        if (!mediaOnly && expandedExploreCategories && !itemMatchesExploreCategories(post, expandedExploreCategories)) {
           return false;
         }
         if (!needle) return true;
@@ -531,14 +542,51 @@ export function ClientExplorePage({ mediaOnly = false }) {
       <>
         <div className="bb-client-ig-top">
           {mediaOnly ? (
-            <label className="bb-client-ig-search">
-              <span aria-hidden="true">⌕</span>
-              <input
-                value={queryText}
-                placeholder="Search posts, films, notes, or businesses"
-                onChange={(event) => setQueryText(event.target.value)}
-              />
-            </label>
+            <>
+              <div className="bb-explore-discovery-head bb-media-explore-head">
+                <div className="bb-explore-discovery-modes" aria-label="Discovery mode">
+                  <button
+                    type="button"
+                    className={`bb-explore-mode${exploreMode === 'local' ? ' is-active' : ''}`}
+                    onClick={() => updateExplorePrefs({ exploreMode: 'local' })}
+                  >
+                    Local
+                  </button>
+                  <button
+                    type="button"
+                    className={`bb-explore-mode${exploreMode === 'international' ? ' is-active' : ''}`}
+                    onClick={() => updateExplorePrefs({ exploreMode: 'international' })}
+                  >
+                    International
+                  </button>
+                </div>
+                {exploreMode === 'local' && clientCity ? (
+                  <span className="bb-explore-near">Near {clientCity}</span>
+                ) : null}
+              </div>
+              <label className={`bb-search-field bb-media-explore-search${queryText ? ' has-clear' : ''}`}>
+                <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
+                <input
+                  type="search"
+                  className="native-search-input"
+                  value={queryText}
+                  placeholder="Search posts, films, notes, or businesses"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  onChange={(event) => setQueryText(event.target.value)}
+                />
+                {queryText ? (
+                  <button
+                    type="button"
+                    className="bb-search-field-clear"
+                    aria-label="Clear search"
+                    onClick={() => setQueryText('')}
+                  >
+                    <X size={14} strokeWidth={2.4} />
+                  </button>
+                ) : null}
+              </label>
+            </>
           ) : (
             <ExploreDiscoveryBar
             mode={exploreMode}
@@ -581,7 +629,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
                 : 'Widen the distance ring, adjust categories, or try International.'
             }
           />
-        ) : !mediaOnly && accountHits.length ? (
+        ) : !mediaOnly && filter === 'places' && accountHits.length ? (
           <div className="bb-client-ig-accounts" aria-label="Places">
             <p className="bb-explore-places-label">
               {exploreMode === 'local' ? 'Places near you' : 'Ships / books to you'}
@@ -665,7 +713,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
           />
         ) : null}
 
-        {(mediaOnly || (filter !== 'book' && filter !== 'buy')) && filteredPosts.length === 0 &&
+        {mediaOnly && filteredPosts.length === 0 &&
         accountHits.length === 0 &&
         !(exploreMode === 'local' && (clientLat == null || discovered.length === 0)) ? (
           <EmptyState
@@ -673,11 +721,53 @@ export function ClientExplorePage({ mediaOnly = false }) {
             title="Nothing to explore yet"
             description="When businesses publish posts, films, and verticals, they show up here."
           />
-        ) : (!mediaOnly && (filter === 'book' || filter === 'buy')) || filteredPosts.length === 0 ? null : (
-          <ExploreBusinessContent
+        ) : !mediaOnly || filteredPosts.length === 0 ? null : filter === 'films' ? (
+          <div className="bb-client-home-yt bb-client-explore-yt">
+            <SocialVideosPanel
+              posts={filteredPosts}
+              variant="films"
+              editMode={false}
+              showOwnerStats={false}
+              brandName={filteredPosts[0]?._brandName || 'Business'}
+              logoUrl={filteredPosts[0]?._logoUrl || ''}
+              initialActiveId={activeId}
+              onCloseVideo={() => setActiveId('')}
+              wrapMedia={wrapClientMediaReaction}
+              renderWatchActions={(post) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={post._slug || ''}
+                  brandName={post._brandName || ''}
+                  variant="youtube"
+                />
+              )}
+            />
+          </div>
+        ) : filter === 'text' ? (
+          <div className="bb-client-home-notes bb-client-explore-notes">
+            <SocialTextTimeline
+              posts={filteredPosts}
+              brandName={filteredPosts[0]?._brandName || 'Business'}
+              logoUrl={filteredPosts[0]?._logoUrl || ''}
+              slug={filteredPosts[0]?._slug || ''}
+              editMode={false}
+              wrapMedia={wrapClientMediaReaction}
+              renderActions={(post) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={post._slug || ''}
+                  brandName={post._brandName || ''}
+                  variant="twitter"
+                />
+              )}
+            />
+          </div>
+        ) : (
+          <SocialPostsGrid
             posts={filteredPosts}
-            kind={filter === 'films' ? 'films' : filter === 'text' ? 'notes' : 'posts'}
-            onOpen={openTile}
+            editMode={false}
+            onOpenPost={setActiveId}
+            emptyLabel="No posts match this search."
           />
         )}
 
@@ -713,10 +803,12 @@ export function ClientExplorePage({ mediaOnly = false }) {
       <ClientDeskLayout
         className={`bb-client-ig-explore${
           verticalOpen ? ' is-vertical-open is-immersive' : ''
-        }${activePost && !verticalOpen ? ' is-immersive' : ''}`}
+        }${activePost && !verticalOpen ? ' is-immersive' : ''}${
+          mediaOnly ? ' is-media-explore' : ' is-find'
+        }`}
         showContentTabs
         contentTab={filter}
-        contentTabs={mediaOnly ? SOCIAL_PROFILE_TABS : EXPLORE_CONTENT_TABS}
+        contentTabs={mediaOnly ? SOCIAL_PROFILE_TABS : FIND_CONTENT_TABS}
         onContentTabChange={setContentTab}
       >
         {stageBody}
