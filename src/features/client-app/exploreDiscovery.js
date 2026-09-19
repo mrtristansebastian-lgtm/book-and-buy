@@ -38,6 +38,7 @@ export function normalizeBiz(raw = {}) {
     logoUrl: raw.logoUrl || raw.logo || website.logoUrl || '',
     heroImageUrl: raw.heroImageUrl || raw.bannerUrl || website.heroImageUrl || website.socialBannerUrl || '',
     categoryId,
+    pages: { ...(website.pages || raw.pages || {}) },
     categoryLabel: categoryLabelText,
     venueMode,
     locationLat,

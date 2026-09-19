@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useMemo, useState } from 'react';
-import { MapPin, MessageCircle, Search, UserPlus, UserCheck, X } from 'lucide-react';
+import { MapPin, Search, X } from 'lucide-react';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
@@ -29,9 +29,9 @@ import { ClientEngagementBar, wrapClientMediaReaction } from '../ClientEngagemen
 import { startClientMessage } from '../startClientMessage';
 import { ExploreDiscoveryBar } from '../ExploreDiscoveryBar';
 import { ExploreBusinessOffers } from '../ExploreBusinessOffers';
+import { PlacesCards } from '../PlacesCards';
 import {
   filterDiscoverBusinesses,
-  formatBusinessCategoryLocation,
   getBusinessProfileMeta,
   itemMatchesExploreCategories,
   normalizeBiz
@@ -637,51 +637,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
             <p className="bb-explore-places-label">
               {exploreMode === 'local' ? 'Places near you' : 'Ships / books to you'}
             </p>
-            {accountHits.map((biz) => {
-              const isFollowed = followed.has(biz.slug);
-              return (
-                <div key={biz.slug} className="bb-client-ig-account">
-                  <button
-                    type="button"
-                    className="bb-client-ig-account-main"
-                    onClick={() => navigate(publicPagePath(biz.slug, 'home'))}
-                  >
-                    <span className="bb-client-avatar is-sm" aria-hidden="true">
-                      {biz.logoUrl ? (
-                        <img src={biz.logoUrl} alt="" />
-                      ) : (
-                        <BlankMedia variant="avatar" />
-                      )}
-                    </span>
-                    <span>
-                      <strong>{biz.brandName}</strong>
-                      <span className="bb-muted">
-                        {formatBusinessCategoryLocation(biz) || biz.blurb || biz.brandName}
-                      </span>
-                    </span>
-                  </button>
-                  <div className="bb-client-home-head-actions">
-                    <button
-                      type="button"
-                      className="bb-client-home-message"
-                      aria-label={`Message ${biz.brandName}`}
-                      disabled={messagingSlug === biz.slug}
-                      onClick={() => messageBiz(biz)}
-                    >
-                      <MessageCircle size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      className={`bb-client-ig-follow${isFollowed ? ' is-on' : ''}`}
-                      onClick={() => (isFollowed ? unfollowSlug(biz.slug) : followSlug(biz.slug))}
-                    >
-                      {isFollowed ? <UserCheck size={14} /> : <UserPlus size={14} />}
-                      {isFollowed ? 'Following' : 'Follow'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            <PlacesCards businesses={accountHits} followed={followed} followSlug={followSlug} unfollowSlug={unfollowSlug} messageBiz={messageBiz} messagingSlug={messagingSlug} />
           </div>
         ) : !mediaOnly && exploreMode === 'local' && (clientLat == null || discovered.length === 0) ? (
           <EmptyState
