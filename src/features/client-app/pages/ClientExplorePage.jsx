@@ -507,13 +507,15 @@ export function ClientExplorePage({ mediaOnly = false }) {
             initialActiveId={activeId}
             onCloseVideo={() => setActiveId('')}
             wrapMedia={wrapClientMediaReaction}
-            renderWatchActions={(post) => (
+            renderWatchActions={(post, description) => (
               <ClientEngagementBar
                 post={post}
                 slug={post._slug || ''}
                 brandName={post._brandName || ''}
                 variant="youtube"
-              />
+              >
+                {description}
+              </ClientEngagementBar>
             )}
           />
         );
@@ -686,13 +688,15 @@ export function ClientExplorePage({ mediaOnly = false }) {
               initialActiveId={activeId}
               onCloseVideo={() => setActiveId('')}
               wrapMedia={wrapClientMediaReaction}
-              renderWatchActions={(post) => (
+              renderWatchActions={(post, description) => (
                 <ClientEngagementBar
                   post={post}
                   slug={post._slug || ''}
                   brandName={post._brandName || ''}
                   variant="youtube"
-                />
+                >
+                  {description}
+                </ClientEngagementBar>
               )}
             />
           </div>

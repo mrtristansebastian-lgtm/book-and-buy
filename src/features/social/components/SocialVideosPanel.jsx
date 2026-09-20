@@ -69,6 +69,21 @@ function VideoWatchPage({
 
   if (!post) return null;
 
+  const descriptionBlock = editMode || String(post.caption || '').trim() ? (
+    <div className="bb-yt-watch-desc">
+      <p className="bb-yt-watch-desc-label">Description</p>
+      <EditableText
+        as="p"
+        className="bb-yt-watch-caption"
+        editMode={editMode}
+        multiline
+        value={post.caption || ''}
+        placeholder="Add a description…"
+        onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
+      />
+    </div>
+  ) : null;
+
   return (
     <div className="bb-yt-watch" role="dialog" aria-modal="true" aria-label="Video">
       <header className="bb-yt-watch-bar">
@@ -155,30 +170,19 @@ function VideoWatchPage({
             </div>
 
             {typeof renderWatchActions === 'function' ? (
-              <div className="bb-yt-watch-engage">{renderWatchActions(post)}</div>
-            ) : null}
-
-            {editMode || String(post.caption || '').trim() ? (
-              <div className="bb-yt-watch-desc">
-                <p className="bb-yt-watch-desc-label">Description</p>
-                <EditableText
-                  as="p"
-                  className="bb-yt-watch-caption"
-                  editMode={editMode}
-                  multiline
-                  value={post.caption || ''}
-                  placeholder="Add a description…"
-                  onChange={(value) => onUpdateSocialPost?.(post.id, { caption: value })}
-                />
+              <div className="bb-yt-watch-engage">
+                {renderWatchActions(post, descriptionBlock)}
               </div>
-            ) : null}
+            ) : (
+              descriptionBlock
+            )}
           </div>
         </div>
 
         {related.length ? (
           <aside className="bb-yt-related" aria-label="More videos">
             <div className="bb-yt-related-head">
-              <h2 className="bb-yt-related-heading">More videos</h2>
+              <h2 className="bb-yt-related-heading">Up next</h2>
               <span className="bb-yt-related-count">{related.length}</span>
             </div>
             <div className="bb-yt-related-list">

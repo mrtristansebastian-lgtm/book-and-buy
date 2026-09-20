@@ -197,7 +197,8 @@ export function ClientEngagementBar({
   slug = '',
   brandName = '',
   compact = false,
-  variant = 'instagram'
+  variant = 'instagram',
+  children = null
 }) {
   const { profile, isLiked, isSaved, getComments, toggleLike, toggleSave, addComment } =
     useClientProfile();
@@ -387,6 +388,113 @@ export function ClientEngagementBar({
           </div>
         </div>
         {shareHint ? <p className="bb-client-engage-hint">{shareHint}</p> : null}
+        {sheet}
+      </>
+    );
+  }
+
+  if (variant === 'youtube') {
+    const viewerName = String(profile?.displayName || 'You').trim() || 'You';
+    const viewerInitial = viewerName.charAt(0).toUpperCase();
+
+    return (
+      <>
+        <div className="bb-client-youtube-engagement">
+          <div className="bb-client-youtube-action-row" role="group" aria-label="Film actions">
+            <LikeButton
+              className="bb-client-youtube-action"
+              liked={liked}
+              heartSize={18}
+              onToggle={onToggleLike}
+            >
+              <LikeGlyph size={18} liked={liked} />
+              <span>{likeCount.toLocaleString()}</span>
+            </LikeButton>
+            <button
+              type="button"
+              className="bb-client-youtube-action"
+              aria-label="Share"
+              onClick={onShare}
+            >
+              <Send size={17} strokeWidth={2} />
+              <span>Share</span>
+            </button>
+            <button
+              type="button"
+              className={`bb-client-youtube-action${saved ? ' is-on' : ''}`}
+              aria-label={saved ? 'Unsave' : 'Save'}
+              aria-pressed={saved}
+              onClick={() => toggleSave(postSlug, postId)}
+            >
+              <Bookmark
+                size={17}
+                strokeWidth={saved ? 0 : 2}
+                fill={saved ? 'currentColor' : 'none'}
+              />
+              <span>{saved ? 'Saved' : 'Save'}</span>
+            </button>
+          </div>
+
+          {shareHint ? <p className="bb-client-engage-hint">{shareHint}</p> : null}
+
+          {children}
+
+          <section className="bb-client-youtube-comments" aria-label="Comments">
+            <button
+              type="button"
+              className="bb-client-youtube-comments-head"
+              onClick={() => setSheetOpen(true)}
+            >
+              <span>
+                <strong>{commentCount.toLocaleString()}</strong>{' '}
+                {commentCount === 1 ? 'Comment' : 'Comments'}
+              </span>
+              <MessageCircle size={18} strokeWidth={2} />
+            </button>
+
+            <button
+              type="button"
+              className="bb-client-youtube-comment-prompt"
+              onClick={() => setSheetOpen(true)}
+            >
+              <span className="bb-client-youtube-comment-avatar" aria-hidden="true">
+                {viewerInitial}
+              </span>
+              <span>Add a comment…</span>
+            </button>
+
+            {comments.length ? (
+              <div className="bb-client-youtube-comment-preview">
+                {comments.slice(0, 2).map((comment) => (
+                  <button
+                    key={comment.id}
+                    type="button"
+                    className="bb-client-youtube-comment-row"
+                    onClick={() => setSheetOpen(true)}
+                  >
+                    <span className="bb-client-youtube-comment-avatar" aria-hidden="true">
+                      {String(comment.authorName || viewerName).charAt(0).toUpperCase()}
+                    </span>
+                    <span className="bb-client-youtube-comment-copy">
+                      <strong>{comment.authorName || viewerName}</strong>
+                      <span>{comment.body}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            {commentCount > 0 ? (
+              <button
+                type="button"
+                className="bb-client-youtube-view-comments"
+                onClick={() => setSheetOpen(true)}
+              >
+                View all comments
+              </button>
+            ) : null}
+          </section>
+        </div>
         {sheet}
       </>
     );

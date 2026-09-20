@@ -133,14 +133,16 @@ function watchLogo(posts) {
   return posts[0]?._logoUrl || '';
 }
 
-function filmWatchActions(post) {
+function filmWatchActions(post, description) {
   return (
     <ClientEngagementBar
       post={post}
       slug={post._slug || ''}
       brandName={post._brandName || ''}
       variant="youtube"
-    />
+    >
+      {description}
+    </ClientEngagementBar>
   );
 }
 
