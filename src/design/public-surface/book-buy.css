@@ -146,7 +146,7 @@
 }
 
 .bb-device-preview--phone .bb-public-detail-frame {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   border-radius: 0.9rem;
 }
 

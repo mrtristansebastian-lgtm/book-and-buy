@@ -752,7 +752,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 }
 
 .bb-services-review-media {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 1 / 1;
   border-radius: 0.65rem;
   overflow: hidden;
   background: #f2f4f7;
@@ -940,8 +940,8 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   display: grid;
   place-items: center;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 11rem;
+  max-width: 20rem;
+  aspect-ratio: 1 / 1;
   border-radius: 0.85rem;
   border: 1px dashed rgba(15, 23, 42, 0.16);
   background: #f8fafc;
