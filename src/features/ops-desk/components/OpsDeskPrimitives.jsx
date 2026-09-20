@@ -29,7 +29,7 @@ const TAB_ICONS = {
 
 export function OpsDeskTabs({ ariaLabel, value, onChange, options = [] }) {
   return (
-    <div className="bb-ops-tabs" role="tablist" aria-label={ariaLabel}>
+    <div className="bb-support-chips" role="toolbar" aria-label={ariaLabel}>
       {options.map((option) => {
         const active = value === option.id;
         const Icon = option.icon || TAB_ICONS[option.id] || ClipboardList;
@@ -37,16 +37,15 @@ export function OpsDeskTabs({ ariaLabel, value, onChange, options = [] }) {
           <button
             key={option.id}
             type="button"
-            role="tab"
-            aria-selected={active}
-            className={`bb-ops-tab ${active ? 'is-active' : ''}`}
+            aria-pressed={active}
+            className={`bb-support-filter-chip${active ? ' is-active' : ''}`}
             onClick={() => onChange?.(option.id)}
           >
-            <span className="bb-ops-tab-icon" aria-hidden="true">
+            <span aria-hidden="true">
               <Icon size={13} strokeWidth={2.35} />
             </span>
             <span>{option.label}</span>
-            <span className="bb-ops-tab-count">{option.count ?? 0}</span>
+            <span className="bb-support-filter-count">{option.count ?? 0}</span>
           </button>
         );
       })}

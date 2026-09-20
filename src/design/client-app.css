@@ -1,7 +1,7 @@
 /* Client app shell ? mobile phone chrome; PC full-width like business mini-apps */
 
 .bb-client-shell {
-  --bb-client-tab-h: calc(3.35rem + env(safe-area-inset-bottom, 0px));
+  --bb-client-tab-h: calc(4rem + env(safe-area-inset-bottom, 0px));
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) var(--bb-client-tab-h);
   height: 100dvh;
@@ -328,6 +328,24 @@
   background-size: 100% 100%, 420% 420%;
   background-position: 0 0, var(--native-accent-x, 40%) 50%;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
+}
+
+@media (max-width: 899px) {
+  .bb-client-tabs {
+    position: fixed;
+    inset: auto 0 0;
+    height: var(--bb-client-tab-h);
+    box-sizing: border-box;
+    margin: 0;
+  }
+  .bb-client-tab-icon { width: 3.1rem; height: 3.1rem; min-width: 3.1rem; min-height: 3.1rem; }
+  .bb-client-tab-icon svg { width: 25px; height: 25px; }
+  .bb-client-shell.is-dock-hidden:not(:has(.bb-client-home-feed.is-vertical-open)):not(:has(.bb-client-ig-explore.is-immersive .bb-vertical-watch)) {
+    grid-template-rows: auto minmax(0, 1fr) 0;
+  }
+  .bb-client-shell.is-headerless.is-dock-hidden:not(:has(.bb-client-home-feed.is-vertical-open)):not(:has(.bb-client-ig-explore.is-immersive .bb-vertical-watch)) {
+    grid-template-rows: minmax(0, 1fr) 0;
+  }
 }
 
 .bb-client-tab.is-active .bb-client-tab-icon svg {
