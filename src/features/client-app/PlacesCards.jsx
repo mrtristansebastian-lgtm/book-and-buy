@@ -31,14 +31,17 @@ function Picture({ src, variant }) {
   return src ? <img src={src} alt="" onError={(event) => { event.currentTarget.style.display = 'none'; }} /> : <BlankMedia variant={variant} />;
 }
 
-function Identity({ biz }) {
+function Identity({ biz, showFullAddress = false }) {
   const { category, location, onlineOnly } = getBusinessProfileMeta(biz);
   const distance = onlineOnly ? '' : formatDistanceKm(biz.distanceKm);
+  const locationLabel = !onlineOnly && showFullAddress
+    ? String(biz.fullAddress || biz.address || location || '').trim()
+    : location;
   return <>
     <span className="bb-places-name">{biz.brandName}</span>
     <span className="bb-public-profile-meta bb-places-meta">
       {category ? <span className="bb-public-profile-chip bb-public-profile-chip--category"><span className="bb-public-profile-category">{category}</span></span> : null}
-      {location ? <span className="bb-public-profile-chip bb-public-profile-chip--location"><span className="bb-public-profile-chip-icon" aria-hidden="true" /><span className="bb-public-profile-location">{location}</span></span> : null}
+      {locationLabel ? <span className="bb-public-profile-chip bb-public-profile-chip--location"><span className="bb-public-profile-chip-icon" aria-hidden="true" /><span className="bb-public-profile-location">{locationLabel}</span></span> : null}
     </span>
     {distance ? <span className="bb-places-distance">{distance} from you</span> : null}
   </>;
@@ -122,7 +125,7 @@ export function PlacesCards({ businesses, followed, followSlug, unfollowSlug, me
       {businesses.map((item) => <article className="bb-places-row" key={item.slug}>
         <button type="button" className="bb-places-open" onClick={() => setSelected(item.slug)} aria-label={`View ${item.brandName} business card`}>
           <span className="bb-places-row-art"><Picture src={item.heroImageUrl} variant="banner" /><span className="bb-places-avatar"><Picture src={item.logoUrl} variant="avatar" /></span></span>
-          <span className="bb-places-row-identity"><Identity biz={item} /></span>
+          <span className="bb-places-row-identity"><Identity biz={item} showFullAddress /></span>
           <span className="bb-places-row-chevron" aria-hidden="true"><ChevronRight size={20} /></span>
         </button>
       </article>)}
