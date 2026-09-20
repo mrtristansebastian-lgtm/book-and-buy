@@ -4559,7 +4559,7 @@
 
 .bb-client-ig-explore.is-find .bb-explore-biz-card {
   position: relative;
-  grid-template-columns: 16rem minmax(0, 1fr);
+  grid-template-columns: 12.5rem minmax(0, 1fr);
   gap: 0.7rem;
   padding: 0.6rem;
   border-radius: 0;
@@ -4570,7 +4570,7 @@
 .bb-client-ig-explore.is-find .bb-explore-biz-card-head {
   position: relative;
   grid-template-columns: 1fr;
-  grid-template-rows: 3.65rem minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   min-height: 12.5rem;
   overflow: hidden;
   gap: 0;
@@ -4580,13 +4580,15 @@
 }
 
 .bb-client-ig-explore.is-find .bb-explore-biz-card-banner {
-  height: 3.65rem;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
   border-radius: 0;
 }
 
 .bb-client-ig-explore.is-find .bb-explore-biz-card-head > .bb-client-avatar {
   position: absolute;
-  top: 2.35rem;
+  top: 5.53rem;
   left: 50%;
   z-index: 1;
   display: grid;
@@ -4776,7 +4778,7 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
   .bb-client-ig-explore.is-find .bb-explore-biz-card-head {
     flex: 0 0 9.75rem;
     grid-template-columns: 1fr;
-    grid-template-rows: 3.3rem minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     width: 9.75rem;
     height: auto;
     min-height: 0;
@@ -4787,12 +4789,13 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
     grid-row: 1;
     grid-column: 1;
     width: 100%;
-    height: 3.3rem;
+    height: auto;
+    aspect-ratio: 16 / 9;
     border-radius: 0;
   }
 
   .bb-client-ig-explore.is-find .bb-explore-biz-card-head > .bb-client-avatar {
-    top: 2rem;
+    top: 3.91rem;
     display: grid;
   }
 
