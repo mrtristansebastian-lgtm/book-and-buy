@@ -5,10 +5,9 @@ import {
   CalendarDays,
   ChevronRight,
   Home,
-  Image,
   MapPin,
   MessageCircle,
-  Navigation,
+  Share2,
   ShoppingBag,
   UserCheck,
   UserPlus,
@@ -21,17 +20,17 @@ import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { getBusinessProfileMeta } from './exploreDiscovery';
 
 const destinations = [
-  { id: 'home', label: 'Home', Icon: Home },
-  { id: 'social', label: 'Social', Icon: Image },
-  { id: 'book', label: 'Book', Icon: CalendarDays },
-  { id: 'buy', label: 'Buy', Icon: ShoppingBag }
+  { id: 'home', label: 'Home', hint: 'Learn about this business', Icon: Home },
+  { id: 'social', label: 'Social', hint: 'See their latest posts', Icon: Share2 },
+  { id: 'book', label: 'Book', hint: 'Book a service or class', Icon: CalendarDays },
+  { id: 'buy', label: 'Buy', hint: 'Shop their products', Icon: ShoppingBag }
 ];
 
 function Picture({ src, variant }) {
   return src ? <img src={src} alt="" onError={(event) => { event.currentTarget.style.display = 'none'; }} /> : <BlankMedia variant={variant} />;
 }
 
-function Identity({ biz, showFullAddress = false }) {
+function Identity({ biz, showFullAddress = false, showLocation = true, showDistance = true }) {
   const { category, location, onlineOnly } = getBusinessProfileMeta(biz);
   const distance = onlineOnly ? '' : formatDistanceKm(biz.distanceKm);
   const locationLabel = !onlineOnly && showFullAddress
@@ -41,9 +40,9 @@ function Identity({ biz, showFullAddress = false }) {
     <span className="bb-places-name">{biz.brandName}</span>
     <span className="bb-public-profile-meta bb-places-meta">
       {category ? <span className="bb-public-profile-chip bb-public-profile-chip--category"><span className="bb-public-profile-category">{category}</span></span> : null}
-      {locationLabel ? <span className="bb-public-profile-chip bb-public-profile-chip--location"><span className="bb-public-profile-chip-icon" aria-hidden="true" /><span className="bb-public-profile-location">{locationLabel}</span></span> : null}
+      {showLocation && locationLabel ? <span className="bb-public-profile-chip bb-public-profile-chip--location"><span className="bb-public-profile-chip-icon" aria-hidden="true" /><span className="bb-public-profile-location">{locationLabel}</span></span> : null}
     </span>
-    {distance ? <span className="bb-places-distance">{distance} from you</span> : null}
+    {showDistance && distance ? <span className="bb-places-distance">{distance} from you</span> : null}
   </>;
 }
 
@@ -80,7 +79,7 @@ function BusinessCard({ biz, onClose, followed, onFollow, onMessage, messaging }
       <div className="bb-places-cover"><Picture src={biz.heroImageUrl} variant="banner" /></div>
       <div className="bb-places-dialog-identity">
         <span className="bb-places-avatar"><Picture src={biz.logoUrl} variant="avatar" /></span>
-        <Identity biz={biz} />
+        <Identity biz={biz} showLocation={false} showDistance={false} />
       </div>
       {biz.about ? <section className="bb-places-section bb-places-about" aria-labelledby="bb-places-about-title">
         <SectionTitle><span id="bb-places-about-title">About</span></SectionTitle>
@@ -91,14 +90,14 @@ function BusinessCard({ biz, onClose, followed, onFollow, onMessage, messaging }
           <SectionTitle><span id="bb-places-visit-title">Visit</span></SectionTitle>
           {biz.mapLinkUrl ? (
             <a className="bb-places-address" href={biz.mapLinkUrl} target="_blank" rel="noreferrer">
-              <MapPin size={18} aria-hidden="true" />
-              <span>{biz.fullAddress}</span>
-              <span className="bb-places-directions">Directions <Navigation size={14} aria-hidden="true" /></span>
+              <span className="bb-places-address-icon" aria-hidden="true"><MapPin size={18} /></span>
+              <span className="bb-places-address-copy">{biz.fullAddress}</span>
+              <span className="bb-places-directions">Directions <ArrowUpRight size={14} aria-hidden="true" /></span>
             </a>
           ) : (
             <div className="bb-places-address">
-              <MapPin size={18} aria-hidden="true" />
-              <span>{biz.fullAddress}</span>
+              <span className="bb-places-address-icon" aria-hidden="true"><MapPin size={18} /></span>
+              <span className="bb-places-address-copy">{biz.fullAddress}</span>
             </div>
           )}
         </section>
@@ -106,12 +105,16 @@ function BusinessCard({ biz, onClose, followed, onFollow, onMessage, messaging }
       <section className="bb-places-section bb-places-pages-section" aria-labelledby="bb-places-pages-title">
         <SectionTitle><span id="bb-places-pages-title">Explore this business</span></SectionTitle>
         <nav className="bb-places-pages" aria-label="Business pages">
-          {destinations.filter(({ id }) => isPublicPageEnabled(biz.pages, id)).map(({ id, label, Icon }) => <a key={id} href={`#${publicPagePath(biz.slug, id)}`} onClick={onClose}><Icon size={18} /><span>{label}</span><ArrowUpRight size={15} /></a>)}
+          {destinations.filter(({ id }) => isPublicPageEnabled(biz.pages, id)).map(({ id, label, hint, Icon }) => <a key={id} href={`#${publicPagePath(biz.slug, id)}`} onClick={onClose}>
+            <span className="bb-places-page-icon" aria-hidden="true"><Icon size={17} /></span>
+            <span className="bb-places-page-copy"><strong>{label}</strong><small>{hint}</small></span>
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </a>)}
         </nav>
       </section>
       <div className="bb-places-secondary">
-        <button type="button" onClick={() => onMessage(biz)} disabled={messaging}><MessageCircle size={17} />{messaging ? 'Opening…' : 'Message'}</button>
-        <button type="button" onClick={() => onFollow(biz.slug)}>{followed ? <UserCheck size={17} /> : <UserPlus size={17} />}{followed ? 'Following' : 'Follow'}</button>
+        <button type="button" className="bb-places-action is-message" onClick={() => onMessage(biz)} disabled={messaging}><MessageCircle size={16} />{messaging ? 'Opening…' : 'Message'}</button>
+        <button type="button" className={`bb-places-action ${followed ? 'is-following' : 'is-follow'}`} onClick={() => onFollow(biz.slug)}>{followed ? <UserCheck size={16} /> : <UserPlus size={16} />}{followed ? 'Following' : 'Follow'}</button>
       </div>
     </section>
   </div>, document.body);
