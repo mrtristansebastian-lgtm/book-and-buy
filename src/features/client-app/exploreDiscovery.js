@@ -29,12 +29,19 @@ export function normalizeBiz(raw = {}) {
     : Array.isArray(website.servesCountries)
       ? website.servesCountries
       : [];
+  const blurb = String(raw.tagline || raw.blurb || raw.about || website.homeSubtext || '').trim();
+  const aboutPages = Array.isArray(website.aboutPages) ? website.aboutPages : [];
+  const firstAboutBody = aboutPages
+    .map((page) => String(page?.body || '').trim())
+    .find(Boolean) || '';
+  const fullAddress = String(raw.fullAddress || website.address || raw.address || '').trim();
 
   return {
     slug,
     ownerId: String(raw.ownerId || '').trim(),
     brandName: String(raw.brandName || raw.name || slug).trim() || slug,
-    blurb: String(raw.tagline || raw.blurb || raw.about || website.homeSubtext || '').trim(),
+    blurb,
+    about: String(website.aboutBody || firstAboutBody || blurb).trim(),
     logoUrl: raw.logoUrl || raw.logo || website.logoUrl || '',
     heroImageUrl: raw.heroImageUrl || raw.bannerUrl || website.heroImageUrl || website.socialBannerUrl || '',
     categoryId,
@@ -46,7 +53,9 @@ export function normalizeBiz(raw = {}) {
     countryCode,
     city,
     servesCountries: servesCountries.map((c) => String(c || '').trim().toUpperCase()).filter(Boolean),
-    address: String(website.address || raw.address || '').trim()
+    address: fullAddress,
+    fullAddress,
+    mapLinkUrl: String(raw.mapLinkUrl || website.mapLinkUrl || '').trim()
   };
 }
 

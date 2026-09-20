@@ -4791,53 +4791,66 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
   }
 }
 
-.bb-places-list { display: grid; gap: 0.75rem; width: 100%; }
-.bb-places-row { display: flex; align-items: center; gap: 1.25rem; padding: 0.75rem; background: #fff; border: 1px solid #e7eaf0; }
-.bb-places-open { display: flex; flex: 1; min-width: 0; align-items: center; gap: 1.25rem; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; color: #101828; }
-.bb-places-row-art { position: relative; flex: 0 0 11rem; height: 7rem; background: #f3f5f7; }
+.bb-places-list { display: grid; gap: 0.55rem; width: 100%; padding: 0.1rem 0 1.25rem; }
+.bb-places-row { min-width: 0; background: #fff; border: 1px solid #e4e7ec; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+.bb-places-row:hover { border-color: #cfd4dc; box-shadow: 0 8px 22px #1018280b; transform: translateY(-1px); }
+.bb-places-open { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) 2rem; width: 100%; height: 7.25rem; min-width: 0; align-items: stretch; gap: 1rem; padding: 0.5rem 0.65rem 0.5rem 0.5rem; border: 0; background: transparent; text-align: left; cursor: pointer; color: #101828; }
+.bb-places-row-art { position: relative; min-width: 0; height: 100%; overflow: hidden; background: #f3f5f7; }
 .bb-places-row-art > img, .bb-places-cover > img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .bb-places-avatar { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border: 3px solid white; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 3px 12px #10182814; }
 .bb-places-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.bb-places-row-art .bb-places-avatar { position: absolute; bottom: 0.5rem; left: 0.5rem; }
-.bb-places-row-identity { display: grid; min-width: 0; gap: 0.35rem; }
+.bb-places-row-art .bb-places-avatar { position: absolute; bottom: 0.45rem; left: 0.45rem; width: 2.8rem; height: 2.8rem; }
+.bb-places-row-identity { display: grid; min-width: 0; align-content: center; justify-items: start; gap: 0.42rem; overflow: hidden; }
 .bb-places-name { font-size: 1rem; font-weight: 760; line-height: 1.3; overflow-wrap: anywhere; }
-.bb-places-bio { color: #667085; font-size: 0.78rem; line-height: 1.5; overflow-wrap: anywhere; }
-.bb-places-row .bb-places-bio { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bb-places-row .bb-places-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .bb-places-meta { max-width: 100%; margin: 0; gap: 0.35rem; }
-.bb-places-row .bb-places-meta { justify-content: flex-start; }
+.bb-places-row .bb-places-meta { justify-content: flex-start; max-height: 3.1rem; overflow: hidden; }
 .bb-places-meta .bb-public-profile-chip { max-width: 100%; }
 .bb-places-meta .bb-public-profile-category, .bb-places-meta .bb-public-profile-location { white-space: normal; overflow-wrap: anywhere; line-height: 1.3; min-width: 0; }
 .bb-places-distance { font-size: 0.7rem; color: #667085; }
-.bb-places-row .bb-places-view { flex: 0 0 6rem; width: auto; min-height: 2.5rem; margin: 0; border-radius: 0; }
+.bb-places-row-chevron { display: grid; place-items: center; align-self: center; width: 2rem; height: 2rem; color: #98a2b3; transition: color 160ms ease, transform 160ms ease; }
+.bb-places-row:hover .bb-places-row-chevron { color: #344054; transform: translateX(2px); }
 .bb-places-overlay { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 1.5rem; background: #10182870; backdrop-filter: blur(5px); }
-.bb-places-dialog { position: relative; width: min(100%, 30rem); max-height: calc(100dvh - 3rem); overflow-y: auto; background: #fff; color: #101828; box-shadow: 0 24px 80px #10182838; }
+.bb-places-dialog { position: relative; width: min(100%, 34rem); max-height: calc(100dvh - 3rem); overflow-y: auto; overscroll-behavior: contain; background: #fff; color: #101828; box-shadow: 0 24px 80px #10182838; }
 .bb-places-close { position: absolute; right: 0.75rem; top: 0.75rem; z-index: 1; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1px solid #e7eaf0; background: #fff; color: #101828; cursor: pointer; }
-.bb-places-cover { height: 10rem; background: #f3f5f7; overflow: hidden; }
-.bb-places-dialog-identity { display: grid; justify-items: center; gap: 0.65rem; padding: 0 1.5rem 1.25rem; text-align: center; }
+.bb-places-cover { height: 11rem; background: #f3f5f7; overflow: hidden; }
+.bb-places-dialog-identity { display: grid; justify-items: center; gap: 0.6rem; padding: 0 1.5rem 1rem; text-align: center; }
 .bb-places-dialog-identity .bb-places-avatar { width: 5rem; height: 5rem; margin-top: -2.5rem; position: relative; }
-.bb-places-dialog-identity .bb-places-name { font-size: 1.25rem; }
-.bb-places-pages { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; padding: 0 1.5rem 1.25rem; }
-.bb-places-pages a { display: flex; align-items: center; gap: 0.65rem; min-height: 3.25rem; padding: 0.8rem; border: 1px solid #e2e7ee; color: #101828; background: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 700; }
+.bb-places-dialog-identity .bb-places-name { font-size: 1.3rem; }
+.bb-places-section { padding: 1rem 1.5rem 1.1rem; border-top: 1px solid #eef1f4; }
+.bb-places-section-title { margin: 0 0 0.55rem; color: #667085; font-size: 0.68rem; font-weight: 760; letter-spacing: 0.095em; line-height: 1.3; text-transform: uppercase; }
+.bb-places-about p { margin: 0; color: #344054; font-size: 0.84rem; line-height: 1.6; overflow-wrap: anywhere; }
+.bb-places-address { display: grid; grid-template-columns: 1.15rem minmax(0, 1fr) auto; align-items: center; gap: 0.65rem; min-width: 0; color: #101828; font-size: 0.82rem; font-weight: 650; line-height: 1.45; text-decoration: none; }
+.bb-places-address > svg { color: #667085; }
+.bb-places-directions { display: inline-flex; align-items: center; gap: 0.3rem; color: #475467; font-size: 0.72rem; font-weight: 720; white-space: nowrap; }
+a.bb-places-address:hover .bb-places-directions { color: #101828; }
+.bb-places-pages-section { padding-bottom: 1.2rem; }
+.bb-places-pages { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+.bb-places-pages a { display: flex; align-items: center; gap: 0.6rem; min-height: 3rem; padding: 0.72rem 0.78rem; border: 1px solid #e2e7ee; color: #101828; background: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 700; }
 .bb-places-pages a span { flex: 1; }
-.bb-places-secondary { display: flex; justify-content: center; gap: 0.75rem; border-top: 1px solid #eef0f4; padding: 1rem 1.5rem; }
-.bb-places-secondary button { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex: 1; min-height: 2.75rem; border: 0; background: #f7f8fa; color: #475467; font-size: 0.8rem; font-weight: 650; cursor: pointer; }
+.bb-places-secondary { display: flex; justify-content: center; gap: 0.55rem; border-top: 1px solid #eef0f4; padding: 0.8rem 1.5rem 1rem; }
+.bb-places-secondary button { display: flex; align-items: center; justify-content: center; gap: 0.45rem; flex: 1; min-height: 2.45rem; border: 1px solid #eaecf0; background: #f8f9fb; color: #475467; font-size: 0.76rem; font-weight: 680; cursor: pointer; }
 .bb-places-pages a:hover, .bb-places-secondary button:hover { background: #f2f4f7; }
-.bb-places-open:focus-visible, .bb-places-view:focus-visible, .bb-places-dialog a:focus-visible, .bb-places-dialog button:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
+.bb-places-open:focus-visible, .bb-places-dialog a:focus-visible, .bb-places-dialog button:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
 @media (max-width: 599px) {
-  .bb-places-row { gap: 0.5rem; padding: 0.6rem; }
-  .bb-places-open { gap: 0.65rem; }
-  .bb-places-row-identity { flex: 1; gap: 0.3rem; align-content: center; }
-  .bb-places-row-art { flex-basis: 4.25rem; height: 6rem; }
-  .bb-places-row-art .bb-places-avatar { width: 2.5rem; height: 2.5rem; left: 0.35rem; }
-  .bb-places-row .bb-places-name { font-size: 0.85rem; line-height: 1.25; }
-  .bb-places-row .bb-places-bio { font-size: 0.7rem; line-height: 1.35; }
+  .bb-places-list { gap: 0.45rem; }
+  .bb-places-open { grid-template-columns: 5.4rem minmax(0, 1fr) 1.6rem; height: 6.75rem; gap: 0.65rem; padding: 0.45rem 0.4rem 0.45rem 0.45rem; }
+  .bb-places-row-identity { gap: 0.3rem; }
+  .bb-places-row-art .bb-places-avatar { width: 2.35rem; height: 2.35rem; left: 0.3rem; bottom: 0.3rem; border-width: 2px; }
+  .bb-places-row .bb-places-name { font-size: 0.88rem; line-height: 1.25; }
   .bb-places-row .bb-places-meta { gap: 0.25rem; justify-content: flex-start; }
   .bb-places-row .bb-places-distance { font-size: 0.65rem; line-height: 1.3; margin-top: 0.05rem; }
-  .bb-places-row .bb-public-profile-chip { padding: 0.2rem 0.4rem; min-height: 1.4rem; }
-  .bb-places-row .bb-public-profile-category, .bb-places-row .bb-public-profile-location { font-size: 0.62rem; }
-  .bb-places-row .bb-places-view { flex: 0 0 3.25rem; min-height: 2rem; padding: 0.3rem; font-size: 0.7rem; }
+  .bb-places-row .bb-public-profile-chip { padding: 0.18rem 0.38rem; min-height: 1.35rem; }
+  .bb-places-row .bb-public-profile-category, .bb-places-row .bb-public-profile-location { font-size: 0.61rem; line-height: 1.2; }
+  .bb-places-row-chevron { width: 1.6rem; height: 1.6rem; }
   .bb-places-overlay { padding: 0; align-items: end; }
   .bb-places-dialog { width: 100%; max-height: 92dvh; padding-bottom: env(safe-area-inset-bottom); }
+  .bb-places-cover { height: 10rem; }
+  .bb-places-dialog-identity { padding-inline: 1.1rem; }
+  .bb-places-section { padding: 0.9rem 1.1rem 1rem; }
+  .bb-places-address { grid-template-columns: 1.1rem minmax(0, 1fr); }
+  .bb-places-directions { grid-column: 2; justify-self: start; }
+  .bb-places-secondary { padding-inline: 1.1rem; }
 }
 
 /* Explore social uses the same equal-space, one-business-at-a-time system. */
