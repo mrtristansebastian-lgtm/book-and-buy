@@ -686,6 +686,12 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
     max-width: none;
   }
 
+  .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-name {
+    font-size: 1.7rem;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+
   .bb-public-profile-panel--content:has(.bb-public-social--split) .bb-public-profile-meta {
     justify-content: center;
     max-width: none;
@@ -4454,4 +4460,3 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-visit-body
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
   }
 }
-
