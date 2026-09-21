@@ -8,6 +8,7 @@ import { SOCIAL_PROFILE_TABS, SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
 import { listCanonicalSocialPosts } from '../socialApi';
+import { ClientEngagementBar, wrapClientMediaReaction } from '../../client-app/ClientEngagementBar';
 
 function sortPosts(posts) {
   return [...posts].sort(
@@ -227,6 +228,15 @@ export function SocialFeed({
               slug={slug}
               onBack={closeFeed}
               onUpdateSocialPost={onUpdateSocialPost}
+              wrapMedia={wrapClientMediaReaction}
+              renderPostActions={(post) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={slug}
+                  brandName={workspace.brandName || workspace.name || ''}
+                  variant="pulse"
+                />
+              )}
             />
           ) : null}
 
@@ -251,6 +261,17 @@ export function SocialFeed({
               initialActiveId={routeKind === 'video' ? routePostId : ''}
               onOpenVideo={openVideo}
               onCloseVideo={closeVideo}
+              wrapMedia={wrapClientMediaReaction}
+              renderWatchActions={(post, description) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={slug}
+                  brandName={workspace.brandName || workspace.name || ''}
+                  variant="youtube"
+                >
+                  {description}
+                </ClientEngagementBar>
+              )}
             />
           ) : null}
           {!feedOpen && tab === 'verticals' ? (
@@ -265,6 +286,15 @@ export function SocialFeed({
               initialActiveId={routeKind === 'vertical' ? routePostId : ''}
               onOpenVideo={openVideo}
               onCloseVideo={closeVideo}
+              wrapMedia={wrapClientMediaReaction}
+              renderWatchActions={(post) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={slug}
+                  brandName={workspace.brandName || workspace.name || ''}
+                  variant="tiktok"
+                />
+              )}
             />
           ) : null}
           {!feedOpen && tab === 'text' ? (
@@ -275,6 +305,15 @@ export function SocialFeed({
               logoUrl={website.logoUrl || ''}
               slug={workspace.slug || ''}
               onUpdateSocialPost={onUpdateSocialPost}
+              wrapMedia={wrapClientMediaReaction}
+              renderActions={(post) => (
+                <ClientEngagementBar
+                  post={post}
+                  slug={slug}
+                  brandName={workspace.brandName || workspace.name || ''}
+                  variant="twitter"
+                />
+              )}
             />
           ) : null}
         </div>

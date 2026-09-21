@@ -7,6 +7,7 @@ import { SocialPostsGrid } from '../social/components/SocialPostsGrid';
 import { SocialPostFeed } from '../social/components/SocialPostFeed';
 import { SocialVideosPanel } from '../social/components/SocialVideosPanel';
 import { SocialTextTimeline } from '../social/components/SocialTextTimeline';
+import { ClientEngagementBar, wrapClientMediaReaction } from './ClientEngagementBar';
 
 function isPublished(post) {
   if (post?.published === false) return false;
@@ -138,6 +139,10 @@ export function ClientSocialShelf({
             slug={displaySlug}
             showPublishToggle={false}
             onBack={() => setFeedId('')}
+            wrapMedia={wrapClientMediaReaction}
+            renderPostActions={(post) => (
+              <ClientEngagementBar post={post} slug={displaySlug} brandName={displayBrand} variant="pulse" />
+            )}
           />
         ) : null}
 
@@ -160,6 +165,12 @@ export function ClientSocialShelf({
             logoUrl={displayLogo}
             onOpenVideo={() => setVideoWatchOpen(true)}
             onCloseVideo={() => setVideoWatchOpen(false)}
+            wrapMedia={wrapClientMediaReaction}
+            renderWatchActions={(post, description) => (
+              <ClientEngagementBar post={post} slug={displaySlug} brandName={displayBrand} variant="youtube">
+                {description}
+              </ClientEngagementBar>
+            )}
           />
         ) : null}
 
@@ -173,6 +184,10 @@ export function ClientSocialShelf({
             logoUrl={displayLogo}
             onOpenVideo={() => setVideoWatchOpen(true)}
             onCloseVideo={() => setVideoWatchOpen(false)}
+            wrapMedia={wrapClientMediaReaction}
+            renderWatchActions={(post) => (
+              <ClientEngagementBar post={post} slug={displaySlug} brandName={displayBrand} variant="tiktok" />
+            )}
           />
         ) : null}
 
@@ -183,6 +198,10 @@ export function ClientSocialShelf({
             brandName={displayBrand}
             logoUrl={displayLogo}
             slug={displaySlug}
+            wrapMedia={wrapClientMediaReaction}
+            renderActions={(post) => (
+              <ClientEngagementBar post={post} slug={displaySlug} brandName={displayBrand} variant="twitter" />
+            )}
           />
         ) : null}
       </div>

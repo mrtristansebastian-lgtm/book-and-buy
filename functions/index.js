@@ -40,7 +40,9 @@ export {
 
 if (!getApps().length) initializeApp();
 
-const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
+const socialDeployOnly = process.env.SOCIAL_DEPLOY_ONLY === 'true';
+const googlePlacesApiKey = socialDeployOnly ? null : defineSecret('GOOGLE_PLACES_API_KEY');
+const googlePlacesCallOptions = googlePlacesApiKey ? { secrets: [googlePlacesApiKey] } : {};
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 
@@ -120,12 +122,12 @@ export const getPublicServiceAvailability = onCall(async (request) => {
   }
 });
 
-export const getGooglePlaceReviews = onCall({ secrets: [googlePlacesApiKey] }, async (request) => {
+export const getGooglePlaceReviews = onCall(googlePlacesCallOptions, async (request) => {
   try {
     requireAuth(request);
     return await fetchPlaceReviews({
       placeId: request.data?.placeId,
-      apiKey: googlePlacesApiKey.value()
+      apiKey: googlePlacesApiKey?.value() || ''
     });
   } catch (error) {
     wrapError(error);

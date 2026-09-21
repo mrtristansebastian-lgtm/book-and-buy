@@ -6,7 +6,6 @@ import {
   Heart,
   Link2,
   MessageCircle,
-  Repeat2,
   Reply,
   Send,
   Share,
@@ -100,6 +99,8 @@ function CommentsSheet({
   onSubmit,
   onToggleLike,
   onDelete,
+  ownerMode,
+  onModerate,
   onLoadReplies,
   loading,
   loadingMore,
@@ -196,8 +197,12 @@ function CommentsSheet({
                     <div className="bb-client-comment-meta">
                       <time>{relativeCommentTime(comment.createdAtMs || comment.at)}</time>
                       <button type="button" onClick={() => startReply(comment)}>Reply</button>
-                      {comment.authorUid === profile?.uid ? (
-                        <button type="button" aria-label="Delete comment" onClick={() => onDelete?.(comment)}>
+                      {comment.authorUid === profile?.uid || ownerMode ? (
+                        <button
+                          type="button"
+                          aria-label={comment.authorUid === profile?.uid ? 'Delete comment' : 'Remove comment'}
+                          onClick={() => comment.authorUid === profile?.uid ? onDelete?.(comment) : onModerate?.(comment)}
+                        >
                           <Trash2 size={13} />
                         </button>
                       ) : null}
@@ -380,6 +385,8 @@ export function ClientEngagementBar({
   brandName = '',
   compact = false,
   variant = 'instagram',
+  showSave = true,
+  ownerMode = false,
   children = null
 }) {
   const { profile, isLiked, isSaved, getComments, toggleLike, toggleSave, addComment } =
@@ -568,6 +575,18 @@ export function ClientEngagementBar({
     }
   };
 
+  const moderateComment = async (comment) => {
+    setRemoteComments((prev) => (prev || legacyComments).filter((item) => item.id !== comment.id));
+    if (canonicalEnabled) {
+      socialMutations
+        .moderateComment({ slug: postSlug, postId, commentId: comment.id, moderationState: 'hidden' })
+        .catch(() => {
+          setRemoteComments((prev) => [comment, ...(prev || [])]);
+          setShareHint('Could not remove comment. Try again.');
+        });
+    }
+  };
+
   const onToggleLike = () => toggleLike(postSlug, postId);
 
   const sheet = (
@@ -581,6 +600,8 @@ export function ClientEngagementBar({
       onSubmit={submitComment}
       onToggleLike={toggleCommentLike}
       onDelete={deleteComment}
+      ownerMode={ownerMode}
+      onModerate={moderateComment}
       onLoadReplies={loadReplies}
       loading={commentsLoading}
       loadingMore={commentsLoadingMore}
@@ -623,21 +644,23 @@ export function ClientEngagementBar({
             <Share size={30} strokeWidth={2} absoluteStrokeWidth />
             <span>Share</span>
           </button>
-          <button
-            type="button"
-            className={`bb-client-tiktok-btn${saved ? ' is-on' : ''}`}
-            aria-label={saved ? 'Unsave' : 'Save'}
-            aria-pressed={saved}
-            onClick={() => toggleSave(postSlug, postId)}
-          >
-            <Bookmark
-              size={30}
-              strokeWidth={saved ? 0 : 2}
-              absoluteStrokeWidth
-              fill={saved ? 'currentColor' : 'none'}
-            />
-            <span>Save</span>
-          </button>
+          {showSave ? (
+            <button
+              type="button"
+              className={`bb-client-tiktok-btn${saved ? ' is-on' : ''}`}
+              aria-label={saved ? 'Unsave' : 'Save'}
+              aria-pressed={saved}
+              onClick={() => toggleSave(postSlug, postId)}
+            >
+              <Bookmark
+                size={30}
+                strokeWidth={saved ? 0 : 2}
+                absoluteStrokeWidth
+                fill={saved ? 'currentColor' : 'none'}
+              />
+              <span>Save</span>
+            </button>
+          ) : null}
           {shareHint ? <span className="bb-client-tiktok-hint">{shareHint}</span> : null}
         </div>
         {sheet}
@@ -659,9 +682,6 @@ export function ClientEngagementBar({
             <MessageCircle size={16} strokeWidth={2} />
             <span>{commentCount || ''}</span>
           </button>
-          <button type="button" className="bb-client-tweet-btn" aria-label="Repost" disabled>
-            <Repeat2 size={16} strokeWidth={2} />
-          </button>
           <LikeButton
             className="bb-client-reaction-wrap--inline"
             liked={liked}
@@ -671,15 +691,17 @@ export function ClientEngagementBar({
             <LikeGlyph size={18} liked={liked} />
             <span>{likeCount || ''}</span>
           </LikeButton>
-          <button
-            type="button"
-            className={`bb-client-tweet-btn${saved ? ' is-on' : ''}`}
-            aria-label={saved ? 'Unsave' : 'Save'}
-            aria-pressed={saved}
-            onClick={() => toggleSave(postSlug, postId)}
-          >
-            <Bookmark size={16} strokeWidth={saved ? 0 : 2} fill={saved ? 'currentColor' : 'none'} />
-          </button>
+          {showSave ? (
+            <button
+              type="button"
+              className={`bb-client-tweet-btn${saved ? ' is-on' : ''}`}
+              aria-label={saved ? 'Unsave' : 'Save'}
+              aria-pressed={saved}
+              onClick={() => toggleSave(postSlug, postId)}
+            >
+              <Bookmark size={16} strokeWidth={saved ? 0 : 2} fill={saved ? 'currentColor' : 'none'} />
+            </button>
+          ) : null}
           <button type="button" className="bb-client-tweet-btn" aria-label="Share" onClick={onShare}>
             <Send size={15} strokeWidth={2} />
           </button>
@@ -715,19 +737,21 @@ export function ClientEngagementBar({
             </button>
           </div>
           <div className="bb-client-pulse-tools">
-            <button
-              type="button"
-              className={`bb-client-pulse-tool${saved ? ' is-on' : ''}`}
-              aria-label={saved ? 'Unsave' : 'Save'}
-              aria-pressed={saved}
-              onClick={() => toggleSave(postSlug, postId)}
-            >
-              <Bookmark
-                size={18}
-                strokeWidth={saved ? 0 : 2}
-                fill={saved ? 'currentColor' : 'none'}
-              />
-            </button>
+            {showSave ? (
+              <button
+                type="button"
+                className={`bb-client-pulse-tool${saved ? ' is-on' : ''}`}
+                aria-label={saved ? 'Unsave' : 'Save'}
+                aria-pressed={saved}
+                onClick={() => toggleSave(postSlug, postId)}
+              >
+                <Bookmark
+                  size={18}
+                  strokeWidth={saved ? 0 : 2}
+                  fill={saved ? 'currentColor' : 'none'}
+                />
+              </button>
+            ) : null}
             <button type="button" className="bb-client-pulse-tool" aria-label="Share" onClick={onShare}>
               <Send size={17} strokeWidth={2} />
             </button>
@@ -766,20 +790,22 @@ export function ClientEngagementBar({
               <Send size={17} strokeWidth={2} />
               <span>Share</span>
             </button>
-            <button
-              type="button"
-              className={`bb-client-youtube-action${saved ? ' is-on' : ''}`}
-              aria-label={saved ? 'Unsave' : 'Save'}
-              aria-pressed={saved}
-              onClick={() => toggleSave(postSlug, postId)}
-            >
-              <Bookmark
-                size={17}
-                strokeWidth={saved ? 0 : 2}
-                fill={saved ? 'currentColor' : 'none'}
-              />
-              <span>{saved ? 'Saved' : 'Save'}</span>
-            </button>
+            {showSave ? (
+              <button
+                type="button"
+                className={`bb-client-youtube-action${saved ? ' is-on' : ''}`}
+                aria-label={saved ? 'Unsave' : 'Save'}
+                aria-pressed={saved}
+                onClick={() => toggleSave(postSlug, postId)}
+              >
+                <Bookmark
+                  size={17}
+                  strokeWidth={saved ? 0 : 2}
+                  fill={saved ? 'currentColor' : 'none'}
+                />
+                <span>{saved ? 'Saved' : 'Save'}</span>
+              </button>
+            ) : null}
           </div>
 
           {shareHint ? <p className="bb-client-engage-hint">{shareHint}</p> : null}
@@ -875,20 +901,22 @@ export function ClientEngagementBar({
           <button type="button" className="bb-client-engage-btn" aria-label="Share" onClick={onShare}>
             <Send size={compact ? 26 : 28} strokeWidth={2} absoluteStrokeWidth />
           </button>
-          <button
-            type="button"
-            className={`bb-client-engage-btn is-end${saved ? ' is-on' : ''}`}
-            aria-label={saved ? 'Unsave' : 'Save'}
-            aria-pressed={saved}
-            onClick={() => toggleSave(postSlug, postId)}
-          >
-            <Bookmark
-              size={compact ? 28 : 30}
-              strokeWidth={saved ? 0 : 2}
-              absoluteStrokeWidth
-              fill={saved ? 'currentColor' : 'none'}
-            />
-          </button>
+          {showSave ? (
+            <button
+              type="button"
+              className={`bb-client-engage-btn is-end${saved ? ' is-on' : ''}`}
+              aria-label={saved ? 'Unsave' : 'Save'}
+              aria-pressed={saved}
+              onClick={() => toggleSave(postSlug, postId)}
+            >
+              <Bookmark
+                size={compact ? 28 : 30}
+                strokeWidth={saved ? 0 : 2}
+                absoluteStrokeWidth
+                fill={saved ? 'currentColor' : 'none'}
+              />
+            </button>
+          ) : null}
         </div>
         <p className="bb-client-engage-likes">
           {likeCount.toLocaleString()} like{likeCount === 1 ? '' : 's'}

@@ -8,7 +8,7 @@ import { SocialPostFeed } from './SocialPostFeed';
 import { SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
-import { ClientEngagementBar } from '../../client-app/ClientEngagementBar';
+import { ClientEngagementBar, wrapClientMediaReaction } from '../../client-app/ClientEngagementBar';
 
 function tabKind(tab) {
   if (tab === 'videos' || tab === 'films') return 'video';
@@ -114,12 +114,15 @@ export function SocialStudioLibrary({
             logoUrl={website.logoUrl || ''}
             slug={workspace.slug || ''}
             onBack={closeFeed}
+            wrapMedia={wrapClientMediaReaction}
             renderPostActions={(post) => (
               <ClientEngagementBar
                 post={post}
                 slug={workspace.slug || ''}
                 brandName={workspace.brandName || workspace.name || ''}
                 variant="pulse"
+                showSave={false}
+                ownerMode
               />
             )}
             {...manageProps}
@@ -155,12 +158,15 @@ export function SocialStudioLibrary({
             showOwnerStats
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
+            wrapMedia={wrapClientMediaReaction}
             renderWatchActions={(post, description) => (
               <ClientEngagementBar
                 post={post}
                 slug={workspace.slug || ''}
                 brandName={workspace.brandName || workspace.name || ''}
                 variant="youtube"
+                showSave={false}
+                ownerMode
               >
                 {description}
               </ClientEngagementBar>
@@ -174,12 +180,15 @@ export function SocialStudioLibrary({
             showOwnerStats
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
+            wrapMedia={wrapClientMediaReaction}
             renderWatchActions={(post) => (
               <ClientEngagementBar
                 post={post}
                 slug={workspace.slug || ''}
                 brandName={workspace.brandName || workspace.name || ''}
                 variant="tiktok"
+                showSave={false}
+                ownerMode
               />
             )}
             {...manageProps}
@@ -190,12 +199,15 @@ export function SocialStudioLibrary({
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
             slug={workspace.slug || ''}
+            wrapMedia={wrapClientMediaReaction}
             renderActions={(post) => (
               <ClientEngagementBar
                 post={post}
                 slug={workspace.slug || ''}
                 brandName={workspace.brandName || workspace.name || ''}
                 variant="twitter"
+                showSave={false}
+                ownerMode
               />
             )}
             {...manageProps}
