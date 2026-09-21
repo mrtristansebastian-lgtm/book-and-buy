@@ -2,7 +2,7 @@
  * Cloud Functions — payment gateways + existing scaffolds.
  * Deploy with Firebase when the project is attached.
  */
-import { initializeApp } from 'firebase-admin/app';
+import { getApps, initializeApp } from 'firebase-admin/app';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onRequest } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
@@ -19,8 +19,26 @@ import {
 import { createPublicProductOrder as createPublicProductOrderHelper } from './orders.js';
 import { buildPublicAvailability } from './availability.js';
 import { fetchPlaceReviews } from './places.js';
+export {
+  socialToggleReaction,
+  socialToggleSave,
+  socialCreateComment,
+  socialToggleCommentLike,
+  socialDeleteComment,
+  socialModerateComment,
+  socialRecordShare,
+  socialFollowBusiness,
+  socialMarkNotificationsRead,
+  socialUpsertPost,
+  socialDeletePost,
+  socialAggregatePost,
+  socialProcessActivity,
+  socialFanoutPost,
+  socialSyncSearch,
+  socialSearch
+} from './social.js';
 
-initializeApp();
+if (!getApps().length) initializeApp();
 
 const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
 

@@ -8,6 +8,7 @@ import { SocialPostFeed } from './SocialPostFeed';
 import { SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
+import { ClientEngagementBar } from '../../client-app/ClientEngagementBar';
 
 function tabKind(tab) {
   if (tab === 'videos' || tab === 'films') return 'video';
@@ -113,6 +114,14 @@ export function SocialStudioLibrary({
             logoUrl={website.logoUrl || ''}
             slug={workspace.slug || ''}
             onBack={closeFeed}
+            renderPostActions={(post) => (
+              <ClientEngagementBar
+                post={post}
+                slug={workspace.slug || ''}
+                brandName={workspace.brandName || workspace.name || ''}
+                variant="pulse"
+              />
+            )}
             {...manageProps}
           />
         ) : !items.length ? (
@@ -146,6 +155,16 @@ export function SocialStudioLibrary({
             showOwnerStats
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
+            renderWatchActions={(post, description) => (
+              <ClientEngagementBar
+                post={post}
+                slug={workspace.slug || ''}
+                brandName={workspace.brandName || workspace.name || ''}
+                variant="youtube"
+              >
+                {description}
+              </ClientEngagementBar>
+            )}
             {...manageProps}
           />
         ) : kind === 'vertical' ? (
@@ -155,6 +174,14 @@ export function SocialStudioLibrary({
             showOwnerStats
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
+            renderWatchActions={(post) => (
+              <ClientEngagementBar
+                post={post}
+                slug={workspace.slug || ''}
+                brandName={workspace.brandName || workspace.name || ''}
+                variant="tiktok"
+              />
+            )}
             {...manageProps}
           />
         ) : (
@@ -163,6 +190,14 @@ export function SocialStudioLibrary({
             brandName={workspace.brandName || workspace.name || ''}
             logoUrl={website.logoUrl || ''}
             slug={workspace.slug || ''}
+            renderActions={(post) => (
+              <ClientEngagementBar
+                post={post}
+                slug={workspace.slug || ''}
+                brandName={workspace.brandName || workspace.name || ''}
+                variant="twitter"
+              />
+            )}
             {...manageProps}
           />
         )}

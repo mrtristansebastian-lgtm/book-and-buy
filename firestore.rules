@@ -157,6 +157,81 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Canonical social records. Public reads are limited to published, visible
+    // content; every interaction and counter mutation is validated by Functions.
+    match /artifacts/{appId}/socialPosts/{postId} {
+      allow read: if resource.data.status == 'published' &&
+        resource.data.moderationState == 'visible';
+      allow create, update, delete: if false;
+
+      match /comments/{commentId} {
+        allow read: if resource.data.moderationState == 'visible' &&
+          get(/databases/$(database)/documents/artifacts/$(appId)/socialPosts/$(postId)).data.status == 'published';
+        allow create, update, delete: if false;
+
+        match /reactions/{actorUid} {
+          allow read: if signedIn() && request.auth.uid == actorUid;
+          allow create, update, delete: if false;
+        }
+      }
+
+      match /reactions/{actorUid} {
+        allow read: if signedIn() && request.auth.uid == actorUid;
+        allow create, update, delete: if false;
+      }
+
+      match /shares/{shareId} {
+        allow read, write: if false;
+      }
+
+      match /counterShards/{shardId} {
+        allow read, write: if false;
+      }
+    }
+
+    match /artifacts/{appId}/userProfiles/{uid}/savedPosts/{postId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/userProfiles/{uid}/following/{slug} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/userProfiles/{uid}/socialFeed/{postId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/userProfiles/{uid}/socialNotifications/{notificationId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/users/{ownerId}/socialNotifications/{notificationId} {
+      allow read: if canStaff(appId, ownerId);
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/businessFollows/{slug}/followers/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/socialBusinesses/{slug} {
+      allow read: if true;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/socialActivityEvents/{eventId} {
+      allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/socialRateLimits/{rateLimitId} {
+      allow read, write: if false;
+    }
+
     match /artifacts/{appId}/staffAccess/{email}/workspaces/{ownerId} {
       allow read: if signedIn() && (request.auth.token.email == email || canAdmin(appId, ownerId));
       allow create, update: if canAdmin(appId, ownerId) &&

@@ -15,8 +15,15 @@ import {
   isFirebaseConfigured,
   loadUserProfile,
   updateClientEngagement,
-  updateClientProfileFields
+  updateClientProfileFields,
+  updateClientSavedPlaceSlugs
 } from './clientProfileApi';
+import {
+  canUseCanonicalSocial,
+  socialMutations,
+  subscribeClientSocialNotifications
+} from '../social/socialApi';
+import { DEMO_CLIENT_SOCIAL_NOTIFICATIONS } from '../social/demoSocialData';
 
 const ClientProfileContext = createContext(null);
 
@@ -29,6 +36,8 @@ export function ClientProfileProvider({ children }) {
   const { user, ready, configured, signOut } = useAuth();
   const [profile, setProfile] = useState(null);
   const [profileReady, setProfileReady] = useState(false);
+  const [socialNotifications, setSocialNotifications] = useState([]);
+  const [socialNotificationsReady, setSocialNotificationsReady] = useState(false);
 
   const persist = useCallback((next) => {
     const normalized = withEngagement(next);
@@ -96,6 +105,28 @@ export function ClientProfileProvider({ children }) {
     };
   }, [ready, configured, user, persist]);
 
+  useEffect(() => {
+    if (!profile?.uid) {
+      setSocialNotifications([]);
+      setSocialNotificationsReady(true);
+      return undefined;
+    }
+    if (profile.isDemo || String(profile.uid).startsWith('demo')) {
+      setSocialNotifications(DEMO_CLIENT_SOCIAL_NOTIFICATIONS.map((item) => ({ ...item })));
+      setSocialNotificationsReady(true);
+      return undefined;
+    }
+    setSocialNotificationsReady(false);
+    return subscribeClientSocialNotifications(
+      profile.uid,
+      (items) => {
+        setSocialNotifications(items);
+        setSocialNotificationsReady(true);
+      },
+      () => setSocialNotificationsReady(true)
+    );
+  }, [profile?.uid, profile?.isDemo]);
+
   const enterDemoClient = useCallback(() => {
     const demo = makeDemoClientProfile();
     return persist(demo);
@@ -124,6 +155,9 @@ export function ClientProfileProvider({ children }) {
     async (slug) => {
       if (!profile || !slug) return profile;
       const nextSlugs = await addFollowedSlug(profile.uid, slug, profile.followedSlugs || []);
+      if (canUseCanonicalSocial(profile.uid)) {
+        socialMutations.followBusiness({ slug, following: true }).catch(() => {});
+      }
       return persist({ ...profile, followedSlugs: nextSlugs });
     },
     [profile, persist]
@@ -136,8 +170,32 @@ export function ClientProfileProvider({ children }) {
       if (isFirebaseConfigured() && profile.uid && !String(profile.uid).startsWith('demo')) {
         const { updateClientFollowedSlugs } = await import('./clientProfileApi');
         await updateClientFollowedSlugs(profile.uid, nextSlugs);
+        socialMutations.followBusiness({ slug, following: false }).catch(() => {});
       }
       return persist({ ...profile, followedSlugs: nextSlugs });
+    },
+    [profile, persist]
+  );
+
+  const isPlaceSaved = useCallback(
+    (slug) => (profile?.savedPlaceSlugs || []).includes(String(slug || '').trim()),
+    [profile]
+  );
+
+  const togglePlaceSave = useCallback(
+    async (slug) => {
+      if (!profile || !slug) return profile;
+      const key = String(slug).trim();
+      const saved = new Set(profile.savedPlaceSlugs || []);
+      if (saved.has(key)) saved.delete(key);
+      else saved.add(key);
+      const next = persist({ ...profile, savedPlaceSlugs: [...saved] });
+      try {
+        await updateClientSavedPlaceSlugs(profile.uid, next.savedPlaceSlugs);
+      } catch {
+        /* keep the local saved state */
+      }
+      return next;
     },
     [profile, persist]
   );
@@ -200,11 +258,15 @@ export function ClientProfileProvider({ children }) {
       } else {
         prev[key] = nextId;
       }
-      return syncEngagement({
+      const saved = await syncEngagement({
         ...profile,
         reactionsByKey: prev,
         likedKeys: Object.keys(prev)
       });
+      if (canUseCanonicalSocial(profile.uid)) {
+        socialMutations.togglePostLike({ slug, postId, active: Boolean(nextId) }).catch(() => {});
+      }
+      return saved;
     },
     [profile, syncEngagement]
   );
@@ -225,7 +287,11 @@ export function ClientProfileProvider({ children }) {
       const saved = new Set(profile.savedKeys || []);
       if (saved.has(key)) saved.delete(key);
       else saved.add(key);
-      return syncEngagement({ ...profile, savedKeys: [...saved] });
+      const next = await syncEngagement({ ...profile, savedKeys: [...saved] });
+      if (canUseCanonicalSocial(profile.uid)) {
+        socialMutations.toggleSave({ slug, postId, active: saved.has(key) }).catch(() => {});
+      }
+      return next;
     },
     [profile, syncEngagement]
   );
@@ -248,6 +314,14 @@ export function ClientProfileProvider({ children }) {
         [key]: [...prev, comment]
       };
       await syncEngagement({ ...profile, commentsByKey });
+      if (canUseCanonicalSocial(profile.uid)) {
+        try {
+          const result = await socialMutations.createComment({ slug, postId, body: text });
+          return result?.comment || comment;
+        } catch {
+          /* legacy copy remains available during migration */
+        }
+      }
       return comment;
     },
     [profile, syncEngagement]
@@ -301,6 +375,31 @@ export function ClientProfileProvider({ children }) {
     [profile, persist]
   );
 
+  const markSocialNotificationsRead = useCallback(
+    async (ids = [], { all = false } = {}) => {
+      const targets = new Set(ids);
+      const readAtMs = Date.now();
+      setSocialNotifications((prev) =>
+        prev.map((item) =>
+          all || targets.has(item.id) ? { ...item, readAtMs: item.readAtMs || readAtMs } : item
+        )
+      );
+      if (canUseCanonicalSocial(profile?.uid)) {
+        try {
+          await socialMutations.markNotificationsRead({ ids, all, audience: 'client' });
+        } catch {
+          /* optimistic read state is retained locally */
+        }
+      }
+    },
+    [profile?.uid]
+  );
+
+  const unreadSocialNotifications = useMemo(
+    () => socialNotifications.filter((item) => !item.readAtMs).length,
+    [socialNotifications]
+  );
+
   const value = useMemo(
     () => ({
       profile,
@@ -311,6 +410,8 @@ export function ClientProfileProvider({ children }) {
       clearClientSession,
       followSlug,
       unfollowSlug,
+      isPlaceSaved,
+      togglePlaceSave,
       bootstrapClientAfterAuth,
       updateClientProfile,
       updateExplorePrefs,
@@ -321,7 +422,11 @@ export function ClientProfileProvider({ children }) {
       toggleLike,
       setReaction,
       toggleSave,
-      addComment
+      addComment,
+      socialNotifications,
+      socialNotificationsReady,
+      unreadSocialNotifications,
+      markSocialNotificationsRead
     }),
     [
       profile,
@@ -331,6 +436,8 @@ export function ClientProfileProvider({ children }) {
       clearClientSession,
       followSlug,
       unfollowSlug,
+      isPlaceSaved,
+      togglePlaceSave,
       bootstrapClientAfterAuth,
       updateClientProfile,
       updateExplorePrefs,
@@ -341,7 +448,11 @@ export function ClientProfileProvider({ children }) {
       toggleLike,
       setReaction,
       toggleSave,
-      addComment
+      addComment,
+      socialNotifications,
+      socialNotificationsReady,
+      unreadSocialNotifications,
+      markSocialNotificationsRead
     ]
   );
 

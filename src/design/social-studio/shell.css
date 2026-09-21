@@ -299,6 +299,114 @@
   gap: 0.3rem;
 }
 
+.bb-social-studio-owner-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; width: 100%; }
+.bb-social-studio-message-preview:disabled { opacity: 1; color: #101828; background: #fff; cursor: default; }
+
+/* Desktop Social Studio mirrors the live Social page: profile, format rail, content. */
+@media (min-width: 1100px) {
+  .bb-owner-main:has(> .bb-social-studio) {
+    padding: 0.75rem 1rem 1rem;
+    overflow: hidden;
+  }
+
+  .bb-social-studio,
+  .bb-social-studio-body,
+  .bb-social-studio-live { height: 100%; min-height: 0; }
+
+  .bb-social-studio-live {
+    display: grid;
+    grid-template-columns: 18.75rem 4.85rem minmax(0, 1fr);
+    column-gap: 0.85rem;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  .bb-social-studio-live > .bb-public-profile-identity {
+    grid-column: 1;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+  }
+
+  .bb-social-studio-live .bb-public-profile-shell {
+    max-width: none;
+    margin: 0;
+    padding: 0.65rem 0.65rem 0.85rem;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 1rem;
+    background: #fff;
+  }
+
+  .bb-social-studio-live .bb-public-profile-banner-wrap {
+    height: 7.5rem;
+    min-height: 7.5rem;
+    max-height: 7.5rem;
+    border-radius: 0.7rem;
+  }
+
+  .bb-social-studio-live .bb-public-profile-avatar-ring { margin-top: -2.4rem; }
+  .bb-social-studio-live .bb-public-profile-avatar-wrap { width: 4.75rem; height: 4.75rem; }
+  .bb-social-studio-live .bb-public-profile-name { font-size: clamp(1.7rem, 2.4vw, 2.35rem); }
+  .bb-social-studio-live .bb-public-profile-bio { font-size: 0.8rem; line-height: 1.45; }
+  .bb-social-studio-live .bb-public-profile-card { padding-bottom: 0.35rem; row-gap: 0.42rem; }
+  .bb-social-studio-live .bb-public-profile-aside { display: grid; grid-template-columns: 1fr; gap: 0.42rem; }
+  .bb-social-studio-live .bb-public-profile-action--compact { width: 100%; min-width: 0; }
+  .bb-social-studio-live .bb-studio-visible-toggle { justify-content: center; }
+
+  .bb-social-studio-live > .bb-social-library--live { display: contents; }
+  .bb-social-studio-live .bb-social-library-tabs {
+    grid-column: 2;
+    display: grid;
+    align-content: center;
+    height: 100%;
+    min-height: 0;
+  }
+  .bb-social-studio-live .bb-social-library-tabs .bb-social-profile-tabs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    width: 100%;
+    border: 0;
+    border-right: 1px solid rgba(15, 23, 42, 0.1);
+    padding-right: 0.4rem;
+  }
+  .bb-social-studio-live .bb-social-library-tabs .bb-social-profile-tab {
+    flex-direction: column;
+    gap: 0.28rem;
+    min-height: 4.1rem;
+    padding: 0.55rem 0.2rem;
+    border-radius: 0.55rem;
+    font-size: 0.58rem;
+  }
+  .bb-social-studio-live .bb-social-library-tabs .bb-social-profile-tab.is-active { background: rgba(15, 23, 42, 0.04); }
+  .bb-social-studio-live .bb-social-library-tabs .bb-social-profile-tab.is-active::after {
+    left: auto;
+    right: -0.4rem;
+    top: 18%;
+    bottom: 18%;
+    width: 2px;
+    height: auto;
+  }
+  .bb-social-studio-live .bb-social-library-surface--live {
+    grid-column: 3;
+    min-width: 0;
+    height: 100%;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0.1rem 0.35rem 1rem 0.15rem;
+    scrollbar-gutter: stable;
+  }
+  .bb-social-studio-live .bb-social-library-surface--live .bb-social-ig-grid,
+  .bb-social-studio-live .bb-social-library-surface--live .bb-social-post-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2px;
+  }
+}
+
 .bb-public-profile-username {
   margin: 0.2rem 0 0;
   font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
@@ -1433,5 +1541,3 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   padding-bottom: 0;
   touch-action: pan-y;
 }
-
-

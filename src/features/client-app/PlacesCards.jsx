@@ -7,6 +7,7 @@ import {
   Home,
   MapPin,
   MessageCircle,
+  Bookmark,
   Share2,
   ShoppingBag,
   UserCheck,
@@ -50,7 +51,7 @@ function SectionTitle({ children }) {
   return <h3 className="bb-places-section-title">{children}</h3>;
 }
 
-function BusinessCard({ biz, onClose, followed, onFollow, onMessage, messaging }) {
+function BusinessCard({ biz, onClose, followed, onFollow, onMessage, messaging, saved, onSave }) {
   const panel = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -114,13 +115,14 @@ function BusinessCard({ biz, onClose, followed, onFollow, onMessage, messaging }
       </section>
       <div className="bb-places-secondary">
         <button type="button" className="bb-places-action is-message" onClick={() => onMessage(biz)} disabled={messaging}><MessageCircle size={16} />{messaging ? 'Opening…' : 'Message'}</button>
+        <button type="button" className={`bb-places-action ${saved ? 'is-saved' : 'is-save'}`} onClick={() => onSave(biz.slug)} aria-pressed={saved}><Bookmark size={16} fill={saved ? 'currentColor' : 'none'} />{saved ? 'Saved' : 'Save'}</button>
         <button type="button" className={`bb-places-action ${followed ? 'is-following' : 'is-follow'}`} onClick={() => onFollow(biz.slug)}>{followed ? <UserCheck size={16} /> : <UserPlus size={16} />}{followed ? 'Following' : 'Follow'}</button>
       </div>
     </section>
   </div>, document.body);
 }
 
-export function PlacesCards({ businesses, followed, followSlug, unfollowSlug, messageBiz, messagingSlug }) {
+export function PlacesCards({ businesses, followed, followSlug, unfollowSlug, messageBiz, messagingSlug, savedPlaces = new Set(), togglePlaceSave = () => {} }) {
   const [selected, setSelected] = useState(null);
   const biz = businesses.find((item) => item.slug === selected);
   return <>
@@ -133,6 +135,6 @@ export function PlacesCards({ businesses, followed, followSlug, unfollowSlug, me
         </button>
       </article>)}
     </div>
-    {biz ? <BusinessCard biz={biz} onClose={() => setSelected(null)} followed={followed.has(biz.slug)} onFollow={(slug) => followed.has(slug) ? unfollowSlug(slug) : followSlug(slug)} onMessage={messageBiz} messaging={messagingSlug === biz.slug} /> : null}
+    {biz ? <BusinessCard biz={biz} onClose={() => setSelected(null)} followed={followed.has(biz.slug)} onFollow={(slug) => followed.has(slug) ? unfollowSlug(slug) : followSlug(slug)} onMessage={messageBiz} messaging={messagingSlug === biz.slug} saved={savedPlaces.has(biz.slug)} onSave={togglePlaceSave} /> : null}
   </>;
 }

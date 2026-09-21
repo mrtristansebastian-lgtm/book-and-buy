@@ -5104,6 +5104,7 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
 .bb-places-secondary { display: flex; justify-content: center; gap: 0.55rem; border-top: 1px solid #eef0f4; padding: 0.8rem 1.5rem 1rem; background: #fff; }
 .bb-places-secondary .bb-places-action { display: flex; align-items: center; justify-content: center; gap: 0.45rem; flex: 1; min-height: 2.55rem; border: 1px solid #dfe3e8; background: #fff; color: #344054; font-size: 0.76rem; font-weight: 720; cursor: pointer; transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease; }
 .bb-places-secondary .bb-places-action.is-following { border: 1.5px solid transparent; background-color: transparent; background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2)); background-origin: border-box; background-clip: padding-box, border-box; background-size: auto, 420% 420%; background-position: 0 0, var(--native-accent-x, 40%) 50%; color: #101828; box-shadow: 0 2px 8px #1018280a; }
+.bb-places-secondary .bb-places-action.is-saved { border: 1.5px solid transparent; background-color: transparent; background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2)); background-origin: border-box; background-clip: padding-box, border-box; background-size: auto, 420% 420%; background-position: 0 0, var(--native-accent-x, 40%) 50%; color: #101828; }
 .bb-places-secondary .bb-places-action:hover:not(:disabled), .bb-places-secondary .bb-places-action:focus-visible:not(:disabled), .bb-places-secondary .bb-places-action:active:not(:disabled) { border: 1.5px solid transparent; background-color: transparent; background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2)); background-origin: border-box; background-clip: padding-box, border-box; background-size: auto, 420% 420%; background-position: 0 0, var(--native-accent-x, 40%) 50%; color: #101828; box-shadow: 0 4px 12px #1018280a; transform: translateY(-1px); }
 .bb-places-secondary .bb-places-action:disabled { cursor: wait; opacity: 0.62; }
 .bb-places-open:focus-visible, .bb-places-dialog a:focus-visible, .bb-places-dialog button:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
@@ -5129,6 +5130,144 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
   .bb-places-pages a { min-height: 3.55rem; gap: 0.55rem; padding: 0.58rem 0.62rem; }
   .bb-places-page-copy small { font-size: 0.58rem; }
   .bb-places-secondary { position: sticky; bottom: 0; z-index: 2; padding: 0.75rem 1.1rem calc(0.75rem + env(safe-area-inset-bottom)); box-shadow: 0 -8px 22px #1018280a; }
+}
+
+/* Account sections behave like compact client apps, without changing the main dock. */
+.bb-client-settings .bb-client-account-apps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0;
+}
+.bb-client-settings .bb-client-account-app {
+  position: relative;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  min-height: 7.25rem;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid #e5e8ee;
+  background: #fff;
+  text-align: left;
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.bb-client-settings .bb-client-account-app::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: var(--native-accent-gradient, linear-gradient(90deg, #b9e3ff, #ffd4f2));
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+.bb-client-settings .bb-client-account-app:hover,
+.bb-client-settings .bb-client-account-app:focus-visible {
+  border-color: #d7dce5;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
+  transform: translateY(-2px);
+}
+.bb-client-settings .bb-client-account-app:hover::after,
+.bb-client-settings .bb-client-account-app:focus-visible::after { opacity: 1; }
+.bb-client-account-app-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid #e3e7ed;
+  background: #fff;
+  color: #101828;
+  box-shadow: 0 5px 15px rgba(16, 24, 40, 0.05);
+}
+.bb-client-account-app .bb-client-settings-nav-label { display: grid; gap: 0.28rem; min-width: 0; }
+.bb-client-account-app .bb-client-settings-nav-label strong { font-size: 0.94rem; line-height: 1.2; }
+.bb-client-account-app .bb-client-settings-nav-label small { color: #667085; font-size: 0.71rem; line-height: 1.35; font-weight: 560; }
+.bb-client-account-app-count {
+  position: absolute;
+  top: 0.72rem;
+  right: 0.72rem;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  display: grid;
+  place-items: center;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: #101828;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.bb-client-saved-empty { display: grid; justify-items: center; gap: 0.65rem; padding: 3rem 1rem; text-align: center; }
+.bb-client-saved-empty span { color: #667085; font-size: 0.82rem; }
+
+.bb-social-notifications-page { display: grid; gap: 1rem; width: min(100%, 58rem); margin: 0 auto; padding: 1rem; }
+.bb-social-notifications-page-head { display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.1rem; border: 1px solid #e5e8ee; background: #fff; }
+.bb-social-notifications-page-icon { display: grid; place-items: center; width: 3rem; height: 3rem; border: 1px solid #dfe3e8; background: #fff; }
+.bb-social-notifications-page-head div { display: grid; gap: 0.12rem; }
+.bb-social-notifications-page-head p, .bb-social-notifications-page-head h1, .bb-social-notifications-page-head span { margin: 0; }
+.bb-social-notifications-page-head p { color: #667085; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.bb-social-notifications-page-head h1 { color: #101828; font-size: 1.35rem; line-height: 1.1; }
+.bb-social-notifications-page-head div > span { color: #667085; font-size: 0.76rem; }
+
+/* Same grouped mini-app launcher language as the owner workspace menu. */
+.bb-client-account-launcher { display: grid; gap: 0.65rem; }
+.bb-client-settings .bb-settings-rail { width: min(100%, 52rem); margin-inline: auto; }
+.bb-client-account-group {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem 0.9rem;
+  border: 1px solid #e8ebf0;
+  border-radius: 1.15rem;
+  background: #fff;
+  box-shadow: 0 6px 22px rgba(16, 24, 40, 0.035);
+}
+.bb-client-account-group h2 { display: flex; align-items: center; gap: 0.55rem; margin: 0; color: #101828; font-size: 1.48rem; line-height: 1; letter-spacing: -0.04em; }
+.bb-client-settings .bb-client-account-group .bb-client-account-apps { display: grid; grid-template-columns: repeat(4, 5rem); justify-content: start; gap: 0.8rem; padding: 0; }
+.bb-client-settings .bb-client-account-group.is-violet .bb-client-account-apps { grid-template-columns: repeat(2, minmax(0, 6rem)); }
+.bb-client-settings .bb-client-account-group .bb-client-account-app {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-content: start;
+  min-height: 4.7rem;
+  gap: 0.38rem;
+  padding: 0.1rem 0.15rem;
+  border: 0;
+  background: transparent;
+  color: #101828;
+  text-align: center;
+  cursor: pointer;
+  overflow: visible;
+  box-shadow: none;
+  transform: none;
+}
+.bb-client-settings .bb-client-account-group .bb-client-account-app::after { display: none; }
+.bb-client-settings .bb-client-account-group .bb-client-account-app:hover,
+.bb-client-settings .bb-client-account-group .bb-client-account-app:focus-visible { border: 0; background: transparent; box-shadow: none; transform: translateY(-1px); }
+.bb-client-account-group .bb-client-account-app-icon {
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 0;
+  border-radius: 0.78rem;
+  background: linear-gradient(145deg, #bff9ff, #aee8ff);
+  box-shadow: 0 7px 15px rgba(56, 189, 248, 0.18);
+}
+.bb-client-account-group.is-violet .bb-client-account-app-icon {
+  background: linear-gradient(145deg, #edc8ff, #d3c7ff);
+  box-shadow: 0 7px 15px rgba(139, 92, 246, 0.16);
+}
+.bb-client-account-group .bb-client-account-app strong { max-width: 5.4rem; font-size: 0.68rem; line-height: 1.12; font-weight: 760; }
+.bb-client-account-group .bb-client-account-app-count { top: -0.25rem; right: calc(50% - 1.65rem); min-width: 1.15rem; height: 1.15rem; padding: 0 0.25rem; background: #ff4545; font-size: 0.58rem; box-shadow: 0 0 0 2px #fff; }
+
+@media (max-width: 599px) {
+  .bb-client-settings .bb-client-account-group .bb-client-account-apps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.2rem; }
+  .bb-client-settings .bb-client-account-group.is-violet .bb-client-account-apps { grid-template-columns: repeat(2, minmax(0, 5.5rem)); }
+  .bb-client-account-group { padding: 0.95rem 0.7rem 0.75rem; }
+  .bb-client-account-group h2 { font-size: 1.35rem; }
+  .bb-client-account-group .bb-client-account-app-icon { width: 2.65rem; height: 2.65rem; }
+  .bb-social-notifications-page { padding: 0.75rem; }
 }
 
 /* Explore social uses the same equal-space, one-business-at-a-time system. */

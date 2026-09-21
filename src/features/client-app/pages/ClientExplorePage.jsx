@@ -37,6 +37,7 @@ import {
   normalizeBiz
 } from '../exploreDiscovery';
 import { categoryLabel, expandExploreCategoryFilter } from '../../../config/businessCategories';
+import { listCanonicalSocialPosts, socialMutations } from '../../social/socialApi';
 
 const FILTER_KIND = {
   posts: 'image',
@@ -96,11 +97,13 @@ function mapServicePreview(service) {
 /** Instagram Explore: discovery filters + dense media grid. */
 export function ClientExplorePage({ mediaOnly = false }) {
   const { workspace, startThreadFromClient } = useWorkspace();
-  const { profile, followSlug, unfollowSlug, updateExplorePrefs } = useClientProfile();
+  const { profile, followSlug, unfollowSlug, updateExplorePrefs, togglePlaceSave } = useClientProfile();
   const [queryText, setQueryText] = useState('');
   const [filter, setFilter] = useState(mediaOnly ? 'posts' : 'places');
   const [remote, setRemote] = useState([]);
   const [catalog, setCatalog] = useState([]);
+  const [canonicalCatalog, setCanonicalCatalog] = useState([]);
+  const [searchResults, setSearchResults] = useState(null);
   const [offerCatalogBySlug, setOfferCatalogBySlug] = useState({});
   const [activeId, setActiveId] = useState('');
   const [activeVerticalId, setActiveVerticalId] = useState('');
@@ -108,6 +111,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
   const [geoStatus, setGeoStatus] = useState('idle');
   const [placeSheetOpen, setPlaceSheetOpen] = useState(false);
   const isDemo = Boolean(workspace?.isDemo || profile?.isDemo);
+  const savedPlaces = useMemo(() => new Set(profile?.savedPlaceSlugs || []), [profile?.savedPlaceSlugs]);
 
   useEffect(() => {
     setFilter(mediaOnly ? 'posts' : 'places');
@@ -206,6 +210,65 @@ export function ClientExplorePage({ mediaOnly = false }) {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!mediaOnly || !isFirebaseConfigured()) {
+      setCanonicalCatalog([]);
+      return undefined;
+    }
+    let cancelled = false;
+    listCanonicalSocialPosts()
+      .then((result) => {
+        if (cancelled) return;
+        setCanonicalCatalog(
+          result.items.map((post) => ({
+            ...post,
+            _slug: post.businessSlug,
+            _brandName: post.businessName,
+            _logoUrl: post.businessLogoUrl
+          }))
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setCanonicalCatalog([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mediaOnly]);
+
+  useEffect(() => {
+    const needle = queryText.trim();
+    if (!mediaOnly || !needle || !isFirebaseConfigured()) {
+      setSearchResults(null);
+      return undefined;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      socialMutations
+        .search({ query: needle, type: FILTER_KIND[filter] || 'image', page: 0 })
+        .then((result) => {
+          if (cancelled) return;
+          setSearchResults(
+            (result?.items || []).map((post) => ({
+              ...post,
+              id: post.legacyId || post.id || post.objectID,
+              canonicalId: post.objectID || post.id,
+              _slug: post.businessSlug,
+              _brandName: post.businessName,
+              _logoUrl: post.businessLogoUrl
+            }))
+          );
+        })
+        .catch(() => {
+          if (!cancelled) setSearchResults(null);
+        });
+    }, 260);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [mediaOnly, queryText, filter]);
 
   const directory = useMemo(() => {
     const map = new Map();
@@ -327,7 +390,8 @@ export function ClientExplorePage({ mediaOnly = false }) {
         exploreMode === 'international' ||
         (exploreMode === 'local' && clientLat != null);
 
-    return catalog
+    const source = searchResults || (canonicalCatalog.length ? canonicalCatalog : catalog);
+    return source
       .filter((post) => getSocialPostKind(post) === filterKind)
       .filter((post) => {
         if (!discoveryActive) return true;
@@ -348,6 +412,8 @@ export function ClientExplorePage({ mediaOnly = false }) {
       });
   }, [
     catalog,
+    canonicalCatalog,
+    searchResults,
     filterKind,
     queryText,
     discoveredSlugs,
@@ -639,7 +705,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
             <p className="bb-explore-places-label">
               {exploreMode === 'local' ? 'Places near you' : 'Ships / books to you'}
             </p>
-            <PlacesCards businesses={accountHits} followed={followed} followSlug={followSlug} unfollowSlug={unfollowSlug} messageBiz={messageBiz} messagingSlug={messagingSlug} />
+            <PlacesCards businesses={accountHits} followed={followed} followSlug={followSlug} unfollowSlug={unfollowSlug} messageBiz={messageBiz} messagingSlug={messagingSlug} savedPlaces={savedPlaces} togglePlaceSave={togglePlaceSave} />
           </div>
         ) : !mediaOnly && exploreMode === 'local' && (clientLat == null || discovered.length === 0) ? (
           <EmptyState

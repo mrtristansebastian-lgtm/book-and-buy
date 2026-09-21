@@ -8,6 +8,7 @@ import {
 } from '../utils/socialPostType';
 import { BbVideoPlayer } from './BbVideoPlayer';
 import { SocialPostManageMenu } from './SocialPostManageMenu';
+import { navigate, publicPagePath } from '../../../app/routing';
 
 function isProbablyImageUrl(url) {
   const value = String(url || '').toLowerCase();
@@ -308,7 +309,14 @@ export function SocialPostFeed({
       const list = listRef.current;
       const target = targetRef.current;
       if (!list || !target) return;
-      list.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+      const listStyle = window.getComputedStyle(list);
+      const listOwnsScroll =
+        list.scrollHeight > list.clientHeight + 2 && listStyle.overflowY !== 'visible';
+      if (listOwnsScroll) {
+        list.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+      } else {
+        target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
     }, 40);
     return () => window.clearTimeout(timer);
   }, [initialPostId, posts]);
@@ -343,6 +351,9 @@ export function SocialPostFeed({
           const rowSlug = post._slug || username;
           const rowLogo = post._logoUrl || logoUrl;
           const rowInitial = String(rowBrand).charAt(0).toUpperCase() || 'B';
+          const openBusinessSocial = () => {
+            if (!editMode && rowSlug) navigate(publicPagePath(rowSlug, 'social'));
+          };
 
           return (
             <article
@@ -354,20 +365,22 @@ export function SocialPostFeed({
               id={`social-post-${post.id}`}
             >
               <header className="bb-social-feed-post-head">
-                {rowLogo ? (
-                  <img src={rowLogo} alt="" className="bb-social-feed-avatar" />
-                ) : (
-                  <span
-                    className="bb-social-feed-avatar bb-social-feed-avatar--fallback"
-                    aria-hidden="true"
-                  >
-                    {rowInitial}
+                <button type="button" className="bb-social-feed-identity-link" onClick={openBusinessSocial} disabled={editMode || !rowSlug} aria-label={`Open ${rowBrand} Social page`}>
+                  {rowLogo ? (
+                    <img src={rowLogo} alt="" className="bb-social-feed-avatar" />
+                  ) : (
+                    <span className="bb-social-feed-avatar bb-social-feed-avatar--fallback" aria-hidden="true">{rowInitial}</span>
+                  )}
+                  <span className="bb-social-feed-author">
+                    <span className="bb-social-feed-brand">{rowBrand}</span>
+                    {String(post.location || '').trim() ? (
+                      <span className="bb-social-feed-author-location">
+                        <MapPin size={11} strokeWidth={2.2} aria-hidden="true" />
+                        <span>{String(post.location).trim()}</span>
+                      </span>
+                    ) : null}
                   </span>
-                )}
-                <div className="bb-social-feed-author">
-                  <span className="bb-social-feed-brand">{rowBrand}</span>
-                  <span className="bb-social-feed-user">@{rowSlug}</span>
-                </div>
+                </button>
                 {editMode && post.published === false ? (
                   <span className="bb-edit-section-badge bb-social-draft-badge">Draft</span>
                 ) : null}
@@ -396,25 +409,19 @@ export function SocialPostFeed({
 
               {!isText ? (
                 <div className="bb-social-feed-caption-row">
-                  {post.title || editMode ? (
-                    editMode ? (
-                      <EditableText
-                        as="p"
-                        className="bb-social-feed-title"
-                        editMode
-                        value={post.title || ''}
-                        placeholder="Add a title"
-                        onChange={(value) =>
-                          onUpdateSocialPost?.(post.id, { title: value })
-                        }
-                      />
-                    ) : post.title ? (
-                      <p className="bb-social-feed-title">{post.title}</p>
-                    ) : null
-                  ) : null}
-                  {(post.caption || editMode) ? (
-                    <div className="bb-social-feed-caption">
-                      {editMode ? (
+                  {editMode ? (
+                    <>
+                      {kind !== 'image' ? <EditableText
+                          as="p"
+                          className="bb-social-feed-title"
+                          editMode
+                          value={post.title || ''}
+                          placeholder="Add a title"
+                          onChange={(value) =>
+                            onUpdateSocialPost?.(post.id, { title: value })
+                          }
+                        /> : null}
+                      <div className="bb-social-feed-caption">
                         <EditableText
                           as="span"
                           className="bb-social-feed-caption-edit"
@@ -426,15 +433,14 @@ export function SocialPostFeed({
                             onUpdateSocialPost?.(post.id, { caption: value })
                           }
                         />
-                      ) : (
-                        post.caption
-                      )}
-                    </div>
-                  ) : null}
-                  {String(post.location || '').trim() ? (
-                    <p className="bb-social-feed-location">
-                      <MapPin size={12} strokeWidth={2.4} aria-hidden="true" />
-                      <span>{String(post.location).trim()}</span>
+                      </div>
+                    </>
+                  ) : (kind !== 'image' && post.title) || post.caption ? (
+                    <p className="bb-social-feed-caption">
+                      <button type="button" className="bb-social-feed-caption-user" onClick={openBusinessSocial} disabled={editMode || !rowSlug}>@{rowSlug}</button>{' '}
+                      {kind !== 'image' && post.title ? <strong className="bb-social-feed-caption-title">{post.title}</strong> : null}
+                      {kind !== 'image' && post.title && post.caption ? ' ' : null}
+                      {post.caption || ''}
                     </p>
                   ) : null}
                   {stamp ? (

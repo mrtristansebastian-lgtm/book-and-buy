@@ -471,6 +471,20 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
 
   const path = publicWorkspacePath(APP_ID, slug);
   await setDoc(doc(firebase.db, ...path), snapshot, { merge: true });
+  // Dual-write published social records while legacy workspace snapshots remain
+  // available for rollback during the social-data migration.
+  const socialPosts = Array.isArray(workspace.socialPosts) ? workspace.socialPosts : [];
+  await Promise.allSettled(
+    socialPosts.map((post) =>
+      firebaseCallables.socialUpsertPost({
+        slug,
+        ownerId,
+        businessName: String(workspace.brandName || ''),
+        businessLogoUrl: String((workspace.website as Record<string, unknown>)?.logoUrl || ''),
+        post
+      })
+    )
+  );
   await saveOwnerWorkspaceToFirestore(ownerId, {
     ...workspace,
     ownerId,

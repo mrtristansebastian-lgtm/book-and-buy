@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  Bell,
   Boxes,
   BriefcaseBusiness,
   CalendarClock,
@@ -35,6 +36,7 @@ export const TAB_ICONS = {
   'website-buy': ShoppingBag,
   'website-checkout': ShoppingCart,
   social: Share2,
+  'social-notifications': Bell,
   communications: MessageSquare,
   finance: CreditCard,
   analytics: ChartColumn,
@@ -57,6 +59,7 @@ export const TAB_HINTS = {
   'website-buy': 'Storefront page',
   'website-checkout': 'Cart flow',
   social: 'Posts & blog',
+  'social-notifications': 'Activity & replies',
   communications: 'Client messages',
   finance: 'Payments & payouts',
   analytics: 'Reports & trends',
@@ -106,7 +109,7 @@ export const launcherApps = [
     label: 'Social',
     blurb: 'Posts, studio and client messages.',
     icon: Share2,
-    tabs: ['social', 'communications'],
+    tabs: ['social', 'social-notifications', 'communications'],
     size: 'md',
     hue: 'rose',
     tint: ['#ffd4f2', '#d8ccff']

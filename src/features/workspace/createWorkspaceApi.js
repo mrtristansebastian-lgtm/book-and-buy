@@ -10,8 +10,21 @@ import {
 } from '../../utils/staffAccess';
 import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 import { MODE_KEY, OWNER_KEY, DEMO_KEY, safeParse } from './workspacePersistence';
+import { canUseCanonicalSocial, socialMutations } from '../social/socialApi';
 
 export function createWorkspaceApi({ workspace, setWorkspace, user }) {
+    const syncSocialPost = (post) => {
+      if (!post?.id || workspace.isDemo || !canUseCanonicalSocial(user?.uid)) return;
+      socialMutations
+        .upsertPost({
+          slug: workspace.slug,
+          ownerId: user.uid,
+          businessName: workspace.brandName || workspace.name || '',
+          businessLogoUrl: workspace.website?.logoUrl || '',
+          post
+        })
+        .catch(() => {});
+    };
     const updateBooking = (id, patch) => {
       setWorkspace((prev) => ({
         ...prev,
@@ -205,21 +218,28 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
             }))
           ]
         }));
+        syncSocialPost(record);
         return record;
       },
       updateSocialPost: (id, patch) => {
+        const current = (workspace.socialPosts || []).find((post) => post.id === id);
+        const nextPost = current ? { ...current, ...patch, id } : { ...patch, id };
         setWorkspace((prev) => ({
           ...prev,
           socialPosts: (prev.socialPosts || []).map((post) =>
             post.id === id ? { ...post, ...patch } : post
           )
         }));
+        syncSocialPost(nextPost);
       },
       removeSocialPost: (id) => {
         setWorkspace((prev) => ({
           ...prev,
           socialPosts: (prev.socialPosts || []).filter((post) => post.id !== id)
         }));
+        if (!workspace.isDemo && canUseCanonicalSocial(user?.uid)) {
+          socialMutations.deletePost({ slug: workspace.slug, postId: id }).catch(() => {});
+        }
       },
       updateProfile: (patch) => {
         setWorkspace((prev) => ({ ...prev, ...patch }));

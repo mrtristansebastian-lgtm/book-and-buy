@@ -280,6 +280,12 @@ export interface WebsiteSettings {
 
 export interface SocialPost {
   id: string;
+  /** Canonical globally unique ID used by the scalable social store. */
+  canonicalId?: string;
+  ownerId?: string;
+  businessSlug?: string;
+  businessName?: string;
+  businessLogoUrl?: string;
   type?: "image" | "video" | "vertical" | "text" | string;
   mediaUrl?: string;
   posterUrl?: string;
@@ -296,6 +302,79 @@ export interface SocialPost {
   published?: boolean;
   createdAt?: number;
   order?: number;
+  exploreMainCategoryId?: string;
+  exploreSubcategoryId?: string;
+  tags?: string[];
+  status?: "published" | "draft" | "hidden" | "deleted" | string;
+  moderationState?: "visible" | "hidden" | "removed" | string;
+  counts?: SocialEngagementCounts;
+  updatedAt?: number;
+}
+
+export interface SocialEngagementCounts {
+  likes: number;
+  comments: number;
+  shares: number;
+  saves?: number;
+}
+
+export interface SocialComment {
+  id: string;
+  postId: string;
+  parentId?: string;
+  authorUid: string;
+  authorName: string;
+  authorPhotoURL?: string;
+  body: string;
+  createdAtMs: number;
+  updatedAtMs?: number;
+  likeCount?: number;
+  replyCount?: number;
+  viewerLiked?: boolean;
+  moderationState?: "visible" | "hidden" | "removed" | string;
+}
+
+export interface SocialReaction {
+  actorUid: string;
+  kind: "like";
+  createdAtMs: number;
+}
+
+export type SocialNotificationType =
+  | "post_like"
+  | "post_comment"
+  | "post_share"
+  | "comment_reply"
+  | "comment_like"
+  | "business_follow";
+
+export interface SocialNotification {
+  id: string;
+  type: SocialNotificationType | string;
+  recipientUid?: string;
+  ownerId?: string;
+  actorUid?: string;
+  actorName: string;
+  actorPhotoURL?: string;
+  businessSlug?: string;
+  postId?: string;
+  commentId?: string;
+  thumbnailUrl?: string;
+  preview?: string;
+  groupedCount?: number;
+  createdAtMs: number;
+  readAtMs?: number | null;
+}
+
+export interface FeedCursor {
+  createdAtMs: number;
+  id: string;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  nextCursor: FeedCursor | null;
+  hasMore: boolean;
 }
 
 export interface WorkspacePolicies {

@@ -1,0 +1,1023 @@
+/* Universal social engagement — crisp ink, transparent controls, no grey pills. */
+.bb-client-engage-btn,
+.bb-client-reaction-trigger,
+.bb-client-pulse-stat,
+.bb-client-pulse-tool,
+.bb-client-tweet-btn,
+.bb-client-youtube-action,
+.bb-client-reaction-trigger.bb-client-youtube-action,
+.bb-client-social-icon-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #07090d;
+}
+
+.bb-client-engage-btn,
+.bb-client-reaction-trigger,
+.bb-client-pulse-tool,
+.bb-client-tweet-btn,
+.bb-client-social-icon-btn {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+.bb-client-engage-btn:hover,
+.bb-client-reaction-trigger:hover,
+.bb-client-pulse-stat:hover,
+.bb-client-pulse-tool:hover,
+.bb-client-tweet-btn:hover:not(:disabled),
+.bb-client-youtube-action:hover,
+.bb-client-youtube-action:focus-visible,
+.bb-client-reaction-trigger.bb-client-youtube-action:hover,
+.bb-client-reaction-trigger.bb-client-youtube-action:focus-visible {
+  border: 0;
+  background: transparent;
+  color: #000;
+}
+
+.bb-client-engage-btn:focus-visible,
+.bb-client-reaction-trigger:focus-visible,
+.bb-client-pulse-stat:focus-visible,
+.bb-client-pulse-tool:focus-visible,
+.bb-client-tweet-btn:focus-visible,
+.bb-client-youtube-action:focus-visible,
+.bb-client-social-icon-btn:focus-visible,
+.bb-client-comment-meta button:focus-visible,
+.bb-client-comment-like:focus-visible,
+.bb-client-comment-send:focus-visible,
+.bb-client-share-option:focus-visible,
+.bb-social-notification-row:focus-visible,
+.bb-social-notifications-read-all:focus-visible,
+.bb-client-notification-trigger:focus-visible,
+.bb-social-studio-sections button:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 3px;
+}
+
+.bb-client-like-heart {
+  display: block;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+
+.bb-client-like-heart.is-on {
+  color: transparent;
+  background-image: var(--native-accent-gradient);
+  background-size: 420% 420%;
+  animation:
+    bb-like-pop 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    bb-like-gradient-shift var(--native-accent-duration, 24s) var(--native-accent-easing, ease-in-out) infinite;
+}
+
+.bb-client-like-heart.is-burst {
+  color: transparent;
+  filter: drop-shadow(0 5px 20px rgba(0, 0, 0, 0.3));
+  animation:
+    bb-like-burst 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    bb-like-gradient-shift 1.25s linear infinite;
+}
+
+/* One post-card shell across Home, Explore, and public Social. */
+.bb-social-feed-list {
+  gap: 1rem;
+}
+
+.bb-social-feed-post {
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.045);
+}
+
+.bb-social-feed-post:hover {
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.13);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.065);
+}
+
+.bb-social-feed-post-head {
+  min-height: 4rem;
+  padding: 0.78rem 0.9rem 0.72rem;
+}
+
+.bb-social-feed-identity-link {
+  display: flex;
+  align-items: center;
+  gap: 0.68rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bb-social-feed-identity-link:disabled { cursor: default; }
+.bb-social-feed-identity-link:not(:disabled):hover .bb-social-feed-brand,
+.bb-social-feed-caption-user:not(:disabled):hover { text-decoration: underline; text-underline-offset: 2px; }
+.bb-social-feed-identity-link:focus-visible,
+.bb-social-feed-caption-user:focus-visible { outline: 2px solid #101828; outline-offset: 3px; }
+.bb-social-feed-caption-user {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.bb-social-feed-caption-user:disabled { cursor: default; }
+
+.bb-social-feed-engage {
+  padding: 0.48rem 0.72rem 0.08rem;
+}
+
+.bb-social-feed-caption-row {
+  padding: 0.36rem 0.9rem 0.88rem;
+}
+
+.bb-client-pulse {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.2rem 0;
+}
+
+.bb-client-pulse-stats,
+.bb-client-pulse-tools,
+.bb-client-tweet-actions {
+  color: #07090d;
+}
+
+.bb-client-pulse-stats {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.7rem;
+}
+
+.bb-client-pulse-tools {
+  margin-left: auto;
+  padding-left: 0.35rem;
+}
+
+.bb-social-feed-engage {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.bb-social-feed-author-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  min-width: 0;
+  max-width: 100%;
+  color: #687181;
+  font-size: 0.73rem;
+  font-weight: 560;
+  line-height: 1.2;
+}
+
+.bb-social-feed-author-location span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-social-feed-caption-user,
+.bb-social-feed-caption-title {
+  color: #07090d;
+  font-weight: 760;
+}
+
+.bb-social-feed-caption-user {
+  margin-right: 0.08rem;
+  letter-spacing: -0.01em;
+}
+
+.bb-client-ig-explore.is-media-explore.is-immersive .bb-social-feed-list {
+  overflow-y: visible;
+  scroll-snap-type: none;
+  scrollbar-width: none;
+}
+
+.bb-client-ig-explore.is-media-explore.is-immersive .bb-social-feed {
+  width: min(100%, 36rem);
+  max-width: calc(100vw - var(--bb-client-dock-w, 0px) - 2rem);
+  margin-inline: auto;
+  padding-bottom: 1.5rem;
+}
+
+@media (max-width: 520px) {
+  .bb-client-pulse {
+    gap: 0.2rem;
+  }
+
+  .bb-client-pulse-stats {
+    gap: 0.38rem;
+  }
+
+  .bb-client-pulse-word {
+    display: none;
+  }
+
+  .bb-client-pulse-tools {
+    padding-left: 0;
+  }
+}
+
+.bb-client-pulse-stat,
+.bb-client-reaction-trigger {
+  color: #07090d;
+  font-weight: 650;
+}
+
+.bb-client-pulse-word {
+  color: #3f4754;
+}
+
+.bb-client-pulse-sep {
+  width: 1px;
+  height: 1rem;
+  border-radius: 0;
+  background: #d8dde5;
+}
+
+.bb-client-pulse-tool {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.bb-client-youtube-action-row {
+  gap: 1.15rem;
+  padding: 0.15rem 0;
+}
+
+.bb-client-youtube-action,
+.bb-client-reaction-trigger.bb-client-youtube-action {
+  min-height: 2.75rem;
+  padding: 0;
+  gap: 0.42rem;
+  font-size: 0.82rem;
+  font-weight: 720;
+}
+
+.bb-client-youtube-action.is-on,
+.bb-client-reaction-trigger.bb-client-youtube-action.is-on {
+  border: 0;
+  background: transparent;
+}
+
+.bb-client-tweet-actions {
+  max-width: 28rem;
+  margin-inline: -0.55rem;
+}
+
+.bb-client-tweet-btn {
+  padding: 0;
+  color: #07090d;
+}
+
+.bb-client-comment-backdrop,
+.bb-client-share-backdrop {
+  background: rgba(10, 14, 20, 0.42);
+  backdrop-filter: blur(5px);
+}
+
+.bb-client-comment-panel {
+  max-height: min(88dvh, 45rem);
+  border-radius: 1.1rem 1.1rem 0 0;
+  background: #fff;
+  box-shadow: 0 -18px 60px rgba(10, 14, 20, 0.2);
+  overflow: hidden;
+}
+
+.bb-client-comment-head {
+  min-height: 4.35rem;
+  padding: 0.75rem 0.8rem 0.7rem 1.15rem;
+  border-color: #edf0f4;
+}
+
+.bb-client-comment-head > span {
+  display: grid;
+  gap: 0.08rem;
+}
+
+.bb-client-comment-head small {
+  color: #77808d;
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.bb-client-comment-head strong {
+  color: #080a0e;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1rem;
+  letter-spacing: -0.025em;
+}
+
+.bb-client-social-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.bb-client-comment-list {
+  align-content: start;
+  gap: 1.05rem;
+  padding: 1.05rem 1.1rem 1.4rem;
+  overscroll-behavior: contain;
+}
+
+.bb-client-comment-thread {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.bb-client-comment-row {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 2.25rem;
+  align-items: start;
+  gap: 0.72rem;
+  min-width: 0;
+  font-size: 0.87rem;
+}
+
+.bb-client-comment-row.is-reply {
+  grid-template-columns: 1.9rem minmax(0, 1fr);
+  margin-left: 2.95rem;
+}
+
+.bb-client-comment-avatar,
+.bb-client-comment-composer-avatar {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  overflow: hidden;
+  border: 1px solid #e5e8ed;
+  border-radius: 50%;
+  background: #fff;
+  color: #111827;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.bb-client-comment-row.is-reply .bb-client-comment-avatar {
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+.bb-client-comment-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bb-client-comment-body {
+  min-width: 0;
+}
+
+.bb-client-comment-body > p {
+  margin: 0;
+  color: #1a1d24;
+  line-height: 1.48;
+  overflow-wrap: anywhere;
+}
+
+.bb-client-comment-body > p strong {
+  margin-right: 0.28rem;
+  color: #05070a;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.bb-client-comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 1.85rem;
+  color: #7a8390;
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.bb-client-comment-meta button,
+.bb-client-comment-view-replies,
+.bb-client-comment-load-more {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #525b68;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.bb-client-comment-meta button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+}
+
+.bb-client-comment-view-replies {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+}
+
+.bb-client-comment-like {
+  display: grid;
+  place-items: center;
+  gap: 0.15rem;
+  width: 2.25rem;
+  min-height: 2.25rem;
+  margin: -0.25rem 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #111317;
+  font-size: 0.62rem;
+  cursor: pointer;
+}
+
+.bb-client-comment-like.is-on {
+  color: #000;
+}
+
+.bb-client-comment-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 3.5rem 1rem;
+  color: #111827;
+  text-align: center;
+}
+
+.bb-client-comment-empty strong {
+  font-size: 0.95rem;
+}
+
+.bb-client-comment-empty p {
+  margin: 0;
+  color: #6c7582;
+  font-size: 0.8rem;
+}
+
+.bb-client-comment-loading {
+  display: grid;
+  gap: 1rem;
+  padding: 0.4rem 0;
+}
+
+.bb-client-comment-loading span,
+.bb-social-notifications-loading span {
+  display: block;
+  height: 3.8rem;
+  background: linear-gradient(90deg, #f4f5f7, #fff, #f4f5f7);
+  background-size: 220% 100%;
+  animation: bb-social-shimmer 1.4s linear infinite;
+}
+
+@keyframes bb-social-shimmer {
+  to { background-position: -220% 0; }
+}
+
+.bb-client-comment-load-more {
+  justify-self: center;
+  padding: 0.65rem;
+  font-size: 0.76rem;
+}
+
+.bb-client-comment-composer {
+  position: relative;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 2.75rem;
+  gap: 0.65rem;
+  padding: 0.72rem 0.8rem calc(0.72rem + env(safe-area-inset-bottom, 0px));
+  border-color: #edf0f4;
+  background: #fff;
+}
+
+.bb-client-comment-composer input {
+  width: 100%;
+  min-width: 0;
+  height: 2.75rem;
+  margin: 0;
+  padding: 0 0.15rem;
+  border: 0;
+  border-bottom: 1px solid #dce1e7;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: #080a0e;
+  font: inherit;
+}
+
+.bb-client-comment-composer input:focus {
+  border-color: #080a0e;
+}
+
+.bb-client-comment-send {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #05070a;
+  cursor: pointer;
+}
+
+.bb-client-comment-send:disabled {
+  color: #c4cad2;
+  cursor: default;
+}
+
+.bb-client-comment-replying {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 0.2rem 0.35rem 2.85rem;
+  color: #68717e;
+  font-size: 0.72rem;
+}
+
+.bb-client-comment-replying button {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.bb-client-share-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 12010;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.bb-client-share-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+}
+
+.bb-client-share-panel {
+  position: relative;
+  z-index: 1;
+  width: min(27rem, 100%);
+  border: 1px solid #e3e7ec;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(9, 13, 20, 0.22);
+}
+
+.bb-client-share-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0.75rem 0.9rem 1rem;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.bb-client-share-panel > header > div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.bb-client-share-panel > header span {
+  color: #747e8b;
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.bb-client-share-panel > header strong {
+  color: #080a0e;
+  font-size: 1rem;
+}
+
+.bb-client-share-option {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  margin: 0;
+  padding: 1rem;
+  border: 0;
+  background: #fff;
+  color: #080a0e;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-client-share-option:hover {
+  background: #fbfcfd;
+}
+
+.bb-client-share-option > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #dce1e7;
+}
+
+.bb-client-share-option > span:nth-child(2) {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.bb-client-share-option small {
+  overflow: hidden;
+  color: #78818e;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Client notification entry and page. */
+.bb-client-top-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.bb-client-notification-trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #07090d;
+  cursor: pointer;
+}
+
+.bb-client-notification-badge,
+.bb-social-studio-sections small {
+  display: grid;
+  place-items: center;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.23rem;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #0b0d11;
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.bb-client-notification-badge {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.12rem;
+}
+
+.bb-client-notifications-page,
+.bb-social-studio-notifications {
+  width: min(48rem, 100%);
+  margin: 0 auto;
+  padding: 1rem clamp(0.75rem, 3vw, 1.5rem) 6rem;
+}
+
+.bb-social-notifications {
+  overflow: hidden;
+  border: 1px solid #e4e8ed;
+  background: #fff;
+}
+
+.bb-social-notifications-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 5.6rem;
+  padding: 1rem 1.1rem 0.9rem;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.bb-social-notifications-head > div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.bb-social-notifications-kicker {
+  color: #77808d;
+  font-size: 0.62rem;
+  font-weight: 780;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.bb-social-notifications-head h2 {
+  margin: 0;
+  color: #080a0e;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: -0.035em;
+}
+
+.bb-social-notifications-read-all {
+  margin: 0;
+  padding: 0.4rem 0;
+  border: 0;
+  background: transparent;
+  color: #111827;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.bb-social-notification-list {
+  display: grid;
+}
+
+.bb-social-notification-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.9rem minmax(0, 1fr) 3.2rem;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 5rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-bottom: 1px solid #edf0f4;
+  background: #fff;
+  color: #1a1e25;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-social-notification-row:last-child {
+  border-bottom: 0;
+}
+
+.bb-social-notification-row:hover {
+  background: #fcfcfd;
+}
+
+.bb-social-notification-row.is-unread {
+  background: #fdfefe;
+}
+
+.bb-social-notification-avatar-wrap {
+  position: relative;
+  width: 2.9rem;
+  height: 2.9rem;
+}
+
+.bb-social-notification-avatar {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  overflow: hidden;
+  border: 1px solid #e1e5ea;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.bb-social-notification-avatar.is-fallback {
+  background: #fff;
+  color: #111827;
+  font-size: 0.82rem;
+  font-weight: 820;
+}
+
+.bb-social-notification-type {
+  position: absolute;
+  right: -0.15rem;
+  bottom: -0.15rem;
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #080a0e;
+  color: #fff;
+}
+
+.bb-social-notification-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.bb-social-notification-copy strong {
+  color: #080a0e;
+  font-weight: 800;
+}
+
+.bb-social-notification-copy small {
+  overflow: hidden;
+  color: #636d7a;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-social-notification-copy time {
+  color: #929aa5;
+  font-size: 0.67rem;
+  font-weight: 650;
+}
+
+.bb-social-notification-thumb {
+  width: 3.2rem;
+  height: 3.2rem;
+  border: 1px solid #e4e7ec;
+  object-fit: cover;
+}
+
+.bb-social-notification-arrow {
+  justify-self: end;
+  padding-right: 0.45rem;
+  color: #8b94a0;
+  font-size: 1.4rem;
+}
+
+.bb-social-notification-unread {
+  position: absolute;
+  top: 50%;
+  right: 0.36rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: #080a0e;
+  transform: translateY(-50%);
+}
+
+.bb-social-notifications-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 4rem 1rem;
+  color: #111827;
+  text-align: center;
+}
+
+.bb-social-notifications-empty p {
+  margin: 0;
+  color: #6d7683;
+  font-size: 0.8rem;
+}
+
+.bb-social-notifications-loading {
+  display: grid;
+  gap: 1px;
+  padding: 1px 0;
+}
+
+/* Owner Social Studio section navigation. */
+.bb-social-studio-sections {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: min(72rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 0.35rem 0 0;
+  border-bottom: 1px solid #e8ebef;
+}
+
+.bb-social-studio-sections button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  min-height: 3rem;
+  margin: 0 0 -1px;
+  padding: 0 0.15rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #737c89;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 720;
+  cursor: pointer;
+}
+
+.bb-social-studio-sections button.is-active {
+  border-bottom-color: #080a0e;
+  color: #080a0e;
+}
+
+.bb-social-studio-sections small {
+  border-width: 0;
+}
+
+.bb-social-studio-notifications {
+  padding-top: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .bb-client-comment-panel {
+    width: min(36rem, 100%);
+    min-height: min(38rem, 78vh);
+    max-height: min(82vh, 48rem);
+    border: 1px solid #e2e6eb;
+    border-radius: 0;
+    box-shadow: 0 28px 90px rgba(9, 13, 20, 0.24);
+  }
+}
+
+@media (max-width: 719px) {
+  .bb-client-comment-panel {
+    max-height: 92dvh;
+  }
+
+  .bb-client-share-sheet {
+    align-items: end;
+    padding: 0;
+  }
+
+  .bb-client-share-panel {
+    width: 100%;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-width: 1px 0 0;
+  }
+
+  .bb-client-notifications-page,
+  .bb-social-studio-notifications {
+    padding: 0 0 6rem;
+  }
+
+  .bb-social-notifications {
+    border-width: 1px 0;
+  }
+
+  .bb-social-notifications-head {
+    min-height: 4.9rem;
+    padding-inline: 0.9rem;
+  }
+
+  .bb-social-notification-row {
+    grid-template-columns: 2.7rem minmax(0, 1fr) 2.9rem;
+    gap: 0.7rem;
+    min-height: 4.75rem;
+    padding: 0.68rem 0.75rem;
+  }
+
+  .bb-social-notification-avatar-wrap,
+  .bb-social-notification-avatar {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+
+  .bb-social-notification-thumb {
+    width: 2.9rem;
+    height: 2.9rem;
+  }
+
+  .bb-social-studio-sections {
+    width: calc(100% - 1.2rem);
+    gap: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-client-like-heart.is-on,
+  .bb-client-like-heart.is-burst,
+  .bb-client-comment-loading span,
+  .bb-social-notifications-loading span {
+    animation: none;
+  }
+}

@@ -142,7 +142,9 @@ export function ClientAppShell({
             <div className="bb-page-header-glow" aria-hidden="true" />
             <h1 className="bb-page-title m-0">{title || 'Book and Buy'}</h1>
           </div>
-          {headerRight ? <div className="bb-client-top-right">{headerRight}</div> : null}
+          <div className="bb-client-top-right">
+            {headerRight}
+          </div>
         </header>
       )}
 

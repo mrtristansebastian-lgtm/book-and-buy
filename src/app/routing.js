@@ -49,7 +49,7 @@ export function parseAppRoute(path = getLocationPath()) {
     if (section === 'auth') {
       return { kind: 'client', section: 'auth', rest: [] };
     }
-    const allowed = new Set(['home', 'find', 'explore', 'messages', 'account']);
+    const allowed = new Set(['home', 'find', 'explore', 'messages', 'notifications', 'account']);
     const tab = allowed.has(section) ? section : 'home';
     return {
       kind: 'client',

@@ -7,6 +7,7 @@ import { SocialPostFeed } from './SocialPostFeed';
 import { SOCIAL_PROFILE_TABS, SocialProfileTabs } from './SocialProfileTabs';
 import { SocialTextTimeline } from './SocialTextTimeline';
 import { SocialVideosPanel } from './SocialVideosPanel';
+import { listCanonicalSocialPosts } from '../socialApi';
 
 function sortPosts(posts) {
   return [...posts].sort(
@@ -38,15 +39,34 @@ export function SocialFeed({
   const [tab, setTab] = useState('posts');
   const [feedId, setFeedId] = useState('');
   const [videoWatchOpen, setVideoWatchOpen] = useState(false);
+  const [canonicalPosts, setCanonicalPosts] = useState([]);
+
+  useEffect(() => {
+    if (!publicMode || preview || editMode || !slug) {
+      setCanonicalPosts([]);
+      return undefined;
+    }
+    let cancelled = false;
+    listCanonicalSocialPosts({ slug })
+      .then((result) => {
+        if (!cancelled) setCanonicalPosts(result.items);
+      })
+      .catch(() => {
+        if (!cancelled) setCanonicalPosts([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [publicMode, preview, editMode, slug]);
 
   const visiblePosts = useMemo(
     () =>
       sortPosts(
-        (workspace.socialPosts || []).filter((post) =>
+        (canonicalPosts.length ? canonicalPosts : workspace.socialPosts || []).filter((post) =>
           editMode && showDrafts ? true : post.published !== false
         )
       ),
-    [workspace.socialPosts, editMode, showDrafts]
+    [workspace.socialPosts, canonicalPosts, editMode, showDrafts]
   );
 
   const postsByKind = useMemo(() => {

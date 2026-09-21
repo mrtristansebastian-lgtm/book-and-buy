@@ -541,6 +541,31 @@ export function SocialStudioCompose({
             </div>
 
             <div className="bb-public-profile-aside bb-social-studio-profile-aside">
+              <button
+                type="button"
+                className="bb-ghost-btn bb-public-profile-action bb-public-profile-action--compact bb-social-studio-message-preview"
+                disabled
+                title="This is how clients see the Message action"
+              >
+                Message
+              </button>
+              <div className="bb-social-studio-owner-actions">
+                <button
+                  type="button"
+                  className="bb-ghost-btn bb-public-profile-action bb-public-profile-action--compact"
+                  onClick={() => setEditOpen(true)}
+                >
+                  Edit profile
+                </button>
+                <button
+                  type="button"
+                  className="bb-primary-btn bb-public-profile-action bb-public-profile-action--compact bb-social-studio-profile-post"
+                  onClick={() => setPickerOpen(true)}
+                >
+                  <Plus size={15} strokeWidth={2.4} />
+                  Add post
+                </button>
+              </div>
               {onTogglePageVisible ? (
                 <label className="bb-studio-visible-toggle bb-social-studio-visible">
                   <input
@@ -551,13 +576,6 @@ export function SocialStudioCompose({
                   Page visible
                 </label>
               ) : null}
-              <button
-                type="button"
-                className="bb-ghost-btn bb-public-profile-action bb-public-profile-action--compact"
-                onClick={() => setEditOpen(true)}
-              >
-                Edit
-              </button>
               {onOpenLive ? (
                 <button
                   type="button"
@@ -569,14 +587,6 @@ export function SocialStudioCompose({
                   <ExternalLink size={13} strokeWidth={2.2} />
                 </button>
               ) : null}
-              <button
-                type="button"
-                className="bb-primary-btn bb-public-profile-action bb-public-profile-action--compact bb-social-studio-profile-post"
-                onClick={() => setPickerOpen(true)}
-              >
-                <Plus size={15} strokeWidth={2.4} />
-                Post
-              </button>
             </div>
           </div>
         </div>

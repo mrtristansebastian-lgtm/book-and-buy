@@ -36,6 +36,7 @@ export async function ensureClientProfile(user, { displayName } = {}) {
     likedKeys: [],
     reactionsByKey: {},
     savedKeys: [],
+    savedPlaceSlugs: [],
     commentsByKey: {},
     createdAt: Date.now()
   });
@@ -69,6 +70,14 @@ export async function updateClientFollowedSlugs(uid, followedSlugs) {
   if (!firebase || !uid) return;
   await updateDoc(doc(firebase.db, ...userProfilePath(APP_ID, uid)), {
     followedSlugs: [...new Set((followedSlugs || []).map(String).filter(Boolean))]
+  });
+}
+
+export async function updateClientSavedPlaceSlugs(uid, savedPlaceSlugs) {
+  const firebase = getFirebase();
+  if (!firebase || !uid || String(uid).startsWith('demo')) return;
+  await updateDoc(doc(firebase.db, ...userProfilePath(APP_ID, uid)), {
+    savedPlaceSlugs: [...new Set((savedPlaceSlugs || []).map(String).filter(Boolean))]
   });
 }
 

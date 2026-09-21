@@ -115,15 +115,6 @@ export function ComposerReviewStep({ c }) {
 
         <div className="bb-composer-caption-copy">
           <p className="bb-composer-caption-kicker">Almost done</p>
-          <label className="bb-social-field">
-            <span>Title (optional)</span>
-            <input
-              className="native-control-input bb-social-compose-control"
-              value={c.title}
-              placeholder="Give this post a title"
-              onChange={(event) => c.setTitle(event.target.value)}
-            />
-          </label>
           <label className="bb-social-field bb-social-field--grow">
             <span className="bb-composer-x-label-row">
               <span>Caption</span>

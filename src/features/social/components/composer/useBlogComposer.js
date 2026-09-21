@@ -1025,7 +1025,7 @@ export function useBlogComposer({
     try {
       let payload = {
         type,
-        title: title.trim() || (isLongVideo ? `Untitled ${videoNoun}` : ""),
+        title: type === 'image' ? '' : title.trim() || (isLongVideo ? `Untitled ${videoNoun}` : ''),
         caption: caption.trim(),
         exploreMainCategoryId,
         exploreSubcategoryId,

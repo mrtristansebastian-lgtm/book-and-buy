@@ -1,26 +1,48 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   CalendarDays,
+  Bell,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
   Lock,
+  Bookmark,
   MessageCircle,
   Settings2,
   UserRound
 } from 'lucide-react';
+import { collection, getDocs, limit, query } from 'firebase/firestore';
+import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { formatDisplayDate } from '../../../utils/dates';
 import { formatCents } from '../../../utils/products';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
+import { getFirebase, isFirebaseConfigured } from '../../../shared/firebase/client';
+import { artifactRoot } from '../../../shared/firebase/paths';
+import { distanceKm } from '../../../shared/geo/haversine';
 import { DemoModePanel } from '../../../shared/ui/DemoModePanel';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
 import { startClientMessage } from '../startClientMessage';
+import { SocialNotificationsList } from '../../social/components/SocialNotificationsList';
+import { PlacesCards } from '../PlacesCards';
+import { normalizeBiz } from '../exploreDiscovery';
 
 const SECTIONS = [
+  {
+    id: 'saved-places',
+    label: 'Saved Places',
+    lede: 'Businesses and places you want to visit again.',
+    icon: Bookmark
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    lede: 'Replies, likes, and updates from businesses you follow.',
+    icon: Bell
+  },
   {
     id: 'general',
     label: 'General',
@@ -47,6 +69,23 @@ const SECTIONS = [
   }
 ];
 
+const ACCOUNT_GROUPS = [
+  {
+    id: 'activity',
+    label: 'Your activity',
+    icon: Bell,
+    sections: ['notifications', 'saved-places', 'bookings', 'orders'],
+    hue: 'sky'
+  },
+  {
+    id: 'profile',
+    label: 'Profile',
+    icon: UserRound,
+    sections: ['general', 'account'],
+    hue: 'violet'
+  }
+];
+
 function StatusPill({ children }) {
   return <span className="bb-client-pill">{children}</span>;
 }
@@ -64,24 +103,6 @@ function initials(name = '', email = '') {
   }
   const letter = String(email || 'C').trim().charAt(0);
   return letter ? letter.toUpperCase() : 'C';
-}
-
-function ProfilePreview({ profile, onOpen }) {
-  const photo = String(profile?.photoURL || '').trim();
-  const name = profile?.displayName || 'Client';
-  const email = profile?.email || 'No email';
-  return (
-    <button type="button" className="bb-client-settings-preview" onClick={onOpen}>
-      <span className="bb-settings-avatar bb-client-settings-avatar" aria-hidden>
-        {photo ? <img src={photo} alt="" /> : initials(name, email)}
-      </span>
-      <span className="bb-client-settings-preview-copy">
-        <strong>{name}</strong>
-        <span>{email}</span>
-      </span>
-      <ChevronRight size={18} strokeWidth={2} aria-hidden />
-    </button>
-  );
 }
 
 function GeneralSettings({ profile, updateClientProfile, setClientPresence }) {
@@ -218,12 +239,65 @@ function AccountSettings({ clearClientSession, showDemo }) {
 
 /** Account = settings-style index with profile preview + section pages. */
 export function ClientAccountPage({ section = '' }) {
-  const { profile, clearClientSession, followSlug, updateClientProfile } = useClientProfile();
-  const { bookings, orders, workspace, startThreadFromBooking, startThreadFromOrder, setClientPresence } =
+  const {
+    profile,
+    clearClientSession,
+    followSlug,
+    updateClientProfile,
+    socialNotifications,
+    socialNotificationsReady,
+    unreadSocialNotifications,
+    markSocialNotificationsRead,
+    togglePlaceSave,
+    unfollowSlug
+  } = useClientProfile();
+  const { bookings, orders, workspace, startThreadFromBooking, startThreadFromOrder, startThreadFromClient, setClientPresence } =
     useWorkspace();
+  const [directory, setDirectory] = useState([]);
+  const [messagingSlug, setMessagingSlug] = useState('');
   const email = String(profile?.email || '').toLowerCase();
   const active = SECTIONS.find((item) => item.id === section) || null;
   const isIndex = !active;
+
+  useEffect(() => {
+    let cancelled = false;
+    const local = normalizeBiz({
+      slug: workspace?.slug,
+      ownerId: workspace?.ownerId || workspace?.id || '',
+      brandName: workspace?.brandName,
+      tagline: workspace?.tagline,
+      logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl,
+      heroImageUrl: workspace?.website?.heroImageUrl || workspace?.website?.socialBannerUrl,
+      website: workspace?.website || {}
+    });
+    const commit = (remote = []) => {
+      const bySlug = new Map();
+      if (local) bySlug.set(local.slug, local);
+      remote.forEach((biz) => biz && bySlug.set(biz.slug, biz));
+      const clientLat = Number(profile?.clientLat);
+      const clientLng = Number(profile?.clientLng);
+      setDirectory([...bySlug.values()].map((biz) => ({
+        ...biz,
+        distanceKm: Number.isFinite(clientLat) && Number.isFinite(clientLng) && Number.isFinite(biz.locationLat) && Number.isFinite(biz.locationLng)
+          ? distanceKm(clientLat, clientLng, biz.locationLat, biz.locationLng)
+          : Infinity
+      })));
+    };
+    commit();
+    if (!isFirebaseConfigured()) return () => { cancelled = true; };
+    (async () => {
+      try {
+        const firebase = getFirebase();
+        if (!firebase) return;
+        const col = collection(firebase.db, ...artifactRoot(APP_ID), 'public', 'data', 'workspaces');
+        const snap = await getDocs(query(col, limit(80)));
+        if (!cancelled) commit(snap.docs.map((item) => normalizeBiz({ id: item.id, slug: item.id, ...(item.data() || {}) })).filter(Boolean));
+      } catch {
+        /* local place remains available */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [workspace, profile?.clientLat, profile?.clientLng]);
 
   const myBookings = useMemo(
     () =>
@@ -265,6 +339,30 @@ export function ClientAccountPage({ section = '' }) {
   const go = (id) => navigate(`/app/account/${id}`);
   const goList = () => navigate('/app/account');
   const showDemo = Boolean(workspace?.isDemo || profile?.isDemo);
+  const followed = useMemo(() => new Set(profile?.followedSlugs || []), [profile?.followedSlugs]);
+  const savedPlaces = useMemo(() => new Set(profile?.savedPlaceSlugs || []), [profile?.savedPlaceSlugs]);
+  const savedBusinesses = useMemo(
+    () => directory.filter((biz) => savedPlaces.has(biz.slug)),
+    [directory, savedPlaces]
+  );
+
+  const messagePlace = async (biz) => {
+    setMessagingSlug(biz.slug);
+    try {
+      await startClientMessage({
+        profile,
+        followSlug,
+        workspace,
+        startThreadFromClient,
+        ownerId: biz.ownerId || '',
+        slug: biz.slug,
+        brandName: biz.brandName,
+        logoUrl: biz.logoUrl || ''
+      });
+    } finally {
+      setMessagingSlug('');
+    }
+  };
 
   let body = null;
   if (active?.id === 'general') {
@@ -330,6 +428,36 @@ export function ClientAccountPage({ section = '' }) {
         )}
       </div>
     );
+  } else if (active?.id === 'notifications') {
+    body = (
+      <SocialNotificationsList
+        items={socialNotifications}
+        loading={!socialNotificationsReady}
+        unreadCount={unreadSocialNotifications}
+        onMarkRead={(ids) => markSocialNotificationsRead(ids)}
+        onMarkAllRead={() => markSocialNotificationsRead([], true)}
+      />
+    );
+  } else if (active?.id === 'saved-places') {
+    body = savedBusinesses.length ? (
+      <PlacesCards
+        businesses={savedBusinesses}
+        followed={followed}
+        followSlug={followSlug}
+        unfollowSlug={unfollowSlug}
+        messageBiz={messagePlace}
+        messagingSlug={messagingSlug}
+        savedPlaces={savedPlaces}
+        togglePlaceSave={togglePlaceSave}
+      />
+    ) : (
+      <div className="bb-client-empty bb-client-saved-empty">
+        <Bookmark size={24} />
+        <strong>No saved places yet</strong>
+        <span>Save a business from Find and it will appear here.</span>
+        <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/find')}>Find places</button>
+      </div>
+    );
   } else if (active?.id === 'account') {
     body = <AccountSettings clearClientSession={clearClientSession} showDemo={showDemo} />;
   }
@@ -353,33 +481,36 @@ export function ClientAccountPage({ section = '' }) {
               <p className="bb-muted">Profile, bookings, and sign-in.</p>
             </header>
 
-            <ProfilePreview profile={profile} onOpen={() => go('general')} />
-
-            <nav className="bb-settings-nav">
-              {SECTIONS.map((item) => {
-                const Icon = item.icon || UserRound;
-                const count =
-                  item.id === 'bookings'
-                    ? myBookings.length
-                    : item.id === 'orders'
-                      ? myOrders.length
-                      : null;
+            <nav className="bb-client-account-launcher" aria-label="Account apps">
+              {ACCOUNT_GROUPS.map((group) => {
+                const GroupIcon = group.icon;
                 return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="bb-settings-nav-item"
-                    onClick={() => go(item.id)}
-                  >
-                    <Icon size={24} strokeWidth={1.85} className="bb-settings-nav-icon" />
-                    <span className="bb-client-settings-nav-label">
-                      {item.label}
-                      {count != null ? (
-                        <span className="bb-muted bb-client-settings-nav-count">{count}</span>
-                      ) : null}
-                    </span>
-                    <ChevronRight size={18} className="bb-client-settings-chevron" aria-hidden />
-                  </button>
+                  <section key={group.id} className={`bb-client-account-group is-${group.hue}`}>
+                    <h2><GroupIcon size={18} strokeWidth={2} />{group.label}</h2>
+                    <div className="bb-client-account-apps">
+                      {group.sections.map((id) => {
+                        const item = SECTIONS.find((sectionItem) => sectionItem.id === id);
+                        if (!item) return null;
+                        const Icon = item.icon || UserRound;
+                        const count = item.id === 'notifications'
+                          ? unreadSocialNotifications || null
+                          : item.id === 'saved-places'
+                            ? savedPlaces.size
+                            : item.id === 'bookings'
+                              ? myBookings.length
+                              : item.id === 'orders'
+                                ? myOrders.length
+                                : null;
+                        return (
+                          <button key={item.id} type="button" className="bb-client-account-app" onClick={() => go(item.id)}>
+                            <span className="bb-client-account-app-icon"><Icon size={21} strokeWidth={1.9} /></span>
+                            <strong>{item.label}</strong>
+                            {count != null ? <span className="bb-client-account-app-count">{count}</span> : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
                 );
               })}
             </nav>

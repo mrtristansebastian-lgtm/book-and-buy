@@ -9,6 +9,7 @@ import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
 import { annotateSocialPosts } from '../ClientSocialShelf';
 import { ClientHomeFeed } from '../ClientHomeFeed';
+import { listCanonicalSocialPosts } from '../../social/socialApi';
 
 /** Instagram home feed from followed businesses. */
 export function ClientHomePage() {
@@ -28,13 +29,14 @@ export function ClientHomePage() {
       const rows = await Promise.all(
         followed.map(async (slug) => {
           try {
+            const canonical = await listCanonicalSocialPosts({ slug }).catch(() => ({ items: [] }));
             const snap = await loadPublicWorkspaceFromFirestore(slug);
-            if (!snap) return null;
+            if (!snap && !canonical.items.length) return null;
             return {
               slug,
-              brandName: snap.brandName || slug,
-              logoUrl: snap.logoUrl || snap.website?.logoUrl || '',
-              socialPosts: snap.socialPosts || []
+              brandName: snap?.brandName || canonical.items[0]?.businessName || slug,
+              logoUrl: snap?.logoUrl || snap?.website?.logoUrl || canonical.items[0]?.businessLogoUrl || '',
+              socialPosts: canonical.items.length ? canonical.items : snap?.socialPosts || []
             };
           } catch {
             return null;

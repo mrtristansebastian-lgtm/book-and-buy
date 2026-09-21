@@ -21,6 +21,21 @@ export const publicWorkspaceStaffPath = (appId: string, slug: string) =>
 export const userProfilePath = (appId: string, uid: string) =>
   [...artifactRoot(appId), "userProfiles", uid] as const;
 
+export const socialPostsPath = (appId: string) =>
+  [...artifactRoot(appId), "socialPosts"] as const;
+
+export const socialPostPath = (appId: string, postId: string) =>
+  [...socialPostsPath(appId), postId] as const;
+
+export const socialCommentsPath = (appId: string, postId: string) =>
+  [...socialPostPath(appId, postId), "comments"] as const;
+
+export const clientSocialNotificationsPath = (appId: string, uid: string) =>
+  [...userProfilePath(appId, uid), "socialNotifications"] as const;
+
+export const businessSocialNotificationsPath = (appId: string, ownerId: string) =>
+  [...artifactRoot(appId), "users", ownerId, "socialNotifications"] as const;
+
 export const clientThreadsPath = (appId: string) =>
   [...artifactRoot(appId), "clientThreads"] as const;
 
@@ -65,5 +80,17 @@ export const callableNames = {
   confirmPaymentReturn: "confirmPaymentReturn",
   disconnectPaymentGateway: "disconnectPaymentGateway",
   markManualBookingPaid: "markManualBookingPaid",
-  savePaymentGatewaySettings: "savePaymentGatewaySettings"
+  savePaymentGatewaySettings: "savePaymentGatewaySettings",
+  socialToggleReaction: "socialToggleReaction",
+  socialToggleSave: "socialToggleSave",
+  socialCreateComment: "socialCreateComment",
+  socialToggleCommentLike: "socialToggleCommentLike",
+  socialDeleteComment: "socialDeleteComment",
+  socialModerateComment: "socialModerateComment",
+  socialRecordShare: "socialRecordShare",
+  socialFollowBusiness: "socialFollowBusiness",
+  socialMarkNotificationsRead: "socialMarkNotificationsRead",
+  socialUpsertPost: "socialUpsertPost",
+  socialDeletePost: "socialDeletePost",
+  socialSearch: "socialSearch"
 } as const;

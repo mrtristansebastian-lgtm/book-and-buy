@@ -15,6 +15,7 @@ export function emptyClientProfile(overrides = {}) {
     likedKeys: [],
     reactionsByKey: {},
     savedKeys: [],
+    savedPlaceSlugs: [],
     commentsByKey: {},
     createdAt: Date.now(),
     isDemo: false,
@@ -71,6 +72,9 @@ export function readLocalClientProfile() {
       ...emptyClientProfile(),
       ...parsed,
       followedSlugs: Array.isArray(parsed.followedSlugs) ? parsed.followedSlugs : [],
+      savedPlaceSlugs: Array.isArray(parsed.savedPlaceSlugs)
+        ? [...new Set(parsed.savedPlaceSlugs.map(String).filter(Boolean))]
+        : [],
       exploreMode: parsed.exploreMode === 'international' ? 'international' : 'local',
       exploreMaxKm: (() => {
         const n = Math.round(Number(parsed.exploreMaxKm));
@@ -117,6 +121,7 @@ export function makeDemoClientProfile() {
     email: DEMO_CLIENT_EMAIL,
     displayName: DEMO_CLIENT_NAME,
     followedSlugs: ['flameandflour'],
+    savedPlaceSlugs: ['flameandflour'],
     isDemo: true,
     uid: 'demo-client',
     exploreMode: 'local',

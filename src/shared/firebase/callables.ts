@@ -43,5 +43,17 @@ export const firebaseCallables = {
       placeName?: string;
       rating?: number | null;
       reviews: Array<{ id: string; quote: string; name: string; rating: number }>;
-    }>(callableNames.getGooglePlaceReviews, payload)
+    }>(callableNames.getGooglePlaceReviews, payload),
+  socialToggleReaction: (payload: object) => callCallable(callableNames.socialToggleReaction, payload),
+  socialToggleSave: (payload: object) => callCallable(callableNames.socialToggleSave, payload),
+  socialCreateComment: (payload: object) => callCallable(callableNames.socialCreateComment, payload),
+  socialToggleCommentLike: (payload: object) => callCallable(callableNames.socialToggleCommentLike, payload),
+  socialDeleteComment: (payload: object) => callCallable(callableNames.socialDeleteComment, payload),
+  socialModerateComment: (payload: object) => callCallable(callableNames.socialModerateComment, payload),
+  socialRecordShare: (payload: object) => callCallable(callableNames.socialRecordShare, payload),
+  socialFollowBusiness: (payload: object) => callCallable(callableNames.socialFollowBusiness, payload),
+  socialMarkNotificationsRead: (payload: object) => callCallable(callableNames.socialMarkNotificationsRead, payload),
+  socialUpsertPost: (payload: object) => callCallable(callableNames.socialUpsertPost, payload),
+  socialDeletePost: (payload: object) => callCallable(callableNames.socialDeletePost, payload),
+  socialSearch: (payload: object) => callCallable(callableNames.socialSearch, payload)
 };
