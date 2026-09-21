@@ -614,7 +614,7 @@ export function ClientExplorePage({ mediaOnly = false }) {
         <div className="bb-client-ig-top">
           {mediaOnly ? (
             <>
-              <div className="bb-explore-discovery-head bb-media-explore-head">
+              <div className="bb-explore-discovery-row bb-media-explore-head">
                 <div className="bb-explore-discovery-modes" aria-label="Discovery mode">
                   <button
                     type="button"
@@ -631,8 +631,22 @@ export function ClientExplorePage({ mediaOnly = false }) {
                     International
                   </button>
                 </div>
-                {exploreMode === 'local' && clientCity ? (
-                  <span className="bb-explore-near">Near {clientCity}</span>
+                {exploreMode === 'local' ? (
+                  <div className="bb-explore-near">
+                    <MapPin size={12} strokeWidth={2.4} aria-hidden="true" />
+                    <span className="bb-explore-near-text">{clientCity || 'Near you'}</span>
+                    {geoStatus === 'loading' ? (
+                      <span className="bb-explore-near-status">…</span>
+                    ) : (
+                      <button
+                        type="button"
+                        className="bb-explore-near-btn"
+                        onClick={clientCity ? () => setPlaceSheetOpen(true) : requestGeo}
+                      >
+                        {clientCity ? 'Change' : 'Locate'}
+                      </button>
+                    )}
+                  </div>
                 ) : null}
               </div>
               <label className={`bb-search-field bb-media-explore-search${queryText ? ' has-clear' : ''}`}>
