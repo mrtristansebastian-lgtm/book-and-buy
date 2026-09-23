@@ -12,7 +12,8 @@ export function buildTimelineAxisMarks(dayStart, dayEnd) {
   if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return [];
 
   const span = end - start;
-  const stepMinutes = span > 10 * 60 ? 120 : 60;
+  const idealStep = span / 8;
+  const stepMinutes = [30, 60, 120, 180, 240, 360].find((step) => step >= idealStep) || 360;
   const marks = [{ minutes: start, edge: 'start' }];
 
   let cursor = Math.ceil((start + 1) / stepMinutes) * stepMinutes;

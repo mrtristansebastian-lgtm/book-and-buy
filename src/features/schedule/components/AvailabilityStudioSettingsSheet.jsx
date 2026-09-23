@@ -50,7 +50,7 @@ function HoursSection({ availabilityRules, onUpdateRules }) {
   const rowsValid = WEEKDAY_KEYS.every((key) => {
     const row = draft[key];
     if (!row?.open) return true;
-    return row.openTime && row.closeTime && row.closeTime > row.openTime;
+    return Boolean(row.openTime && row.closeTime);
   });
   const openCount = WEEKDAY_KEYS.filter((key) => draft[key]?.open).length;
   const dirty = useMemo(() => {
@@ -108,6 +108,9 @@ function HoursSection({ availabilityRules, onUpdateRules }) {
       {openCount < 1 ? (
         <p className="bb-schedule-avail-hint m-0">Keep at least one weekday open.</p>
       ) : null}
+      <p className="bb-schedule-avail-hint m-0">
+        A closing time before opening continues into the next day. Matching times create a 24-hour day.
+      </p>
       <div className="bb-schedule-avail-settings-section-actions">
         <button
           type="button"

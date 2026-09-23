@@ -15,11 +15,14 @@ import {
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import {
   getBookingAvailabilityConflict,
+  alignTimeToWindowMinutes,
   getBusinessHoursForDate,
   getScheduleDayTimeline,
   getStaffDayTimeline,
   isBusinessOpenOnDate,
-  resolveCalendarDayStatus
+  resolveCalendarDayStatus,
+  resolveTimeWindowMinutes,
+  timeToMinutes
 } from '../../../utils/staffAvailability';
 import { DayTimelineMeter, buildTimelineAxisMarks } from '../components/DayTimelineMeter';
 import { AvailabilityMonthGrid } from '../components/AvailabilityMonthGrid';
@@ -37,15 +40,11 @@ import {
   statusLabel
 } from './schedulePageUtils';
 
-function timeToMinutes(value = '') {
-  const match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
-  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
-}
-
 function bookingHorizontalPosition(booking, dayStart, dayEnd) {
   const rawStart = timeToMinutes(booking?.time);
   const rangeMinutes = Math.max(1, dayEnd - dayStart);
-  const startMinutes = Math.max(dayStart, Math.min(dayEnd, rawStart ?? dayStart));
+  const alignedStart = alignTimeToWindowMinutes(rawStart, dayStart, dayEnd);
+  const startMinutes = Math.max(dayStart, Math.min(dayEnd, alignedStart ?? dayStart));
   const duration = Math.max(30, Number(booking?.durationMinutes) || 60);
   const offset = startMinutes - dayStart;
   return {
@@ -206,14 +205,13 @@ export function SchedulePage() {
     () => getBusinessHoursForDate(day, workspace.availabilityRules || {}),
     [day, workspace.availabilityRules]
   );
-  const dayStartMinutes = useMemo(
-    () => timeToMinutes(dayHours.openTime) ?? 9 * 60,
-    [dayHours.openTime]
+  const dayWindow = useMemo(
+    () => resolveTimeWindowMinutes(dayHours.openTime, dayHours.closeTime),
+    [dayHours.openTime, dayHours.closeTime]
   );
-  const dayEndMinutes = useMemo(() => {
-    const end = timeToMinutes(dayHours.closeTime) ?? 17 * 60;
-    return end > dayStartMinutes ? end : dayStartMinutes + 8 * 60;
-  }, [dayHours.closeTime, dayStartMinutes]);
+  const dayStartMinutes = dayWindow.start;
+  const dayEndMinutes = dayWindow.end;
+  const daySpanHours = Math.max(1, (dayEndMinutes - dayStartMinutes) / 60);
   const boardAxisMarks = useMemo(
     () => buildTimelineAxisMarks(dayStartMinutes, dayEndMinutes),
     [dayStartMinutes, dayEndMinutes]
@@ -224,11 +222,20 @@ export function SchedulePage() {
     ),
     [slotBookings, day]
   );
+  const confirmedBookingsByStaff = useMemo(() => {
+    const grouped = new Map();
+    confirmedDayBookings.forEach((booking) => {
+      const staffId = String(booking.staffId || '');
+      if (!grouped.has(staffId)) grouped.set(staffId, []);
+      grouped.get(staffId).push(booking);
+    });
+    return grouped;
+  }, [confirmedDayBookings]);
   const staffRows = useMemo(
     () => visibleStaffRows.map((member) => {
-      const memberBookings = confirmedDayBookings.filter((booking) =>
-        member.id ? booking.staffId === member.id : true
-      );
+      const memberBookings = member.id
+        ? (confirmedBookingsByStaff.get(String(member.id)) || [])
+        : confirmedDayBookings;
       const timeline = member.id
         ? getStaffDayTimeline(
             member.id,
@@ -249,7 +256,7 @@ export function SchedulePage() {
       }));
       return { member, timeline, bookingsWithConflict };
     }),
-    [visibleStaffRows, confirmedDayBookings, day, workspace.staffAvailability, workspace.availabilityRules, dayHours.open, dayStartMinutes, dayEndMinutes]
+    [visibleStaffRows, confirmedDayBookings, confirmedBookingsByStaff, day, workspace.staffAvailability, workspace.availabilityRules, dayHours.open, dayStartMinutes, dayEndMinutes]
   );
   const attentionBookings = useMemo(
     () => confirmedDayBookings.map((booking) => ({
@@ -404,9 +411,15 @@ export function SchedulePage() {
               ) : (
                 <section className="bb-schedule-board bb-schedule-resource-board" aria-label="Daily staff appointment calendar">
                   <div className="bb-schedule-board-scroll">
-                    <div className="bb-schedule-resource-grid">
+                    <div
+                      className="bb-schedule-resource-grid"
+                      style={{ '--schedule-hour-count': daySpanHours }}
+                    >
                       <div className="bb-schedule-resource-corner"><span>Team</span></div>
-                      <div className="bb-schedule-resource-axis" aria-label={`${dayHours.openTime} to ${dayHours.closeTime}`}>
+                      <div
+                        className="bb-schedule-resource-axis"
+                        aria-label={`${boardAxisMarks[0]?.label || dayHours.openTime} to ${boardAxisMarks[boardAxisMarks.length - 1]?.label || dayHours.closeTime}`}
+                      >
                         {boardAxisMarks.map((mark) => (
                           <span
                             key={`${mark.minutes}-${mark.edge}`}

@@ -1422,8 +1422,11 @@
 
 .bb-schedule-resource-grid {
   display: grid;
-  grid-template-columns: 11.5rem minmax(0, 1fr);
-  min-width: 0;
+  --schedule-hour-count: 8;
+  --schedule-hour-width: 4.5rem;
+  --schedule-track-min: max(52.5rem, calc(var(--schedule-hour-count) * var(--schedule-hour-width)));
+  grid-template-columns: 11.5rem minmax(var(--schedule-track-min), 1fr);
+  min-width: calc(11.5rem + var(--schedule-track-min));
   background: #fff;
 }
 
@@ -1474,7 +1477,7 @@
 .bb-schedule-resource-row {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 11.5rem minmax(0, 1fr);
+  grid-template-columns: 11.5rem minmax(var(--schedule-track-min), 1fr);
   min-height: 8.5rem;
   border-bottom: 1px solid rgba(15, 23, 42, 0.07);
 }
@@ -1754,9 +1757,9 @@
     grid-template-columns: 12.8rem minmax(0, 1fr);
   }
 
-  .bb-schedule-resource-grid { min-width: 64rem; }
-  .bb-schedule-resource-row { grid-template-columns: 11.5rem minmax(52.5rem, 1fr); }
-  .bb-schedule-resource-track { min-width: 52.5rem; }
+  .bb-schedule-resource-grid { min-width: calc(11.5rem + var(--schedule-track-min)); }
+  .bb-schedule-resource-row { grid-template-columns: 11.5rem minmax(var(--schedule-track-min), 1fr); }
+  .bb-schedule-resource-track { min-width: var(--schedule-track-min); }
 
   .bb-schedule-mini-calendar { padding: 0.65rem; }
   .bb-schedule-sidebar { padding: 0.7rem; }
@@ -2018,10 +2021,18 @@
   transform: none;
 }
 
+.bb-schedule-desk .bb-schedule-resource-axis span.is-start {
+  padding-left: 0.9rem;
+}
+
 .bb-schedule-desk .bb-schedule-resource-axis span.is-end::after {
   right: 0;
   left: auto;
   transform: none;
+}
+
+.bb-schedule-desk .bb-schedule-resource-axis span.is-end {
+  padding-right: 0.9rem;
 }
 
 .bb-schedule-desk .bb-schedule-resource-row {
@@ -2034,6 +2045,25 @@
 
 .bb-schedule-desk .bb-schedule-resource-lines i {
   border-left-color: #e4e7ec;
+}
+
+.bb-schedule-desk .bb-schedule-board-scroll {
+  max-height: min(70vh, 52rem);
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.bb-schedule-desk .bb-schedule-resource-row {
+  content-visibility: auto;
+  contain-intrinsic-block-size: 8.5rem;
+}
+
+.bb-schedule-sidebar .bb-schedule-staff-filter {
+  max-height: min(42vh, 24rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 24, 40, 0.24) transparent;
 }
 
 .bb-schedule-desk .bb-schedule-resource-track.is-off {

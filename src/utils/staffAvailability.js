@@ -1,4 +1,17 @@
 import { addDays, parseDateKey, toDateKey } from './dates';
+import {
+  alignTimeToWindowMinutes,
+  minutesToTime,
+  resolveTimeWindowMinutes,
+  timeToMinutes
+} from './scheduleTime';
+
+export {
+  alignTimeToWindowMinutes,
+  minutesToTime,
+  resolveTimeWindowMinutes,
+  timeToMinutes
+} from './scheduleTime';
 
 export const WEEKDAY_KEYS = Object.freeze(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
 
@@ -14,7 +27,7 @@ const normalizeTime = (value, fallback = '09:00') => {
 const normalizeRange = (range = {}) => {
   const start = normalizeTime(range.start, DEFAULT_OPEN);
   const end = normalizeTime(range.end, DEFAULT_CLOSE);
-  if (start >= end) return null;
+  if (timeToMinutes(start) == null || timeToMinutes(end) == null) return null;
   return { start, end };
 };
 
@@ -36,14 +49,24 @@ const subtractRangeFromList = (windows = [], exclusion = null) => {
   if (!exclusion) return windows;
   const out = [];
   for (const window of windows) {
-    if (exclusion.end <= window.start || exclusion.start >= window.end) {
-      out.push(window);
-      continue;
-    }
-    const before = normalizeRange({ start: window.start, end: exclusion.start });
-    const after = normalizeRange({ start: exclusion.end, end: window.end });
-    if (before) out.push(before);
-    if (after) out.push(after);
+    const base = resolveTimeWindowMinutes(window.start, window.end);
+    const blocked = resolveTimeWindowMinutes(exclusion.start, exclusion.end);
+    let pieces = [{ start: base.start, end: base.end }];
+    [-24 * 60, 0, 24 * 60].forEach((shift) => {
+      const blockedStart = blocked.start + shift;
+      const blockedEnd = blocked.end + shift;
+      pieces = pieces.flatMap((piece) => {
+        if (blockedEnd <= piece.start || blockedStart >= piece.end) return [piece];
+        const next = [];
+        if (blockedStart > piece.start) next.push({ start: piece.start, end: blockedStart });
+        if (blockedEnd < piece.end) next.push({ start: blockedEnd, end: piece.end });
+        return next;
+      });
+    });
+    pieces.forEach((piece) => {
+      if (piece.end <= piece.start) return;
+      out.push({ start: minutesToTime(piece.start), end: minutesToTime(piece.end) });
+    });
   }
   return out;
 };
@@ -353,12 +376,6 @@ export const resolveCalendarDayStatus = (
   return windows.length ? 'open' : 'off';
 };
 
-const timeToMinutes = (hhmm = '') => {
-  const match = String(hhmm || '').match(/^(\d{1,2}):(\d{2})$/);
-  if (!match) return null;
-  return Number(match[1]) * 60 + Number(match[2]);
-};
-
 /**
  * Mini day meter segments for Availability calendar cells.
  * Domain is business open→close. Open = bookable; break = exclusion windows.
@@ -377,28 +394,35 @@ export const getStaffDayTimeline = (
   );
   const rules = normalizeAvailabilityRules(availabilityRules);
   const hours = getBusinessHoursForDate(dateKey, rules);
-  let dayStart = timeToMinutes(hours.openTime) ?? 9 * 60;
-  let dayEnd = timeToMinutes(hours.closeTime) ?? 17 * 60;
-  if (dayEnd <= dayStart) {
-    dayStart = 0;
-    dayEnd = 24 * 60;
-  }
+  const dayWindow = resolveTimeWindowMinutes(hours.openTime, hours.closeTime);
+  const dayStart = dayWindow.start;
+  const dayEnd = dayWindow.end;
   const span = Math.max(1, dayEnd - dayStart);
 
-  const toSegment = (range, kind) => {
-    const start = timeToMinutes(range?.start);
-    const end = timeToMinutes(range?.end);
-    if (start == null || end == null || end <= start) return null;
-    const clippedStart = Math.max(dayStart, start);
-    const clippedEnd = Math.min(dayEnd, end);
-    if (clippedEnd <= clippedStart) return null;
-    return {
-      kind,
-      start: range.start,
-      end: range.end,
-      leftPct: ((clippedStart - dayStart) / span) * 100,
-      widthPct: ((clippedEnd - clippedStart) / span) * 100
-    };
+  const toSegments = (range, kind) => {
+    const rangeWindow = resolveTimeWindowMinutes(range?.start, range?.end, {
+      fallbackStart: dayStart,
+      fallbackEnd: dayEnd
+    });
+    return [-24 * 60, 0, 24 * 60]
+      .map((shift) => ({
+        start: rangeWindow.start + shift,
+        end: rangeWindow.end + shift
+      }))
+      .map(({ start, end }) => ({
+        clippedStart: Math.max(dayStart, start),
+        clippedEnd: Math.min(dayEnd, end)
+      }))
+      .filter(({ clippedStart, clippedEnd }) => clippedEnd > clippedStart)
+      .map(({ clippedStart, clippedEnd }) => ({
+        kind,
+        start: range.start,
+        end: range.end,
+        startMinutes: clippedStart,
+        endMinutes: clippedEnd,
+        leftPct: ((clippedStart - dayStart) / span) * 100,
+        widthPct: ((clippedEnd - clippedStart) / span) * 100
+      }));
   };
 
   if (status === 'business-closed' || status === 'leave' || status === 'off') {
@@ -421,19 +445,16 @@ export const getStaffDayTimeline = (
   const segments = [];
 
   bookable.forEach((range) => {
-    const seg = toSegment(range, 'open');
-    if (seg) segments.push(seg);
+    segments.push(...toSegments(range, 'open'));
   });
 
   if (status === 'break' && Array.isArray(explicit?.ranges)) {
     explicit.ranges.forEach((range) => {
-      const seg = toSegment(range, 'break');
-      if (seg) segments.push(seg);
+      segments.push(...toSegments(range, 'break'));
     });
   } else if (Array.isArray(explicit?.breaks)) {
     explicit.breaks.forEach((range) => {
-      const seg = toSegment(range, 'break');
-      if (seg) segments.push(seg);
+      segments.push(...toSegments(range, 'break'));
     });
   }
 
@@ -447,12 +468,9 @@ export const BUSINESS_AVAILABILITY_ID = 'business';
 export const getBusinessDayTimeline = (dateKey, availabilityRules = {}) => {
   const rules = normalizeAvailabilityRules(availabilityRules);
   const hours = getBusinessHoursForDate(dateKey, rules);
-  let dayStart = timeToMinutes(hours.openTime) ?? 9 * 60;
-  let dayEnd = timeToMinutes(hours.closeTime) ?? 17 * 60;
-  if (dayEnd <= dayStart) {
-    dayStart = 0;
-    dayEnd = 24 * 60;
-  }
+  const dayWindow = resolveTimeWindowMinutes(hours.openTime, hours.closeTime);
+  const dayStart = dayWindow.start;
+  const dayEnd = dayWindow.end;
 
   if (!hours.open) {
     return { status: 'business-closed', segments: [], dayStart, dayEnd };
@@ -492,12 +510,9 @@ export const getScheduleDayTimeline = ({
 } = {}) => {
   const rules = normalizeAvailabilityRules(availabilityRules);
   const hours = getBusinessHoursForDate(dateKey, rules);
-  let dayStart = timeToMinutes(hours.openTime) ?? 9 * 60;
-  let dayEnd = timeToMinutes(hours.closeTime) ?? 17 * 60;
-  if (dayEnd <= dayStart) {
-    dayStart = 0;
-    dayEnd = 24 * 60;
-  }
+  const dayWindow = resolveTimeWindowMinutes(hours.openTime, hours.closeTime);
+  const dayStart = dayWindow.start;
+  const dayEnd = dayWindow.end;
   const span = Math.max(1, dayEnd - dayStart);
 
   const base = staffId
@@ -519,7 +534,8 @@ export const getScheduleDayTimeline = ({
   });
 
   dayBookings.forEach((booking) => {
-    const start = timeToMinutes(booking.time);
+    const rawStart = timeToMinutes(booking.time);
+    const start = alignTimeToWindowMinutes(rawStart, dayStart, dayEnd);
     if (start == null) return;
     const duration = Math.max(15, Number(booking.durationMinutes) || 60);
     const end = start + duration;
@@ -641,20 +657,26 @@ export const applyBusinessClosedToRange = (
 };
 
 /** Intersect two HH:MM ranges; return null if empty. */
-export const intersectRanges = (a, b) => {
+const intersectRangeParts = (a, b) => {
   if (!a || !b) return null;
-  const start = a.start > b.start ? a.start : b.start;
-  const end = a.end < b.end ? a.end : b.end;
-  if (start >= end) return null;
-  return { start, end };
+  const aWindow = resolveTimeWindowMinutes(a.start, a.end);
+  const bWindow = resolveTimeWindowMinutes(b.start, b.end);
+  return [-24 * 60, 0, 24 * 60]
+    .map((shift) => ({
+      start: Math.max(aWindow.start, bWindow.start + shift),
+      end: Math.min(aWindow.end, bWindow.end + shift)
+    }))
+    .filter((range) => range.end > range.start)
+    .map((range) => ({ start: minutesToTime(range.start), end: minutesToTime(range.end) }));
 };
+
+export const intersectRanges = (a, b) => intersectRangeParts(a, b)?.[0] || null;
 
 export const intersectWindowLists = (listA = [], listB = []) => {
   const out = [];
   for (const a of listA) {
     for (const b of listB) {
-      const hit = intersectRanges(a, b);
-      if (hit) out.push(hit);
+      out.push(...(intersectRangeParts(a, b) || []));
     }
   }
   return out;
@@ -689,19 +711,21 @@ export const getBookingAvailabilityConflict = ({
   staffAvailability = {},
   availabilityRules = {}
 } = {}) => {
-  const start = timeToMinutes(booking?.time);
+  const rawStart = timeToMinutes(booking?.time);
   const duration = Math.max(15, Number(booking?.durationMinutes) || 60);
+  const hours = getBusinessHoursForDate(dateKey, availabilityRules);
+  const businessWindow = resolveTimeWindowMinutes(hours.openTime, hours.closeTime);
+  const start = alignTimeToWindowMinutes(rawStart, businessWindow.start, businessWindow.end);
   const end = start == null ? null : start + duration;
   if (start == null || end == null) {
     return { code: 'invalid-time', label: 'Booking time needs attention' };
   }
 
-  const hours = getBusinessHoursForDate(dateKey, availabilityRules);
   if (!hours.open) {
     return { code: 'business-closed', label: 'Business is closed' };
   }
-  const businessStart = timeToMinutes(hours.openTime);
-  const businessEnd = timeToMinutes(hours.closeTime);
+  const businessStart = businessWindow.start;
+  const businessEnd = businessWindow.end;
   if (
     businessStart == null ||
     businessEnd == null ||
@@ -724,32 +748,20 @@ export const getBookingAvailabilityConflict = ({
     return { code: 'business-closed', label: 'Business is closed' };
   }
 
-  const windows = getEffectiveStaffWindows(
-    staffId,
-    dateKey,
-    staffAvailability,
-    availabilityRules
-  );
-  const fitsWorkingWindow = windows.some((window) => {
-    const windowStart = timeToMinutes(window.start);
-    const windowEnd = timeToMinutes(window.end);
-    return windowStart != null && windowEnd != null && start >= windowStart && end <= windowEnd;
-  });
-  if (fitsWorkingWindow) return null;
-
   const timeline = getStaffDayTimeline(
     staffId,
     dateKey,
     staffAvailability,
     availabilityRules
   );
+  const fitsWorkingWindow = (timeline.segments || [])
+    .filter((segment) => segment.kind === 'open')
+    .some((segment) => start >= segment.startMinutes && end <= segment.endMinutes);
+  if (fitsWorkingWindow) return null;
+
   const overlapsBreak = (timeline.segments || [])
     .filter((segment) => segment.kind === 'break')
-    .some((segment) => {
-      const breakStart = timeToMinutes(segment.start);
-      const breakEnd = timeToMinutes(segment.end);
-      return breakStart != null && breakEnd != null && start < breakEnd && end > breakStart;
-    });
+    .some((segment) => start < segment.endMinutes && end > segment.startMinutes);
 
   return overlapsBreak
     ? { code: 'during-break', label: 'Overlaps a staff break' }

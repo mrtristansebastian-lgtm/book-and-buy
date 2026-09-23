@@ -3058,12 +3058,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.38rem;
-  min-height: 2.2rem;
+  min-height: 2.55rem;
   margin: 0;
-  padding: 0.48rem 0.78rem;
-  border: 1px solid #e4e7ec;
+  padding: 0.58rem 0.88rem;
+  border: 1px solid rgba(16, 24, 40, 0.14);
   border-radius: 999px;
-  background: #f8fafc;
+  background: #fff;
   color: #101828;
   font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
   font-size: 0.78rem;
@@ -3093,15 +3093,21 @@
 .bb-client-reaction-trigger.bb-client-youtube-action.is-on {
   border-color: transparent;
   background:
-    linear-gradient(#f8fafc, #f8fafc) padding-box,
+    linear-gradient(#fff, #fff) padding-box,
     var(--native-accent-button-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
 }
 
 .bb-client-youtube-comments {
   display: grid;
   gap: 0.75rem;
-  padding-top: 0.95rem;
-  border-top: 1px solid #eaecf0;
+  padding: 1rem;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(120deg, rgba(16, 24, 40, 0.13), rgba(16, 24, 40, 0.06)) border-box;
 }
 
 .bb-client-youtube-comments-head {
@@ -3193,7 +3199,7 @@
   padding: 0.38rem 0;
   border: 0;
   background: transparent;
-  color: #344054;
+  color: #101828;
   font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 680;
@@ -3299,21 +3305,25 @@
 }
 
 .bb-client-tweet-btn:hover:not(:disabled) {
-  background: rgba(29, 155, 240, 0.1);
-  color: #1d9bf0;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    var(--native-accent-button-gradient) border-box;
+  color: #101828;
 }
 
 .bb-client-tweet-btn.is-like {
-  color: #f91880;
+  color: #101828;
 }
 
 .bb-client-tweet-btn.is-like:hover {
-  background: rgba(249, 24, 128, 0.1);
-  color: #f91880;
+  color: #101828;
 }
 
 .bb-client-tweet-btn.is-on {
-  color: #1d9bf0;
+  background-image: var(--native-accent-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
+  color: #101828;
 }
 
 .bb-client-tweet-btn:disabled {
