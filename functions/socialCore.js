@@ -1,4 +1,10 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import { setGlobalOptions } from 'firebase-functions/v2';
+
+setGlobalOptions({
+  cpu: 'gcf_gen1',
+  memory: '256MiB'
+});
 
 export const SOCIAL_COUNTER_SHARDS = 128;
 export const SOCIAL_SCHEMA_VERSION = 2;
