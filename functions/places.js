@@ -4,10 +4,14 @@
 import { HttpsError } from 'firebase-functions/v2/https';
 
 function mapGoogleReview(review, index) {
-  const name = String(review?.author_name || review?.authorName || '').trim();
-  const quote = String(review?.text || review?.quote || '').trim();
+  const name = String(
+    review?.authorAttribution?.displayName || review?.author_name || review?.authorName || ''
+  ).trim();
+  const quote = String(
+    review?.text?.text || review?.originalText?.text || review?.text || review?.quote || ''
+  ).trim();
   const rating = Math.max(0, Math.min(5, Number(review?.rating) || 0));
-  const time = review?.time || review?.publishTime || index;
+  const time = review?.publishTime || review?.time || index;
   return {
     id: `gplace-${time}-${index}`,
     quote,
@@ -17,7 +21,8 @@ function mapGoogleReview(review, index) {
 }
 
 /**
- * Fetch Place Details reviews via Places API (legacy Place Details).
+ * Fetch reviews through Places API (New). The key is server-only and restricted
+ * to places.googleapis.com in Google API Keys.
  * @param {{ placeId: string, apiKey: string }} params
  */
 export async function fetchPlaceReviews({ placeId, apiKey }) {
@@ -33,24 +38,20 @@ export async function fetchPlaceReviews({ placeId, apiKey }) {
     );
   }
 
-  const url = new URL('https://maps.googleapis.com/maps/api/place/details/json');
-  url.searchParams.set('place_id', id);
-  url.searchParams.set('fields', 'reviews,rating,name');
-  url.searchParams.set('key', key);
-
-  const response = await fetch(url.toString());
+  const response = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(id)}`, {
+    headers: {
+      'X-Goog-Api-Key': key,
+      'X-Goog-FieldMask': 'displayName,rating,reviews'
+    }
+  });
   if (!response.ok) {
-    throw new HttpsError('unavailable', `Places API HTTP ${response.status}`);
-  }
-
-  const payload = await response.json();
-  const status = String(payload?.status || '');
-  if (status !== 'OK' && status !== 'ZERO_RESULTS') {
-    const message = payload?.error_message || status || 'Places request failed';
+    const failure = await response.json().catch(() => ({}));
+    const message = String(failure?.error?.message || `Places API HTTP ${response.status}`);
     throw new HttpsError('failed-precondition', message);
   }
 
-  const rawReviews = Array.isArray(payload?.result?.reviews) ? payload.result.reviews : [];
+  const payload = await response.json();
+  const rawReviews = Array.isArray(payload?.reviews) ? payload.reviews : [];
   const reviews = rawReviews
     .map(mapGoogleReview)
     .filter((item) => item.quote)
@@ -58,8 +59,8 @@ export async function fetchPlaceReviews({ placeId, apiKey }) {
 
   return {
     ok: true,
-    placeName: String(payload?.result?.name || ''),
-    rating: Number(payload?.result?.rating) || null,
+    placeName: String(payload?.displayName?.text || ''),
+    rating: Number(payload?.rating) || null,
     reviews
   };
 }

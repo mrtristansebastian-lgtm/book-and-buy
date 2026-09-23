@@ -21,7 +21,8 @@ const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 const ROOT = `artifacts/${APP_ID}`;
 const PAGE_SIZE = 24;
 const callableOptions = {
-  enforceAppCheck: String(process.env.SOCIAL_ENFORCE_APP_CHECK || '').toLowerCase() === 'true'
+  enforceAppCheck: String(process.env.SOCIAL_ENFORCE_APP_CHECK || '').toLowerCase() === 'true',
+  invoker: 'public'
 };
 
 function requireAuth(request) {
@@ -253,7 +254,7 @@ export const socialListNotifications = onCall(callableOptions, async (request) =
   };
 });
 
-export const socialListFeed = onCall(async (request) => {
+export const socialListFeed = onCall(callableOptions, async (request) => {
   await enforcePlatformRate(request, 'feed_list', { limit: 240, windowMs: 60_000 });
   const mode = request.data?.mode === 'home' ? 'home' : 'explore';
   const kind = cleanSocialValue(request.data?.type, 30);

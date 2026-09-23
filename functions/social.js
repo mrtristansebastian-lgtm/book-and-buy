@@ -24,7 +24,8 @@ const COUNTER_SHARDS = SOCIAL_COUNTER_SHARDS;
 const MAX_COMMENT_LENGTH = 2200;
 const SOCIAL_PAGE_SIZE = 24;
 const callableOptions = {
-  enforceAppCheck: String(process.env.SOCIAL_ENFORCE_APP_CHECK || '').toLowerCase() === 'true'
+  enforceAppCheck: String(process.env.SOCIAL_ENFORCE_APP_CHECK || '').toLowerCase() === 'true',
+  invoker: 'public'
 };
 
 const algoliaAppId = () => String(process.env.ALGOLIA_APP_ID || '').trim();
@@ -60,11 +61,6 @@ function profileRef(uid) {
 }
 
 function actorFrom(request) {
-  const counts = {
-    likes: Number(post?.counts?.likes || post?.likeCount || 0),
-    comments: Number(post?.counts?.comments || post?.commentCount || 0),
-    shares: Number(post?.counts?.shares || post?.shareCount || 0)
-  };
   return {
     actorUid: requireAuth(request),
     actorName: clean(request.auth?.token?.name || request.auth?.token?.email?.split('@')[0] || 'Someone', 100),
@@ -603,6 +599,11 @@ function postPayload({ slug, ownerId, businessName, businessLogoUrl, post }) {
     for (let i = 2; i <= Math.min(word.length, 18); i += 1) next.push(word.slice(0, i));
     return next;
   }))].slice(0, 200);
+  const counts = {
+    likes: Number(post?.counts?.likes || post?.likeCount || 0),
+    comments: Number(post?.counts?.comments || post?.commentCount || 0),
+    shares: Number(post?.counts?.shares || post?.shareCount || 0)
+  };
   return {
     id,
     legacyId,
