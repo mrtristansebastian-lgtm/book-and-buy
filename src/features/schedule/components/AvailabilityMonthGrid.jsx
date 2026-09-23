@@ -34,6 +34,8 @@ export function AvailabilityMonthGrid({
   isDateEnabled = () => true,
   hasIndicator = () => false,
   activeEdit = false,
+  selectedDays = [],
+  multiSelect = false,
   className = ''
 }) {
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
@@ -79,7 +81,7 @@ export function AvailabilityMonthGrid({
           const status = resolveStatus(key) || 'open';
           // A partial break is still a working day in the month view.
           const displayStatus = status === 'break' ? 'open' : status;
-          const selected = key === selectedDay;
+          const selected = multiSelect ? selectedDays.includes(key) : key === selectedDay;
           const indicator = hasIndicator(key);
           return (
             <button

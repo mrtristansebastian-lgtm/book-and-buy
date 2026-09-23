@@ -9,8 +9,7 @@ import {
 } from '../../../utils/staffAccess';
 import {
   BUSINESS_AVAILABILITY_ID,
-  ScheduleAvailabilityEditor,
-  StaffAvailabilitySwitcher
+  ScheduleAvailabilityEditor
 } from '../components/ScheduleAvailabilityEditor';
 
 export function AvailabilityPage() {
@@ -68,16 +67,6 @@ export function AvailabilityPage() {
                 </button>
               ) : null}
             </div>
-          </div>
-          <div className="bb-schedule-desk-tools bb-schedule-avail-header-tools">
-            <StaffAvailabilitySwitcher
-              staff={visibleStaff}
-              staffId={staffId}
-              onSelect={setStaffId}
-              businessName={workspace.brandName || 'Business'}
-              businessLogoUrl={workspace.website?.logoUrl || ''}
-              showBusiness
-            />
           </div>
         </header>
       </div>

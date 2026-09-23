@@ -803,6 +803,238 @@
   padding-bottom: 0.25rem;
 }
 
+/* Availability Studio uses the same operational left rail as Schedule. */
+.bb-schedule-avail-layout {
+  display: grid;
+  grid-template-columns: minmax(15rem, 17.5rem) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.bb-schedule-avail-sidebar {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.bb-schedule-avail-sidebar-section {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.95rem;
+  background: #fff;
+}
+
+.bb-schedule-avail-sidebar-label {
+  margin: 0;
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bb-schedule-avail-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bb-schedule-avail-sidebar-meta {
+  color: #667085;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.bb-schedule-avail-sidebar .bb-schedule-avail-avatars {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-content: stretch;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0;
+}
+
+.bb-schedule-avail-sidebar .bb-schedule-avail-avatar {
+  display: grid;
+  grid-template-columns: 2.3rem minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.7rem;
+  text-align: left;
+}
+
+.bb-schedule-avail-sidebar .bb-schedule-avail-avatar:hover,
+.bb-schedule-avail-sidebar .bb-schedule-avail-avatar.is-active {
+  background: #f8fafc;
+}
+
+.bb-schedule-avail-sidebar .bb-schedule-avail-avatar-face {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-width: 2px;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.bb-schedule-avail-sidebar .bb-schedule-avail-avatar-name {
+  max-width: none;
+  color: #101828;
+  font-size: 0.78rem;
+  font-weight: 760;
+  text-align: left;
+}
+
+.bb-schedule-avail-sidebar-statuses {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bb-schedule-avail-sidebar-status,
+.bb-schedule-avail-sidebar-action {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.7rem;
+  background: #fff;
+  color: #101828;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 740;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-schedule-avail-sidebar-status:hover,
+.bb-schedule-avail-sidebar-action:hover {
+  border-color: rgba(15, 23, 42, 0.22);
+  background: #f8fafc;
+}
+
+.bb-schedule-avail-sidebar-status:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.bb-schedule-avail-sidebar-status.is-active {
+  border-color: #101828;
+  box-shadow: 0 0 0 1px #101828;
+}
+
+.bb-schedule-avail-sidebar-status > span {
+  width: 0.65rem;
+  height: 0.65rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--bb-avail-open);
+}
+
+.bb-schedule-avail-sidebar-status.is-off > span { background: var(--bb-avail-off); }
+.bb-schedule-avail-sidebar-status.is-leave > span { background: var(--bb-avail-leave); }
+.bb-schedule-avail-sidebar-status.is-business-closed > span { background: var(--bb-avail-closed); }
+
+.bb-schedule-avail-sidebar-shift {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.65rem 0.7rem;
+  border-radius: 0.7rem;
+  background: #f8fafc;
+}
+
+.bb-schedule-avail-sidebar-shift span {
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bb-schedule-avail-sidebar-shift strong {
+  color: #101828;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.bb-schedule-avail-sidebar-action {
+  justify-content: center;
+  text-align: center;
+}
+
+.bb-schedule-avail-sidebar-action.is-secondary {
+  border-style: dashed;
+  color: #475467;
+}
+
+.bb-schedule-avail-sidebar-window {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  color: #667085;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.bb-schedule-avail-sidebar-window strong { color: #101828; }
+
+.bb-schedule-avail-content {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.bb-schedule-apply-shift-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  color: #667085;
+  font-size: 0.78rem;
+}
+
+.bb-schedule-apply-shift-summary strong { color: #101828; }
+
+.bb-schedule-apply-shift-calendar .bb-schedule-picker-day.is-selected {
+  border-color: #101828;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px #101828;
+}
+
+@media (max-width: 900px) {
+  .bb-schedule-avail-layout { grid-template-columns: 1fr; }
+  .bb-schedule-avail-sidebar { position: static; }
+  .bb-schedule-avail-sidebar .bb-schedule-avail-avatars {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .bb-schedule-avail-sidebar .bb-schedule-avail-avatar {
+    flex: 0 0 auto;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    min-width: 4.2rem;
+    text-align: center;
+  }
+  .bb-schedule-avail-sidebar .bb-schedule-avail-avatar-name {
+    max-width: 4.8rem;
+    font-size: 0.68rem;
+    text-align: center;
+  }
+}
+
 @media (max-width: 720px) {
   .bb-schedule-desk.bb-schedule-avail-page,
   .bb-schedule-desk:has(.bb-schedule-avail) {

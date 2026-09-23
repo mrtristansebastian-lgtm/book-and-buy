@@ -29,6 +29,7 @@ import { AvailabilityMonthGrid } from './AvailabilityMonthGrid';
 import { DayTimelineMeter, buildTimelineAxisMarks } from './DayTimelineMeter';
 import { ChangeDayStatusSheet } from './ChangeDayStatusSheet';
 import { SelectRangeSheet } from './SelectRangeSheet';
+import { ApplyShiftDatesSheet } from './ApplyShiftDatesSheet';
 import {
   BUSINESS_STATUS_OPTIONS,
   STAFF_PAINT_OPTIONS,
@@ -88,6 +89,7 @@ export function ScheduleAvailabilityEditor({
   const [draftShifts, setDraftShifts] = useState([{ start: openTime, end: closeTime }]);
   const [draftBreaks, setDraftBreaks] = useState([]);
   const [dayStatusSheetOpen, setDayStatusSheetOpen] = useState(false);
+  const [applyShiftOpen, setApplyShiftOpen] = useState(false);
   const [activeEdit, setActiveEdit] = useState(false);
   const [saveNotice, setSaveNotice] = useState(null);
   const saveNoticeTimerRef = useRef(null);
@@ -607,6 +609,37 @@ export function ScheduleAvailabilityEditor({
     );
   };
 
+  const applyShiftToDates = ({ dates = [], shift }) => {
+    if (!staffId || !entry || !canEditSelected || !shift?.start || !shift?.end) return;
+    let nextEntry = entry;
+    dates.forEach((dateKey) => {
+      if (!isDateWithinAdvanceWindow(dateKey, availabilityRules, { todayKey })) return;
+      const existing = entry.days?.[dateKey];
+      const nextBreaks = Array.isArray(existing?.breaks)
+        ? existing.breaks.map((range) => ({ ...range }))
+        : [];
+      nextEntry = setStaffDayOverride(
+        nextEntry,
+        dateKey,
+        {
+          status: 'open',
+          open: true,
+          ranges: [{ ...shift }],
+          breaks: nextBreaks,
+          source: 'manual'
+        },
+        openTime,
+        closeTime
+      );
+    });
+    if (nextEntry !== entry) onSaveEntry?.(staffId, nextEntry);
+    setApplyShiftOpen(false);
+    if (dates.length) {
+      setSelectedDay(dates[0]);
+      showSaveNotice('Shift applied', `${shift.start} – ${shift.end} · ${dates.length} ${dates.length === 1 ? 'day' : 'days'}`);
+    }
+  };
+
   if (!visibleStaff.length && !canEditRules) {
     return (
       <div className="bb-schedule-avail">
@@ -626,6 +659,68 @@ export function ScheduleAvailabilityEditor({
         </p>
       ) : null}
 
+      <div className="bb-schedule-avail-layout">
+        <aside className="bb-schedule-avail-sidebar" aria-label="Availability controls">
+          <section className="bb-schedule-avail-sidebar-section">
+            <p className="bb-schedule-avail-sidebar-label">Studio focus</p>
+            <StaffAvailabilitySwitcher
+              staff={visibleStaff}
+              staffId={staffId}
+              onSelect={setStaffId}
+              businessName={workspace.brandName || 'Business'}
+              businessLogoUrl={workspace.website?.logoUrl || ''}
+              showBusiness={canEditRules}
+            />
+          </section>
+          <section className="bb-schedule-avail-sidebar-section">
+            <div className="bb-schedule-avail-sidebar-head">
+              <p className="bb-schedule-avail-sidebar-label">Day status</p>
+              <span className={`bb-schedule-avail-day-status-chip is-${dayDraftStatus}`}>{statusLabelForDraft(dayDraftStatus)}</span>
+            </div>
+            <div className="bb-schedule-avail-sidebar-statuses" role="group" aria-label="Change day status">
+              {paintBrushOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`bb-schedule-avail-sidebar-status is-${option.id}${dayDraftStatus === option.id ? ' is-active' : ''}`}
+                  disabled={!canUseActiveEdit || (option.id !== 'business-closed' && dayLockedByBusinessClose)}
+                  onClick={() => commitDayStatus(option.id)}
+                >
+                  <span aria-hidden="true" />
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </section>
+          {!isBusinessFocus ? (
+            <section className="bb-schedule-avail-sidebar-section">
+              <div className="bb-schedule-avail-sidebar-head">
+                <p className="bb-schedule-avail-sidebar-label">Shift setter</p>
+                <span className="bb-schedule-avail-sidebar-meta">{formatDisplayDate(selectedDay)}</span>
+              </div>
+              {draftShifts.length ? draftShifts.map((shift, index) => (
+                <div key={`sidebar-shift-${index}`} className="bb-schedule-avail-sidebar-shift">
+                  <span>Shift {index + 1}</span>
+                  <strong>{shift.start} – {shift.end}</strong>
+                </div>
+              )) : <p className="bb-schedule-avail-hint m-0">No shift set for this day.</p>}
+              {canEditDayTimes ? (
+                <>
+                  <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])}>
+                    <Plus size={15} aria-hidden="true" /> Add shift
+                  </button>
+                  {draftShifts[0] ? (
+                    <button type="button" className="bb-schedule-avail-sidebar-action is-secondary" onClick={() => setApplyShiftOpen(true)}>
+                      <CalendarRange size={15} aria-hidden="true" /> Apply shift to days
+                    </button>
+                  ) : null}
+                </>
+              ) : null}
+            </section>
+          ) : null}
+          <p className="bb-schedule-avail-sidebar-window">Booking window<br /><strong>{bookableWindowLabel.replace('Availability period · ', '')}</strong></p>
+        </aside>
+        <main className="bb-schedule-avail-content">
       <section className="bb-schedule-avail-panel">
         <div className="bb-schedule-avail-cal-head">
           <div className="bb-schedule-avail-cal-copy">
@@ -1081,6 +1176,9 @@ export function ScheduleAvailabilityEditor({
         )}
       </section>
 
+        </main>
+      </div>
+
       {studioSettingsOpen && canEditRules ? (
         <AvailabilityStudioSettingsSheet
           availabilityRules={availabilityRules}
@@ -1116,6 +1214,17 @@ export function ScheduleAvailabilityEditor({
           onApply={(payload) => {
             applyStatusFromSheet(payload);
           }}
+        />
+      ) : null}
+
+      {applyShiftOpen && !isBusinessFocus && canEditDayTimes && draftShifts[0] ? (
+        <ApplyShiftDatesSheet
+          initialDay={selectedDay}
+          shift={draftShifts[0]}
+          availabilityRules={availabilityRules}
+          resolveStatus={(key) => resolveCalendarDayStatus(staffId, key, { [staffId]: entry }, availabilityRules)}
+          onClose={() => setApplyShiftOpen(false)}
+          onApply={applyShiftToDates}
         />
       ) : null}
 
