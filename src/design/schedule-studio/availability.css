@@ -966,6 +966,16 @@
   font-weight: 800;
 }
 
+.bb-schedule-avail-sidebar-times {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.bb-schedule-avail-sidebar-times .bb-time-field {
+  min-width: 0;
+}
+
 .bb-schedule-avail-sidebar-action {
   justify-content: center;
   text-align: center;

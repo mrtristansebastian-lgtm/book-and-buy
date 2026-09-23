@@ -701,7 +701,12 @@ export function ScheduleAvailabilityEditor({
               {draftShifts.length ? draftShifts.map((shift, index) => (
                 <div key={`sidebar-shift-${index}`} className="bb-schedule-avail-sidebar-shift">
                   <span>Shift {index + 1}</span>
-                  <strong>{shift.start} – {shift.end}</strong>
+                  {canEditDayTimes ? (
+                    <div className="bb-schedule-avail-sidebar-times">
+                      <TimeField label="Start" value={shift.start} onChange={(next) => updateShift(index, { start: next })} />
+                      <TimeField label="End" value={shift.end} onChange={(next) => updateShift(index, { end: next })} />
+                    </div>
+                  ) : <strong>{shift.start} – {shift.end}</strong>}
                 </div>
               )) : <p className="bb-schedule-avail-hint m-0">No shift set for this day.</p>}
               {canEditDayTimes ? (
