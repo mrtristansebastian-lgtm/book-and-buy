@@ -6,7 +6,9 @@
     "node": "22"
   },
   "scripts": {
-    "lint": "node -e \"console.log('functions scaffold ready')\""
+    "lint": "node -e \"console.log('functions scaffold ready')\"",
+    "migrate:social:dry": "node scripts/migrate-social.js",
+    "migrate:social": "node scripts/migrate-social.js --apply"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0",

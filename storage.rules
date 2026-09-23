@@ -53,7 +53,7 @@ service firebase.storage {
     function validImageUpload() {
       return request.resource != null &&
         request.resource.size < 6 * 1024 * 1024 &&
-        request.resource.contentType.matches('image/.*');
+        request.resource.contentType.matches('image/(png|jpeg|jpg|webp|gif|heic|heif)');
     }
 
     function validVideoUpload() {
@@ -97,6 +97,11 @@ service firebase.storage {
       allow read: if canManageWorkspaceAsset(appId, userId);
       allow create, update: if canManageWorkspaceAsset(appId, userId) && validImageUpload();
       allow delete: if canManageWorkspaceAsset(appId, userId);
+    }
+
+    // Scanning and transcoding services own quarantined social originals.
+    match /artifacts/{appId}/socialQuarantine/{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

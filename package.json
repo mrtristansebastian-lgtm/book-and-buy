@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "health": "node scripts/health-check.mjs",
     "smoke": "node scripts/smoke-check.mjs",
+    "test:social": "node --test tests/social-core.test.mjs",
+    "load:social": "node scripts/social-load-check.mjs",
     "check": "npm run health && npm run typecheck && npm run build"
   },
   "dependencies": {

@@ -2,12 +2,14 @@ import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getFunctions, type Functions } from 'firebase/functions';
+import { initializeAppCheck, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
 
 export type FirebaseBundle = {
   app: FirebaseApp;
   auth: Auth;
   db: Firestore;
   functions: Functions;
+  appCheck: AppCheck | null;
 };
 
 function parseConfig(): Record<string, string> | null {
@@ -33,11 +35,26 @@ export function getFirebase(): FirebaseBundle | null {
     return null;
   }
   const app = getApps()[0] || initializeApp(config);
+  const appCheckSiteKey = String(import.meta.env.VITE_FIREBASE_APPCHECK_SITE_KEY || '').trim();
+  let appCheck: AppCheck | null = null;
+  if (appCheckSiteKey && typeof window !== 'undefined') {
+    const debugToken = String(import.meta.env.VITE_FIREBASE_APPCHECK_DEBUG_TOKEN || '').trim();
+    if (debugToken) (window as Window & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string | boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
+    try {
+      appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        isTokenAutoRefreshEnabled: true
+      });
+    } catch {
+      // React StrictMode can request the shared Firebase bundle twice in development.
+    }
+  }
   bundle = {
     app,
     auth: getAuth(app),
     db: getFirestore(app),
-    functions: getFunctions(app)
+    functions: getFunctions(app),
+    appCheck
   };
   return bundle;
 }

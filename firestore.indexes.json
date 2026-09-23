@@ -88,6 +88,98 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "businessSlug", "order": "ASCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "businessSlug", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "rankScore", "order": "DESCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "rankScore", "order": "DESCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "businessSlug", "order": "ASCENDING" },
+        { "fieldPath": "rankScore", "order": "DESCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
+        { "fieldPath": "businessSlug", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "rankScore", "order": "DESCENDING" },
+        { "fieldPath": "publishedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "type", "order": "ASCENDING" },
         { "fieldPath": "createdAtMs", "order": "DESCENDING" },
         { "fieldPath": "__name__", "order": "DESCENDING" }
@@ -120,6 +212,7 @@
       "fields": [
         { "fieldPath": "searchPrefixes", "arrayConfig": "CONTAINS" },
         { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
         { "fieldPath": "createdAtMs", "order": "DESCENDING" }
       ]
     },
@@ -129,6 +222,7 @@
       "fields": [
         { "fieldPath": "searchPrefixes", "arrayConfig": "CONTAINS" },
         { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderationState", "order": "ASCENDING" },
         { "fieldPath": "type", "order": "ASCENDING" },
         { "fieldPath": "createdAtMs", "order": "DESCENDING" }
       ]
@@ -149,6 +243,39 @@
       "fields": [
         { "fieldPath": "readAtMs", "order": "ASCENDING" },
         { "fieldPath": "createdAtMs", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialNotifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialModerationCases",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "updatedAtMs", "order": "DESCENDING" },
+        { "fieldPath": "__name__", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialOutbox",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "dispatchedAtMs", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "socialPosts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "deletedAtMs", "order": "ASCENDING" }
       ]
     }
   ],

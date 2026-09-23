@@ -6,10 +6,14 @@ import {
   Heart,
   Link2,
   MessageCircle,
+  MoreHorizontal,
+  Flag,
   Reply,
   Send,
   Share,
   Trash2,
+  UserX,
+  VolumeX,
   X
 } from 'lucide-react';
 import { publicItemPath } from '../../app/routing';
@@ -17,6 +21,7 @@ import { seedEngagementCount, socialPostKey } from './clientProfile';
 import { useClientProfile } from './ClientProfileContext';
 import {
   canUseCanonicalSocial,
+  canonicalSocialPostId,
   listSocialComments,
   socialMutations
 } from '../social/socialApi';
@@ -89,6 +94,45 @@ function SharePanel({ open, onClose, url, onCopy }) {
   );
 }
 
+const REPORT_REASONS = [
+  ['spam', 'Spam or misleading'],
+  ['harassment', 'Harassment or bullying'],
+  ['hate', 'Hate or discrimination'],
+  ['nudity', 'Nudity or sexual content'],
+  ['violence', 'Violence or immediate danger'],
+  ['copyright', 'Intellectual property'],
+  ['other', 'Something else']
+];
+
+function SafetyPanel({ open, onClose, onReport, onMute, onBlock, businessName }) {
+  const [reporting, setReporting] = useState(false);
+  if (!open) return null;
+  return (
+    <div className="bb-client-share-sheet" role="dialog" aria-modal="true" aria-label="Post options">
+      <button type="button" className="bb-client-share-backdrop" aria-label="Close options" onClick={onClose} />
+      <section className="bb-client-share-panel bb-client-safety-panel">
+        <header>
+          <div><span>Safety</span><strong>{reporting ? 'Why are you reporting this?' : 'Post options'}</strong></div>
+          <button type="button" className="bb-client-social-icon-btn" aria-label="Close" onClick={onClose}><X size={20} /></button>
+        </header>
+        {reporting ? (
+          <div className="bb-client-report-reasons">
+            {REPORT_REASONS.map(([id, label]) => (
+              <button key={id} type="button" onClick={() => onReport?.(id)}><span>{label}</span><span aria-hidden="true">›</span></button>
+            ))}
+          </div>
+        ) : (
+          <div className="bb-client-safety-actions">
+            <button type="button" onClick={() => setReporting(true)}><Flag size={18} /><span><strong>Report post</strong><small>Tell us about unsafe or unwanted content.</small></span></button>
+            <button type="button" onClick={onMute}><VolumeX size={18} /><span><strong>Mute {businessName || 'business'}</strong><small>Stop seeing its posts without notifying it.</small></span></button>
+            <button type="button" onClick={onBlock}><UserX size={18} /><span><strong>Block {businessName || 'business'}</strong><small>Hide profiles and prevent future interaction.</small></span></button>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
 function CommentsSheet({
   open,
   onClose,
@@ -101,6 +145,7 @@ function CommentsSheet({
   onDelete,
   ownerMode,
   onModerate,
+  onReport,
   onLoadReplies,
   loading,
   loadingMore,
@@ -205,6 +250,9 @@ function CommentsSheet({
                         >
                           <Trash2 size={13} />
                         </button>
+                      ) : null}
+                      {comment.authorUid !== profile?.uid && !ownerMode ? (
+                        <button type="button" aria-label="Report comment" onClick={() => onReport?.(comment)}><Flag size={12} /></button>
                       ) : null}
                     </div>
                     {comment.replyCount > 0 && !comment.replies?.length ? (
@@ -400,6 +448,7 @@ export function ClientEngagementBar({
   const [draft, setDraft] = useState('');
   const [shareHint, setShareHint] = useState('');
   const [shareOpen, setShareOpen] = useState(false);
+  const [safetyOpen, setSafetyOpen] = useState(false);
   const [remoteComments, setRemoteComments] = useState(null);
   const [commentsCursor, setCommentsCursor] = useState(null);
   const [commentsHasMore, setCommentsHasMore] = useState(false);
@@ -587,6 +636,46 @@ export function ClientEngagementBar({
     }
   };
 
+  const reportTarget = async ({ subjectType = 'post', subjectId = post?.canonicalId || canonicalSocialPostId(postSlug, postId), commentId = '', reason = 'other' } = {}) => {
+    if (!canonicalEnabled) {
+      setShareHint('Sign in to use safety controls.');
+      setSafetyOpen(false);
+      return;
+    }
+    try {
+      await socialMutations.report({
+        subjectType,
+        subjectId,
+        reason,
+        businessSlug: postSlug,
+        postId,
+        commentId
+      });
+      setShareHint('Report received. Thank you.');
+      setSafetyOpen(false);
+    } catch {
+      setShareHint('Could not send report. Try again.');
+    }
+    window.setTimeout(() => setShareHint(''), 2400);
+  };
+
+  const setBusinessRelationship = async (kind) => {
+    const targetId = post?.ownerId || post?._ownerId || '';
+    if (!canonicalEnabled || !targetId) {
+      setShareHint('Sign in to use safety controls.');
+      setSafetyOpen(false);
+      return;
+    }
+    try {
+      await socialMutations.setRelationship({ kind, targetId, active: true });
+      setShareHint(kind === 'block' ? 'Business blocked.' : 'Business muted.');
+      setSafetyOpen(false);
+    } catch {
+      setShareHint('That setting could not be changed.');
+    }
+    window.setTimeout(() => setShareHint(''), 2400);
+  };
+
   const onToggleLike = () => toggleLike(postSlug, postId);
 
   const sheet = (
@@ -602,6 +691,12 @@ export function ClientEngagementBar({
       onDelete={deleteComment}
       ownerMode={ownerMode}
       onModerate={moderateComment}
+      onReport={(comment) => reportTarget({
+        subjectType: 'comment',
+        subjectId: comment.id,
+        commentId: comment.id,
+        reason: 'other'
+      })}
       onLoadReplies={loadReplies}
       loading={commentsLoading}
       loadingMore={commentsLoadingMore}
@@ -615,6 +710,21 @@ export function ClientEngagementBar({
       onClose={() => setShareOpen(false)}
       url={shareUrl(postSlug, postId)}
       onCopy={copyShareLink}
+    />
+  );
+  const safetyButton = ownerMode ? null : (
+    <button type="button" className="bb-client-social-more" aria-label="More post options" onClick={() => setSafetyOpen(true)}>
+      <MoreHorizontal size={20} strokeWidth={2} />
+    </button>
+  );
+  const safetyPanel = (
+    <SafetyPanel
+      open={safetyOpen}
+      onClose={() => setSafetyOpen(false)}
+      businessName={brandName}
+      onReport={(reason) => reportTarget({ reason })}
+      onMute={() => setBusinessRelationship('mute')}
+      onBlock={() => setBusinessRelationship('block')}
     />
   );
 
@@ -644,6 +754,7 @@ export function ClientEngagementBar({
             <Share size={30} strokeWidth={2} absoluteStrokeWidth />
             <span>Share</span>
           </button>
+          {safetyButton}
           {showSave ? (
             <button
               type="button"
@@ -665,6 +776,7 @@ export function ClientEngagementBar({
         </div>
         {sheet}
         {sharePanel}
+        {safetyPanel}
       </>
     );
   }
@@ -705,10 +817,12 @@ export function ClientEngagementBar({
           <button type="button" className="bb-client-tweet-btn" aria-label="Share" onClick={onShare}>
             <Send size={15} strokeWidth={2} />
           </button>
+          {safetyButton}
         </div>
         {shareHint ? <p className="bb-client-engage-hint">{shareHint}</p> : null}
         {sheet}
         {sharePanel}
+        {safetyPanel}
       </>
     );
   }
@@ -755,11 +869,13 @@ export function ClientEngagementBar({
             <button type="button" className="bb-client-pulse-tool" aria-label="Share" onClick={onShare}>
               <Send size={17} strokeWidth={2} />
             </button>
+            {safetyButton}
           </div>
         </div>
         {shareHint ? <p className="bb-client-engage-hint">{shareHint}</p> : null}
         {sheet}
         {sharePanel}
+        {safetyPanel}
       </>
     );
   }
@@ -806,6 +922,7 @@ export function ClientEngagementBar({
                 <span>{saved ? 'Saved' : 'Save'}</span>
               </button>
             ) : null}
+            {safetyButton}
           </div>
 
           {shareHint ? <p className="bb-client-engage-hint">{shareHint}</p> : null}
@@ -870,6 +987,7 @@ export function ClientEngagementBar({
         </div>
         {sheet}
         {sharePanel}
+        {safetyPanel}
       </>
     );
   }
@@ -901,6 +1019,7 @@ export function ClientEngagementBar({
           <button type="button" className="bb-client-engage-btn" aria-label="Share" onClick={onShare}>
             <Send size={compact ? 26 : 28} strokeWidth={2} absoluteStrokeWidth />
           </button>
+          {safetyButton}
           {showSave ? (
             <button
               type="button"
@@ -934,6 +1053,7 @@ export function ClientEngagementBar({
       </div>
       {sheet}
       {sharePanel}
+      {safetyPanel}
     </>
   );
 }

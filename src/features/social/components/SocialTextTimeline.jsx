@@ -137,7 +137,7 @@ export function SocialTextTimeline({
                 <div className="bb-social-note-engage">{renderActions(post)}</div>
               ) : null}
 
-              {editMode && !onEditPost ? (
+              {editMode && !onEditPost && !onRemoveSocialPost ? (
                 <div className="bb-social-edit-actions bb-social-note-actions">
                   {showPublishToggle ? (
                     <button

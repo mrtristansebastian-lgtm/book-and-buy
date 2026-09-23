@@ -22,6 +22,12 @@ import {
   hasFiles
 } from './composerMeta';
 
+function localDateTimeValue(value) {
+  const date = new Date(Number(value || 0));
+  if (!Number.isFinite(date.getTime())) return '';
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+}
+
 export function useBlogComposer({
   kind = 'posts',
   post = null,
@@ -59,6 +65,8 @@ export function useBlogComposer({
   const [stepIndex, setStepIndex] = useState(0);
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
+  const [publishMode, setPublishMode] = useState('published');
+  const [scheduledAtLocal, setScheduledAtLocal] = useState('');
   const [exploreMainCategoryId, setExploreMainCategoryId] = useState('');
   const [exploreSubcategoryId, setExploreSubcategoryId] = useState('');
   const [location, setLocation] = useState(null);
@@ -227,6 +235,8 @@ export function useBlogComposer({
     if (post) {
       setTitle(post.title || '');
       setCaption(post.caption || '');
+      setPublishMode(post.status === 'scheduled' ? 'scheduled' : post.status === 'draft' || post.published === false ? 'draft' : 'published');
+      setScheduledAtLocal(post.scheduledAtMs ? localDateTimeValue(post.scheduledAtMs) : '');
       setExploreMainCategoryId(post.exploreMainCategoryId || '');
       setExploreSubcategoryId(post.exploreSubcategoryId || '');
       setLocation(
@@ -296,6 +306,8 @@ export function useBlogComposer({
     }
     setTitle(draft?.title || '');
     setCaption(draft?.caption || '');
+    setPublishMode(draft?.publishMode || 'published');
+    setScheduledAtLocal(draft?.scheduledAtLocal || '');
     setExploreMainCategoryId(draft?.exploreMainCategoryId || '');
     setExploreSubcategoryId(draft?.exploreSubcategoryId || '');
     setLocation(null);
@@ -326,14 +338,14 @@ export function useBlogComposer({
       try {
         sessionStorage.setItem(
           key,
-          JSON.stringify({ title, caption, exploreMainCategoryId, exploreSubcategoryId })
+          JSON.stringify({ title, caption, exploreMainCategoryId, exploreSubcategoryId, publishMode, scheduledAtLocal })
         );
       } catch {
         /* private mode / quota */
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [title, caption, exploreMainCategoryId, exploreSubcategoryId, isEdit, kind]);
+  }, [title, caption, exploreMainCategoryId, exploreSubcategoryId, publishMode, scheduledAtLocal, isEdit, kind]);
 
   const clearDraft = useCallback(() => {
     try {
@@ -1029,7 +1041,10 @@ export function useBlogComposer({
         caption: caption.trim(),
         exploreMainCategoryId,
         exploreSubcategoryId,
+        status: 'published',
         published: true,
+        scheduledAtMs: 0,
+        archivedAtMs: 0,
         location: location?.label || '',
         locationPlaceId: location?.placeId || '',
         locationLat: Number(location?.lat) || 0,
@@ -1152,6 +1167,10 @@ export function useBlogComposer({
     setTitle,
     caption,
     setCaption,
+    publishMode,
+    setPublishMode,
+    scheduledAtLocal,
+    setScheduledAtLocal,
     exploreMainCategoryId,
     setExploreMainCategoryId,
     exploreSubcategoryId,

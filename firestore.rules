@@ -21,6 +21,14 @@ service cloud.firestore {
       return verifiedSignedIn() && request.auth.uid == userId;
     }
 
+    function isPlatformModerator() {
+      return verifiedSignedIn() &&
+        (
+          request.auth.token.platformAdmin == true ||
+          request.auth.token.role in ['platform_admin', 'platform_moderator']
+        );
+    }
+
     function hasStaffAccess(appId, userId) {
       return verifiedSignedIn() &&
         request.auth.token.email != null &&
@@ -160,13 +168,22 @@ service cloud.firestore {
     // Canonical social records. Public reads are limited to published, visible
     // content; every interaction and counter mutation is validated by Functions.
     match /artifacts/{appId}/socialPosts/{postId} {
-      allow read: if resource.data.status == 'published' &&
-        resource.data.moderationState == 'visible';
+      allow read: if (
+          resource.data.status == 'published' &&
+          resource.data.moderationState == 'visible'
+        ) || (
+          resource.data.ownerId is string && canStaff(appId, resource.data.ownerId)
+        ) || isPlatformModerator();
       allow create, update, delete: if false;
 
       match /comments/{commentId} {
-        allow read: if resource.data.moderationState == 'visible' &&
-          get(/databases/$(database)/documents/artifacts/$(appId)/socialPosts/$(postId)).data.status == 'published';
+        allow read: if (
+            resource.data.moderationState == 'visible' &&
+            get(/databases/$(database)/documents/artifacts/$(appId)/socialPosts/$(postId)).data.status == 'published'
+          ) || (
+            get(/databases/$(database)/documents/artifacts/$(appId)/socialPosts/$(postId)).data.ownerId is string &&
+            canStaff(appId, get(/databases/$(database)/documents/artifacts/$(appId)/socialPosts/$(postId)).data.ownerId)
+          ) || isPlatformModerator();
         allow create, update, delete: if false;
 
         match /reactions/{actorUid} {
@@ -209,6 +226,31 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    match /artifacts/{appId}/userProfiles/{uid}/blockedAccounts/{targetId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/userProfiles/{uid}/mutedAccounts/{targetId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/userProfiles/{uid}/devices/{deviceId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/userProfiles/{uid}/socialSettings/{settingId} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/users/{ownerId}/socialSettings/{settingId} {
+      allow read: if canStaff(appId, ownerId);
+      allow create, update, delete: if false;
+    }
+
     match /artifacts/{appId}/users/{ownerId}/socialNotifications/{notificationId} {
       allow read: if canStaff(appId, ownerId);
       allow create, update, delete: if false;
@@ -230,6 +272,42 @@ service cloud.firestore {
 
     match /artifacts/{appId}/socialRateLimits/{rateLimitId} {
       allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/socialMutationReceipts/{receiptId} {
+      allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/socialOutbox/{eventId} {
+      allow read, write: if false;
+    }
+
+    match /artifacts/{appId}/socialDeadLetters/{eventId} {
+      allow read: if isPlatformModerator();
+      allow write: if false;
+    }
+
+    match /artifacts/{appId}/socialMediaAssets/{assetId} {
+      allow read: if resource.data.state == 'ready' ||
+        (resource.data.ownerId is string && canStaff(appId, resource.data.ownerId)) ||
+        isPlatformModerator();
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/socialModerationCases/{caseId} {
+      allow read: if isPlatformModerator() ||
+        (signedIn() && resource.data.reporterUid == request.auth.uid);
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/socialAuditLogs/{logId} {
+      allow read: if isPlatformModerator();
+      allow create, update, delete: if false;
+    }
+
+    match /artifacts/{appId}/socialAccountModeration/{uid} {
+      allow read: if isPlatformModerator() || (signedIn() && request.auth.uid == uid);
+      allow create, update, delete: if false;
     }
 
     match /artifacts/{appId}/staffAccess/{email}/workspaces/{ownerId} {

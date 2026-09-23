@@ -212,7 +212,7 @@ export function BlogComposerSheet(props) {
                   onClick={publish}
                   disabled={publishDisabled}
                 >
-                  {busy ? 'Publishing…' : isEdit ? 'Save changes' : 'Publish'}
+                  {busy ? 'Publishing…' : 'Publish'}
                 </button>
               ) : (
                 <button type="button" className="bb-primary-btn" onClick={goNext} disabled={busy}>
@@ -237,9 +237,9 @@ export function BlogComposerSheet(props) {
         ) : null}
 
         {confirmDiscard ? (
-          <div className="bb-composer-confirm" role="alertdialog" aria-label="Discard draft">
+          <div className="bb-composer-confirm" role="alertdialog" aria-label="Discard post">
             <div className="bb-composer-confirm-card">
-              <h4>Discard this draft?</h4>
+              <h4>Discard this post?</h4>
               <p>Your media and text will be lost. Uploads in progress will stop.</p>
               <div className="bb-composer-confirm-actions">
                 <button

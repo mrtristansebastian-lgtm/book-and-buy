@@ -38,6 +38,8 @@ export function ClientProfileProvider({ children }) {
   const [profileReady, setProfileReady] = useState(false);
   const [socialNotifications, setSocialNotifications] = useState([]);
   const [socialNotificationsReady, setSocialNotificationsReady] = useState(false);
+  const [socialNotificationsHasMore, setSocialNotificationsHasMore] = useState(false);
+  const [socialNotificationsLoadingMore, setSocialNotificationsLoadingMore] = useState(false);
 
   const persist = useCallback((next) => {
     const normalized = withEngagement(next);
@@ -109,18 +111,26 @@ export function ClientProfileProvider({ children }) {
     if (!profile?.uid) {
       setSocialNotifications([]);
       setSocialNotificationsReady(true);
+      setSocialNotificationsHasMore(false);
       return undefined;
     }
     if (profile.isDemo || String(profile.uid).startsWith('demo')) {
       setSocialNotifications(DEMO_CLIENT_SOCIAL_NOTIFICATIONS.map((item) => ({ ...item })));
       setSocialNotificationsReady(true);
+      setSocialNotificationsHasMore(false);
       return undefined;
     }
     setSocialNotificationsReady(false);
     return subscribeClientSocialNotifications(
       profile.uid,
       (items) => {
-        setSocialNotifications(items);
+        setSocialNotifications((current) => {
+          const incoming = new Set(items.map((item) => item.id));
+          const oldestFirstPage = Number(items.at(-1)?.createdAtMs || 0);
+          const older = current.filter((item) => !incoming.has(item.id) && Number(item.createdAtMs || 0) < oldestFirstPage);
+          return [...items, ...older];
+        });
+        setSocialNotificationsHasMore(items.length >= 30);
         setSocialNotificationsReady(true);
       },
       () => setSocialNotificationsReady(true)
@@ -154,11 +164,18 @@ export function ClientProfileProvider({ children }) {
   const followSlug = useCallback(
     async (slug) => {
       if (!profile || !slug) return profile;
-      const nextSlugs = await addFollowedSlug(profile.uid, slug, profile.followedSlugs || []);
-      if (canUseCanonicalSocial(profile.uid)) {
-        socialMutations.followBusiness({ slug, following: true }).catch(() => {});
+      const nextSlugs = [...new Set([...(profile.followedSlugs || []), slug])];
+      const optimistic = persist({ ...profile, followedSlugs: nextSlugs });
+      try {
+        if (canUseCanonicalSocial(profile.uid)) {
+          await socialMutations.followBusiness({ slug, following: true });
+        } else {
+          await addFollowedSlug(profile.uid, slug, profile.followedSlugs || []);
+        }
+        return optimistic;
+      } catch {
+        return persist(profile);
       }
-      return persist({ ...profile, followedSlugs: nextSlugs });
     },
     [profile, persist]
   );
@@ -167,12 +184,18 @@ export function ClientProfileProvider({ children }) {
     async (slug) => {
       if (!profile) return profile;
       const nextSlugs = (profile.followedSlugs || []).filter((item) => item !== slug);
-      if (isFirebaseConfigured() && profile.uid && !String(profile.uid).startsWith('demo')) {
-        const { updateClientFollowedSlugs } = await import('./clientProfileApi');
-        await updateClientFollowedSlugs(profile.uid, nextSlugs);
-        socialMutations.followBusiness({ slug, following: false }).catch(() => {});
+      const optimistic = persist({ ...profile, followedSlugs: nextSlugs });
+      try {
+        if (canUseCanonicalSocial(profile.uid)) {
+          await socialMutations.followBusiness({ slug, following: false });
+        } else if (isFirebaseConfigured() && profile.uid && !String(profile.uid).startsWith('demo')) {
+          const { updateClientFollowedSlugs } = await import('./clientProfileApi');
+          await updateClientFollowedSlugs(profile.uid, nextSlugs);
+        }
+        return optimistic;
+      } catch {
+        return persist(profile);
       }
-      return persist({ ...profile, followedSlugs: nextSlugs });
     },
     [profile, persist]
   );
@@ -203,7 +226,12 @@ export function ClientProfileProvider({ children }) {
   const syncEngagement = useCallback(
     async (next) => {
       const normalized = persist(next);
-      if (isFirebaseConfigured() && next.uid && !String(next.uid).startsWith('demo')) {
+      if (
+        !canUseCanonicalSocial(next.uid) &&
+        isFirebaseConfigured() &&
+        next.uid &&
+        !String(next.uid).startsWith('demo')
+      ) {
         try {
           await updateClientEngagement(next.uid, {
             likedKeys: normalized.likedKeys,
@@ -264,7 +292,11 @@ export function ClientProfileProvider({ children }) {
         likedKeys: Object.keys(prev)
       });
       if (canUseCanonicalSocial(profile.uid)) {
-        socialMutations.togglePostLike({ slug, postId, active: Boolean(nextId) }).catch(() => {});
+        try {
+          await socialMutations.togglePostLike({ slug, postId, active: Boolean(nextId) });
+        } catch {
+          return persist(profile);
+        }
       }
       return saved;
     },
@@ -289,7 +321,11 @@ export function ClientProfileProvider({ children }) {
       else saved.add(key);
       const next = await syncEngagement({ ...profile, savedKeys: [...saved] });
       if (canUseCanonicalSocial(profile.uid)) {
-        socialMutations.toggleSave({ slug, postId, active: saved.has(key) }).catch(() => {});
+        try {
+          await socialMutations.toggleSave({ slug, postId, active: saved.has(key) });
+        } catch {
+          return persist(profile);
+        }
       }
       return next;
     },
@@ -313,15 +349,15 @@ export function ClientProfileProvider({ children }) {
         ...(profile.commentsByKey || {}),
         [key]: [...prev, comment]
       };
-      await syncEngagement({ ...profile, commentsByKey });
       if (canUseCanonicalSocial(profile.uid)) {
         try {
           const result = await socialMutations.createComment({ slug, postId, body: text });
           return result?.comment || comment;
         } catch {
-          /* legacy copy remains available during migration */
+          return null;
         }
       }
+      await syncEngagement({ ...profile, commentsByKey });
       return comment;
     },
     [profile, syncEngagement]
@@ -400,6 +436,27 @@ export function ClientProfileProvider({ children }) {
     [socialNotifications]
   );
 
+  const loadMoreSocialNotifications = useCallback(async () => {
+    if (!canUseCanonicalSocial(profile?.uid) || socialNotificationsLoadingMore || !socialNotificationsHasMore) return;
+    const last = socialNotifications.at(-1);
+    if (!last) return;
+    setSocialNotificationsLoadingMore(true);
+    try {
+      const result = await socialMutations.listNotifications({
+        audience: 'client',
+        cursor: { createdAtMs: last.createdAtMs, id: last.id },
+        pageSize: 30
+      });
+      setSocialNotifications((current) => {
+        const seen = new Set(current.map((item) => item.id));
+        return [...current, ...(result?.items || []).filter((item) => !seen.has(item.id))];
+      });
+      setSocialNotificationsHasMore(Boolean(result?.hasMore));
+    } finally {
+      setSocialNotificationsLoadingMore(false);
+    }
+  }, [profile?.uid, socialNotifications, socialNotificationsHasMore, socialNotificationsLoadingMore]);
+
   const value = useMemo(
     () => ({
       profile,
@@ -425,8 +482,11 @@ export function ClientProfileProvider({ children }) {
       addComment,
       socialNotifications,
       socialNotificationsReady,
+      socialNotificationsHasMore,
+      socialNotificationsLoadingMore,
       unreadSocialNotifications,
-      markSocialNotificationsRead
+      markSocialNotificationsRead,
+      loadMoreSocialNotifications
     }),
     [
       profile,
@@ -451,8 +511,11 @@ export function ClientProfileProvider({ children }) {
       addComment,
       socialNotifications,
       socialNotificationsReady,
+      socialNotificationsHasMore,
+      socialNotificationsLoadingMore,
       unreadSocialNotifications,
-      markSocialNotificationsRead
+      markSocialNotificationsRead,
+      loadMoreSocialNotifications
     ]
   );
 

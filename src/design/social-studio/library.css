@@ -55,6 +55,29 @@
   width: 100%;
 }
 
+.bb-social-library-status-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0 0;
+  overflow-x: auto;
+}
+.bb-social-library-status-tabs button {
+  flex: 0 0 auto;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #dfe3e8;
+  background: #fff;
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 770;
+  cursor: pointer;
+}
+.bb-social-library-status-tabs button.is-active {
+  border-color: #111827;
+  color: #111827;
+}
+
 .bb-social-library-surface {
   min-width: 0;
   overflow: hidden;
@@ -684,4 +707,3 @@ html body .native-ui .bb-social-studio .bb-blog-preview-title {
   background: #f2f4f7;
   border-radius: 1rem;
 }
-

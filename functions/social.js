@@ -1,15 +1,26 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
-import { getFunctions } from 'firebase-admin/functions';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import { onTaskDispatched } from 'firebase-functions/v2/tasks';
+import {
+  SOCIAL_COUNTER_SHARDS,
+  SOCIAL_SCHEMA_VERSION,
+  canonicalSocialId,
+  cleanSocialValue,
+  rankExplorePost,
+  socialMutationId,
+  socialShardFor,
+  stableSocialKey
+} from './socialCore.js';
+import { evaluateSocialText } from './socialSafety.js';
+import { completeSocialOutbox, deliverSocialPush } from './socialPlatform.js';
 
 if (!getApps().length) initializeApp();
 
 const db = getFirestore();
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 const ROOT = `artifacts/${APP_ID}`;
-const COUNTER_SHARDS = 32;
+const COUNTER_SHARDS = SOCIAL_COUNTER_SHARDS;
 const MAX_COMMENT_LENGTH = 2200;
 const SOCIAL_PAGE_SIZE = 24;
 const callableOptions = {
@@ -27,7 +38,7 @@ function requireAuth(request) {
 }
 
 function clean(value, max = 500) {
-  return String(value || '').trim().slice(0, max);
+  return cleanSocialValue(value, max);
 }
 
 function cleanId(value) {
@@ -37,12 +48,7 @@ function cleanId(value) {
 }
 
 function canonicalId(slug, postId) {
-  const part = (value) =>
-    clean(value, 160)
-      .toLowerCase()
-      .replace(/[^a-z0-9_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  return `${part(slug) || 'business'}--${part(postId) || 'post'}`;
+  return canonicalSocialId(slug, postId);
 }
 
 function postRef(postId) {
@@ -54,6 +60,11 @@ function profileRef(uid) {
 }
 
 function actorFrom(request) {
+  const counts = {
+    likes: Number(post?.counts?.likes || post?.likeCount || 0),
+    comments: Number(post?.counts?.comments || post?.commentCount || 0),
+    shares: Number(post?.counts?.shares || post?.shareCount || 0)
+  };
   return {
     actorUid: requireAuth(request),
     actorName: clean(request.auth?.token?.name || request.auth?.token?.email?.split('@')[0] || 'Someone', 100),
@@ -62,12 +73,36 @@ function actorFrom(request) {
 }
 
 function shardFor(value) {
-  let hash = 0;
-  const input = String(value || 'anonymous');
-  for (let index = 0; index < input.length; index += 1) {
-    hash = (hash * 31 + input.charCodeAt(index)) >>> 0;
+  return socialShardFor(value, COUNTER_SHARDS);
+}
+
+function requestMutationId(request) {
+  try {
+    return socialMutationId(request.data?.mutationId);
+  } catch {
+    throw new HttpsError('invalid-argument', 'A valid mutationId is required. Refresh the app and try again.');
   }
-  return hash % COUNTER_SHARDS;
+}
+
+function mutationReceiptRef(uid, action, mutationId) {
+  return db.doc(`${ROOT}/socialMutationReceipts/${stableSocialKey(uid, action, mutationId).slice(0, 48)}`);
+}
+
+async function existingMutationResult(uid, action, mutationId) {
+  const snap = await mutationReceiptRef(uid, action, mutationId).get();
+  return snap.exists ? snap.data()?.result || null : null;
+}
+
+async function rememberMutationResult(uid, action, mutationId, result) {
+  await mutationReceiptRef(uid, action, mutationId).set({
+    uid,
+    action,
+    mutationId,
+    result,
+    createdAtMs: Date.now(),
+    expiresAtMs: Date.now() + 30 * 24 * 60 * 60_000
+  }, { merge: true });
+  return result;
 }
 
 async function enforceRate(uid, action, { limit = 120, windowMs = 60_000 } = {}) {
@@ -101,21 +136,47 @@ async function canManageBusiness(uid, ownerId, email = '') {
   return access.exists && access.data()?.status === 'active';
 }
 
-async function enqueueTask(name, payload, delaySeconds = 0) {
-  try {
-    await getFunctions().taskQueue(name).enqueue(payload, {
-      scheduleDelaySeconds: delaySeconds,
-      dispatchDeadlineSeconds: 300
-    });
-  } catch (error) {
-    console.warn(`Could not enqueue ${name}`, error?.message || error);
+async function assertInteractionAllowed(actorUid, ownerId) {
+  if (!ownerId || actorUid === ownerId) return;
+  const [actorBlocked, ownerBlocked] = await Promise.all([
+    profileRef(actorUid).collection('blockedAccounts').doc(ownerId).get(),
+    profileRef(ownerId).collection('blockedAccounts').doc(actorUid).get()
+  ]);
+  if (actorBlocked.exists || ownerBlocked.exists) {
+    throw new HttpsError('permission-denied', 'This interaction is not available.');
   }
 }
 
-async function createActivityEvent({ type, post, actor, comment = null, targetUid = '', groupable = false }) {
+async function enqueueTask(name, payload, delaySeconds = 0, eventKey = '') {
+  const ref = eventKey
+    ? db.doc(`${ROOT}/socialOutbox/${stableSocialKey(name, eventKey).slice(0, 48)}`)
+    : db.collection(`${ROOT}/socialOutbox`).doc();
+  let record = {
+    taskName: name,
+    payload,
+    status: 'pending',
+    attempts: 0,
+    notBeforeMs: Date.now() + Math.max(0, Number(delaySeconds || 0)) * 1000,
+    createdAtMs: Date.now(),
+    updatedAtMs: Date.now()
+  };
+  try {
+    await ref.create(record);
+  } catch (error) {
+    if (String(error?.code || '').includes('already-exists') || Number(error?.code) === 6) return ref.id;
+    throw error;
+  }
+  return ref.id;
+}
+
+async function createActivityEvent({ type, post, actor, comment = null, targetUid = '', groupable = false, mutationId = '' }) {
   if (!post?.ownerId || actor.actorUid === post.ownerId && !targetUid) return;
-  const eventRef = db.collection(`${ROOT}/socialActivityEvents`).doc();
-  await eventRef.set({
+  const eventId = mutationId
+    ? stableSocialKey(type, post.id, comment?.id || '', actor.actorUid, mutationId).slice(0, 48)
+    : db.collection(`${ROOT}/socialActivityEvents`).doc().id;
+  const eventRef = db.doc(`${ROOT}/socialActivityEvents/${eventId}`);
+  try {
+    await eventRef.create({
     type,
     postId: post.id,
     legacyPostId: post.legacyId || '',
@@ -132,8 +193,11 @@ async function createActivityEvent({ type, post, actor, comment = null, targetUi
     groupable,
     createdAtMs: Date.now(),
     processedAtMs: null
-  });
-  await enqueueTask('socialProcessActivity', { eventId: eventRef.id });
+    });
+  } catch (error) {
+    if (!(String(error?.code || '').includes('already-exists') || Number(error?.code) === 6)) throw error;
+  }
+  await enqueueTask('socialProcessActivity', { eventId }, 0, `activity_${eventId}`);
 }
 
 async function loadPost(postId) {
@@ -143,15 +207,50 @@ async function loadPost(postId) {
   return { ref, id: snap.id, ...snap.data() };
 }
 
-async function queueAggregate(postId) {
-  await enqueueTask('socialAggregatePost', { postId }, 2);
+async function queueAggregate(postId, mutationId = '') {
+  await enqueueTask('socialAggregatePost', { postId }, 2, `aggregate_${postId}_${mutationId || Date.now()}`);
+}
+
+async function createAutomatedModerationCase({ subjectType, subjectId, postId = '', ownerId = '', safety }) {
+  if (!safety || safety.state === 'visible') return '';
+  const id = stableSocialKey('automated', subjectType, subjectId, safety.reason).slice(0, 48);
+  await db.doc(`${ROOT}/socialModerationCases/${id}`).set({
+    id,
+    source: 'automated',
+    subjectType,
+    subjectId,
+    postId,
+    ownerId,
+    reason: safety.reason,
+    signals: safety.signals || [],
+    priority: safety.state === 'blocked' ? 'urgent' : 'normal',
+    status: 'open',
+    createdAtMs: Date.now(),
+    updatedAtMs: Date.now()
+  }, { merge: true });
+  return id;
+}
+
+async function runQueuedTask(request, handler) {
+  try {
+    const result = await handler();
+    await completeSocialOutbox(request.data?.outboxId);
+    return result;
+  } catch (error) {
+    await completeSocialOutbox(request.data?.outboxId, error);
+    throw error;
+  }
 }
 
 export const socialToggleReaction = onCall(callableOptions, async (request) => {
   const actor = actorFrom(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(actor.actorUid, 'reaction', mutationId);
+  if (prior) return prior;
   await enforceRate(actor.actorUid, 'reaction');
   const postId = cleanId(request.data?.postId);
   const post = await loadPost(postId);
+  await assertInteractionAllowed(actor.actorUid, post.ownerId);
   if (post.status !== 'published') throw new HttpsError('failed-precondition', 'Post is not public.');
   const reactionRef = post.ref.collection('reactions').doc(actor.actorUid);
   const shardRef = post.ref.collection('counterShards').doc(String(shardFor(actor.actorUid)));
@@ -173,16 +272,22 @@ export const socialToggleReaction = onCall(callableOptions, async (request) => {
     }
     tx.set(shardRef, { likes: FieldValue.increment(active ? 1 : -1) }, { merge: true });
   });
-  if (changed && active) await createActivityEvent({ type: 'post_like', post, actor, groupable: true });
-  if (changed) await queueAggregate(postId);
-  return { ok: true, active, delta: changed ? (active ? 1 : -1) : 0 };
+  if (changed && active) await createActivityEvent({ type: 'post_like', post, actor, groupable: true, mutationId });
+  if (changed) await queueAggregate(postId, mutationId);
+  return rememberMutationResult(actor.actorUid, 'reaction', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, active, delta: changed ? (active ? 1 : -1) : 0
+  });
 });
 
 export const socialToggleSave = onCall(callableOptions, async (request) => {
   const uid = requireAuth(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(uid, 'save', mutationId);
+  if (prior) return prior;
   await enforceRate(uid, 'save');
   const postId = cleanId(request.data?.postId);
-  await loadPost(postId);
+  const post = await loadPost(postId);
+  await assertInteractionAllowed(uid, post.ownerId);
   const ref = profileRef(uid).collection('savedPosts').doc(postId);
   let active = false;
   await db.runTransaction(async (tx) => {
@@ -192,17 +297,25 @@ export const socialToggleSave = onCall(callableOptions, async (request) => {
     if (!active) tx.delete(ref);
     else tx.set(ref, { postId, createdAtMs: Date.now(), createdAt: FieldValue.serverTimestamp() });
   });
-  return { ok: true, active };
+  return rememberMutationResult(uid, 'save', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, active
+  });
 });
 
 export const socialCreateComment = onCall(callableOptions, async (request) => {
   const actor = actorFrom(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(actor.actorUid, 'comment_create', mutationId);
+  if (prior) return prior;
   await enforceRate(actor.actorUid, 'comment', { limit: 10, windowMs: 60_000 });
   const postId = cleanId(request.data?.postId);
   const parentId = clean(request.data?.parentId, 240);
   const body = clean(request.data?.body, MAX_COMMENT_LENGTH);
   if (!body) throw new HttpsError('invalid-argument', 'Write a comment first.');
+  const safety = evaluateSocialText(body);
+  if (safety.state === 'blocked') throw new HttpsError('failed-precondition', 'This comment cannot be posted because it may violate the safety rules.');
   const post = await loadPost(postId);
+  await assertInteractionAllowed(actor.actorUid, post.ownerId);
   if (post.status !== 'published') throw new HttpsError('failed-precondition', 'Post is not public.');
   let parent = null;
   if (parentId) {
@@ -212,8 +325,8 @@ export const socialCreateComment = onCall(callableOptions, async (request) => {
     }
     parent = { id: parentSnap.id, ...parentSnap.data() };
   }
-  const commentRef = post.ref.collection('comments').doc();
-  const record = {
+  const commentRef = post.ref.collection('comments').doc(`c_${mutationId}`);
+  let record = {
     id: commentRef.id,
     postId,
     parentId,
@@ -226,32 +339,57 @@ export const socialCreateComment = onCall(callableOptions, async (request) => {
     updatedAtMs: 0,
     likeCount: 0,
     replyCount: 0,
-    moderationState: 'visible'
+    moderationState: safety.state
   };
   const shardRef = post.ref.collection('counterShards').doc(String(shardFor(commentRef.id)));
-  const batch = db.batch();
-  batch.set(commentRef, record);
-  batch.set(shardRef, { comments: FieldValue.increment(1) }, { merge: true });
-  if (parent) batch.update(post.ref.collection('comments').doc(parent.id), { replyCount: FieldValue.increment(1) });
-  await batch.commit();
-  const targetUid = parent?.authorUid && parent.authorUid !== actor.actorUid ? parent.authorUid : '';
-  await createActivityEvent({
-    type: parent ? 'comment_reply' : 'post_comment',
-    post,
-    actor,
-    comment: record,
-    targetUid
+  let created = false;
+  await db.runTransaction(async (tx) => {
+    const existing = await tx.get(commentRef);
+    if (existing.exists) {
+      record = { id: existing.id, ...existing.data() };
+      return;
+    }
+    created = true;
+    tx.set(commentRef, record);
+    tx.set(shardRef, { comments: FieldValue.increment(1) }, { merge: true });
+    if (parent) tx.update(post.ref.collection('comments').doc(parent.id), { replyCount: FieldValue.increment(1) });
   });
-  await queueAggregate(postId);
-  return { ok: true, comment: record };
+  const targetUid = parent?.authorUid && parent.authorUid !== actor.actorUid ? parent.authorUid : '';
+  if (created && safety.state !== 'visible') {
+    await createAutomatedModerationCase({
+      subjectType: 'comment',
+      subjectId: record.id,
+      postId,
+      ownerId: post.ownerId,
+      safety
+    });
+  }
+  if (created && safety.state === 'visible') {
+    await createActivityEvent({
+      type: parent ? 'comment_reply' : 'post_comment',
+      post,
+      actor,
+      comment: record,
+      targetUid,
+      mutationId
+    });
+    await queueAggregate(postId, mutationId);
+  }
+  return rememberMutationResult(actor.actorUid, 'comment_create', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, comment: record, moderationState: safety.state
+  });
 });
 
 export const socialToggleCommentLike = onCall(callableOptions, async (request) => {
   const actor = actorFrom(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(actor.actorUid, 'comment_like', mutationId);
+  if (prior) return prior;
   await enforceRate(actor.actorUid, 'comment_like');
   const postId = cleanId(request.data?.postId);
   const commentId = cleanId(request.data?.commentId);
   const post = await loadPost(postId);
+  await assertInteractionAllowed(actor.actorUid, post.ownerId);
   const commentRef = post.ref.collection('comments').doc(commentId);
   const reactionRef = commentRef.collection('reactions').doc(actor.actorUid);
   let active = false;
@@ -275,17 +413,24 @@ export const socialToggleCommentLike = onCall(callableOptions, async (request) =
       actor,
       comment,
       targetUid: comment.authorUid,
-      groupable: true
+      groupable: true,
+      mutationId
     });
   }
-  return { ok: true, active, delta: changed ? (active ? 1 : -1) : 0 };
+  return rememberMutationResult(actor.actorUid, 'comment_like', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, active, delta: changed ? (active ? 1 : -1) : 0
+  });
 });
 
 export const socialDeleteComment = onCall(callableOptions, async (request) => {
   const uid = requireAuth(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(uid, 'comment_delete', mutationId);
+  if (prior) return prior;
   const postId = cleanId(request.data?.postId);
   const commentId = cleanId(request.data?.commentId);
   const post = await loadPost(postId);
+  await assertInteractionAllowed(uid, post.ownerId);
   const ref = post.ref.collection('comments').doc(commentId);
   const shardRef = post.ref.collection('counterShards').doc(String(shardFor(commentId)));
   let changed = false;
@@ -299,12 +444,17 @@ export const socialDeleteComment = onCall(callableOptions, async (request) => {
     tx.update(ref, { moderationState: 'removed', body: '', updatedAtMs: Date.now() });
     tx.set(shardRef, { comments: FieldValue.increment(-1) }, { merge: true });
   });
-  if (changed) await queueAggregate(postId);
-  return { ok: true, changed };
+  if (changed) await queueAggregate(postId, mutationId);
+  return rememberMutationResult(uid, 'comment_delete', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, changed
+  });
 });
 
 export const socialModerateComment = onCall(callableOptions, async (request) => {
   const uid = requireAuth(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(uid, 'comment_moderate', mutationId);
+  if (prior) return prior;
   const postId = cleanId(request.data?.postId);
   const commentId = cleanId(request.data?.commentId);
   const post = await loadPost(postId);
@@ -313,34 +463,63 @@ export const socialModerateComment = onCall(callableOptions, async (request) => 
     throw new HttpsError('permission-denied', 'Business access required.');
   }
   const moderationState = request.data?.moderationState === 'visible' ? 'visible' : 'hidden';
-  await post.ref.collection('comments').doc(commentId).update({ moderationState, updatedAtMs: Date.now() });
-  return { ok: true, moderationState };
+  const commentRef = post.ref.collection('comments').doc(commentId);
+  const before = await commentRef.get();
+  await commentRef.update({ moderationState, updatedAtMs: Date.now() });
+  await db.collection(`${ROOT}/socialAuditLogs`).add({
+    actorUid: uid,
+    action: `owner_comment_${moderationState}`,
+    subjectType: 'comment',
+    subjectId: commentId,
+    postId,
+    before: { moderationState: before.data()?.moderationState || '' },
+    after: { moderationState },
+    createdAtMs: Date.now()
+  });
+  return rememberMutationResult(uid, 'comment_moderate', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, moderationState
+  });
 });
 
 export const socialRecordShare = onCall(callableOptions, async (request) => {
   const actor = actorFrom(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(actor.actorUid, 'share', mutationId);
+  if (prior) return prior;
   await enforceRate(actor.actorUid, 'share', { limit: 60, windowMs: 60_000 });
   const postId = cleanId(request.data?.postId);
   const post = await loadPost(postId);
-  const shareRef = post.ref.collection('shares').doc();
-  const shardRef = post.ref.collection('counterShards').doc(String(shardFor(`${actor.actorUid}_${Date.now()}`)));
-  const batch = db.batch();
-  batch.set(shareRef, { actorUid: actor.actorUid, createdAtMs: Date.now(), createdAt: FieldValue.serverTimestamp() });
-  batch.set(shardRef, { shares: FieldValue.increment(1) }, { merge: true });
-  await batch.commit();
-  await createActivityEvent({ type: 'post_share', post, actor, groupable: true });
-  await queueAggregate(postId);
-  return { ok: true, delta: 1 };
+  const shareRef = post.ref.collection('shares').doc(`s_${mutationId}`);
+  const shardRef = post.ref.collection('counterShards').doc(String(shardFor(`${actor.actorUid}_${mutationId}`)));
+  let created = false;
+  await db.runTransaction(async (tx) => {
+    const existing = await tx.get(shareRef);
+    if (existing.exists) return;
+    created = true;
+    tx.set(shareRef, { actorUid: actor.actorUid, mutationId, createdAtMs: Date.now(), createdAt: FieldValue.serverTimestamp() });
+    tx.set(shardRef, { shares: FieldValue.increment(1) }, { merge: true });
+  });
+  if (created) {
+    await createActivityEvent({ type: 'post_share', post, actor, groupable: true, mutationId });
+    await queueAggregate(postId, mutationId);
+  }
+  return rememberMutationResult(actor.actorUid, 'share', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, delta: created ? 1 : 0
+  });
 });
 
 export const socialFollowBusiness = onCall(callableOptions, async (request) => {
   const actor = actorFrom(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(actor.actorUid, 'follow', mutationId);
+  if (prior) return prior;
   await enforceRate(actor.actorUid, 'follow', { limit: 30, windowMs: 60_000 });
   const slug = clean(request.data?.slug, 120).toLowerCase();
   if (!slug) throw new HttpsError('invalid-argument', 'Business required.');
   const workspaceSnap = await db.doc(`${ROOT}/public/data/workspaces/${slug}`).get();
   const ownerId = clean(request.data?.ownerId || workspaceSnap.data()?.ownerId, 160);
   if (!ownerId) throw new HttpsError('not-found', 'Business not found.');
+  await assertInteractionAllowed(actor.actorUid, ownerId);
   const following = request.data?.following !== false;
   const userFollowRef = profileRef(actor.actorUid).collection('following').doc(slug);
   const followerRef = db.doc(`${ROOT}/businessFollows/${slug}/followers/${actor.actorUid}`);
@@ -365,14 +544,20 @@ export const socialFollowBusiness = onCall(callableOptions, async (request) => {
     await createActivityEvent({
       type: 'business_follow',
       post: { id: '', ownerId, businessSlug: slug, title: workspaceSnap.data()?.brandName || slug },
-      actor
+      actor,
+      mutationId
     });
   }
-  return { ok: true, following, changed };
+  return rememberMutationResult(actor.actorUid, 'follow', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, following, changed
+  });
 });
 
 export const socialMarkNotificationsRead = onCall(callableOptions, async (request) => {
   const uid = requireAuth(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(uid, 'notifications_read', mutationId);
+  if (prior) return prior;
   const audience = request.data?.audience === 'business' ? 'business' : 'client';
   const ownerId = audience === 'business' ? clean(request.data?.ownerId || uid, 160) : '';
   if (audience === 'business') {
@@ -387,18 +572,29 @@ export const socialMarkNotificationsRead = onCall(callableOptions, async (reques
     const snap = await base.where('readAtMs', '==', null).limit(200).get();
     refs = snap.docs.map((entry) => entry.ref);
   }
-  if (!refs.length) return { ok: true, updated: 0 };
-  const batch = db.batch();
-  refs.forEach((ref) => batch.set(ref, { readAtMs: Date.now() }, { merge: true }));
-  await batch.commit();
-  return { ok: true, updated: refs.length };
+  let updated = 0;
+  while (refs.length) {
+    const chunk = refs.splice(0, 400);
+    const batch = db.batch();
+    chunk.forEach((ref) => batch.set(ref, { readAtMs: Date.now() }, { merge: true }));
+    await batch.commit();
+    updated += chunk.length;
+    if (request.data?.all) {
+      const next = await base.where('readAtMs', '==', null).limit(400).get();
+      refs = next.docs.map((entry) => entry.ref);
+    }
+  }
+  return rememberMutationResult(uid, 'notifications_read', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, updated
+  });
 });
 
 function postPayload({ slug, ownerId, businessName, businessLogoUrl, post }) {
   const legacyId = clean(post?.id, 160);
   const id = canonicalId(slug, legacyId);
   const createdAtMs = Number(post?.createdAt || post?.createdAtMs || Date.now());
-  const title = clean(post?.title, 240);
+  const postType = ['image', 'video', 'vertical', 'text'].includes(post?.type) ? post.type : 'image';
+  const title = postType === 'image' ? '' : clean(post?.title, 240);
   const caption = clean(post?.caption, 5000);
   const tags = Array.isArray(post?.tags) ? post.tags.map((tag) => clean(tag, 60)).filter(Boolean).slice(0, 30) : [];
   const searchText = [businessName, title, caption, ...tags].join(' ').toLowerCase();
@@ -414,7 +610,7 @@ function postPayload({ slug, ownerId, businessName, businessLogoUrl, post }) {
     businessSlug: slug,
     businessName: clean(businessName, 160),
     businessLogoUrl: clean(businessLogoUrl, 1000),
-    type: ['image', 'video', 'vertical', 'text'].includes(post?.type) ? post.type : 'image',
+    type: postType,
     title,
     caption,
     mediaUrl: clean(post?.mediaUrl, 2000),
@@ -430,22 +626,39 @@ function postPayload({ slug, ownerId, businessName, businessLogoUrl, post }) {
     locationPlaceId: clean(post?.locationPlaceId, 240),
     locationLat: Number(post?.locationLat || 0),
     locationLng: Number(post?.locationLng || 0),
-    status: post?.published === false ? 'draft' : 'published',
-    moderationState: 'visible',
+    status: ['draft', 'scheduled', 'published', 'archived'].includes(post?.status)
+      ? post.status
+      : post?.published === false ? 'draft' : 'published',
+    moderationState: clean(post?.moderationState, 30) || 'visible',
+    moderationReason: clean(post?.moderationReason, 500),
+    scheduledAtMs: Number(post?.scheduledAtMs || 0),
+    publishedAtMs: Number(post?.publishedAtMs || (post?.published === false ? 0 : createdAtMs)),
+    archivedAtMs: Number(post?.archivedAtMs || 0),
+    deletedAtMs: 0,
     createdAtMs,
     updatedAtMs: Date.now(),
+    schemaVersion: SOCIAL_SCHEMA_VERSION,
+    version: Number(post?.version || 1),
+    media: post?.media && typeof post.media === 'object' ? post.media : {
+      provider: 'firebase',
+      assetId: '',
+      state: post?.mediaUrl ? 'legacy' : 'ready',
+      playbackUrl: clean(post?.mediaUrl, 2000),
+      posterUrl: clean(post?.posterUrl, 2000),
+      durationSeconds: Number(post?.durationSeconds || 0)
+    },
     searchText,
     searchPrefixes: prefixes,
-    counts: {
-      likes: Number(post?.counts?.likes || post?.likeCount || 0),
-      comments: Number(post?.counts?.comments || post?.commentCount || 0),
-      shares: Number(post?.counts?.shares || post?.shareCount || 0)
-    }
+    counts,
+    rankScore: rankExplorePost({ ...post, counts, createdAtMs, publishedAtMs: Number(post?.publishedAtMs || createdAtMs) })
   };
 }
 
 export const socialUpsertPost = onCall(callableOptions, async (request) => {
   const uid = requireAuth(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(uid, 'post_upsert', mutationId);
+  if (prior) return prior;
   const slug = clean(request.data?.slug, 120).toLowerCase();
   const ownerId = clean(request.data?.ownerId || uid, 160);
   const email = clean(request.auth?.token?.email, 240).toLowerCase();
@@ -458,27 +671,75 @@ export const socialUpsertPost = onCall(callableOptions, async (request) => {
     businessLogoUrl: request.data?.businessLogoUrl,
     post: request.data.post
   });
+  const safety = evaluateSocialText(`${payload.title}\n${payload.caption}`);
+  if (safety.state !== 'visible') {
+    payload.status = 'draft';
+    payload.moderationState = safety.state;
+    payload.moderationReason = safety.reason;
+  }
   const ref = postRef(payload.id);
-  const before = await ref.get();
-  await ref.set({ ...payload, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
-  await enqueueTask('socialSyncSearch', { postId: payload.id });
-  if (!before.exists && payload.status === 'published') await enqueueTask('socialFanoutPost', { postId: payload.id });
-  return { ok: true, postId: payload.id };
+  let wasPublished = false;
+  let isNew = false;
+  await db.runTransaction(async (tx) => {
+    const before = await tx.get(ref);
+    isNew = !before.exists;
+    wasPublished = before.data()?.status === 'published';
+    const previous = before.data() || {};
+    tx.set(ref, {
+      ...payload,
+      createdAtMs: Number(previous.createdAtMs || payload.createdAtMs),
+      createdAt: previous.createdAt || FieldValue.serverTimestamp(),
+      publishedAtMs: payload.status === 'published'
+        ? Number(previous.publishedAtMs || payload.publishedAtMs || Date.now())
+        : Number(previous.publishedAtMs || payload.publishedAtMs || 0),
+      counts: previous.counts || payload.counts,
+      version: Number(previous.version || 0) + 1,
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+  });
+  await enqueueTask('socialSyncSearch', { postId: payload.id }, 0, `search_${payload.id}_${mutationId}`);
+  if (safety.state !== 'visible') {
+    await createAutomatedModerationCase({
+      subjectType: 'post',
+      subjectId: payload.id,
+      postId: payload.id,
+      ownerId: payload.ownerId,
+      safety
+    });
+  }
+  if (payload.status === 'published' && (isNew || !wasPublished)) {
+    await enqueueTask('socialFanoutPost', { postId: payload.id }, 0, `fanout_${payload.id}_${mutationId}`);
+  }
+  return rememberMutationResult(uid, 'post_upsert', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION, postId: payload.id,
+    status: payload.status, moderationState: payload.moderationState
+  });
 });
 
 export const socialDeletePost = onCall(callableOptions, async (request) => {
   const uid = requireAuth(request);
+  const mutationId = requestMutationId(request);
+  const prior = await existingMutationResult(uid, 'post_delete', mutationId);
+  if (prior) return prior;
   const post = await loadPost(cleanId(request.data?.postId));
   const email = clean(request.auth?.token?.email, 240).toLowerCase();
   if (!(await canManageBusiness(uid, post.ownerId, email))) throw new HttpsError('permission-denied', 'Business access required.');
-  await post.ref.update({ status: 'deleted', moderationState: 'removed', updatedAtMs: Date.now() });
-  await enqueueTask('socialSyncSearch', { postId: post.id, remove: true });
-  return { ok: true };
+  await post.ref.update({
+    status: 'deleted',
+    moderationState: 'removed',
+    deletedAtMs: Date.now(),
+    updatedAtMs: Date.now(),
+    updatedAt: FieldValue.serverTimestamp()
+  });
+  await enqueueTask('socialSyncSearch', { postId: post.id, remove: true }, 0, `search_remove_${post.id}_${mutationId}`);
+  return rememberMutationResult(uid, 'post_delete', mutationId, {
+    ok: true, mutationId, version: SOCIAL_SCHEMA_VERSION
+  });
 });
 
 export const socialAggregatePost = onTaskDispatched(
   { retryConfig: { maxAttempts: 5, minBackoffSeconds: 2 }, rateLimits: { maxConcurrentDispatches: 40 } },
-  async (request) => {
+  async (request) => runQueuedTask(request, async () => {
     const postId = cleanId(request.data?.postId);
     const post = await loadPost(postId);
     const shards = await post.ref.collection('counterShards').get();
@@ -492,18 +753,36 @@ export const socialAggregatePost = onTaskDispatched(
       },
       { likes: 0, comments: 0, shares: 0 }
     );
-    await post.ref.update({ counts, countsUpdatedAtMs: Date.now() });
-  }
+    await post.ref.update({ counts, countsUpdatedAtMs: Date.now(), rankScore: rankExplorePost({ ...post, counts }) });
+  })
 );
 
 export const socialProcessActivity = onTaskDispatched(
   { retryConfig: { maxAttempts: 7, minBackoffSeconds: 2 }, rateLimits: { maxConcurrentDispatches: 80 } },
-  async (request) => {
+  async (request) => runQueuedTask(request, async () => {
     const eventId = cleanId(request.data?.eventId);
     const eventRef = db.doc(`${ROOT}/socialActivityEvents/${eventId}`);
     const eventSnap = await eventRef.get();
     if (!eventSnap.exists || eventSnap.data()?.processedAtMs) return;
     const event = eventSnap.data();
+    const audience = event.targetUid ? 'client' : 'business';
+    const settingsRef = audience === 'client'
+      ? profileRef(event.targetUid).collection('socialSettings').doc('notifications')
+      : db.doc(`${ROOT}/users/${event.ownerId}/socialSettings/notifications`);
+    const settingsSnap = await settingsRef.get();
+    const settings = settingsSnap.data() || {};
+    const preferenceKey = {
+      post_like: 'likes',
+      comment_like: 'likes',
+      post_share: 'shares',
+      post_comment: 'comments',
+      comment_reply: 'replies',
+      business_follow: 'follows'
+    }[event.type] || '';
+    if (preferenceKey && settings[preferenceKey] === false) {
+      await eventRef.update({ processedAtMs: Date.now(), skippedByPreference: preferenceKey });
+      return;
+    }
     const target = event.targetUid
       ? profileRef(event.targetUid).collection('socialNotifications')
       : db.collection(`${ROOT}/users/${event.ownerId}/socialNotifications`);
@@ -511,39 +790,55 @@ export const socialProcessActivity = onTaskDispatched(
       ? `${event.type}_${event.postId}_${event.commentId || 'post'}`
       : eventId;
     const ref = target.doc(groupKey);
-    await db.runTransaction(async (tx) => {
+    let notification = {
+      id: groupKey,
+      type: event.type,
+      recipientUid: event.targetUid || '',
+      ownerId: event.ownerId,
+      actorUid: event.actorUid,
+      actorName: event.actorName,
+      actorPhotoURL: event.actorPhotoURL || '',
+      businessSlug: event.businessSlug || '',
+      postId: event.legacyPostId || event.postId,
+      canonicalPostId: event.postId,
+      commentId: event.commentId || '',
+      preview: event.preview || '',
+      thumbnailUrl: event.thumbnailUrl || '',
+      groupedCount: 1,
+      createdAtMs: Date.now(),
+      readAtMs: null
+    };
+    if (settings.inApp !== false) await db.runTransaction(async (tx) => {
       const existing = await tx.get(ref);
       const count = Number(existing.data()?.groupedCount || 0) + 1;
-      tx.set(
-        ref,
-        {
-          id: groupKey,
-          type: event.type,
-          recipientUid: event.targetUid || '',
-          ownerId: event.ownerId,
-          actorUid: event.actorUid,
-          actorName: event.actorName,
-          actorPhotoURL: event.actorPhotoURL || '',
-          businessSlug: event.businessSlug || '',
-          postId: event.legacyPostId || event.postId,
-          canonicalPostId: event.postId,
-          commentId: event.commentId || '',
-          preview: event.preview || '',
-          thumbnailUrl: event.thumbnailUrl || '',
+      notification = {
+          ...notification,
           groupedCount: count,
           createdAtMs: Date.now(),
           readAtMs: null
-        },
+        };
+      tx.set(
+        ref,
+        notification,
         { merge: true }
       );
       tx.update(eventRef, { processedAtMs: Date.now() });
     });
-  }
+    else await eventRef.update({ processedAtMs: Date.now(), inAppSuppressed: true });
+    if (notification) {
+      await deliverSocialPush({
+        recipientUid: event.targetUid || '',
+        ownerId: event.ownerId,
+        audience,
+        notification
+      }).catch((error) => console.warn('Push delivery failed', error?.message || error));
+    }
+  })
 );
 
 export const socialFanoutPost = onTaskDispatched(
   { retryConfig: { maxAttempts: 5, minBackoffSeconds: 5 }, rateLimits: { maxConcurrentDispatches: 20 } },
-  async (request) => {
+  async (request) => runQueuedTask(request, async () => {
     const post = await loadPost(cleanId(request.data?.postId));
     const business = await db.doc(`${ROOT}/socialBusinesses/${post.businessSlug}`).get();
     if (Number(business.data()?.followerCount || 0) > 10_000) {
@@ -564,9 +859,14 @@ export const socialFanoutPost = onTaskDispatched(
     });
     if (!followers.empty) await batch.commit();
     if (followers.size === 400) {
-      await enqueueTask('socialFanoutPost', { postId: post.id, after: followers.docs.at(-1).id });
+      await enqueueTask(
+        'socialFanoutPost',
+        { postId: post.id, after: followers.docs.at(-1).id },
+        0,
+        `fanout_${post.id}_${followers.docs.at(-1).id}`
+      );
     }
-  }
+  })
 );
 
 async function algoliaRequest(path, { method = 'POST', body } = {}) {
@@ -588,14 +888,14 @@ async function algoliaRequest(path, { method = 'POST', body } = {}) {
 
 export const socialSyncSearch = onTaskDispatched(
   { retryConfig: { maxAttempts: 6, minBackoffSeconds: 5 }, rateLimits: { maxConcurrentDispatches: 20 } },
-  async (request) => {
+  async (request) => runQueuedTask(request, async () => {
     const postId = cleanId(request.data?.postId);
     if (request.data?.remove) {
       await algoliaRequest(`/${encodeURIComponent(postId)}`, { method: 'DELETE' });
       return;
     }
     const post = await loadPost(postId);
-    if (post.status !== 'published') {
+    if (post.status !== 'published' || post.moderationState !== 'visible') {
       await algoliaRequest(`/${encodeURIComponent(postId)}`, { method: 'DELETE' });
       return;
     }
@@ -619,10 +919,16 @@ export const socialSyncSearch = onTaskDispatched(
         createdAtMs: post.createdAtMs
       }
     });
-  }
+  })
 );
 
 export const socialSearch = onCall(async (request) => {
+  const forwarded = String(request.rawRequest?.headers?.['x-forwarded-for'] || '').split(',')[0].trim();
+  await enforceRate(
+    request.auth?.uid || `public_${stableSocialKey(forwarded || request.rawRequest?.ip || 'anonymous').slice(0, 32)}`,
+    'search',
+    { limit: 120, windowMs: 60_000 }
+  );
   const term = clean(request.data?.query, 120);
   const type = clean(request.data?.type, 30);
   const page = Math.max(0, Number(request.data?.page || 0));
@@ -634,7 +940,9 @@ export const socialSearch = onCall(async (request) => {
     return { ok: true, source: 'algolia', items: result?.hits || [], hasMore: page + 1 < Number(result?.nbPages || 0) };
   }
   const prefix = term.toLowerCase().split(/\s+/).filter(Boolean)[0] || '';
-  let q = db.collection(`${ROOT}/socialPosts`).where('status', '==', 'published');
+  let q = db.collection(`${ROOT}/socialPosts`)
+    .where('status', '==', 'published')
+    .where('moderationState', '==', 'visible');
   if (type) q = q.where('type', '==', type);
   if (prefix) q = q.where('searchPrefixes', 'array-contains', prefix);
   const snap = await q.orderBy('createdAtMs', 'desc').limit(SOCIAL_PAGE_SIZE).get();

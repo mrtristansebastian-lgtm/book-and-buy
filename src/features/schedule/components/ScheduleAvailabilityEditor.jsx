@@ -1,15 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CalendarRange, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { CalendarRange, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { TimeField } from '../../../shared/ui/TimeField';
 import { getMaxBookableDateKey, isDateWithinAdvanceWindow } from '../../../utils/availability';
-import {
-  buildMonthGrid,
-  formatDisplayDate,
-  parseDateKey,
-  toDateKey
-} from '../../../utils/dates';
+import { formatDisplayDate, parseDateKey, toDateKey } from '../../../utils/dates';
 import {
   canEditAvailabilityRules,
   canEditStaffAvailability,
@@ -30,11 +25,11 @@ import {
   setStaffDayOverride
 } from '../../../utils/staffAvailability';
 import { AvailabilityStudioSettingsSheet } from './AvailabilityStudioSettingsSheet';
+import { AvailabilityMonthGrid } from './AvailabilityMonthGrid';
 import { DayTimelineMeter, buildTimelineAxisMarks } from './DayTimelineMeter';
 import { ChangeDayStatusSheet } from './ChangeDayStatusSheet';
 import { SelectRangeSheet } from './SelectRangeSheet';
 import {
-  WEEKDAY_LABELS,
   BUSINESS_STATUS_OPTIONS,
   STAFF_PAINT_OPTIONS,
   formatWindowDate,
@@ -42,7 +37,6 @@ import {
   clampMonthAnchor,
   mapCalendarStatusToDraft,
   rangesAreValid,
-  statusTileLabel,
   staffInitials,
   staffPhoto
 } from './availabilityEditorUtils';
@@ -188,7 +182,6 @@ export function ScheduleAvailabilityEditor({
     [staffAvailability, staffId, openTime, closeTime, isBusinessFocus]
   );
 
-  const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
   const selectedMember = staff.find((member) => member.id === staffId);
   const todayKey = toDateKey(new Date());
   const maxBookableDateKey = useMemo(
@@ -725,101 +718,57 @@ export function ScheduleAvailabilityEditor({
           </div>
         ) : null}
 
-        <div className="bb-schedule-picker-month-nav">
-          <button
-            type="button"
-            className="bb-ghost-btn px-3"
-            aria-label="Previous month"
-            disabled={!canGoPrevMonth}
-            onClick={() =>
-              setMonthAnchor((prev) =>
-                clampMonthAnchor(
-                  new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
-                  todayKey,
-                  maxBookableDateKey
-                )
+        <AvailabilityMonthGrid
+          monthAnchor={monthAnchor}
+          selectedDay={selectedDay}
+          activeEdit={activeEdit}
+          canGoPrevious={canGoPrevMonth}
+          canGoNext={canGoNextMonth}
+          onPreviousMonth={() =>
+            setMonthAnchor((prev) =>
+              clampMonthAnchor(
+                new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+                todayKey,
+                maxBookableDateKey
               )
-            }
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <strong>
-            {monthAnchor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
-          </strong>
-          <button
-            type="button"
-            className="bb-ghost-btn px-3"
-            aria-label="Next month"
-            disabled={!canGoNextMonth}
-            onClick={() =>
-              setMonthAnchor((prev) =>
-                clampMonthAnchor(
-                  new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
-                  todayKey,
-                  maxBookableDateKey
-                )
+            )
+          }
+          onNextMonth={() =>
+            setMonthAnchor((prev) =>
+              clampMonthAnchor(
+                new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+                todayKey,
+                maxBookableDateKey
               )
-            }
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
-
-        <div className="bb-schedule-picker-weekdays" aria-hidden="true">
-          {WEEKDAY_KEYS.map((key) => (
-            <span key={key}>{WEEKDAY_LABELS[key]}</span>
-          ))}
-        </div>
-
-        <div className={`bb-schedule-picker-grid${activeEdit ? ' is-painting' : ''}`}>
-          {monthDays.map((date) => {
-            const key = toDateKey(date);
-            const inMonth = date.getMonth() === monthAnchor.getMonth();
-            const inWindow = isDateWithinAdvanceWindow(key, availabilityRules, { todayKey });
-            const status = isBusinessFocus
+            )
+          }
+          resolveStatus={(key) =>
+            isBusinessFocus
               ? isBusinessOpenOnDate(key, availabilityRules)
                 ? 'open'
                 : 'business-closed'
-              : resolveCalendarDayStatus(staffId, key, { [staffId]: entry }, availabilityRules);
-            const displayStatus = status === 'break' ? 'open' : status;
-            const isFocusDay = key === selectedDay;
-            const paintable = Boolean(activeEdit) && inWindow;
-            return (
-              <button
-                key={key}
-                type="button"
-                className={`bb-schedule-picker-day is-${displayStatus}${
-                  isFocusDay ? ' is-selected' : ''
-                }${inMonth ? '' : ' is-outside'}${inWindow ? '' : ' is-outside-window'}${
-                  paintable ? ' is-paintable' : ''
-                }`}
-                aria-label={`${formatDisplayDate(key)}, ${statusTileLabel(
-                  displayStatus,
-                  isBusinessFocus
-                )}`}
-                disabled={Boolean(activeEdit) && !inWindow}
-                onClick={() => {
-                  if (activeEdit) {
-                    handleActiveEditDayTap(key);
-                    return;
-                  }
-                  setSelectedDay(key);
-                  if (date.getMonth() !== monthAnchor.getMonth()) {
-                    setMonthAnchor(
-                      clampMonthAnchor(
-                        new Date(date.getFullYear(), date.getMonth(), 1),
-                        todayKey,
-                        maxBookableDateKey
-                      )
-                    );
-                  }
-                }}
-              >
-                {date.getDate()}
-              </button>
-            );
-          })}
-        </div>
+              : resolveCalendarDayStatus(staffId, key, { [staffId]: entry }, availabilityRules)
+          }
+          isDateEnabled={(key) =>
+            isDateWithinAdvanceWindow(key, availabilityRules, { todayKey })
+          }
+          onSelectDay={(key, date) => {
+            if (activeEdit) {
+              handleActiveEditDayTap(key);
+              return;
+            }
+            setSelectedDay(key);
+            if (date.getMonth() !== monthAnchor.getMonth()) {
+              setMonthAnchor(
+                clampMonthAnchor(
+                  new Date(date.getFullYear(), date.getMonth(), 1),
+                  todayKey,
+                  maxBookableDateKey
+                )
+              );
+            }
+          }}
+        />
 
         {isBusinessFocus ? (
           <div className="bb-schedule-day-meter-block bb-schedule-staff-meters">

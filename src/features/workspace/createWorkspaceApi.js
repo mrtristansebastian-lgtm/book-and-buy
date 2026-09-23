@@ -15,6 +15,10 @@ import { canUseCanonicalSocial, socialMutations } from '../social/socialApi';
 export function createWorkspaceApi({ workspace, setWorkspace, user }) {
     const syncSocialPost = (post) => {
       if (!post?.id || workspace.isDemo || !canUseCanonicalSocial(user?.uid)) return;
+      setWorkspace((prev) => ({
+        ...prev,
+        socialPosts: (prev.socialPosts || []).map((item) => item.id === post.id ? { ...item, _syncState: 'syncing', _syncError: '' } : item)
+      }));
       socialMutations
         .upsertPost({
           slug: workspace.slug,
@@ -23,7 +27,25 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
           businessLogoUrl: workspace.website?.logoUrl || '',
           post
         })
-        .catch(() => {});
+        .then((result) => setWorkspace((prev) => ({
+          ...prev,
+          socialPosts: (prev.socialPosts || []).map((item) => item.id === post.id ? {
+            ...item,
+            status: result?.status || item.status,
+            published: result?.status ? result.status === 'published' : item.published,
+            moderationState: result?.moderationState || item.moderationState,
+            _syncState: 'synced',
+            _syncError: ''
+          } : item)
+        })))
+        .catch((error) => setWorkspace((prev) => ({
+          ...prev,
+          socialPosts: (prev.socialPosts || []).map((item) => item.id === post.id ? {
+            ...item,
+            _syncState: 'error',
+            _syncError: error?.message || 'Social sync failed. Retry the edit.'
+          } : item)
+        })));
     };
     const updateBooking = (id, patch) => {
       setWorkspace((prev) => ({
@@ -233,12 +255,21 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
         syncSocialPost(nextPost);
       },
       removeSocialPost: (id) => {
+        const removed = (workspace.socialPosts || []).find((post) => post.id === id);
         setWorkspace((prev) => ({
           ...prev,
           socialPosts: (prev.socialPosts || []).filter((post) => post.id !== id)
         }));
         if (!workspace.isDemo && canUseCanonicalSocial(user?.uid)) {
-          socialMutations.deletePost({ slug: workspace.slug, postId: id }).catch(() => {});
+          socialMutations.deletePost({ slug: workspace.slug, postId: id }).catch((error) => {
+            if (!removed) return;
+            setWorkspace((prev) => ({
+              ...prev,
+              socialPosts: prev.socialPosts.some((post) => post.id === id)
+                ? prev.socialPosts
+                : [{ ...removed, _syncState: 'error', _syncError: error?.message || 'Delete failed.' }, ...prev.socialPosts]
+            }));
+          });
         }
       },
       updateProfile: (patch) => {

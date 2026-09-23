@@ -29,7 +29,7 @@ export function ClientHomePage() {
       const rows = await Promise.all(
         followed.map(async (slug) => {
           try {
-            const canonical = await listCanonicalSocialPosts({ slug }).catch(() => ({ items: [] }));
+            const canonical = await listCanonicalSocialPosts({ slug, mode: 'home' }).catch(() => ({ items: [] }));
             const snap = await loadPublicWorkspaceFromFirestore(slug);
             if (!snap && !canonical.items.length) return null;
             return {

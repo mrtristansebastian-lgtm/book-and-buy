@@ -47,6 +47,9 @@ function NotificationIcon({ type }) {
 export function SocialNotificationsList({
   items = [],
   loading = false,
+  loadingMore = false,
+  hasMore = false,
+  onLoadMore,
   onMarkRead,
   onMarkAllRead,
   emptyTitle = 'No notifications yet',
@@ -75,8 +78,10 @@ export function SocialNotificationsList({
     <section className="bb-social-notifications" aria-label="Social notifications">
       <header className="bb-social-notifications-head">
         <div>
-          <span className="bb-social-notifications-kicker">Activity</span>
-          <h2>{unread ? `${unread} new` : 'You’re all caught up'}</h2>
+          <span className="bb-social-notifications-kicker">
+            {unread ? `${unread} unread` : 'All read'}
+          </span>
+          <h2>Recent activity</h2>
         </div>
         {unread ? (
           <button type="button" className="bb-social-notifications-read-all" onClick={onMarkAllRead}>
@@ -92,6 +97,7 @@ export function SocialNotificationsList({
           <p>{emptyCopy}</p>
         </div>
       ) : (
+        <>
         <div className="bb-social-notification-list">
           {items.map((item) => {
             const initial = String(item.actorName || 'S').charAt(0).toUpperCase();
@@ -135,6 +141,17 @@ export function SocialNotificationsList({
             );
           })}
         </div>
+        {hasMore ? (
+          <button
+            type="button"
+            className="bb-social-notifications-load-more"
+            onClick={onLoadMore}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading activity…' : 'Load earlier activity'}
+          </button>
+        ) : null}
+        </>
       )}
     </section>
   );

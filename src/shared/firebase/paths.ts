@@ -92,5 +92,16 @@ export const callableNames = {
   socialMarkNotificationsRead: "socialMarkNotificationsRead",
   socialUpsertPost: "socialUpsertPost",
   socialDeletePost: "socialDeletePost",
-  socialSearch: "socialSearch"
+  socialSearch: "socialSearch",
+  socialReportContent: "socialReportContent",
+  socialSetRelationship: "socialSetRelationship",
+  socialSetNotificationPreferences: "socialSetNotificationPreferences",
+  socialRegisterDevice: "socialRegisterDevice",
+  socialListNotifications: "socialListNotifications",
+  socialListFeed: "socialListFeed",
+  socialListModerationCases: "socialListModerationCases",
+  socialResolveModerationCase: "socialResolveModerationCase",
+  socialAppealModeration: "socialAppealModeration",
+  socialCreateStreamUpload: "socialCreateStreamUpload",
+  socialGetStreamToken: "socialGetStreamToken"
 } as const;

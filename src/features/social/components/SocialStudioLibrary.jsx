@@ -25,9 +25,7 @@ export function SocialStudioLibrary({
   tab,
   onTabChange,
   posts,
-  onEditPost,
   onRemoveSocialPost,
-  onUpdateSocialPost,
   onCreate
 }) {
   const { workspace } = useWorkspace();
@@ -38,9 +36,11 @@ export function SocialStudioLibrary({
 
   const items = useMemo(
     () =>
-      posts.filter(
-        (post) => getSocialPostKind(post) === kind && post.published !== false
-      ),
+      posts.filter((post) => {
+        if (getSocialPostKind(post) !== kind) return false;
+        const status = post.status || (post.published === false ? 'draft' : 'published');
+        return status === 'published' && post.published !== false;
+      }),
     [posts, kind]
   );
 
@@ -73,10 +73,8 @@ export function SocialStudioLibrary({
   };
 
   const manageProps = {
-    onEditPost,
     onRemoveSocialPost,
-    onUpdateSocialPost,
-    showPublishToggle: Boolean(onUpdateSocialPost)
+    showPublishToggle: false
   };
 
   const emptyIcon =

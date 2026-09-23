@@ -474,14 +474,15 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
   // Dual-write published social records while legacy workspace snapshots remain
   // available for rollback during the social-data migration.
   const socialPosts = Array.isArray(workspace.socialPosts) ? workspace.socialPosts : [];
-  await Promise.allSettled(
+  await Promise.all(
     socialPosts.map((post) =>
       firebaseCallables.socialUpsertPost({
         slug,
         ownerId,
         businessName: String(workspace.brandName || ''),
         businessLogoUrl: String((workspace.website as Record<string, unknown>)?.logoUrl || ''),
-        post
+        post,
+        mutationId: `publish_${Date.now()}_${crypto.randomUUID().replaceAll('-', '')}`
       })
     )
   );

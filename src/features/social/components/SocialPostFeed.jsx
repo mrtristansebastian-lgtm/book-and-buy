@@ -409,7 +409,7 @@ export function SocialPostFeed({
 
               {!isText ? (
                 <div className="bb-social-feed-caption-row">
-                  {editMode ? (
+                  {editMode && showPublishToggle && onUpdateSocialPost ? (
                     <>
                       {kind !== 'image' ? <EditableText
                           as="p"
@@ -451,7 +451,7 @@ export function SocialPostFeed({
                       {stamp}
                     </time>
                   ) : null}
-                  {editMode ? (
+                  {editMode && showPublishToggle && onUpdateSocialPost ? (
                     <button
                       type="button"
                       className="bb-ghost-btn py-1 px-2.5 text-xs"

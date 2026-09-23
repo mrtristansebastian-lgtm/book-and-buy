@@ -5,13 +5,11 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { BlogComposerSheet } from '../components/BlogComposerSheet';
 import { SocialStudioCompose } from '../components/SocialStudioCompose';
 import { SocialStudioLibrary } from '../components/SocialStudioLibrary';
-import { postTypeToTab } from '../utils/socialPostType';
 
 export function SocialStudioPage() {
   const {
     workspace,
     addSocialPost,
-    updateSocialPost,
     removeSocialPost,
     updateWebsite,
     updateProfile
@@ -27,12 +25,6 @@ export function SocialStudioPage() {
   const openCreate = (kind) => {
     setTab(kind);
     setComposer({ mode: 'create', kind });
-  };
-
-  const openEdit = (post) => {
-    const kind = postTypeToTab(post?.type);
-    setTab(kind);
-    setComposer({ mode: 'edit', kind, post });
   };
 
   const closeComposer = () => setComposer(null);
@@ -77,9 +69,7 @@ export function SocialStudioPage() {
             tab={tab}
             onTabChange={setTab}
             posts={posts}
-            onEditPost={openEdit}
             onRemoveSocialPost={removeSocialPost}
-            onUpdateSocialPost={updateSocialPost}
             onCreate={openCreate}
           />
         </div>
@@ -88,11 +78,10 @@ export function SocialStudioPage() {
       {composer ? (
         <BlogComposerSheet
           kind={composer.kind}
-          post={composer.mode === 'edit' ? composer.post : null}
+          post={null}
           businessName={businessName}
           onClose={closeComposer}
           onAddSocialPost={addSocialPost}
-          onUpdateSocialPost={updateSocialPost}
           onRemoveSocialPost={removeSocialPost}
         />
       ) : null}

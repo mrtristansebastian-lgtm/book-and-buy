@@ -5201,14 +5201,30 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
 .bb-client-saved-empty { display: grid; justify-items: center; gap: 0.65rem; padding: 3rem 1rem; text-align: center; }
 .bb-client-saved-empty span { color: #667085; font-size: 0.82rem; }
 
-.bb-social-notifications-page { display: grid; gap: 1rem; width: min(100%, 58rem); margin: 0 auto; padding: 1rem; }
-.bb-social-notifications-page-head { display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.1rem; border: 1px solid #e5e8ee; background: #fff; }
-.bb-social-notifications-page-icon { display: grid; place-items: center; width: 3rem; height: 3rem; border: 1px solid #dfe3e8; background: #fff; }
-.bb-social-notifications-page-head div { display: grid; gap: 0.12rem; }
-.bb-social-notifications-page-head p, .bb-social-notifications-page-head h1, .bb-social-notifications-page-head span { margin: 0; }
-.bb-social-notifications-page-head p { color: #667085; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
-.bb-social-notifications-page-head h1 { color: #101828; font-size: 1.35rem; line-height: 1.1; }
-.bb-social-notifications-page-head div > span { color: #667085; font-size: 0.76rem; }
+.bb-social-notifications-page {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+.bb-social-notifications-page-head {
+  display: flex;
+  align-items: center;
+  min-height: 4.6rem;
+  padding: 0;
+  border: 0;
+  border-bottom: 0;
+  background: #fff;
+}
+.bb-social-notifications-page-head .bb-page-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.bb-social-notifications-page-head .bb-page-title-main { display: block; }
+.bb-social-notifications-page-head .bb-page-title { margin: 0; }
 
 /* Same grouped mini-app launcher language as the owner workspace menu. */
 .bb-client-account-launcher { display: grid; gap: 0.65rem; }
@@ -5267,7 +5283,7 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
   .bb-client-account-group { padding: 0.95rem 0.7rem 0.75rem; }
   .bb-client-account-group h2 { font-size: 1.35rem; }
   .bb-client-account-group .bb-client-account-app-icon { width: 2.65rem; height: 2.65rem; }
-  .bb-social-notifications-page { padding: 0.75rem; }
+  .bb-social-notifications-page { padding: 0; }
 }
 
 /* Explore social uses the same equal-space, one-business-at-a-time system. */

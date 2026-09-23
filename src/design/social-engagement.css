@@ -906,6 +906,276 @@
   padding: 1px 0;
 }
 
+.bb-client-notification-stack { display: grid; gap: 0.75rem; }
+.bb-social-notification-controls { display: grid; justify-items: end; gap: 0.65rem; }
+.bb-social-notification-settings,
+.bb-social-notifications-load-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid #dfe3e8;
+  background: #fff;
+  color: #101828;
+  font-size: 0.74rem;
+  font-weight: 780;
+  cursor: pointer;
+}
+.bb-social-notifications-load-more { width: 100%; border-width: 1px 0 0; }
+.bb-social-notification-preferences {
+  width: min(100%, 38rem);
+  padding: 1rem;
+  border: 1px solid #dfe3e8;
+  background: #fff;
+}
+.bb-social-notification-preferences-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.bb-social-notification-preferences-head > div { display: grid; gap: 0.18rem; }
+.bb-social-notification-preferences-head strong { font-size: 0.88rem; }
+.bb-social-notification-preferences-head span { color: #667085; font-size: 0.72rem; }
+.bb-social-notification-preferences-head button {
+  display: inline-flex; align-items: center; gap: 0.35rem; min-height: 2.35rem; padding: 0.42rem 0.7rem;
+  border: 1px solid #111827; background: #fff; color: #111827; font-size: 0.7rem; font-weight: 800; cursor: pointer;
+}
+.bb-social-notification-preference-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin-top: 0.9rem; background: #e7eaf0; }
+.bb-social-notification-preference-grid label { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 2.8rem; padding: 0.55rem 0.7rem; background: #fff; font-size: 0.75rem; font-weight: 720; }
+.bb-social-notification-preferences > p { margin: 0.7rem 0 0; color: #667085; font-size: 0.72rem; }
+
+/* Owner notifications use the same crisp, flush dashboard language as the other apps. */
+.bb-owner-main:has(> .bb-social-notifications-page) {
+  padding: 0 clamp(1rem, 2.4vw, 2rem) 3rem;
+  background: #fff;
+}
+
+.bb-social-notifications-page .bb-social-notifications-toolbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.25rem;
+  padding: 0.45rem 0;
+  background: #fff;
+  color: #667085;
+  font-size: 0.76rem;
+  font-weight: 720;
+}
+
+.bb-social-notifications-page .bb-social-notification-controls {
+  position: relative;
+  display: block;
+}
+
+.bb-social-notifications-page .bb-social-notification-settings {
+  min-height: 2.55rem;
+  padding-inline: 0.9rem;
+  border-color: #d9dee7;
+  border-radius: 0;
+  background: #fff;
+  color: #101828;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.bb-social-notifications-page .bb-social-notification-settings:hover,
+.bb-social-notifications-page .bb-social-notification-settings:focus-visible {
+  border-color: transparent;
+  box-shadow: 0 0 0 1px #d8ff72, 0 0 0 2px #72e9ff, 0 0 0 3px #dc88ff;
+  outline: 0;
+  transform: translateY(-1px);
+}
+
+.bb-social-notifications-page .bb-social-notification-preferences {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 20;
+  width: min(38rem, calc(100vw - 3rem));
+  padding: 1rem;
+  border-color: #d9dee7;
+  border-radius: 0;
+  box-shadow: 0 18px 42px rgba(16, 24, 40, 0.12);
+}
+
+.bb-social-notifications-page .bb-social-notifications {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #dfe3e9;
+  border-radius: 0;
+  background: #fff;
+}
+
+.bb-social-notifications-page .bb-social-notifications-head {
+  align-items: center;
+  min-height: 4.5rem;
+  padding: 0.85rem 1rem;
+  border-bottom-color: #e8ebef;
+}
+
+.bb-social-notifications-page .bb-social-notifications-head h2 {
+  font-size: 1.02rem;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.bb-social-notifications-page .bb-social-notifications-read-all:hover,
+.bb-social-notifications-page .bb-social-notifications-read-all:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+  outline: 0;
+}
+
+.bb-social-notifications-page .bb-social-notification-row {
+  grid-template-columns: 3rem minmax(0, 1fr) 3.4rem;
+  min-height: 5.35rem;
+  gap: 0.9rem;
+  padding: 0.8rem 1rem;
+  border-bottom-color: #e8ebef;
+  border-radius: 0;
+  background: #fff;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.bb-social-notifications-page .bb-social-notification-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: transparent;
+}
+
+.bb-social-notifications-page .bb-social-notification-row.is-unread::before {
+  background: linear-gradient(180deg, #d8ff72 0%, #72e9ff 48%, #dc88ff 100%);
+}
+
+.bb-social-notifications-page .bb-social-notification-row:hover,
+.bb-social-notifications-page .bb-social-notification-row:focus-visible {
+  background: #fff;
+  box-shadow: inset 4px 0 0 #101828;
+  outline: 0;
+}
+
+.bb-social-notifications-page .bb-social-notification-row.is-unread:hover,
+.bb-social-notifications-page .bb-social-notification-row.is-unread:focus-visible {
+  box-shadow: none;
+}
+
+.bb-social-notifications-page .bb-social-notification-copy {
+  font-size: 0.82rem;
+}
+
+.bb-social-notifications-page .bb-social-notification-copy time {
+  color: #667085;
+}
+
+.bb-social-notifications-page .bb-social-notification-thumb {
+  width: 3.4rem;
+  height: 3.4rem;
+}
+
+.bb-social-notifications-page .bb-social-notification-unread {
+  right: 0.55rem;
+  background: #101828;
+}
+
+@media (max-width: 720px) {
+  .bb-owner-main:has(> .bb-social-notifications-page) {
+    padding-inline: 0.75rem;
+  }
+
+  .bb-social-notifications-page .bb-social-notifications-toolbar {
+    align-items: center;
+  }
+
+  .bb-social-notifications-page .bb-social-notification-preferences {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-height: min(78dvh, 40rem);
+    overflow: auto;
+    border-width: 1px 0 0;
+    box-shadow: 0 -18px 48px rgba(16, 24, 40, 0.14);
+  }
+
+  .bb-social-notification-preference-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bb-social-notifications-page .bb-social-notification-row {
+    grid-template-columns: 2.8rem minmax(0, 1fr) 3rem;
+    gap: 0.7rem;
+    padding-inline: 0.75rem;
+  }
+
+  .bb-social-notifications-page .bb-social-notification-avatar-wrap,
+  .bb-social-notifications-page .bb-social-notification-avatar {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  .bb-social-notifications-page .bb-social-notification-thumb {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+.bb-client-social-more {
+  display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: 0 0 2.75rem;
+  padding: 0; border: 0; background: transparent; color: #080a0e; cursor: pointer;
+}
+.bb-client-safety-panel { width: min(100%, 28rem); }
+.bb-client-safety-actions,
+.bb-client-report-reasons { display: grid; }
+.bb-client-safety-actions > button,
+.bb-client-report-reasons > button {
+  display: flex; align-items: center; gap: 0.8rem; width: 100%; min-height: 3.65rem; padding: 0.7rem 1rem;
+  border: 0; border-top: 1px solid #eceff3; background: #fff; color: #101828; text-align: left; cursor: pointer;
+}
+.bb-client-safety-actions > button:hover,
+.bb-client-report-reasons > button:hover { box-shadow: inset 3px 0 0 #111827; }
+.bb-client-safety-actions > button > span { display: grid; gap: 0.12rem; }
+.bb-client-safety-actions strong { font-size: 0.8rem; }
+.bb-client-safety-actions small { color: #667085; font-size: 0.68rem; }
+.bb-client-report-reasons > button { justify-content: space-between; font-size: 0.78rem; font-weight: 730; }
+
+.bb-social-admin { width: min(100% - 2rem, 72rem); margin: 0 auto; padding: 1rem 0 5rem; }
+.bb-social-admin-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1rem; padding: 1rem; border: 1px solid #e1e5ea; background: #fff; }
+.bb-social-admin-mark { display: grid; place-items: center; width: 3rem; height: 3rem; border: 1px solid #111827; }
+.bb-social-admin-head p,.bb-social-admin-head h1,.bb-social-admin-head span { margin: 0; }
+.bb-social-admin-head p { color: #667085; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.bb-social-admin-head h1 { font-size: 1.4rem; letter-spacing: -0.04em; }
+.bb-social-admin-head div > span { color: #667085; font-size: 0.76rem; }
+.bb-social-admin-refresh,.bb-social-admin-more { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; min-height: 2.5rem; padding: 0.45rem 0.8rem; border: 1px solid #dfe3e8; background: #fff; color: #101828; font-weight: 780; cursor: pointer; }
+.bb-social-admin-tabs { display: flex; gap: 0; overflow-x: auto; border: 1px solid #e1e5ea; border-top: 0; background: #fff; }
+.bb-social-admin-tabs button { min-height: 2.8rem; padding: 0.55rem 1rem; border: 0; border-right: 1px solid #eceff3; background: #fff; color: #667085; font-size: 0.7rem; font-weight: 800; text-transform: capitalize; cursor: pointer; }
+.bb-social-admin-tabs button.is-active { color: #080a0e; box-shadow: inset 0 -2px 0 #080a0e; }
+.bb-social-admin-list { display: grid; gap: 0.7rem; margin-top: 0.8rem; }
+.bb-social-admin-case { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; padding: 1rem; border: 1px solid #e1e5ea; background: #fff; }
+.bb-social-admin-case-copy { display: grid; gap: 0.35rem; }
+.bb-social-admin-case h2,.bb-social-admin-case p { margin: 0; }
+.bb-social-admin-case h2 { font-size: 1rem; text-transform: capitalize; }
+.bb-social-admin-case p { color: #475467; font-size: 0.78rem; }
+.bb-social-admin-priority { justify-self: start; padding: 0.15rem 0.38rem; border: 1px solid #dfe3e8; font-size: 0.58rem; font-weight: 820; text-transform: uppercase; }
+.bb-social-admin-case dl { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 0.35rem 0 0; }
+.bb-social-admin-case dl div { display: grid; gap: 0.08rem; }
+.bb-social-admin-case dt { color: #98a2b3; font-size: 0.58rem; font-weight: 800; text-transform: uppercase; }
+.bb-social-admin-case dd { margin: 0; font-size: 0.68rem; }
+.bb-social-admin-case-actions { display: grid; align-content: start; grid-template-columns: repeat(2, minmax(6rem, 1fr)); gap: 0.35rem; }
+.bb-social-admin-case-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem; min-height: 2.35rem; padding: 0.4rem 0.65rem; border: 1px solid #dfe3e8; background: #fff; color: #101828; font-size: 0.68rem; font-weight: 760; cursor: pointer; }
+.bb-social-admin-error,.bb-social-admin-empty,.bb-social-admin-loading { margin-top: 0.8rem; padding: 1rem; border: 1px solid #e1e5ea; background: #fff; }
+.bb-social-admin-empty { display: grid; justify-items: center; gap: 0.35rem; padding: 4rem 1rem; }
+.bb-social-admin-more { width: 100%; margin-top: 0.75rem; }
+
+@media (max-width: 640px) {
+  .bb-social-notification-preferences-head { align-items: stretch; flex-direction: column; }
+  .bb-social-notification-preference-grid { grid-template-columns: 1fr; }
+  .bb-social-admin { width: 100%; padding: 0 0 5rem; }
+  .bb-social-admin-head { grid-template-columns: auto 1fr; }
+  .bb-social-admin-refresh { grid-column: 1 / -1; width: 100%; }
+  .bb-social-admin-case { grid-template-columns: 1fr; }
+}
+
 /* Owner Social Studio section navigation. */
 .bb-social-studio-sections {
   display: flex;

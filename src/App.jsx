@@ -11,11 +11,12 @@ import { useClientProfile } from './features/client-app/ClientProfileContext';
 import { useWorkspace } from './features/workspace/WorkspaceContext';
 import { BrandMark } from './shared/ui/BrandMark';
 import { useViewportZoomGate } from './shared/ui/useViewportZoomGate';
+import { SocialModerationAdminPage } from './features/social/pages/SocialModerationAdminPage';
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAppRoute());
   const { workspace, loadDemoWorkspace } = useWorkspace();
-  const { ready, configured, user, isLocalMode } = useAuth();
+  const { ready, configured, user, isLocalMode, isPlatformAdmin } = useAuth();
   const { isClient, profileReady } = useClientProfile();
 
   useViewportZoomGate();
@@ -70,6 +71,18 @@ export default function App() {
 
   if (route.kind === 'client') {
     return <ClientApp section={route.section || 'home'} rest={route.rest || []} />;
+  }
+
+  if (route.kind === 'social-admin') {
+    if (!user) return <AppLoginScreen />;
+    if (!isPlatformAdmin) {
+      return (
+        <div className="bb-shell native-ui min-h-screen grid place-items-center bb-muted">
+          Platform administrator access is required.
+        </div>
+      );
+    }
+    return <SocialModerationAdminPage />;
   }
 
   if (route.kind === 'portal') {

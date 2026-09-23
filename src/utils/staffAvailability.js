@@ -678,6 +678,84 @@ export const getEffectiveStaffWindows = (
   return intersectWindowLists(business, staff);
 };
 
+/**
+ * Pure availability check for a confirmed booking. It never changes the booking;
+ * Schedule uses the result to keep the card visible while explaining the conflict.
+ */
+export const getBookingAvailabilityConflict = ({
+  booking,
+  staffId = booking?.staffId || '',
+  dateKey = String(booking?.dateKey || booking?.date || '').trim(),
+  staffAvailability = {},
+  availabilityRules = {}
+} = {}) => {
+  const start = timeToMinutes(booking?.time);
+  const duration = Math.max(15, Number(booking?.durationMinutes) || 60);
+  const end = start == null ? null : start + duration;
+  if (start == null || end == null) {
+    return { code: 'invalid-time', label: 'Booking time needs attention' };
+  }
+
+  const hours = getBusinessHoursForDate(dateKey, availabilityRules);
+  if (!hours.open) {
+    return { code: 'business-closed', label: 'Business is closed' };
+  }
+  const businessStart = timeToMinutes(hours.openTime);
+  const businessEnd = timeToMinutes(hours.closeTime);
+  if (
+    businessStart == null ||
+    businessEnd == null ||
+    start < businessStart ||
+    end > businessEnd
+  ) {
+    return { code: 'outside-business-hours', label: 'Outside business hours' };
+  }
+  if (!staffId) return null;
+
+  const status = resolveCalendarDayStatus(
+    staffId,
+    dateKey,
+    staffAvailability,
+    availabilityRules
+  );
+  if (status === 'leave') return { code: 'staff-leave', label: 'Staff member is on leave' };
+  if (status === 'off') return { code: 'staff-off', label: 'Staff member is off' };
+  if (status === 'business-closed') {
+    return { code: 'business-closed', label: 'Business is closed' };
+  }
+
+  const windows = getEffectiveStaffWindows(
+    staffId,
+    dateKey,
+    staffAvailability,
+    availabilityRules
+  );
+  const fitsWorkingWindow = windows.some((window) => {
+    const windowStart = timeToMinutes(window.start);
+    const windowEnd = timeToMinutes(window.end);
+    return windowStart != null && windowEnd != null && start >= windowStart && end <= windowEnd;
+  });
+  if (fitsWorkingWindow) return null;
+
+  const timeline = getStaffDayTimeline(
+    staffId,
+    dateKey,
+    staffAvailability,
+    availabilityRules
+  );
+  const overlapsBreak = (timeline.segments || [])
+    .filter((segment) => segment.kind === 'break')
+    .some((segment) => {
+      const breakStart = timeToMinutes(segment.start);
+      const breakEnd = timeToMinutes(segment.end);
+      return breakStart != null && breakEnd != null && start < breakEnd && end > breakStart;
+    });
+
+  return overlapsBreak
+    ? { code: 'during-break', label: 'Overlaps a staff break' }
+    : { code: 'outside-shift', label: 'Outside this staff member’s shift' };
+};
+
 export const applyWeekTemplateToDays = (
   entry,
   fromDateKey,

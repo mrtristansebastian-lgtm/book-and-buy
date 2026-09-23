@@ -37,6 +37,22 @@ export {
   socialSyncSearch,
   socialSearch
 } from './social.js';
+export {
+  socialReportContent,
+  socialSetRelationship,
+  socialSetNotificationPreferences,
+  socialRegisterDevice,
+  socialListNotifications,
+  socialListFeed,
+  socialListModerationCases,
+  socialResolveModerationCase,
+  socialAppealModeration,
+  socialCreateStreamUpload,
+  socialGetStreamToken,
+  socialCloudflareWebhook,
+  socialDispatchOutbox,
+  socialMaintainPlatform
+} from './socialPlatform.js';
 
 if (!getApps().length) initializeApp();
 

@@ -491,6 +491,28 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
   -webkit-backdrop-filter: blur(14px) saturate(1.15);
 }
 
+/* Owner app headings sit directly on the workspace canvas. */
+.bb-owner-main :is(
+  .bb-page-chrome,
+  .bb-launcher-header,
+  .bb-clients-header,
+  .bb-finance-header,
+  .bb-analytics-header,
+  .bb-studio-toolbar,
+  .bb-settings-mobile-index-head,
+  .bb-settings-main-head,
+  .bb-schedule-desk-header,
+  .bb-services-desk-header
+),
+.bb-owner-main > .grid > header:first-child,
+.bb-owner-main > .grid > .bb-page-title-wrap:first-child {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 /* One sticky band: heading + period toggles / filters / search */
 .bb-owner-main .bb-page-chrome {
   display: grid;

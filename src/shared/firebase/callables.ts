@@ -55,5 +55,16 @@ export const firebaseCallables = {
   socialMarkNotificationsRead: (payload: object) => callCallable(callableNames.socialMarkNotificationsRead, payload),
   socialUpsertPost: (payload: object) => callCallable(callableNames.socialUpsertPost, payload),
   socialDeletePost: (payload: object) => callCallable(callableNames.socialDeletePost, payload),
-  socialSearch: (payload: object) => callCallable(callableNames.socialSearch, payload)
+  socialSearch: (payload: object) => callCallable(callableNames.socialSearch, payload),
+  socialReportContent: (payload: object) => callCallable(callableNames.socialReportContent, payload),
+  socialSetRelationship: (payload: object) => callCallable(callableNames.socialSetRelationship, payload),
+  socialSetNotificationPreferences: (payload: object) => callCallable(callableNames.socialSetNotificationPreferences, payload),
+  socialRegisterDevice: (payload: object) => callCallable(callableNames.socialRegisterDevice, payload),
+  socialListNotifications: (payload: object) => callCallable(callableNames.socialListNotifications, payload),
+  socialListFeed: (payload: object) => callCallable(callableNames.socialListFeed, payload),
+  socialListModerationCases: (payload: object) => callCallable(callableNames.socialListModerationCases, payload),
+  socialResolveModerationCase: (payload: object) => callCallable(callableNames.socialResolveModerationCase, payload),
+  socialAppealModeration: (payload: object) => callCallable(callableNames.socialAppealModeration, payload),
+  socialCreateStreamUpload: (payload: object) => callCallable(callableNames.socialCreateStreamUpload, payload),
+  socialGetStreamToken: (payload: object) => callCallable(callableNames.socialGetStreamToken, payload)
 };

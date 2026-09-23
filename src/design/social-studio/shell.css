@@ -1541,3 +1541,77 @@ html body .native-ui .bb-social-studio .bb-public-profile-username.bb-editable-t
   padding-bottom: 0;
   touch-action: pan-y;
 }
+
+/* Stable owner desktop shell: every format uses the same profile / tabs / content frame. */
+@media (min-width: 1100px) {
+  .bb-owner-main:has(> .bb-social-studio) {
+    height: calc(100dvh - 1.5rem);
+    min-height: 38rem;
+    max-height: calc(100dvh - 1.5rem);
+    overflow: hidden;
+  }
+
+  .bb-social-studio,
+  .bb-social-studio-body,
+  .bb-social-studio-live {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .bb-social-studio-live {
+    display: grid !important;
+    grid-template-columns: 18.75rem 4.85rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) !important;
+    column-gap: 0.85rem;
+    align-items: stretch;
+  }
+
+  .bb-social-studio-live > .bb-public-profile-identity {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
+    overflow-y: auto !important;
+    scrollbar-gutter: stable;
+  }
+
+  .bb-social-studio-live > .bb-social-library--live {
+    display: contents !important;
+  }
+
+  .bb-social-studio-live .bb-social-library-tabs {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid !important;
+    align-content: center;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .bb-social-studio-live .bb-social-library-surface--live {
+    grid-column: 3;
+    grid-row: 1;
+    width: 100%;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 0 0.35rem 1rem 0 !important;
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
+  }
+
+  .bb-social-studio-live .bb-social-library-surface--live > * {
+    width: 100%;
+    max-width: none;
+  }
+
+  .bb-social-studio-live .bb-social-ig-grid,
+  .bb-social-studio-live .bb-social-post-cards,
+  .bb-social-studio-live .bb-yt-home,
+  .bb-social-studio-live .bb-social-notes {
+    align-content: start;
+    margin: 0;
+  }
+}

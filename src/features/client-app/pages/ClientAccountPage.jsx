@@ -27,6 +27,7 @@ import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
 import { startClientMessage } from '../startClientMessage';
 import { SocialNotificationsList } from '../../social/components/SocialNotificationsList';
+import { SocialNotificationControls } from '../../social/components/SocialNotificationControls';
 import { PlacesCards } from '../PlacesCards';
 import { normalizeBiz } from '../exploreDiscovery';
 
@@ -246,8 +247,11 @@ export function ClientAccountPage({ section = '' }) {
     updateClientProfile,
     socialNotifications,
     socialNotificationsReady,
+    socialNotificationsHasMore,
+    socialNotificationsLoadingMore,
     unreadSocialNotifications,
     markSocialNotificationsRead,
+    loadMoreSocialNotifications,
     togglePlaceSave,
     unfollowSlug
   } = useClientProfile();
@@ -430,13 +434,19 @@ export function ClientAccountPage({ section = '' }) {
     );
   } else if (active?.id === 'notifications') {
     body = (
+      <div className="bb-client-notification-stack">
+      <SocialNotificationControls audience="client" demo={Boolean(profile?.isDemo)} />
       <SocialNotificationsList
         items={socialNotifications}
         loading={!socialNotificationsReady}
+        loadingMore={socialNotificationsLoadingMore}
+        hasMore={socialNotificationsHasMore}
+        onLoadMore={loadMoreSocialNotifications}
         unreadCount={unreadSocialNotifications}
         onMarkRead={(ids) => markSocialNotificationsRead(ids)}
-        onMarkAllRead={() => markSocialNotificationsRead([], true)}
+        onMarkAllRead={() => markSocialNotificationsRead([], { all: true })}
       />
+      </div>
     );
   } else if (active?.id === 'saved-places') {
     body = savedBusinesses.length ? (

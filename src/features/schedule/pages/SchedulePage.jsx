@@ -1,16 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, Info, Pencil } from 'lucide-react';
+import { AlertTriangle, CalendarDays, Check, ChevronDown, Info } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
-import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
-import { SortField } from '../../../shared/ui/SortField';
-import { formatDisplayDate, toDateKey } from '../../../utils/dates';
+import { formatDisplayDate, parseDateKey, toDateKey } from '../../../utils/dates';
 import {
   formatPeriodLabel,
-  getPeriodRange,
-  PERIOD_OPTIONS,
-  shiftPeriod
+  getPeriodRange
 } from '../../../utils/periodFilters';
 import {
   countServiceSpotBookings,
@@ -18,9 +13,16 @@ import {
   getSpotSessionStatus
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
-import { getScheduleDayTimeline, getBusinessHoursForDate } from '../../../utils/staffAvailability';
-import { DayTimelineMeter } from '../components/DayTimelineMeter';
-import { ScheduleDatePicker } from '../components/ScheduleDatePicker';
+import {
+  getBookingAvailabilityConflict,
+  getBusinessHoursForDate,
+  getScheduleDayTimeline,
+  getStaffDayTimeline,
+  isBusinessOpenOnDate,
+  resolveCalendarDayStatus
+} from '../../../utils/staffAvailability';
+import { DayTimelineMeter, buildTimelineAxisMarks } from '../components/DayTimelineMeter';
+import { AvailabilityMonthGrid } from '../components/AvailabilityMonthGrid';
 import { SpotInfoSheet } from '../components/SpotInfoSheet';
 import {
   bookingDateKey,
@@ -35,18 +37,27 @@ import {
   statusLabel
 } from './schedulePageUtils';
 
-const SORT_OPTIONS = [
-  { id: 'latest', label: 'Latest' },
-  { id: 'oldest', label: 'Oldest' },
-  { id: 'client', label: 'Client A-Z' },
-  { id: 'service', label: 'Service A-Z' }
-];
+function timeToMinutes(value = '') {
+  const match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+}
 
-const SPOT_SORT_OPTIONS = [
-  { id: 'latest', label: 'Latest' },
-  { id: 'oldest', label: 'Oldest' },
-  { id: 'service', label: 'Name A-Z' }
-];
+function bookingHorizontalPosition(booking, dayStart, dayEnd) {
+  const rawStart = timeToMinutes(booking?.time);
+  const rangeMinutes = Math.max(1, dayEnd - dayStart);
+  const startMinutes = Math.max(dayStart, Math.min(dayEnd, rawStart ?? dayStart));
+  const duration = Math.max(30, Number(booking?.durationMinutes) || 60);
+  const offset = startMinutes - dayStart;
+  return {
+    left: (offset / rangeMinutes) * 100,
+    width: Math.min(((duration / rangeMinutes) * 100), 100 - (offset / rangeMinutes) * 100)
+  };
+}
+
+function clientInitials(name = '') {
+  const parts = String(name || 'Client').trim().split(/\s+/).filter(Boolean);
+  return `${parts[0]?.[0] || 'C'}${parts[1]?.[0] || ''}`.toUpperCase();
+}
 
 export function SchedulePage() {
   const {
@@ -56,14 +67,15 @@ export function SchedulePage() {
     confirmBooking,
     workspace
   } = useWorkspace();
-  const [mode, setMode] = useState('slots');
+  const mode = 'slots';
   const [focusStaffId, setFocusStaffId] = useState('');
   const [day, setDay] = useState(() => toDateKey(new Date()));
-  const [period, setPeriod] = useState('day');
-  const [customRange, setCustomRange] = useState({ from: '', to: '' });
-  const [customPickerOpen, setCustomPickerOpen] = useState(false);
-  const [sortBy, setSortBy] = useState('latest');
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [monthAnchor, setMonthAnchor] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+  const period = 'day';
+  const sortBy = 'oldest';
   const [infoSpotId, setInfoSpotId] = useState('');
   const [expandedDayKeys, setExpandedDayKeys] = useState(() => new Set([toDateKey(new Date())]));
 
@@ -76,12 +88,12 @@ export function SchedulePage() {
   }, [day, period, sortBy]);
 
   const periodRange = useMemo(
-    () => getPeriodRange(day, period, customRange),
-    [day, period, customRange]
+    () => getPeriodRange(day, 'day'),
+    [day]
   );
   const periodLabel = useMemo(
-    () => formatPeriodLabel(day, period, customRange),
-    [day, period, customRange]
+    () => formatPeriodLabel(day, 'day'),
+    [day]
   );
 
   const slotBookings = useMemo(
@@ -183,9 +195,75 @@ export function SchedulePage() {
 
   const infoSpot = allSpotServices.find((service) => service.id === infoSpotId) || null;
 
+  const visibleStaffRows = useMemo(() => {
+    const selected = focusStaffId
+      ? (staff || []).filter((member) => member.id === focusStaffId)
+      : (staff || []);
+    return selected.length ? selected : [{ id: '', name: 'All bookings', color: '#101828' }];
+  }, [staff, focusStaffId]);
+
   const dayHours = useMemo(
     () => getBusinessHoursForDate(day, workspace.availabilityRules || {}),
     [day, workspace.availabilityRules]
+  );
+  const dayStartMinutes = useMemo(
+    () => timeToMinutes(dayHours.openTime) ?? 9 * 60,
+    [dayHours.openTime]
+  );
+  const dayEndMinutes = useMemo(() => {
+    const end = timeToMinutes(dayHours.closeTime) ?? 17 * 60;
+    return end > dayStartMinutes ? end : dayStartMinutes + 8 * 60;
+  }, [dayHours.closeTime, dayStartMinutes]);
+  const boardAxisMarks = useMemo(
+    () => buildTimelineAxisMarks(dayStartMinutes, dayEndMinutes),
+    [dayStartMinutes, dayEndMinutes]
+  );
+  const confirmedDayBookings = useMemo(
+    () => slotBookings.filter(
+      (booking) => booking.status === 'confirmed' && bookingDateKey(booking) === day
+    ),
+    [slotBookings, day]
+  );
+  const staffRows = useMemo(
+    () => visibleStaffRows.map((member) => {
+      const memberBookings = confirmedDayBookings.filter((booking) =>
+        member.id ? booking.staffId === member.id : true
+      );
+      const timeline = member.id
+        ? getStaffDayTimeline(
+            member.id,
+            day,
+            workspace.staffAvailability || {},
+            workspace.availabilityRules || {}
+          )
+        : { status: dayHours.open ? 'open' : 'business-closed', segments: [], dayStart: dayStartMinutes, dayEnd: dayEndMinutes };
+      const bookingsWithConflict = memberBookings.map((booking) => ({
+        booking,
+        conflict: getBookingAvailabilityConflict({
+          booking,
+          staffId: booking.staffId || member.id,
+          dateKey: day,
+          staffAvailability: workspace.staffAvailability || {},
+          availabilityRules: workspace.availabilityRules || {}
+        })
+      }));
+      return { member, timeline, bookingsWithConflict };
+    }),
+    [visibleStaffRows, confirmedDayBookings, day, workspace.staffAvailability, workspace.availabilityRules, dayHours.open, dayStartMinutes, dayEndMinutes]
+  );
+  const attentionBookings = useMemo(
+    () => confirmedDayBookings.map((booking) => ({
+      booking,
+      conflict: getBookingAvailabilityConflict({
+        booking,
+        dateKey: day,
+        staffAvailability: workspace.staffAvailability || {},
+        availabilityRules: workspace.availabilityRules || {}
+      })
+    })).filter(({ conflict }) =>
+      !dayHours.open || conflict?.code === 'outside-business-hours' || conflict?.code === 'invalid-time'
+    ),
+    [confirmedDayBookings, day, workspace.staffAvailability, workspace.availabilityRules, dayHours.open]
   );
 
   const toggleAgendaDay = (key) => {
@@ -250,106 +328,185 @@ export function SchedulePage() {
             </div>
           </div>
         </header>
-
-        <section className="bb-schedule-toolbar" aria-label="Schedule tools">
-          <PeriodSegmentedControl
-            variant="period"
-            ariaLabel="Period"
-            value={period}
-            options={PERIOD_OPTIONS}
-            onChange={setPeriod}
-            onCustomSelect={() => setCustomPickerOpen(true)}
-          />
-
-          <div className="bb-schedule-toolbar-end">
-            <div className="bb-schedule-day-nav">
-              <button
-                type="button"
-                className="bb-ghost-btn px-3"
-                onClick={() => setDay(shiftPeriod(day, period, -1))}
-                aria-label="Previous period"
-                disabled={period === 'all' || period === 'custom'}
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                type="button"
-                className="bb-schedule-day-label"
-                onClick={() => {
-                  if (period === 'custom') setCustomPickerOpen(true);
-                  else setPickerOpen(true);
-                }}
-                aria-label="Pick day or period"
-                title="Pick day or period"
-              >
-                {periodLabel}
-                <Pencil size={13} strokeWidth={2.2} aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className="bb-ghost-btn px-3"
-                onClick={() => setDay(shiftPeriod(day, period, 1))}
-                aria-label="Next period"
-                disabled={period === 'all' || period === 'custom'}
-              >
-                <ChevronRight size={18} />
-              </button>
-              <button
-                type="button"
-                className="bb-schedule-today-btn"
-                onClick={() => {
-                  setDay(toDateKey(new Date()));
-                  setPeriod('day');
-                }}
-              >
-                Today
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <div className="bb-schedule-stage-filters">
-          <div className="bb-schedule-mode" role="tablist" aria-label="Schedule mode">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'slots'}
-              className={`bb-schedule-mode-btn${mode === 'slots' ? ' is-active' : ''}`}
-              onClick={() => setMode('slots')}
-            >
-              Slots
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'spots'}
-              className={`bb-schedule-mode-btn${mode === 'spots' ? ' is-active' : ''}`}
-              onClick={() => {
-                setMode('spots');
-                if (sortBy === 'client') setSortBy('oldest');
-              }}
-            >
-              Spots
-            </button>
-          </div>
-          {renderStaffFilter()}
-          <SortField
-            value={mode === 'spots' && sortBy === 'client' ? 'oldest' : sortBy}
-            onChange={setSortBy}
-            options={mode === 'slots' ? SORT_OPTIONS : SPOT_SORT_OPTIONS}
-            pickerTitle="Sort schedule"
-            pickerHint={
-              mode === 'slots'
-                ? 'Order appointments in this period.'
-                : 'Order programmes in this period.'
-            }
-          />
-        </div>
       </div>
+
+      <div className="bb-schedule-workspace">
+        <aside className="bb-schedule-sidebar" aria-label="Schedule calendar and filters">
+          <div className="bb-schedule-mini-calendar bb-schedule-avail">
+            <AvailabilityMonthGrid
+              monthAnchor={monthAnchor}
+              selectedDay={day}
+              onPreviousMonth={() => setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))}
+              onNextMonth={() => setMonthAnchor((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))}
+              resolveStatus={(key) =>
+                focusStaffId
+                  ? resolveCalendarDayStatus(
+                      focusStaffId,
+                      key,
+                      workspace.staffAvailability || {},
+                      workspace.availabilityRules || {}
+                    )
+                  : isBusinessOpenOnDate(key, workspace.availabilityRules || {})
+                    ? 'open'
+                    : 'business-closed'
+              }
+              hasIndicator={(key) => slotBookings.some(
+                (booking) => booking.status === 'confirmed' && bookingDateKey(booking) === key
+              )}
+              onSelectDay={(key, date) => {
+                setDay(key);
+                if (date.getMonth() !== monthAnchor.getMonth()) {
+                  setMonthAnchor(new Date(date.getFullYear(), date.getMonth(), 1));
+                }
+              }}
+            />
+          </div>
+
+          <div className="bb-schedule-side-section">
+            <span className="bb-schedule-side-label">Team calendars</span>
+            {renderStaffFilter()}
+          </div>
+
+          <div className="bb-schedule-side-section bb-schedule-legend">
+            <span className="bb-schedule-side-label">Categories</span>
+            <span><i className="is-lilac" /> Appointments</span>
+            <span><i className="is-blue" /> Consultations</span>
+            <span><i className="is-pink" /> Classes</span>
+          </div>
+        </aside>
+
+        <main className="bb-schedule-main">
+        <div className="bb-schedule-stage-filters">
+          <strong className="bb-schedule-stage-date">
+            {(parseDateKey(day) || new Date()).toLocaleDateString(undefined, {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long'
+            })}
+          </strong>
+          <span className="bb-schedule-results-copy">
+            {mode === 'slots' ? `${agendaBookings.length} confirmed appointment${agendaBookings.length === 1 ? '' : 's'}` : `${spotServices.length} programme${spotServices.length === 1 ? '' : 's'}`}
+          </span>
+        </div>
 
       <div className="bb-schedule-stage" key={`${mode}-${period}-${day}`}>
         {mode === 'slots' ? (
-          period !== 'day' && agendaBookings.length === 0 ? (
+          period === 'day' || period === 'week' ? (
+            <>
+              {!dayHours.open ? (
+                <section className="bb-schedule-closed-day" aria-label="Business closed">
+                  <CalendarDays size={24} aria-hidden="true" />
+                  <div>
+                    <strong>Business closed</strong>
+                    <span>The booking window is closed on {formatDisplayDate(day)}.</span>
+                  </div>
+                </section>
+              ) : (
+                <section className="bb-schedule-board bb-schedule-resource-board" aria-label="Daily staff appointment calendar">
+                  <div className="bb-schedule-board-scroll">
+                    <div className="bb-schedule-resource-grid">
+                      <div className="bb-schedule-resource-corner"><span>Team</span></div>
+                      <div className="bb-schedule-resource-axis" aria-label={`${dayHours.openTime} to ${dayHours.closeTime}`}>
+                        {boardAxisMarks.map((mark) => (
+                          <span
+                            key={`${mark.minutes}-${mark.edge}`}
+                            className={`is-${mark.edge}`}
+                            style={{ left: `${mark.leftPct}%` }}
+                          >
+                            {mark.label}
+                          </span>
+                        ))}
+                      </div>
+
+                      {staffRows.map(({ member, timeline, bookingsWithConflict }) => {
+                        const photo = staffPhoto(member);
+                        const visibleBookings = bookingsWithConflict.filter(({ conflict }) =>
+                          conflict?.code !== 'outside-business-hours' && conflict?.code !== 'invalid-time'
+                        );
+                        const laneLabel = timeline.status === 'leave'
+                          ? 'Leave'
+                          : timeline.status === 'off'
+                            ? 'Off day'
+                            : timeline.status === 'business-closed'
+                              ? 'Closed'
+                              : 'Available';
+                        return (
+                          <div className={`bb-schedule-resource-row is-${timeline.status}`} key={member.id || 'all'}>
+                            <div className="bb-schedule-resource-person">
+                              <span className="bb-schedule-resource-avatar" style={{ '--staff-color': member.color || '#101828' }}>
+                                {photo ? <img src={photo} alt="" /> : staffInitials(member.name)}
+                              </span>
+                              <span>
+                                <strong>{member.name}</strong>
+                                <small>{bookingsWithConflict.length} booking{bookingsWithConflict.length === 1 ? '' : 's'}</small>
+                              </span>
+                            </div>
+                            <div className={`bb-schedule-resource-track is-${timeline.status}`}>
+                              <div className="bb-schedule-resource-lines" aria-hidden="true">
+                                {boardAxisMarks.slice(1, -1).map((mark) => (
+                                  <i key={mark.minutes} style={{ left: `${mark.leftPct}%` }} />
+                                ))}
+                              </div>
+                              <div className="bb-schedule-resource-availability" aria-hidden="true">
+                                {(timeline.segments || []).map((segment, index) => (
+                                  <i
+                                    key={`${segment.kind}-${segment.start}-${index}`}
+                                    className={`is-${segment.kind}`}
+                                    style={{ left: `${segment.leftPct}%`, width: `${segment.widthPct}%` }}
+                                  />
+                                ))}
+                              </div>
+                              {visibleBookings.map(({ booking, conflict }, bookingIndex) => {
+                                const position = bookingHorizontalPosition(booking, dayStartMinutes, dayEndMinutes);
+                                return (
+                                  <article
+                                    key={booking.id}
+                                    className={`bb-schedule-resource-event is-palette-${bookingIndex % 4}${conflict ? ' is-conflict' : ''}`}
+                                    style={{ left: `${position.left}%`, width: `${position.width}%` }}
+                                    title={conflict?.label || 'Confirmed booking'}
+                                  >
+                                    <span className="bb-schedule-event-kicker">{booking.serviceName || 'Appointment'}</span>
+                                    <h3>{booking.clientName || 'Client'}</h3>
+                                    <time>{formatBookingWindow(booking)}</time>
+                                    {conflict ? (
+                                      <span className="bb-schedule-event-conflict"><AlertTriangle size={12} />{conflict.label}</span>
+                                    ) : null}
+                                    <div className="bb-schedule-event-person">
+                                      <span>{clientInitials(booking.clientName)}</span>
+                                      <b>{booking.staffName || member.name}</b>
+                                      <Check size={13} aria-label="Confirmed" />
+                                    </div>
+                                  </article>
+                                );
+                              })}
+                              {visibleBookings.length === 0 ? <span className="bb-schedule-resource-free">{laneLabel}</span> : null}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {attentionBookings.length ? (
+                <section className="bb-schedule-attention" aria-label="Bookings needing attention">
+                  <div className="bb-schedule-attention-head">
+                    <AlertTriangle size={18} aria-hidden="true" />
+                    <div><strong>Needs attention</strong><span>Confirmed bookings outside the visible availability window.</span></div>
+                  </div>
+                  <div className="bb-schedule-attention-list">
+                    {attentionBookings.map(({ booking, conflict }) => (
+                      <article key={booking.id}>
+                        <div><strong>{booking.clientName || 'Client'}</strong><span>{booking.serviceName || 'Appointment'} · {formatBookingWindow(booking)}</span></div>
+                        <span className="bb-schedule-attention-reason">{conflict?.label || 'Unavailable time'}</span>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+            </>
+          ) : period !== 'day' && agendaBookings.length === 0 ? (
             <div className="bb-schedule-empty">
               <p className="bb-schedule-empty-title">No confirmed bookings</p>
               <p className="bb-schedule-empty-copy">
@@ -618,6 +775,8 @@ export function SchedulePage() {
           </>
         )}
       </div>
+        </main>
+      </div>
 
       {infoSpot ? (
         <SpotInfoSheet
@@ -629,31 +788,6 @@ export function SchedulePage() {
         />
       ) : null}
 
-      {pickerOpen ? (
-        <ScheduleDatePicker
-          day={day}
-          onClose={() => setPickerOpen(false)}
-          onApply={({ day: nextDay }) => {
-            setDay(nextDay);
-            setPickerOpen(false);
-          }}
-        />
-      ) : null}
-
-      <PeriodCustomPicker
-        open={customPickerOpen}
-        from={customRange.from || day}
-        to={customRange.to || customRange.from || day}
-        onClose={() => setCustomPickerOpen(false)}
-        onApply={({ from, to }) => {
-          setCustomRange({ from, to });
-          setDay(from);
-          setPeriod('custom');
-          setCustomPickerOpen(false);
-        }}
-      />
     </div>
   );
 }
-
-

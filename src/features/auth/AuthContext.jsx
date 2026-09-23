@@ -61,6 +61,7 @@ async function signInWithGoogleFlow(auth) {
 export function AuthProvider({ children }) {
   const configured = isFirebaseConfigured();
   const [user, setUser] = useState(null);
+  const [claims, setClaims] = useState({});
   const [ready, setReady] = useState(!configured);
 
   useEffect(() => {
@@ -79,9 +80,19 @@ export function AuthProvider({ children }) {
       }
     })();
 
-    return onAuthStateChanged(firebase.auth, (next) => {
+    return onAuthStateChanged(firebase.auth, async (next) => {
       if (cancelled) return;
       setUser(next);
+      if (next) {
+        try {
+          const token = await next.getIdTokenResult();
+          if (!cancelled) setClaims(token.claims || {});
+        } catch {
+          if (!cancelled) setClaims({});
+        }
+      } else {
+        setClaims({});
+      }
       setReady(true);
     });
   }, []);
@@ -91,6 +102,8 @@ export function AuthProvider({ children }) {
       ready,
       configured,
       user,
+      claims,
+      isPlatformAdmin: claims.platformAdmin === true || claims.role === 'platform_admin',
       /** Local/demo mode when Firebase env is absent. */
       isLocalMode: !configured,
       signInEmail: async (email, password) => {
@@ -142,7 +155,7 @@ export function AuthProvider({ children }) {
       },
       mapAuthError
     }),
-    [ready, configured, user]
+    [ready, configured, user, claims]
   );
 
   return <AuthContext.Provider value={api}>{children}</AuthContext.Provider>;

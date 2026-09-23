@@ -36,6 +36,10 @@ export function parseAppRoute(path = getLocationPath()) {
     };
   }
 
+  if (parts[0] === 'admin' && parts[1] === 'social-moderation') {
+    return { kind: 'social-admin', section: 'social-moderation', rest: parts.slice(2) };
+  }
+
   if (parts[0] === 'onboarding') {
     return { kind: 'onboarding' };
   }
