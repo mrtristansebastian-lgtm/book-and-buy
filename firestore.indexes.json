@@ -246,14 +246,6 @@
       ]
     },
     {
-      "collectionGroup": "socialNotifications",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAtMs", "order": "DESCENDING" },
-        { "fieldPath": "__name__", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "socialModerationCases",
       "queryScope": "COLLECTION",
       "fields": [
