@@ -60,9 +60,9 @@ function clientInitials(name = '') {
 
 export function SchedulePage() {
   const {
-    bookings,
-    staff,
-    services,
+    bookings = [],
+    staff = [],
+    services = [],
     confirmBooking,
     workspace
   } = useWorkspace();

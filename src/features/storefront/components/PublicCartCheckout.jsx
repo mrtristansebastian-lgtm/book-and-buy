@@ -225,7 +225,7 @@ export function PublicCartCheckout({
   const ctx = useWorkspace();
   const cart = usePublicCart();
   const { user } = useAuth();
-  const { profile, isClient, followSlug } = useClientProfile();
+  const { profile, isClient } = useClientProfile();
   const workspace = catalogWorkspace || ctx.workspace;
   const bookings =
     (catalogWorkspace && catalogWorkspace !== ctx.workspace
@@ -602,14 +602,12 @@ export function PublicCartCheckout({
         setResult({ order, bookings: bookingsCreated });
         setStep('success');
         if (isClient && workspace?.slug) {
-          followSlug(workspace.slug).catch(() => {});
         }
       } else if (order || bookingsCreated.length) {
         notes.push('Part of your cart went through — check the summary below.');
         setResult({ order, bookings: bookingsCreated, partial: true });
         setStep('success');
         if (isClient && workspace?.slug) {
-          followSlug(workspace.slug).catch(() => {});
         }
         if (order) {
           for (const item of productSnapshot) cart.removeItem(item.lineKey);

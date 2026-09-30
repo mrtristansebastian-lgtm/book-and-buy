@@ -11,8 +11,6 @@ import { WebsiteStudioPage } from '../website/pages/WebsiteStudioPage';
 import { BookStudioPage } from '../website/pages/BookStudioPage';
 import { BuyStudioPage } from '../website/pages/BuyStudioPage';
 import { CheckoutStudioPage } from '../website/pages/CheckoutStudioPage';
-import { SocialStudioPage } from '../social/pages/SocialStudioPage';
-import { SocialNotificationsPage } from '../social/pages/SocialNotificationsPage';
 import { SupportInboxPage } from '../support/pages/SupportInboxPage';
 import { FinancePage } from '../finance/pages/FinancePage';
 import { AnalyticsPage } from '../analytics/pages/AnalyticsPage';
@@ -47,10 +45,6 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
         <BuyStudioPage />
       ) : tab === 'website-checkout' ? (
         <CheckoutStudioPage />
-      ) : tab === 'social' ? (
-        <SocialStudioPage />
-      ) : tab === 'social-notifications' ? (
-        <SocialNotificationsPage />
       ) : tab === 'communications' ? (
         <SupportInboxPage />
       ) : tab === 'finance' ? (

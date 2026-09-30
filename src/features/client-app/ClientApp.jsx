@@ -1,5 +1,4 @@
 import { ClientAuthPage } from './pages/ClientAuthPage';
-import { ClientHomePage } from './pages/ClientHomePage';
 import { ClientExplorePage } from './pages/ClientExplorePage';
 import { ClientMessagesPage } from './pages/ClientMessagesPage';
 import { ClientAccountPage } from './pages/ClientAccountPage';
@@ -8,7 +7,7 @@ import { navigate } from '../../app/routing';
 import { useEffect } from 'react';
 
 /** Top-level client app router for `#/app/...`. */
-export function ClientApp({ section = 'home', rest = [] }) {
+export function ClientApp({ section = 'find', rest = [] }) {
   const { isClient, profileReady } = useClientProfile();
 
   useEffect(() => {
@@ -17,7 +16,7 @@ export function ClientApp({ section = 'home', rest = [] }) {
       navigate('/app/auth', { replace: true });
     }
     if (section === 'auth' && isClient) {
-      navigate('/app/home', { replace: true });
+      navigate('/app/find', { replace: true });
     }
   }, [section, isClient, profileReady]);
 
@@ -32,11 +31,9 @@ export function ClientApp({ section = 'home', rest = [] }) {
   }
 
   if (section === 'find') return <ClientExplorePage />;
-  if (section === 'explore') return <ClientExplorePage mediaOnly />;
   if (section === 'messages') return <ClientMessagesPage threadId={rest[0] || ''} />;
-  if (section === 'notifications') return <ClientAccountPage section="notifications" />;
   if (section === 'account') {
     return <ClientAccountPage section={rest[0] || ''} />;
   }
-  return <ClientHomePage />;
+  return <ClientExplorePage />;
 }

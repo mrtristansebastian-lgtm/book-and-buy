@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { SERVE_COUNTRY_OPTIONS } from '../../../config/businessCategories';
-import { PlaceLocationField } from '../../social/components/PlaceLocationField';
+import { PlaceLocationField } from '../../../shared/ui/PlaceLocationField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
 const VENUE_MODES = [

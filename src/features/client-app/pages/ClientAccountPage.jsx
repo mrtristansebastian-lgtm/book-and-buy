@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   CalendarDays,
-  Bell,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
@@ -26,8 +25,6 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
 import { startClientMessage } from '../startClientMessage';
-import { SocialNotificationsList } from '../../social/components/SocialNotificationsList';
-import { SocialNotificationControls } from '../../social/components/SocialNotificationControls';
 import { PlacesCards } from '../PlacesCards';
 import { normalizeBiz } from '../exploreDiscovery';
 
@@ -37,12 +34,6 @@ const SECTIONS = [
     label: 'Saved Places',
     lede: 'Businesses and places you want to visit again.',
     icon: Bookmark
-  },
-  {
-    id: 'notifications',
-    label: 'Notifications',
-    lede: 'Replies, likes, and updates from businesses you follow.',
-    icon: Bell
   },
   {
     id: 'general',
@@ -74,8 +65,8 @@ const ACCOUNT_GROUPS = [
   {
     id: 'activity',
     label: 'Your activity',
-    icon: Bell,
-    sections: ['notifications', 'saved-places', 'bookings', 'orders'],
+    icon: ClipboardList,
+    sections: ['saved-places', 'bookings', 'orders'],
     hue: 'sky'
   },
   {
@@ -243,17 +234,8 @@ export function ClientAccountPage({ section = '' }) {
   const {
     profile,
     clearClientSession,
-    followSlug,
     updateClientProfile,
-    socialNotifications,
-    socialNotificationsReady,
-    socialNotificationsHasMore,
-    socialNotificationsLoadingMore,
-    unreadSocialNotifications,
-    markSocialNotificationsRead,
-    loadMoreSocialNotifications,
-    togglePlaceSave,
-    unfollowSlug
+    togglePlaceSave
   } = useClientProfile();
   const { bookings, orders, workspace, startThreadFromBooking, startThreadFromOrder, startThreadFromClient, setClientPresence } =
     useWorkspace();
@@ -271,7 +253,7 @@ export function ClientAccountPage({ section = '' }) {
       brandName: workspace?.brandName,
       tagline: workspace?.tagline,
       logoUrl: workspace?.logoUrl || workspace?.website?.logoUrl,
-      heroImageUrl: workspace?.website?.heroImageUrl || workspace?.website?.socialBannerUrl,
+      heroImageUrl: workspace?.website?.heroImageUrl,
       website: workspace?.website || {}
     });
     const commit = (remote = []) => {
@@ -327,7 +309,6 @@ export function ClientAccountPage({ section = '' }) {
     if (!item) return;
     await startClientMessage({
       profile,
-      followSlug,
       workspace,
       startThreadFromBooking,
       startThreadFromOrder,
@@ -343,7 +324,6 @@ export function ClientAccountPage({ section = '' }) {
   const go = (id) => navigate(`/app/account/${id}`);
   const goList = () => navigate('/app/account');
   const showDemo = Boolean(workspace?.isDemo || profile?.isDemo);
-  const followed = useMemo(() => new Set(profile?.followedSlugs || []), [profile?.followedSlugs]);
   const savedPlaces = useMemo(() => new Set(profile?.savedPlaceSlugs || []), [profile?.savedPlaceSlugs]);
   const savedBusinesses = useMemo(
     () => directory.filter((biz) => savedPlaces.has(biz.slug)),
@@ -355,7 +335,6 @@ export function ClientAccountPage({ section = '' }) {
     try {
       await startClientMessage({
         profile,
-        followSlug,
         workspace,
         startThreadFromClient,
         ownerId: biz.ownerId || '',
@@ -432,29 +411,10 @@ export function ClientAccountPage({ section = '' }) {
         )}
       </div>
     );
-  } else if (active?.id === 'notifications') {
-    body = (
-      <div className="bb-client-notification-stack">
-      <SocialNotificationControls audience="client" demo={Boolean(profile?.isDemo)} />
-      <SocialNotificationsList
-        items={socialNotifications}
-        loading={!socialNotificationsReady}
-        loadingMore={socialNotificationsLoadingMore}
-        hasMore={socialNotificationsHasMore}
-        onLoadMore={loadMoreSocialNotifications}
-        unreadCount={unreadSocialNotifications}
-        onMarkRead={(ids) => markSocialNotificationsRead(ids)}
-        onMarkAllRead={() => markSocialNotificationsRead([], { all: true })}
-      />
-      </div>
-    );
   } else if (active?.id === 'saved-places') {
     body = savedBusinesses.length ? (
       <PlacesCards
         businesses={savedBusinesses}
-        followed={followed}
-        followSlug={followSlug}
-        unfollowSlug={unfollowSlug}
         messageBiz={messagePlace}
         messagingSlug={messagingSlug}
         savedPlaces={savedPlaces}
@@ -502,9 +462,7 @@ export function ClientAccountPage({ section = '' }) {
                         const item = SECTIONS.find((sectionItem) => sectionItem.id === id);
                         if (!item) return null;
                         const Icon = item.icon || UserRound;
-                        const count = item.id === 'notifications'
-                          ? unreadSocialNotifications || null
-                          : item.id === 'saved-places'
+                        const count = item.id === 'saved-places'
                             ? savedPlaces.size
                             : item.id === 'bookings'
                               ? myBookings.length

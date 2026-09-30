@@ -10,8 +10,6 @@ import {
 /** Bump when demo website shape gains required public Home fields. */
 export const DEMO_WEBSITE_SCHEMA = 32;
 
-/** Bump when demo social feed gains Posts / Videos / Text mix. */
-export const DEMO_SOCIAL_SCHEMA = 12;
 
 /** Bump when demo services collapse to Cooking/Baking with package variants. */
 export const DEMO_SERVICES_SCHEMA = 13;
@@ -22,9 +20,6 @@ export const DEMO_PRODUCTS_SCHEMA = 1;
 /** Bump when demo staff availability / closed-days / staff photos change. */
 export const DEMO_AVAILABILITY_SCHEMA = 2;
 
-/** Stable sample MP4 for demo video player (no local video assets required). */
-export const DEMO_SAMPLE_VIDEO_URL =
-  'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4';
 
 const today = startOfToday();
 
@@ -33,7 +28,6 @@ function startOfToday() {
   date.setHours(0, 0, 0, 0);
   return date;
 }
-
 export const DEMO_SERVICES = normalizeServiceList([
   {
     id: 'cooking',
@@ -1071,7 +1065,6 @@ export function createDemoWorkspace() {
       collectClientNotes: true
     },
     websiteSchema: DEMO_WEBSITE_SCHEMA,
-    socialSchema: DEMO_SOCIAL_SCHEMA,
     servicesSchema: DEMO_SERVICES_SCHEMA,
     productsSchema: DEMO_PRODUCTS_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
@@ -1090,7 +1083,7 @@ export function createDemoWorkspace() {
     clients: DEMO_CLIENTS,
     threads: DEMO_THREADS,
     website: {
-      pages: { home: true, book: true, buy: true, social: true },
+      pages: { home: true, book: true, buy: true },
       sections: {
         about: true,
         gallery: true,
@@ -1124,13 +1117,10 @@ export function createDemoWorkspace() {
       servesCountries: ['ZA', '*'],
       heroImageUrl: '/example/flour-and-flame/hero.webp',
       logoUrl: '/example/flour-and-flame/logo-mark.jpg',
-      socialBannerUrl: '/example/flour-and-flame/banner.png',
       bookHeadline: 'Book a package',
       bookSubtext: 'Choose a cooking or baking package, pick a time, and send your request.',
       buyHeadline: 'Take the kitchen home',
       buySubtext: 'Bread boxes, pasta kits, and studio notes ready to order.',
-      socialHeadline: 'From the studio',
-      socialSubtext: 'Posts, clips, and notes from Flame & Flour.',
       aboutTitle: 'About us',
       aboutEyebrow: 'About',
       aboutBody:
@@ -1277,376 +1267,6 @@ export function createDemoWorkspace() {
         }
       ]
     },
-    socialPosts: [
-      {
-        id: 'post-5',
-        type: 'image',
-        title: 'Scored loaf',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-scored-loaf.png',
-        caption: 'Sharp score, open crumb. Friday’s country loaf.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 8,
-        order: 0
-      },
-      {
-        id: 'post-6',
-        type: 'image',
-        title: 'Laminated dough',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-laminated-dough.png',
-        caption: 'Butter locked in. Croissant dough resting.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 30,
-        order: 1
-      },
-      {
-        id: 'post-7',
-        type: 'image',
-        title: 'Fresh pasta',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-fresh-pasta.png',
-        caption: 'Tagliatelle nests for this week’s pasta class.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 40,
-        order: 2
-      },
-      {
-        id: 'post-8',
-        type: 'image',
-        title: 'Plated dessert',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-plated-dessert.png',
-        caption: 'End-of-class tasting plate.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 55,
-        order: 3
-      },
-      {
-        id: 'post-9',
-        type: 'image',
-        title: 'Croissants',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-croissants.png',
-        caption: 'Straight from the oven. Still singing.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 70,
-        order: 4
-      },
-      {
-        id: 'post-10',
-        type: 'image',
-        title: 'Bench is set',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-class-hands.png',
-        caption: 'Aprons out. Class starts in ten.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 82,
-        order: 5
-      },
-      {
-        id: 'post-11',
-        type: 'image',
-        title: 'Sunday lasagna',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-lasagna.png',
-        caption: 'Layered, bubbled, and ready for the table.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 95,
-        order: 6
-      },
-      {
-        id: 'post-12',
-        type: 'image',
-        title: 'Chocolate tart',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-chocolate-tart.png',
-        caption: 'Ganache set. Ready for the tasting room.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 110,
-        order: 7
-      },
-      {
-        id: 'post-13',
-        type: 'image',
-        title: 'Beef stir fry',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-beef-stir-fry.png',
-        caption: 'Hot wok, glossy beef. Lunch special tonight.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 125,
-        order: 8
-      },
-      {
-        id: 'post-14',
-        type: 'image',
-        title: 'Fried chicken',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-fried-chicken.png',
-        caption: 'Crispy, golden, and gone by dinner.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 140,
-        order: 9
-      },
-      {
-        id: 'post-15',
-        type: 'image',
-        title: 'Milkshake hour',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-milkshakes.png',
-        caption: 'Thick shakes spinning up at the counter.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 155,
-        order: 10
-      },
-      {
-        id: 'post-16',
-        type: 'image',
-        title: 'Vanilla cake',
-        mediaUrl: '/example/flour-and-flame/social/ff-social-vanilla-cake.jpg',
-        caption: 'Soft crumb, vanilla buttercream. Tasting tomorrow.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 170,
-        order: 11
-      },
-      {
-        id: 'vid-1',
-        type: 'video',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/films/ff-film-steak-sear.png',
-        title: 'Steak sear',
-        caption: 'Cast iron, hard sear, quiet studio kitchen.',
-        duration: '0:18',
-        viewCount: 12840,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 12,
-        order: 0
-      },
-      {
-        id: 'vid-2',
-        type: 'video',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/films/ff-film-pasta-boil.png',
-        title: 'Pasta in the pot',
-        caption: 'Fresh noodles hitting simmering water.',
-        duration: '0:16',
-        viewCount: 9320,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 36,
-        order: 1
-      },
-      {
-        id: 'vid-3',
-        type: 'video',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/films/ff-film-eggs-scramble.png',
-        title: 'Soft scramble',
-        caption: 'Slow eggs for a class breakfast demo.',
-        duration: '0:14',
-        viewCount: 21450,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 72,
-        order: 2
-      },
-      {
-        id: 'vid-4',
-        type: 'video',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/films/ff-film-citrus-salad.png',
-        title: 'Citrus salad',
-        caption: 'Bright herbs and citrus for a light tasting.',
-        duration: '0:12',
-        viewCount: 7640,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 48,
-        order: 3
-      },
-      {
-        id: 'vid-5',
-        type: 'video',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/films/ff-film-roast-veg.png',
-        title: 'Roast veg tray',
-        caption: 'Sheet-pan vegetables, blistered and ready.',
-        duration: '0:15',
-        viewCount: 11890,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 60,
-        order: 4
-      },
-      {
-        id: 'vid-6',
-        type: 'video',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/films/ff-film-espresso-pour.png',
-        title: 'Studio espresso',
-        caption: 'A quiet pour before the evening class.',
-        duration: '0:11',
-        viewCount: 15220,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 84,
-        order: 5
-      },
-      {
-        id: 'vid-7',
-        type: 'video',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/films/ff-film-chocolate-mousse.png',
-        title: 'Chocolate mousse',
-        caption: 'Tasting cups set for dessert night.',
-        duration: '0:13',
-        viewCount: 18950,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 96,
-        order: 6
-      },
-      {
-        id: 'vert-1',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-score-loaf.png',
-        title: 'Cookie tray',
-        caption: 'Chocolate chip, straight from the oven.',
-        duration: '0:18',
-        viewCount: 18420,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 5,
-        order: 0
-      },
-      {
-        id: 'vert-2',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-laminate.png',
-        title: 'Laminate fold',
-        caption: 'Butter locked. Croissant dough resting.',
-        duration: '0:22',
-        viewCount: 15680,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 14,
-        order: 1
-      },
-      {
-        id: 'vert-3',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-pasta-roll.png',
-        title: 'Pasta through the machine',
-        caption: 'Sheet by sheet for Saturday’s pasta class.',
-        duration: '0:16',
-        viewCount: 22140,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 22,
-        order: 2
-      },
-      {
-        id: 'vert-4',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-oven-pull.png',
-        title: 'Croissant pull',
-        caption: 'Straight from the deck. Still singing.',
-        duration: '0:14',
-        viewCount: 29810,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 33,
-        order: 3
-      },
-      {
-        id: 'vert-5',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-pipe-ganache.png',
-        title: 'Steak in the pan',
-        caption: 'Cast iron, butter, and a hard sear.',
-        duration: '0:19',
-        viewCount: 13250,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 46,
-        order: 4
-      },
-      {
-        id: 'vert-6',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-class-bench.png',
-        title: 'Bench is set',
-        caption: 'Aprons out. Class starts in ten.',
-        duration: '0:12',
-        viewCount: 9870,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 58,
-        order: 5
-      },
-      {
-        id: 'vert-7',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-tasting-plate.png',
-        title: 'Tasting plate',
-        caption: 'End-of-class dessert, plated quiet.',
-        duration: '0:15',
-        viewCount: 17440,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 67,
-        order: 6
-      },
-      {
-        id: 'vert-8',
-        type: 'vertical',
-        mediaUrl: DEMO_SAMPLE_VIDEO_URL,
-        posterUrl: '/example/flour-and-flame/verticals/ff-vertical-open-crumb.png',
-        title: 'Open crumb',
-        caption: 'The crumb we chase every bake.',
-        duration: '0:11',
-        viewCount: 25190,
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 79,
-        order: 7
-      },
-      {
-        id: 'text-1',
-        type: 'text',
-        title: 'Private lessons open for March',
-        caption:
-          'One-to-one baking sessions are booking now. Tell us whether you want laminated pastry, celebration cakes, or everyday bread, and we will build the class around you.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 6,
-        order: 0
-      },
-      {
-        id: 'text-2',
-        type: 'text',
-        title: 'This week’s pasta kits are ready',
-        caption:
-          'A fresh batch landed on Buy this morning. If you have been waiting for the fresh pasta starter set, this is the week to grab one before they go.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 20,
-        order: 1
-      },
-      {
-        id: 'text-3',
-        type: 'text',
-        title: 'Studio hours',
-        caption:
-          'We are open Tuesday through Saturday for classes and walk-in kitchen goods. Sunday is reserved for private bookings by request.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 48,
-        order: 2
-      },
-      {
-        id: 'text-4',
-        type: 'text',
-        title: 'A note from today’s class',
-        caption:
-          'Rest your dough longer than you think. Texture always tells the truth, and patience is the quiet ingredient that makes the bake.',
-        published: true,
-        createdAt: Date.now() - 1000 * 60 * 60 * 70,
-        order: 3
-      }
-    ],
-    availabilityRules: normalizeAvailabilityRules({
-      businessOpenTime: '09:00',
-      businessCloseTime: '17:00',
-      scheduleMode: 'time_slots',
-      openWeekdays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
-      closedDates: [],
-      maxAdvanceBookingDays: 90
-    }),
-    services: DEMO_SERVICES,
-    serviceCategories: collectServiceCategories(DEMO_SERVICES, [
-      'Cooking',
-      'Baking'
-    ]),
     staff: DEMO_STAFF,
     staffAvailability: createStaffAvailabilityForRoster(DEMO_STAFF, '09:00', '17:00', 8),
     bookings: sampleBookings,
@@ -1661,11 +1281,6 @@ export function createDemoWorkspace() {
     ]),
     orders: sampleOrders
   };
-  workspace.socialPosts = workspace.socialPosts.map((post) => ({
-    ...post,
-    exploreMainCategoryId: 'learn_create',
-    exploreSubcategoryId: 'cooking_classes'
-  }));
   return workspace;
 }
 
@@ -1690,28 +1305,6 @@ export function hydrateDemoWorkspace(stored) {
       ['bench-tools-set', 'linen-tea-towel', 'proofing-basket'].includes(product?.id)
     );
 
-  const hasVideo = (stored.socialPosts || []).some((post) => post?.type === 'video');
-  const hasText = (stored.socialPosts || []).some((post) => post?.type === 'text');
-  const postsMissingTitles = (stored.socialPosts || []).some(
-    (post) =>
-      (post?.type === 'image' || post?.type === 'video' || post?.type === 'text') &&
-      !String(post?.title || '').trim()
-  );
-  const imagePostCount = (stored.socialPosts || []).filter((post) => post?.type === 'image').length;
-  const videoPostCount = (stored.socialPosts || []).filter((post) => post?.type === 'video').length;
-  const verticalPostCount = (stored.socialPosts || []).filter(
-    (post) => post?.type === 'vertical'
-  ).length;
-  const staleSocial =
-    Number(stored.socialSchema || 0) < DEMO_SOCIAL_SCHEMA ||
-    !Array.isArray(stored.socialPosts) ||
-    stored.socialPosts.length < 6 ||
-    imagePostCount < 12 ||
-    videoPostCount < 7 ||
-    verticalPostCount < 8 ||
-    !hasVideo ||
-    !hasText ||
-    postsMissingTitles;
 
   const staleThreads =
     Number(stored.threadsSchema || 0) < DEMO_THREADS_SCHEMA ||
@@ -1817,10 +1410,8 @@ export function hydrateDemoWorkspace(stored) {
         sectionOrder: fresh.website.sectionOrder,
         heroImageUrl: stored.website?.heroImageUrl || fresh.website.heroImageUrl,
         logoUrl: fresh.website.logoUrl,
-        socialBannerUrl: fresh.website.socialBannerUrl,
         homeHeadline: fresh.website.homeHeadline,
         homeSubtext: fresh.website.homeSubtext,
-        socialSubtext: fresh.website.socialSubtext,
         aboutBody: fresh.website.aboutBody,
         profileCategory: fresh.website.profileCategory,
         categoryId: fresh.website.categoryId,
@@ -1858,7 +1449,6 @@ export function hydrateDemoWorkspace(stored) {
     tagline: fresh.tagline,
     slug: staleWebsite ? fresh.slug : stored.slug || fresh.slug,
     websiteSchema: DEMO_WEBSITE_SCHEMA,
-    socialSchema: DEMO_SOCIAL_SCHEMA,
     servicesSchema: DEMO_SERVICES_SCHEMA,
     productsSchema: DEMO_PRODUCTS_SCHEMA,
     threadsSchema: DEMO_THREADS_SCHEMA,
@@ -1890,7 +1480,6 @@ export function hydrateDemoWorkspace(stored) {
           stored.availabilityRules?.businessOpenTime || '09:00',
           stored.availabilityRules?.businessCloseTime || '17:00'
         ),
-    socialPosts: staleSocial ? fresh.socialPosts : stored.socialPosts,
     threads: staleThreads ? fresh.threads : stored.threads,
     orders: staleFinance || staleOrders ? fresh.orders : stored.orders,
     bookings: staleFinance ? fresh.bookings : stored.bookings || fresh.bookings

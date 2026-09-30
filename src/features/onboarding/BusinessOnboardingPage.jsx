@@ -15,8 +15,7 @@ export function BusinessOnboardingPage() {
     email: '',
     tagline: 'Book services. Buy products.',
     enableBook: true,
-    enableBuy: true,
-    enableSocial: true
+    enableBuy: true
   });
 
   const slugFromName = (name) =>
@@ -38,8 +37,7 @@ export function BusinessOnboardingPage() {
         pages: {
           home: true,
           book: form.enableBook,
-          buy: form.enableBuy,
-          social: form.enableSocial
+          buy: form.enableBuy
         },
         homeHeadline: `Welcome to ${form.brandName.trim() || 'your business'}.`,
         homeSubtext: form.tagline.trim(),
@@ -126,8 +124,7 @@ export function BusinessOnboardingPage() {
             <p className="bb-muted m-0 text-sm">Choose which public pages to turn on first.</p>
             {[
               ['enableBook', 'Book — services and appointments'],
-              ['enableBuy', 'Buy — products and orders'],
-              ['enableSocial', 'Social — posts and updates']
+              ['enableBuy', 'Buy — products and orders']
             ].map(([key, label]) => (
               <label key={key} className="flex items-center gap-2 text-sm font-semibold">
                 <input
@@ -162,7 +159,6 @@ export function BusinessOnboardingPage() {
               <li>Home is always on</li>
               {form.enableBook ? <li>Book page enabled</li> : null}
               {form.enableBuy ? <li>Buy page enabled</li> : null}
-              {form.enableSocial ? <li>Social enabled</li> : null}
             </ul>
             <div className="flex flex-wrap gap-2">
               <button type="button" className="bb-ghost-btn" onClick={() => setStep('pages')}>

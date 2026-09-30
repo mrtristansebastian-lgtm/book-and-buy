@@ -110,39 +110,6 @@ function publicProducts(products: unknown) {
     }));
 }
 
-function publicSocialPosts(posts: unknown) {
-  if (!Array.isArray(posts)) return [];
-  return posts
-    .filter((post): post is AnyRecord => Boolean(post && typeof post === 'object' && (post as AnyRecord).published !== false))
-    .map((post) => ({
-      id: post.id,
-      type: post.type || 'text',
-      title: post.title || '',
-      caption: post.caption || '',
-      mediaUrl: post.mediaUrl || '',
-      posterUrl: post.posterUrl || '',
-      duration: post.duration || '',
-      durationSeconds: post.durationSeconds || 0,
-      mediaUrls: Array.isArray(post.mediaUrls) ? post.mediaUrls : [],
-      mediaItems: Array.isArray(post.mediaItems) ? post.mediaItems : [],
-      exploreMainCategoryId: post.exploreMainCategoryId || '',
-      exploreSubcategoryId: post.exploreSubcategoryId || '',
-      tags: Array.isArray(post.tags) ? post.tags : [],
-      location: post.location || '',
-      locationPlaceId: post.locationPlaceId || '',
-      locationLat: post.locationLat || 0,
-      locationLng: post.locationLng || 0,
-      counts: post.counts || {
-        likes: Number(post.likeCount || 0),
-        comments: Number(post.commentCount || 0),
-        shares: Number(post.shareCount || 0)
-      },
-      published: true,
-      createdAt: post.createdAt || 0,
-      order: post.order ?? 0
-    }));
-}
-
 function publicStaff(staff: unknown) {
   if (!Array.isArray(staff)) return [];
   return staff
@@ -190,7 +157,6 @@ export function buildPublicWorkspaceSnapshot(workspace: AnyRecord) {
     countryCode,
     city,
     servesCountries,
-    socialPosts: publicSocialPosts(workspace.socialPosts),
     services: publicServices(workspace.services),
     products: publicProducts(workspace.products),
     staff: publicStaff(workspace.staff),

@@ -1,4 +1,18 @@
-import { SocialProfileTabs } from '../social/components/SocialProfileTabs';
+function ContentTabs({ value, onChange, tabs = [] }) {
+  return (
+    <div className="bb-social-profile-tabs" role="tablist" aria-label="Content type">
+      {tabs.map(({ id, label, Icon }) => {
+        const active = value === id;
+        return (
+          <button key={id} type="button" role="tab" aria-selected={active} className={`bb-social-profile-tab ${active ? 'is-active' : ''}`} onClick={() => onChange?.(id)}>
+            {Icon ? <Icon size={16} strokeWidth={active ? 2.4 : 2} aria-hidden="true" /> : null}
+            <span>{label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 /**
  * Content tabs (Posts / Films / …) sit horizontally above the stage on all breakpoints.
@@ -19,10 +33,10 @@ export function ClientDeskLayout({
     >
       {showContentTabs ? (
         <aside className="bb-client-desk-rail" aria-label="Content type">
-          <SocialProfileTabs
+          <ContentTabs
             value={contentTab}
             onChange={onContentTabChange}
-            tabs={contentTabs || undefined}
+            tabs={contentTabs || []}
           />
         </aside>
       ) : null}

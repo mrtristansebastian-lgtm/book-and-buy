@@ -3,11 +3,10 @@ import { isFirebaseConfigured, ensureClientThread } from './clientThreadsApi';
 
 /**
  * Instagram-style “Message” from a business profile / booking / order.
- * Creates or reuses a thread, follows the slug, opens `#/app/messages/:id`.
+ * Creates or reuses a support thread and opens `#/app/messages/:id`.
  */
 export async function startClientMessage({
   profile,
-  followSlug,
   workspace,
   startThreadFromClient,
   startThreadFromBooking,
@@ -36,14 +35,6 @@ export async function startClientMessage({
       : order
         ? `Order · ${order.id || 'Products'}`
         : `Message · ${bizName}`);
-
-  if (workspaceSlug && followSlug) {
-    try {
-      await followSlug(workspaceSlug);
-    } catch {
-      /* ignore */
-    }
-  }
 
   if (isFirebaseConfigured() && resolvedOwner) {
     try {

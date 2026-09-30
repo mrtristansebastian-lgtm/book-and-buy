@@ -1,5 +1,4 @@
 import { APP_ID } from '../../config/appConfig';
-import { isReactionId } from './reactions';
 
 export const DEMO_CLIENT_EMAIL = 'aisha.naidoo@example.com';
 export const DEMO_CLIENT_NAME = 'Aisha Naidoo';
@@ -11,12 +10,7 @@ export function emptyClientProfile(overrides = {}) {
     email: '',
     displayName: '',
     photoURL: '',
-    followedSlugs: [],
-    likedKeys: [],
-    reactionsByKey: {},
-    savedKeys: [],
     savedPlaceSlugs: [],
-    commentsByKey: {},
     createdAt: Date.now(),
     isDemo: false,
     showActivityStatus: true,
@@ -32,36 +26,6 @@ export function emptyClientProfile(overrides = {}) {
   };
 }
 
-function normalizeReactionsByKey(parsed = {}) {
-  const raw =
-    parsed.reactionsByKey && typeof parsed.reactionsByKey === 'object'
-      ? parsed.reactionsByKey
-      : {};
-  const next = {};
-  Object.entries(raw).forEach(([key, value]) => {
-    if (isReactionId(value)) next[String(key)] = String(value);
-  });
-  // Migrate legacy likedKeys → like reaction
-  const liked = Array.isArray(parsed.likedKeys) ? parsed.likedKeys.map(String) : [];
-  liked.forEach((key) => {
-    if (key && !next[key]) next[key] = 'like';
-  });
-  return next;
-}
-
-function normalizeEngagement(parsed = {}) {
-  const reactionsByKey = normalizeReactionsByKey(parsed);
-  return {
-    likedKeys: Object.keys(reactionsByKey),
-    reactionsByKey,
-    savedKeys: Array.isArray(parsed.savedKeys) ? parsed.savedKeys.map(String) : [],
-    commentsByKey:
-      parsed.commentsByKey && typeof parsed.commentsByKey === 'object'
-        ? parsed.commentsByKey
-        : {}
-  };
-}
-
 export function readLocalClientProfile() {
   try {
     const raw = window.localStorage.getItem(CLIENT_PROFILE_KEY);
@@ -71,7 +35,6 @@ export function readLocalClientProfile() {
     return {
       ...emptyClientProfile(),
       ...parsed,
-      followedSlugs: Array.isArray(parsed.followedSlugs) ? parsed.followedSlugs : [],
       savedPlaceSlugs: Array.isArray(parsed.savedPlaceSlugs)
         ? [...new Set(parsed.savedPlaceSlugs.map(String).filter(Boolean))]
         : [],
@@ -92,8 +55,7 @@ export function readLocalClientProfile() {
       clientCountryCode: String(parsed.clientCountryCode || '')
         .trim()
         .toUpperCase(),
-      clientCity: String(parsed.clientCity || '').trim(),
-      ...normalizeEngagement(parsed)
+      clientCity: String(parsed.clientCity || '').trim()
     };
   } catch {
     return null;
@@ -120,7 +82,6 @@ export function makeDemoClientProfile() {
   return emptyClientProfile({
     email: DEMO_CLIENT_EMAIL,
     displayName: DEMO_CLIENT_NAME,
-    followedSlugs: ['flameandflour'],
     savedPlaceSlugs: ['flameandflour'],
     isDemo: true,
     uid: 'demo-client',
@@ -133,20 +94,4 @@ export function makeDemoClientProfile() {
   });
 }
 
-/** Stable key for engagement across businesses. */
-export function socialPostKey(slug, postId) {
-  return `${String(slug || '').trim()}:${String(postId || '').trim()}`;
-}
-
-export function seedEngagementCount(post, field, postKey = '') {
-  const raw = Number(post?.[field]);
-  if (Number.isFinite(raw) && raw > 0) return Math.floor(raw);
-  let hash = 0;
-  const seed = `${postKey || post?.id || ''}:${field}`;
-  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  if (field === 'likeCount') return 12 + (hash % 240);
-  if (field === 'commentCount') return 1 + (hash % 28);
-  return 0;
-}
-
-export { APP_ID, normalizeEngagement };
+export { APP_ID };

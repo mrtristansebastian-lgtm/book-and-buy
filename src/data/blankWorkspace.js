@@ -75,7 +75,6 @@ export function createBlankWorkspace(overrides = {}) {
     services: [],
     serviceCategories: [],
     productCategories: [],
-    socialPosts: [],
     onboardingComplete: Boolean(overrides.onboardingComplete)
   };
 }

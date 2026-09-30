@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
 import { isPublicPageEnabled } from '../../../config/eBusinessPlatform';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
-import { SocialFeed } from '../../social/components/SocialFeed';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
 import {
   AboutSection,
   FaqSection,
   HeroSection,
   MapSection,
-  ProfileIdentitySection,
   ReviewsSection,
   VenueSection,
   WhatWeOfferSection
@@ -17,7 +15,6 @@ import {
 
 const PROFILE_RAIL_TABS = [
   { id: 'home', label: 'Home' },
-  { id: 'content', label: 'Social' },
   { id: 'book', label: 'Book' },
   { id: 'buy', label: 'Buy' }
 ];
@@ -44,7 +41,7 @@ function pageEnabled(website, pageId) {
 
 function normalizeRailTab(value) {
   const id = String(value || 'home').trim().toLowerCase();
-  if (id === 'social' || id === 'content') return 'content';
+  if (id === 'social' || id === 'content') return 'home';
   if (id === 'book' || id === 'buy' || id === 'home') return id;
   return 'home';
 }
@@ -57,10 +54,7 @@ export function PublicHomeView({
   publicMode = false,
   onOpenItem,
   onUpdateWebsite,
-  onUpdateProfile,
-  onUpdateSocialPost,
-  onAddSocialPost,
-  showDrafts = false
+  onUpdateProfile
 }) {
   const website = workspace.website || {};
   const venueImages = website.venueImages || [];
@@ -206,31 +200,7 @@ export function PublicHomeView({
     </div>
   );
 
-  if (visibleTab === 'content') {
-    panel = (
-      <div className="bb-public-profile-panel bb-public-profile-panel--content" role="tabpanel">
-        <ProfileIdentitySection
-          workspace={workspace}
-          website={website}
-          editMode={editMode}
-          preview={preview}
-          patchWebsite={patchWebsite}
-          onUpdateProfile={onUpdateProfile}
-        />
-        <SocialFeed
-          workspace={workspace}
-          preview={preview}
-          editMode={editMode}
-          embedded
-          publicMode={publicMode}
-          showDrafts={showDrafts}
-          onUpdateWebsite={onUpdateWebsite}
-          onUpdateSocialPost={onUpdateSocialPost}
-          onAddSocialPost={onAddSocialPost}
-        />
-      </div>
-    );
-  } else if (visibleTab === 'book') {
+  if (visibleTab === 'book') {
     panel = (
       <div className="bb-public-profile-panel bb-public-profile-panel--book" role="tabpanel">
         <PublicBookingFlow

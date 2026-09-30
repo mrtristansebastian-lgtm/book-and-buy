@@ -43,7 +43,7 @@ export function normalizeBiz(raw = {}) {
     blurb,
     about: String(website.aboutBody || firstAboutBody || blurb).trim(),
     logoUrl: raw.logoUrl || raw.logo || website.logoUrl || '',
-    heroImageUrl: raw.heroImageUrl || raw.bannerUrl || website.heroImageUrl || website.socialBannerUrl || '',
+    heroImageUrl: raw.heroImageUrl || raw.bannerUrl || website.heroImageUrl || '',
     categoryId,
     pages: { ...(website.pages || raw.pages || {}) },
     categoryLabel: categoryLabelText,

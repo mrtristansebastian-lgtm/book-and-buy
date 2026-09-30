@@ -1,6 +1,5 @@
 import {
   BookOpen,
-  Bell,
   Boxes,
   BriefcaseBusiness,
   CalendarClock,
@@ -15,7 +14,6 @@ import {
   Package,
   Radio,
   Settings,
-  Share2,
   ShoppingBag,
   ShoppingCart,
   Users
@@ -35,8 +33,6 @@ export const TAB_ICONS = {
   'website-book': BookOpen,
   'website-buy': ShoppingBag,
   'website-checkout': ShoppingCart,
-  social: Share2,
-  'social-notifications': Bell,
   communications: MessageSquare,
   finance: CreditCard,
   analytics: ChartColumn,
@@ -58,8 +54,6 @@ export const TAB_HINTS = {
   'website-book': 'Services page',
   'website-buy': 'Storefront page',
   'website-checkout': 'Cart flow',
-  social: 'Posts & blog',
-  'social-notifications': 'Activity & replies',
   communications: 'Client messages',
   finance: 'Payments & payouts',
   analytics: 'Reports & trends',
@@ -105,16 +99,6 @@ export const launcherApps = [
     tint: ['#d8ccff', '#d2cbff']
   },
   {
-    id: 'social',
-    label: 'Social',
-    blurb: 'Posts, studio and client messages.',
-    icon: Share2,
-    tabs: ['social', 'social-notifications', 'communications'],
-    size: 'md',
-    hue: 'rose',
-    tint: ['#ffd4f2', '#d8ccff']
-  },
-  {
     id: 'analytics',
     label: 'Analytics',
     blurb: 'Live presence and commerce reports.',
@@ -129,7 +113,7 @@ export const launcherApps = [
     label: 'Office',
     blurb: 'Finance, clients and settings.',
     icon: BriefcaseBusiness,
-    tabs: ['finance', 'clients', 'settings'],
+    tabs: ['finance', 'communications', 'clients', 'settings'],
     size: 'lg',
     hue: 'mint',
     tint: ['#cbffb8', '#f1ff9a']

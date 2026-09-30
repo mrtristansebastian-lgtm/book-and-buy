@@ -44,8 +44,7 @@ export const createDefaultSettings = () => ({
     pages: {
       home: true,
       book: true,
-      buy: true,
-      social: true
+      buy: true
     },
     sections: createDefaultHomeSections(),
     sectionOrder: createDefaultHomeSectionOrder(),
@@ -71,9 +70,6 @@ export const createDefaultSettings = () => ({
     bookSubtext: 'Choose a service and request a time.',
     buyHeadline: 'Buy',
     buySubtext: 'Order products from this business.',
-    socialHeadline: 'Social',
-    socialSubtext: 'Updates from the business.',
-    socialBannerUrl: '',
     aboutTitle: 'About us',
     aboutEyebrow: 'About',
     aboutBody: 'Tell clients who you are and what makes your business special.',
@@ -167,7 +163,6 @@ export const createDefaultSettings = () => ({
       { id: 'f2', q: 'Can I reschedule?', a: 'Yes. Message us from Support or reply to your confirmation.' }
     ]
   },
-  socialPosts: [],
   services: [],
   serviceCategories: [],
   products: [],

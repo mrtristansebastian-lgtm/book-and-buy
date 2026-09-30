@@ -1,6 +1,6 @@
 import { E_BUSINESS_PLATFORM_NAME } from './eBusinessPlatform';
 
-/** Owner workspace tabs — Social studio + messages live in the Social group. */
+/** Owner workspace tabs — client messages live with the Office tools. */
 export const workspaceTabIds = [
   'overview',
   'services',
@@ -14,8 +14,6 @@ export const workspaceTabIds = [
   'website-book',
   'website-buy',
   'website-checkout',
-  'social',
-  'social-notifications',
   'communications',
   'finance',
   'live-stats',
@@ -38,8 +36,10 @@ export const workspaceTabAliases = {
   bookings: 'requests',
   booking: 'services',
   'booking-requests': 'requests',
-  'social-profile': 'social',
-  socialProfile: 'social',
+  'social-profile': 'overview',
+  socialProfile: 'overview',
+  social: 'overview',
+  'social-notifications': 'overview',
   site: 'website',
   pages: 'website',
   editor: 'website',
@@ -80,9 +80,7 @@ export const workspaceTabGroups = {
   'website-book': 'presence',
   'website-buy': 'presence',
   'website-checkout': 'presence',
-  social: 'social',
-  'social-notifications': 'social',
-  communications: 'social',
+  communications: 'run',
   finance: 'run',
   'live-stats': 'run',
   analytics: 'run',
@@ -103,8 +101,6 @@ export const workspaceTabLabels = {
   'website-book': 'Book page',
   'website-buy': 'Buy page',
   'website-checkout': 'Cart & checkout',
-  social: 'Social studio',
-  'social-notifications': 'Notifications',
   communications: 'Messages',
   finance: 'Finance',
   'live-stats': 'Live Stats',
@@ -118,7 +114,6 @@ export const workspaceGroupLabels = {
   book: 'Book',
   buy: 'Buy',
   presence: E_BUSINESS_PLATFORM_NAME,
-  social: 'Social',
   run: 'Run'
 };
 

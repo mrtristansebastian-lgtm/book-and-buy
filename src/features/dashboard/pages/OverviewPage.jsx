@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Check, Copy, ExternalLink, Globe2, Share2, Sparkles } from 'lucide-react';
+import { Check, Copy, ExternalLink, Globe2, Sparkles } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -75,7 +75,6 @@ export function OverviewPage() {
     !workspace.isDemo &&
     (!(workspace.services || []).length &&
       !(workspace.products || []).length &&
-      !(workspace.socialPosts || []).length &&
       !workspace.website?.logoUrl &&
       !workspace.website?.heroImageUrl);
 
@@ -234,16 +233,6 @@ export function OverviewPage() {
               >
                 <Globe2 size={16} strokeWidth={2.2} aria-hidden="true" />
                 Set up home page
-              </button>
-            }
-            secondaryAction={
-              <button
-                type="button"
-                className="bb-ghost-btn"
-                onClick={() => navigate('/dashboard/social')}
-              >
-                <Share2 size={16} strokeWidth={2.2} aria-hidden="true" />
-                Open Social
               </button>
             }
           />

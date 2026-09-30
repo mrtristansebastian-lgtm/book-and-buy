@@ -7,7 +7,6 @@ const PUBLIC_PAGES = new Set([
   'book',
   'buy',
   'shop',
-  'social',
   'cart',
   'checkout',
   'success'
@@ -37,7 +36,7 @@ export function parseAppRoute(path = getLocationPath()) {
   }
 
   if (parts[0] === 'admin' && parts[1] === 'social-moderation') {
-    return { kind: 'social-admin', section: 'social-moderation', rest: parts.slice(2) };
+    return { kind: 'owner', tab: 'overview', rest: [] };
   }
 
   if (parts[0] === 'onboarding') {
@@ -49,12 +48,15 @@ export function parseAppRoute(path = getLocationPath()) {
   }
 
   if (parts[0] === 'app') {
-    const section = parts[1] || 'home';
+    const requestedSection = parts[1] || 'find';
+    const section = ['home', 'explore', 'notifications'].includes(requestedSection)
+      ? 'find'
+      : requestedSection;
     if (section === 'auth') {
       return { kind: 'client', section: 'auth', rest: [] };
     }
-    const allowed = new Set(['home', 'find', 'explore', 'messages', 'notifications', 'account']);
-    const tab = allowed.has(section) ? section : 'home';
+    const allowed = new Set(['find', 'messages', 'account']);
+    const tab = allowed.has(section) ? section : 'find';
     return {
       kind: 'client',
       section: tab,
@@ -63,9 +65,10 @@ export function parseAppRoute(path = getLocationPath()) {
   }
 
   if (parts[0] === 'w' && parts[1]) {
-    const page = normalizePublicPage(parts[2] || 'home');
+    const requestedPage = String(parts[2] || 'home').toLowerCase();
+    const page = requestedPage === 'social' ? 'home' : normalizePublicPage(requestedPage);
     const itemId =
-      (page === 'book' || page === 'buy' || page === 'social') && parts[3]
+      (page === 'book' || page === 'buy') && parts[3]
         ? decodeURIComponent(String(parts[3]))
         : '';
     return {
@@ -97,9 +100,9 @@ export function parseAppRoute(path = getLocationPath()) {
       };
     }
     if (['home', 'book', 'buy', 'shop', 'social', 'cart', 'checkout', 'success'].includes(parts[1])) {
-      const page = normalizePublicPage(parts[1]);
+      const page = parts[1] === 'social' ? 'home' : normalizePublicPage(parts[1]);
       const itemId =
-        (page === 'book' || page === 'buy' || page === 'social') && parts[2]
+        (page === 'book' || page === 'buy') && parts[2]
           ? decodeURIComponent(String(parts[2]))
           : '';
       return {
@@ -127,18 +130,19 @@ export function publicPagePath(slug, page = 'home') {
   return `/w/${slug}/${normalized}`;
 }
 
-/** Product (`buy`), service (`book`), or social post (`social`) detail path. */
+/** Product (`buy`) or service (`book`) detail path. */
 export function publicItemPath(slug, page, itemId) {
   const normalized = normalizePublicPage(page);
   const id = String(itemId || '').trim();
-  if (!id || (normalized !== 'book' && normalized !== 'buy' && normalized !== 'social')) {
+  if (!id || (normalized !== 'book' && normalized !== 'buy')) {
     return publicPagePath(slug, normalized);
   }
   return `/w/${slug}/${normalized}/${encodeURIComponent(id)}`;
 }
 
-export function clientAppPath(section = 'home', ...rest) {
-  const base = section === 'home' || !section ? '/app/home' : `/app/${section}`;
+export function clientAppPath(section = 'find', ...rest) {
+  const normalized = ['home', 'explore', 'notifications'].includes(section) ? 'find' : section;
+  const base = !normalized ? '/app/find' : `/app/${normalized}`;
   if (!rest.length) return base;
   return `${base}/${rest.map((part) => encodeURIComponent(String(part))).join('/')}`;
 }

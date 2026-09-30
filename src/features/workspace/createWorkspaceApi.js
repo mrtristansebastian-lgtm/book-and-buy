@@ -10,43 +10,8 @@ import {
 } from '../../utils/staffAccess';
 import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 import { MODE_KEY, OWNER_KEY, DEMO_KEY, safeParse } from './workspacePersistence';
-import { canUseCanonicalSocial, socialMutations } from '../social/socialApi';
 
 export function createWorkspaceApi({ workspace, setWorkspace, user }) {
-    const syncSocialPost = (post) => {
-      if (!post?.id || workspace.isDemo || !canUseCanonicalSocial(user?.uid)) return;
-      setWorkspace((prev) => ({
-        ...prev,
-        socialPosts: (prev.socialPosts || []).map((item) => item.id === post.id ? { ...item, _syncState: 'syncing', _syncError: '' } : item)
-      }));
-      socialMutations
-        .upsertPost({
-          slug: workspace.slug,
-          ownerId: user.uid,
-          businessName: workspace.brandName || workspace.name || '',
-          businessLogoUrl: workspace.website?.logoUrl || '',
-          post
-        })
-        .then((result) => setWorkspace((prev) => ({
-          ...prev,
-          socialPosts: (prev.socialPosts || []).map((item) => item.id === post.id ? {
-            ...item,
-            status: result?.status || item.status,
-            published: result?.status ? result.status === 'published' : item.published,
-            moderationState: result?.moderationState || item.moderationState,
-            _syncState: 'synced',
-            _syncError: ''
-          } : item)
-        })))
-        .catch((error) => setWorkspace((prev) => ({
-          ...prev,
-          socialPosts: (prev.socialPosts || []).map((item) => item.id === post.id ? {
-            ...item,
-            _syncState: 'error',
-            _syncError: error?.message || 'Social sync failed. Retry the edit.'
-          } : item)
-        })));
-    };
     const updateBooking = (id, patch) => {
       setWorkspace((prev) => ({
         ...prev,
@@ -214,62 +179,6 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
             localOnly: true,
             reason: error?.message || 'Cloud publish failed. Kept local publish.'
           };
-        }
-      },
-      addSocialPost: (post) => {
-        const record = {
-          id: post.id || `post-${Date.now()}`,
-          type: post.type || 'text',
-          mediaUrl: post.mediaUrl || '',
-          posterUrl: post.posterUrl || '',
-          duration: post.duration || '',
-          caption: post.caption || '',
-          title: post.title || '',
-          published: post.published !== false,
-          createdAt: Date.now(),
-          order: 0,
-          ...post
-        };
-        setWorkspace((prev) => ({
-          ...prev,
-          socialPosts: [
-            record,
-            ...(prev.socialPosts || []).map((item, index) => ({
-              ...item,
-              order: index + 1
-            }))
-          ]
-        }));
-        syncSocialPost(record);
-        return record;
-      },
-      updateSocialPost: (id, patch) => {
-        const current = (workspace.socialPosts || []).find((post) => post.id === id);
-        const nextPost = current ? { ...current, ...patch, id } : { ...patch, id };
-        setWorkspace((prev) => ({
-          ...prev,
-          socialPosts: (prev.socialPosts || []).map((post) =>
-            post.id === id ? { ...post, ...patch } : post
-          )
-        }));
-        syncSocialPost(nextPost);
-      },
-      removeSocialPost: (id) => {
-        const removed = (workspace.socialPosts || []).find((post) => post.id === id);
-        setWorkspace((prev) => ({
-          ...prev,
-          socialPosts: (prev.socialPosts || []).filter((post) => post.id !== id)
-        }));
-        if (!workspace.isDemo && canUseCanonicalSocial(user?.uid)) {
-          socialMutations.deletePost({ slug: workspace.slug, postId: id }).catch((error) => {
-            if (!removed) return;
-            setWorkspace((prev) => ({
-              ...prev,
-              socialPosts: prev.socialPosts.some((post) => post.id === id)
-                ? prev.socialPosts
-                : [{ ...removed, _syncState: 'error', _syncError: error?.message || 'Delete failed.' }, ...prev.socialPosts]
-            }));
-          });
         }
       },
       updateProfile: (patch) => {

@@ -19,46 +19,10 @@ import {
 import { createPublicProductOrder as createPublicProductOrderHelper } from './orders.js';
 import { buildPublicAvailability } from './availability.js';
 import { fetchPlaceReviews } from './places.js';
-export {
-  socialToggleReaction,
-  socialToggleSave,
-  socialCreateComment,
-  socialToggleCommentLike,
-  socialDeleteComment,
-  socialModerateComment,
-  socialRecordShare,
-  socialFollowBusiness,
-  socialMarkNotificationsRead,
-  socialUpsertPost,
-  socialDeletePost,
-  socialAggregatePost,
-  socialProcessActivity,
-  socialFanoutPost,
-  socialSyncSearch,
-  socialSearch
-} from './social.js';
-export {
-  socialReportContent,
-  socialSetRelationship,
-  socialSetNotificationPreferences,
-  socialRegisterDevice,
-  socialListNotifications,
-  socialListFeed,
-  socialListModerationCases,
-  socialResolveModerationCase,
-  socialAppealModeration,
-  socialCreateStreamUpload,
-  socialGetStreamToken,
-  socialCloudflareWebhook,
-  socialDispatchOutbox,
-  socialMaintainPlatform
-} from './socialPlatform.js';
-
 if (!getApps().length) initializeApp();
 
-const socialDeployOnly = process.env.SOCIAL_DEPLOY_ONLY === 'true';
-const googlePlacesApiKey = socialDeployOnly ? null : defineSecret('GOOGLE_PLACES_API_KEY');
-const googlePlacesCallOptions = googlePlacesApiKey ? { secrets: [googlePlacesApiKey] } : {};
+const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
+const googlePlacesCallOptions = { secrets: [googlePlacesApiKey] };
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 

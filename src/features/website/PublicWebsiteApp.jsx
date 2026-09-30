@@ -63,10 +63,9 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
           brandName: titleCaseSlug(slug),
           services: [],
           products: [],
-          socialPosts: [],
           website: {
             ...(local.website || {}),
-            pages: { home: true, book: true, buy: true, social: true }
+            pages: { home: true, book: true, buy: true }
           }
         });
 
