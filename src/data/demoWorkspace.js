@@ -1267,6 +1267,19 @@ export function createDemoWorkspace() {
         }
       ]
     },
+    availabilityRules: normalizeAvailabilityRules({
+      businessOpenTime: '09:00',
+      businessCloseTime: '17:00',
+      scheduleMode: 'time_slots',
+      openWeekdays: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
+      closedDates: [],
+      maxAdvanceBookingDays: 90
+    }),
+    services: DEMO_SERVICES,
+    serviceCategories: collectServiceCategories(DEMO_SERVICES, [
+      'Cooking',
+      'Baking'
+    ]),
     staff: DEMO_STAFF,
     staffAvailability: createStaffAvailabilityForRoster(DEMO_STAFF, '09:00', '17:00', 8),
     bookings: sampleBookings,

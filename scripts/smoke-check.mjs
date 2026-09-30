@@ -7,8 +7,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 function run(command, args) {
   const result = spawnSync(command, args, {
     cwd: root,
-    stdio: 'inherit',
-    shell: true
+    stdio: 'inherit'
   });
   if (result.status !== 0) {
     process.exit(result.status || 1);
@@ -19,9 +18,9 @@ console.log('smoke: health');
 run('node', ['scripts/health-check.mjs']);
 
 console.log('smoke: typecheck');
-run('npm', ['run', 'typecheck']);
+run(process.execPath, ['node_modules/typescript/bin/tsc', '--noEmit']);
 
 console.log('smoke: build');
-run('npm', ['run', 'build']);
+run(process.execPath, ['node_modules/vite/bin/vite.js', 'build']);
 
 console.log('smoke-check ok');

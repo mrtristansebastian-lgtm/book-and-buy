@@ -86,8 +86,8 @@ function useIsMobileEditor() {
 
 export function ServicesPage({ routeRest = [] }) {
   const {
-    services,
-    staff,
+    services = [],
+    staff = [],
     workspace,
     upsertService,
     removeService,
