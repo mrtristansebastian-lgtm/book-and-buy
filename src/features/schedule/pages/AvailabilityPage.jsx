@@ -43,7 +43,7 @@ export function AvailabilityPage() {
   }, [visibleStaff, staffId, canEditRules]);
 
   return (
-    <div className="bb-schedule-desk">
+    <div className="bb-schedule-desk bb-schedule-avail-page">
       <div className="bb-page-chrome">
         <header className="bb-schedule-desk-header bb-schedule-avail-page-header">
           <div className="bb-schedule-desk-copy">

@@ -30,6 +30,7 @@ import { DayTimelineMeter, buildTimelineAxisMarks } from './DayTimelineMeter';
 import { ChangeDayStatusSheet } from './ChangeDayStatusSheet';
 import { SelectRangeSheet } from './SelectRangeSheet';
 import { ApplyShiftDatesSheet } from './ApplyShiftDatesSheet';
+import { StaffAvailabilitySwitcher } from './StaffAvailabilitySwitcher';
 import {
   BUSINESS_STATUS_OPTIONS,
   STAFF_PAINT_OPTIONS,
@@ -43,7 +44,7 @@ import {
 } from './availabilityEditorUtils';
 
 export { BUSINESS_AVAILABILITY_ID };
-export { StaffAvailabilitySwitcher } from './StaffAvailabilitySwitcher';
+export { StaffAvailabilitySwitcher };
 
 export function ScheduleAvailabilityEditor({
   staff = [],
@@ -89,7 +90,7 @@ export function ScheduleAvailabilityEditor({
   const [draftShifts, setDraftShifts] = useState([{ start: openTime, end: closeTime }]);
   const [draftBreaks, setDraftBreaks] = useState([]);
   const [dayStatusSheetOpen, setDayStatusSheetOpen] = useState(false);
-  const [applyShiftOpen, setApplyShiftOpen] = useState(false);
+  const [applyShiftIndex, setApplyShiftIndex] = useState(null);
   const [activeEdit, setActiveEdit] = useState(false);
   const [saveNotice, setSaveNotice] = useState(null);
   const saveNoticeTimerRef = useRef(null);
@@ -633,7 +634,7 @@ export function ScheduleAvailabilityEditor({
       );
     });
     if (nextEntry !== entry) onSaveEntry?.(staffId, nextEntry);
-    setApplyShiftOpen(false);
+    setApplyShiftIndex(null);
     if (dates.length) {
       setSelectedDay(dates[0]);
       showSaveNotice('Shift applied', `${shift.start} – ${shift.end} · ${dates.length} ${dates.length === 1 ? 'day' : 'days'}`);
@@ -659,22 +660,48 @@ export function ScheduleAvailabilityEditor({
         </p>
       ) : null}
 
-      <div className="bb-schedule-avail-layout">
-        <aside className="bb-schedule-avail-sidebar" aria-label="Availability controls">
-          <section className="bb-schedule-avail-sidebar-section">
-            <p className="bb-schedule-avail-sidebar-label">Studio focus</p>
-            <StaffAvailabilitySwitcher
-              staff={visibleStaff}
-              staffId={staffId}
-              onSelect={setStaffId}
-              businessName={workspace.brandName || 'Business'}
-              businessLogoUrl={workspace.website?.logoUrl || ''}
-              showBusiness={canEditRules}
-            />
+      <div className="bb-schedule-workspace bb-schedule-availability-workspace">
+        <aside className="bb-schedule-sidebar bb-schedule-availability-sidebar" aria-label="Availability controls">
+          <section className="bb-schedule-side-section">
+            <span className="bb-schedule-side-label">Staff availability</span>
+            <div className="bb-schedule-staff-filter" role="tablist" aria-label="Availability profile">
+              {canEditRules ? (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={isBusinessFocus}
+                  className={`bb-schedule-staff-avatar${isBusinessFocus ? ' is-active' : ''}`}
+                  onClick={() => setStaffId(BUSINESS_AVAILABILITY_ID)}
+                >
+                  <span className="bb-schedule-staff-avatar-face is-all" aria-hidden="true">All</span>
+                  <span className="bb-schedule-staff-avatar-name">Business hours</span>
+                </button>
+              ) : null}
+              {visibleStaff.map((member) => {
+                const photo = staffPhoto(member);
+                const active = member.id === staffId;
+                return (
+                  <button
+                    key={member.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    className={`bb-schedule-staff-avatar${active ? ' is-active' : ''}`}
+                    style={{ '--staff-color': member.color || '#101828' }}
+                    onClick={() => setStaffId(member.id)}
+                  >
+                    <span className="bb-schedule-staff-avatar-face" aria-hidden="true">
+                      {photo ? <img src={photo} alt="" /> : staffInitials(member.name)}
+                    </span>
+                    <span className="bb-schedule-staff-avatar-name">{member.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </section>
-          <section className="bb-schedule-avail-sidebar-section">
+          <section className="bb-schedule-side-section bb-schedule-availability-control-section">
             <div className="bb-schedule-avail-sidebar-head">
-              <p className="bb-schedule-avail-sidebar-label">Day status</p>
+              <span className="bb-schedule-side-label">Day status</span>
               <span className={`bb-schedule-avail-day-status-chip is-${dayDraftStatus}`}>{statusLabelForDraft(dayDraftStatus)}</span>
             </div>
             <div className="bb-schedule-avail-sidebar-statuses" role="group" aria-label="Change day status">
@@ -693,39 +720,75 @@ export function ScheduleAvailabilityEditor({
             </div>
           </section>
           {!isBusinessFocus ? (
-            <section className="bb-schedule-avail-sidebar-section">
+            <section className="bb-schedule-side-section bb-schedule-availability-control-section">
               <div className="bb-schedule-avail-sidebar-head">
-                <p className="bb-schedule-avail-sidebar-label">Shift setter</p>
+                <span className="bb-schedule-side-label">Shifts & breaks</span>
                 <span className="bb-schedule-avail-sidebar-meta">{formatDisplayDate(selectedDay)}</span>
               </div>
               {draftShifts.length ? draftShifts.map((shift, index) => (
                 <div key={`sidebar-shift-${index}`} className="bb-schedule-avail-sidebar-shift">
-                  <span>Shift {index + 1}</span>
+                  <div className="bb-schedule-avail-sidebar-shift-head">
+                    <span>Shift {index + 1}</span>
+                    {draftShifts.length > 1 ? (
+                      <button type="button" className="bb-schedule-avail-sidebar-remove" aria-label={`Remove shift ${index + 1}`} onClick={() => setDraftShifts((previous) => previous.filter((_, itemIndex) => itemIndex !== index))}>
+                        <Trash2 size={14} aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </div>
                   {canEditDayTimes ? (
-                    <div className="bb-schedule-avail-sidebar-times">
+                    <div className="bb-schedule-avail-sidebar-times is-shift">
                       <TimeField label="Start" value={shift.start} onChange={(next) => updateShift(index, { start: next })} />
                       <TimeField label="End" value={shift.end} onChange={(next) => updateShift(index, { end: next })} />
                     </div>
                   ) : <strong>{shift.start} – {shift.end}</strong>}
-                </div>
-              )) : <p className="bb-schedule-avail-hint m-0">No shift set for this day.</p>}
-              {canEditDayTimes ? (
-                <>
-                  <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])}>
-                    <Plus size={15} aria-hidden="true" /> Add shift
-                  </button>
-                  {draftShifts[0] ? (
-                    <button type="button" className="bb-schedule-avail-sidebar-action is-secondary" onClick={() => setApplyShiftOpen(true)}>
-                      <CalendarRange size={15} aria-hidden="true" /> Apply shift to days
+                  {canEditDayTimes ? (
+                    <button type="button" className="bb-schedule-avail-sidebar-apply" onClick={() => setApplyShiftIndex(index)}>
+                      <CalendarRange size={14} aria-hidden="true" /> Apply this shift to dates
                     </button>
                   ) : null}
+                </div>
+              )) : <p className="bb-schedule-avail-hint m-0">No shift set for this day.</p>}
+              {canEditDayTimes && draftBreaks.length ? (
+                <div className="bb-schedule-avail-sidebar-breaks">
+                  {draftBreaks.map((row, index) => (
+                    <div key={`sidebar-break-${index}`} className="bb-schedule-avail-sidebar-shift is-break">
+                      <div className="bb-schedule-avail-sidebar-shift-head">
+                        <span>Break {index + 1}</span>
+                        <button type="button" className="bb-schedule-avail-sidebar-remove" aria-label={`Remove break ${index + 1}`} onClick={() => setDraftBreaks((previous) => previous.filter((_, itemIndex) => itemIndex !== index))}>
+                          <Trash2 size={14} aria-hidden="true" />
+                        </button>
+                      </div>
+                      <div className="bb-schedule-avail-sidebar-times">
+                        <TimeField label="Start" value={row.start} onChange={(next) => updateBreak(index, { start: next })} />
+                        <TimeField label="End" value={row.end} onChange={(next) => updateBreak(index, { end: next })} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {canEditDayTimes ? (
+                <>
+                  <div className="bb-schedule-avail-sidebar-add-row">
+                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])}>
+                      <Plus size={15} aria-hidden="true" /> Shift
+                    </button>
+                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftBreaks((prev) => [...prev, { start: '12:00', end: '13:00' }])}>
+                      <Plus size={15} aria-hidden="true" /> Break
+                    </button>
+                  </div>
+                  <button type="button" className="bb-primary-btn bb-schedule-avail-sidebar-save" disabled={!canSaveDay} onClick={() => saveDay()}>
+                    Save day
+                  </button>
                 </>
               ) : null}
             </section>
           ) : null}
-          <p className="bb-schedule-avail-sidebar-window">Booking window<br /><strong>{bookableWindowLabel.replace('Availability period · ', '')}</strong></p>
+          <section className="bb-schedule-side-section bb-schedule-availability-window">
+            <span className="bb-schedule-side-label">Booking period</span>
+            <strong>{bookableWindowLabel.replace('Availability period · ', '')}</strong>
+          </section>
         </aside>
-        <main className="bb-schedule-avail-content">
+        <main className="bb-schedule-main bb-schedule-avail-content">
       <section className="bb-schedule-avail-panel">
         <div className="bb-schedule-avail-cal-head">
           <div className="bb-schedule-avail-cal-copy">
@@ -1222,13 +1285,13 @@ export function ScheduleAvailabilityEditor({
         />
       ) : null}
 
-      {applyShiftOpen && !isBusinessFocus && canEditDayTimes && draftShifts[0] ? (
+      {applyShiftIndex != null && !isBusinessFocus && canEditDayTimes && draftShifts[applyShiftIndex] ? (
         <ApplyShiftDatesSheet
           initialDay={selectedDay}
-          shift={draftShifts[0]}
+          shift={draftShifts[applyShiftIndex]}
           availabilityRules={availabilityRules}
           resolveStatus={(key) => resolveCalendarDayStatus(staffId, key, { [staffId]: entry }, availabilityRules)}
-          onClose={() => setApplyShiftOpen(false)}
+          onClose={() => setApplyShiftIndex(null)}
           onApply={applyShiftToDates}
         />
       ) : null}

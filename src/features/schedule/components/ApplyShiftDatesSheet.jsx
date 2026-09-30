@@ -60,6 +60,7 @@ export function ApplyShiftDatesSheet({
       lede={`Choose one or more dates for the ${shiftLabel} shift. Booking dates are limited to ${windowLabel}.`}
       labelledBy="apply-shift-dates-title"
       panelClassName="bb-schedule-avail-sheet-panel bb-schedule-apply-shift-panel"
+      bodyClassName="bb-schedule-avail bb-schedule-apply-shift-body"
       footer={
         <div className="bb-services-sheet-footer-actions">
           <button type="button" className="bb-ghost-btn" onClick={onClose}>Cancel</button>
