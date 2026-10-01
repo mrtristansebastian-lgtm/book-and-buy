@@ -491,6 +491,13 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
   -webkit-backdrop-filter: blur(14px) saturate(1.15);
 }
 
+/* Home is a dashboard canvas: let its greeting/header scroll naturally with the page. */
+.bb-shell.is-launcher .bb-owner-main .bb-launcher-header {
+  position: static;
+  top: auto;
+  z-index: auto;
+}
+
 /* Owner app headings sit directly on the workspace canvas. */
 .bb-owner-main :is(
   .bb-page-chrome,
@@ -1394,6 +1401,15 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
 .bb-owner-layout {
   position: relative;
 }
+
+/* Match the menu's white panel surface, retaining the heading colour splash. */
+.bb-shell:has(.bb-launcher.is-home-only),
+.bb-owner-content:has(.bb-launcher.is-home-only),
+.bb-owner-main:has(.bb-launcher.is-home-only),
+.bb-launcher.is-home-only {
+  background: var(--bb-panel);
+}
+
 
 @media (max-width: 899px) {
   .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) {

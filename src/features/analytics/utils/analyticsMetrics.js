@@ -5,11 +5,18 @@ import {
   periodTitle
 } from '../../finance/utils/financeLedger';
 import { buildChartGeometry } from '../../finance/utils/financeChartScale';
-import { LIVE_WINDOW_MS } from '../../../shared/analytics/beacon';
+import {
+  LIVE_COMMERCE_WINDOW_MS,
+  LIVE_VISITOR_WINDOW_MS,
+  liveActivityMs,
+  validGeoCoordinates
+} from '../../../shared/analytics/livePresence';
 
 export { FINANCE_PERIODS as ANALYTICS_PERIODS, formatMoney, periodTitle, getPeriodBounds };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const LIVE_WINDOW_MS = LIVE_VISITOR_WINDOW_MS;
+const LIVE_CART_WINDOW_MS = LIVE_COMMERCE_WINDOW_MS;
 
 function inBounds(at, start, end) {
   const t = Number(at) || 0;
@@ -30,24 +37,58 @@ export function filterByPeriod(rows, periodId, customRange, timeKey = 'at') {
 
 export function computeLiveStrip({ sessions = [], carts = [], now = Date.now() } = {}) {
   const liveCutoff = now - LIVE_WINDOW_MS;
-  const liveSessions = sessions.filter(
-    (s) => Number(s.lastSeenAt) >= liveCutoff && !s.isBot
-  );
+  const liveSessions = sessions.filter((s) => liveActivityMs(s) >= liveCutoff && !s.isBot);
   const activeCarts = carts.filter(
     (c) =>
       (c.status === 'active' || c.status === 'checkout') &&
-      Number(c.updatedAt) >= now - 30 * 60 * 1000 &&
+      Number(c.updatedAt) >= now - LIVE_CART_WINDOW_MS &&
       (c.items?.length || 0) > 0
   );
-  const activeCheckouts = carts.filter(
-    (c) => c.status === 'checkout' && Number(c.updatedAt) >= now - 30 * 60 * 1000
-  );
+  const activeCheckouts = activeCarts.filter((c) => c.status === 'checkout');
   return {
     liveVisitors: liveSessions.length,
     activeCarts: activeCarts.length,
     activeCheckouts: activeCheckouts.length,
     livePaths: rankCounts(liveSessions.map((s) => s.path || '/')).slice(0, 5)
   };
+}
+
+/** Current, non-bot sessions for the Live Stats operations view. */
+export function liveSessionRows(sessions = [], now = Date.now()) {
+  const liveCutoff = now - LIVE_WINDOW_MS;
+  return (sessions || [])
+    .filter((session) => liveActivityMs(session) >= liveCutoff && !session.isBot)
+    .sort((a, b) => liveActivityMs(b) - liveActivityMs(a))
+    .map((session, index) => {
+      const latitude = Number(session.latitude);
+      const longitude = Number(session.longitude);
+      const hasCoordinates = validGeoCoordinates(latitude, longitude);
+      return {
+        id:
+          session.sessionId ||
+          `${String(session.path || '/')}-${liveActivityMs(session)}-${index}`,
+        path: String(session.path || '/'),
+        city: String(session.city || '').trim(),
+        region: String(session.region || '').trim(),
+        country: String(session.country || '').trim(),
+        device: String(session.device || '').trim().toLowerCase(),
+        latitude: hasCoordinates ? latitude : null,
+        longitude: hasCoordinates ? longitude : null,
+        lastSeenAt: liveActivityMs(session)
+      };
+    });
+}
+
+export function formatLiveRelativeTime(at, now = Date.now()) {
+  const diff = Math.max(0, Number(now || Date.now()) - Number(at || 0));
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 10) return 'now';
+  if (seconds < 60) return `${seconds}s ago`;
+  const mins = Math.floor(seconds / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 export function computeAnalyticsKpis({
@@ -394,13 +435,13 @@ export function activeCartRows(carts = [], now = Date.now()) {
     .filter(
       (c) =>
         (c.status === 'active' || c.status === 'checkout') &&
-        Number(c.updatedAt) >= now - 24 * 60 * 60 * 1000 &&
+        Number(c.updatedAt) >= now - LIVE_CART_WINDOW_MS &&
         (c.items?.length || 0) > 0
     )
     .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
     .slice(0, 12)
     .map((c) => ({
-      id: c.cartId,
+      id: c.cartId || c.id || `${c.status}-${Number(c.updatedAt || 0)}`,
       status: c.status,
       valueCents: c.valueCents || 0,
       itemCount: (c.items || []).reduce((sum, i) => sum + (i.quantity || 0), 0),
@@ -418,11 +459,11 @@ export function buildDemoAnalytics({ now = Date.now() } = {}) {
   const events = [];
   const carts = [];
   const geos = [
-    { country: 'ZA', region: 'Gauteng', city: 'Johannesburg' },
-    { country: 'ZA', region: 'Western Cape', city: 'Cape Town' },
-    { country: 'GB', region: 'England', city: 'London' },
-    { country: 'US', region: 'California', city: 'Los Angeles' },
-    { country: 'AU', region: 'NSW', city: 'Sydney' }
+    { country: 'ZA', region: 'Gauteng', city: 'Johannesburg', latitude: -26.2, longitude: 28.0 },
+    { country: 'ZA', region: 'Western Cape', city: 'Cape Town', latitude: -33.9, longitude: 18.4 },
+    { country: 'GB', region: 'England', city: 'London', latitude: 51.5, longitude: -0.1 },
+    { country: 'US', region: 'California', city: 'Los Angeles', latitude: 34.1, longitude: -118.2 },
+    { country: 'AU', region: 'NSW', city: 'Sydney', latitude: -33.9, longitude: 151.2 }
   ];
   const paths = ['/home', '/buy', '/book', '/buy/loaf-01', '/checkout'];
   const products = ['Sourdough loaf', 'Weekend brunch', 'Gift box', 'Flat white'];
@@ -434,7 +475,10 @@ export function buildDemoAnalytics({ now = Date.now() } = {}) {
     sessions.push({
       sessionId: sid,
       startedAt: at,
-      lastSeenAt: i < 4 ? now - i * 8000 : at + 120000,
+      lastSeenAt:
+        i < 4
+          ? now - i * 8000
+          : Math.min(at + 120000, now - LIVE_WINDOW_MS - 1000),
       path: paths[i % paths.length],
       referrer: i % 3 === 0 ? 'https://instagram.com' : i % 5 === 0 ? 'https://google.com' : '',
       ...geo,

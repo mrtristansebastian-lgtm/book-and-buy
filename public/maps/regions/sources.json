@@ -1,0 +1,665 @@
+{
+  "checkedAt": "2026-10-01",
+  "countries": [
+    {
+      "code": "GRC",
+      "iso2": "GR",
+      "units": 14,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2016",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: EuroGeoGraphics, Regional IM Working Group - Europe",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/GRC/ADM2/geoBoundaries-GRC-ADM2.topojson",
+        "boundaryID": "GRC-ADM2-26713481",
+        "level": "ADM2",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "MLT",
+      "iso2": "MT",
+      "units": 68,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2022",
+        "license": "Public Domain",
+        "attribution": "geoBoundaries / William & Mary; original source: geoBoundaries, d-maps.com",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/MLT/ADM1/geoBoundaries-MLT-ADM1.topojson",
+        "boundaryID": "MLT-ADM1-83640313",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "MEX",
+      "iso2": "MX",
+      "units": 32,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2020",
+        "license": "Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)",
+        "attribution": "geoBoundaries / William & Mary; original source: Instituto Nacional de Estadística y Geografía (INEGI)",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/90a1d52/releaseData/gbOpen/MEX/ADM1/geoBoundaries-MEX-ADM1_simplified.geojson",
+        "boundaryID": "MEX-ADM1-31927357",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "ESP",
+      "iso2": "ES",
+      "units": 19,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: Instituto de Geografico Nacional",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/ESP/ADM1/geoBoundaries-ESP-ADM1_simplified.geojson",
+        "boundaryID": "ESP-ADM1-25490228",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "HUN",
+      "iso2": "HU",
+      "units": 20,
+      "source": {
+        "name": "European Commission – Eurostat/GISCO",
+        "year": "2024",
+        "license": "Eurostat geographic data reuse terms",
+        "attribution": "© EuroGeographics for the administrative boundaries. Source: European Commission – Eurostat/GISCO. NUTS 3: 19 counties and Budapest.",
+        "url": "https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/territorial-units-statistics"
+      }
+    },
+    {
+      "code": "LVA",
+      "iso2": "LV",
+      "units": 42,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2021; Madona/Varakļāni merger effective 2025-07-01",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: Geoportal of Latvia; merger verified against Madona Municipality: https://www.madona.lv/lat/?ct=pagasti",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/LVA/ADM1/geoBoundaries-LVA-ADM1_simplified.geojson",
+        "boundaryID": "LVA-ADM1-71098776",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "PRT",
+      "iso2": "PT",
+      "units": 20,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2016",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: DG Territory",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/PRT/ADM1/geoBoundaries-PRT-ADM1_simplified.geojson",
+        "boundaryID": "PRT-ADM1-24955722",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "FRA",
+      "iso2": "FR",
+      "units": 18,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2022",
+        "license": "Etalab Open License 2.0",
+        "attribution": "geoBoundaries / William & Mary; original source: Institut national de l'information géographique et forestière (IGN-F); five overseas regions: Natural Earth 1:10m, public domain, pinned ca96624a56bd078437bca8184e78163e5039ad19",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/FRA/ADM1/geoBoundaries-FRA-ADM1_simplified.geojson",
+        "boundaryID": "FRA-ADM1-19338628",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "AUS",
+      "iso2": "AU",
+      "units": 9,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2021",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: Australian Bureau of Statistics",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/AUS/ADM1/geoBoundaries-AUS-ADM1_simplified.geojson",
+        "boundaryID": "AUS-ADM1-82085004",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "AUT",
+      "iso2": "AT",
+      "units": 9,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Creative Commons Attribution-ShareAlike 2.0",
+        "attribution": "geoBoundaries / William & Mary; original source: geoBoundaries, Federal Office for Metrology and Survey, Austria",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/AUT/ADM1/geoBoundaries-AUT-ADM1_simplified.geojson",
+        "boundaryID": "AUT-ADM1-97560089",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "BEL",
+      "iso2": "BE",
+      "units": 3,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2022",
+        "license": "Creative Commons Attribution 4.0 (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: Eurostat- European Commission",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/BEL/ADM1/geoBoundaries-BEL-ADM1.topojson",
+        "boundaryID": "BEL-ADM1-27649430",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "BRA",
+      "iso2": "BR",
+      "units": 27,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2006",
+        "license": "Creative Commons Attribution 2.5 Generic",
+        "attribution": "geoBoundaries / William & Mary; original source: geoBoundaries, Wikimedia Commons",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/BRA/ADM1/geoBoundaries-BRA-ADM1.topojson",
+        "boundaryID": "BRA-ADM1-14911670",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "BGR",
+      "iso2": "BG",
+      "units": 28,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2019",
+        "license": "Public Domain",
+        "attribution": "geoBoundaries / William & Mary; original source: geoBoundaries, Wikimedia",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/BGR/ADM1/geoBoundaries-BGR-ADM1.topojson",
+        "boundaryID": "BGR-ADM1-22928101",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "CAN",
+      "iso2": "CA",
+      "units": 13,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2023",
+        "license": "Open Government Canada 2.0",
+        "attribution": "geoBoundaries / William & Mary; original source: Statistics Canada (StatCan)",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/41af8f1/releaseData/gbOpen/CAN/ADM1/geoBoundaries-CAN-ADM1_simplified.geojson",
+        "boundaryID": "CAN-ADM1-82249235",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "HRV",
+      "iso2": "HR",
+      "units": 21,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/HRV/ADM1/geoBoundaries-HRV-ADM1_simplified.geojson",
+        "boundaryID": "HRV-ADM1-27960609",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "CYP",
+      "iso2": "CY",
+      "units": 6,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/CYP/ADM1/geoBoundaries-CYP-ADM1.topojson",
+        "boundaryID": "CYP-ADM1-96831152",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "CZE",
+      "iso2": "CZ",
+      "units": 14,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2021",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: Czech Office for Surveying",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/CZE/ADM1/geoBoundaries-CZE-ADM1_simplified.geojson",
+        "boundaryID": "CZE-ADM1-73172107",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "DNK",
+      "iso2": "DK",
+      "units": 5,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2021",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: geoBoundaries, Web Vectors Map",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/DNK/ADM1/geoBoundaries-DNK-ADM1.topojson",
+        "boundaryID": "DNK-ADM1-84455774",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "EST",
+      "iso2": "EE",
+      "units": 15,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2016",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/EST/ADM1/geoBoundaries-EST-ADM1_simplified.geojson",
+        "boundaryID": "EST-ADM1-21999144",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "FIN",
+      "iso2": "FI",
+      "units": 19,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/FIN/ADM1/geoBoundaries-FIN-ADM1_simplified.geojson",
+        "boundaryID": "FIN-ADM1-49019192",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "DEU",
+      "iso2": "DE",
+      "units": 16,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2021",
+        "license": "Data license Germany - Attribution - Version 2.0",
+        "attribution": "geoBoundaries / William & Mary; original source: Federal Agency for Cartography and Geodesy",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/DEU/ADM1/geoBoundaries-DEU-ADM1.topojson",
+        "boundaryID": "DEU-ADM1-10402087",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "GIB",
+      "iso2": "GI",
+      "units": 1,
+      "source": {
+        "name": "Natural Earth 1:10m",
+        "year": "Pinned source revision ca96624a",
+        "license": "Public domain",
+        "attribution": "Natural Earth. Gibraltar is shown as a single territory; it has no province/state tier.",
+        "url": "https://www.naturalearthdata.com/"
+      }
+    },
+    {
+      "code": "HKG",
+      "iso2": "HK",
+      "units": 18,
+      "source": {
+        "name": "Hong Kong Home Affairs Department",
+        "year": "Official district boundary download, 2026-10-01",
+        "license": "Hong Kong Government open-data terms",
+        "attribution": "Source: Home Affairs Department, Hong Kong SAR Government",
+        "url": "https://data.gov.hk/en-data/dataset/hk-had-json1-hong-kong-administrative-boundaries"
+      }
+    },
+    {
+      "code": "IRL",
+      "iso2": "IE",
+      "units": 4,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2022",
+        "license": "Creative Commons Attribution 4.0 (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: Ordce Survey Ireland",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/IRL/ADM1/geoBoundaries-IRL-ADM1_simplified.geojson",
+        "boundaryID": "IRL-ADM1-36931253",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "ITA",
+      "iso2": "IT",
+      "units": 20,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2023",
+        "license": "Creative Commons Attribution 3.0 License",
+        "attribution": "geoBoundaries / William & Mary; original source: ISTAT, National Institute of Statistics",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/ITA/ADM2/geoBoundaries-ITA-ADM2_simplified.geojson",
+        "boundaryID": "ITA-ADM2-23120603",
+        "level": "ADM2",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "JPN",
+      "iso2": "JP",
+      "units": 47,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/JPN/ADM1/geoBoundaries-JPN-ADM1_simplified.geojson",
+        "boundaryID": "JPN-ADM1-47310658",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "LIE",
+      "iso2": "LI",
+      "units": 11,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/LIE/ADM1/geoBoundaries-LIE-ADM1.topojson",
+        "boundaryID": "LIE-ADM1-41692755",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "LTU",
+      "iso2": "LT",
+      "units": 10,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/LTU/ADM1/geoBoundaries-LTU-ADM1.topojson",
+        "boundaryID": "LTU-ADM1-39236102",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "LUX",
+      "iso2": "LU",
+      "units": 12,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/LUX/ADM1/geoBoundaries-LUX-ADM1.topojson",
+        "boundaryID": "LUX-ADM1-76397094",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "MYS",
+      "iso2": "MY",
+      "units": 16,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/MYS/ADM1/geoBoundaries-MYS-ADM1.topojson",
+        "boundaryID": "MYS-ADM1-15666254",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "NLD",
+      "iso2": "NL",
+      "units": 12,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2022",
+        "license": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+        "attribution": "geoBoundaries / William & Mary; original source: National Georegister",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/NLD/ADM1/geoBoundaries-NLD-ADM1.topojson",
+        "boundaryID": "NLD-ADM1-6811986",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "NZL",
+      "iso2": "NZ",
+      "units": 17,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: NZ Stats",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/NZL/ADM1/geoBoundaries-NZL-ADM1_simplified.geojson",
+        "boundaryID": "NZL-ADM1-40311993",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "NOR",
+      "iso2": "NO",
+      "units": 15,
+      "source": {
+        "name": "Kartverket / Geonorge",
+        "year": "2026 distribution, 2024 county structure",
+        "license": "Norwegian Licence for Open Government Data (NLOD)",
+        "attribution": "Source: Kartverket, Administrative units of Norway",
+        "url": "https://testnedlasting.geonorge.no/geonorge/Basisdata/Fylker/GeoJSON/Basisdata_0000_Norge_4258_Fylker_GeoJSON.zip"
+      }
+    },
+    {
+      "code": "POL",
+      "iso2": "PL",
+      "units": 16,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/POL/ADM1/geoBoundaries-POL-ADM1_simplified.geojson",
+        "boundaryID": "POL-ADM1-17162690",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "ROU",
+      "iso2": "RO",
+      "units": 42,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: World Bank",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/ROU/ADM1/geoBoundaries-ROU-ADM1_simplified.geojson",
+        "boundaryID": "ROU-ADM1-36066543",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "SGP",
+      "iso2": "SG",
+      "units": 5,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2016",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: Urban Redevelopment Authority, derived from ADM 3",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/SGP/ADM1/geoBoundaries-SGP-ADM1.topojson",
+        "boundaryID": "SGP-ADM1-49756563",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "SVK",
+      "iso2": "SK",
+      "units": 8,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/SVK/ADM1/geoBoundaries-SVK-ADM1.topojson",
+        "boundaryID": "SVK-ADM1-25762395",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "SVN",
+      "iso2": "SI",
+      "units": 212,
+      "source": {
+        "name": "European Commission – Eurostat/GISCO",
+        "year": "2024",
+        "license": "Eurostat geographic data reuse terms",
+        "attribution": "© EuroGeographics for the administrative boundaries. Source: European Commission – Eurostat/GISCO",
+        "url": "https://ec.europa.eu/eurostat/web/gisco/geodata/statistical-units/local-administrative-units"
+      }
+    },
+    {
+      "code": "ZAF",
+      "iso2": "ZA",
+      "units": 9,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2020",
+        "license": "Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)",
+        "attribution": "geoBoundaries / William & Mary; original source: OCHA ROSEA, South African Municipal Demarcation Board",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/ZAF/ADM1/geoBoundaries-ZAF-ADM1_simplified.geojson",
+        "boundaryID": "ZAF-ADM1-76434192",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "SWE",
+      "iso2": "SE",
+      "units": 21,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2009",
+        "license": "Creative Commons Attribution 3.0 License",
+        "attribution": "geoBoundaries / William & Mary; original source: geoBoundaries, Erik Frohne",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/SWE/ADM1/geoBoundaries-SWE-ADM1_simplified.geojson",
+        "boundaryID": "SWE-ADM1-68755315",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "CHE",
+      "iso2": "CH",
+      "units": 26,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2022",
+        "license": "Federal Office of Topography swisstopo License",
+        "attribution": "geoBoundaries / William & Mary; original source: Federal Office of Topography swisstopo",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/CHE/ADM1/geoBoundaries-CHE-ADM1_simplified.geojson",
+        "boundaryID": "CHE-ADM1-70761945",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    },
+    {
+      "code": "THA",
+      "iso2": "TH",
+      "units": 77,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/THA/ADM1/geoBoundaries-THA-ADM1.topojson",
+        "boundaryID": "THA-ADM1-36821470",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "ARE",
+      "iso2": "AE",
+      "units": 7,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2017",
+        "license": "Open Data Commons Open Database License 1.0",
+        "attribution": "geoBoundaries / William & Mary; original source: OpenStreetMap, Wambacher",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/ARE/ADM1/geoBoundaries-ARE-ADM1.topojson",
+        "boundaryID": "ARE-ADM1-86790563",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "GBR",
+      "iso2": "GB",
+      "units": 4,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2021",
+        "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+        "attribution": "geoBoundaries / William & Mary; original source: Eurostat- European Commission",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/GBR/ADM1/geoBoundaries-GBR-ADM1.topojson",
+        "boundaryID": "GBR-ADM1-14339913",
+        "level": "ADM1",
+        "cartographicSource": false
+      }
+    },
+    {
+      "code": "USA",
+      "iso2": "US",
+      "units": 56,
+      "source": {
+        "name": "geoBoundaries gbOpen",
+        "year": "2018",
+        "license": "Public Domain",
+        "attribution": "geoBoundaries / William & Mary; original source: United States Census Bureau, MAF/TIGER Database",
+        "url": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/USA/ADM1/geoBoundaries-USA-ADM1_simplified.geojson",
+        "boundaryID": "USA-ADM1-66186276",
+        "level": "ADM1",
+        "cartographicSource": true
+      }
+    }
+  ]
+}

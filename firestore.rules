@@ -376,7 +376,12 @@ service cloud.firestore {
     }
 
     function analyticsSessionValid() {
-      return request.resource.data.sessionId is string &&
+      return request.resource.data.keys().hasOnly([
+          'sessionId', 'slug', 'ownerId', 'startedAt', 'lastSeenAt', 'path',
+          'referrer', 'country', 'region', 'city', 'latitude', 'longitude',
+          'device', 'isBot', 'updatedAt'
+        ]) &&
+        request.resource.data.sessionId is string &&
         request.resource.data.sessionId.size() >= 8 &&
         request.resource.data.sessionId.size() <= 80 &&
         request.resource.data.slug is string &&
@@ -388,7 +393,33 @@ service cloud.firestore {
         request.resource.data.startedAt is number &&
         request.resource.data.lastSeenAt is number &&
         request.resource.data.path is string &&
-        request.resource.data.path.size() <= 500;
+        request.resource.data.path.size() <= 500 &&
+        request.resource.data.referrer is string &&
+        request.resource.data.referrer.size() <= 500 &&
+        request.resource.data.country is string &&
+        request.resource.data.country.size() <= 64 &&
+        request.resource.data.region is string &&
+        request.resource.data.region.size() <= 80 &&
+        request.resource.data.city is string &&
+        request.resource.data.city.size() <= 80 &&
+        request.resource.data.device in ['mobile', 'tablet', 'desktop', 'unknown'] &&
+        request.resource.data.isBot == false &&
+        request.resource.data.updatedAt is timestamp &&
+        request.resource.data.updatedAt == request.time &&
+        (
+          (
+            !request.resource.data.keys().hasAny(['latitude']) &&
+            !request.resource.data.keys().hasAny(['longitude'])
+          ) ||
+          (
+            request.resource.data.latitude is number &&
+            request.resource.data.latitude >= -90 &&
+            request.resource.data.latitude <= 90 &&
+            request.resource.data.longitude is number &&
+            request.resource.data.longitude >= -180 &&
+            request.resource.data.longitude <= 180
+          )
+        );
     }
 
     function analyticsEventValid() {
@@ -415,7 +446,11 @@ service cloud.firestore {
     }
 
     function analyticsCartValid() {
-      return request.resource.data.cartId is string &&
+      return request.resource.data.keys().hasOnly([
+          'cartId', 'sessionId', 'slug', 'ownerId', 'status', 'valueCents',
+          'items', 'updatedAt', 'serverUpdatedAt'
+        ]) &&
+        request.resource.data.cartId is string &&
         request.resource.data.cartId.size() >= 8 &&
         request.resource.data.cartId.size() <= 80 &&
         request.resource.data.sessionId is string &&
@@ -432,6 +467,8 @@ service cloud.firestore {
         request.resource.data.valueCents >= 0 &&
         request.resource.data.valueCents <= 100000000 &&
         request.resource.data.updatedAt is number &&
+        request.resource.data.serverUpdatedAt is timestamp &&
+        request.resource.data.serverUpdatedAt == request.time &&
         request.resource.data.items is list &&
         request.resource.data.items.size() <= 50;
     }

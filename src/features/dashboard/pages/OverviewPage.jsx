@@ -17,6 +17,8 @@ import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
+import { useLivePresence } from '../../analytics/hooks/useLivePresence';
+import { AnalyticsLiveWorldMap } from '../../analytics/components/AnalyticsLiveWorldMap';
 
 function greetingForHour(hour) {
   if (hour < 12) return 'Good morning';
@@ -55,6 +57,7 @@ export function OverviewPage() {
   const { user } = useAuth();
   const { workspace, staff, bookings, orders, services } = useWorkspace();
   const { pendingRequests, pendingOrders, unreadSupport } = useWorkspaceBadges();
+  const livePresence = useLivePresence();
   const [copied, setCopied] = useState(false);
   const [periodId, setPeriodId] = useState('week');
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
@@ -256,6 +259,20 @@ export function OverviewPage() {
           </button>
         ))}
       </section>
+
+      <div className="bb-launcher-enter" style={{ '--i': 1.35 }}>
+        <AnalyticsLiveWorldMap
+          sessions={livePresence.liveSessions}
+          total={livePresence.liveCount}
+          totalLabel={livePresence.liveCountLabel}
+          now={livePresence.activityNow}
+          loading={livePresence.loading}
+          error={livePresence.error}
+          usingDemo={livePresence.usingDemo}
+          variant="home"
+          onOpenLiveStats={() => navigate('/dashboard/live-stats')}
+        />
+      </div>
     </div>
   );
 }

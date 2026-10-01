@@ -2,10 +2,18 @@ import { doc, setDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from '../firebase/client';
 import { analyticsCartPath, analyticsSessionPath } from '../firebase/paths';
+import {
+  GEO_CACHE_MS,
+  LIVE_VISITOR_WINDOW_MS,
+  presenceWriteDue,
+  roundApproxCoordinate,
+  shouldReuseAnalyticsSession,
+  validGeoCoordinates
+} from './livePresence';
 
 const SESSION_KEY = 'bb_analytics_sid';
+const WRITE_KEY = 'bb_analytics_presence_write';
 const GEO_KEY = 'bb_analytics_geo';
-const HEARTBEAT_MS = 20_000;
 
 export type AnalyticsEventType =
   | 'page_view'
@@ -38,14 +46,14 @@ type GeoInfo = {
   country?: string;
   region?: string;
   city?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
-let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
-let visibilityBound = false;
 let geoPromise: Promise<GeoInfo> | null = null;
 let lastPath = '';
-let sessionStartedAt = 0;
 let commerceOnly = false;
+const memoryStorage = new Map<string, Record<string, unknown>>();
 
 function isBot(): boolean {
   if (typeof navigator === 'undefined') return true;
@@ -67,35 +75,61 @@ function deviceLabel(): string {
   return 'desktop';
 }
 
-export function getAnalyticsSessionId(): string {
-  if (typeof sessionStorage === 'undefined') {
-    return `tmp_${Date.now().toString(36)}`;
-  }
-  let id = sessionStorage.getItem(SESSION_KEY);
-  if (!id) {
-    id =
-      typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
-    sessionStorage.setItem(SESSION_KEY, id);
-  }
-  return id;
+function storageScope(ctx: SessionContext): string {
+  return `${ctx.ownerId || 'owner'}:${ctx.slug || 'store'}`.replace(/[^a-zA-Z0-9:_-]/g, '_');
 }
 
-export function getAnalyticsCartId(): string {
-  return `cart_${getAnalyticsSessionId()}`;
+function readStoredJson(key: string): Record<string, unknown> | null {
+  if (typeof localStorage === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : memoryStorage.get(key) || null;
+  } catch {
+    return memoryStorage.get(key) || null;
+  }
+}
+
+function writeStoredJson(key: string, value: Record<string, unknown>) {
+  memoryStorage.set(key, value);
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* storage is best-effort */
+  }
+}
+
+function createSessionId(): string {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getAnalyticsSession(ctx: SessionContext, now = Date.now()) {
+  const key = `${SESSION_KEY}:${storageScope(ctx)}`;
+  const stored = readStoredJson(key);
+  const storedId = String(stored?.id || '');
+  const startedAt = Number(stored?.startedAt || 0);
+  const reusable = shouldReuseAnalyticsSession(stored, now);
+  const session = reusable
+    ? { id: storedId, startedAt, lastActivityAt: now }
+    : { id: createSessionId(), startedAt: now, lastActivityAt: now };
+  writeStoredJson(key, session);
+  return session;
+}
+
+export function getAnalyticsSessionId(ctx: SessionContext): string {
+  return getAnalyticsSession(ctx).id;
+}
+
+export function getAnalyticsCartId(ctx: SessionContext): string {
+  return `cart_${getAnalyticsSessionId(ctx)}`;
 }
 
 async function resolveGeo(): Promise<GeoInfo> {
-  if (typeof sessionStorage !== 'undefined') {
-    const cached = sessionStorage.getItem(GEO_KEY);
-    if (cached) {
-      try {
-        return JSON.parse(cached) as GeoInfo;
-      } catch {
-        /* ignore */
-      }
-    }
+  const cached = readStoredJson(GEO_KEY);
+  if (cached && Date.now() - Number(cached.fetchedAt || 0) <= GEO_CACHE_MS) {
+    return cached as GeoInfo;
   }
   if (geoPromise) return geoPromise;
   geoPromise = (async () => {
@@ -110,45 +144,74 @@ async function resolveGeo(): Promise<GeoInfo> {
       const geo: GeoInfo = {
         country: String(data.country_code || data.country || '').slice(0, 64),
         region: String(data.region || '').slice(0, 80),
-        city: String(data.city || '').slice(0, 80)
+        city: String(data.city || '').slice(0, 80),
+        latitude: roundApproxCoordinate(data.latitude) ?? undefined,
+        longitude: roundApproxCoordinate(data.longitude) ?? undefined
       };
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem(GEO_KEY, JSON.stringify(geo));
-      }
+      writeStoredJson(GEO_KEY, { ...geo, fetchedAt: Date.now() });
       return geo;
     } catch {
       return {};
     }
   })();
-  return geoPromise;
+  try {
+    return await geoPromise;
+  } finally {
+    geoPromise = null;
+  }
 }
 
 function canWritePresence(): boolean {
-  return isFirebaseConfigured() && !isBot() && !commerceOnly;
+  return isFirebaseConfigured() && !isBot() && !prefersDnt() && !commerceOnly;
 }
 
 function canWriteCommerce(): boolean {
   return isFirebaseConfigured() && !isBot();
 }
 
+function currentPublicPath(fallback = '/') {
+  return typeof window !== 'undefined'
+    ? `${window.location.pathname}${window.location.hash || ''}`.slice(0, 500)
+    : fallback;
+}
+
+function presenceWriteAllowed(ctx: SessionContext, now: number) {
+  const key = `${WRITE_KEY}:${storageScope(ctx)}`;
+  const stored = readStoredJson(key);
+  if (!presenceWriteDue(stored?.at, now)) return false;
+  writeStoredJson(key, { at: now });
+  return true;
+}
+
 async function upsertSession(ctx: SessionContext, path: string) {
+  if (typeof navigator !== 'undefined' && navigator.locks) {
+    return navigator.locks.request(`bb-presence:${storageScope(ctx)}`, () => writePresence(ctx, path));
+  }
+  return writePresence(ctx, path);
+}
+
+async function writePresence(ctx: SessionContext, path: string) {
   if (!canWritePresence()) return;
+  if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
   const firebase = getFirebase();
   if (!firebase || !ctx.slug || !ctx.ownerId) return;
 
-  const sessionId = getAnalyticsSessionId();
   const now = Date.now();
-  if (!sessionStartedAt) sessionStartedAt = now;
+  const session = getAnalyticsSession(ctx, now);
+  if (!presenceWriteAllowed(ctx, now)) return;
   const geo = await resolveGeo();
-  const ref = doc(firebase.db, ...analyticsSessionPath(APP_ID, sessionId));
+  const ref = doc(firebase.db, ...analyticsSessionPath(APP_ID, session.id));
+  const coordinates = validGeoCoordinates(geo.latitude, geo.longitude)
+    ? { latitude: geo.latitude, longitude: geo.longitude }
+    : {};
   try {
     await setDoc(
       ref,
       {
-        sessionId,
+        sessionId: session.id,
         slug: ctx.slug,
         ownerId: ctx.ownerId,
-        startedAt: sessionStartedAt,
+        startedAt: session.startedAt,
         lastSeenAt: now,
         path: String(path || '/').slice(0, 500),
         referrer:
@@ -156,6 +219,7 @@ async function upsertSession(ctx: SessionContext, path: string) {
         country: geo.country || '',
         region: geo.region || '',
         city: geo.city || '',
+        ...coordinates,
         device: deviceLabel(),
         isBot: false,
         updatedAt: serverTimestamp()
@@ -186,7 +250,7 @@ export async function trackAnalyticsEvent(
     const ref = doc(collection(firebase.db, 'artifacts', APP_ID, 'analyticsEvents'));
     await setDoc(ref, {
       type,
-      sessionId: getAnalyticsSessionId(),
+      sessionId: getAnalyticsSessionId(ctx),
       slug: ctx.slug,
       ownerId: ctx.ownerId,
       at: Date.now(),
@@ -215,8 +279,8 @@ export async function upsertAnalyticsCart(
   const firebase = getFirebase();
   if (!firebase || !ctx.slug || !ctx.ownerId) return;
 
-  const sessionId = getAnalyticsSessionId();
-  const cartId = getAnalyticsCartId();
+  const sessionId = getAnalyticsSessionId(ctx);
+  const cartId = getAnalyticsCartId(ctx);
   const ref = doc(firebase.db, ...analyticsCartPath(APP_ID, cartId));
   const safeItems = (items || []).slice(0, 50).map((item) => ({
     lineKey: String(item.lineKey || '').slice(0, 120),
@@ -254,47 +318,25 @@ export function startAnalyticsBeacon(ctx: SessionContext) {
   if (!ctx.slug || !ctx.ownerId) return () => {};
   if (isBot()) return () => {};
 
-  const path =
-    typeof window !== 'undefined'
-      ? `${window.location.pathname}${window.location.hash || ''}`.slice(0, 500)
-      : ctx.path || '/';
-  lastPath = path;
-
-  if (!commerceOnly) {
-    void upsertSession(ctx, path);
-    void trackAnalyticsEvent('page_view', { ...ctx, path });
-  }
-
-  const tick = () => {
+  const recordActivity = () => {
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
-    const nextPath =
-      typeof window !== 'undefined'
-        ? `${window.location.pathname}${window.location.hash || ''}`.slice(0, 500)
-        : path;
-    if (nextPath !== lastPath) {
-      lastPath = nextPath;
-      if (!commerceOnly) {
-        void trackAnalyticsEvent('page_view', { ...ctx, path: nextPath });
-      }
-    }
+    const nextPath = currentPublicPath(ctx.path || '/');
     if (!commerceOnly) void upsertSession({ ...ctx, path: nextPath }, nextPath);
   };
 
-  if (heartbeatTimer) clearInterval(heartbeatTimer);
-  heartbeatTimer = setInterval(tick, HEARTBEAT_MS);
-
-  if (!visibilityBound && typeof document !== 'undefined') {
-    visibilityBound = true;
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') tick();
-    });
-  }
+  const onVisibility = () => {
+    if (document.visibilityState === 'visible') recordActivity();
+  };
+  document.addEventListener('pointerdown', recordActivity, { capture: true, passive: true });
+  document.addEventListener('keydown', recordActivity, { capture: true });
+  document.addEventListener('scroll', recordActivity, { capture: true, passive: true });
+  document.addEventListener('visibilitychange', onVisibility);
 
   return () => {
-    if (heartbeatTimer) {
-      clearInterval(heartbeatTimer);
-      heartbeatTimer = null;
-    }
+    document.removeEventListener('pointerdown', recordActivity, true);
+    document.removeEventListener('keydown', recordActivity, true);
+    document.removeEventListener('scroll', recordActivity, true);
+    document.removeEventListener('visibilitychange', onVisibility);
   };
 }
 
@@ -316,4 +358,4 @@ export function reportProductView(
   });
 }
 
-export const LIVE_WINDOW_MS = 45_000;
+export const LIVE_WINDOW_MS = LIVE_VISITOR_WINDOW_MS;

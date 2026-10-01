@@ -34,8 +34,8 @@ export function AnalyticsKpiRow({ kpis, currency = 'R' }) {
           className="bb-analytics-kpi"
           style={{ animationDelay: `${index * 40}ms` }}
         >
-          <p className="bb-analytics-kpi-label">{card.label}</p>
           <p className="bb-analytics-kpi-value">{card.value}</p>
+          <p className="bb-analytics-kpi-label">{card.label}</p>
         </article>
       ))}
     </section>

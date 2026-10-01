@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   collection,
+  Timestamp,
   onSnapshot,
+  orderBy,
   query,
   where,
   limit
@@ -11,6 +13,11 @@ import { getFirebase, isFirebaseConfigured } from '../../../shared/firebase/clie
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
+  LIVE_COMMERCE_WINDOW_MS,
+  analyticsTimestampMs
+} from '../../../shared/analytics/livePresence';
+import { useLivePresence } from './useLivePresence';
+import {
   activeCartRows,
   buildDemoAnalytics,
   buildMetricSeries,
@@ -18,6 +25,7 @@ import {
   computeFunnel,
   computeLiveStrip,
   filterByPeriod,
+  liveSessionRows,
   rankPaths,
   rankProducts,
   rankReferrers,
@@ -29,7 +37,8 @@ function mapDocs(snap) {
 }
 
 export function useAnalyticsLive(periodId = 'week', customRange = {}, options = {}) {
-  const { metricId = 'revenue' } = options;
+  const { metricId = 'revenue', mode = 'report' } = options;
+  const liveMode = mode === 'live';
   const { user, isLocalMode } = useAuth();
   const { workspace, orders, bookings, products } = useWorkspace();
   const ownerId = user?.uid || workspace?.ownerId || '';
@@ -43,6 +52,7 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now());
   const [usingDemo, setUsingDemo] = useState(allowDemo);
+  const presence = useLivePresence({ enabled: liveMode });
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 4000);
@@ -50,6 +60,58 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   }, []);
 
   useEffect(() => {
+    if (liveMode) {
+      setSessions([]);
+      setEvents([]);
+      setError('');
+      setUsingDemo(presence.usingDemo);
+      if (!configured) {
+        setCarts(
+          allowDemo
+            ? buildDemoAnalytics({ now: presence.activityNow || Date.now() }).carts
+            : []
+        );
+        setLoading(false);
+        return undefined;
+      }
+
+      const firebase = getFirebase();
+      if (!firebase) {
+        setCarts([]);
+        setLoading(false);
+        return undefined;
+      }
+
+      setCarts([]);
+      setLoading(true);
+      const cutoff = Timestamp.fromMillis(Date.now() - LIVE_COMMERCE_WINDOW_MS);
+      const cartsQ = query(
+        collection(firebase.db, 'artifacts', APP_ID, 'analyticsCarts'),
+        where('ownerId', '==', ownerId),
+        where('serverUpdatedAt', '>=', cutoff),
+        orderBy('serverUpdatedAt', 'desc'),
+        limit(200)
+      );
+      return onSnapshot(
+        cartsQ,
+        (snap) => {
+          setCarts(
+            mapDocs(snap).map((cart) => ({
+              ...cart,
+              updatedAt:
+                analyticsTimestampMs(cart.serverUpdatedAt) || Number(cart.updatedAt || 0)
+            }))
+          );
+          setLoading(false);
+        },
+        (err) => {
+          setCarts([]);
+          setError(err?.message || 'Could not load live carts');
+          setLoading(false);
+        }
+      );
+    }
+
     if (!configured) {
       if (allowDemo) {
         const demo = buildDemoAnalytics();
@@ -152,11 +214,14 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     }
 
     return () => unsubscribers.forEach((unsub) => unsub());
-  }, [configured, ownerId, allowDemo]);
+  }, [configured, ownerId, allowDemo, liveMode]);
+
+  const effectiveSessions = liveMode ? presence.liveSessions : sessions;
+  const effectiveUsingDemo = liveMode ? presence.usingDemo : usingDemo;
 
   const periodSessions = useMemo(
-    () => filterByPeriod(sessions, periodId, customRange, 'startedAt'),
-    [sessions, periodId, customRange]
+    () => filterByPeriod(effectiveSessions, periodId, customRange, 'startedAt'),
+    [effectiveSessions, periodId, customRange]
   );
   const periodEvents = useMemo(
     () => filterByPeriod(events, periodId, customRange, 'at'),
@@ -167,9 +232,22 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     [carts, periodId, customRange]
   );
 
+  // Freeze demo activity at the moment its fixture was created so the live
+  // preview does not expire while someone is reviewing the page.
+  const activityNow = useMemo(() => {
+    if (liveMode) return presence.activityNow;
+    if (!usingDemo) return now;
+    const fixtureNow = Math.max(0, ...carts.map((cart) => Number(cart.updatedAt || 0)));
+    return fixtureNow || now;
+  }, [liveMode, presence.activityNow, usingDemo, carts, now]);
+
   const live = useMemo(
-    () => computeLiveStrip({ sessions, carts, now }),
-    [sessions, carts, now]
+    () => computeLiveStrip({ sessions: effectiveSessions, carts, now: activityNow }),
+    [effectiveSessions, carts, activityNow]
+  );
+  const liveSessions = useMemo(
+    () => liveSessionRows(effectiveSessions, activityNow),
+    [effectiveSessions, activityNow]
   );
 
   const kpis = useMemo(
@@ -222,13 +300,20 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   );
   const topProducts = useMemo(() => rankProducts(periodEvents), [periodEvents]);
   const topReferrers = useMemo(() => rankReferrers(periodSessions), [periodSessions]);
-  const activeCarts = useMemo(() => activeCartRows(carts, now), [carts, now]);
+  const activeCarts = useMemo(
+    () => activeCartRows(carts, activityNow),
+    [carts, activityNow]
+  );
 
   return {
-    loading,
-    error,
-    usingDemo,
+    loading: liveMode ? loading || presence.loading : loading,
+    error: liveMode ? error || presence.error : error,
+    usingDemo: effectiveUsingDemo,
+    activityNow,
     live,
+    liveSessions,
+    liveCountLabel: liveMode ? presence.liveCountLabel : String(live.liveVisitors || 0),
+    liveCapped: liveMode ? presence.capped : false,
     kpis,
     funnel,
     series,

@@ -19,6 +19,7 @@ export function AnalyticsBeacon({
   enabled = true
 }) {
   const started = useRef(false);
+  const reportedPath = useRef('');
 
   useEffect(() => {
     if (!enabled || !slug || !ownerId) return undefined;
@@ -29,6 +30,8 @@ export function AnalyticsBeacon({
   useEffect(() => {
     if (!enabled || !slug || !ownerId || !started.current) return;
     const path = `/${slug}/${page}${itemId ? `/${itemId}` : ''}`;
+    if (reportedPath.current === path) return;
+    reportedPath.current = path;
     reportPageView({ slug, ownerId, path }, path);
     if (itemId && (page === 'buy' || page === 'book')) {
       reportProductView(

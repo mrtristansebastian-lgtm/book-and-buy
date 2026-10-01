@@ -3,6 +3,7 @@ import { useWorkspace } from '../workspace/WorkspaceContext';
 import { loadPublicWorkspaceFromFirestore } from '../../shared/firebase/publicWorkspace';
 import { isFirebaseConfigured } from '../../shared/firebase/client';
 import { PublicSurfaceRenderer } from './components/PublicSurfaceRenderer';
+import { useAuth } from '../auth/AuthContext';
 
 function titleCaseSlug(slug) {
   return String(slug || '')
@@ -13,6 +14,7 @@ function titleCaseSlug(slug) {
 }
 
 export function PublicWebsiteApp({ slug, page, itemId = '' }) {
+  const { user } = useAuth();
   const { workspace: local } = useWorkspace();
   const [remote, setRemote] = useState(null);
   const [loadingRemote, setLoadingRemote] = useState(() => isFirebaseConfigured());
@@ -68,6 +70,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
             pages: { home: true, book: true, buy: true }
           }
         });
+  const ownerViewingOwnSite = Boolean(user?.uid && workspace?.ownerId === user.uid);
 
   if (loadingRemote && !loadTried) {
     return (
@@ -84,7 +87,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
         page={page || 'home'}
         itemId={itemId || ''}
         publicMode={Boolean(remote) || !localMatch}
-        trackAnalytics
+        trackAnalytics={!ownerViewingOwnSite}
       />
     </div>
   );
