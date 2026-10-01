@@ -37,26 +37,6 @@ export function LiveStatsPage() {
           rows={data.live?.livePaths || []}
           empty="No one on the site at the moment."
         />
-        <section className="bb-analytics-panel">
-          <header className="bb-analytics-panel-head">
-            <h2 className="bb-analytics-panel-title">Pulse</h2>
-            <p className="bb-analytics-panel-lede">Freshness of live signals</p>
-          </header>
-          <ul className="bb-analytics-pulse-list">
-            <li>
-              <span>Live visitors</span>
-              <strong>{data.live?.liveVisitors ?? 0}</strong>
-            </li>
-            <li>
-              <span>Active carts</span>
-              <strong>{data.live?.activeCarts ?? 0}</strong>
-            </li>
-            <li>
-              <span>Active checkouts</span>
-              <strong>{data.live?.activeCheckouts ?? 0}</strong>
-            </li>
-          </ul>
-        </section>
       </div>
 
       <AnalyticsActiveCarts carts={data.activeCarts} currency={data.currency} />

@@ -28,7 +28,7 @@
 
 .bb-clients-eyebrow {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 740;
   letter-spacing: 0.12em;
@@ -127,7 +127,7 @@
   border-radius: 999px;
   background: transparent;
   color: #667085;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.58rem;
   font-weight: 760;
   letter-spacing: 0.04em;
@@ -179,7 +179,7 @@
 
 .bb-clients-directory-label {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 760;
   letter-spacing: 0.08em;
@@ -207,7 +207,7 @@
   z-index: 1;
   margin: 0;
   padding: 0.45rem 1rem 0.3rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -250,7 +250,7 @@
   width: 2.15rem;
   height: 2.15rem;
   border-radius: 0.65rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 780;
   letter-spacing: 0.02em;
@@ -412,7 +412,7 @@
   width: 3.4rem;
   height: 3.4rem;
   border-radius: 1rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.05rem;
   font-weight: 800;
   color: #fff;
@@ -422,7 +422,7 @@
 
 .bb-clients-sheet-name {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.35rem, 2.4vw, 1.75rem);
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -536,7 +536,7 @@
 
 .bb-clients-history-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 780;
   letter-spacing: 0.08em;
@@ -594,7 +594,7 @@
 .bb-clients-sheet-empty strong {
   display: block;
   margin-bottom: 0.35rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.05rem;
   font-weight: 780;
   color: var(--bb-clients-ink);
@@ -647,7 +647,7 @@
 
 .bb-clients-modal-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.03em;

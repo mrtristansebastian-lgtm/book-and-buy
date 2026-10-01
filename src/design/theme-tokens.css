@@ -6,13 +6,25 @@
 :root {
   color-scheme: light;
 
+  --bb-font-body: Figtree, 'Plus Jakarta Sans', sans-serif;
+  --bb-font-display: 'Plus Jakarta Sans', Figtree, sans-serif;
+  --bb-text-primary: #101828;
+  --bb-text-secondary: #475467;
+  --bb-text-tertiary: #667085;
+  --bb-type-caption: 0.75rem;
+  --bb-type-label: 0.8rem;
+  --bb-type-body-sm: 0.875rem;
+  --bb-type-body: 1rem;
+  --bb-type-title-sm: 1.125rem;
+  --bb-type-title: 1.5rem;
+
   --bb-bg: #fbfbfb;
   --bb-surface: #ffffff;
   --bb-surface-2: #f4f6f8;
   --bb-panel: #ffffff;
-  --bb-ink: #101828;
+  --bb-ink: var(--bb-text-primary);
   --bb-ink-strong: #050505;
-  --bb-muted: #667085;
+  --bb-muted: var(--bb-text-secondary);
   --bb-faint: #98a2b3;
   --bb-border: rgba(15, 23, 42, 0.08);
   --bb-border-strong: rgba(15, 23, 42, 0.14);

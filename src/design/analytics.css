@@ -24,18 +24,6 @@
   }
 }
 
-@keyframes bb-analytics-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.35);
-    opacity: 0.55;
-  }
-}
-
 @keyframes bb-analytics-kpi-in {
   from {
     opacity: 0;
@@ -67,7 +55,7 @@
 
 .bb-analytics-eyebrow {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 740;
   letter-spacing: 0.12em;
@@ -115,7 +103,6 @@
   border-radius: 999px;
   background: #12b76a;
   box-shadow: 0 0 0 0.2rem rgba(18, 183, 106, 0.18);
-  animation: bb-analytics-pulse 2.2s ease-in-out infinite;
 }
 
 .bb-analytics-live-label {
@@ -127,7 +114,7 @@
 
 .bb-analytics-live-value {
   margin: 0.15rem 0 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.65rem;
   font-weight: 760;
   letter-spacing: -0.03em;
@@ -158,7 +145,7 @@
 
 .bb-analytics-kpi-value {
   margin: 0.35rem 0 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.2rem;
   font-weight: 760;
   letter-spacing: -0.02em;
@@ -222,7 +209,7 @@
 .bb-analytics-chart-axis {
   fill: rgba(15, 23, 42, 0.42);
   font-size: 10px;
-  font-family: Figtree, sans-serif;
+  font-family: var(--bb-font-body);
 }
 
 .bb-analytics-chart-grad-top {
@@ -589,4 +576,10 @@
 
 .bb-stock-span {
   grid-column: 1 / -1;
+}
+
+/* Live Stats has one live-path stream; let it use the full stage instead of
+   leaving a report-style empty column beside it. */
+.bb-analytics--live .bb-analytics-grid {
+  grid-template-columns: minmax(0, 1fr);
 }

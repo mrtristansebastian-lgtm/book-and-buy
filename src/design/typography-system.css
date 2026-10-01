@@ -1,0 +1,121 @@
+/* The app's two font roles are defined once in theme-tokens.css. Keep family
+   assignments here so feature styles can own scale, spacing, and status color. */
+html body .native-ui,
+html body .bb-public-surface,
+html body .business-onboarding-page {
+  font-family: var(--bb-font-body);
+}
+
+html body .native-ui :is(button, input, textarea, select),
+html body .bb-public-surface :is(button, input, textarea, select) {
+  font-family: var(--bb-font-body) !important;
+}
+
+html body .native-ui button :where(span, strong, small),
+html body .bb-public-surface button :where(span, strong, small) {
+  font-family: var(--bb-font-body) !important;
+}
+
+html body .native-ui :is(h1, h2, h3, h4, h5, h6),
+html body .bb-public-surface :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--bb-font-display) !important;
+}
+
+html body .native-ui :is(
+  .bb-brand-mark,
+  .bb-page-title,
+  .bb-home-title,
+  .bb-client-auth-title,
+  .bb-client-home-title,
+  .bb-client-home-profile-name,
+  .bb-places-name,
+  .bb-marketplace-business-title > strong,
+  .bb-public-product-name,
+  .bb-public-profile-name,
+  .bb-public-detail-title,
+  .bb-clients-row-name,
+  .bb-clients-sheet-name,
+  .bb-schedule-board-title,
+  .bb-schedule-lane-title,
+  .bb-support-inbox-title,
+  .bb-checkout-flow__title,
+  .bb-checkout-success__card-title
+),
+html body .bb-public-surface :is(
+  .bb-brand-mark,
+  .bb-public-product-name,
+  .bb-public-profile-name,
+  .bb-public-detail-title,
+  .bb-public-catalog-intro-title
+) {
+  font-family: var(--bb-font-display) !important;
+}
+
+html body .native-ui :is(.bb-muted, .bb-support-thread-preview, .bb-support-thread-service),
+html body .bb-public-surface .bb-muted {
+  color: var(--bb-text-secondary);
+}
+
+/* Small interface text must still be readable on phones; information-dense
+   badges can remain compact, while controls and field copy get a firm floor. */
+@media (max-width: 599px) {
+  html body .native-ui :is(.bb-client-content-tab, .bb-explore-mode, .bb-client-support-chip-label),
+  html body .bb-public-surface :is(.bb-public-nav a, .bb-public-product-actions button) {
+    font-size: 0.78rem;
+  }
+
+  .bb-public-catalog-tools {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .bb-public-catalog-tabs-rail {
+    flex-wrap: nowrap;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
+  .bb-public-catalog-tabs-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bb-public-catalog-tab {
+    font-size: 0.75rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+}
+
+/* Give the existing two-column product cards more of the phone's width. */
+@media (max-width: 479px) {
+  .bb-public-profile-panel--buy {
+    padding-inline: 0.5rem;
+  }
+
+  .bb-public-profile-panel--buy .bb-public-catalog-desk .bb-public-catalog-shell {
+    padding-inline: 0.25rem;
+  }
+
+  .bb-public-profile-panel--buy .bb-public-catalog-intro-body {
+    color: #475467;
+  }
+
+  .bb-public-profile-panel--buy .bb-public-product-surface {
+    box-shadow: none;
+  }
+
+  .bb-public-profile-panel--buy .bb-public-product-name {
+    font-size: 0.82rem !important;
+  }
+
+  .bb-public-profile-panel--buy .bb-public-product-price {
+    font-size: 0.72rem !important;
+    color: #475467;
+  }
+
+  .bb-public-profile-panel--buy :is(.bb-public-product-cart-btn, .bb-public-product-more-btn) {
+    font-size: 0.75rem !important;
+  }
+}

@@ -247,7 +247,7 @@
 .bb-public-profile-name {
   margin: 0;
   display: block;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-weight: 820;
   letter-spacing: -0.04em;
   line-height: 1.12;
@@ -264,7 +264,7 @@
 
 .bb-public-profile-username {
   margin: 0.2rem 0 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.92rem;
   font-weight: 720;
   letter-spacing: -0.015em;
@@ -361,7 +361,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.74rem;
   font-weight: 720;
   letter-spacing: 0.01em;
@@ -470,7 +470,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   border: 0;
   background: transparent;
   color: #98a2b3;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.64rem;
   font-weight: 720;
   letter-spacing: 0.08em;
@@ -958,7 +958,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 .bb-public-profile-section-body {
   margin: 0;
   max-width: 36rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.08rem, 1.7vw, 1.34rem);
   font-weight: 500;
   line-height: 1.65;
@@ -972,7 +972,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 .bb-public-profile .bb-public-profile-section-title,
 .bb-public-profile .bb-public-about-offer-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.68rem;
   font-weight: 740;
   letter-spacing: 0.1em;
@@ -995,7 +995,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   width: fit-content;
   max-width: 100%;
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.35rem, 2.4vw, 1.75rem);
   font-weight: 820;
   letter-spacing: -0.035em;
@@ -1814,7 +1814,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   background: rgba(211, 255, 95, 0.28);
   color: #536b10;
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 760;
   letter-spacing: 0.08em;
@@ -1833,7 +1833,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 }
 
 .bb-public-about-pillar-marker.is-digit {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   letter-spacing: -0.04em;
 }
 
@@ -1841,7 +1841,7 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   display: inline-grid;
   place-items: center;
   place-content: center;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.05rem;
   font-weight: 780;
   letter-spacing: -0.04em;
@@ -1876,7 +1876,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-about-pillar-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.2rem, 5.5vw, 1.55rem);
   font-weight: 790;
   letter-spacing: -0.03em;
@@ -1887,7 +1887,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 .bb-public-about-pillar-body {
   margin: 0;
   max-width: 38rem;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 0.94rem;
   font-weight: 500;
   line-height: 1.65;
@@ -2895,7 +2895,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-profile .bb-public-review-quote {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.98rem;
   font-weight: 560;
   line-height: 1.55;
@@ -2921,7 +2921,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   border-radius: 999px;
   background: #101828;
   color: #fff;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.8rem;
   font-weight: 760;
   letter-spacing: 0.02em;
@@ -2931,7 +2931,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-profile .bb-public-review-name {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.84rem;
   font-weight: 740;
   letter-spacing: -0.015em;
@@ -3007,7 +3007,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   justify-content: center;
   gap: 0.5rem;
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.78rem;
   font-weight: 720;
   letter-spacing: 0.08em;
@@ -3131,7 +3131,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-about-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.65rem, 3.2vw, 2.35rem);
   font-weight: 820;
   letter-spacing: -0.04em;
@@ -3232,7 +3232,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-reasons-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.65rem, 3.2vw, 2.25rem);
   font-weight: 820;
   letter-spacing: -0.04em;
@@ -3279,7 +3279,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 }
 
 .bb-public-reason-index {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.65rem, 2.8vw, 2.15rem);
   font-weight: 820;
   letter-spacing: -0.06em;
@@ -3300,7 +3300,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-reason-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.05rem, 1.6vw, 1.2rem);
   font-weight: 760;
   letter-spacing: -0.03em;
@@ -3342,7 +3342,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-venue-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(2.15rem, 4.2vw, 3.25rem);
   font-weight: 820;
   letter-spacing: -0.04em;
@@ -3530,7 +3530,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-visit-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.65rem, 3.2vw, 2.25rem);
   font-weight: 820;
   letter-spacing: -0.04em;
@@ -3657,7 +3657,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-reviews-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.65rem, 3.2vw, 2.25rem);
   font-weight: 820;
   letter-spacing: -0.04em;
@@ -3732,7 +3732,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-review-quote {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(0.95rem, 1.5vw, 1.05rem);
   line-height: 1.5;
   font-weight: 560;
@@ -3777,7 +3777,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-offer-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.85rem, 3.8vw, 2.75rem);
   font-weight: 820;
   letter-spacing: -0.04em;
@@ -3870,7 +3870,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
 
 .bb-public-book-faq-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.65rem, 3.2vw, 2.25rem);
   font-weight: 820;
   letter-spacing: -0.035em;
@@ -3902,7 +3902,7 @@ button.bb-public-about-pillar-marker.is-icon:hover {
   padding: 1.05rem 0.15rem;
   list-style: none;
   cursor: pointer;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.98rem;
   font-weight: 720;
   letter-spacing: -0.02em;
@@ -4064,7 +4064,7 @@ html body .native-ui .bb-public-surface .bb-public-reviews-title {
 
 html body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-name {
   color: #101828 !important;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif !important;
+  font-family: var(--bb-font-body) !important;
   font-size: 0.92rem !important;
   font-weight: 650 !important;
   letter-spacing: -0.018em !important;
@@ -4073,7 +4073,7 @@ html body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-produ
 
 html body .native-ui .bb-public-surface .bb-public-product-grid .bb-public-product-price {
   color: rgba(16, 24, 40, 0.62) !important;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif !important;
+  font-family: var(--bb-font-body) !important;
   font-size: 0.78rem !important;
   font-weight: 600 !important;
   letter-spacing: -0.015em !important;
@@ -4292,7 +4292,7 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-fa
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-profile-section-body:not(.bb-public-about-page-body):not(.bb-public-about-journey-body),
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-journey-body {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif !important;
+  font-family: var(--bb-font-display) !important;
   font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
   font-weight: 500 !important;
   line-height: 1.65 !important;
@@ -4372,7 +4372,7 @@ html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-jour
 }
 
 html body .native-ui .bb-public-surface .bb-public-profile .bb-public-about-page-body {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif !important;
+  font-family: var(--bb-font-display) !important;
   font-size: clamp(1.08rem, 1.7vw, 1.34rem) !important;
   font-weight: 500 !important;
   line-height: 1.65 !important;

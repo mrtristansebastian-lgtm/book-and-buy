@@ -37,7 +37,7 @@ export const createDefaultSettings = () => ({
   nativeAccent: true,
   headingFontFamily: 'plus-jakarta',
   bodyFontFamily: 'figtree',
-  buttonFontFamily: 'inter',
+  buttonFontFamily: 'figtree',
   brandNameFontFamily: 'plus-jakarta',
   interfaceStyleDirection: 'native-precision',
   website: {

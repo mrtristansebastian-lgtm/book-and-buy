@@ -36,7 +36,7 @@
 
 .bb-public-slot-sheet-title {
   margin: 0;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 1.35rem;
   font-weight: 760;
   letter-spacing: -0.03em;
@@ -45,7 +45,7 @@
 
 .bb-public-slot-sheet-lede {
   margin: 0;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 0.9rem;
   font-weight: 520;
   line-height: 1.45;
@@ -59,7 +59,7 @@
 
 .bb-public-slot-sheet-times-label {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.66rem;
   font-weight: 740;
   letter-spacing: 0.05em;
@@ -84,7 +84,7 @@
   border-radius: 0.85rem;
   background: #fff;
   color: #101828;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 0.86rem;
   font-weight: 650;
   letter-spacing: -0.015em;
@@ -104,7 +104,7 @@
 
 .bb-public-slot-sheet-summary {
   margin: 0;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 0.9rem;
   font-weight: 650;
   letter-spacing: -0.015em;
@@ -161,7 +161,7 @@
 }
 
 .bb-public-service-variant-name {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.88rem;
   font-weight: 720;
   letter-spacing: -0.015em;

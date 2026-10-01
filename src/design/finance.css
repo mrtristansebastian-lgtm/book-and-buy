@@ -26,7 +26,7 @@
 
 .bb-finance-eyebrow {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 740;
   letter-spacing: 0.12em;
@@ -181,7 +181,7 @@
 
 .bb-finance-metric-value {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.35rem, 2.5vw, 1.75rem);
   font-weight: 820;
   letter-spacing: -0.03em;
@@ -264,7 +264,7 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 .bb-finance-chart-axis {
   fill: #98a2b3;
   font-size: 10px;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-weight: 560;
 }
 
@@ -413,7 +413,7 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 
 .bb-finance-ledger-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.45rem, 2.8vw, 1.9rem);
   font-weight: 800;
   letter-spacing: -0.035em;
@@ -609,7 +609,7 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 
 .bb-finance-receipt-brand {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -726,7 +726,7 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 
 .bb-finance-receipt-total {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.15rem;
   font-weight: 820;
   letter-spacing: -0.03em;
@@ -786,7 +786,7 @@ html body .native-ui .bb-finance .bb-finance-receipt-brand {
 
 .bb-finance-sheet-title {
   margin: 0.15rem 0 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.03em;

@@ -265,16 +265,16 @@ function StockProductCard({ product, onInfo, onEdit }) {
               className="bb-stock-crate-action"
               onClick={() => onInfo?.(product)}
             >
-              <Info size={15} strokeWidth={2.2} />
               <span>Info</span>
+              <Info size={15} strokeWidth={2.2} aria-hidden="true" />
             </button>
             <button
               type="button"
               className="bb-stock-crate-action is-edit"
               onClick={() => onEdit?.(product)}
             >
-              <Pencil size={15} strokeWidth={2.2} />
               <span>Edit</span>
+              <Pencil size={15} strokeWidth={2.2} aria-hidden="true" />
             </button>
           </div>
         </div>

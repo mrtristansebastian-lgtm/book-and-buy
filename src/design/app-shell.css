@@ -7,7 +7,7 @@
 }
 
 .bb-brand-mark {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-weight: 760;
   letter-spacing: -0.03em;
   color: var(--bb-ink-strong);
@@ -17,7 +17,7 @@
   position: relative;
   z-index: 1;
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.9rem, 3.6vw, 2.65rem);
   font-weight: 800;
   letter-spacing: -0.045em;
@@ -168,7 +168,7 @@ html body .native-ui .bb-page-title {
   color: var(--bb-muted);
   border-radius: 999px;
   padding: 0.48rem 0.95rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -251,7 +251,7 @@ html body .native-ui .bb-page-title {
   border: 0;
   border-radius: 999px;
   padding: 0.75rem 1.15rem;
-  font-family: Inter, Figtree, sans-serif;
+  font-family: var(--bb-font-body);
   font-weight: 680;
   color: #050505;
   cursor: pointer;
@@ -275,7 +275,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   border: 0;
   border-radius: 999px;
   padding: 0.75rem 1.15rem;
-  font-family: Inter, Figtree, sans-serif;
+  font-family: var(--bb-font-body);
   font-weight: 680;
   color: #fff;
   background: #050505;
@@ -295,7 +295,7 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   border-radius: 999px;
   background: #fff;
   color: #101828;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.8rem;
   font-weight: 740;
   letter-spacing: -0.015em;
@@ -339,7 +339,7 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
   border: 1px solid var(--bb-border-strong);
   border-radius: 999px;
   padding: 0.75rem 1.15rem;
-  font-family: Inter, Figtree, sans-serif;
+  font-family: var(--bb-font-body);
   font-weight: 620;
   color: var(--bb-ink-strong);
   background: var(--bb-surface);
@@ -569,7 +569,7 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
 }
 
 .bb-owner-apps-nav-title {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.78rem;
   font-weight: 760;
   letter-spacing: 0.04em;
@@ -622,7 +622,7 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
 }
 
 .bb-demo-panel-copy strong {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.92rem;
   font-weight: 760;
   letter-spacing: -0.02em;

@@ -48,8 +48,8 @@ export function ServiceCatalogCard({ service, bookings = [], onEdit, onRemove })
           className="bb-catalog-card-action is-edit"
           onClick={() => onEdit?.(service)}
         >
-          <Pencil size={15} strokeWidth={2.2} />
           <span>Edit</span>
+          <Pencil size={15} strokeWidth={2.2} aria-hidden="true" />
         </button>
         {onRemove ? (
           <button

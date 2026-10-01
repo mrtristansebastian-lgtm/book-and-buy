@@ -26,6 +26,7 @@
 @import './date-field.css';
 @import './sort-field.css';
 @import './image-crop.css';
+@import './typography-system.css';
 
 @tailwind base;
 @tailwind components;
@@ -62,7 +63,7 @@ html.bb-zoom-allowed .bb-client-ig-grid {
 
 body {
   margin: 0;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   color: var(--bb-ink);
   background: var(--bb-bg);
   -webkit-font-smoothing: antialiased;

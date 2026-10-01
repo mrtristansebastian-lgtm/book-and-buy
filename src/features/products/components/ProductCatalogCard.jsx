@@ -84,8 +84,8 @@ export function ProductCatalogCard({
             className="bb-catalog-card-action"
             onClick={openView}
           >
-            <Eye size={15} strokeWidth={2.2} />
             <span>View</span>
+            <Eye size={15} strokeWidth={2.2} aria-hidden="true" />
           </button>
         ) : null}
         <button
@@ -93,8 +93,8 @@ export function ProductCatalogCard({
           className="bb-catalog-card-action is-edit"
           onClick={() => onEdit?.(product)}
         >
-          <Pencil size={15} strokeWidth={2.2} />
           <span>Edit</span>
+          <Pencil size={15} strokeWidth={2.2} aria-hidden="true" />
         </button>
         {onRemove ? (
           <button

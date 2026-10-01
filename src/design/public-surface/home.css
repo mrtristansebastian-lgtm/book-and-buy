@@ -48,7 +48,7 @@
 
 .bb-public-home-brand {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-weight: 820;
   letter-spacing: -0.035em;
   line-height: 0.98;
@@ -109,7 +109,7 @@
 .bb-public-page-intro .bb-page-title,
 .bb-public-catalog-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.35rem, 3.2vw, 1.85rem);
   font-weight: 820;
   letter-spacing: -0.035em;
@@ -157,7 +157,7 @@
 
 .bb-public-catalog-intro-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.45rem, 2.5vw, 1.95rem);
   font-weight: 780;
   letter-spacing: -0.035em;
@@ -168,7 +168,7 @@
 .bb-public-catalog-intro-body {
   margin: 0;
   max-width: 36rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.95rem;
   font-weight: 500;
   line-height: 1.5;

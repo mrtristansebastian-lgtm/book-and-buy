@@ -20,7 +20,7 @@
 }
 
 .bb-brand-lockup-word {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-weight: 760;
   letter-spacing: -0.03em;
   line-height: 1;

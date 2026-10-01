@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ShoppingBag } from 'lucide-react';
+import { Eye, ShoppingBag } from 'lucide-react';
 import { navigate, publicItemPath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
@@ -115,15 +115,16 @@ export function PublicStorefront({
               openCart();
             }}
           >
-            <ShoppingBag size={12} strokeWidth={2.4} />
             <span>{quote ? 'Quote' : hasOptions ? 'Options' : 'Add'}</span>
+            <ShoppingBag size={13} strokeWidth={2.2} aria-hidden="true" />
           </button>
           <button
             type="button"
             className="bb-public-product-more-btn"
             onClick={() => openDetail(product.id)}
           >
-            View more
+            <span>View</span>
+            <Eye size={13} strokeWidth={2.2} aria-hidden="true" />
           </button>
         </div>
       </article>

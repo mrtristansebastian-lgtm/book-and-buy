@@ -23,7 +23,7 @@
 
 .bb-schedule-desk-eyebrow {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.66rem;
   font-weight: 740;
   letter-spacing: 0.1em;
@@ -191,7 +191,7 @@
 }
 
 .bb-schedule-sort span {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.66rem;
   font-weight: 740;
   letter-spacing: 0.05em;
@@ -209,7 +209,7 @@
     #fff
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")
     no-repeat right 0.7rem center;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.82rem;
   font-weight: 700;
   color: #101828;
@@ -268,7 +268,7 @@
 }
 
 .bb-schedule-agenda-day-toggle-copy strong {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -316,7 +316,7 @@
 
 .bb-schedule-agenda-day {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.78rem;
   font-weight: 780;
   letter-spacing: 0.04em;
@@ -351,7 +351,7 @@
 }
 
 .bb-schedule-agenda-time strong {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -372,7 +372,7 @@
 
 .bb-schedule-agenda-client {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.98rem;
   font-weight: 780;
   letter-spacing: -0.02em;
@@ -502,7 +502,7 @@
 }
 
 .bb-schedule-picker-month-nav strong {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.95rem;
   font-weight: 780;
   letter-spacing: -0.02em;
@@ -1071,7 +1071,7 @@
 .bb-schedule-sidebar .bb-schedule-staff-avatar-name {
   display: block;
   max-width: none;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 0.76rem;
   font-weight: 700;
   line-height: 1.2;
@@ -1135,7 +1135,7 @@
 }
 
 .bb-schedule-stage-date {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1rem;
   font-weight: 800;
   line-height: 1.2;
@@ -1997,7 +1997,7 @@
 .bb-schedule-desk .bb-schedule-resource-axis span {
   top: 46%;
   color: #475467;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.66rem;
   font-weight: 760;
   font-variant-numeric: tabular-nums;

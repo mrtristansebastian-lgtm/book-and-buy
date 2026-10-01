@@ -181,7 +181,7 @@
   border: 1px solid rgba(15, 23, 42, 0.1);
   background: rgba(255, 255, 255, 0.97);
   color: #101828;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.58rem;
   font-weight: 740;
   letter-spacing: 0.06em;
@@ -231,14 +231,14 @@
 }
 
 .bb-public-product-sticker--spots strong {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
 .bb-public-product-sticker--spots span {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.55rem;
   font-weight: 720;
   letter-spacing: 0.04em;
@@ -276,7 +276,7 @@
   margin: 0;
   width: 100%;
   max-width: 20ch;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.8rem !important;
   font-weight: 760;
   letter-spacing: -0.025em;
@@ -318,7 +318,7 @@
   min-width: 0;
   width: 100%;
   margin: 0;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 0.92rem;
   font-weight: 650;
   letter-spacing: -0.018em;
@@ -336,7 +336,7 @@
 .bb-public-product-price {
   margin: 0;
   max-width: 100%;
-  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--bb-font-body);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: -0.015em;
@@ -399,48 +399,39 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0;
+  gap: 0.38rem;
   width: 100%;
   min-width: 0;
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-top: 0;
   border-radius: 0;
+  padding: 0.42rem;
   overflow: hidden;
   background: #fff;
 }
 
 .bb-public-product-actions::after {
-  content: '';
-  position: absolute;
-  top: 0.55rem;
-  bottom: 0.55rem;
-  left: 50%;
-  z-index: 1;
-  width: 1px;
-  transform: translateX(-50%);
-  background-image: var(--native-accent-button-gradient, linear-gradient(180deg, #b9e3ff, #ffd4f2));
-  background-size: 420% 420%;
-  background-position: var(--native-accent-x, 40%) 50%;
-  pointer-events: none;
+  display: none;
 }
 
 .bb-public-product-cart-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.28rem;
+  gap: 0.4rem;
   width: 100%;
+  min-height: 2.1rem;
   margin: 0;
-  padding: 0.62rem 0.55rem;
-  border: 0;
-  border-radius: 0;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.55rem;
   color: #101828;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.74rem;
   font-weight: 760;
   letter-spacing: -0.01em;
   cursor: pointer;
-  background: #fff;
+  background: #f6f8fb;
   background-image: none;
   box-shadow: none;
   transition: background 0.15s ease, color 0.15s ease;
@@ -448,7 +439,8 @@
 
 .bb-public-product-cart-btn:hover:not(:disabled) {
   filter: none;
-  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #eef2f6;
   color: #050505;
 }
 
@@ -466,14 +458,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   width: 100%;
+  min-height: 2.1rem;
   margin: 0;
-  padding: 0.62rem 0.65rem;
-  border: 0;
-  border-radius: 0;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 0.55rem;
   background: #fff;
   color: #101828;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.74rem;
   font-weight: 740;
   letter-spacing: -0.01em;
@@ -481,7 +475,25 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
+.bb-public-product-cart-btn > span,
+.bb-public-product-more-btn > span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.bb-public-product-cart-btn > svg,
+.bb-public-product-more-btn > svg {
+  display: block;
+  flex: 0 0 0.82rem;
+  width: 0.82rem;
+  height: 0.82rem;
+  margin: 0;
+  transform: none;
+}
+
 .bb-public-product-more-btn:hover {
+  border-color: rgba(15, 23, 42, 0.18);
   background: #f8fafc;
   color: #050505;
 }
@@ -593,7 +605,7 @@
 
 .bb-public-detail-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: clamp(1.45rem, 3.2vw, 2.05rem);
   font-weight: 820;
   letter-spacing: -0.04em;
@@ -717,7 +729,7 @@
   border: 1px solid rgba(15, 23, 42, 0.14);
   background: #fff;
   color: #101828;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.78rem;
   font-weight: 740;
   letter-spacing: -0.01em;
@@ -752,7 +764,7 @@
   border-radius: 999px;
   background: #101828;
   color: #fff;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.68rem;
   font-weight: 760;
   line-height: 1;
@@ -798,7 +810,7 @@
   border-radius: 999px;
   background: #fff;
   color: #667085;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.7rem;
   font-weight: 720;
   letter-spacing: 0.04em;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CalendarDays, ChevronRight, Navigation, ShoppingBag } from 'lucide-react';
+import { CalendarDays, ChevronRight, Eye, Navigation, ShoppingBag } from 'lucide-react';
 import { navigate, publicItemPath, publicPagePath } from '../../app/routing';
 import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { EmptyState } from '../../shared/ui/EmptyState';
@@ -113,11 +113,12 @@ function ExploreBusinessOfferCard({ biz, kind }) {
                 </button>
                 <div className="bb-public-product-actions">
                   <button type="button" className="bb-public-product-cart-btn" onClick={openItem}>
-                    <PrimaryIcon size={12} strokeWidth={2.4} aria-hidden="true" />
                     <span>{kind === 'book' ? 'Book' : 'Buy'}</span>
+                    <PrimaryIcon size={13} strokeWidth={2.2} aria-hidden="true" />
                   </button>
                   <button type="button" className="bb-public-product-more-btn" onClick={openItem}>
-                    View more
+                    <span>View</span>
+                    <Eye size={13} strokeWidth={2.2} aria-hidden="true" />
                   </button>
                 </div>
               </article>

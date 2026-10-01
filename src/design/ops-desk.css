@@ -97,7 +97,7 @@
   border: 1.5px solid transparent;
   border-radius: 0.55rem;
   background: transparent;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.68rem;
   font-weight: 760;
   letter-spacing: 0.055em;
@@ -223,7 +223,7 @@
 
 .bb-ops-person-name {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.95rem;
   font-weight: 740;
   letter-spacing: -0.02em;
@@ -298,7 +298,7 @@
 
 .bb-ops-when-primary {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.2rem;
   font-weight: 800 !important;
   letter-spacing: -0.03em;
@@ -413,7 +413,7 @@
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 0.55rem;
   background: #fff;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.62rem;
   font-weight: 760;
   letter-spacing: 0.04em;

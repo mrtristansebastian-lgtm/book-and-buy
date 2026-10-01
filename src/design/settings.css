@@ -400,7 +400,7 @@
     padding: 1.05rem 1.15rem;
     border-radius: 0;
     border-bottom: 1px solid rgba(15, 23, 42, 0.1);
-    font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+    font-family: var(--bb-font-display);
     font-size: 1.12rem;
     font-weight: 680;
     letter-spacing: -0.02em;

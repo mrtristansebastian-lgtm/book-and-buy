@@ -23,7 +23,7 @@
 
 .bb-services-desk-eyebrow {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.66rem;
   font-weight: 740;
   letter-spacing: 0.1em;
@@ -242,7 +242,7 @@ html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catal
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(8px);
   color: #101828;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.56rem;
   font-weight: 750;
   letter-spacing: 0.06em;
@@ -282,7 +282,7 @@ html body .native-ui .bb-services-desk .bb-public-product-grid.bb-services-catal
 
 .bb-catalog-card-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.02rem;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -356,7 +356,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
-  gap: 0.4rem;
+  gap: 0.38rem;
   padding-top: 0.15rem;
 }
 
@@ -366,10 +366,10 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   justify-content: center;
   gap: 0.4rem;
   flex: 1 1 auto;
-  min-height: 2.3rem;
+  min-height: 2.1rem;
   min-width: 2.3rem;
-  padding: 0.5rem 0.7rem;
-  border-radius: 0.7rem;
+  padding: 0.46rem 0.62rem;
+  border-radius: 0.58rem;
   border: 1px solid rgba(15, 23, 42, 0.1);
   background: #f8fafc;
   color: #101828;
@@ -388,15 +388,33 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 }
 
 .bb-catalog-card-action.is-edit {
-  background: #101828;
-  border-color: #101828;
-  color: #fff;
+  border-color: rgba(15, 23, 42, 0.08);
+  background-image:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.64), rgba(255, 255, 255, 0.18)),
+    var(--native-accent-button-gradient, linear-gradient(120deg, #b9e3ff, #ffd4f2));
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  color: #101828;
 }
 
 .bb-catalog-card-action.is-edit:hover {
-  background: #1d2939;
-  border-color: #1d2939;
-  color: #fff;
+  border-color: rgba(15, 23, 42, 0.16);
+  filter: saturate(1.06) brightness(0.99);
+  color: #050505;
+}
+
+.bb-catalog-card-action > span {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.bb-catalog-card-action > svg {
+  display: block;
+  flex: 0 0 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin: 0;
 }
 
 .bb-catalog-card-action.is-danger:hover {
@@ -513,7 +531,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 
 .bb-services-sheet-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1.22rem;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -556,7 +574,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
   display: none;
   margin: 0;
   grid-column: 1 / -1;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.7rem;
   font-weight: 740;
   letter-spacing: 0.06em;
@@ -635,7 +653,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 }
 
 .bb-services-setup-rail-label {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.78rem;
   font-weight: 720;
   letter-spacing: -0.01em;
@@ -726,7 +744,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 }
 
 .bb-services-type-card-title {
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -819,7 +837,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 
 .bb-services-section-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 780;
   letter-spacing: 0.07em;
@@ -866,7 +884,7 @@ html body .native-ui .bb-services-desk .bb-catalog-card-desc {
 
 .bb-services-variant-card-title {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.82rem;
   font-weight: 740;
   letter-spacing: -0.01em;

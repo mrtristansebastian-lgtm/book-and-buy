@@ -67,7 +67,7 @@
   top: 0.28rem;
   left: 0.28rem;
   padding: 0.2rem 0.32rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.46rem;
   font-weight: 740;
   letter-spacing: 0.04em;

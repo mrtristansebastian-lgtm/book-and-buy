@@ -40,7 +40,7 @@
 
 .bb-image-crop-eyebrow {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.62rem;
   font-weight: 740;
   letter-spacing: 0.14em;
@@ -50,7 +50,7 @@
 
 .bb-image-crop-title {
   margin: 0.1rem 0 0;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.98rem;
   font-weight: 780;
   letter-spacing: -0.02em;
@@ -80,7 +80,7 @@
   border: 0;
   background: transparent;
   color: #0f766e;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.92rem;
   font-weight: 780;
   letter-spacing: -0.01em;
@@ -174,7 +174,7 @@
   color: #475467;
   border-radius: 999px;
   padding: 0.32rem 0.7rem;
-  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-family: var(--bb-font-display);
   font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: -0.01em;
