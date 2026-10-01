@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { CalendarDays, ChevronRight, Navigation, ShoppingBag } from 'lucide-react';
 import { navigate, publicItemPath, publicPagePath } from '../../app/routing';
 import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { EmptyState } from '../../shared/ui/EmptyState';
@@ -38,83 +38,113 @@ function ExploreBusinessOfferCard({ biz, kind }) {
   };
 
   return (
-    <article ref={railRef} className="bb-explore-biz-card">
-      <button
-        type="button"
-        className="bb-explore-biz-card-head"
-        onClick={() => navigate(publicPagePath(biz.slug, 'home'))}
-      >
-        <span className="bb-explore-biz-card-banner" aria-hidden="true">
-          {biz.heroImageUrl ? <img src={biz.heroImageUrl} alt="" /> : <BlankMedia variant="banner" />}
-        </span>
-        <span className="bb-client-avatar is-sm" aria-hidden="true">
-          {biz.logoUrl ? <img src={biz.logoUrl} alt="" /> : <BlankMedia variant="avatar" />}
-        </span>
-        <span className="bb-explore-biz-card-head-copy">
-          <strong>{biz.brandName}</strong>
-          {biz.categoryLabel || biz.locationLabel ? (
-            <span className="bb-public-profile-meta bb-find-biz-profile-meta">
-              {biz.categoryLabel ? (
-                <span className="bb-public-profile-chip bb-public-profile-chip--category">
-                  <span className="bb-public-profile-category">{biz.categoryLabel}</span>
-                </span>
-              ) : null}
-              {biz.locationLabel ? (
-                <span className="bb-public-profile-chip bb-public-profile-chip--location">
-                  <span className="bb-public-profile-chip-icon" aria-hidden="true" />
-                  <span className="bb-public-profile-location">{biz.locationLabel}</span>
-                </span>
-              ) : null}
-            </span>
-          ) : null}
-          {biz.distanceLabel ? (
-            <span className="bb-find-biz-distance">{biz.distanceLabel} from you</span>
-          ) : null}
-        </span>
-      </button>
-
-      <div className="bb-explore-biz-preview">
-        {biz.items.map((item) => {
-          const imageSrc = itemImage(item);
-          const page = kind === 'book' ? 'book' : 'buy';
-          return (
-            <article key={item.id} className="bb-find-offer-preview">
-              <button
-                type="button"
-                className="bb-find-offer-preview-hit"
-                onClick={() => navigate(publicItemPath(biz.slug, page, item.id))}
-                aria-label={`View ${item.name}`}
-              >
-                <div className="bb-find-offer-preview-media">
-                  {imageSrc ? <img src={imageSrc} alt="" /> : <BlankMedia variant="square" />}
-                </div>
-                <div className="bb-find-offer-preview-copy">
-                  <h2>{item.name}</h2>
-                  <p>{item.priceLabel || '—'}</p>
-                </div>
-              </button>
-              <button
-                type="button"
-                className="bb-public-product-more-btn bb-find-offer-preview-action"
-                onClick={() => navigate(publicItemPath(biz.slug, page, item.id))}
-              >
-                View
-              </button>
-            </article>
-          );
-        })}
-      </div>
-
-      {biz.items.length > 1 && canScrollForward ? (
+    <article className={`bb-marketplace-business is-${kind}`}>
+      <header className="bb-marketplace-business-head">
         <button
           type="button"
-          className="bb-find-offer-scroll-cue"
-          onClick={scrollForward}
-          aria-label="Show more offers"
+          className="bb-marketplace-business-identity"
+          onClick={() => navigate(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
         >
-          <ChevronRight aria-hidden="true" />
+          <span className="bb-marketplace-business-logo" aria-hidden="true">
+          {biz.logoUrl ? <img src={biz.logoUrl} alt="" /> : <BlankMedia variant="avatar" />}
+          </span>
+          <span className="bb-marketplace-business-copy">
+            <span className="bb-marketplace-business-title">
+              <strong>{biz.brandName}</strong>
+              {biz.categoryLabel ? <span className="bb-places-category bb-marketplace-business-category">{biz.categoryLabel}</span> : null}
+            </span>
+            {(biz.locationLabel || biz.distanceLabel) ? (
+              <span className="bb-places-detail-row bb-marketplace-business-details">
+                {biz.locationLabel ? (
+                  <span className="bb-public-profile-meta bb-places-meta">
+                    <span className="bb-public-profile-chip bb-public-profile-chip--location">
+                      <span className="bb-public-profile-chip-icon" aria-hidden="true" />
+                      <span className="bb-public-profile-location">{biz.locationLabel}</span>
+                    </span>
+                  </span>
+                ) : null}
+                {biz.distanceLabel ? (
+                  <span className="bb-places-distance">
+                    <Navigation size={12} strokeWidth={2.15} aria-hidden="true" />
+                    <strong>{biz.distanceLabel}</strong>
+                    <span>from you</span>
+                  </span>
+                ) : null}
+              </span>
+            ) : null}
+          </span>
         </button>
-      ) : null}
+
+        <button
+          type="button"
+          className="bb-page-action bb-marketplace-store-link bb-marketplace-store-link--desktop"
+          onClick={() => navigate(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
+        >
+          {kind === 'book' ? 'View services' : 'View shop'}
+          <ChevronRight size={16} aria-hidden="true" />
+        </button>
+      </header>
+
+      <div className="bb-marketplace-shelf">
+        <div
+          ref={railRef}
+          className="bb-marketplace-offers bb-public-product-grid"
+        >
+          {biz.items.map((item) => {
+            const imageSrc = itemImage(item);
+            const page = kind === 'book' ? 'book' : 'buy';
+            const openItem = () => navigate(publicItemPath(biz.slug, page, item.id));
+            const PrimaryIcon = kind === 'book' ? CalendarDays : ShoppingBag;
+            return (
+              <article key={item.id} className="bb-public-product-card">
+                <button
+                  type="button"
+                  className="bb-public-product-surface"
+                  onClick={openItem}
+                  aria-label={`View ${item.name}`}
+                >
+                  <div className="bb-public-product-media">
+                    {imageSrc ? <img src={imageSrc} alt="" /> : <BlankMedia variant="square" />}
+                  </div>
+                  <div className="bb-public-product-price-row">
+                    <h2 className="bb-public-product-name">{item.name}</h2>
+                    <p className="bb-public-product-price">{item.priceLabel || '—'}</p>
+                  </div>
+                </button>
+                <div className="bb-public-product-actions">
+                  <button type="button" className="bb-public-product-cart-btn" onClick={openItem}>
+                    <PrimaryIcon size={12} strokeWidth={2.4} aria-hidden="true" />
+                    <span>{kind === 'book' ? 'Book' : 'Buy'}</span>
+                  </button>
+                  <button type="button" className="bb-public-product-more-btn" onClick={openItem}>
+                    View more
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {biz.items.length > 1 && canScrollForward ? (
+          <button
+            type="button"
+            className="bb-marketplace-scroll-cue"
+            onClick={scrollForward}
+            aria-label="Show more offers"
+          >
+            <ChevronRight aria-hidden="true" />
+          </button>
+        ) : null}
+      </div>
+
+      <button
+        type="button"
+        className="bb-page-action bb-marketplace-store-link bb-marketplace-store-link--mobile"
+        onClick={() => navigate(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
+      >
+        {kind === 'book' ? 'View services' : 'View shop'}
+        <ChevronRight size={16} aria-hidden="true" />
+      </button>
     </article>
   );
 }

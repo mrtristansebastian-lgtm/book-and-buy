@@ -30,6 +30,14 @@ html body .native-ui :where(
   .bb-public-about-pillar-marker,
   .bb-public-about-marker-digit,
   .bb-public-catalog-cart-count,
+  .bb-support-filter-count,
+  .bb-ops-tab-count,
+  .bb-clients-chip-count,
+  .bb-client-dm-unread-pill,
+  .bb-appicon-badge,
+  .bb-miniapp-tab-badge,
+  .bb-owner-dock-badge,
+  .bb-client-tab-badge,
   .bb-style-icon-grid button,
   .bb-style-icon-digit,
   .bb-public-coverflow-dot,
@@ -53,14 +61,26 @@ html body .native-ui :where(
 }
 
 html body .native-ui :where(
-  .bb-public-catalog-cart-count
+  .bb-public-catalog-cart-count,
+  .bb-support-filter-count,
+  .bb-ops-tab-count,
+  .bb-clients-chip-count,
+  .bb-client-dm-unread-pill,
+  .bb-appicon-badge,
+  .bb-miniapp-tab-badge,
+  .bb-owner-dock-badge,
+  .bb-client-tab-badge
 ) {
   line-height: 1 !important;
+  font-variant-numeric: tabular-nums;
+  /* Optical centering: cap-height numerals sit slightly above their line box. */
+  padding-block-start: 0.18em !important;
+  padding-block-end: 0 !important;
+  transform: none !important;
 }
 
 html body .native-ui :where(
   .bb-public-about-marker-digit,
-  .bb-public-catalog-cart-count,
   .bb-style-icon-digit .bb-public-about-marker-digit
 ) {
   font-variant-numeric: tabular-nums;
@@ -88,6 +108,17 @@ html body .native-ui :where(
 html body .native-ui :where(
   .bb-primary-btn,
   .bb-ghost-btn,
+  .bb-support-filter-chip,
+  .bb-ops-tab,
+  .bb-clients-chip,
+  .bb-services-chip,
+  .bb-services-duration-chip,
+  .bb-products-chip,
+  .bb-explore-pick,
+  .bb-client-dm-chip,
+  .bb-places-distance,
+  .bb-segment button,
+  .bb-miniapp-segment button,
   .bb-public-catalog-cart,
   .bb-public-catalog-tab,
   .bb-public-section-action,
@@ -97,6 +128,15 @@ html body .native-ui :where(
   .bb-public-product-more-btn,
   .bb-finance-period-pill,
   .bb-blog-status-pill,
+  .bb-client-pill,
+  .bb-ops-badge,
+  .bb-product-info-badge,
+  .bb-catalog-card-badge,
+  .bb-schedule-spot-pill,
+  .bb-schedule-agenda-badge,
+  .bb-schedule-status-chip,
+  .bb-schedule-avail-shifts-badge,
+  .bb-edit-section-badge,
   .native-control-pill
 ) {
   display: inline-flex !important;
@@ -104,6 +144,56 @@ html body .native-ui :where(
   justify-content: center !important;
   box-sizing: border-box !important;
   text-align: center !important;
+}
+
+/* Every chip label, icon, and count inherits a stable one-line center. */
+html body .native-ui :where(
+  .bb-support-filter-chip,
+  .bb-ops-tab,
+  .bb-clients-chip,
+  .bb-services-chip,
+  .bb-services-duration-chip,
+  .bb-products-chip,
+  .bb-explore-pick,
+  .bb-client-dm-chip,
+  .bb-places-distance,
+  .bb-segment button,
+  .bb-miniapp-segment button
+) {
+  line-height: 1 !important;
+}
+
+html body .native-ui :where(
+  .bb-support-filter-chip,
+  .bb-ops-tab,
+  .bb-clients-chip,
+  .bb-services-chip,
+  .bb-services-duration-chip,
+  .bb-products-chip,
+  .bb-explore-pick,
+  .bb-client-dm-chip,
+  .bb-places-distance,
+  .bb-segment button,
+  .bb-miniapp-segment button
+) > :where(span, svg) {
+  align-self: center !important;
+  flex-shrink: 0;
+}
+
+html body .native-ui :where(
+  .bb-support-filter-chip,
+  .bb-ops-tab,
+  .bb-clients-chip,
+  .bb-services-chip,
+  .bb-services-duration-chip,
+  .bb-products-chip,
+  .bb-explore-pick,
+  .bb-client-dm-chip,
+  .bb-places-distance,
+  .bb-segment button,
+  .bb-miniapp-segment button
+) > svg {
+  display: block;
 }
 
 html body .native-ui :where(

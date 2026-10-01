@@ -7,6 +7,7 @@ import {
   Home,
   MapPin,
   MessageCircle,
+  Navigation,
   Bookmark,
   ShoppingBag,
   X
@@ -34,12 +35,26 @@ function Identity({ biz, showFullAddress = false, showLocation = true, showDista
     ? String(biz.fullAddress || biz.address || location || '').trim()
     : location;
   return <>
-    <span className="bb-places-name">{biz.brandName}</span>
-    <span className="bb-public-profile-meta bb-places-meta">
-      {category ? <span className="bb-public-profile-chip bb-public-profile-chip--category"><span className="bb-public-profile-category">{category}</span></span> : null}
-      {showLocation && locationLabel ? <span className="bb-public-profile-chip bb-public-profile-chip--location"><span className="bb-public-profile-chip-icon" aria-hidden="true" /><span className="bb-public-profile-location">{locationLabel}</span></span> : null}
+    <span className="bb-places-title-block">
+      <span className="bb-places-name">{biz.brandName}</span>
+      {category ? <span className="bb-places-category">{category}</span> : null}
     </span>
-    {showDistance && distance ? <span className="bb-places-distance">{distance} from you</span> : null}
+    {(showLocation && locationLabel) || (showDistance && distance) ? (
+      <span className="bb-places-detail-row">
+        {showLocation && locationLabel ? (
+          <span className="bb-public-profile-meta bb-places-meta">
+            <span className="bb-public-profile-chip bb-public-profile-chip--location"><span className="bb-public-profile-chip-icon" aria-hidden="true" /><span className="bb-public-profile-location">{locationLabel}</span></span>
+          </span>
+        ) : null}
+        {showDistance && distance ? (
+          <span className="bb-places-distance">
+            <Navigation size={12} strokeWidth={2.15} aria-hidden="true" />
+            <strong>{distance}</strong>
+            <span>from you</span>
+          </span>
+        ) : null}
+      </span>
+    ) : null}
   </>;
 }
 

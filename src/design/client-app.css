@@ -125,7 +125,7 @@
 
 .bb-client-tabs {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
   border-top: 1px solid rgba(15, 23, 42, 0.06);
   background: rgba(255, 255, 255, 0.96);
@@ -201,7 +201,7 @@
     z-index: 100;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(5, auto);
+    grid-template-rows: repeat(3, auto);
     align-content: center;
     justify-items: center;
     gap: 0.35rem;
@@ -337,7 +337,9 @@
     height: var(--bb-client-tab-h);
     box-sizing: border-box;
     margin: 0;
+    justify-items: stretch;
   }
+  .bb-client-tab { width: 100%; min-width: 0; }
   .bb-client-tab-icon { width: 3.1rem; height: 3.1rem; min-width: 3.1rem; min-height: 3.1rem; }
   .bb-client-tab-icon svg { width: 25px; height: 25px; }
   .bb-client-shell.is-dock-hidden:not(:has(.bb-client-home-feed.is-vertical-open)):not(:has(.bb-client-ig-explore.is-immersive .bb-vertical-watch)) {
@@ -3548,31 +3550,73 @@
   min-height: 0;
 }
 
-.bb-client-desk.has-tabs .bb-social-profile-tabs {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0;
-  margin: 0;
-  padding: 0 0.15rem;
-  border-top: 0;
-  border-bottom: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+.bb-client-desk.has-tabs .bb-client-content-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 40rem);
+  min-height: 3.25rem;
+  margin-inline: auto;
+  padding-inline: 0.75rem;
 }
 
-.bb-client-desk.has-tabs .bb-social-profile-tabs::-webkit-scrollbar {
-  display: none;
+.bb-client-content-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 0;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.85rem;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #475467;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease;
 }
 
-.bb-client-desk.has-tabs .bb-social-profile-tab {
-  flex: 1 0 auto;
-  min-width: 4.25rem;
-  min-height: 2.55rem;
-  padding: 0.45rem 0.55rem;
-  flex-direction: row;
-  gap: 0.28rem;
-  font-size: 0.62rem;
+.bb-client-content-tab::after {
+  content: '';
+  position: absolute;
+  right: 18%;
+  bottom: -1px;
+  left: 18%;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: transparent;
+}
+
+.bb-client-content-tab:hover {
+  background: rgba(16, 24, 40, 0.025);
+  color: #101828;
+}
+
+.bb-client-content-tab.is-active {
+  color: #101828;
+  font-weight: 750;
+}
+
+.bb-client-content-tab.is-active::after {
+  background-image: var(--native-accent-gradient);
+  background-repeat: no-repeat;
+  background-size: 240% 100%;
+  background-position: var(--native-accent-x, 40%) 50%;
+}
+
+.bb-client-content-tab:focus-visible {
+  z-index: 1;
+  outline: 2px solid #101828;
+  outline-offset: -4px;
+}
+
+.bb-client-content-tab svg {
+  flex: 0 0 auto;
 }
 
 .bb-client-desk-mobile-tabs {
@@ -3596,7 +3640,7 @@
   }
 
   .bb-client-desk.has-tabs .bb-client-desk-rail {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.96);
   }
 
   .bb-client-desk-stage {
@@ -3710,9 +3754,37 @@
 
 @media (max-width: 899px) {
   .bb-client-ig-explore .bb-client-ig-top {
-    gap: 0.5rem;
-    padding: 0.55rem 0.85rem 0.6rem;
-    padding-top: 0.55rem;
+    gap: 0.62rem;
+    padding: 0.65rem 0.75rem 0.72rem;
+    padding-top: 0.65rem;
+    border-bottom-color: #e7eaf0;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(16, 24, 40, 0.025);
+    backdrop-filter: none;
+  }
+
+  .bb-client-ig-explore .bb-explore-discovery {
+    gap: 0.62rem;
+    margin: 0;
+  }
+
+  .bb-client-ig-explore .bb-explore-discovery-row {
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+  }
+
+  .bb-client-ig-explore .bb-explore-discovery-modes {
+    flex: 0 0 auto;
+  }
+
+  .bb-client-ig-explore .bb-explore-near {
+    justify-content: flex-end;
+    margin-left: auto;
+    overflow: hidden;
+  }
+
+  .bb-client-ig-explore .bb-explore-near-text {
+    max-width: 7.5rem;
   }
 }
 
@@ -3754,8 +3826,8 @@
   border: 1.5px solid transparent;
   border-radius: 999px;
   background: transparent;
-  color: #667085;
-  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  color: #475467;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
   font-size: 0.74rem;
   font-weight: 650;
   letter-spacing: -0.01em;
@@ -3781,7 +3853,8 @@
   align-items: center;
   gap: 0.28rem;
   min-width: 0;
-  color: #667085;
+  color: #475467;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
   font-size: 0.74rem;
   font-weight: 550;
 }
@@ -3791,8 +3864,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 10rem;
-  color: #344054;
-  font-weight: 650;
+  color: #101828;
+  font-weight: 620;
 }
 
 .bb-explore-near-btn {
@@ -3801,7 +3874,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #475467;
+  color: #101828;
   font: inherit;
   font-weight: 700;
   font-size: 0.72rem;
@@ -3849,11 +3922,12 @@
 
 .bb-distance-slider-label {
   margin: 0;
-  color: #98a2b3;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: #475467;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 680;
+  letter-spacing: 0;
+  text-transform: none;
   white-space: nowrap;
 }
 
@@ -3959,9 +4033,10 @@
   margin: 0;
   padding: 0.28rem 0.55rem;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid #e4e7ec;
+  background: #f7f8fa;
   color: #101828;
-  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   min-width: 3.6rem;
@@ -3978,7 +4053,7 @@
 .bb-distance-slider-value-unit {
   font-size: 0.62rem;
   font-weight: 650;
-  color: #667085;
+  color: #475467;
   letter-spacing: 0.02em;
   text-transform: lowercase;
   line-height: 1;
@@ -4006,6 +4081,27 @@
 .bb-explore-search-anchor {
   position: relative;
   z-index: 41;
+}
+
+.bb-client-ig-explore.is-find .bb-explore-search-field .native-search-input {
+  border-color: #dfe3e8 !important;
+  background-color: #fff !important;
+  color: #101828 !important;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 0.84rem !important;
+  font-weight: 540 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.bb-client-ig-explore.is-find .bb-explore-search-field .native-search-input::placeholder {
+  color: #7b8494 !important;
+  opacity: 1;
+  font: inherit;
+}
+
+.bb-client-ig-explore.is-find .bb-explore-search-field .bb-search-field-icon {
+  color: #667085 !important;
+  opacity: 1;
 }
 
 .bb-explore-search.is-open .bb-explore-search-field .native-search-input {
@@ -4132,12 +4228,15 @@
 
 .bb-explore-pick-modes-grid .bb-explore-pick {
   width: auto;
+  min-height: 2.45rem;
+  padding: 0.45rem 0.78rem;
 }
 
 .bb-explore-pick-modes-grid .bb-explore-pick-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #101828;
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: #667085;
 }
 
 .bb-explore-pick-split-wrap {
@@ -4367,19 +4466,39 @@
   appearance: none;
   width: 100%;
   margin: 0.2rem 0 0;
-  padding: 0.7rem 0.85rem;
-  border: 0;
-  border-radius: 0.75rem;
-  background: #101828;
-  color: #fff;
-  font-family: 'Figtree', 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.84rem;
-  font-weight: 650;
+  min-height: 2.75rem;
+  padding: 0.66rem 1rem;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  background-color: transparent;
+  background-image:
+    linear-gradient(#fff, #fff),
+    var(
+      --native-accent-gradient,
+      linear-gradient(110deg, #b8ff6a, #5eead4, #c4b5fd, #f9a8d4)
+    );
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  color: #101828;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.055);
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 760;
+  letter-spacing: -0.01em;
   cursor: pointer;
+  transition: box-shadow 150ms ease, transform 150ms ease;
 }
 
 .bb-explore-search-submit:hover {
-  background: #1d2939;
+  box-shadow: 0 7px 18px rgba(15, 23, 42, 0.09);
+  transform: translateY(-1px);
+}
+
+.bb-explore-search-submit:focus-visible {
+  outline: 2px solid #101828;
+  outline-offset: 2px;
 }
 
 .bb-explore-places-label {
@@ -5065,6 +5184,267 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
   }
 }
 
+/* Find marketplace — scalable business shelves for Book and Buy. */
+.bb-client-ig-explore.is-find .bb-explore-biz-list {
+  gap: 0.85rem;
+  padding: 0.75rem clamp(0.7rem, 1.6vw, 1.35rem) 1.5rem;
+  background: #fff;
+}
+
+.bb-marketplace-business {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e4e7ec;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.045);
+}
+
+.bb-marketplace-business-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.65rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.bb-marketplace-business-identity {
+  appearance: none;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 0.72rem;
+  min-width: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #101828;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bb-marketplace-business-logo {
+  display: grid;
+  place-items: center;
+  flex: 0 0 3rem;
+  width: 3rem;
+  height: 3rem;
+  overflow: hidden;
+  border: 1px solid #e4e7ec;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(16, 24, 40, 0.08);
+}
+
+.bb-marketplace-business-logo img,
+.bb-marketplace-business-logo .bb-blank-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bb-marketplace-business-copy {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.18rem 0.7rem;
+  min-width: 0;
+}
+
+.bb-marketplace-business-title {
+  display: grid;
+  flex: 0 1 auto;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.bb-marketplace-business-title > strong {
+  overflow: hidden;
+  color: #101828;
+  font-family: 'Plus Jakarta Sans', Figtree, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 780;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-marketplace-business-category { margin-top: 0.02rem; }
+.bb-marketplace-business-details { flex: 0 0 auto; flex-wrap: nowrap; margin-top: 0; }
+.bb-marketplace-business-details .bb-public-profile-chip-icon { background: #101828; }
+
+.bb-marketplace-store-link {
+  appearance: none;
+  flex: 0 0 auto;
+}
+
+.bb-marketplace-store-link--mobile { display: none !important; }
+
+.bb-marketplace-shelf {
+  position: relative;
+  min-width: 0;
+  padding: 0.62rem;
+}
+
+.bb-marketplace-offers {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.bb-marketplace-offers.bb-public-product-grid > .bb-public-product-card {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.bb-marketplace-offers .bb-public-product-surface > .bb-public-product-media {
+  margin: 0.28rem 0.28rem 0;
+}
+
+.bb-marketplace-offers .bb-public-product-price-row {
+  min-height: 2.45rem;
+  padding: 0.42rem 0.5rem 0.46rem;
+}
+
+.bb-client-ig-explore.is-find .bb-marketplace-offers .bb-public-product-name {
+  margin: 0;
+  color: #101828;
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.022em !important;
+  line-height: 1.22 !important;
+  text-align: center;
+}
+
+.bb-client-ig-explore.is-find .bb-marketplace-offers .bb-public-product-price {
+  margin: 0;
+  color: rgba(16, 24, 40, 0.62);
+  font-family: Figtree, 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.15 !important;
+  text-align: center;
+}
+
+.bb-marketplace-offers .bb-public-product-actions {
+  min-height: 2.15rem;
+}
+
+@media (min-width: 1500px) {
+  .bb-marketplace-offers {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.bb-marketplace-scroll-cue {
+  display: none;
+}
+
+.bb-marketplace-business :is(button):focus-visible {
+  z-index: 2;
+  outline: 2px solid #101828;
+  outline-offset: 2px;
+}
+
+@media (max-width: 899px) {
+  .bb-client-ig-explore.is-find .bb-explore-biz-list {
+    gap: 0.65rem;
+    padding: 0.55rem 0 1.25rem;
+  }
+
+  .bb-marketplace-business {
+    border-inline: 0;
+    box-shadow: 0 5px 16px rgba(16, 24, 40, 0.035);
+  }
+
+  .bb-marketplace-business-head {
+    gap: 0.6rem;
+    min-height: 5.2rem;
+    padding: 0.62rem 0.72rem;
+  }
+
+  .bb-marketplace-business-logo {
+    flex-basis: 2.65rem;
+    width: 2.65rem;
+    height: 2.65rem;
+  }
+
+  .bb-marketplace-business-title > strong {
+    font-size: 0.88rem;
+  }
+
+  .bb-marketplace-business-title { flex: 0 1 auto; }
+  .bb-marketplace-business-category { overflow: hidden; font-size: 0.67rem; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+  .bb-marketplace-business-copy { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 0.3rem; width: 100%; overflow: hidden; }
+  .bb-marketplace-business-copy .bb-marketplace-business-details { display: flex; align-items: center; flex-wrap: nowrap; justify-content: flex-start; gap: 0.3rem; width: 100%; overflow: hidden; }
+  .bb-marketplace-business-details .bb-places-meta { min-width: 0; overflow: hidden; }
+  .bb-marketplace-business-details .bb-public-profile-chip { min-width: 0; min-height: 1.35rem; padding: 0.18rem 0.38rem; }
+  .bb-marketplace-business-details .bb-public-profile-location { overflow: hidden; font-size: 0.61rem; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+  .bb-marketplace-business-details .bb-places-distance { min-height: 1.35rem; padding: 0.18rem 0.4rem; font-size: 0.61rem; }
+
+  .bb-marketplace-store-link--desktop { display: none !important; }
+  .bb-marketplace-store-link--mobile {
+    display: inline-flex !important;
+    width: calc(100% - 1.24rem);
+    min-height: 2.4rem;
+    margin: 0 0.62rem 0.72rem;
+  }
+
+  .bb-marketplace-shelf {
+    padding: 0.55rem 0 0.62rem 0.62rem;
+  }
+
+  .bb-marketplace-offers,
+  .bb-marketplace-offers.bb-public-product-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(9.5rem, 46vw);
+    gap: 0.55rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding-right: 0.62rem;
+    scroll-padding-inline: 0.62rem;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bb-marketplace-offers::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bb-marketplace-offers .bb-public-product-card {
+    scroll-snap-align: start;
+  }
+
+  .bb-marketplace-scroll-cue {
+    position: absolute;
+    right: 0.55rem;
+    top: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid rgba(16, 24, 40, 0.12);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.96);
+    color: #101828;
+    box-shadow: 0 5px 16px rgba(16, 24, 40, 0.14);
+    transform: translateY(-50%);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+  }
+}
+
 .bb-places-list { display: grid; gap: 0.55rem; width: 100%; padding: 0.1rem 0 1.25rem; }
 .bb-places-row { min-width: 0; background: #fff; border: 1px solid #e4e7ec; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
 .bb-places-row:hover { border-color: #cfd4dc; box-shadow: 0 8px 22px #1018280b; transform: translateY(-1px); }
@@ -5075,13 +5455,18 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
 .bb-places-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .bb-places-row-art .bb-places-avatar { position: absolute; bottom: 0.45rem; left: 0.45rem; width: 2.8rem; height: 2.8rem; }
 .bb-places-row-identity { display: grid; min-width: 0; align-content: center; justify-items: start; gap: 0.42rem; overflow: hidden; }
+.bb-places-title-block { display: grid; gap: 0.12rem; min-width: 0; max-width: 100%; }
 .bb-places-name { font-size: 1rem; font-weight: 760; line-height: 1.3; overflow-wrap: anywhere; }
 .bb-places-row .bb-places-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bb-places-category { min-width: 0; color: #101828; font-family: Figtree, 'Plus Jakarta Sans', sans-serif; font-size: 0.73rem; font-weight: 500; letter-spacing: 0; line-height: 1.28; overflow-wrap: anywhere; }
+.bb-places-detail-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; min-width: 0; max-width: 100%; }
 .bb-places-meta { max-width: 100%; margin: 0; gap: 0.35rem; }
 .bb-places-row .bb-places-meta { justify-content: flex-start; max-height: 3.1rem; overflow: hidden; }
 .bb-places-meta .bb-public-profile-chip { max-width: 100%; }
-.bb-places-meta .bb-public-profile-category, .bb-places-meta .bb-public-profile-location { white-space: normal; overflow-wrap: anywhere; line-height: 1.3; min-width: 0; }
-.bb-places-distance { font-size: 0.7rem; color: #667085; }
+.bb-places-meta .bb-public-profile-location { white-space: normal; overflow-wrap: anywhere; line-height: 1.3; min-width: 0; }
+.bb-places-distance { display: inline-flex; align-items: center; justify-content: center; gap: 0.28rem; min-height: 1.75rem; padding: 0.28rem 0.62rem; border: 1.5px solid transparent; border-radius: 999px; background: linear-gradient(#fff, #fff) padding-box, var(--native-accent-button-gradient, var(--native-accent-gradient)) border-box; background-size: auto, 420% 420%; background-position: 0 0, var(--native-accent-x, 40%) 50%; box-shadow: 0 3px 10px rgba(16, 24, 40, 0.045); color: #101828; font-family: 'Plus Jakarta Sans', Figtree, sans-serif; font-size: 0.74rem; font-weight: 720; letter-spacing: 0.01em; line-height: 1; white-space: nowrap; box-sizing: border-box; }
+.bb-places-distance svg { display: block; flex: 0 0 auto; color: #101828; }
+.bb-places-distance strong, .bb-places-distance span { color: #101828; font: inherit; letter-spacing: inherit; }
 .bb-places-row-chevron { display: grid; place-items: center; align-self: center; width: 2rem; height: 2rem; color: #98a2b3; transition: color 160ms ease, transform 160ms ease; }
 .bb-places-row:hover .bb-places-row-chevron { color: #344054; transform: translateX(2px); }
 .bb-places-overlay { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 1.5rem; background: #10182870; backdrop-filter: blur(5px); }
@@ -5090,6 +5475,7 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
 .bb-places-cover { height: 11rem; background: #f3f5f7; overflow: hidden; }
 .bb-places-dialog-identity { display: grid; justify-items: center; gap: 0.6rem; padding: 0 1.5rem 1rem; text-align: center; }
 .bb-places-dialog-identity .bb-places-avatar { width: 5rem; height: 5rem; margin-top: -2.5rem; position: relative; }
+.bb-places-dialog-identity .bb-places-title-block { justify-items: center; }
 .bb-places-dialog-identity .bb-places-name { font-size: 1.3rem; }
 .bb-places-dialog-identity .bb-places-meta { justify-content: center; }
 .bb-places-section { padding: 1rem 1.5rem 1.1rem; border-top: 1px solid #eef1f4; }
@@ -5120,14 +5506,17 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
 .bb-places-open:focus-visible, .bb-places-dialog a:focus-visible, .bb-places-dialog button:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
 @media (max-width: 599px) {
   .bb-places-list { gap: 0.45rem; }
-  .bb-places-open { grid-template-columns: 5.4rem minmax(0, 1fr) 1.6rem; height: 6.75rem; gap: 0.65rem; padding: 0.45rem 0.4rem 0.45rem 0.45rem; }
+  .bb-places-open { grid-template-columns: 5.4rem minmax(0, 1fr) 1.6rem; height: 7.35rem; gap: 0.65rem; padding: 0.45rem 0.4rem 0.45rem 0.45rem; }
   .bb-places-row-identity { gap: 0.3rem; }
   .bb-places-row-art .bb-places-avatar { width: 2.35rem; height: 2.35rem; left: 0.3rem; bottom: 0.3rem; border-width: 2px; }
   .bb-places-row .bb-places-name { font-size: 0.88rem; line-height: 1.25; }
-  .bb-places-row .bb-places-meta { gap: 0.25rem; justify-content: flex-start; }
-  .bb-places-row .bb-places-distance { font-size: 0.65rem; line-height: 1.3; margin-top: 0.05rem; }
-  .bb-places-row .bb-public-profile-chip { padding: 0.18rem 0.38rem; min-height: 1.35rem; }
-  .bb-places-row .bb-public-profile-category, .bb-places-row .bb-public-profile-location { font-size: 0.61rem; line-height: 1.2; }
+  .bb-places-row .bb-places-title-block { gap: 0.08rem; }
+  .bb-places-row .bb-places-category { font-size: 0.67rem; line-height: 1.2; }
+  .bb-places-row .bb-places-detail-row { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: start; gap: 0.3rem; width: 100%; }
+  .bb-places-row .bb-places-meta { flex: 1 1 auto; min-width: 0; gap: 0.25rem; justify-content: flex-start; }
+  .bb-places-row .bb-places-distance { flex: 0 0 auto; max-width: 100%; min-height: 1.35rem; padding: 0.18rem 0.4rem; font-size: 0.61rem; line-height: 1; margin-top: 0; }
+  .bb-places-row .bb-public-profile-chip { width: 100%; min-width: 0; padding: 0.18rem 0.38rem; min-height: 1.35rem; }
+  .bb-places-row .bb-public-profile-location { min-width: 0; overflow: hidden; font-size: 0.61rem; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
   .bb-places-row-chevron { width: 1.6rem; height: 1.6rem; }
   .bb-places-overlay { padding: 0.75rem 0 max(0.5rem, env(safe-area-inset-bottom)); align-items: end; }
   .bb-places-dialog { width: 100%; max-height: calc(100dvh - 1.25rem - env(safe-area-inset-bottom)); padding-bottom: 0; scroll-padding-bottom: 4.5rem; }

@@ -439,13 +439,13 @@ export function ExploreDiscoveryBar({
               type="search"
               className="native-search-input"
               value={draft}
-              placeholder={hasChips ? 'Add more…' : 'Search places, posts, or industries'}
+              placeholder={hasChips ? 'Add another filter…' : 'Search places, services, or products'}
               autoCapitalize="none"
               autoCorrect="off"
               autoComplete="off"
               aria-expanded={showPanel}
               aria-controls={`${searchId}-panel`}
-              aria-label="Search places, posts, or industries"
+              aria-label="Search places, services, or products"
               onFocus={() => setOpen(true)}
               onChange={(event) => {
                 const next = event.target.value;

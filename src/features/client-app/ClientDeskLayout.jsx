@@ -1,10 +1,17 @@
 function ContentTabs({ value, onChange, tabs = [] }) {
   return (
-    <div className="bb-social-profile-tabs" role="tablist" aria-label="Content type">
+    <div className="bb-client-content-tabs" role="tablist" aria-label="Find sections">
       {tabs.map(({ id, label, Icon }) => {
         const active = value === id;
         return (
-          <button key={id} type="button" role="tab" aria-selected={active} className={`bb-social-profile-tab ${active ? 'is-active' : ''}`} onClick={() => onChange?.(id)}>
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            className={`bb-client-content-tab${active ? ' is-active' : ''}`}
+            onClick={() => onChange?.(id)}
+          >
             {Icon ? <Icon size={16} strokeWidth={active ? 2.4 : 2} aria-hidden="true" /> : null}
             <span>{label}</span>
           </button>

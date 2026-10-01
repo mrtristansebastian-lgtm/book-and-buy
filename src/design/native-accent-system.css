@@ -457,7 +457,8 @@
             .bb-clients-chip.is-active,
             .bb-services-chip.is-active,
             .bb-services-duration-chip.is-active,
-            .bb-products-chip.is-active
+            .bb-products-chip.is-active,
+            .bb-explore-pick.is-on
         ) {
             color: #101828 !important;
             border: 1.5px solid transparent !important;

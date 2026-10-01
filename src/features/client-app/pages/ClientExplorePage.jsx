@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useMemo, useState } from 'react';
-import { MapPin } from 'lucide-react';
+import { CalendarDays, MapPin, ShoppingBag } from 'lucide-react';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { APP_ID } from '../../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from '../../../shared/firebase/client';
@@ -21,8 +21,8 @@ import { filterDiscoverBusinesses, normalizeBiz } from '../exploreDiscovery';
 
 const TABS = [
   { id: 'places', label: 'Places', kind: 'places', Icon: MapPin },
-  { id: 'book', label: 'Book', kind: 'book' },
-  { id: 'buy', label: 'Buy', kind: 'buy' }
+  { id: 'book', label: 'Book', kind: 'book', Icon: CalendarDays },
+  { id: 'buy', label: 'Buy', kind: 'buy', Icon: ShoppingBag }
 ];
 
 function withCatalog(raw = {}) {
@@ -86,7 +86,14 @@ export function ClientExplorePage() {
   }, [local, remote]);
   const discovered = useMemo(() => filterDiscoverBusinesses(directory, { mode: exploreMode, maxKm: exploreMaxKm, categoryIds: exploreCategoryIds, clientLat, clientLng, clientCountryCode }), [directory, exploreMode, exploreMaxKm, exploreCategoryIds, clientLat, clientLng, clientCountryCode]);
   const needle = queryText.trim().toLowerCase();
-  const visible = useMemo(() => discovered.filter((biz) => !needle || `${biz.brandName} ${biz.blurb} ${biz.categoryLabel} ${biz.city}`.toLowerCase().includes(needle)), [discovered, needle]);
+  const visible = useMemo(() => discovered.filter((biz) => {
+    if (!needle) return true;
+    const serviceNames = (biz.services || []).map((item) => item?.name || '').join(' ');
+    const productNames = (biz.products || []).map((item) => item?.name || '').join(' ');
+    return `${biz.brandName} ${biz.blurb} ${biz.categoryLabel} ${biz.city} ${serviceNames} ${productNames}`
+      .toLowerCase()
+      .includes(needle);
+  }), [discovered, needle]);
   const offers = useMemo(() => visible.map((biz) => {
     const source = filter === 'book' ? biz.services : biz.products.filter(isProductPubliclyVisible);
     const items = source.slice(0, 4).map((item) => offerItem(item, filter));
