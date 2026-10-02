@@ -25,7 +25,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 if (!getApps().length) initializeApp();
 
 const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
-const googlePlacesCallOptions = { secrets: [googlePlacesApiKey] };
+// Review requests wait on Google's API; fractional CPU avoids unnecessary regional quota usage.
+const googlePlacesCallOptions = { secrets: [googlePlacesApiKey], cpu: 'gcf_gen1', memory: '256MiB', concurrency: 1, maxInstances: 5 };
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 
