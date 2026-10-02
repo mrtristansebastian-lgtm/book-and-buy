@@ -47,6 +47,7 @@ export function QuickActionsMenu({
   clientOrders = []
 }) {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -65,9 +66,9 @@ export function QuickActionsMenu({
     };
   }, [open]);
 
-  const run = (fn) => {
-    fn?.();
-    setOpen(false);
+  const run = async (fn) => {
+    setError('');
+    try { await fn?.(); setOpen(false); } catch (failure) { setError(failure.message || 'That action could not be completed.'); }
   };
 
   const hasBookingActions = Boolean(linkedBooking);
@@ -164,6 +165,7 @@ export function QuickActionsMenu({
           ) : null}
 
           <div className="bb-support-quick-group">
+            {error && <p role="alert" className="bb-reschedule-error">{error}</p>}
             <ActionItem
               icon={Copy}
               label="Copy email"

@@ -7,7 +7,7 @@ export function BookingsSettingsPage() {
   const rules = workspace.availabilityRules || {};
 
   return (
-    <div className="grid gap-4 max-w-2xl">
+    <div className="bb-settings-content bb-settings-content--bookings">
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Booking policies</h2>
         <p className="bb-muted m-0 text-sm">

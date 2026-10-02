@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LayoutGrid, List } from 'lucide-react';
 import { launcherApps } from '../../../config/appLauncher';
 import { DemoModePanel } from '../../../shared/ui/DemoModePanel';
@@ -26,6 +26,25 @@ export function OwnerAppsNav({ className = '', onSelect = null, showToggle = tru
   const { workspace } = useWorkspace();
   const { badgeFor } = useWorkspaceBadges();
   const [view, setView] = useState(readLauncherView);
+  const rootRef = useRef(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(launcherApps.length);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root?.closest('.bb-owner-menu-sheet')) return undefined;
+    const body = root.closest('.bb-owner-menu-sheet-body');
+    const measure = () => {
+      const height = body.clientHeight;
+      const font = parseFloat(getComputedStyle(root).fontSize) / 16;
+      const footer = workspace?.isDemo ? 105 * font : 0;
+      const perGroup = 102 * font;
+      const count = Math.max(1, Math.min(launcherApps.length, Math.floor((height - footer - 56) / perGroup)));
+      setPageSize(count); setPage((value) => Math.min(value, Math.ceil(launcherApps.length / count) - 1));
+    };
+    const observer = new ResizeObserver(measure); observer.observe(body); measure();
+    return () => observer.disconnect();
+  }, [workspace?.isDemo]);
+  const pageCount = Math.ceil(launcherApps.length / pageSize);
 
   const toggleView = () => {
     const next = view === 'icons' ? 'list' : 'icons';
@@ -38,7 +57,7 @@ export function OwnerAppsNav({ className = '', onSelect = null, showToggle = tru
   };
 
   return (
-    <div className={`bb-owner-apps-nav ${className}`.trim()}>
+    <div ref={rootRef} className={`bb-owner-apps-nav ${className}`.trim()}>
       {showToggle ? (
         <div className="bb-owner-apps-nav-toolbar">
           <p className="bb-owner-apps-nav-title m-0">Apps</p>
@@ -60,17 +79,19 @@ export function OwnerAppsNav({ className = '', onSelect = null, showToggle = tru
       ) : null}
 
       <div className="bb-owner-apps-nav-groups" style={{ '--n': launcherApps.length }}>
-        {launcherApps.map((app, index) => (
+        {launcherApps.slice(page * pageSize, (page + 1) * pageSize).map((app, index) => (
           <AppTile
             key={app.id}
             app={app}
             badgeFor={badgeFor}
             index={index + 1}
-            view={view}
+            view={showToggle ? view : 'icons'}
             onSelect={onSelect}
           />
         ))}
       </div>
+
+      {pageCount > 1 && <nav className="bb-menu-pages" aria-label="Menu categories"><button type="button" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>Previous</button><span>{page + 1} / {pageCount}</span><button type="button" disabled={page === pageCount - 1} onClick={() => setPage((value) => value + 1)}>More apps</button></nav>}
 
       {workspace?.isDemo ? (
         <DemoModePanel

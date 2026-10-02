@@ -4,6 +4,7 @@ import { normalizeService, normalizeServiceList, collectServiceCategories } from
 import { collectProductCategories, normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
 import { saveOwnerWorkspaceToFirestore } from '../../shared/firebase/ownerWorkspace';
+import { firebaseCallables } from '../../shared/firebase/callables';
 import {
   canEditAvailabilityRules,
   canEditStaffAvailability
@@ -11,8 +12,15 @@ import {
 import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 import { MODE_KEY, OWNER_KEY, DEMO_KEY, safeParse } from './workspacePersistence';
 
-export function createWorkspaceApi({ workspace, setWorkspace, user }) {
-    const updateBooking = (id, patch) => {
+export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError = () => {} }) {
+    const updateBooking = async (id, patch) => {
+      if (!workspace.isDemo) {
+        const current = workspace.bookings.find((booking) => booking.id === id);
+        if (!current) throw new Error('Booking not found.');
+        const record = await firebaseCallables.createOwnerBookingRequest({ ownerId: workspace.ownerId || user?.uid, booking: { id, ...patch }, expectedRevision: current.revision || 0 });
+        setWorkspace((prev) => ({ ...prev, bookings: prev.bookings.map((booking) => booking.id === id ? record : booking) }));
+        return record;
+      }
       setWorkspace((prev) => ({
         ...prev,
         bookings: prev.bookings.map((booking) =>
@@ -21,13 +29,27 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
       }));
     };
 
-    const updateOrder = (id, patch) => {
+    const updateOrder = async (id, patch) => {
+      if (!workspace.isDemo) {
+        onOrderError('');
+        try {
+        const current = workspace.orders.find((order) => order.id === id);
+        if (!current) throw new Error('Order not found.');
+        const record = await firebaseCallables.updateOwnerProductOrder({ ownerId: workspace.ownerId || user?.uid, id, patch, expectedRevision: current.revision || 0 });
+        setWorkspace((prev) => ({ ...prev, orders: prev.orders.map((order) => order.id === id ? record : order) }));
+        return record;
+        } catch (error) {
+          onOrderError(error.message || 'The order could not be updated. Please try again.');
+          return null;
+        }
+      }
       setWorkspace((prev) => ({
         ...prev,
         orders: prev.orders.map((order) =>
           order.id === id ? { ...order, ...patch, updatedAt: Date.now() } : order
         )
       }));
+      return { id, ...patch };
     };
 
     return {
@@ -98,7 +120,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
           productCategories: collectProductCategories(prev.products || [], categories || [])
         }));
       },
-      addBooking: (booking) => {
+      addBooking: async (booking) => {
         const record = {
           id: booking.id || `bk-${Date.now()}`,
           timestamp: Date.now(),
@@ -107,20 +129,39 @@ export function createWorkspaceApi({ workspace, setWorkspace, user }) {
           source: booking.source || 'owner',
           ...booking
         };
+        if (!workspace.isDemo) {
+          const remote = await firebaseCallables.createOwnerBookingRequest({ ownerId: workspace.ownerId || user?.uid, booking: record });
+          setWorkspace((prev) => ({ ...prev, bookings: [remote, ...prev.bookings.filter((b) => b.id !== remote.id)] }));
+          return remote;
+        }
         setWorkspace((prev) => ({ ...prev, bookings: [record, ...prev.bookings] }));
         return record;
       },
       updateBooking,
+      applyDemoReschedule: (threadId, proposal, actor) => {
+        if (!workspace.isDemo) throw new Error('Local rescheduling is available only in demo mode.');
+        setWorkspace((prev) => ({ ...prev,
+          bookings: proposal.status === 'accepted' ? prev.bookings.map((booking) => booking.id === proposal.bookingId ? { ...booking, date: proposal.proposed.dateKey, dateKey: proposal.proposed.dateKey, time: proposal.proposed.time, scheduleSessionId: proposal.proposed.scheduleSessionId || booking.scheduleSessionId || '', updatedAt: proposal.updatedAt } : booking) : prev.bookings,
+          threads: prev.threads.map((thread) => thread.id === threadId ? { ...thread, updatedAt: proposal.updatedAt, messages: [...(thread.messages || []), { id: crypto.randomUUID(), type: 'reschedule', from: actor, at: proposal.updatedAt, proposal, body: `Reschedule ${proposal.status}` }] } : thread)
+        }));
+      },
       confirmBooking: (id) => updateBooking(id, { status: 'confirmed' }),
       declineBooking: (id) => updateBooking(id, { status: 'declined' }),
       waitlistBooking: (id) => updateBooking(id, { status: 'waitlist' }),
       markPaid: (id) => updateBooking(id, { paymentStatus: 'paid' }),
-      placeProductOrder: ({ items, client, paymentMethod }) => {
+      placeProductOrder: async ({ items, client, paymentMethod, shipping, requestId }) => {
+        if (!workspace.isDemo) {
+          const order = await firebaseCallables.createPublicProductOrder({ slug: workspace.slug, items, client, paymentMethod, requestId: requestId || crypto.randomUUID() });
+          setWorkspace((prev) => ({ ...prev, orders: prev.orders.some((item) => item.id === order.id) ? prev.orders : [order, ...prev.orders] }));
+          return order;
+        }
         const order = createPublicProductOrder({
           workspaceSlug: workspace.slug,
           workspaceName: workspace.brandName,
           items,
           client,
+          shipping,
+          currency: workspace.currency || 'R',
           paymentMethod
         });
         setWorkspace((prev) => ({ ...prev, orders: [order, ...prev.orders] }));

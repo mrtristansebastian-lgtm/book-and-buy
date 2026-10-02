@@ -222,6 +222,15 @@ export interface WebsiteSettings {
   city?: string;
   /** Online/hybrid: countries served; include "*" for worldwide. */
   servesCountries?: string[];
+  markets?: Array<{
+    id: string; countryCode: string; enabled: boolean; catalogMode: 'all' | 'selected';
+    productIds: string[]; variantKeys: string[]; serviceIds: string[]; shippingProfileIds: string[];
+  }>;
+  shippingProfiles?: Array<{
+    id: string; name: string; enabled: boolean; productMode: 'all' | 'selected';
+    productIds: string[]; variantKeys: string[]; rateCents: number;
+    freeAboveCents: number | null; deliveryEstimate: string;
+  }>;
   headline?: string;
   subcopy?: string;
   bookHeadline?: string;

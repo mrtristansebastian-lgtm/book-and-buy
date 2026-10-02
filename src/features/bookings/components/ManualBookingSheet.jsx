@@ -21,6 +21,8 @@ export function ManualBookingSheet({ onClose }) {
     clientPhone: '',
     status: 'confirmed'
   });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const service = services.find((item) => item.id === form.serviceId);
   const isSpot = getServiceScheduleType(service) === 'class_session';
@@ -66,9 +68,10 @@ export function ManualBookingSheet({ onClose }) {
 
   const selectedStaff = staff.find((item) => item.id === form.staffId);
 
-  const submit = () => {
+  const submit = async () => {
     if (!service || !form.date || !form.time || !form.clientName.trim()) return;
-    addBooking({
+    setSaving(true); setError('');
+    try { await addBooking({
       serviceId: service.id,
       serviceName: service.name,
       scheduleType: service.scheduleType,
@@ -87,13 +90,14 @@ export function ManualBookingSheet({ onClose }) {
       paymentStatus: 'unpaid',
       source: 'manual'
     });
-    onClose?.();
+    onClose?.(); } catch (failure) { setError(failure.message || 'Could not save the booking.'); } finally { setSaving(false); }
   };
 
   return (
     <div className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4">
       <div className="bb-panel w-full max-w-lg p-5 grid gap-3 max-h-[90vh] overflow-auto">
         <h2 className="bb-page-title text-2xl m-0">Manual booking</h2>
+        {error && <p role="alert" className="bb-pay-error">{error}</p>}
         <select
           value={form.serviceId}
           onChange={(event) =>
@@ -175,7 +179,7 @@ export function ManualBookingSheet({ onClose }) {
           <button type="button" className="bb-ghost-btn" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="bb-primary-btn" onClick={submit}>
+          <button type="button" className="bb-primary-btn" disabled={saving} onClick={submit}>
             Create booking
           </button>
         </div>

@@ -111,6 +111,8 @@ export function BookingRequestsDesk({ heading = null }) {
     startThreadFromBooking
   } = useWorkspace();
   const [filter, setFilter] = useState('upcoming');
+  const [actionError, setActionError] = useState('');
+  const runBookingAction = async (action) => { setActionError(''); try { await action(); } catch (error) { setActionError(error.message || 'The booking was not changed. Please try again.'); } };
   const [period, setPeriod] = useState('week');
   const [day, setDay] = useState(() => toDateKey(new Date()));
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
@@ -166,6 +168,7 @@ export function BookingRequestsDesk({ heading = null }) {
 
   return (
     <section className="bb-ops-desk">
+      {actionError && <p role="alert" className="bb-reschedule-error">{actionError}</p>}
       <div className="bb-page-chrome">
         {heading}
         <div className="bb-ops-toolbar" aria-label="Booking request period">
@@ -271,18 +274,18 @@ export function BookingRequestsDesk({ heading = null }) {
                   hint="Staff assigned to this booking"
                   onChange={(staffId) => {
                     const member = staff.find((item) => item.id === staffId) || null;
-                    assignBookingStaff(booking.id, member);
+                    runBookingAction(() => assignBookingStaff(booking.id, member));
                   }}
                 />
 
                 <div className="bb-ops-actions">
                   <OpsChatAction onClick={() => openChat(booking)} />
-                  <OpsAction onClick={() => markPaid(booking.id)}>
+                  <OpsAction onClick={() => runBookingAction(() => markPaid(booking.id))}>
                     <DollarSign size={13} strokeWidth={2.4} />
                     Mark paid
                   </OpsAction>
                   {!closed && status !== 'waitlist' ? (
-                    <OpsAction onClick={() => waitlistBooking(booking.id)}>
+                    <OpsAction onClick={() => runBookingAction(() => waitlistBooking(booking.id))}>
                       <Hourglass size={13} strokeWidth={2.2} />
                       Waitlist
                     </OpsAction>
@@ -297,11 +300,11 @@ export function BookingRequestsDesk({ heading = null }) {
                         tone="primary"
                         iconOnly
                         ariaLabel="Approve"
-                        onClick={() => confirmBooking(booking.id)}
+                        onClick={() => runBookingAction(() => confirmBooking(booking.id))}
                       >
                         <Check size={15} strokeWidth={2.75} />
                       </OpsAction>
-                      <OpsDeclineAction onClick={() => declineBooking(booking.id)} />
+                      <OpsDeclineAction onClick={() => runBookingAction(() => declineBooking(booking.id))} />
                     </div>
                   ) : null}
                 </div>

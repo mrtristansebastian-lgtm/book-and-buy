@@ -7,7 +7,7 @@ export function AccountSettingsPage() {
   const { workspace, exitDemoMode } = useWorkspace();
 
   return (
-    <div className="grid gap-4 max-w-xl">
+    <div className="bb-settings-content bb-settings-content--account">
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Signed in</h2>
         <p className="bb-muted m-0 text-sm">

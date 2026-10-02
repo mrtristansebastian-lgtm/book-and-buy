@@ -1,0 +1,17 @@
+.bb-market-country-picker { position: relative; flex: 1; min-width: 0; display: grid; gap: 10px; }
+.bb-market-country-search { width: 100%; position: relative; }
+.bb-market-country-search input { width: 100%; padding-right: 52px !important; }
+.bb-market-picker-selected-flag { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: flex; pointer-events: none; }
+.bb-market-country-popover { position: absolute; z-index: 50; top: calc(100% + 8px); left: 0; width: 100%; min-width: 240px; border: 1px solid #e6e9ee; border-radius: 16px; background: #fff; box-shadow: 0 16px 44px #10182712; overflow: hidden; }
+.bb-market-picker-caption { padding: 12px 16px; margin: 0; color: #748095; font-size: 11px; border-bottom: 1px solid #edf0f3; }
+.bb-market-country-options { max-height: min(320px, 45vh); overflow-y: auto; overscroll-behavior: contain; padding: 6px; }
+.bb-market-country-option { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 10px 12px; background: #fff; border: 0; border-radius: 9px; text-align: left; color: #172031; font-size: 13px; }
+.bb-market-country-option>span:not(.bb-live-country-flag) { flex: 1; }
+.bb-market-country-option small { color: #768196; font-size: 11px; }
+.bb-market-country-option.is-highlighted { background: #f3f6f8; }
+.bb-market-country-option[aria-disabled=true] { color: #768196; }
+.bb-market-country-option .bb-live-country-flag,.bb-market-row .bb-live-country-flag,.bb-market-title .bb-live-country-flag,.bb-market-picker-selected-flag .bb-live-country-flag { width: 27px; height: 20px; flex: 0 0 27px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.bb-market-row>.bb-market-name { display: flex; align-items: center; gap: 12px; }
+.bb-market-title { display: flex; align-items: center; gap: 12px; }
+.bb-market-title h2 { margin-top: 0; }
+@media(max-width:760px) { .bb-market-country-picker { width: 100%; flex: auto; } .bb-market-country-popover { min-width: 0; } }

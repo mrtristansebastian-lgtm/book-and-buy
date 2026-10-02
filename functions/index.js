@@ -16,12 +16,19 @@ import {
   handlePaystackWebhook,
   handlePayPalWebhook
 } from './payments/index.js';
-import { createPublicProductOrder as createPublicProductOrderHelper } from './orders.js';
+import { placeMarketOrder, updateMarketOrder } from './marketOrders.js';
 import { buildPublicAvailability } from './availability.js';
 import { fetchPlaceReviews } from './places.js';
+import { getRescheduleContext, respondToReschedule, writeGuardedBooking } from './rescheduling.js';
+import { manageCustomDomain, resolveCustomDomain } from './domains.js';
+import { fetchTrustpilotReviews } from './reviewProviders.js';
+import { getFirestore } from 'firebase-admin/firestore';
 if (!getApps().length) initializeApp();
 
 const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
+const trustpilotApiKey = defineSecret('TRUSTPILOT_API_KEY');
+const trustpilotEnabled = process.env.TRUSTPILOT_INTEGRATION_ENABLED === 'true';
+const trustpilotCallOptions = { secrets: trustpilotEnabled ? [trustpilotApiKey] : [], enforceAppCheck: true, maxInstances: 5 };
 const googlePlacesCallOptions = { secrets: [googlePlacesApiKey] };
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
@@ -40,6 +47,13 @@ function wrapError(error) {
 }
 
 export const health = onCall(async () => ({ ok: true, app: 'book-and-buy' }));
+export const manageBusinessDomain = onCall({ timeoutSeconds: 60, maxInstances: 5 }, (request) => manageCustomDomain(request.data || {}, request.auth));
+export const resolveBusinessDomain = onCall({ maxInstances: 10 }, (request) => resolveCustomDomain(request.data || {}));
+
+export const getBookingRescheduleContext = onCall(async (request) => { try { return await getRescheduleContext(request.data || {}, request.auth); } catch (error) { throw new HttpsError(error.code || 'failed-precondition', error.message); } });
+export const respondToBookingReschedule = onCall(async (request) => { try { return await respondToReschedule(request.data || {}, request.auth); } catch (error) { throw new HttpsError(error.code || 'failed-precondition', error.message); } });
+export const createOwnerBookingRequest = onCall(async (request) => { try { return await writeGuardedBooking(request.data || {}, request.auth); } catch (error) { throw new HttpsError(error.code || 'failed-precondition', error.message); } });
+export const createPublicBookingRequest = onCall(async (request) => { try { return await writeGuardedBooking(request.data || {}, request.auth, undefined, true); } catch (error) { throw new HttpsError(error.code || 'failed-precondition', error.message); } });
 
 export const getPublicPaymentOptions = onCall(async (request) => {
   try {
@@ -88,7 +102,7 @@ export const confirmPaymentReturn = onCall(async (request) => {
 
 export const createPublicProductOrder = onCall(async (request) => {
   try {
-    return createPublicProductOrderHelper(request.data || {});
+    return await placeMarketOrder(request.data || {}, request.auth);
   } catch (error) {
     wrapError(error);
   }
@@ -102,6 +116,11 @@ export const getPublicServiceAvailability = onCall(async (request) => {
   }
 });
 
+export const updateOwnerProductOrder = onCall(async (request) => {
+  try { return await updateMarketOrder(request.data || {}, request.auth); }
+  catch (error) { wrapError(error); }
+});
+
 export const getGooglePlaceReviews = onCall(googlePlacesCallOptions, async (request) => {
   try {
     requireAuth(request);
@@ -112,6 +131,29 @@ export const getGooglePlaceReviews = onCall(googlePlacesCallOptions, async (requ
   } catch (error) {
     wrapError(error);
   }
+});
+
+export const getTrustpilotReviews = onCall(trustpilotCallOptions, async (request) => {
+  requireAuth(request);
+  return fetchTrustpilotReviews({ businessUnitId: request.data?.businessUnitId, apiKey: trustpilotEnabled ? trustpilotApiKey.value() : '', licensed: trustpilotEnabled });
+});
+
+async function publishedReviewSettings(slug) {
+  if (!/^[a-z0-9-]{1,63}$/.test(String(slug || ''))) throw new HttpsError('invalid-argument', 'A published business address is required.');
+  const snapshot = await getFirestore().doc(`artifacts/${APP_ID}/public/data/workspaces/${slug}`).get();
+  if (!snapshot.exists) throw new HttpsError('not-found', 'Business page not found.');
+  return snapshot.data().website || {};
+}
+// Quotes remain response-only: neither Places nor Trustpilot content is written to workspace storage.
+export const getPublicGoogleReviews = onCall({ ...googlePlacesCallOptions, enforceAppCheck: true, maxInstances: 5 }, async (request) => {
+  const website = await publishedReviewSettings(request.data?.slug);
+  if (!website.googleReviewsEnabled || !website.googlePlaceId) return { ok: true, reviews: [] };
+  return fetchPlaceReviews({ placeId: website.googlePlaceId, apiKey: googlePlacesApiKey.value() });
+});
+export const getPublicTrustpilotReviews = onCall(trustpilotCallOptions, async (request) => {
+  const website = await publishedReviewSettings(request.data?.slug);
+  if (!website.trustpilotReviewsEnabled || !website.trustpilotBusinessUnitId) return { ok: true, reviews: [] };
+  return fetchTrustpilotReviews({ businessUnitId: website.trustpilotBusinessUnitId, apiKey: trustpilotEnabled ? trustpilotApiKey.value() : '', licensed: trustpilotEnabled });
 });
 
 /** HTTP webhooks — configure per-merchant or platform forwarding with ownerId/slug query. */

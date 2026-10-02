@@ -22,7 +22,7 @@ export function PlanSettingsPage() {
   };
 
   return (
-    <div className="grid gap-4">
+    <div className="bb-settings-content bb-settings-content--plan">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="grid gap-1">
           <p className="bb-muted m-0 text-sm">
@@ -56,7 +56,7 @@ export function PlanSettingsPage() {
             interval === 'year'
               ? formatPlanPrice(plan.annualPrice, { interval: 'year' })
               : formatPlanPrice(plan.monthlyPrice);
-          const isCurrent = currentId === id;
+          const isCurrent = currentId === id && (workspace.billingInterval || 'month') === interval;
           return (
             <article
               key={id}
@@ -75,13 +75,13 @@ export function PlanSettingsPage() {
               <button
                 type="button"
                 className={isCurrent ? 'bb-ghost-btn' : 'bb-primary-btn'}
-                disabled={isCurrent}
+                disabled={isCurrent || !workspace.isDemo}
                 onClick={() => {
                   updatePlan({ billingInterval: interval });
                   selectPlan(id);
                 }}
               >
-                {isCurrent ? 'Current plan' : `Choose ${plan.name}`}
+                {isCurrent ? 'Current plan' : workspace.isDemo ? `Preview ${plan.name}` : 'Upgrades not available yet'}
               </button>
             </article>
           );
@@ -89,9 +89,7 @@ export function PlanSettingsPage() {
       </div>
 
       <p className="bb-muted m-0 text-sm">
-        Client checkout uses your own Stripe, Paystack, or EFT — Book and Buy does not take a
-        platform cut on those payments in V1. Plan choice is saved on this workspace; live Stripe
-        Checkout for upgrades lands when billing is configured.
+        {workspace.isDemo ? 'Explore plans in demo mode. No subscription is created and no payment is taken.' : 'Subscription upgrades are not available yet. Your current plan stays unchanged. Client payments are managed separately in Payments.'}
       </p>
     </div>
   );

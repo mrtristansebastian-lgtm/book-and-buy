@@ -11,12 +11,13 @@ export function PoliciesSettingsPage() {
   const policies = workspace.policies || {};
 
   return (
-    <div className="grid gap-4 max-w-2xl">
+    <div className="bb-settings-content bb-settings-content--policies">
       {POLICY_FIELDS.map(([key, label, hint]) => (
         <section key={key} className="bb-panel p-5 grid gap-2">
           <h2 className="bb-page-title text-xl m-0">{label}</h2>
           <p className="bb-muted m-0 text-sm">{hint}</p>
           <textarea
+            aria-label={label}
             className="native-control-input px-4 py-3 min-h-[8rem]"
             value={policies[key] || ''}
             onChange={(event) => updatePolicies({ [key]: event.target.value })}

@@ -1,7 +1,8 @@
-import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { memo, useId, useMemo, useState } from 'react';
 import { ArrowUpRight, Minus, Plus, RotateCcw } from 'lucide-react';
 import worldMap from '../assets/worldEqualEarth.json';
 import { LiveCountryDetail } from './LiveCountryDetail';
+import { useMapViewport } from '../hooks/useMapViewport';
 
 // The detailed Natural Earth paths stay memoized while live presence updates.
 const MapAreas = memo(function MapAreas({ areas, level }) {
@@ -36,19 +37,8 @@ export function AnalyticsLiveWorldMap({
   }, [sessions]);
   const [selectedArea, setSelectedArea] = useState(null);
   const [hoveredArea, setHoveredArea] = useState(null);
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const dragRef = useRef(null);
-  const stageRef = useRef(null);
-  const [stageSize, setStageSize] = useState({ width: 1000, height: 500 });
-  useEffect(() => {
-    const element = stageRef.current;
-    if (!element) return undefined;
-    const observer = new ResizeObserver(([entry]) => setStageSize({ width: entry.contentRect.width, height: entry.contentRect.height }));
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [detailCountry]);
-  const suppressClick = useRef(false);
+  const viewport = useMapViewport({ width: worldMap.width, height: worldMap.height, initialZoom: 1.35, maxZoom: 4, enabled: !detailCountry, onGesture: () => { setSelectedArea(null); setHoveredArea(null); } });
+  const { zoom, suppressClick } = viewport;
   const activeArea = hoveredArea ?? selectedArea;
   const visitorWord = Number(total) === 1 ? 'visitor' : 'visitors';
   const statusText = error
@@ -61,40 +51,6 @@ export function AnalyticsLiveWorldMap({
           ? 'Visitor locations are still resolving'
           : '';
 
-  const setMapZoom = (nextZoom) => {
-    const value = Math.min(2.8, Math.max(1, Number(nextZoom.toFixed(2))));
-    setZoom(value);
-    setSelectedArea(null);
-    setHoveredArea(null);
-    const rect = stageRef.current?.getBoundingClientRect();
-    if (rect) setPan((current) => ({
-      x: Math.max(-rect.width * (value - 1) / 2, Math.min(rect.width * (value - 1) / 2, current.x)),
-      y: Math.max(-rect.height * (value - 1) / 2, Math.min(rect.height * (value - 1) / 2, current.y))
-    }));
-  };
-  const handlePointerDown = (event) => {
-    suppressClick.current = false;
-    if (zoom === 1 || event.target.closest('button')) return;
-    dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY };
-  };
-  const handlePointerMove = (event) => {
-    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) return;
-    const previous = dragRef.current;
-    if (!suppressClick.current && Math.hypot(event.clientX - previous.startX, event.clientY - previous.startY) < 5) return;
-    suppressClick.current = true;
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    setHoveredArea(null);
-    setSelectedArea(null);
-    dragRef.current = { ...previous, x: event.clientX, y: event.clientY };
-    const rect = event.currentTarget.getBoundingClientRect();
-    const limitX = rect.width * (zoom - 1) / 2;
-    const limitY = rect.height * (zoom - 1) / 2;
-    setPan((current) => ({
-      x: Math.max(-limitX, Math.min(limitX, current.x + event.clientX - previous.x)),
-      y: Math.max(-limitY, Math.min(limitY, current.y + event.clientY - previous.y))
-    }));
-  };
-  const stopDragging = () => { dragRef.current = null; };
   const getAreaTarget = (event) => event.target.closest?.('[data-area-id]');
   const areaFromTarget = (target, event) => {
     if (!target) return null;
@@ -102,15 +58,13 @@ export function AnalyticsLiveWorldMap({
     const source = worldMap.countries;
     const area = source[Number(rawIndex)];
     if (!area) return null;
-    const rect = event.currentTarget.ownerSVGElement?.getBoundingClientRect?.() || event.currentTarget.getBoundingClientRect?.();
-    const point = rect && event.clientX ? [
-      (event.clientX - rect.left) / rect.width * worldMap.width,
-      (event.clientY - rect.top) / rect.height * worldMap.height
-    ] : area.center || [worldMap.width / 2, worldMap.height / 2];
+    const located = event.clientX ? viewport.pointFromEvent(event) : null;
+    const point = located ? [located.x, located.y] : area.center || [worldMap.width / 2, worldMap.height / 2];
     return { id: `${level}:${rawIndex}`, path: area.path, country: area.name, code: area.code,
       region: '', x: point[0], y: point[1] };
   };
   const handleAreaOver = (event) => {
+    if (viewport.isGesturing() || event.pointerType === 'touch') return;
     const target = getAreaTarget(event);
     if (target) setHoveredArea(areaFromTarget(target, event));
   };
@@ -175,22 +129,19 @@ export function AnalyticsLiveWorldMap({
       </header>
 
       <div
-        ref={stageRef}
+        ref={viewport.stageRef}
         className={`bb-live-world-stage${zoom > 1 ? ' is-zoomed' : ''}`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={stopDragging}
-        onPointerCancel={stopDragging}
+        {...viewport.bind}
       >
         <div className="bb-live-world-controls" aria-label="Map controls">
-          <button type="button" onClick={() => setMapZoom(zoom + 0.35)} disabled={zoom >= 2.8} aria-label="Zoom in"><Plus size={16} /></button>
-          <button type="button" onClick={() => setMapZoom(zoom - 0.35)} disabled={zoom <= 1} aria-label="Zoom out"><Minus size={16} /></button>
-          <button type="button" onClick={() => setMapZoom(1)} disabled={zoom === 1 && pan.x === 0 && pan.y === 0} aria-label="Reset map view"><RotateCcw size={14} /></button>
+          <button type="button" onClick={() => viewport.setZoom(zoom + 0.35)} disabled={zoom >= 4} aria-label="Zoom in"><Plus size={16} /></button>
+          <button type="button" onClick={() => viewport.setZoom(zoom - 0.35)} disabled={zoom <= 1} aria-label="Zoom out"><Minus size={16} /></button>
+          <button type="button" onClick={viewport.reset} aria-label="Reset map view"><RotateCcw size={14} /></button>
         </div>
-        <div className="bb-live-world-canvas" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, '--map-zoom': zoom }}>
+        <div className="bb-live-world-canvas">
         <svg
           className="bb-live-world-svg"
-          viewBox={`0 0 ${worldMap.width} ${worldMap.height}`}
+          viewBox={viewport.viewBox}
           role="group"
           tabIndex={0}
           onKeyDown={handleMapKey}
@@ -212,10 +163,7 @@ export function AnalyticsLiveWorldMap({
         </div>
 
         {activeArea ? (
-          <div className="bb-live-world-hex-tooltip" role="status" style={{
-            '--map-x': `${Math.max(92, Math.min(stageSize.width - 92, stageSize.width / 2 + (activeArea.x / worldMap.width - .5) * stageSize.width * zoom + pan.x))}px`,
-            '--map-y': `${Math.max(76, Math.min(stageSize.height - 8, stageSize.height / 2 + (activeArea.y / worldMap.height - .5) * stageSize.height * zoom + pan.y))}px`
-          }}>
+          <div className="bb-live-world-hex-tooltip" role="status" style={viewport.tooltip(activeArea)}>
             <strong>{activeArea.country}</strong>
             <span>{countryCounts.get(activeArea.code) || 0} live visitors</span>
             <small>Click to explore states & provinces</small>

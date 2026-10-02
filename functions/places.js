@@ -16,7 +16,11 @@ function mapGoogleReview(review, index) {
     id: `gplace-${time}-${index}`,
     quote,
     name: name || 'Google reviewer',
-    rating: rating || 5
+    rating,
+    source: 'google',
+    authorUrl: String(review?.authorAttribution?.uri || ''),
+    reviewUrl: String(review?.googleMapsUri || ''),
+    publishedAt: String(review?.publishTime || '')
   };
 }
 
@@ -41,8 +45,9 @@ export async function fetchPlaceReviews({ placeId, apiKey }) {
   const response = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(id)}`, {
     headers: {
       'X-Goog-Api-Key': key,
-      'X-Goog-FieldMask': 'displayName,rating,reviews'
-    }
+      'X-Goog-FieldMask': 'displayName,rating,reviews,googleMapsUri,attributions'
+    },
+    signal: AbortSignal.timeout(12000)
   });
   if (!response.ok) {
     const failure = await response.json().catch(() => ({}));
@@ -54,13 +59,15 @@ export async function fetchPlaceReviews({ placeId, apiKey }) {
   const rawReviews = Array.isArray(payload?.reviews) ? payload.reviews : [];
   const reviews = rawReviews
     .map(mapGoogleReview)
-    .filter((item) => item.quote)
-    .slice(0, 6);
+    .filter((item) => item.quote && item.rating >= 1 && item.rating <= 5)
+    .slice(0, 5);
 
   return {
     ok: true,
     placeName: String(payload?.displayName?.text || ''),
     rating: Number(payload?.rating) || null,
+    placeUrl: String(payload?.googleMapsUri || ''),
+    attributions: payload?.attributions || [],
     reviews
   };
 }

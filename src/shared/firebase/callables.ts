@@ -18,6 +18,14 @@ async function callCallable<TReq extends object, TRes>(
 }
 
 export const firebaseCallables = {
+  updateOwnerProductOrder: (payload: object) => callCallable<object, any>('updateOwnerProductOrder', payload),
+  getTrustpilotReviews: (payload: object) => callCallable<object, any>('getTrustpilotReviews', payload),
+  getPublicGoogleReviews: (payload: object) => callCallable<object, any>('getPublicGoogleReviews', payload),
+  getPublicTrustpilotReviews: (payload: object) => callCallable<object, any>('getPublicTrustpilotReviews', payload),
+  manageBusinessDomain: (payload: object) => callCallable<object, any>('manageBusinessDomain', payload),
+  resolveBusinessDomain: (payload: object) => callCallable<object, { slug: string | null }>('resolveBusinessDomain', payload),
+  getBookingRescheduleContext: (payload: object) => callCallable<object, any>('getBookingRescheduleContext', payload),
+  respondToBookingReschedule: (payload: object) => callCallable<object, any>('respondToBookingReschedule', payload),
   getPublicPaymentOptions: (payload: object) =>
     callCallable(callableNames.getPublicPaymentOptions, payload),
   getPublicServiceAvailability: (payload: object) =>

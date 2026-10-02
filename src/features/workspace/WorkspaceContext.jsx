@@ -4,7 +4,8 @@ import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { useAuth } from '../auth/AuthContext';
 import {
   loadOwnerWorkspaceFromFirestore,
-  saveOwnerWorkspaceToFirestore
+  saveOwnerWorkspaceToFirestore,
+  subscribeOwnerBookings
 } from '../../shared/firebase/ownerWorkspace';
 import { createWorkspaceApi } from './createWorkspaceApi';
 import {
@@ -52,12 +53,16 @@ function ownerShellFromUser(user, prior = {}) {
 export function WorkspaceProvider({ children }) {
   const { user, configured } = useAuth();
   const [workspace, setWorkspace] = useState(() => readInitialWorkspace());
+  const [saveStatus, setSaveStatus] = useState('ready');
+  const [saveError, setSaveError] = useState('');
+  const [orderActionError, setOrderActionError] = useState('');
+  const [saveRetry, setSaveRetry] = useState(0);
   const cloudHydratedRef = useRef(false);
   const skipNextCloudSaveRef = useRef(false);
   const clearedDemoForUid = useRef('');
 
   useEffect(() => {
-    persistWorkspace(workspace);
+    try { persistWorkspace(workspace); } catch { setSaveStatus('error'); setSaveError('This device could not save your changes. Free browser storage and try again.'); }
   }, [workspace]);
 
   /** One-time upgrade for cached demo workspaces missing rich Home sections. */
@@ -153,28 +158,37 @@ export function WorkspaceProvider({ children }) {
 
   /** Debounced owner settings write-through. */
   useEffect(() => {
+    if (!configured || !user?.uid || isDemoWorkspace(workspace) || workspace.ownerId !== user.uid) return undefined;
+    return subscribeOwnerBookings(user.uid, (bookings, orders) => setWorkspace((prior) => JSON.stringify(prior.bookings) === JSON.stringify(bookings) && JSON.stringify(prior.orders) === JSON.stringify(orders) ? prior : ({ ...prior, bookings, orders })));
+  }, [configured, user?.uid, workspace.isDemo, workspace.ownerId]);
+
+  /** Debounced owner settings write-through. */
+  useEffect(() => {
     if (!configured || !user?.uid || isDemoWorkspace(workspace)) return;
     if (workspace.ownerId && workspace.ownerId !== user.uid) return;
     if (skipNextCloudSaveRef.current) {
       skipNextCloudSaveRef.current = false;
       return;
     }
+    let cancelled = false;
+    setSaveStatus('saving'); setSaveError('');
     const timer = window.setTimeout(() => {
       saveOwnerWorkspaceToFirestore(user.uid, {
         ...workspace,
         ownerId: user.uid,
         isDemo: false
-      }).catch(() => {});
+      }).then(() => { if (!cancelled) setSaveStatus('saved'); }).catch(() => { if (!cancelled) { setSaveStatus('error'); setSaveError('Cloud save failed. Your changes are kept on this device. Check your connection and retry.'); } });
     }, 900);
-    return () => window.clearTimeout(timer);
-  }, [configured, user?.uid, workspace]);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [configured, user?.uid, workspace, saveRetry]);
 
   const api = useMemo(
-    () => createWorkspaceApi({ workspace, setWorkspace, user }),
+    () => createWorkspaceApi({ workspace, setWorkspace, user, onOrderError: setOrderActionError }),
     [workspace, user]
   );
 
-  return <WorkspaceContext.Provider value={api}>{children}</WorkspaceContext.Provider>;
+  const value = useMemo(() => ({ ...api, saveStatus, saveError, retrySave: () => setSaveRetry((prior) => prior + 1) }), [api, saveStatus, saveError]);
+  return <WorkspaceContext.Provider value={value}>{children}{orderActionError && <div role="alert" className="bb-order-action-error"><span>{orderActionError}</span><button type="button" onClick={() => setOrderActionError('')} aria-label="Dismiss order error">×</button></div>}</WorkspaceContext.Provider>;
 }
 
 export function useWorkspace() {

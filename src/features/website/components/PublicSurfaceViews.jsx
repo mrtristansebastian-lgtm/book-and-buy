@@ -159,6 +159,8 @@ export function PublicHomeView({
               key="reviews"
               website={website}
               reviews={reviews}
+              workspaceSlug={workspace.slug}
+              isDemo={Boolean(workspace.isDemo)}
               editMode={editMode}
               hidden={!sectionOn(website, 'reviews')}
               patchReview={patchReview}

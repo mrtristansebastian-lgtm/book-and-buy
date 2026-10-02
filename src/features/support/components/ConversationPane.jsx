@@ -4,6 +4,8 @@ import { ChatHeader } from './ChatHeader';
 import { ChatComposer } from './ChatComposer';
 import { ClientFileDrawer } from './ClientFileDrawer';
 import { MessageTimeline } from './MessageBubble';
+import { useRescheduling } from '../hooks/useRescheduling';
+import { RescheduleDialog } from './RescheduleInterface';
 
 export function ConversationPane({ inbox }) {
   const {
@@ -28,6 +30,7 @@ export function ConversationPane({ inbox }) {
     fulfilOrder,
     markOrderPaid
   } = inbox;
+  const rescheduling = useRescheduling(active, 'business');
 
   if (!active) {
     return (
@@ -58,36 +61,27 @@ export function ConversationPane({ inbox }) {
           clientEmail: active.clientEmail,
           clientBookings,
           clientOrders,
-          onConfirmBooking: () => {
+          onConfirmBooking: async () => {
             if (!linkedBooking) return;
-            confirmBooking(linkedBooking.id);
-            postSystem(`Booking confirmed · ${linkedBooking.serviceName}`);
+            await confirmBooking(linkedBooking.id);
+            await postSystem(`Booking confirmed · ${linkedBooking.serviceName}`);
           },
-          onDeclineBooking: () => {
+          onDeclineBooking: async () => {
             if (!linkedBooking) return;
-            declineBooking(linkedBooking.id);
-            postSystem(`Booking declined · ${linkedBooking.serviceName}`);
+            await declineBooking(linkedBooking.id);
+            await postSystem(`Booking declined · ${linkedBooking.serviceName}`);
           },
           onSetupReschedule: () => {
-            const when = linkedBooking
-              ? `${linkedBooking.dateKey || linkedBooking.date} at ${linkedBooking.time}`
-              : '';
-            setComposerPrefill(
-              linkedBooking
-                ? `Let's set up a reschedule for ${linkedBooking.serviceName} (currently ${when}). What date and time work better?`
-                : "Let's set up a reschedule — what date and time work better?"
-            );
+            rescheduling.show();
           },
           onViewBooking: () => navigate('/dashboard/requests'),
-          onMarkPaid: () => {
+          onMarkPaid: async () => {
             if (!linkedOrder) return;
-            markOrderPaid(linkedOrder.id);
-            postSystem('Order marked paid');
+            if (await markOrderPaid(linkedOrder.id)) await postSystem('Order marked paid');
           },
-          onFulfilOrder: () => {
+          onFulfilOrder: async () => {
             if (!linkedOrder) return;
-            fulfilOrder(linkedOrder.id);
-            postSystem('Order marked fulfilled');
+            if (await fulfilOrder(linkedOrder.id)) await postSystem('Order marked fulfilled');
           },
           onViewOrder: () => navigate('/dashboard/orders'),
           onCopyEmail: async () => {
@@ -123,6 +117,7 @@ export function ConversationPane({ inbox }) {
 
       <MessageTimeline
         messages={active.messages || []}
+        rescheduling={rescheduling}
         onOpenImage={(url) => setLightboxUrl(url)}
       />
 
@@ -132,6 +127,7 @@ export function ConversationPane({ inbox }) {
         onPrefillConsumed={() => setComposerPrefill('')}
         onSend={(payload) => sendThreadMessage(active.id, payload)}
       />
+      <RescheduleDialog controller={rescheduling} />
 
       <ClientFileDrawer
         open={clientDrawerOpen}

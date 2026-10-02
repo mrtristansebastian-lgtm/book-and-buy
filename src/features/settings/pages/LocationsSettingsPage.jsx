@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { SERVE_COUNTRY_OPTIONS } from '../../../config/businessCategories';
 import { PlaceLocationField } from '../../../shared/ui/PlaceLocationField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
@@ -13,7 +12,6 @@ export function LocationsSettingsPage() {
   const { workspace, updateWebsite } = useWorkspace();
   const website = workspace.website || {};
   const venueMode = String(website.venueMode || 'physical');
-  const serves = Array.isArray(website.servesCountries) ? website.servesCountries : [];
   const hasCoords =
     Number.isFinite(Number(website.locationLat)) &&
     Number.isFinite(Number(website.locationLng)) &&
@@ -50,8 +48,8 @@ export function LocationsSettingsPage() {
     updateWebsite({
       address: next.label || '',
       googlePlaceId: next.placeId || '',
-      locationLat: next.lat || null,
-      locationLng: next.lng || null,
+      locationLat: Number.isFinite(next.lat) ? next.lat : null,
+      locationLng: Number.isFinite(next.lng) ? next.lng : null,
       countryCode: next.countryCode || '',
       region: next.region || '',
       city: next.city || '',
@@ -59,16 +57,9 @@ export function LocationsSettingsPage() {
     });
   };
 
-  const toggleServe = (code) => {
-    const upper = String(code || '').toUpperCase();
-    const set = new Set(serves.map((c) => String(c).toUpperCase()));
-    if (set.has(upper)) set.delete(upper);
-    else set.add(upper);
-    updateWebsite({ servesCountries: [...set] });
-  };
 
   return (
-    <div className="grid gap-4 max-w-xl bb-locations-settings">
+    <div className="bb-settings-content bb-settings-content--locations bb-locations-settings">
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">How clients find you</h2>
         <p className="bb-muted m-0 text-sm">
@@ -133,30 +124,11 @@ export function LocationsSettingsPage() {
         </section>
       ) : null}
 
-      {venueMode !== 'physical' ? (
-        <section className="bb-panel p-5 grid gap-3">
-          <h2 className="bb-page-title text-xl m-0">Countries you serve</h2>
-          <p className="bb-muted m-0 text-sm">
-            International Explore shows you to clients in these countries.
-          </p>
-          <div className="bb-serve-countries">
-            {SERVE_COUNTRY_OPTIONS.map((opt) => {
-              const active = serves.map((c) => String(c).toUpperCase()).includes(opt.code);
-              return (
-                <button
-                  key={opt.code}
-                  type="button"
-                  className={`bb-serve-country${active ? ' is-active' : ''}`}
-                  aria-pressed={active}
-                  onClick={() => toggleServe(opt.code)}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      ) : null}
+      <section className="bb-panel p-5 grid gap-3">
+        <h2 className="bb-page-title text-xl m-0">Selling internationally</h2>
+        <p className="bb-muted m-0 text-sm">Countries you serve, catalog availability and delivery connections now live in Markets.</p>
+        <a href="#/dashboard/settings/markets" className="bb-btn">Manage markets →</a>
+      </section>
     </div>
   );
 }

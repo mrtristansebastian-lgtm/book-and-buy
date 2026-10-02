@@ -1,4 +1,5 @@
 import { distanceKm } from '../../shared/geo/haversine';
+import { resolveMarket } from '../../utils/markets';
 import {
   categoryLabel,
   expandExploreCategoryFilter
@@ -53,6 +54,7 @@ export function normalizeBiz(raw = {}) {
     countryCode,
     city,
     servesCountries: servesCountries.map((c) => String(c || '').trim().toUpperCase()).filter(Boolean),
+    markets: Array.isArray(website.markets) ? website.markets : null,
     address: fullAddress,
     fullAddress,
     mapLinkUrl: String(raw.mapLinkUrl || website.mapLinkUrl || '').trim()
@@ -94,6 +96,7 @@ function hasCoords(biz) {
 }
 
 function servesClient(biz, clientCountryCode) {
+  if (biz.markets && clientCountryCode) return Boolean(resolveMarket({ markets: biz.markets }, clientCountryCode)?.enabled);
   const serves = biz.servesCountries || [];
   if (serves.includes('*')) return true;
   const cc = String(clientCountryCode || '')

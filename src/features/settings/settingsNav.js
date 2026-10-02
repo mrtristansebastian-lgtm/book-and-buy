@@ -8,6 +8,8 @@ export const SETTINGS_SECTIONS = [
   { id: 'checkout', label: 'Checkout' },
   { id: 'notifications', label: 'Notifications' },
   { id: 'locations', label: 'Locations' },
+  { id: 'markets', label: 'Markets' },
+  { id: 'shipping', label: 'Shipping' },
   { id: 'reviews', label: 'Reviews' },
   { id: 'domains', label: 'Domains' },
   { id: 'policies', label: 'Policies' },

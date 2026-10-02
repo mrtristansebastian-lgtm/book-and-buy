@@ -11,9 +11,11 @@ import { useClientProfile } from './features/client-app/ClientProfileContext';
 import { useWorkspace } from './features/workspace/WorkspaceContext';
 import { BrandMark } from './shared/ui/BrandMark';
 import { useViewportZoomGate } from './shared/ui/useViewportZoomGate';
+import { useCustomDomain } from './features/website/useCustomDomain';
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAppRoute());
+  const customDomain = useCustomDomain();
   const { workspace, loadDemoWorkspace } = useWorkspace();
   const { ready, configured, user, isLocalMode } = useAuth();
   const { isClient, profileReady } = useClientProfile();
@@ -41,7 +43,7 @@ export default function App() {
     }
   }, [route.kind, profileReady, isClient]);
 
-  if (!ready || !profileReady) {
+  if (!ready || !profileReady || customDomain.loading) {
     return (
       <div className="bb-shell native-ui min-h-screen grid place-items-center">
         <BrandMark size="lg" className="bb-welcome-brand-slot" />
@@ -49,6 +51,12 @@ export default function App() {
     );
   }
 
+  if (customDomain.enabled && customDomain.error) return <div className="bb-shell native-ui min-h-screen grid place-items-center"><p role="alert">{customDomain.error}</p></div>;
+  if (customDomain.enabled && customDomain.slug) {
+    // A custom host must never display a different seller via an edited hash.
+    const page = route.kind === 'public' ? route.page : 'home';
+    return <PublicWebsiteApp slug={customDomain.slug} page={page} itemId={route.kind === 'public' ? route.itemId || '' : ''} />;
+  }
   if (route.kind === 'public') {
     return <PublicWebsiteApp slug={route.slug} page={route.page} itemId={route.itemId || ''} />;
   }

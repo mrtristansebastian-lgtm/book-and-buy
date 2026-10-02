@@ -10,6 +10,8 @@ import {
 import { navigate } from '../../../app/routing';
 import { MessageTimeline } from '../../support/components/MessageBubble';
 import { ChatComposer } from '../../support/components/ChatComposer';
+import { useRescheduling } from '../../support/hooks/useRescheduling';
+import { RescheduleDialog } from '../../support/components/RescheduleInterface';
 import { useKeyboardInset } from '../../support/hooks/useKeyboardInset';
 import { formatRelativeTime, formatPresenceLabel, messagePreview } from '../../support/utils/supportFormat';
 import { buildPresence } from '../../support/utils/presence';
@@ -162,6 +164,7 @@ export function ClientMessagesPage({ threadId = '' }) {
   );
 
   const active = mine.find((thread) => thread.id === threadId) || null;
+  const rescheduling = useRescheduling(active, 'client');
   const isRemoteActive = Boolean(
     active && remoteThreads.some((thread) => thread.id === active.id)
   );
@@ -352,7 +355,8 @@ export function ClientMessagesPage({ threadId = '' }) {
                         .join(' · ')}
                     </p>
                   </div>
-                </div>
+                  </div>
+                {active.bookingId && <button className="bb-ghost-btn bb-client-reschedule" disabled={!rescheduling.clientAllowed} onClick={rescheduling.show}>Reschedule</button>}
               </header>
 
               {activeMessages.length === 0 ? (
@@ -365,11 +369,13 @@ export function ClientMessagesPage({ threadId = '' }) {
                 <MessageTimeline
                   messages={activeMessages}
                   perspective="client"
+                  rescheduling={rescheduling}
                   onOpenImage={setLightboxUrl}
                 />
               )}
 
               <ChatComposer threadId={active.id} onSend={sendPayload} />
+              <RescheduleDialog controller={rescheduling} />
 
               {lightboxUrl ? (
                 <button

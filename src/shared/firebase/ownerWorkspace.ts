@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase } from './client';
 import { ownerConfigPath } from './paths';
@@ -7,11 +7,20 @@ const SETTINGS_DOC = 'settings';
 
 /** Strip runtime-only fields before cloud write. */
 export function serializeOwnerWorkspace(workspace: Record<string, unknown>) {
+  // Booking state is server-owned. A delayed settings save must never overwrite it.
+  const { bookings, bookingRevision, orders, ...settings } = workspace;
   return {
-    ...workspace,
+    ...settings,
     isDemo: false,
     updatedAt: Date.now()
   };
+}
+
+export function subscribeOwnerBookings(ownerId: string, onChange: (bookings: any[], orders: any[]) => void) {
+  const firebase = getFirebase(); if (!firebase || !ownerId) return () => {};
+  return onSnapshot(doc(firebase.db, ...ownerConfigPath(APP_ID, ownerId, SETTINGS_DOC)), (snapshot) => {
+    if (snapshot.exists()) onChange(snapshot.data().bookings || [], snapshot.data().orders || []);
+  });
 }
 
 export async function loadOwnerWorkspaceFromFirestore(ownerId: string) {

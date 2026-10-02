@@ -3,6 +3,8 @@ import {
   Bell,
   CreditCard,
   Globe2,
+  PanelTop,
+  Truck,
   Lock,
   MapPin,
   NotebookTabs,
@@ -34,6 +36,8 @@ import { BookingsSettingsPage } from './pages/BookingsSettingsPage';
 import { CheckoutSettingsPage } from './pages/CheckoutSettingsPage';
 import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
 import { LocationsSettingsPage } from './pages/LocationsSettingsPage';
+import { MarketsSettingsPage } from './pages/MarketsSettingsPage';
+import { ShippingSettingsPage } from './pages/ShippingSettingsPage';
 import { ReviewsSettingsPage } from './pages/ReviewsSettingsPage';
 import { DomainsSettingsPage } from './pages/DomainsSettingsPage';
 import { PoliciesSettingsPage } from './pages/PoliciesSettingsPage';
@@ -49,13 +53,17 @@ const ICONS = {
   checkout: ShoppingCart,
   notifications: Bell,
   locations: MapPin,
+  markets: Globe2,
+  shipping: Truck,
   reviews: Star,
-  domains: Globe2,
+  domains: PanelTop,
   policies: Shield,
   account: Lock
 };
 
 const COPY = {
+  markets: { title: 'Markets', lede: 'Where you sell, what you offer and how it arrives.' },
+  shipping: { title: 'Shipping', lede: 'Reusable delivery profiles for your products and markets.' },
   general: {
     title: 'General',
     lede: 'Business identity, currency, and timezone.'
@@ -74,7 +82,7 @@ const COPY = {
   },
   payments: {
     title: 'Payments',
-    lede: 'Client checkout gateways — Stripe, Paystack, EFT, and cash.'
+    lede: 'Choose how clients pay — Stripe, PayPal, Paystack, and cash.'
   },
   bookings: {
     title: 'Bookings',
@@ -94,11 +102,11 @@ const COPY = {
   },
   reviews: {
     title: 'Reviews',
-    lede: 'Sync Google Place reviews onto your public Home.'
+    lede: 'Connect Google or Trustpilot reviews to your business Home.'
   },
   domains: {
     title: 'Domains',
-    lede: 'Public slug today; custom domain when ready.'
+    lede: 'Your business address, domain ownership and secure connections.'
   },
   policies: {
     title: 'Policies',
@@ -125,7 +133,7 @@ function initials(name = '') {
 }
 
 export function SettingsShell({ section: sectionProp }) {
-  const { workspace } = useWorkspace();
+  const { workspace, saveStatus, saveError, retrySave } = useWorkspace();
   const hasExplicitSection = isSettingsSection(sectionProp);
   const section = resolveSettingsSection(sectionProp || DEFAULT_SETTINGS_SECTION);
   const [query, setQuery] = useState('');
@@ -170,13 +178,15 @@ export function SettingsShell({ section: sectionProp }) {
   else if (section === 'checkout') body = <CheckoutSettingsPage />;
   else if (section === 'notifications') body = <NotificationsSettingsPage />;
   else if (section === 'locations') body = <LocationsSettingsPage />;
+  else if (section === 'markets') body = <MarketsSettingsPage />;
+  else if (section === 'shipping') body = <ShippingSettingsPage />;
   else if (section === 'reviews') body = <ReviewsSettingsPage />;
   else if (section === 'domains') body = <DomainsSettingsPage />;
   else if (section === 'policies') body = <PoliciesSettingsPage />;
   else if (section === 'account') body = <AccountSettingsPage />;
 
   return (
-    <div className={`bb-settings is-mobile-${mobileView}`}>
+    <div className={`bb-settings is-mobile-${mobileView}`} data-settings-section={section}>
       <aside className="bb-settings-rail" aria-label="Settings categories">
         <header className="bb-settings-mobile-index-head">
           <div className="bb-page-title-wrap">
@@ -245,6 +255,10 @@ export function SettingsShell({ section: sectionProp }) {
           </div>
           <p className="bb-muted">{copy.lede}</p>
         </header>
+        <div className={`bb-settings-save-state is-${saveStatus}`} role={saveError ? 'alert' : 'status'}>
+          <span>{saveError || (workspace.isDemo ? 'Demo changes save on this device' : saveStatus === 'saving' ? 'Saving changes…' : saveStatus === 'saved' ? 'All changes saved' : 'Changes save automatically')}</span>
+          {saveError && <button type="button" className="bb-ghost-btn" onClick={retrySave}>Retry save</button>}
+        </div>
         {body}
       </div>
     </div>

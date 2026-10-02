@@ -215,10 +215,7 @@ export async function initiatePayment(payload = {}) {
   const source = (workspace[listKey] || []).find((item) => item.id === sourceId);
   if (!source) throw new Error(`${sourceType} not found.`);
 
-  const amountInCents =
-    payload.amountInCents != null
-      ? Math.round(Number(payload.amountInCents) || 0)
-      : amountFromSource(source, workspace);
+  const amountInCents = amountFromSource(source, workspace);
   if (amountInCents <= 0) {
     throw new Error('Amount must be greater than zero to start online payment.');
   }

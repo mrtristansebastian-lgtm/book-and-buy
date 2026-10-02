@@ -5,6 +5,7 @@ import {
   formatMessageTime
 } from '../utils/supportFormat';
 import { VoiceNotePlayer } from './VoiceNotePlayer';
+import { RescheduleCard } from './RescheduleInterface';
 
 function FileIcon({ mime = '', kind = 'file' }) {
   if (kind === 'image' || String(mime).startsWith('image/')) return <FileImage size={16} />;
@@ -12,14 +13,21 @@ function FileIcon({ mime = '', kind = 'file' }) {
   return <File size={16} />;
 }
 
-export function MessageTimeline({ messages = [], onOpenImage, perspective = 'business' }) {
+export function MessageTimeline({ messages = [], onOpenImage, perspective = 'business', rescheduling }) {
   let lastDay = '';
+  const latestProposalMessage = [...messages].reverse().find((message) => message.type === 'reschedule');
   return (
     <div className="bb-support-timeline">
       {messages.map((message) => {
         const day = formatDayLabel(message.at);
         const showDay = day && day !== lastDay;
         if (showDay) lastDay = day;
+
+        if (message.type === 'reschedule' && message.proposal && rescheduling) {
+          const isCurrent = latestProposalMessage?.id === message.id;
+          const proposal = isCurrent && rescheduling.proposal?.revision >= message.proposal.revision ? rescheduling.proposal : message.proposal;
+          return <div key={message.id}>{showDay && <div className="bb-support-day">{day}</div>}<div className={`bb-support-bubble-row ${message.from === perspective ? 'is-business' : 'is-client'}`}><RescheduleCard proposal={proposal} controller={rescheduling} isCurrent={isCurrent} /></div></div>;
+        }
 
         if (message.type === 'system') {
           return (

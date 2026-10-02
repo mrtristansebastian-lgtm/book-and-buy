@@ -3,6 +3,8 @@ export function createPublicProductOrder({
   workspaceName,
   items = [],
   client = {},
+  shipping = { amountInCents: 0, profileIds: [] },
+  currency = 'R',
   paymentMethod = 'cash'
 } = {}) {
   if (!workspaceSlug) {
@@ -20,6 +22,7 @@ export function createPublicProductOrder({
     const unitPriceCents = Math.max(0, Math.round(Number(item.unitPriceCents) || 0));
     return {
       productId: item.productId,
+      variantId: item.variantId || '',
       name: item.name,
       quantity,
       unitPriceCents,
@@ -27,8 +30,9 @@ export function createPublicProductOrder({
     };
   });
 
-  const amountInCents = lineItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
-  const method = ['card', 'stripe', 'paystack', 'manual_eft', 'cash'].includes(paymentMethod)
+  const subtotalCents = lineItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
+  const amountInCents = subtotalCents + shipping.amountInCents;
+  const method = ['card', 'stripe', 'paypal', 'paystack', 'cash'].includes(paymentMethod)
     ? paymentMethod === 'card'
       ? 'stripe'
       : paymentMethod
@@ -47,11 +51,16 @@ export function createPublicProductOrder({
     clientPhone: String(client.clientPhone || '').trim(),
     clientNote: String(client.clientNote || '').trim(),
     clientUid: String(client.clientUid || '').trim(),
+    clientCountry: String(client.country || '').trim(),
+    shippingAddress: client.shippingAddress || '',
+    shippingAmountInCents: shipping.amountInCents,
+    shippingProfileIds: shipping.profileIds,
+    subtotalCents,
     paymentMethod: method,
     paymentStatus: isManual ? 'manual_pending' : 'unpaid',
     status: 'pending',
     amountInCents,
-    currency: 'R',
+    currency,
     source: 'public_shop',
     timestamp: Date.now()
   };

@@ -46,6 +46,6 @@ export const GATEWAY_META = {
   }
 };
 
-export const GATEWAY_ORDER = ['stripe', 'paypal', 'paystack', 'manual_eft', 'cash'];
+export const GATEWAY_ORDER = ['stripe', 'paypal', 'paystack', 'cash'];
 
 export const ONLINE_GATEWAY_IDS = ['stripe', 'paypal', 'paystack'];

@@ -25,8 +25,9 @@ export function GeneralSettingsPage() {
   const { workspace, updateProfile } = useWorkspace();
 
   return (
-    <div className="grid gap-4 max-w-xl">
+    <div className="bb-settings-content bb-settings-content--general">
       <section className="bb-panel p-5 grid gap-3">
+        <div className="bb-settings-section-heading"><h2>Business details</h2><p>Your identity and contact details across Book and Buy.</p></div>
         <label className="grid gap-1 text-sm">
           <span className="font-semibold">Business name</span>
           <input
@@ -48,6 +49,8 @@ export function GeneralSettingsPage() {
           <input
             className="native-control-input px-4"
             value={workspace.email || ''}
+            type="email"
+            autoComplete="email"
             onChange={(event) => updateProfile({ email: event.target.value })}
           />
         </label>
@@ -56,6 +59,8 @@ export function GeneralSettingsPage() {
           <input
             className="native-control-input px-4"
             value={workspace.phone || ''}
+            type="tel"
+            autoComplete="tel"
             onChange={(event) => updateProfile({ phone: event.target.value })}
           />
         </label>

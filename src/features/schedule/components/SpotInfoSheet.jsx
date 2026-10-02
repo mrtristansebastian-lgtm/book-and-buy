@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import { useState } from 'react';
 import {
   countServiceSpotBookings,
   getServiceOpenSpots,
@@ -12,6 +13,8 @@ import {
 } from '../pages/schedulePageUtils';
 
 export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) {
+  const [actionError, setActionError] = useState('');
+  const confirm = async (id) => { setActionError(''); try { await onConfirm?.(id); } catch (error) { setActionError(error.message || 'The booking was not changed.'); } };
   if (!service) return null;
 
   const capacity = Math.max(1, Number(service.capacity) || 1);
@@ -34,6 +37,7 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
     >
       <div className="bb-services-sheet-backdrop" onClick={onClose} />
       <div className="bb-services-sheet-panel bb-schedule-spot-sheet">
+        {actionError && <p className="bb-reschedule-error" role="alert">{actionError}</p>}
         <header className="bb-services-sheet-head">
           <div className="bb-schedule-spot-sheet-head">
             <div className={`bb-schedule-spot-sheet-thumb${imageSrc ? '' : ' is-empty'}`}>
@@ -95,7 +99,7 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
                       <button
                         type="button"
                         className="bb-primary-btn text-sm py-2"
-                        onClick={() => onConfirm?.(booking.id)}
+                        onClick={() => confirm(booking.id)}
                       >
                         Confirm seat
                       </button>

@@ -11,9 +11,10 @@ export function NotificationsSettingsPage() {
   const showActivity = workspace.notifications?.showActivityStatus !== false;
 
   return (
-    <div className="grid gap-4 max-w-xl">
+    <div className="bb-settings-content bb-settings-content--notifications">
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Owner email alerts</h2>
+        <p className="bb-muted m-0 text-sm">Save your alert preferences here. Email delivery is not available yet; these settings do not send email.</p>
         {EMAIL_TOGGLES.map(([key, label]) => (
           <label key={key} className="flex items-center gap-2 text-sm font-semibold">
             <input

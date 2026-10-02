@@ -11,19 +11,15 @@ export function BillingSettingsPage() {
       : formatPlanPrice(plan.monthlyPrice);
 
   return (
-    <div className="grid gap-4 max-w-xl">
+    <div className="bb-settings-content bb-settings-content--billing">
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Subscription</h2>
         <p className="bb-muted m-0 text-sm">
           {plan.name} · {price}
           {workspace.planStatus ? ` · ${workspace.planStatus}` : ''}
         </p>
-        <button type="button" className="bb-primary-btn justify-self-start" disabled>
-          Manage billing
-        </button>
         <div className="bb-settings-stub">
-          Stripe customer portal opens here when <code>createBillingPortalSession</code> is
-          configured. Until then, plan changes are saved locally on the workspace.
+          {workspace.isDemo ? 'This is a demo subscription. No billing account or payment method is connected.' : 'Online subscription management is not available yet. No payment method has been connected through this page.'}
         </div>
       </section>
 

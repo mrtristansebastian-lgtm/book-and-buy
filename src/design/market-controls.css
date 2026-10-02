@@ -1,0 +1,52 @@
+.bb-public-market-picker {
+  display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
+  padding: 12px 20px; background: #fff; border-bottom: 1px solid #edf0f2;
+  font-size: 13px; color: #536078;
+}
+.bb-public-market-picker label { display: flex; align-items: center; gap: 12px; }
+.bb-public-market-picker select {
+  min-height: 44px; max-width: min(240px, 60vw); border: 1px solid #dce2e8;
+  border-radius: 8px; background: #fff; padding: 8px; color: #111827;
+}
+.bb-order-action-error {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10000;
+  display: flex; align-items: center; gap: 16px; width: min(520px, calc(100% - 32px));
+  padding: 14px 18px; background: #fff; border: 1px solid #e4c6c6;
+  border-radius: 12px; box-shadow: 0 8px 30px #10182714; color: #813b3b; font-size: 14px;
+}
+.bb-order-action-error button { min-width: 44px; min-height: 44px; background: transparent; border: 0; font-size: 24px; color: inherit; }
+
+.bb-catalog-picker-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 650; color: #172033; }
+.bb-catalog-picker-heading small { font-size: 12px; font-weight: 500; color: #65748c; }
+.bb-catalog-search { position: relative; min-height: 44px; background: #fff; }
+.bb-catalog-search > svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); z-index: 1; pointer-events: none; color: #8a97ac; }
+.bb-market-catalog .bb-catalog-search input { min-width: 0; width: 100%; min-height: 44px; padding-left: 40px; font-family: inherit; font-size: 14px; }
+.bb-market-catalog .bb-market-assignment-list { border-radius: 12px; scrollbar-width: thin; scrollbar-color: #dce2e8 transparent; }
+.bb-market-catalog .bb-market-assignment { padding: 0; }
+.bb-market-catalog .bb-market-assignment:last-child { border-bottom: 0; }
+.bb-commerce-settings .bb-market-catalog .bb-market-assignment-list label.bb-catalog-choice { display: flex; gap: 12px; min-height: 72px; padding: 12px 16px; cursor: pointer; transition: background .15s ease; }
+.bb-market-catalog .bb-catalog-choice:hover { background: #fafbfc; }
+.bb-market-catalog .bb-catalog-choice:has(input:checked) { background: #f5f8f9; }
+.bb-catalog-kind { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border: 1px solid #edf0f2; border-radius: 9px; color: #637188; background: #fff; }
+.bb-catalog-choice-copy { flex: 1; min-width: 0; }
+.bb-catalog-choice-copy strong { display: block; font-family: Figtree, sans-serif; font-size: 14px; font-weight: 650; line-height: 1.4; color: #172033; overflow-wrap: anywhere; }
+.bb-market-catalog .bb-catalog-choice-copy small { margin-top: 3px; font-family: Figtree, sans-serif; font-size: 12px; line-height: 1.4; font-weight: 400; color: #748197; }
+.bb-market-catalog input[type=checkbox] { appearance: none; position: relative; width: 20px; height: 20px; margin: 0; border: 1px solid #cbd3de; border-radius: 5px; background: #fff; cursor: pointer; }
+.bb-market-catalog input[type=checkbox]:checked { background: #172033; border-color: #172033; }
+.bb-market-catalog input[type=checkbox]:checked::after { content: ''; position: absolute; width: 5px; height: 9px; left: 6px; top: 3px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.bb-market-catalog input[type=checkbox]:focus-visible { outline: 2px solid #677d9d; outline-offset: 3px; }
+.bb-market-catalog input[type=checkbox]:disabled { opacity: .45; cursor: default; }
+.bb-market-catalog .bb-catalog-variants { margin: 0 16px 10px 48px; }
+.bb-market-catalog .bb-catalog-variants summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border-top: 1px solid #edf0f2; font-family: Figtree, sans-serif; font-size: 12px; font-weight: 500; color: #536078; list-style: none; }
+.bb-catalog-variants summary::-webkit-details-marker { display: none; }
+.bb-catalog-variants summary > svg { margin-left: auto; transition: transform .15s ease; }
+.bb-catalog-variants[open] summary > svg { transform: rotate(180deg); }
+.bb-catalog-variant-count { padding: 2px 6px; border-radius: 5px; background: #f1f3f6; font-size: 11px; }
+.bb-commerce-settings .bb-market-catalog .bb-catalog-variants label.bb-catalog-variant-choice { padding: 8px 0; min-height: 44px; font-family: Figtree, sans-serif; font-size: 13px; font-weight: 500; line-height: 1.5; cursor: pointer; }
+.bb-catalog-empty { padding: 24px 16px; color: #748197; font-size: 13px; line-height: 1.6; }
+@media (max-width: 480px) {
+  .bb-commerce-settings .bb-market-catalog .bb-market-assignment-list label.bb-catalog-choice { padding: 12px; gap: 10px; }
+  .bb-catalog-kind { width: 32px; height: 32px; flex-basis: 32px; }
+  .bb-market-catalog .bb-catalog-variants { margin-right: 12px; margin-left: 42px; }
+}
+@media (prefers-reduced-motion: reduce) { .bb-catalog-choice, .bb-catalog-variants summary > svg { transition: none; } }

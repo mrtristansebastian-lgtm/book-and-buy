@@ -13,7 +13,7 @@ export function CheckoutSettingsPage() {
   const features = workspace.features || {};
 
   return (
-    <section className="bb-panel p-5 grid gap-3 max-w-xl">
+    <section className="bb-panel p-5 grid gap-3 bb-settings-content bb-settings-content--checkout">
       <h2 className="bb-page-title text-xl m-0">Client checkout fields</h2>
       <p className="bb-muted m-0 text-sm">
         Choose what clients provide when they book or buy.

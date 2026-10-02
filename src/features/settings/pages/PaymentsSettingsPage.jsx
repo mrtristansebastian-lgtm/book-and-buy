@@ -8,6 +8,7 @@ export function PaymentsSettingsPage() {
     <PaymentGatewaysPanel
       paymentGateways={paymentGateways}
       brandName={workspace.brandName}
+      isDemo={workspace.isDemo}
       onSaveGateway={updatePaymentGateway}
     />
   );

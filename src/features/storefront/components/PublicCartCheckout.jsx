@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUpRight,
   CalendarDays,
@@ -29,6 +29,8 @@ import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import { getPublicPaymentOptions, ONLINE_GATEWAYS } from '../../../utils/payments';
 import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import { createPublicProductOrder } from '../../../utils/orders';
+import { catalogAllowed, resolveMarket, shippingQuote } from '../../../utils/markets';
+import { MARKET_COUNTRIES } from '../../../config/marketCountries';
 import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
 import { serviceLineKey } from '../hooks/useCart';
@@ -246,6 +248,7 @@ export function PublicCartCheckout({
     clientPhone: '',
     clientNote: '',
     country: '',
+    shippingAddress: '',
     birthday: '',
     emailUpdates: true
   });
@@ -261,6 +264,7 @@ export function PublicCartCheckout({
   const [submitNote, setSubmitNote] = useState('');
   const [result, setResult] = useState(() => previewResult || null);
   const [submitting, setSubmitting] = useState(false);
+  const bookingRequests = useRef(new Map());
   const [returnState, setReturnState] = useState(null);
   const [slotEditItem, setSlotEditItem] = useState(null);
   const [step, setStep] = useState(() => {
@@ -359,10 +363,23 @@ export function PublicCartCheckout({
     hasProducts
   });
   const summaryRows = useMemo(() => buildSummaryRows(cart), [cart]);
+  const marketsConfigured = Array.isArray(workspace.website?.markets);
+  const buyerCountry = workspace.website?.buyerCountryCode || details.country;
+  const delivery = (() => {
+    if (!marketsConfigured) return { amountInCents: 0, profileIds: [], error: '' };
+    try {
+      const market = resolveMarket(workspace.website, buyerCountry);
+      if (!buyerCountry || !market?.enabled) throw new Error('Choose a supported country before checkout.');
+      if (cart.serviceItems.some((item) => !catalogAllowed(market, 'service', item.serviceId))) throw new Error('A service in your cart is not available in this market.');
+      return { ...shippingQuote(workspace.website, buyerCountry, cart.productItems, cart.productItems.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0)), error: '' };
+    } catch (error) { return { amountInCents: 0, profileIds: [], error: error.message }; }
+  })();
   const canContinueDetails = cart.items.length > 0 && cart.allServicesSlotted;
   const canSubmit =
     cart.items.length > 0 &&
     details.clientName.trim() &&
+    !delivery.error &&
+    (!marketsConfigured || !cart.hasProducts || details.shippingAddress.trim()) &&
     cart.allServicesSlotted &&
     !submitting;
 
@@ -407,7 +424,7 @@ export function PublicCartCheckout({
       clientEmail: details.clientEmail.trim(),
       clientPhone: details.clientPhone.trim(),
       clientNote: details.clientNote.trim(),
-      clientCountry: details.country.trim(),
+      clientCountry: buyerCountry.trim(),
       clientBirthday: details.birthday.trim(),
       clientUid: isClient ? profile?.uid || user?.uid || '' : '',
       emailUpdates: Boolean(details.emailUpdates),
@@ -430,13 +447,16 @@ export function PublicCartCheckout({
 
     if (publicMode && isFirebaseConfigured() && workspace.slug) {
       try {
+        const signature = JSON.stringify({ slug: workspace.slug, ...payload });
+        if (!bookingRequests.current.has(signature)) bookingRequests.current.set(signature, crypto.randomUUID());
         const remote = await firebaseCallables.createPublicBookingRequest({
           slug: workspace.slug,
+          requestId: bookingRequests.current.get(signature),
           ...payload
         });
         return { ...payload, id: remote?.id || `bk-${Date.now()}`, ...(remote || {}) };
-      } catch {
-        /* fall through */
+      } catch (failure) {
+        throw new Error(failure.message || 'The booking could not be confirmed. Please try again.');
       }
     }
     if (sameOwnerContext) {
@@ -449,27 +469,34 @@ export function PublicCartCheckout({
     if (!productItems.length) return null;
     const client = {
       ...details,
+      country: buyerCountry,
       clientUid: isClient ? profile?.uid || user?.uid || '' : ''
     };
+    const signature = JSON.stringify({ slug: workspace.slug, items: productItems, client, paymentMethod });
+    if (!bookingRequests.current.has(signature)) bookingRequests.current.set(signature, crypto.randomUUID());
 
     if (publicMode && isFirebaseConfigured() && workspace.slug) {
       try {
         const remote = await firebaseCallables.createPublicProductOrder({
+          requestId: bookingRequests.current.get(signature),
           slug: workspace.slug,
           items: productItems,
           client,
           paymentMethod
         });
         if (remote && typeof remote === 'object') return remote;
-      } catch {
-        /* fall through */
+        throw new Error('The order service returned no confirmation.');
+      } catch (error) {
+        throw new Error(error.message || 'Your order could not be placed. Please try again.');
       }
     }
 
     if (sameOwnerContext) {
       return ctx.placeProductOrder({
+        requestId: bookingRequests.current.get(signature),
         items: productItems,
         client,
+        shipping: delivery,
         paymentMethod
       });
     }
@@ -479,6 +506,8 @@ export function PublicCartCheckout({
       workspaceName: workspaceName || workspace.brandName,
       items: productItems,
       client,
+      shipping: delivery,
+      currency: workspace.currency || 'R',
       paymentMethod
     });
   };
@@ -589,7 +618,7 @@ export function PublicCartCheckout({
             } catch (error) {
               notes.push(
                 error?.message ||
-                  'Online payment could not start — request saved as unpaid. Try again or choose EFT/cash.'
+                  'Online payment could not start — request saved as unpaid. Try again or choose cash.'
               );
             }
           }
@@ -867,18 +896,20 @@ export function PublicCartCheckout({
                 autoComplete="email"
               />
             </CheckoutField>
-            <CheckoutField label="Country / Region" optional>
-              <input
+            <CheckoutField label="Country / Region" optional={!marketsConfigured}>
+              {marketsConfigured ? <select value={buyerCountry} disabled={Boolean(workspace.website?.buyerCountryCode)} onChange={(event) => setDetails((prev) => ({ ...prev, country: event.target.value }))}><option value="">Choose a country</option>{MARKET_COUNTRIES.map((country) => <option key={country.code} value={country.code}>{country.label}</option>)}</select> : <input
                 value={details.country}
                 onChange={(event) =>
                   setDetails((prev) => ({ ...prev, country: event.target.value }))
                 }
                 placeholder="South Africa"
                 autoComplete="country-name"
-              />
+              />}
             </CheckoutField>
           </div>
 
+          {marketsConfigured && cart.hasProducts && <div className="bb-checkout-form__row bb-checkout-form__row--single"><CheckoutField label="Delivery address"><textarea rows={3} autoComplete="street-address" placeholder="Street address, city, province/state and postal code" value={details.shippingAddress} onChange={(event) => setDetails((prev) => ({ ...prev, shippingAddress: event.target.value }))} /></CheckoutField></div>}
+          {delivery.error && <p role="alert" className="bb-muted">{delivery.error}</p>}
           <div className="bb-checkout-form__row bb-checkout-form__row--single">
             <CheckoutField label={copy.noteLabel} optional>
               <textarea
@@ -1005,8 +1036,9 @@ export function PublicCartCheckout({
         })}
         <div className="bb-checkout-summary__total">
           <span>Total:</span>
-          <span>{formatCents(cart.subtotalCents, cart.currency)}</span>
+          <span>{formatCents(cart.subtotalCents + delivery.amountInCents, cart.currency)}</span>
         </div>
+        {marketsConfigured && cart.hasProducts && <div className="bb-checkout-summary__row"><p>Shipping</p><p>{delivery.error ? 'Unavailable' : delivery.amountInCents === 0 ? 'Free' : formatCents(delivery.amountInCents, cart.currency)}</p></div>}
       </section>
 
       {cart.hasServices ? (

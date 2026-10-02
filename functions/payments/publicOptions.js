@@ -8,7 +8,7 @@ const NAMES = {
 
 export function getPublicPaymentOptions({ paymentGateways = [] } = {}) {
   const options = (paymentGateways || [])
-    .filter((gateway) => gateway.enabled && gateway.configured !== false)
+    .filter((gateway) => ['stripe', 'paypal', 'paystack', 'cash'].includes(gateway.gatewayType) && gateway.enabled && gateway.configured !== false)
     .map((gateway) => ({
       id: gateway.gatewayType,
       gatewayType: gateway.gatewayType,
@@ -24,7 +24,7 @@ export function getPublicPaymentOptions({ paymentGateways = [] } = {}) {
     ok: true,
     options,
     manualPaymentOptions: options.filter((option) =>
-      ['manual_eft', 'cash'].includes(option.gatewayType)
+      option.gatewayType === 'cash'
     )
   };
 }

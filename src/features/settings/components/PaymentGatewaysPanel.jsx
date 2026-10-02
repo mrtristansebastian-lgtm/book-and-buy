@@ -24,7 +24,7 @@ function OnlineGatewayCard({
 }) {
   const meta = GATEWAY_META[gateway.gatewayType];
   const status = statusFor(gateway);
-  const [open, setOpen] = useState(!gateway.configured);
+  const [open, setOpen] = useState(false);
   const [mode, setMode] = useState(gateway.mode || 'test');
   const [publicKey, setPublicKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
@@ -105,11 +105,11 @@ function OnlineGatewayCard({
   };
 
   return (
-    <article className="bb-pay-card bb-panel p-5 grid gap-3">
+    <article className={`bb-pay-card bb-pay-card--online bb-panel p-5 grid gap-3${open ? ' is-editing' : ''}`}>
       <div className="bb-pay-card-head">
         <div className="grid gap-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="bb-page-title text-lg m-0">{meta.name}</h3>
+          <div className="bb-pay-provider-title">
+            <h3 className="bb-pay-logo-heading"><img className={`bb-pay-logo is-${gateway.gatewayType}`} src={`/payment-logos/${gateway.gatewayType}.${gateway.gatewayType === 'paypal' ? 'png' : 'svg'}`} alt={meta.name} /></h3>
             <span className={`bb-pay-status is-${status.id}`}>{status.label}</span>
           </div>
           <p className="bb-muted m-0 text-sm">{meta.blurb}</p>
@@ -134,7 +134,7 @@ function OnlineGatewayCard({
               >
                 Reconnect
               </button>
-              <button type="button" className="bb-ghost-btn" disabled={busy} onClick={disconnect}>
+              <button type="button" className="bb-ghost-btn" disabled={busy} onClick={() => { if (window.confirm(`Disconnect ${meta.name}? Clients will no longer be able to use it at checkout.`)) disconnect(); }}>
                 Disconnect
               </button>
             </>
@@ -156,8 +156,7 @@ function OnlineGatewayCard({
         <div className="bb-pay-connect grid gap-3">
           {!cloudReady ? (
             <p className="bb-settings-stub m-0">
-              Firebase is not configured — keys stay local as demo flags only. Online charging needs
-              Cloud Functions + <code>PAYMENT_SETTINGS_ENCRYPTION_KEY</code>.
+              Preview only. Use sample keys here, never real credentials. No provider connection or charge is made.
             </p>
           ) : null}
 
@@ -246,7 +245,7 @@ function OnlineGatewayCard({
                   <Loader2 size={16} className="animate-spin" /> Saving…
                 </>
               ) : (
-                'Save & verify'
+                cloudReady ? 'Save & verify' : 'Save demo connection'
               )}
             </button>
             <a
@@ -257,13 +256,11 @@ function OnlineGatewayCard({
             >
               Open {meta.name} keys <ExternalLink size={14} />
             </a>
-            {gateway.configured ? (
               <button type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
                 Cancel
               </button>
-            ) : null}
           </div>
-          {error ? <p className="bb-pay-error m-0">{error}</p> : null}
+          {error ? <p className="bb-pay-error m-0" role="alert">{error}</p> : null}
         </div>
       ) : null}
     </article>
@@ -287,10 +284,10 @@ function ManualGatewayCard({ gateway, onSaved }) {
   };
 
   return (
-    <article className="bb-pay-card bb-panel p-5 grid gap-3">
+    <article className="bb-pay-card bb-pay-card--manual bb-panel p-5 grid gap-3">
       <div className="bb-pay-card-head">
         <div className="grid gap-1">
-          <h3 className="bb-page-title text-lg m-0">{meta.name}</h3>
+          <div className="bb-pay-provider-title"><img className="bb-pay-cash-icon" src="/payment-logos/cash.svg" alt="" /><h3 className="bb-page-title text-lg m-0">{meta.name}</h3></div>
           <p className="bb-muted m-0 text-sm">{meta.blurb}</p>
         </div>
         <label className="flex items-center gap-2 text-sm font-semibold">
@@ -315,16 +312,15 @@ function ManualGatewayCard({ gateway, onSaved }) {
             ['accountNumber', 'Account number'],
             ['branchCode', 'Branch code']
           ].map(([key, placeholder]) => (
-            <input
-              key={key}
+            <label key={key} className="bb-settings-field"><span>{placeholder}</span><input
               className="native-control-input px-4"
               placeholder={placeholder}
               value={summary[key] || ''}
               onChange={(event) => setSummary((prev) => ({ ...prev, [key]: event.target.value }))}
               onBlur={() => persist(enabled, summary)}
-            />
+            /></label>
           ))}
-          <input
+          <label className="bb-settings-field sm:col-span-2"><span>Client instructions</span><input
             className="native-control-input px-4 sm:col-span-2"
             placeholder="Client instructions"
             value={summary.instructions || ''}
@@ -332,10 +328,10 @@ function ManualGatewayCard({ gateway, onSaved }) {
               setSummary((prev) => ({ ...prev, instructions: event.target.value }))
             }
             onBlur={() => persist(enabled, summary)}
-          />
+          /></label>
         </div>
       ) : (
-        <input
+        <label className="bb-settings-field"><span>Cash instructions</span><input
           className="native-control-input px-4"
           placeholder="Cash instructions"
           value={summary.instructions || ''}
@@ -343,7 +339,7 @@ function ManualGatewayCard({ gateway, onSaved }) {
             setSummary((prev) => ({ ...prev, instructions: event.target.value }))
           }
           onBlur={() => persist(enabled, summary)}
-        />
+        /></label>
       )}
     </article>
   );
@@ -352,10 +348,11 @@ function ManualGatewayCard({ gateway, onSaved }) {
 export function PaymentGatewaysPanel({
   paymentGateways = [],
   brandName = '',
+  isDemo = false,
   onSaveGateway
 }) {
   const [flash, setFlash] = useState('');
-  const cloudReady = isFirebaseConfigured();
+  const cloudReady = isFirebaseConfigured() && !isDemo;
   const roster = useMemo(() => ensureGatewayRoster(paymentGateways), [paymentGateways]);
   const publicPreview = useMemo(
     () => getPublicPaymentOptions({ paymentGateways: roster }),
@@ -378,12 +375,9 @@ export function PaymentGatewaysPanel({
   };
 
   return (
-    <div className="bb-settings-gateways">
-      <p className="bb-muted m-0 text-sm max-w-2xl">
-        Connect your own Stripe, PayPal, or Paystack account. Clients pay on the provider’s secure
-        page — Book and Buy never sees card numbers. Funds settle to your provider account (0%
-        platform cut).
-      </p>
+    <div className="bb-settings-content bb-settings-content--payments bb-settings-gateways">
+      <section className="bb-pay-overview"><div><h2>How you get paid</h2><p>Connect an online provider or offer payment in person. Funds settle to your own account.</p></div><div className="bb-settings-preview-chips" aria-label="Enabled checkout methods">{publicPreview.options.length ? publicPreview.options.map((option) => <span key={option.id}><Check size={13} />{option.name}</span>) : <span>No payment methods enabled</span>}</div></section>
+      <section className="bb-pay-method-section" aria-labelledby="bb-online-payments"><div className="bb-settings-section-heading"><h2 id="bb-online-payments">Online payments</h2><p>Secure provider checkout. Book and Buy never stores card numbers.</p></div><div className="bb-pay-online-grid">
 
       {roster
         .filter((gateway) => ONLINE_GATEWAY_IDS.includes(gateway.gatewayType))
@@ -396,13 +390,14 @@ export function PaymentGatewaysPanel({
             onSaved={handleSaved}
             onDisconnected={handleDisconnected}
           />
-        ))}
+        ))}</div></section>
+      <section className="bb-pay-method-section" aria-labelledby="bb-manual-payments"><div className="bb-settings-section-heading"><h2 id="bb-manual-payments">Pay directly</h2><p>Share instructions with clients and confirm payment when it arrives.</p></div><div className="bb-pay-manual-grid">
 
       {roster
         .filter((gateway) => !ONLINE_GATEWAY_IDS.includes(gateway.gatewayType))
         .map((gateway) => (
           <ManualGatewayCard key={gateway.gatewayType} gateway={gateway} onSaved={handleSaved} />
-        ))}
+        ))}</div></section>
 
       <section className="bb-panel p-5 grid gap-2">
         <h3 className="bb-page-title text-lg m-0">Public checkout options</h3>
