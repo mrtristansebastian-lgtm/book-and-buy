@@ -25,7 +25,8 @@ export function BillingSettingsPage() {
 
       <section className="bb-panel p-5 grid gap-2">
         <h2 className="bb-page-title text-xl m-0">Invoices</h2>
-        <p className="bb-muted m-0 text-sm">No invoices yet — they will appear after live billing.</p>
+        <p className="bb-muted m-0 text-sm">{workspace.isDemo ? 'No invoices are created in demo mode.' : 'Subscription billing is not available yet, so there are no subscription invoices to download.'}</p>
+        <p className="bb-muted m-0 text-sm">Customer payments and sales records are separate from your Book and Buy subscription.</p>
       </section>
     </div>
   );

@@ -78,7 +78,7 @@ const COPY = {
   },
   users: {
     title: 'Users',
-    lede: 'Team roster and access roles.'
+    lede: 'Team profiles for scheduling. Profiles do not grant sign-in access.'
   },
   payments: {
     title: 'Payments',

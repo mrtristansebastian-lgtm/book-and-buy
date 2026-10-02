@@ -1043,9 +1043,12 @@
 }
 
 .bb-owner-main .bb-analytics--live .bb-analytics-header {
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(18px) saturate(1.1);
-  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+  position: static;
+  top: auto;
+  z-index: auto;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .bb-live-feed-state {

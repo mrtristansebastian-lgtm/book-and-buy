@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useElementWidth } from '../../../shared/ui/useElementWidth';
 import { CalendarRange, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -59,6 +60,7 @@ export function ScheduleAvailabilityEditor({
 }) {
   const { user } = useAuth();
   const { workspace } = useWorkspace();
+  const [teamAxisRef, teamAxisWidth] = useElementWidth();
   const openTime = availabilityRules.businessOpenTime || '09:00';
   const closeTime = availabilityRules.businessCloseTime || '17:00';
 
@@ -242,8 +244,8 @@ export function ScheduleAvailabilityEditor({
   const businessTeamAxisMarks = useMemo(() => {
     if (!isBusinessFocus) return [];
     const sample = businessStaffDayMeters[0]?.timeline || selectedTimeline;
-    return buildTimelineAxisMarks(sample.dayStart, sample.dayEnd);
-  }, [isBusinessFocus, businessStaffDayMeters, selectedTimeline]);
+    return buildTimelineAxisMarks(sample.dayStart, sample.dayEnd, teamAxisWidth || 120);
+  }, [isBusinessFocus, businessStaffDayMeters, selectedTimeline, teamAxisWidth]);
 
   const selectedDayHours = useMemo(
     () => getBusinessHoursForDate(selectedDay, availabilityRules),
@@ -719,70 +721,6 @@ export function ScheduleAvailabilityEditor({
               ))}
             </div>
           </section>
-          {!isBusinessFocus ? (
-            <section className="bb-schedule-side-section bb-schedule-availability-control-section">
-              <div className="bb-schedule-avail-sidebar-head">
-                <span className="bb-schedule-side-label">Shifts & breaks</span>
-                <span className="bb-schedule-avail-sidebar-meta">{formatDisplayDate(selectedDay)}</span>
-              </div>
-              {draftShifts.length ? draftShifts.map((shift, index) => (
-                <div key={`sidebar-shift-${index}`} className="bb-schedule-avail-sidebar-shift">
-                  <div className="bb-schedule-avail-sidebar-shift-head">
-                    <span>Shift {index + 1}</span>
-                    {draftShifts.length > 1 ? (
-                      <button type="button" className="bb-schedule-avail-sidebar-remove" aria-label={`Remove shift ${index + 1}`} onClick={() => setDraftShifts((previous) => previous.filter((_, itemIndex) => itemIndex !== index))}>
-                        <Trash2 size={14} aria-hidden="true" />
-                      </button>
-                    ) : null}
-                  </div>
-                  {canEditDayTimes ? (
-                    <div className="bb-schedule-avail-sidebar-times is-shift">
-                      <TimeField label="Start" value={shift.start} onChange={(next) => updateShift(index, { start: next })} />
-                      <TimeField label="End" value={shift.end} onChange={(next) => updateShift(index, { end: next })} />
-                    </div>
-                  ) : <strong>{shift.start} – {shift.end}</strong>}
-                  {canEditDayTimes ? (
-                    <button type="button" className="bb-schedule-avail-sidebar-apply" onClick={() => setApplyShiftIndex(index)}>
-                      <CalendarRange size={14} aria-hidden="true" /> Apply this shift to dates
-                    </button>
-                  ) : null}
-                </div>
-              )) : <p className="bb-schedule-avail-hint m-0">No shift set for this day.</p>}
-              {canEditDayTimes && draftBreaks.length ? (
-                <div className="bb-schedule-avail-sidebar-breaks">
-                  {draftBreaks.map((row, index) => (
-                    <div key={`sidebar-break-${index}`} className="bb-schedule-avail-sidebar-shift is-break">
-                      <div className="bb-schedule-avail-sidebar-shift-head">
-                        <span>Break {index + 1}</span>
-                        <button type="button" className="bb-schedule-avail-sidebar-remove" aria-label={`Remove break ${index + 1}`} onClick={() => setDraftBreaks((previous) => previous.filter((_, itemIndex) => itemIndex !== index))}>
-                          <Trash2 size={14} aria-hidden="true" />
-                        </button>
-                      </div>
-                      <div className="bb-schedule-avail-sidebar-times">
-                        <TimeField label="Start" value={row.start} onChange={(next) => updateBreak(index, { start: next })} />
-                        <TimeField label="End" value={row.end} onChange={(next) => updateBreak(index, { end: next })} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-              {canEditDayTimes ? (
-                <>
-                  <div className="bb-schedule-avail-sidebar-add-row">
-                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])}>
-                      <Plus size={15} aria-hidden="true" /> Shift
-                    </button>
-                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftBreaks((prev) => [...prev, { start: '12:00', end: '13:00' }])}>
-                      <Plus size={15} aria-hidden="true" /> Break
-                    </button>
-                  </div>
-                  <button type="button" className="bb-primary-btn bb-schedule-avail-sidebar-save" disabled={!canSaveDay} onClick={() => saveDay()}>
-                    Save day
-                  </button>
-                </>
-              ) : null}
-            </section>
-          ) : null}
           <section className="bb-schedule-side-section bb-schedule-availability-window">
             <span className="bb-schedule-side-label">Booking period</span>
             <strong>{bookableWindowLabel.replace('Availability period · ', '')}</strong>
@@ -933,6 +871,70 @@ export function ScheduleAvailabilityEditor({
           }}
         />
 
+          {!isBusinessFocus ? (
+            <section className="bb-schedule-side-section bb-schedule-shifts-below-calendar">
+              <div className="bb-schedule-avail-sidebar-head">
+                <span className="bb-schedule-side-label">Shifts & breaks</span>
+                <span className="bb-schedule-avail-sidebar-meta">{formatDisplayDate(selectedDay)}</span>
+              </div>
+              {draftShifts.length ? draftShifts.map((shift, index) => (
+                <div key={`sidebar-shift-${index}`} className="bb-schedule-avail-sidebar-shift">
+                  <div className="bb-schedule-avail-sidebar-shift-head">
+                    <span>Shift {index + 1}</span>
+                    {draftShifts.length > 1 ? (
+                      <button type="button" className="bb-schedule-avail-sidebar-remove" aria-label={`Remove shift ${index + 1}`} onClick={() => setDraftShifts((previous) => previous.filter((_, itemIndex) => itemIndex !== index))}>
+                        <Trash2 size={14} aria-hidden="true" />
+                      </button>
+                    ) : null}
+                  </div>
+                  {canEditDayTimes ? (
+                    <div className="bb-schedule-avail-sidebar-times is-shift">
+                      <TimeField label="Start" value={shift.start} onChange={(next) => updateShift(index, { start: next })} />
+                      <TimeField label="End" value={shift.end} onChange={(next) => updateShift(index, { end: next })} />
+                    </div>
+                  ) : <strong>{shift.start} – {shift.end}</strong>}
+                  {canEditDayTimes ? (
+                    <button type="button" className="bb-schedule-avail-sidebar-apply" onClick={() => setApplyShiftIndex(index)}>
+                      <CalendarRange size={14} aria-hidden="true" /> Apply this shift to dates
+                    </button>
+                  ) : null}
+                </div>
+              )) : <p className="bb-schedule-avail-hint m-0">No shift set for this day.</p>}
+              {canEditDayTimes && draftBreaks.length ? (
+                <div className="bb-schedule-avail-sidebar-breaks">
+                  {draftBreaks.map((row, index) => (
+                    <div key={`sidebar-break-${index}`} className="bb-schedule-avail-sidebar-shift is-break">
+                      <div className="bb-schedule-avail-sidebar-shift-head">
+                        <span>Break {index + 1}</span>
+                        <button type="button" className="bb-schedule-avail-sidebar-remove" aria-label={`Remove break ${index + 1}`} onClick={() => setDraftBreaks((previous) => previous.filter((_, itemIndex) => itemIndex !== index))}>
+                          <Trash2 size={14} aria-hidden="true" />
+                        </button>
+                      </div>
+                      <div className="bb-schedule-avail-sidebar-times">
+                        <TimeField label="Start" value={row.start} onChange={(next) => updateBreak(index, { start: next })} />
+                        <TimeField label="End" value={row.end} onChange={(next) => updateBreak(index, { end: next })} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {canEditDayTimes ? (
+                <>
+                  <div className="bb-schedule-avail-sidebar-add-row">
+                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])}>
+                      <Plus size={15} aria-hidden="true" /> Shift
+                    </button>
+                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftBreaks((prev) => [...prev, { start: '12:00', end: '13:00' }])}>
+                      <Plus size={15} aria-hidden="true" /> Break
+                    </button>
+                  </div>
+                  <button type="button" className="bb-primary-btn bb-schedule-avail-sidebar-save" disabled={!canSaveDay} onClick={() => saveDay()}>
+                    Save day
+                  </button>
+                </>
+              ) : null}
+            </section>
+          ) : null}
         {isBusinessFocus ? (
           <div className="bb-schedule-day-meter-block bb-schedule-staff-meters">
             <div className="bb-schedule-day-meter-block-head">
@@ -980,7 +982,7 @@ export function ScheduleAvailabilityEditor({
                 {businessTeamAxisMarks.length ? (
                   <div className="bb-schedule-staff-meters-axis-wrap" aria-hidden="true">
                     <div className="bb-schedule-staff-meters-axis-spacer" />
-                    <div className="bb-schedule-day-meter-axis">
+                    <div ref={teamAxisRef} className="bb-schedule-day-meter-axis">
                       {businessTeamAxisMarks.map((mark) => (
                         <span
                           key={`${mark.minutes}-${mark.edge}`}

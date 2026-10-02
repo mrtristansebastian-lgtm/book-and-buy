@@ -128,12 +128,12 @@ export function ProductEditorVariantsStep({
             <thead>
               <tr>
                 <th>Variant</th>
-                <th>Price</th>
+                <th>Price ({draft.currency || 'R'})</th>
                 <th>
                   Compare-at{' '}
                   <span className="bb-products-field-optional">Optional</span>
                 </th>
-                <th>On</th>
+                <th>Available</th>
               </tr>
             </thead>
             <tbody>
@@ -148,6 +148,8 @@ export function ProductEditorVariantsStep({
                   <td>
                     <input
                       type="text"
+                      inputMode="decimal"
+                      aria-label={`Price for ${variant.title || 'variant'} (${draft.currency || 'R'})`}
                       value={variant.price ?? ''}
                       placeholder="0.00"
                       onChange={(event) =>
@@ -160,6 +162,8 @@ export function ProductEditorVariantsStep({
                   <td>
                     <input
                       type="text"
+                      inputMode="decimal"
+                      aria-label={`Compare-at price for ${variant.title || 'variant'} (${draft.currency || 'R'})`}
                       value={variant.compareAtPrice ?? ''}
                       placeholder="—"
                       onChange={(event) =>
@@ -172,6 +176,7 @@ export function ProductEditorVariantsStep({
                   <td>
                     <input
                       type="checkbox"
+                      aria-label={`${variant.title || 'Variant'} available to buy`}
                       checked={variant.available !== false}
                       onChange={(event) =>
                         patchVariant(variant.id, {

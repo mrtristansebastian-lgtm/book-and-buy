@@ -382,7 +382,7 @@ export function ClientsPage() {
                       <p className="bb-clients-sheet-sub">
                         {selected.country || 'Client'}
                         {history.bookings.length || history.orders.length
-                          ? ` · ${history.bookings.length + history.orders.length} records`
+                          ? ` · ${history.bookings.length + history.orders.length} ${history.bookings.length + history.orders.length === 1 ? 'record' : 'records'}`
                           : ''}
                       </p>
                       {tagsForTiers(tiersById.get(selected.id) || clientTier(0)).length ? (

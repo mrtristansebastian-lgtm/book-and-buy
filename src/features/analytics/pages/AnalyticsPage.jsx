@@ -3,12 +3,11 @@ import { useAnalyticsLive } from '../hooks/useAnalyticsLive';
 import { AnalyticsHeader } from '../components/AnalyticsHeader';
 import { AnalyticsKpiRow } from '../components/AnalyticsKpiRow';
 import { AnalyticsSalesChart } from '../components/AnalyticsSalesChart';
-import { AnalyticsFunnel } from '../components/AnalyticsFunnel';
 import { AnalyticsGeo } from '../components/AnalyticsGeo';
 import { AnalyticsRankTable } from '../components/AnalyticsRankTable';
 import { CHART_METRICS } from '../utils/analyticsMetrics';
 
-/** Reports dashboard — historical KPIs, chart, funnel, rankings. */
+/** Reports dashboard — historical KPIs, chart, rankings. */
 export function AnalyticsPage() {
   const [periodId, setPeriodId] = useState('week');
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
@@ -44,7 +43,6 @@ export function AnalyticsPage() {
         />
       </section>
 
-      <AnalyticsFunnel funnel={data.funnel} />
 
       <div className="bb-analytics-grid">
         <AnalyticsGeo geo={data.geo} />

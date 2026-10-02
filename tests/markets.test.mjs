@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getMarkets, resolveMarket, catalogAllowed, shippingQuote, filterWorkspaceForMarket, marketPatch } from '../functions/marketPolicy.js';
+import { getMarkets, resolveMarket, catalogAllowed, shippingQuote, filterWorkspaceForMarket, marketPatch, marketReadiness } from '../functions/marketPolicy.js';
 const market = { id: 'ZA', countryCode: 'ZA', enabled: true, catalogMode: 'all', shippingProfileIds: ['default', 'special'] };
 const website = { markets: [market], shippingProfiles: [
   { id: 'default', enabled: true, productMode: 'all', rateCents: 5000 },
@@ -31,4 +31,22 @@ test('missing, disabled, overlapping and malformed profiles fail closed', () => 
   assert.throws(() => shippingQuote({ ...website, shippingProfiles: [] }, 'ZA', [{ productId: 'p' }]));
   assert.throws(() => shippingQuote({ ...website, shippingProfiles: [{ ...website.shippingProfiles[0], rateCents: NaN }] }, 'ZA', [{ productId: 'p' }]));
   assert.throws(() => shippingQuote({ ...website, shippingProfiles: [...website.shippingProfiles, { ...website.shippingProfiles[1], id: 'duplicate' }], markets: [{ ...market, shippingProfileIds: ['special', 'duplicate'] }] }, 'ZA', [{ productId: 'p', variantId: 'v' }]));
+});
+
+test('catalog state distinguishes country selection, unsupported destinations and configured empty catalogs', () => {
+  const workspace = { website, products: [{ id: 'p' }], services: [{ id: 's' }] };
+  assert.equal(filterWorkspaceForMarket(workspace, '').website.catalogAvailability, 'country-required');
+  assert.deepEqual(filterWorkspaceForMarket(workspace, '').products, []);
+  assert.equal(filterWorkspaceForMarket(workspace, 'GB').website.catalogAvailability, 'country-disabled');
+  assert.equal(filterWorkspaceForMarket(workspace, 'ZA').products.length, 1);
+  assert.equal(filterWorkspaceForMarket(workspace, 'ZA').website.catalogAvailability, 'available');
+  assert.equal(filterWorkspaceForMarket({ products: [{ id: 'p' }] }, '' ).products.length, 1);
+});
+
+test('readiness counts visible catalog and flags missing or overlapping delivery profiles', () => {
+  const workspace = { website, products: [{ id: 'p', variants: [{ id: 'v' }] }, { id: 'draft', status: 'draft' }], services: [{ id: 's' }, { id: 'hidden', active: false }] };
+  assert.deepEqual(marketReadiness(workspace, market), { productCount: 1, serviceCount: 1, emptyCatalog: false, shippingIssues: 0 });
+  assert.equal(marketReadiness(workspace, { ...market, shippingProfileIds: [] }).shippingIssues, 1);
+  assert.equal(marketReadiness(workspace, { ...market, catalogMode: 'selected', productIds: [], variantKeys: [], serviceIds: [] }).emptyCatalog, true);
+  assert.equal(marketReadiness(workspace, { ...market, enabled: false }).productCount, 1);
 });

@@ -553,6 +553,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
               ? {
                   ...thread,
                   unread: message.from === 'client',
+                  unreadForClient: message.from === 'business' ? true : message.from === 'client' ? false : Boolean(thread.unreadForClient),
                   updatedAt: Date.now(),
                   messages: [...(thread.messages || []), message]
                 }
@@ -630,11 +631,11 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           )
         }));
       },
-      markThreadRead: (threadId) => {
+      markThreadRead: (threadId, perspective = 'business') => {
         setWorkspace((prev) => ({
           ...prev,
           threads: (prev.threads || []).map((thread) =>
-            thread.id === threadId ? { ...thread, unread: false } : thread
+            thread.id === threadId ? { ...thread, ...(perspective === 'client' ? { unreadForClient: false } : { unread: false }) } : thread
           )
         }));
       },

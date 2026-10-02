@@ -12,3 +12,12 @@ export function mapToScreen(point, rect, view) {
   const scale = Math.min(rect.width / view.width, rect.height / view.height);
   return { x: rect.width / 2 + (point.x - view.x) * scale, y: rect.height / 2 + (point.y - view.y) * scale };
 }
+
+/** Same anchor-preserving transform for button zoom, mouse drag and touch pinch. */
+export function navigateMapGesture({ width, height, view, rect, from, to = from, ratio = 1, maxZoom = 4 }) {
+  const zoom = Math.max(1, Math.min(maxZoom, view.zoom * ratio));
+  const fixed = screenToMap(from, rect, view);
+  const fitted = fitViewport(width, height, zoom, view);
+  const destination = screenToMap(to, rect, fitted);
+  return fitViewport(width, height, zoom, { x: fitted.x + fixed.x - destination.x, y: fitted.y + fixed.y - destination.y });
+}

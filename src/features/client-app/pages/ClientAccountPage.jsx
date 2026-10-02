@@ -55,7 +55,7 @@ const SECTIONS = [
   },
   {
     id: 'account',
-    label: 'Account',
+    label: 'Sign-in & session',
     lede: 'Sign-out and demo controls.',
     icon: Lock
   }
@@ -170,15 +170,12 @@ function GeneralSettings({ profile, updateClientProfile, setClientPresence }) {
             onChange={(event) => updateClientProfile({ email: event.target.value })}
           />
         </label>
-        <label className="grid gap-1 text-sm">
-          <span className="font-semibold">Profile photo URL</span>
-          <input
-            className="native-control-input px-4"
-            value={profile?.photoURL || ''}
-            placeholder="https://… or upload above"
-            onChange={(event) => updateClientProfile({ photoURL: event.target.value })}
-          />
-        </label>
+        {profile?.photoURL ? <button type="button" className="bb-ghost-btn justify-self-start" disabled={photoBusy} onClick={async () => {
+          setPhotoBusy(true); setPhotoError('');
+          try { await updateClientProfile({ photoURL: '' }); }
+          catch (error) { setPhotoError(error?.message || 'Could not remove photo. Please try again.'); }
+          finally { setPhotoBusy(false); }
+        }}>Remove profile photo</button> : null}
         <label className="flex items-start gap-3 text-sm font-semibold pt-1">
           <input
             type="checkbox"
@@ -211,9 +208,9 @@ function AccountSettings({ clearClientSession, showDemo }) {
   return (
     <div className="grid gap-4 max-w-xl">
       <section className="bb-panel p-5 grid gap-3">
-        <h2 className="bb-page-title text-xl m-0">Signed in</h2>
-        <p className="bb-muted m-0 text-sm">Sign out of this device or leave demo mode.</p>
-        <button
+        <h2 className="bb-page-title text-xl m-0">{showDemo ? 'Demo profile' : 'Your session'}</h2>
+        <p className="bb-muted m-0 text-sm">{showDemo ? 'You are exploring with a sample customer profile. No customer account has been created.' : 'Sign out of your customer account on this device.'}</p>
+        {!showDemo ? <button
           type="button"
           className="bb-primary-btn justify-self-start"
           onClick={async () => {
@@ -222,7 +219,7 @@ function AccountSettings({ clearClientSession, showDemo }) {
           }}
         >
           Sign out
-        </button>
+        </button> : null}
       </section>
       {showDemo ? <DemoModePanel className="bb-demo-panel--account" variant="client" /> : null}
     </div>
@@ -360,7 +357,7 @@ export function ClientAccountPage({ section = '' }) {
     body = (
       <div className="bb-client-stack">
         {myBookings.length === 0 ? (
-          <p className="bb-client-empty">No bookings yet. Explore businesses to book.</p>
+          <div className="bb-client-empty"><p>No bookings yet. Find a business and book your first service.</p><button type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find services</button></div>
         ) : (
           myBookings.map((booking) => (
             <article key={booking.id} className="bb-client-item">
@@ -388,7 +385,7 @@ export function ClientAccountPage({ section = '' }) {
     body = (
       <div className="bb-client-stack">
         {myOrders.length === 0 ? (
-          <p className="bb-client-empty">No orders yet.</p>
+          <div className="bb-client-empty"><p>No orders yet. Discover products from businesses on Book and Buy.</p><button type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find products</button></div>
         ) : (
           myOrders.map((order) => (
             <article key={order.id} className="bb-client-item">
@@ -473,7 +470,7 @@ export function ClientAccountPage({ section = '' }) {
                           <button key={item.id} type="button" className="bb-client-account-app" onClick={() => go(item.id)}>
                             <span className="bb-client-account-app-icon"><Icon size={21} strokeWidth={1.9} /></span>
                             <strong>{item.label}</strong>
-                            {count != null ? <span className="bb-client-account-app-count">{count}</span> : null}
+                            {count > 0 ? <span className="bb-client-account-app-count">{count}</span> : null}
                           </button>
                         );
                       })}

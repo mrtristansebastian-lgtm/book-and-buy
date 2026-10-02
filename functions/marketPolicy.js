@@ -70,5 +70,29 @@ export function filterWorkspaceForMarket(workspace, countryCode) {
     .map((item) => ({ ...item, variants: (item.variants || []).filter((variant) => catalogAllowed(market, 'product', item.id, variant.id)) }));
   return { ...workspace, products,
     services: (workspace.services || []).filter((item) => catalogAllowed(market, 'service', item.id)),
-    website: { ...workspace.website, buyerCountryCode: countryCode } };
+    website: { ...workspace.website, buyerCountryCode: countryCode,
+      catalogAvailability: !countryCode ? 'country-required' : !market?.enabled ? 'country-disabled' : 'available' } };
+}
+
+/** Setup diagnostics only. Checkout continues to enforce shippingQuote on the server. */
+export function marketReadiness(workspace, market) {
+  const products = (workspace.products || []).filter((item) => item.active !== false
+    && !['draft', 'archived'].includes(item.status) && catalogAllowed({ ...market, enabled: true }, 'product', item.id));
+  const services = (workspace.services || []).filter((item) => item.active !== false
+    && catalogAllowed({ ...market, enabled: true }, 'service', item.id));
+  const profiles = (workspace.website?.shippingProfiles || []).filter((profile) =>
+    profile.enabled !== false && (market.shippingProfileIds || []).includes(profile.id));
+  const uncovered = products.filter((product) => {
+    const variants = (product.variants || []).filter((variant) => variant.available !== false
+      && catalogAllowed({ ...market, enabled: true }, 'product', product.id, variant.id));
+    const items = variants.length ? variants.map((variant) => ({ productId: product.id, variantId: variant.id })) : [{ productId: product.id }];
+    return items.some((item) => {
+      const matches = profiles.filter((profile) => profileApplies(profile, item));
+      const specific = matches.filter((profile) => profile.productMode === 'selected');
+      const candidates = specific.length ? specific : matches;
+      return candidates.length !== 1 || !Number.isSafeInteger(Number(candidates[0].rateCents)) || Number(candidates[0].rateCents) < 0;
+    });
+  });
+  return { productCount: products.length, serviceCount: services.length,
+    emptyCatalog: products.length + services.length === 0, shippingIssues: uncovered.length };
 }

@@ -55,7 +55,7 @@ export default function App() {
   if (customDomain.enabled && customDomain.slug) {
     // A custom host must never display a different seller via an edited hash.
     const page = route.kind === 'public' ? route.page : 'home';
-    return <PublicWebsiteApp slug={customDomain.slug} page={page} itemId={route.kind === 'public' ? route.itemId || '' : ''} />;
+    return <PublicWebsiteApp slug={customDomain.slug} page={page} itemId={route.kind === 'public' ? route.itemId || '' : ''} allowLocalDemo={false} />;
   }
   if (route.kind === 'public') {
     return <PublicWebsiteApp slug={route.slug} page={route.page} itemId={route.itemId || ''} />;

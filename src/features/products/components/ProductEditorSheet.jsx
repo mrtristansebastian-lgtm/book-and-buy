@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
@@ -61,6 +63,8 @@ export function ProductEditorSheet({
   const [fileNameHint, setFileNameHint] = useState('');
   const [valueDrafts, setValueDrafts] = useState({});
   const isPage = variant === 'page';
+  const dialogRef = useRef(null);
+  useDialogFocus(dialogRef, open && !isPage, onClose, cropOpen || busy);
 
   useEffect(() => {
     if (!open) return;
@@ -227,7 +231,7 @@ export function ProductEditorSheet({
   const goToStep = (id) => {
     const target = SETUP_STEPS.findIndex((item) => item.id === id);
     if (target < 0) return;
-    if (target > stepIndex) {
+    if (!isEdit && target > stepIndex) {
       for (let i = 0; i < target; i += 1) {
         if (!validateStep(SETUP_STEPS[i].id)) {
           setStep(SETUP_STEPS[i].id);
@@ -281,15 +285,15 @@ export function ProductEditorSheet({
     options: draft.options
   });
 
-  return (
+  const content = (
     <div
-      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      className={`native-ui bb-services-sheet${isPage ? ' is-page' : ''}`}
       role={isPage ? 'region' : 'dialog'}
       aria-modal={isPage ? undefined : true}
       aria-label={isEdit ? 'Edit product' : 'New product'}
     >
       {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
-      <div className="bb-services-sheet-panel bb-services-sheet-panel--setup">
+      <div ref={dialogRef} tabIndex={-1} className="bb-services-sheet-panel bb-services-sheet-panel--setup">
         <header className="bb-services-sheet-head">
           <div>
             <p className="bb-services-sheet-eyebrow">
@@ -311,6 +315,11 @@ export function ProductEditorSheet({
         </header>
 
         <div className="bb-services-sheet-body bb-services-setup">
+          {isEdit && <label className="bb-editor-section-picker">Editing section
+            <select value={step} onChange={(event) => goToStep(event.target.value)}>
+              {SETUP_STEPS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+            </select>
+          </label>}
           <p className="bb-services-setup-mobile" aria-live="polite">
             Step {stepIndex + 1} of {SETUP_STEPS.length}
             <span>{activeStep.label}</span>
@@ -322,7 +331,7 @@ export function ProductEditorSheet({
                 const done = index < stepIndex;
                 const current = index === stepIndex;
                 const state = current ? 'current' : done ? 'done' : 'upcoming';
-                const clickable = done || current;
+                const clickable = isEdit || done || current;
                 return (
                   <li
                     key={item.id}
@@ -401,23 +410,23 @@ export function ProductEditorSheet({
               />
             ) : null}
 
-            {error ? <p className="bb-services-error">{error}</p> : null}
+            {error ? <p role="alert" className="bb-services-error">{error}</p> : null}
           </div>
         </div>
 
         <footer className="bb-services-sheet-footer">
-          <button
+          {!isEdit && <button
             type="button"
             className="bb-ghost-btn"
             onClick={goBack}
             disabled={stepIndex === 0}
           >
             Back
-          </button>
+          </button>}
           <div className="bb-services-sheet-footer-actions">
-            {isLast ? (
+            {isLast || isEdit ? (
               <>
-                {isEdit && onDelete ? (
+                {isEdit && isLast && onDelete ? (
                   <button
                     type="button"
                     className="bb-ghost-btn"
@@ -466,4 +475,5 @@ export function ProductEditorSheet({
       />
     </div>
   );
+  return isPage ? content : createPortal(content, document.body);
 }

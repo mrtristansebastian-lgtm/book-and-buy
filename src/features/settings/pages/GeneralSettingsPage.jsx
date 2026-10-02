@@ -95,7 +95,7 @@ export function GeneralSettingsPage() {
       <p className="bb-muted m-0 text-sm">
         Public pages and branding live in{' '}
         <button type="button" className="bb-ghost-btn inline px-2 py-0" onClick={() => navigate('/dashboard/website')}>
-          E-Business Platform
+          E-Business
         </button>
         . Public URL is under Domains.
       </p>

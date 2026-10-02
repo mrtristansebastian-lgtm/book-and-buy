@@ -7,6 +7,7 @@ export function ServiceEditorPhotoStep({ draft, busy, fileRef, onPick }) {
       <button
         type="button"
         className={`bb-services-photo${draft.image ? ' has-media' : ''}`}
+        aria-label={draft.image ? 'Replace service photo' : 'Add service photo'}
         onClick={() => fileRef.current?.click()}
         disabled={busy}
       >

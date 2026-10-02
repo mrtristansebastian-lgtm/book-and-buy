@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { CatalogToolbar } from '../../../shared/ui/CatalogToolbar';
+import { filterManagedCatalog } from '../../../utils/catalogSearch';
 import { Plus } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { navigate } from '../../../app/routing';
@@ -96,6 +98,9 @@ export function ServicesPage({ routeRest = [] }) {
   const isMobile = useIsMobileEditor();
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
+  const [query, setQuery] = useState('');
+  const [catalogStatus, setCatalogStatus] = useState('all');
+  const visibleServices = useMemo(() => filterManagedCatalog(services, query, catalogStatus), [services, query, catalogStatus]);
 
   const mode = routeRest[0] || '';
   const editId = routeRest[1] || '';
@@ -201,7 +206,7 @@ export function ServicesPage({ routeRest = [] }) {
   }
 
   return (
-    <div className="bb-services-desk">
+    <div className="bb-services-desk bb-managed-catalog">
       <header className="bb-services-desk-header">
         <div className="bb-services-desk-copy">
           <div className="bb-page-title-wrap">
@@ -218,13 +223,14 @@ export function ServicesPage({ routeRest = [] }) {
         </button>
       </header>
 
+      <CatalogToolbar query={query} onQueryChange={setQuery} status={catalogStatus} onStatusChange={setCatalogStatus} count={visibleServices.length} total={services.length} noun="services" />
       {services.length === 0 ? (
         <div className="bb-services-catalog-empty">
           No services yet. Add your first offering.
         </div>
-      ) : (
+      ) : visibleServices.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching services</strong><p>Try a different name, category or status.</p><button className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</button></div> : (
         <div className="bb-public-product-grid bb-services-catalog-grid">
-          {services.map((service) => (
+          {visibleServices.map((service) => (
             <ServiceCatalogCard
               key={service.id}
               service={service}

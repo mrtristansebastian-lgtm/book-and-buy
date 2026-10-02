@@ -39,7 +39,7 @@ function mapThread(id, data = {}, messages = []) {
     workspaceSlug: data.workspaceSlug || '',
     logoUrl: data.logoUrl || '',
     messages,
-    unread: Boolean(data.unreadForClient ?? data.unread),
+    unreadForClient: Boolean(data.unreadForClient),
     updatedAt: data.updatedAt || data.lastMessageAt || 0
   };
 }

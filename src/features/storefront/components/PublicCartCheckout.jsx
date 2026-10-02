@@ -378,6 +378,7 @@ export function PublicCartCheckout({
   const canSubmit =
     cart.items.length > 0 &&
     details.clientName.trim() &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.clientEmail.trim()) &&
     !delivery.error &&
     (!marketsConfigured || !cart.hasProducts || details.shippingAddress.trim()) &&
     cart.allServicesSlotted &&
@@ -422,8 +423,8 @@ export function PublicCartCheckout({
         : item.durationMinutes || 60,
       clientName: details.clientName.trim(),
       clientEmail: details.clientEmail.trim(),
-      clientPhone: details.clientPhone.trim(),
-      clientNote: details.clientNote.trim(),
+      clientPhone: workspace.features?.collectClientPhone === false ? '' : details.clientPhone.trim(),
+      clientNote: workspace.features?.collectClientNotes === false ? '' : details.clientNote.trim(),
       clientCountry: buyerCountry.trim(),
       clientBirthday: details.birthday.trim(),
       clientUid: isClient ? profile?.uid || user?.uid || '' : '',
@@ -469,6 +470,8 @@ export function PublicCartCheckout({
     if (!productItems.length) return null;
     const client = {
       ...details,
+      clientPhone: workspace.features?.collectClientPhone === false ? '' : details.clientPhone,
+      clientNote: workspace.features?.collectClientNotes === false ? '' : details.clientNote,
       country: buyerCountry,
       clientUid: isClient ? profile?.uid || user?.uid || '' : ''
     };
@@ -713,7 +716,7 @@ export function PublicCartCheckout({
       firstBooking?.variantId && calendarService
         ? findServiceVariant(calendarService, firstBooking.variantId)
         : null;
-    const calendarUrl = firstBooking
+    const calendarUrl = firstBooking?.status === 'confirmed'
       ? buildBookingCalendarUrl({
           serviceName: firstBooking.serviceName,
           brandName: workspaceName || workspace.brandName,
@@ -783,7 +786,7 @@ export function PublicCartCheckout({
               className="bb-checkout-companion__btn bb-checkout-companion__btn--portal"
               onClick={() => navigate('/portal')}
             >
-              Client portal
+              My bookings & orders
               <ArrowUpRight size={14} strokeWidth={2.4} aria-hidden="true" />
             </button>
             <button
@@ -873,7 +876,7 @@ export function PublicCartCheckout({
                 required
               />
             </CheckoutField>
-            <CheckoutField label="Mobile Number">
+            {workspace.features?.collectClientPhone !== false ? <CheckoutField label="Mobile Number" optional>
               <input
                 value={details.clientPhone}
                 onChange={(event) =>
@@ -882,13 +885,14 @@ export function PublicCartCheckout({
                 autoComplete="tel"
                 inputMode="tel"
               />
-            </CheckoutField>
+            </CheckoutField> : null}
           </div>
 
           <div className="bb-checkout-form__row">
             <CheckoutField label="Email Address">
               <input
                 type="email"
+                required
                 value={details.clientEmail}
                 onChange={(event) =>
                   setDetails((prev) => ({ ...prev, clientEmail: event.target.value }))
@@ -897,7 +901,7 @@ export function PublicCartCheckout({
               />
             </CheckoutField>
             <CheckoutField label="Country / Region" optional={!marketsConfigured}>
-              {marketsConfigured ? <select value={buyerCountry} disabled={Boolean(workspace.website?.buyerCountryCode)} onChange={(event) => setDetails((prev) => ({ ...prev, country: event.target.value }))}><option value="">Choose a country</option>{MARKET_COUNTRIES.map((country) => <option key={country.code} value={country.code}>{country.label}</option>)}</select> : <input
+              {marketsConfigured ? workspace.website?.buyerCountryCode ? <><input readOnly value={MARKET_COUNTRIES.find((country) => country.code === buyerCountry)?.label || buyerCountry} /><small className="bb-muted">Matches your shopping country. Change it using the country selector above.</small></> : <select value={buyerCountry} onChange={(event) => setDetails((prev) => ({ ...prev, country: event.target.value }))}><option value="">Choose a country</option>{MARKET_COUNTRIES.map((country) => <option key={country.code} value={country.code}>{country.label}</option>)}</select> : <input
                 value={details.country}
                 onChange={(event) =>
                   setDetails((prev) => ({ ...prev, country: event.target.value }))
@@ -910,7 +914,7 @@ export function PublicCartCheckout({
 
           {marketsConfigured && cart.hasProducts && <div className="bb-checkout-form__row bb-checkout-form__row--single"><CheckoutField label="Delivery address"><textarea rows={3} autoComplete="street-address" placeholder="Street address, city, province/state and postal code" value={details.shippingAddress} onChange={(event) => setDetails((prev) => ({ ...prev, shippingAddress: event.target.value }))} /></CheckoutField></div>}
           {delivery.error && <p role="alert" className="bb-muted">{delivery.error}</p>}
-          <div className="bb-checkout-form__row bb-checkout-form__row--single">
+          {workspace.features?.collectClientNotes !== false ? <div className="bb-checkout-form__row bb-checkout-form__row--single">
             <CheckoutField label={copy.noteLabel} optional>
               <textarea
                 rows={3}
@@ -920,7 +924,7 @@ export function PublicCartCheckout({
                 }
               />
             </CheckoutField>
-          </div>
+          </div> : null}
 
           <div className="bb-checkout-form__row bb-checkout-form__row--half">
             <CheckoutField label="Birthday" optional>
@@ -931,6 +935,7 @@ export function PublicCartCheckout({
                   setDetails((prev) => ({ ...prev, birthday: event.target.value }))
                 }
               />
+              <small className="bb-muted">Optional profile information. It is not required to place your request.</small>
             </CheckoutField>
           </div>
 
@@ -1069,13 +1074,8 @@ export function PublicCartCheckout({
             }
             return (
               <div key={`slot-${item.lineKey}`} className="bb-public-product-card p-4 grid gap-3">
-                <h3 className="bb-page-title text-xl m-0">Schedule · {item.name}</h3>
-                <p className="bb-muted m-0 text-sm">
-                  {item.dateKey && item.time
-                    ? `${formatDisplayDate(item.dateKey)} · ${item.time}`
-                    : 'Choose an available date and time'}
-                  {item.duration ? ` · ${formatServiceDuration(item.duration)}` : ''}
-                </p>
+                  <strong className="bb-cart-time-action-title">{item.name}</strong>
+                {!item.dateKey || !item.time ? <p className="bb-muted m-0 text-sm">Choose an available date and time to continue.</p> : null}
                 {!lockedPreview ? (
                   <button
                     type="button"

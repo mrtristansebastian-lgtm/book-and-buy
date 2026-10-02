@@ -877,6 +877,50 @@
   padding-top: 0.15rem;
 }
 
+/* Stock is a scan-friendly inventory list, not a product gallery. */
+.bb-stock-desk .bb-stock-room { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 1rem; }
+.bb-stock-row { min-width: 0; border-bottom: 1px solid #e9edef; background: #fff; }
+.bb-stock-row .bb-stock-crate-body { min-height: 0; }
+.bb-stock-row .bb-stock-crate-scene { padding: 0; perspective: none; }
+.bb-stock-row .bb-stock-crate-side, .bb-stock-row .bb-stock-crate-bottom { display: none; }
+.bb-stock-row .bb-stock-crate-body { display: grid; grid-template-columns: 64px minmax(0, 1fr) 140px 190px; align-items: center; gap: 1.25rem; padding: 1rem; border: 0; border-radius: 0; background: #fff; box-shadow: none; transform: none; animation: none; }
+.bb-stock-row .bb-stock-crate-media { width: 64px; height: 64px; aspect-ratio: 1; border-radius: 9px; overflow: hidden; }
+.bb-stock-row .bb-stock-crate-media img { width: 100%; height: 100%; object-fit: cover; }
+.bb-stock-row .bb-stock-crate-stamp { min-width: 0; padding: 0; display: grid; gap: .35rem; }
+.bb-stock-row .bb-stock-crate-stamp strong { font-size: .95rem; }
+.bb-stock-row .bb-stock-crate-stamp span { overflow-wrap: anywhere; font-size: .75rem; }
+.bb-stock-row .bb-stock-crate-qty { justify-self: start; margin: 0; }
+.bb-stock-row-summary { display: grid; justify-items: start; gap: .4rem; }
+.bb-stock-row-summary small { font-size: .72rem; color: #667085; }
+.bb-stock-row .bb-stock-crate-actions { margin: 0; padding: 0; border: 0; display: flex; gap: .5rem; }
+.bb-stock-row .bb-stock-crate-action { min-height: 44px; flex: 1; }
+.bb-stock-edit-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 1.5rem; }
+.bb-stock-variant-nav { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.bb-stock-variant-nav > p { padding: .25rem .6rem .6rem; }
+.bb-stock-variant-nav button { text-align: left; display: grid; gap: .3rem; min-height: 72px; padding: .85rem; border: 1px solid transparent; border-radius: 10px; background: #fff; color: #101828; font: inherit; cursor: pointer; }
+.bb-stock-variant-nav button[aria-pressed=true] { background: #f5f7f8; border-color: #dfe5e9; }
+.bb-stock-variant-nav button:hover { background: #f8fafb; }
+.bb-stock-variant-nav button:focus-visible { outline: 2px solid #101828; outline-offset: 2px; }
+.bb-stock-variant-nav strong { font-size: .85rem; font-weight: 650; }
+.bb-stock-variant-nav span { color: #667085; font-size: .72rem; overflow-wrap: anywhere; }
+.bb-stock-variant-nav small { color: #087443; font-size: .7rem; }
+.bb-stock-active-editor { min-width: 0; }
+.bb-stock-active-editor > header { padding: .25rem 0 1rem; }
+.bb-stock-active-editor h3 { margin: 0; font-family: var(--bb-font-display); font-size: 1.05rem; }
+.bb-stock-active-editor header p { margin: .4rem 0 0; color: #667085; font-size: .8rem; line-height: 1.5; }
+.bb-stock-edit-sheet .bb-stock-section { background: #fff; border-radius: 10px; padding: 1rem; }
+.bb-stock-edit-sheet .bb-services-sheet-body { background: #fff; }
+@media (max-width: 700px) {
+  .bb-stock-row .bb-stock-crate-body { grid-template-columns: 52px minmax(0, 1fr); gap: .75rem; padding: 1rem .5rem; }
+  .bb-stock-row .bb-stock-crate-media { width: 52px; height: 52px; }
+  .bb-stock-row-summary { grid-column: 2; }
+  .bb-stock-row .bb-stock-crate-actions { grid-column: 2; width: 100%; max-width: 260px; }
+  .bb-stock-edit-layout { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .bb-stock-variant-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bb-stock-variant-nav > p { grid-column: 1 / -1; }
+  .bb-stock-variant-nav button { padding: .75rem; }
+}
+
 .bb-stock-section {
   display: grid;
   gap: 0.55rem;

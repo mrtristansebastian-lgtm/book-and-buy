@@ -102,6 +102,7 @@ export function OpsDeclineAction({ onClick, label = 'Decline' }) {
   return (
     <OpsAction tone="danger" ariaLabel={label} onClick={onClick}>
       <X size={14} strokeWidth={2.4} />
+      <span>{label}</span>
     </OpsAction>
   );
 }

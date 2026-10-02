@@ -6,8 +6,8 @@ import {
   nearestCoordByX
 } from '../utils/financeChartScale';
 
-const CHART_PAD_DESKTOP = { top: 18, right: 18, bottom: 40, left: 72 };
-const CHART_PAD_MOBILE = { top: 12, right: 10, bottom: 34, left: 44 };
+const CHART_PAD_DESKTOP = { top: 18, right: 26, bottom: 40, left: 88 };
+const CHART_PAD_MOBILE = { top: 12, right: 18, bottom: 34, left: 80 };
 
 function formatTooltipWhen(at, label) {
   if (!Number.isFinite(at)) return label || '';
@@ -100,7 +100,7 @@ function ChartSvg({
             key={`x-${tick.at}-${tick.index}`}
             x={tick.x}
             y={height - 12}
-            textAnchor="middle"
+            textAnchor={tick.x === geometry.ticksX[0]?.x ? 'start' : tick.x === geometry.ticksX.at(-1)?.x ? 'end' : 'middle'}
             className="bb-finance-chart-axis bb-finance-chart-axis--x"
           >
             {tick.label}

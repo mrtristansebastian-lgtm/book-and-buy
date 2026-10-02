@@ -135,7 +135,10 @@ export function PublicStorefront({
     <div className="bb-public-product-grid">
       {filteredCatalog.map((product) => renderCard(product))}
       {catalog.length === 0 ? (
-        <p className="bb-muted m-0">No products published yet.</p>
+        <p className="bb-muted m-0" role="status">{website.catalogAvailability === 'country-required'
+          ? 'Choose your shopping country above to see the products available to you.'
+          : website.catalogAvailability === 'country-disabled' ? 'Products are not available in your selected country.'
+          : website.buyerCountryCode ? 'No products are currently available in this country.' : 'No products published yet.'}</p>
       ) : filteredCatalog.length === 0 ? (
         <p className="bb-muted m-0">No products in this category.</p>
       ) : null}

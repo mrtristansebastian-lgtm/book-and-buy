@@ -1101,6 +1101,31 @@
   align-content: start;
 }
 
+.bb-schedule-side-section.bb-schedule-shifts-below-calendar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem 0 0;
+  border-top: 1px solid #e9edef;
+  background: transparent;
+}
+.bb-schedule-shifts-below-calendar > .bb-schedule-avail-sidebar-head,
+.bb-schedule-shifts-below-calendar > .bb-schedule-avail-hint,
+.bb-schedule-shifts-below-calendar > .bb-schedule-avail-sidebar-breaks { grid-column: 1 / -1; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-breaks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-shift { padding: 1rem; border-radius: 10px; gap: .75rem; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-remove { width: 44px; height: 44px; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-apply { min-height: 44px; border-style: solid; border-color: #e4e7ec; border-radius: 8px; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-add-row { align-self: end; gap: .5rem; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-action { min-height: 44px; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-save { justify-self: end; align-self: end; width: auto; min-width: 130px; min-height: 44px; }
+@media (max-width: 650px) {
+  .bb-schedule-side-section.bb-schedule-shifts-below-calendar,
+  .bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-breaks { grid-template-columns: minmax(0, 1fr); }
+  .bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-save { width: 100%; }
+}
+
 .bb-schedule-availability-sidebar .bb-schedule-avail-sidebar-statuses {
   gap: 0.25rem;
 }

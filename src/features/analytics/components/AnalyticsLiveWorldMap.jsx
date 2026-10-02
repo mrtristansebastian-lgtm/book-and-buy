@@ -3,6 +3,7 @@ import { ArrowUpRight, Minus, Plus, RotateCcw } from 'lucide-react';
 import worldMap from '../assets/worldEqualEarth.json';
 import { LiveCountryDetail } from './LiveCountryDetail';
 import { useMapViewport } from '../hooks/useMapViewport';
+import { REGIONAL_MAP_COUNTRIES } from '../utils/regionalTraffic';
 
 // The detailed Natural Earth paths stay memoized while live presence updates.
 const MapAreas = memo(function MapAreas({ areas, level }) {
@@ -37,7 +38,7 @@ export function AnalyticsLiveWorldMap({
   }, [sessions]);
   const [selectedArea, setSelectedArea] = useState(null);
   const [hoveredArea, setHoveredArea] = useState(null);
-  const viewport = useMapViewport({ width: worldMap.width, height: worldMap.height, initialZoom: 1.35, maxZoom: 4, enabled: !detailCountry, onGesture: () => { setSelectedArea(null); setHoveredArea(null); } });
+  const viewport = useMapViewport({ width: worldMap.width, height: worldMap.height, initialZoom: 1, maxZoom: 4, enabled: !detailCountry, onGesture: () => { setSelectedArea(null); setHoveredArea(null); } });
   const { zoom, suppressClick } = viewport;
   const activeArea = hoveredArea ?? selectedArea;
   const visitorWord = Number(total) === 1 ? 'visitor' : 'visitors';
@@ -166,7 +167,8 @@ export function AnalyticsLiveWorldMap({
           <div className="bb-live-world-hex-tooltip" role="status" style={viewport.tooltip(activeArea)}>
             <strong>{activeArea.country}</strong>
             <span>{countryCounts.get(activeArea.code) || 0} live visitors</span>
-            <small>Click to explore states & provinces</small>
+            <small>{REGIONAL_MAP_COUNTRIES[worldMap.countries.find((area) => area.code === activeArea.code)?.iso2]
+              ? 'Click to explore states & provinces' : 'Click to see regional visitor statistics'}</small>
           </div>
         ) : null}
 

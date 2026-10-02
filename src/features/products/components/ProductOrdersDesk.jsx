@@ -296,11 +296,11 @@ export function ProductOrdersDesk({ heading = null }) {
                     <div className="bb-ops-action-cluster">
                       <OpsAction
                         tone="primary"
-                        iconOnly
                         ariaLabel="Accept order"
                         onClick={() => acceptOrder(order.id)}
                       >
                         <Check size={15} strokeWidth={2.75} />
+                        Accept
                       </OpsAction>
                       <OpsDeclineAction label="Cancel order" onClick={() => cancelOrder(order.id)} />
                     </div>

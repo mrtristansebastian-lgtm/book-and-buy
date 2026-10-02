@@ -7,7 +7,8 @@ export function ServiceEditorReviewStep({
   patch,
   showCapacity,
   isSpot,
-  staff
+  staff,
+  currency = 'R'
 }) {
   return (
     <section className="bb-services-section">
@@ -27,12 +28,12 @@ export function ServiceEditorReviewStep({
           </div>
           <div>
             <dt>Price</dt>
-            <dd>{String(draft.price || '').trim() || '—'}</dd>
+            <dd>{String(draft.price ?? '').trim() ? `${currency} ${Number(draft.price).toLocaleString('en-ZA', { maximumFractionDigits: 2 })}` : '—'}</dd>
           </div>
           {(draft.variants || []).length ? (
             <div>
               <dt>Variants</dt>
-              <dd>{draft.variants.length} options</dd>
+              <dd>{draft.variants.length} {draft.variants.length === 1 ? 'variant' : 'variants'}</dd>
             </div>
           ) : null}
           <div>

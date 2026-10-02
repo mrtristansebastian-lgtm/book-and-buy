@@ -5,7 +5,7 @@ import { isFirebaseConfigured } from '../../shared/firebase/client';
 import { PublicSurfaceRenderer } from './components/PublicSurfaceRenderer';
 import { useAuth } from '../auth/AuthContext';
 import { filterWorkspaceForMarket, resolveMarket } from '../../utils/markets';
-import { MARKET_COUNTRIES } from '../../config/marketCountries';
+import { MarketCountryPicker } from '../settings/components/MarketCountryPicker';
 
 function titleCaseSlug(slug) {
   return String(slug || '')
@@ -15,23 +15,28 @@ function titleCaseSlug(slug) {
     .join(' ');
 }
 
-export function PublicWebsiteApp({ slug, page, itemId = '' }) {
+export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = true }) {
   const { user } = useAuth();
   const { workspace: local } = useWorkspace();
   const [remote, setRemote] = useState(null);
   const [buyerCountry, setBuyerCountry] = useState('');
   const [loadingRemote, setLoadingRemote] = useState(() => isFirebaseConfigured());
   const [loadTried, setLoadTried] = useState(!isFirebaseConfigured());
+  const localMatch = slug === local.slug ||
+    ((slug === 'flour-and-flame' || slug === 'flameandflour') &&
+      (local.isDemo || local.slug === 'flour-and-flame' || local.slug === 'flameandflour'));
+  const useLocalDemo = allowLocalDemo && local.isDemo && localMatch;
 
   useEffect(() => {
     let cancelled = false;
-    if (!isFirebaseConfigured()) {
+    if (useLocalDemo || !isFirebaseConfigured()) {
       setRemote(null);
       setLoadingRemote(false);
       setLoadTried(true);
       return undefined;
     }
 
+    setRemote(null);
     setLoadingRemote(true);
     setLoadTried(false);
     loadPublicWorkspaceFromFirestore(slug)
@@ -51,15 +56,10 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
-
-  const localMatch =
-    slug === local.slug ||
-    ((slug === 'flour-and-flame' || slug === 'flameandflour') &&
-      (local.isDemo || local.slug === 'flour-and-flame' || local.slug === 'flameandflour'));
+  }, [slug, useLocalDemo]);
 
   const workspace =
-    remote ||
+    (useLocalDemo ? local : remote) ||
     (localMatch
       ? local
       : {
@@ -78,7 +78,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
   const market = resolveMarket(workspace.website || {}, buyerCountry);
   const buyerWorkspace = filterWorkspaceForMarket(workspace, buyerCountry);
 
-  if (loadingRemote && !loadTried) {
+  if (!useLocalDemo && loadingRemote && !loadTried) {
     return (
       <div className="bb-shell native-ui min-h-screen grid place-items-center bb-muted">
         Loading public site…
@@ -89,15 +89,16 @@ export function PublicWebsiteApp({ slug, page, itemId = '' }) {
   return (
     <div className="bb-shell native-ui min-h-screen bg-white">
       {marketConfigured && <div className="bb-public-market-picker">
-        <label>Shopping from <select value={buyerCountry} onChange={(event) => setBuyerCountry(event.target.value)} aria-label="Your shopping country"><option value="">Choose your country</option>{MARKET_COUNTRIES.map((country) => <option key={country.code} value={country.code}>{country.label}</option>)}</select></label>
+        <MarketCountryPicker label="Your shopping country" value={buyerCountry} onChange={setBuyerCountry} allowRestOfWorld={false} resetOnSearch={false} />
+        {!buyerCountry && <span role="status">Choose your country to see available products and services.</span>}
         {buyerCountry && !market?.enabled && <span role="status">This business does not currently sell to this country.</span>}
       </div>}
       <PublicSurfaceRenderer
         workspace={buyerWorkspace}
         page={page || 'home'}
         itemId={itemId || ''}
-        publicMode={Boolean(remote) || !localMatch}
-        trackAnalytics={!ownerViewingOwnSite}
+        publicMode={!useLocalDemo && (Boolean(remote) || !localMatch)}
+        trackAnalytics={!useLocalDemo && !ownerViewingOwnSite}
       />
     </div>
   );

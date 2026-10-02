@@ -1,19 +1,22 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import {
   DURATION_PRESETS,
   createServiceVariantId
 } from '../../../utils/services';
 
-export function ServiceEditorVariantsStep({ draft, patch }) {
+export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
   const variants = Array.isArray(draft.variants) ? draft.variants : [];
+  const [expandedId, setExpandedId] = useState(variants.find((variant) => !variant.name?.trim())?.id || '');
 
   const setVariants = (next) => patch({ variants: next });
 
   const addVariant = () => {
+    const id = createServiceVariantId();
     setVariants([
       ...variants,
       {
-        id: createServiceVariantId(),
+        id,
         name: '',
         description: '',
         price: draft.price || '',
@@ -21,6 +24,7 @@ export function ServiceEditorVariantsStep({ draft, patch }) {
         available: true
       }
     ]);
+    setExpandedId(id);
   };
 
   const patchVariant = (id, partial) => {
@@ -60,20 +64,22 @@ export function ServiceEditorVariantsStep({ draft, patch }) {
           {variants.map((variant, index) => (
             <article key={variant.id || index} className="bb-services-variant-card">
               <div className="bb-services-variant-card-head">
-                <h4 className="bb-services-variant-card-title">
-                  Variant {index + 1}
-                </h4>
+                <button type="button" className="bb-variant-summary" aria-expanded={expandedId === variant.id} aria-controls={`service-variant-${variant.id}`} onClick={() => setExpandedId(expandedId === variant.id ? '' : variant.id)}>
+                  <strong>{variant.name || `Variant ${index + 1}`}</strong>
+                  <span>{variant.minDuration || '—'} min · {currency} {variant.price || '0'} · {variant.available === false ? 'Hidden' : 'Available'}</span>
+                  <small>{expandedId === variant.id ? 'Close details' : 'Edit details'}</small>
+                </button>
                 <button
                   type="button"
                   className="bb-ghost-btn"
-                  aria-label="Remove variant"
+                  aria-label={`Remove ${variant.name || `variant ${index + 1}`}`}
                   onClick={() => removeVariant(variant.id)}
                 >
                   <Trash2 size={14} />
                 </button>
               </div>
 
-              <div className="bb-services-fields">
+              <div id={`service-variant-${variant.id}`} className="bb-services-fields" hidden={expandedId !== variant.id}>
                 <label className="bb-services-field">
                   <span>Name</span>
                   <input
@@ -101,7 +107,7 @@ export function ServiceEditorVariantsStep({ draft, patch }) {
                 </label>
                 <div className="bb-services-variant-row">
                   <label className="bb-services-field">
-                    <span>Price</span>
+                    <span>Price ({currency})</span>
                     <input
                       className="native-control-input bb-services-control"
                       value={variant.price ?? ''}

@@ -34,7 +34,7 @@ export function AnalyticsHeader({
             </span>
           </div>
           {usingDemo ? (
-            <p className="bb-analytics-demo-note">Demo data — connect Firebase for live tracking.</p>
+            <p className="bb-analytics-demo-note">Demo data · Sample activity, not your live business statistics.</p>
           ) : null}
         </div>
 

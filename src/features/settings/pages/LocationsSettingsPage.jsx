@@ -13,8 +13,10 @@ export function LocationsSettingsPage() {
   const website = workspace.website || {};
   const venueMode = String(website.venueMode || 'physical');
   const hasCoords =
+    website.locationLat != null && website.locationLng != null &&
     Number.isFinite(Number(website.locationLat)) &&
     Number.isFinite(Number(website.locationLng)) &&
+    Math.abs(Number(website.locationLat)) <= 90 && Math.abs(Number(website.locationLng)) <= 180 &&
     !(Number(website.locationLat) === 0 && Number(website.locationLng) === 0);
 
   const placeValue = useMemo(() => {
@@ -63,7 +65,7 @@ export function LocationsSettingsPage() {
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">How clients find you</h2>
         <p className="bb-muted m-0 text-sm">
-          Local Explore is distance-based. Online and hybrid businesses can also appear in
+          Nearby discovery is distance-based. Online and hybrid businesses can also appear in
           International for countries you serve.
         </p>
         <div className="bb-venue-mode" role="radiogroup" aria-label="Venue mode">
@@ -86,7 +88,7 @@ export function LocationsSettingsPage() {
       {venueMode !== 'online' ? (
         <section className="bb-panel p-5 grid gap-3">
           <h2 className="bb-page-title text-xl m-0">Primary venue</h2>
-          <p className="bb-muted m-0 text-sm">Single location for V1. Multi-location comes later.</p>
+          <p className="bb-muted m-0 text-sm">Your main business address, shown on your public page and used for nearby discovery. One venue is supported per business.</p>
           <PlaceLocationField
             label="Venue address"
             placeholder="Search your store or studio"
@@ -95,7 +97,7 @@ export function LocationsSettingsPage() {
           />
           {!hasCoords ? (
             <p className="bb-locations-hint">
-              Add a place so clients can find you in Nearby Explore.
+              Choose a suggested place to add a verified map pin. A manually typed address alone does not supply coordinates.
             </p>
           ) : (
             <p className="bb-locations-hint is-ok">
@@ -105,10 +107,11 @@ export function LocationsSettingsPage() {
                 : ''}
             </p>
           )}
-          <label className="grid gap-1 text-sm">
+          <details className="bb-location-advanced"><summary>Custom map links <span>Optional</span></summary><p className="bb-muted text-sm">Use an HTTPS map link for directions. An embed URL must be a provider’s embeddable map address, not pasted HTML.</p><label className="grid gap-1 text-sm">
             <span className="font-semibold">Map link URL</span>
             <input
               className="native-control-input px-4"
+              type="url" placeholder="https://maps.google.com/…"
               value={website.mapLinkUrl || ''}
               onChange={(event) => updateWebsite({ mapLinkUrl: event.target.value })}
             />
@@ -117,10 +120,11 @@ export function LocationsSettingsPage() {
             <span className="font-semibold">Map embed URL</span>
             <input
               className="native-control-input px-4"
+              type="url" placeholder="https://www.google.com/maps/embed?…"
               value={website.mapEmbedUrl || ''}
               onChange={(event) => updateWebsite({ mapEmbedUrl: event.target.value })}
             />
-          </label>
+          </label></details>
         </section>
       ) : null}
 

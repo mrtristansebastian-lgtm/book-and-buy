@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import {
-  Bell,
+  Box,
   CalendarDays,
-  Check,
+  Mail,
   Clock3,
   MessageSquare,
-  RefreshCw,
+  Reply,
   Search
 } from 'lucide-react';
 import { formatRelativeTime, messagePreview } from '../utils/supportFormat';
@@ -14,11 +14,11 @@ import { PresenceAvatar } from './PresenceAvatar';
 
 const FILTERS = [
   { id: 'all', label: 'All messages', Icon: MessageSquare },
-  { id: 'unread', label: 'Unread', Icon: Bell },
+  { id: 'unread', label: 'Unread', Icon: Mail },
   { id: 'bookings', label: 'Bookings', Icon: CalendarDays },
-  { id: 'replied', label: 'Replied', Icon: Check },
-  { id: 'waiting', label: 'Waiting', Icon: Clock3 },
-  { id: 'orders', label: 'Orders', Icon: RefreshCw }
+  { id: 'replied', label: 'Replied', Icon: Reply },
+  { id: 'waiting', label: 'Pending', Icon: Clock3 },
+  { id: 'orders', label: 'Orders', Icon: Box }
 ];
 
 function lastMessage(thread) {
@@ -98,7 +98,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
           />
         </label>
 
-        <div className="bb-support-chips" role="toolbar" aria-label="Inbox filters">
+        <div className="bb-support-chips bb-support-chips--named" role="toolbar" aria-label="Inbox filters">
           {FILTERS.map(({ id, label, Icon }) => {
             const active = filter === id;
             return (
@@ -112,6 +112,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
                 onClick={() => setFilter(id)}
               >
                 <Icon size={15} strokeWidth={active ? 2.35 : 2} aria-hidden="true" />
+                <span className="bb-support-filter-label">{id === 'all' ? 'All' : label}</span>
                 <span className="bb-support-filter-count">{counts[id] || 0}</span>
               </button>
             );

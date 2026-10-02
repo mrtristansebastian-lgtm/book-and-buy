@@ -9,16 +9,16 @@ export function AccountSettingsPage() {
   return (
     <div className="bb-settings-content bb-settings-content--account">
       <section className="bb-panel p-5 grid gap-3">
-        <h2 className="bb-page-title text-xl m-0">Signed in</h2>
+        <h2 className="bb-page-title text-xl m-0">{workspace.isDemo ? 'Demo workspace' : user ? 'Signed in' : 'Local workspace'}</h2>
         <p className="bb-muted m-0 text-sm">
-          {user?.email || workspace.email || (isLocalMode ? 'Local mode (no cloud user)' : 'Not signed in')}
+          {workspace.isDemo ? 'You are exploring a sample business. This is not a signed-in business account.' : user?.email || (isLocalMode ? 'Saved on this device. No cloud account is signed in.' : 'Not signed in')}
         </p>
         {workspace.isDemo ? (
           <button type="button" className="bb-ghost-btn justify-self-start" onClick={() => exitDemoMode?.()}>
             Exit demo
           </button>
         ) : null}
-        <button
+        {!workspace.isDemo && user ? <button
           type="button"
           className="bb-primary-btn justify-self-start"
           onClick={async () => {
@@ -31,14 +31,13 @@ export function AccountSettingsPage() {
           }}
         >
           Sign out
-        </button>
+        </button> : null}
       </section>
 
       <section className="bb-panel p-5 grid gap-2">
         <h2 className="bb-page-title text-xl m-0">Data</h2>
         <div className="bb-settings-stub">
-          Export and delete workspace data will land here. Contact support for urgent account
-          removal until then.
+          Self-service workspace export and deletion are not available yet. No data is removed from this page.
         </div>
       </section>
     </div>

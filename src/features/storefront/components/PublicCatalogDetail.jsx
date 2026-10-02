@@ -26,6 +26,7 @@ import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import { serviceLineKey } from '../../storefront/hooks/useCart';
 
 function collectImages(item = {}, variant = null) {
+  if (!item) return [];
   const urls = Array.isArray(item.imageUrls)
     ? item.imageUrls.map((url) => String(url || '').trim()).filter(Boolean)
     : [];
@@ -125,7 +126,9 @@ export function PublicCatalogDetail({
       <section className="bb-public-detail bb-public-gutter">
         <div className="bb-public-measure grid gap-4 py-10">
           <p className="bb-muted m-0">
-            {kind === 'service' ? 'Service' : 'Product'} not found.
+            {workspace?.website?.catalogAvailability === 'country-required'
+              ? 'Choose your shopping country above to check availability.'
+              : `${kind === 'service' ? 'Service' : 'Product'} is not available. It may have been removed or may not be sold in your country.`}
           </p>
           <button
             type="button"

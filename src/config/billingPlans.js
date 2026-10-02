@@ -21,9 +21,9 @@ export const BILLING_PLANS = {
       'E-Business Platform: Home + Book',
       'Up to 2 staff',
       'Up to 10 products',
-      'Email alerts for requests & orders',
-      'Public slug on Book and Buy'
+      'Public business address on Book and Buy'
     ],
+    upcomingFeatures: ['Email alerts for requests & orders'],
     includes: {
       book: true,
       buy: 'limited',
@@ -82,12 +82,12 @@ export const BILLING_PLANS = {
     features: [
       'Everything in Studio',
       'Up to 40 staff',
-      'Custom domain (when Domains ships)',
+      'Custom domain connection',
       'Policies hub',
-      'Reminder & SMS slots when ready',
       'Earliest feature access',
       'Priority support'
     ],
+    upcomingFeatures: ['Client reminders and SMS'],
     includes: {
       book: true,
       buy: true,

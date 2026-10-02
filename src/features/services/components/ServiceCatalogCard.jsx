@@ -35,6 +35,7 @@ export function ServiceCatalogCard({ service, bookings = [], onEdit, onRemove })
       <div className="bb-catalog-card-copy">
         <h2 className="bb-catalog-card-title">{service.name}</h2>
         <p className="bb-catalog-card-desc">{service.description || meta.singular}</p>
+        <div className="bb-catalog-management-meta"><strong>{hidden ? 'Hidden' : 'Active'}</strong>{category ? <span>{category}</span> : null}{endBadge && !hidden ? <span>{endBadge}</span> : null}</div>
       </div>
 
       <div className="bb-catalog-card-price">

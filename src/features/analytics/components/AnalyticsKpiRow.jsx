@@ -11,7 +11,7 @@ export function AnalyticsKpiRow({ kpis, currency = 'R' }) {
     },
     {
       id: 'aov',
-      label: 'AOV',
+      label: 'Average order value',
       value: formatMoney(kpis.aovCents ?? 0, currency)
     },
     {

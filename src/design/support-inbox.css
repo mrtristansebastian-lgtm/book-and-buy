@@ -116,6 +116,19 @@ html body .native-ui .bb-support-inbox-title {
   color: #344054;
 }
 
+.bb-support-chips.bb-support-chips--named {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.bb-support-chips--named .bb-support-filter-chip {
+  min-height: 44px;
+  padding: .5rem .65rem;
+  gap: .4rem;
+  justify-content: flex-start;
+}
+.bb-support-chips--named .bb-support-filter-chip svg { flex-shrink: 0; }
+.bb-support-filter-label { font-size: .75rem; line-height: 1.2; }
+.bb-support-chips--named .bb-support-filter-count { margin-left: auto; flex-shrink: 0; }
+
 .bb-support-filter-chip.is-active {
   color: #101828;
   border: 1.5px solid transparent;

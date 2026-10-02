@@ -72,6 +72,7 @@ export function PlanSettingsPage() {
                   <li key={line}>{line}</li>
                 ))}
               </ul>
+              {plan.upcomingFeatures?.length ? <div className="bb-settings-plan-upcoming"><strong>Not available yet</strong>{plan.upcomingFeatures.join(' · ')}</div> : null}
               <button
                 type="button"
                 className={isCurrent ? 'bb-ghost-btn' : 'bb-primary-btn'}

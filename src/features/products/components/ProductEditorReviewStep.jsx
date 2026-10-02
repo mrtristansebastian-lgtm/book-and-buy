@@ -49,7 +49,7 @@ export function ProductEditorReviewStep({
             <dt>Variants</dt>
             <dd>
               {hasVariants
-                ? `${draft.variants?.length || 0} options`
+                ? `${draft.variants?.length || 0} variants`
                 : 'Single item'}
             </dd>
           </div>

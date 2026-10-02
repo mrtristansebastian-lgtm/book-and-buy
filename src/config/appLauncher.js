@@ -101,9 +101,9 @@ export const launcherApps = [
   {
     id: 'analytics',
     label: 'Analytics',
-    blurb: 'Live presence and commerce reports.',
+    blurb: 'Live presence, reports and finance.',
     icon: ChartColumn,
-    tabs: ['live-stats', 'analytics'],
+    tabs: ['live-stats', 'analytics', 'finance'],
     size: 'md',
     hue: 'sky',
     tint: ['#b9e3ff', '#cbffb8']
@@ -111,9 +111,9 @@ export const launcherApps = [
   {
     id: 'business',
     label: 'Office',
-    blurb: 'Finance, clients and settings.',
+    blurb: 'Messages, clients and settings.',
     icon: BriefcaseBusiness,
-    tabs: ['finance', 'communications', 'clients', 'settings'],
+    tabs: ['communications', 'clients', 'settings'],
     size: 'lg',
     hue: 'mint',
     tint: ['#cbffb8', '#f1ff9a']

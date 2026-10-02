@@ -22,8 +22,10 @@ export function PoliciesSettingsPage() {
             value={policies[key] || ''}
             onChange={(event) => updatePolicies({ [key]: event.target.value })}
           />
+          <details className="bb-policy-preview"><summary>Preview policy text</summary><div>{policies[key]?.trim() || 'Your policy preview will appear here once you add text.'}</div></details>
         </section>
       ))}
+      <p className="bb-muted text-sm">Preview your saved wording here. Policy text does not automatically enforce booking or refund rules. Ensure clients can read your policies before they book or buy.</p>
     </div>
   );
 }

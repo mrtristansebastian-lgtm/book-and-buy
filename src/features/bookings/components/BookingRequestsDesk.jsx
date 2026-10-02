@@ -298,11 +298,11 @@ export function BookingRequestsDesk({ heading = null }) {
                     <div className="bb-ops-action-cluster">
                       <OpsAction
                         tone="primary"
-                        iconOnly
                         ariaLabel="Approve"
                         onClick={() => runBookingAction(() => confirmBooking(booking.id))}
                       >
                         <Check size={15} strokeWidth={2.75} />
+                        Accept
                       </OpsAction>
                       <OpsDeclineAction onClick={() => runBookingAction(() => declineBooking(booking.id))} />
                     </div>

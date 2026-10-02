@@ -1,11 +1,8 @@
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
 const FIELD_TOGGLES = [
-  ['collectClientName', 'Collect client name'],
-  ['collectClientPhone', 'Collect phone'],
-  ['collectClientEmail', 'Collect email'],
-  ['collectClientNotes', 'Collect notes'],
-  ['waitlist', 'Offer waitlist when full']
+  ['collectClientPhone', 'Show optional phone field', 'Clients can leave a number for booking or delivery questions.'],
+  ['collectClientNotes', 'Show optional note field', 'Let clients include instructions or questions with their request.']
 ];
 
 export function CheckoutSettingsPage() {
@@ -16,18 +13,20 @@ export function CheckoutSettingsPage() {
     <section className="bb-panel p-5 grid gap-3 bb-settings-content bb-settings-content--checkout">
       <h2 className="bb-page-title text-xl m-0">Client checkout fields</h2>
       <p className="bb-muted m-0 text-sm">
-        Choose what clients provide when they book or buy.
+        Name and email are required to link bookings, orders and conversations. You can choose whether to show optional phone and note fields.
       </p>
-      {FIELD_TOGGLES.map(([key, label]) => (
-        <label key={key} className="flex items-center gap-2 text-sm font-semibold">
+      <div className="bb-settings-explainer"><strong>Always included</strong><p>Full name, email and the destination country when Markets is configured. Product deliveries also require a shipping address.</p></div>
+      {FIELD_TOGGLES.map(([key, label, hint]) => (
+        <label key={key} className="bb-settings-toggle-row">
           <input
             type="checkbox"
-            checked={Boolean(features[key])}
+            checked={features[key] !== false}
             onChange={(event) => updateFeatures({ [key]: event.target.checked })}
           />
-          {label}
+          <span><strong>{label}</strong><small>{hint}</small></span>
         </label>
       ))}
+      <div className="bb-settings-explainer"><strong>Waitlists are not enabled</strong><p>A full class cannot currently accept a waitlist request. Availability and capacity are checked when the booking is submitted.</p></div>
     </section>
   );
 }

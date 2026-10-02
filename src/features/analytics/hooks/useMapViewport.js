@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { fitViewport, mapToScreen, screenToMap } from '../utils/mapViewport';
+import { fitViewport, mapToScreen, screenToMap, navigateMapGesture } from '../utils/mapViewport';
 
 export function useMapViewport({ width = 1000, height = 500, initialZoom = 1, maxZoom = 4, enabled = true, onGesture }) {
   const stageRef = useRef(null);
@@ -17,14 +17,7 @@ export function useMapViewport({ width = 1000, height = 500, initialZoom = 1, ma
   const setZoom = (value, anchor) => {
     const nextZoom = Math.max(1, Math.min(maxZoom, value));
     const current = viewRef.current; const rect = stageRef.current?.getBoundingClientRect();
-    let center = current;
-    if (anchor && rect) {
-      const fixed = screenToMap(anchor, rect, current);
-      const next = fitViewport(width, height, nextZoom, current);
-      const shifted = screenToMap(anchor, rect, next);
-      center = { x: current.x + fixed.x - shifted.x, y: current.y + fixed.y - shifted.y };
-    }
-    update(fitViewport(width, height, nextZoom, center)); onGesture?.();
+    update(anchor && rect ? navigateMapGesture({ width, height, view: current, rect, from: anchor, ratio: nextZoom / current.zoom, maxZoom }) : fitViewport(width, height, nextZoom, current)); onGesture?.();
   };
   const snapshot = () => {
     const points = [...pointers.current.values()];
@@ -47,11 +40,7 @@ export function useMapViewport({ width = 1000, height = 500, initialZoom = 1, ma
       if (!suppressClick.current && Math.hypot(next.midpoint.x - start.midpoint.x, next.midpoint.y - start.midpoint.y) < 5) return;
       suppressClick.current = true; onGesture?.(); event.currentTarget.setPointerCapture?.(event.pointerId);
       const rect = event.currentTarget.getBoundingClientRect();
-      const zoom = pinching ? Math.max(1, Math.min(maxZoom, start.view.zoom * next.distance / start.distance)) : start.view.zoom;
-      const fixed = screenToMap(start.midpoint, rect, start.view);
-      const fitted = fitViewport(width, height, zoom, start.view);
-      const destination = screenToMap(next.midpoint, rect, fitted);
-      update(fitViewport(width, height, zoom, { x: fitted.x + fixed.x - destination.x, y: fitted.y + fixed.y - destination.y }));
+      update(navigateMapGesture({ width, height, view: start.view, rect, from: start.midpoint, to: next.midpoint, ratio: pinching ? next.distance / start.distance : 1, maxZoom }));
     },
     onPointerUp(event) { pointers.current.delete(event.pointerId); gesture.current = pointers.current.size ? snapshot() : null; },
     onPointerCancel(event) { pointers.current.delete(event.pointerId); gesture.current = pointers.current.size ? snapshot() : null; }

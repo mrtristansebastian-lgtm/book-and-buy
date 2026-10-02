@@ -13,55 +13,57 @@ export function UsersSettingsPage() {
   return (
     <div className="bb-settings-content bb-settings-content--users">
       <section className="bb-panel p-5 grid gap-3">
-        <h2 className="bb-page-title text-xl m-0">Add team member</h2>
+        <h2 className="bb-page-title text-xl m-0">Add a team profile</h2>
         <p className="bb-muted m-0 text-sm">
-          Invite stub for now — members are stored on this workspace until Firebase auth invites
-          land.
+          Add people to your scheduling roster. Team profiles do not create accounts or grant access
+          to your business. Sign-in invitations are not available yet.
         </p>
         <div className="grid sm:grid-cols-2 gap-2">
-          <input
+          <label className="bb-settings-field">Name<input
             className="native-control-input px-4"
             placeholder="Name"
             value={memberDraft.name}
             onChange={(event) => setMemberDraft((prev) => ({ ...prev, name: event.target.value }))}
-          />
-          <input
+          /></label>
+          <label className="bb-settings-field">Email (optional)<input type="email"
             className="native-control-input px-4"
             placeholder="Email"
             value={memberDraft.email}
             onChange={(event) => setMemberDraft((prev) => ({ ...prev, email: event.target.value }))}
-          />
-          <input
+          /></label>
+          <label className="bb-settings-field">Job title (optional)<input
             className="native-control-input px-4"
             placeholder="Role title"
             value={memberDraft.role}
             onChange={(event) => setMemberDraft((prev) => ({ ...prev, role: event.target.value }))}
-          />
-          <select
+          /></label>
+          <label className="bb-settings-field">Roster role<select
             value={memberDraft.accessRole}
             onChange={(event) =>
               setMemberDraft((prev) => ({ ...prev, accessRole: event.target.value }))
             }
           >
-            <option value="Owner">Owner</option>
             <option value="Admin">Admin</option>
             <option value="Staff">Staff</option>
-          </select>
+          </select></label>
         </div>
         <button
           type="button"
           className="bb-primary-btn justify-self-start"
+          disabled={!memberDraft.name.trim()}
           onClick={() => {
             if (!memberDraft.name.trim()) return;
             upsertStaff(memberDraft);
             setMemberDraft({ name: '', email: '', role: '', accessRole: 'Staff' });
           }}
         >
-          Add member
+          Add team profile
         </button>
       </section>
 
       <div className="grid gap-3">
+        <h2 className="bb-page-title text-xl m-0">Your team</h2>
+        {!staff.length && <p className="bb-muted">No team profiles yet. Add your first person above.</p>}
         {staff.map((member) => (
           <article
             key={member.id}

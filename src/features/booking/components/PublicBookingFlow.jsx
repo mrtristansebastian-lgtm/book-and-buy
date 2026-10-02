@@ -164,7 +164,10 @@ export function PublicBookingFlow({
         );
       })}
       {activeServices.length === 0 ? (
-        <p className="bb-muted m-0">No bookable services published yet.</p>
+        <p className="bb-muted m-0" role="status">{website.catalogAvailability === 'country-required'
+          ? 'Choose your shopping country above to see the services available to you.'
+          : website.catalogAvailability === 'country-disabled' ? 'Services are not available in your selected country.'
+          : website.buyerCountryCode ? 'No services are currently available in this country.' : 'No bookable services published yet.'}</p>
       ) : visibleServices.length === 0 ? (
         <p className="bb-muted m-0">No services in this category.</p>
       ) : null}

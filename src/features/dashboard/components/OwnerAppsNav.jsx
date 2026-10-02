@@ -5,6 +5,7 @@ import { DemoModePanel } from '../../../shared/ui/DemoModePanel';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 import { AppTile } from './AppTile';
+import { menuPageSize } from '../utils/menuLayout';
 
 const LAUNCHER_VIEW_KEY = 'bb.launcherView';
 
@@ -34,16 +35,21 @@ export function OwnerAppsNav({ className = '', onSelect = null, showToggle = tru
     if (!root?.closest('.bb-owner-menu-sheet')) return undefined;
     const body = root.closest('.bb-owner-menu-sheet-body');
     const measure = () => {
-      const height = body.clientHeight;
       const font = parseFloat(getComputedStyle(root).fontSize) / 16;
-      const footer = workspace?.isDemo ? 105 * font : 0;
-      const perGroup = 102 * font;
-      const count = Math.max(1, Math.min(launcherApps.length, Math.floor((height - footer - 56) / perGroup)));
+      const footer = root.querySelector('.bb-demo-panel--nav');
+      const toolbar = root.querySelector('.bb-owner-apps-nav-toolbar');
+      const groupHeights = [...root.querySelectorAll('.bb-menu-measure .bb-appgroup')].map((group) => group.getBoundingClientRect().height);
+      const count = menuPageSize({ height: root.clientHeight, groupHeight: Math.max(102 * font, ...groupHeights),
+        footerHeight: footer?.getBoundingClientRect().height || 0, toolbarHeight: toolbar?.getBoundingClientRect().height || 0,
+        count: launcherApps.length });
       setPageSize(count); setPage((value) => Math.min(value, Math.ceil(launcherApps.length / count) - 1));
     };
-    const observer = new ResizeObserver(measure); observer.observe(body); measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(body);
+    root.querySelectorAll('.bb-demo-panel--nav, .bb-menu-measure .bb-appgroup').forEach((element) => observer.observe(element));
+    measure();
     return () => observer.disconnect();
-  }, [workspace?.isDemo]);
+  }, [workspace?.isDemo, view]);
   const pageCount = Math.ceil(launcherApps.length / pageSize);
 
   const toggleView = () => {
@@ -58,6 +64,9 @@ export function OwnerAppsNav({ className = '', onSelect = null, showToggle = tru
 
   return (
     <div ref={rootRef} className={`bb-owner-apps-nav ${className}`.trim()}>
+      <div className="bb-menu-measure" aria-hidden="true" inert="">
+        {launcherApps.map((app, index) => <AppTile key={app.id} app={app} badgeFor={() => 0} index={index + 1} view={showToggle ? view : 'icons'} />)}
+      </div>
       {showToggle ? (
         <div className="bb-owner-apps-nav-toolbar">
           <p className="bb-owner-apps-nav-title m-0">Apps</p>

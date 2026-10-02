@@ -58,6 +58,7 @@ export function ProductCatalogCard({
       <div className="bb-catalog-card-copy">
         <h2 className="bb-catalog-card-title">{product.name}</h2>
         <p className="bb-catalog-card-desc">{product.description || 'Product'}</p>
+        <div className="bb-catalog-management-meta"><strong>{notLive ? statusLabel || 'Hidden' : 'Active'}</strong>{category ? <span>{category}</span> : null}{stock ? <span>{stock}</span> : null}</div>
       </div>
 
       <div className="bb-catalog-card-price">

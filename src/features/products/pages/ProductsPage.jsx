@@ -12,6 +12,8 @@ import {
 import { ProductCatalogCard } from '../components/ProductCatalogCard';
 import { ProductEditorSheet } from '../components/ProductEditorSheet';
 import { ProductInfoSheet } from '../components/ProductInfoSheet';
+import { CatalogToolbar } from '../../../shared/ui/CatalogToolbar';
+import { filterManagedCatalog } from '../../../utils/catalogSearch';
 
 function useIsMobileEditor() {
   const [mobile, setMobile] = useState(() =>
@@ -186,6 +188,9 @@ export function ProductsPage({ routeRest = [] }) {
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
   const [viewProduct, setViewProduct] = useState(null);
+  const [query, setQuery] = useState('');
+  const [catalogStatus, setCatalogStatus] = useState('all');
+  const visibleProducts = useMemo(() => filterManagedCatalog(products, query, catalogStatus), [products, query, catalogStatus]);
 
   const mode = routeRest[0] || '';
   const editId = routeRest[1] || '';
@@ -334,7 +339,7 @@ export function ProductsPage({ routeRest = [] }) {
   }
 
   return (
-    <div className="bb-services-desk">
+    <div className="bb-services-desk bb-managed-catalog">
       <header className="bb-services-desk-header">
         <div className="bb-services-desk-copy">
           <div className="bb-page-title-wrap">
@@ -351,20 +356,20 @@ export function ProductsPage({ routeRest = [] }) {
         </button>
       </header>
 
+      <CatalogToolbar query={query} onQueryChange={setQuery} status={catalogStatus} onStatusChange={setCatalogStatus} count={visibleProducts.length} total={products.length} noun="products" />
       {products.length === 0 ? (
         <div className="bb-services-catalog-empty">
           No products yet. Add your first item.
         </div>
-      ) : (
+      ) : visibleProducts.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching products</strong><p>Try a different name, SKU, category or status.</p><button className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</button></div> : (
         <div className="bb-public-product-grid bb-services-catalog-grid">
-          {products.map((product) => (
+          {visibleProducts.map((product) => (
             <ProductCatalogCard
               key={product.id}
               product={product}
               onView={openView}
               onEdit={openEdit}
               onRemove={(item) => removeProduct(item.id)}
-              tapToView={isMobile}
             />
           ))}
         </div>

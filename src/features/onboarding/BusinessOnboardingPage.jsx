@@ -77,7 +77,7 @@ export function BusinessOnboardingPage() {
               />
             </label>
             <label className="grid gap-1 text-sm">
-              <span className="font-semibold">Public slug</span>
+              <span className="font-semibold">Business web address</span>
               <input
                 className="native-control-input px-4"
                 value={form.slug}
@@ -90,10 +90,13 @@ export function BusinessOnboardingPage() {
                 placeholder="your-business"
               />
             </label>
+            <p className="bb-muted m-0 text-xs">Your address: <span className="break-all">{window.location.origin}/#{publicPagePath(form.slug || slugFromName(form.brandName) || 'your-business', 'home')}</span>. Publish from your workspace when you are ready.</p>
             <label className="grid gap-1 text-sm">
               <span className="font-semibold">Email</span>
               <input
                 className="native-control-input px-4"
+                type="email"
+                autoComplete="email"
                 value={form.email}
                 onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
                 placeholder="hello@yourbusiness.com"

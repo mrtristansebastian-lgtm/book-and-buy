@@ -43,7 +43,7 @@ export function LiveStatsPage() {
               {data.error && !data.usingDemo
                 ? data.error
                 : data.usingDemo
-                  ? 'connect Firebase for live tracking'
+                  ? 'sample activity, not live business traffic'
                   : 'activity from the past 5 minutes'}
             </span>
           </div>

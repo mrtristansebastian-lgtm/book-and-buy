@@ -58,6 +58,7 @@ export function WebsiteSurfaceStudio({
   const [device, setDevice] = useState('desktop');
   const [mode, setMode] = useState('view');
   const [savedFlash, setSavedFlash] = useState(false);
+  const [savedLocally, setSavedLocally] = useState(false);
   const [publishNote, setPublishNote] = useState('');
   const [publishing, setPublishing] = useState(false);
 
@@ -86,14 +87,16 @@ export function WebsiteSurfaceStudio({
     setPublishing(true);
     try {
       const result = await publishWebsite();
+      setSavedLocally(Boolean(result?.localOnly));
       setSavedFlash(true);
       setPublishNote(
-        result?.reason ||
           (result?.localOnly
-            ? 'Published locally. Connect Firebase to sync the live slug.'
-            : 'Published.')
+            ? 'Saved locally for preview. Your public site has not been updated.'
+            : result?.reason || 'Published.')
       );
       window.setTimeout(() => setSavedFlash(false), 1800);
+    } catch (error) {
+      setPublishNote(error?.message || 'Could not publish. Your changes remain saved locally; please try again.');
     } finally {
       setPublishing(false);
     }
@@ -117,7 +120,7 @@ export function WebsiteSurfaceStudio({
   const onPublishAction = async () => {
     if (canToggleVisibility && !pageVisible) {
       togglePage(surface);
-      setPublishNote('Page is now live for customers.');
+      setPublishNote('Page enabled in your draft. Publish to update your public site.');
       return;
     }
     await publishFlash();
@@ -126,9 +129,9 @@ export function WebsiteSurfaceStudio({
   const publishLabel = publishing
     ? 'Publishing…'
     : savedFlash
-      ? 'Published'
+      ? savedLocally ? 'Saved locally' : 'Published'
       : canToggleVisibility && !pageVisible
-        ? 'Unpublished'
+        ? 'Enable page'
         : 'Publish live';
 
   return (
@@ -168,7 +171,7 @@ export function WebsiteSurfaceStudio({
         </div>
 
         <div className="bb-studio-controls">
-          {stepOptions && !isMobile ? (
+          {stepOptions ? (
             <PeriodSegmentedControl
               ariaLabel="Checkout flow step"
               value={surface}

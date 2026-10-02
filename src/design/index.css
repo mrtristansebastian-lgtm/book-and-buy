@@ -31,6 +31,7 @@
 @import './markets.css';
 @import './market-controls.css';
 @import './market-country-picker.css';
+@import './audit-polish.css';
 
 @tailwind base;
 @tailwind components;

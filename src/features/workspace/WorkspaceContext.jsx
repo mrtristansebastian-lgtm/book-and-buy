@@ -177,7 +177,7 @@ export function WorkspaceProvider({ children }) {
         ...workspace,
         ownerId: user.uid,
         isDemo: false
-      }).then(() => { if (!cancelled) setSaveStatus('saved'); }).catch(() => { if (!cancelled) { setSaveStatus('error'); setSaveError('Cloud save failed. Your changes are kept on this device. Check your connection and retry.'); } });
+      }).then((result) => { if (result?.ok !== true) throw new Error(result?.reason || 'Save unavailable'); if (!cancelled) setSaveStatus('saved'); }).catch(() => { if (!cancelled) { setSaveStatus('error'); setSaveError('Cloud save failed. Your changes are kept on this device. Check your connection and retry.'); } });
     }, 900);
     return () => { cancelled = true; window.clearTimeout(timer); };
   }, [configured, user?.uid, workspace, saveRetry]);

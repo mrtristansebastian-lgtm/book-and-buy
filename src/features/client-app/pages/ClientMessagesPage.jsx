@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
-  Bell,
+  Mail,
+  Box,
   CalendarDays,
-  MessageSquare,
-  RefreshCw,
   Search
 } from 'lucide-react';
 import { navigate } from '../../../app/routing';
@@ -20,6 +19,7 @@ import { useOwnChatPresence } from '../../support/hooks/useOwnChatPresence';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { useClientProfile } from '../ClientProfileContext';
+import { isClientThreadUnread as isUnread, matchesClientMessageFilter as matchesFilter } from '../clientMessageFilters';
 import {
   isFirebaseConfigured,
   markClientThreadRead,
@@ -29,41 +29,10 @@ import {
 } from '../clientThreadsApi';
 
 const FILTERS = [
-  { id: 'all', label: 'All', Icon: MessageSquare },
-  { id: 'unread', label: 'Unread', Icon: Bell },
+  { id: 'unread', label: 'Unread', Icon: Mail },
   { id: 'bookings', label: 'Bookings', Icon: CalendarDays },
-  { id: 'orders', label: 'Orders', Icon: RefreshCw }
+  { id: 'orders', label: 'Orders', Icon: Box }
 ];
-
-function isUnread(thread) {
-  return Boolean(thread?.unread || thread?.unreadForClient);
-}
-
-function isBookingThread(thread) {
-  return Boolean(
-    thread?.bookingId ||
-      String(thread?.subject || '')
-        .toLowerCase()
-        .startsWith('re:')
-  );
-}
-
-function isOrderThread(thread) {
-  return Boolean(
-    thread?.orderId ||
-      String(thread?.subject || '')
-        .toLowerCase()
-        .startsWith('order')
-  );
-}
-
-function matchesFilter(thread, filterId) {
-  if (filterId === 'all') return true;
-  if (filterId === 'unread') return isUnread(thread);
-  if (filterId === 'bookings') return isBookingThread(thread);
-  if (filterId === 'orders') return isOrderThread(thread);
-  return true;
-}
 
 function matchesQuery(thread, query) {
   const q = query.trim().toLowerCase();
@@ -195,7 +164,7 @@ export function ClientMessagesPage({ threadId = '' }) {
     if (isRemoteActive) {
       markClientThreadRead(active.id).catch(() => {});
     } else if (isUnread(active) && markThreadRead) {
-      markThreadRead(active.id);
+      markThreadRead(active.id, 'client');
     }
   }, [active?.id, active?.unread, active?.unreadForClient, isRemoteActive, markThreadRead]);
 
@@ -241,7 +210,7 @@ export function ClientMessagesPage({ threadId = '' }) {
                 />
               </label>
 
-              <div className="bb-support-chips" role="toolbar" aria-label="Message filters">
+              <div className="bb-support-chips bb-support-chips--named bb-support-chips--customer" role="toolbar" aria-label="Message filters">
                 {FILTERS.map(({ id, label, Icon }) => {
                   const on = filter === id;
                   return (
@@ -252,14 +221,16 @@ export function ClientMessagesPage({ threadId = '' }) {
                       aria-pressed={on}
                       aria-label={`${label}, ${counts[id] || 0}`}
                       title={label}
-                      onClick={() => setFilter(id)}
+                      onClick={() => setFilter(on ? 'all' : id)}
                     >
                       <Icon size={15} strokeWidth={on ? 2.35 : 2} aria-hidden="true" />
+                      <span className="bb-support-filter-label">{label}</span>
                       <span className="bb-support-filter-count">{counts[id] || 0}</span>
                     </button>
                   );
                 })}
               </div>
+              <span className="bb-support-filter-hint">{filter === 'all' ? 'All conversations' : 'Tap the selected filter to show all conversations'}</span>
             </div>
 
             <div className="bb-support-list-scroll">
@@ -267,7 +238,7 @@ export function ClientMessagesPage({ threadId = '' }) {
                 <div className="bb-muted p-4 m-0 text-sm">
                   <p className="m-0">
                     {mine.length === 0
-                      ? 'No conversations yet. Message a business from Explore or a booking.'
+                      ? 'No conversations yet. Message a business from Find or a booking.'
                       : 'No conversations match this filter.'}
                   </p>
                   {mine.length === 0 ? (
@@ -393,7 +364,7 @@ export function ClientMessagesPage({ threadId = '' }) {
               <div className="bb-support-empty">
                 <p className="bb-page-title text-xl m-0">Select a conversation</p>
                 <p className="bb-muted m-0 text-sm">
-                  Message a business from Explore, or open a booking chat.
+                  Message a business from Find, or open a booking chat.
                 </p>
               </div>
             </div>

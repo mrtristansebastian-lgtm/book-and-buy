@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, CalendarDays, Check, ChevronDown, Info } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AlertTriangle, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate, parseDateKey, toDateKey } from '../../../utils/dates';
@@ -27,6 +27,7 @@ import {
 import { DayTimelineMeter, buildTimelineAxisMarks } from '../components/DayTimelineMeter';
 import { AvailabilityMonthGrid } from '../components/AvailabilityMonthGrid';
 import { SpotInfoSheet } from '../components/SpotInfoSheet';
+import { visibleScheduleStaff } from '../utils/dayOverview';
 import {
   bookingDateKey,
   compareAgendaBookings,
@@ -68,6 +69,8 @@ export function SchedulePage() {
   } = useWorkspace();
   const mode = 'slots';
   const [focusStaffId, setFocusStaffId] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const dateTrigger = useRef(null);
   const [day, setDay] = useState(() => toDateKey(new Date()));
   const [monthAnchor, setMonthAnchor] = useState(() => {
     const now = new Date();
@@ -195,11 +198,8 @@ export function SchedulePage() {
   const infoSpot = allSpotServices.find((service) => service.id === infoSpotId) || null;
 
   const visibleStaffRows = useMemo(() => {
-    const selected = focusStaffId
-      ? (staff || []).filter((member) => member.id === focusStaffId)
-      : (staff || []);
-    return selected.length ? selected : [{ id: '', name: 'All bookings', color: '#101828' }];
-  }, [staff, focusStaffId]);
+    return visibleScheduleStaff(staff, slotBookings.filter((booking) => booking.status === 'confirmed' && bookingDateKey(booking) === day), focusStaffId);
+  }, [staff, focusStaffId, slotBookings, day]);
 
   const dayHours = useMemo(
     () => getBusinessHoursForDate(day, workspace.availabilityRules || {}),
@@ -233,10 +233,12 @@ export function SchedulePage() {
   }, [confirmedDayBookings]);
   const staffRows = useMemo(
     () => visibleStaffRows.map((member) => {
-      const memberBookings = member.id
+      const memberBookings = member.id === '__unassigned__'
+        ? confirmedDayBookings.filter((booking) => !staff.some((row) => String(row.id) === String(booking.staffId || '')))
+        : member.id
         ? (confirmedBookingsByStaff.get(String(member.id)) || [])
         : confirmedDayBookings;
-      const timeline = member.id
+      const timeline = member.id && member.id !== '__unassigned__'
         ? getStaffDayTimeline(
             member.id,
             day,
@@ -244,11 +246,11 @@ export function SchedulePage() {
             workspace.availabilityRules || {}
           )
         : { status: dayHours.open ? 'open' : 'business-closed', segments: [], dayStart: dayStartMinutes, dayEnd: dayEndMinutes };
-      const bookingsWithConflict = memberBookings.map((booking) => ({
+      const bookingsWithConflict = [...memberBookings].sort((a, b) => compareAgendaBookings(a, b, 'oldest')).map((booking) => ({
         booking,
         conflict: getBookingAvailabilityConflict({
           booking,
-          staffId: booking.staffId || member.id,
+          staffId: member.id === '__unassigned__' ? '' : booking.staffId || member.id,
           dateKey: day,
           staffAvailability: workspace.staffAvailability || {},
           availabilityRules: workspace.availabilityRules || {}
@@ -256,7 +258,7 @@ export function SchedulePage() {
       }));
       return { member, timeline, bookingsWithConflict };
     }),
-    [visibleStaffRows, confirmedDayBookings, confirmedBookingsByStaff, day, workspace.staffAvailability, workspace.availabilityRules, dayHours.open, dayStartMinutes, dayEndMinutes]
+    [visibleStaffRows, confirmedDayBookings, confirmedBookingsByStaff, staff, day, workspace.staffAvailability, workspace.availabilityRules, dayHours.open, dayStartMinutes, dayEndMinutes]
   );
   const attentionBookings = useMemo(
     () => confirmedDayBookings.map((booking) => ({
@@ -281,6 +283,18 @@ export function SchedulePage() {
       else next.add(id);
       return next;
     });
+  };
+
+  const selectDay = (key, date = parseDateKey(key)) => {
+    setDay(key);
+    setCalendarOpen(false);
+    if (calendarOpen) dateTrigger.current?.focus();
+    if (date) setMonthAnchor(new Date(date.getFullYear(), date.getMonth(), 1));
+  };
+  const moveDay = (offset) => {
+    const next = parseDateKey(day) || new Date();
+    next.setDate(next.getDate() + offset);
+    selectDay(toDateKey(next), next);
   };
 
   const renderStaffFilter = () => (
@@ -339,7 +353,17 @@ export function SchedulePage() {
 
       <div className="bb-schedule-workspace">
         <aside className="bb-schedule-sidebar" aria-label="Schedule calendar and filters">
-          <div className="bb-schedule-mini-calendar bb-schedule-avail">
+          <div className="bb-schedule-mobile-controls">
+            <div className="bb-schedule-day-navigation">
+              <button type="button" aria-label="Previous day" onClick={() => moveDay(-1)}><ChevronLeft size={18} /></button>
+              <button ref={dateTrigger} type="button" aria-expanded={calendarOpen} aria-controls="schedule-date-picker" onClick={() => setCalendarOpen((open) => !open)}>
+                <CalendarDays size={17} /><span>{formatDisplayDate(day)}</span><ChevronDown size={15} />
+              </button>
+              <button type="button" aria-label="Next day" onClick={() => moveDay(1)}><ChevronRight size={18} /></button>
+            </div>
+            <label className="bb-schedule-mobile-staff"><span>Team calendar</span><select value={focusStaffId} onChange={(event) => setFocusStaffId(event.target.value)}><option value="">All staff</option>{staff.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
+          </div>
+          <div id="schedule-date-picker" className={`bb-schedule-mini-calendar bb-schedule-avail${calendarOpen ? ' is-mobile-open' : ''}`}>
             <AvailabilityMonthGrid
               monthAnchor={monthAnchor}
               selectedDay={day}
@@ -360,12 +384,7 @@ export function SchedulePage() {
               hasIndicator={(key) => slotBookings.some(
                 (booking) => booking.status === 'confirmed' && bookingDateKey(booking) === key
               )}
-              onSelectDay={(key, date) => {
-                setDay(key);
-                if (date.getMonth() !== monthAnchor.getMonth()) {
-                  setMonthAnchor(new Date(date.getFullYear(), date.getMonth(), 1));
-                }
-              }}
+              onSelectDay={selectDay}
             />
           </div>
 
@@ -400,6 +419,18 @@ export function SchedulePage() {
         {mode === 'slots' ? (
           period === 'day' || period === 'week' ? (
             <>
+              <section className="bb-schedule-mobile-day" aria-label="Full day schedule">
+                <div className="bb-schedule-mobile-day-heading"><strong>{dayHours.open ? 'Booking window' : 'Business closed'}</strong><span>{dayHours.open ? `${dayHours.openTime}–${dayHours.closeTime}` : 'No opening hours today'}</span></div>
+                {staffRows.map(({ member, timeline, bookingsWithConflict }) => (
+                  <article className="bb-schedule-mobile-lane" key={member.id || 'all'}>
+                    <header><strong>{member.name}</strong><span>{timeline.status === 'leave' ? 'On leave' : timeline.status === 'off' ? 'Off day' : timeline.status === 'business-closed' ? 'Closed' : `${bookingsWithConflict.length} booking${bookingsWithConflict.length === 1 ? '' : 's'}`}</span></header>
+                    {dayHours.open ? <DayTimelineMeter segments={timeline.segments} status={timeline.status} dayStart={dayStartMinutes} dayEnd={dayEndMinutes} /> : null}
+                    {bookingsWithConflict.length ? <div className="bb-schedule-mobile-bookings">{bookingsWithConflict.map(({ booking, conflict }) => <div className={`bb-schedule-mobile-booking${conflict ? ' is-conflict' : ''}`} key={booking.id}>
+                      <time>{formatBookingWindow(booking)}</time><strong>{booking.clientName || 'Client'}</strong><span>{booking.serviceName || 'Appointment'}</span><small>{conflict ? <><AlertTriangle size={13} />{conflict.label}</> : <><Check size={13} />Confirmed</>}</small>
+                    </div>)}</div> : <p className="bb-schedule-mobile-empty">No confirmed bookings for this team member.</p>}
+                  </article>
+                ))}
+              </section>
               {!dayHours.open ? (
                 <section className="bb-schedule-closed-day" aria-label="Business closed">
                   <CalendarDays size={24} aria-hidden="true" />

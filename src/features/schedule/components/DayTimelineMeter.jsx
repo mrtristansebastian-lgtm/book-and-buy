@@ -1,34 +1,7 @@
 import { useMemo } from 'react';
-
-function minutesToLabel(totalMinutes) {
-  const hours = Math.floor(totalMinutes / 60) % 24;
-  const mins = totalMinutes % 60;
-  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
-}
-
-export function buildTimelineAxisMarks(dayStart, dayEnd) {
-  const start = Number(dayStart);
-  const end = Number(dayEnd);
-  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return [];
-
-  const span = end - start;
-  const idealStep = span / 8;
-  const stepMinutes = [30, 60, 120, 180, 240, 360].find((step) => step >= idealStep) || 360;
-  const marks = [{ minutes: start, edge: 'start' }];
-
-  let cursor = Math.ceil((start + 1) / stepMinutes) * stepMinutes;
-  while (cursor < end - 5) {
-    marks.push({ minutes: cursor, edge: 'mid' });
-    cursor += stepMinutes;
-  }
-  marks.push({ minutes: end, edge: 'end' });
-
-  return marks.map((mark) => ({
-    ...mark,
-    label: minutesToLabel(mark.minutes),
-    leftPct: ((mark.minutes - start) / span) * 100
-  }));
-}
+import { useElementWidth } from '../../../shared/ui/useElementWidth';
+import { buildTimelineAxisMarks } from '../utils/timelineAxis';
+export { buildTimelineAxisMarks } from '../utils/timelineAxis';
 
 function segmentTitle(segment) {
   if (segment.title) return segment.title;
@@ -47,9 +20,10 @@ export function DayTimelineMeter({
   dayEnd = 17 * 60,
   showAxis = true
 }) {
+  const [meterRef, width] = useElementWidth();
   const axisMarks = useMemo(
-    () => (showAxis ? buildTimelineAxisMarks(dayStart, dayEnd) : []),
-    [dayStart, dayEnd, showAxis]
+    () => (showAxis ? buildTimelineAxisMarks(dayStart, dayEnd, width || 120) : []),
+    [dayStart, dayEnd, showAxis, width]
   );
 
   const meterBody =
@@ -79,7 +53,7 @@ export function DayTimelineMeter({
     );
 
   return (
-    <div className={`bb-schedule-day-meter-wrap${showAxis ? '' : ' is-track-only'}`}>
+    <div ref={meterRef} className={`bb-schedule-day-meter-wrap${showAxis ? '' : ' is-track-only'}`}>
       {meterBody}
       {axisMarks.length ? (
         <div className="bb-schedule-day-meter-axis" aria-hidden="true">

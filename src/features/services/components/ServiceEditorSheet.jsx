@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
@@ -29,6 +32,8 @@ export function ServiceEditorSheet({
   onAddCategory,
   variant = 'sheet'
 }) {
+  const { workspace } = useWorkspace();
+  const currency = workspace.currency || 'R';
   const fileRef = useRef(null);
   const [step, setStep] = useState('type');
   const [error, setError] = useState('');
@@ -38,6 +43,8 @@ export function ServiceEditorSheet({
   const [fileNameHint, setFileNameHint] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [addingCategory, setAddingCategory] = useState(false);
+  const dialogRef = useRef(null);
+  useDialogFocus(dialogRef, open && variant !== 'page', onClose, cropOpen || busy);
 
   useEffect(() => {
     if (!open) return;
@@ -188,7 +195,7 @@ export function ServiceEditorSheet({
   const goToStep = (id) => {
     const target = setupSteps.findIndex((item) => item.id === id);
     if (target < 0) return;
-    if (target > stepIndex) {
+    if (!isEdit && target > stepIndex) {
       for (let i = 0; i < target; i += 1) {
         if (!validateStep(setupSteps[i].id)) {
           setStep(setupSteps[i].id);
@@ -245,15 +252,15 @@ export function ServiceEditorSheet({
   const showCapacity = isSpot;
   const isPage = variant === 'page';
 
-  return (
+  const content = (
     <div
-      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      className={`native-ui bb-services-sheet${isPage ? ' is-page' : ''}`}
       role={isPage ? 'region' : 'dialog'}
       aria-modal={isPage ? undefined : true}
       aria-label={isEdit ? 'Edit service' : 'New service'}
     >
       {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
-      <div className="bb-services-sheet-panel bb-services-sheet-panel--setup">
+      <div ref={dialogRef} tabIndex={-1} className="bb-services-sheet-panel bb-services-sheet-panel--setup">
         <header className="bb-services-sheet-head">
           <div>
             <p className="bb-services-sheet-eyebrow">{isEdit ? 'Edit service' : 'New service'}</p>
@@ -273,6 +280,11 @@ export function ServiceEditorSheet({
         </header>
 
         <div className="bb-services-sheet-body bb-services-setup">
+          {isEdit && <label className="bb-editor-section-picker">Editing section
+            <select value={step} onChange={(event) => goToStep(event.target.value)}>
+              {setupSteps.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+            </select>
+          </label>}
           <p className="bb-services-setup-mobile" aria-live="polite">
             Step {stepIndex + 1} of {setupSteps.length}
             <span>{activeStep.label}</span>
@@ -284,7 +296,7 @@ export function ServiceEditorSheet({
                 const done = index < stepIndex;
                 const current = index === stepIndex;
                 const state = current ? 'current' : done ? 'done' : 'upcoming';
-                const clickable = done || current;
+                const clickable = isEdit || done || current;
                 return (
                   <li key={item.id} className={`bb-services-setup-rail-item is-${state}`}>
                     <button
@@ -315,6 +327,7 @@ export function ServiceEditorSheet({
 
             {step === 'details' ? (
               <ServiceEditorDetailsStep
+                currency={currency}
                 draft={draft}
                 patch={patch}
                 showCapacity={showCapacity}
@@ -323,7 +336,7 @@ export function ServiceEditorSheet({
             ) : null}
 
             {step === 'variants' ? (
-              <ServiceEditorVariantsStep draft={draft} patch={patch} />
+              <ServiceEditorVariantsStep draft={draft} patch={patch} currency={currency} />
             ) : null}
 
             {step === 'photo' ? (
@@ -358,6 +371,7 @@ export function ServiceEditorSheet({
 
             {step === 'review' ? (
               <ServiceEditorReviewStep
+                currency={currency}
                 draft={draft}
                 patch={patch}
                 showCapacity={showCapacity}
@@ -366,23 +380,23 @@ export function ServiceEditorSheet({
               />
             ) : null}
 
-            {error ? <p className="bb-services-error">{error}</p> : null}
+            {error ? <p role="alert" className="bb-services-error">{error}</p> : null}
           </div>
         </div>
 
         <footer className="bb-services-sheet-footer">
-          <button
+          {!isEdit && <button
             type="button"
             className="bb-ghost-btn"
             onClick={goBack}
             disabled={stepIndex === 0}
           >
             Back
-          </button>
+          </button>}
           <div className="bb-services-sheet-footer-actions">
-            {isLast ? (
+            {isLast || isEdit ? (
               <>
-                {isEdit && onDelete ? (
+                {isEdit && isLast && onDelete ? (
                   <button type="button" className="bb-ghost-btn" onClick={onDelete}>
                     Delete
                   </button>
@@ -417,4 +431,5 @@ export function ServiceEditorSheet({
       />
     </div>
   );
+  return isPage ? content : createPortal(content, document.body);
 }

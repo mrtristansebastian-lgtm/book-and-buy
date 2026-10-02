@@ -1,4 +1,4 @@
-export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus = false }) {
+export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus = false, currency = 'R' }) {
   return (
     <section className="bb-services-section">
       <div className="bb-services-step-head">
@@ -35,7 +35,7 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
             <label className="bb-services-field">
               <span>Price</span>
               <div className="bb-products-money">
-                <span className="bb-products-money-prefix">R</span>
+                <span className="bb-products-money-prefix">{currency}</span>
                 <input
                   className="native-control-input bb-services-control native-control-nest"
                   value={draft.price}
@@ -60,7 +60,7 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
           <label className="bb-services-field">
             <span>Price</span>
             <div className="bb-products-money">
-              <span className="bb-products-money-prefix">R</span>
+              <span className="bb-products-money-prefix">{currency}</span>
               <input
                 className="native-control-input bb-services-control native-control-nest"
                 value={draft.price}

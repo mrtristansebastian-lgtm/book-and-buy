@@ -49,6 +49,7 @@ function InventoryFields({
   showAvailable = false
 }) {
   const dimUnit = values.dimensionUnit || 'cm';
+  const { workspace } = useWorkspace();
 
   return (
     <div className="bb-stock-editor">
@@ -79,7 +80,7 @@ function InventoryFields({
             />
           </label>
           <label className="bb-products-field bb-stock-span">
-            <span>Cost (your cost)</span>
+            <span>Your cost ({workspace.currency || 'R'})</span>
             <input
               className="native-control-input bb-services-control"
               inputMode="decimal"
@@ -237,7 +238,7 @@ function StockProductCard({ product, onInfo, onEdit }) {
   const hasVariants = productHasVariants(product);
 
   return (
-    <article className={`bb-stock-crate${badge.tone === 'warn' ? ' is-low' : ''}`}>
+    <article className={`bb-stock-row${badge.tone === 'warn' ? ' is-low' : ''}`}>
       <div className="bb-stock-crate-scene">
         <span className="bb-stock-crate-side" aria-hidden="true" />
         <span className="bb-stock-crate-bottom" aria-hidden="true" />
@@ -258,11 +259,15 @@ function StockProductCard({ product, onInfo, onEdit }) {
                   : ''}
             </span>
           </div>
-          <span className={`bb-stock-crate-qty is-${badge.tone}`}>{badge.label}</span>
+          <div className="bb-stock-row-summary">
+            <span className={`bb-stock-crate-qty is-${badge.tone}`}>{badge.label}</span>
+            <small>{hasVariants ? `${product.variants.filter((item) => item.available !== false).length} available variants` : formatWeight(product) !== '—' ? formatWeight(product) : 'Weight not set'}</small>
+          </div>
           <div className="bb-stock-crate-actions">
             <button
               type="button"
               className="bb-stock-crate-action"
+              aria-label={`View ${product.name} stock information`}
               onClick={() => onInfo?.(product)}
             >
               <span>Info</span>
@@ -271,6 +276,7 @@ function StockProductCard({ product, onInfo, onEdit }) {
             <button
               type="button"
               className="bb-stock-crate-action is-edit"
+              aria-label={`Edit ${product.name} stock`}
               onClick={() => onEdit?.(product)}
             >
               <span>Edit</span>
@@ -440,16 +446,19 @@ function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
 
 function StockEditSheet({ product, onClose, onSave, variant = 'sheet' }) {
   const [draft, setDraft] = useState(product);
+  const [activeVariantId, setActiveVariantId] = useState('product');
   const [savedFlash, setSavedFlash] = useState(false);
   const isPage = variant === 'page';
 
   useEffect(() => {
     setDraft(product);
+    setActiveVariantId(product?.variants?.[0]?.id || 'product');
   }, [product]);
 
   if (!product) return null;
 
   const hasVariants = productHasVariants(draft);
+  const activeVariant = draft.variants?.find((item) => item.id === activeVariantId);
   const patch = (partial) => setDraft((prev) => ({ ...prev, ...partial }));
   const patchVariant = (variantId, partial) => {
     setDraft((prev) => ({
@@ -471,7 +480,7 @@ function StockEditSheet({ product, onClose, onSave, variant = 'sheet' }) {
 
   return (
     <div
-      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      className={`bb-services-sheet bb-stock-edit-sheet${isPage ? ' is-page' : ''}`}
       role={isPage ? 'region' : 'dialog'}
       aria-modal={isPage ? undefined : true}
       aria-labelledby="stock-edit-title"
@@ -492,31 +501,30 @@ function StockEditSheet({ product, onClose, onSave, variant = 'sheet' }) {
         </header>
         <div className="bb-services-sheet-body">
           {hasVariants ? (
-            <>
-              <InventoryFields values={draft} onChange={patch} showLabel />
-              <div className="bb-stock-variant-list">
-                {(draft.variants || []).map((variant) => (
-                  <div key={variant.id} className="bb-stock-variant-card">
-                    <h4 className="bb-stock-variant-title">
-                      {variant.title ||
-                        Object.values(variant.optionValues || {}).join(' / ')}
-                    </h4>
-                    <InventoryFields
-                      values={variant}
-                      onChange={(partial) => patchVariant(variant.id, partial)}
-                      showAvailable
-                    />
-                  </div>
+            <div className="bb-stock-edit-layout">
+              <nav className="bb-stock-variant-nav" aria-label="Choose inventory to edit">
+                <p className="bb-stock-section-label">{draft.variants.length} variants</p>
+                {draft.variants.map((item) => (
+                  <button key={item.id} type="button" aria-pressed={activeVariantId === item.id} onClick={() => setActiveVariantId(item.id)}>
+                    <strong>{item.title || Object.values(item.optionValues || {}).join(' / ') || 'Variant'}</strong>
+                    <span>{item.sku || 'No SKU'}</span>
+                    <small>{item.available === false ? 'Unavailable' : item.stockAvailable === '' || item.stockAvailable == null ? 'Quantity unset' : `${item.stockAvailable} in stock`}</small>
+                  </button>
                 ))}
-              </div>
-            </>
+                <button type="button" aria-pressed={activeVariantId === 'product'} onClick={() => setActiveVariantId('product')}><strong>Product defaults</strong><span>Stock display & shipping defaults</span></button>
+              </nav>
+              <section className="bb-stock-active-editor" aria-label="Inventory details">
+                <header><h3>{activeVariant ? activeVariant.title || Object.values(activeVariant.optionValues || {}).join(' / ') : 'Product defaults'}</h3><p>{activeVariant ? 'Manage inventory and shipping for this variant.' : 'Variant quantities are tracked separately. Product shipping values are used when a variant has no override.'}</p></header>
+                <InventoryFields values={activeVariant || draft} onChange={activeVariant ? (partial) => patchVariant(activeVariant.id, partial) : patch} showAvailable={!!activeVariant} showLabel={!activeVariant} />
+              </section>
+            </div>
           ) : (
             <InventoryFields values={draft} onChange={patch} showLabel />
           )}
         </div>
         <footer className="bb-services-sheet-footer">
           <span className="bb-products-side-note">
-            {savedFlash ? 'Saved' : 'Changes apply to Buy stock notes after save.'}
+            {savedFlash ? 'Saved' : 'Save to update inventory, delivery details and storefront stock display.'}
           </span>
           <div className="bb-services-sheet-footer-actions">
             <button type="button" className="bb-ghost-btn" onClick={onClose}>
@@ -665,6 +673,7 @@ export function StockPage({ routeRest = [] }) {
                 className="native-search-input"
                 value={query}
                 placeholder="Search products or SKUs"
+                aria-label="Search products or SKUs"
                 onChange={(event) => setQuery(event.target.value)}
               />
             </label>
