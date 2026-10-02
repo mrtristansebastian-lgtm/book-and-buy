@@ -118,7 +118,7 @@ export function ReviewsSection({
   const placeId = String(website.googlePlaceId || '').trim();
   const syncEnabled =
     website.googleReviewsEnabled == null ? Boolean(placeId) : Boolean(website.googleReviewsEnabled);
-  const provider = website.trustpilotReviewsEnabled ? 'trustpilot' : syncEnabled ? 'google' : '';
+  const provider = syncEnabled ? 'google' : '';
   const [liveReviews, setLiveReviews] = useState([]);
   const [reviewError, setReviewError] = useState('');
   const [loadingReviews, setLoadingReviews] = useState(false);
@@ -128,13 +128,12 @@ export function ReviewsSection({
     setLiveReviews([]); setReviewError(''); setAttributions([]); setLoadingReviews(false);
     if (!provider || hidden || isDemo) return;
     setLoadingReviews(true);
-    const payload = provider === 'google' ? { placeId } : { businessUnitId: website.trustpilotBusinessUnitId };
     const request = editMode
-      ? provider === 'google' ? firebaseCallables.getGooglePlaceReviews(payload) : firebaseCallables.getTrustpilotReviews(payload)
-      : provider === 'google' ? firebaseCallables.getPublicGoogleReviews({ slug: workspaceSlug }) : firebaseCallables.getPublicTrustpilotReviews({ slug: workspaceSlug });
+      ? firebaseCallables.getGooglePlaceReviews({ placeId })
+      : firebaseCallables.getPublicGoogleReviews({ slug: workspaceSlug });
     request.then((result) => { if (!cancelled) { setLiveReviews(result.reviews || []); setAttributions(result.attributions || []); } }).catch(() => { if (!cancelled) setReviewError('Reviews are temporarily unavailable. Please try again later.'); }).finally(() => { if (!cancelled) setLoadingReviews(false); });
     return () => { cancelled = true; };
-  }, [provider, placeId, website.trustpilotBusinessUnitId, workspaceSlug, editMode, hidden, isDemo]);
+  }, [provider, placeId, workspaceSlug, editMode, hidden, isDemo]);
   const reviews = provider && !isDemo ? liveReviews : (storedReviews || []).filter((review) => !String(review.id).startsWith('gplace-') && !String(review.id).startsWith('trustpilot-'));
   const reviewsFromSettings = Boolean(provider);
   const canCurate = !provider;
@@ -195,7 +194,7 @@ export function ReviewsSection({
                   style={{ '--bb-review-i': index }}
                 >
                   <div className="bb-public-review-top">
-                    {provider && !isDemo && <span className="bb-review-source">{provider === 'google' ? 'Google Maps' : 'Trustpilot'}</span>}
+                    {provider && !isDemo && <span className="bb-review-source">Google Maps</span>}
                     <Stars
                       rating={review.rating}
                       editMode={editMode}
@@ -203,7 +202,7 @@ export function ReviewsSection({
                       patchWebsite={patchWebsite}
                     />
                   </div>
-                  {provider && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com|trustpilot\.com)\//i.test(review.reviewUrl || '') && <a className="bb-review-original" href={review.reviewUrl} target="_blank" rel="noopener noreferrer">View original review</a>}
+                  {provider && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.reviewUrl || '') && <a className="bb-review-original" href={review.reviewUrl} target="_blank" rel="noopener noreferrer">View original review</a>}
                   {provider === 'google' && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.authorUrl || '') && <a className="bb-review-original" href={review.authorUrl} target="_blank" rel="noopener noreferrer">Reviewer profile</a>}
                   <EditableText
                     as="p"
@@ -237,7 +236,7 @@ export function ReviewsSection({
               );
             })}
           </div>
-          {provider && !isDemo && <p className="bb-review-provider-attribution">Reviews from {provider === 'google' ? 'Google Maps' : 'Trustpilot'}. Original ratings and wording.</p>}
+          {provider && !isDemo && <p className="bb-review-provider-attribution">Reviews from Google Maps. Original ratings and wording.</p>}
           {reviewError && <p className="bb-domain-hint" role="status">{reviewError}</p>}
           {provider && !isDemo && !reviewError && <p className="bb-domain-hint" role="status">{loadingReviews ? 'Loading customer reviews…' : reviews.length === 0 ? 'No reviews are available from this provider yet.' : ''}</p>}
           {provider === 'google' && !isDemo && attributions.map((entry, index) => <p className="bb-review-provider-attribution" key={index}>{entry.provider || entry.providerName || ''}{/^https:\/\//i.test(entry.providerUri || '') && <a href={entry.providerUri} target="_blank" rel="noopener noreferrer"> · Attribution source</a>}</p>)}

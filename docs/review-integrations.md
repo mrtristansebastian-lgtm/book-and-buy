@@ -1,19 +1,16 @@
-# Review integrations — local implementation
+# Google Reviews integration
 
-Settings supports branded Google and Trustpilot provider cards, explicit connection checks, one enabled provider at a time, demo-only sample previews, and public source/author links. Connection checks never save provider review text in workspace state. Existing manually written testimonials remain separate.
+Settings supports a branded Google Reviews connection card, demo-only previews and public source/author links. Manual testimonials remain separate. Review text is never copied into workspace storage.
 
-Google uses Places API (New), server-only `GOOGLE_PLACES_API_KEY`, at most five provider-selected reviews, and response-only rendering rather than the previous persistent review copying. Existing cached `gplace-` entries are not displayed as manual testimonials; removal of legacy provider text from already-published Firestore records requires an explicitly reviewed migration. Google Maps/author/third-party attribution and publicly accessible Google-compatible terms/privacy must be reviewed before release.
+Google uses Places API (New) and server-only `GOOGLE_PLACES_API_KEY`. At most five provider-selected reviews are rendered response-only. Legacy imported provider entries are not displayed as manual testimonials; no historical database migration was performed.
 
-Trustpilot uses the official service-review endpoint, first page of six latest reviews, no star filtering, original ratings/text and canonical source links. Only enable function environment `TRUSTPILOT_INTEGRATION_ENABLED=true` after appropriate platform API/display access has been approved. Set `TRUSTPILOT_API_KEY` through Secret Manager; never place it in Vite environment, workspace fields or public documents. Seller Business Unit ID is public metadata, not a secret. No credentials or agreement have been supplied in this task, so live Trustpilot imports cannot yet be verified.
+`getPublicGoogleReviews` requires App Check and resolves the Place ID from the published workspace. Owner checks use authenticated `getGooglePlaceReviews`. No scheduled imports or scraping is used. Provider loads happen when the reviews view mounts. Configure API restrictions, quotas and budget alerts, and verify Google Maps/author/third-party attribution and compatible privacy/terms before release. Google API usage is subject to Google's billing terms, not unlimited free access.
 
-Public callables `getPublicGoogleReviews` and `getPublicTrustpilotReviews` require App Check and resolve the provider ID from a published workspace—not an arbitrary public request. Owner checks use authenticated callables. No timers, scheduled imports or API scraping. Public loads call the provider once per mounted reviews view; production quotas, budget alerts and integration access controls must be configured before release. Strict Mode may make a cancelled duplicate request in development; no database review cache is introduced.
+Live credential-dependent provider calls have not been asserted as verified. Tests use injected mock responses, never real credentials.
 
-Release requirements: deploy callables, verify App Check on custom domains, use real Google Place and Trustpilot Business Unit IDs, test credential failure/empty data/auth/rate limits in emulators and staging, verify platform licensing and current brand assets, ensure attribution links are present, and audit any existing cached provider data. Do not describe this as live-verified until real credentials are tested.
+Trustpilot was removed at the user's request, including its Settings card, logo, provider requests, callable exports and secret registration. Legacy stored configuration is ignored rather than destructively migrated.
 
-Official references:
+References:
 - https://developers.google.com/maps/documentation/places/web-service/policies
-- https://developers.trustpilot.com/business-units-api
-- https://developers.trustpilot.com/authentication
-- https://corporate.trustpilot.com/legal/for-businesses/legal-brand-guidelines/sept-2026
-
-Internal Settings logo sources: https://commons.wikimedia.org/wiki/File:Google_2015_logo.svg and https://commons.wikimedia.org/wiki/File:Trustpilot_Logo_(2022).svg. Logos are unmodified identifiers, not endorsements or ratings badges.
+- https://developers.google.com/maps/documentation/places/web-service/place-id
+- https://commons.wikimedia.org/wiki/File:Google_2015_logo.svg

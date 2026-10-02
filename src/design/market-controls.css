@@ -15,6 +15,7 @@
   border-radius: 12px; box-shadow: 0 8px 30px #10182714; color: #813b3b; font-size: 14px;
 }
 .bb-order-action-error button { min-width: 44px; min-height: 44px; background: transparent; border: 0; font-size: 24px; color: inherit; }
+.bb-review-provider-grid.is-google-only { grid-template-columns: minmax(0, 1fr); }
 
 .bb-catalog-picker-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 650; color: #172033; }
 .bb-catalog-picker-heading small { font-size: 12px; font-weight: 500; color: #65748c; }

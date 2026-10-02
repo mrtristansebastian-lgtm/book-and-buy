@@ -11,7 +11,7 @@ Verified locally on 2 October 2026:
 
 Remaining operational verification:
 
-- Trustpilot is intentionally gated until licensed provider access is configured.
+- Trustpilot was removed at the user's request. Only Google Reviews remains integrated.
 - Custom domains remain gated until Hosting permissions and operational setup are completed.
 - Google provider credentials were not read; credential-dependent live provider calls are not asserted as verified.
 - Responsive browser checks do not replace testing pinch gestures on a physical mobile device.

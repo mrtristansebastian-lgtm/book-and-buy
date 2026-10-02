@@ -102,7 +102,7 @@ const COPY = {
   },
   reviews: {
     title: 'Reviews',
-    lede: 'Connect Google or Trustpilot reviews to your business Home.'
+    lede: 'Connect Google Reviews to your business Home.'
   },
   domains: {
     title: 'Domains',

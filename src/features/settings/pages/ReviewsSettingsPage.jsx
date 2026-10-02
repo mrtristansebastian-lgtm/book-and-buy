@@ -4,10 +4,9 @@ import { firebaseCallables } from '../../../shared/firebase/callables';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
 const providers = [
-  { id: 'google', name: 'Google', label: 'Google Place ID', field: 'googlePlaceId', placeholder: 'ChIJ…', help: 'https://developers.google.com/maps/documentation/places/web-service/place-id', steps: ['Find your business using Google’s Place ID finder.', 'Paste the Place ID and check the connection.', 'Enable your Home reviews section, then publish your website.'], detail: 'Show up to five reviews chosen by Google, with links to the original reviews. Google selects the reviews—not Book & Buy.' },
-  { id: 'trustpilot', name: 'Trustpilot', label: 'Business Unit ID', field: 'trustpilotBusinessUnitId', placeholder: '24-character Business Unit ID', help: 'https://developers.trustpilot.com/business-units-api-overview/', steps: ['Confirm that your Trustpilot API and display access covers Book & Buy.', 'Get your Business Unit ID from Trustpilot Business.', 'Check the connection, enable Home reviews, then publish.'], detail: 'Display the six latest service reviews, without rating filters. API access and permission to display reviews are required.' }
+  { id: 'google', name: 'Google', label: 'Google Place ID', field: 'googlePlaceId', placeholder: 'ChIJ…', help: 'https://developers.google.com/maps/documentation/places/web-service/place-id', steps: ['Find your business using Google’s Place ID finder.', 'Paste the Place ID and check the connection.', 'Enable your Home reviews section, then publish your website.'], detail: 'Show up to five reviews chosen by Google, with links to the original reviews. Google selects the reviews—not Book & Buy.' }
 ];
-const safeLink = (value) => /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com|trustpilot\.com)\//i.test(value || '') ? value : null;
+const safeLink = (value) => /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(value || '') ? value : null;
 
 export function ReviewsSettingsPage() {
   const { workspace, updateWebsite } = useWorkspace();
@@ -22,14 +21,12 @@ export function ReviewsSettingsPage() {
     if (requestLock.current) return;
     const value = String(website[provider.field] || '').trim();
     if (!value) { setErrors((old) => ({ ...old, [provider.id]: 'Add your ' + provider.label + ' first.' })); return; }
-    if (provider.id === 'trustpilot' && !/^[a-f0-9]{24}$/i.test(value)) { setErrors((old) => ({ ...old, trustpilot: 'Use the 24-character Business Unit ID, not your profile URL.' })); return; }
     requestLock.current = true; setBusy(provider.id);
     setErrors((old) => ({ ...old, [provider.id]: '' }));
     setMessages((old) => ({ ...old, [provider.id]: '' }));
     try {
-      const result = isDemo ? { ok: true, reviews: (website.reviews || []).filter((review) => review.quote).slice(0, provider.id === 'google' ? 5 : 6), placeName: workspace.name } : provider.id === 'google'
-        ? await firebaseCallables.getGooglePlaceReviews({ placeId: value })
-        : await firebaseCallables.getTrustpilotReviews({ businessUnitId: value });
+      const result = isDemo ? { ok: true, reviews: (website.reviews || []).filter((review) => review.quote).slice(0, 5), placeName: workspace.name }
+        : await firebaseCallables.getGooglePlaceReviews({ placeId: value });
       if (!result.ok) throw new Error('The provider could not verify this connection.');
       setPreview((old) => ({ ...old, [provider.id]: result.reviews || [] }));
       updateWebsite({ [provider.id + 'ReviewsVerifiedId']: value, [provider.id + 'ReviewsCheckedAt']: new Date().toISOString() });
@@ -39,7 +36,7 @@ export function ReviewsSettingsPage() {
   }
   return <div className="bb-settings-content bb-settings-content--reviews">
     <div className="bb-review-overview"><div className="bb-settings-section-heading"><h2>Let your customers speak.</h2><p>Connect a trusted review source to your Home page. Original wording, real ratings, clear attribution.</p></div><span><Star size={16} /> Customer reviews</span></div>
-    <div className="bb-review-provider-grid">{providers.map((provider) => {
+    <div className="bb-review-provider-grid is-google-only">{providers.map((provider) => {
       const value = String(website[provider.field] || '').trim();
       const enabled = Boolean(website[provider.id + 'ReviewsEnabled']);
       const verified = value && website[provider.id + 'ReviewsVerifiedId'] === value;
@@ -47,15 +44,15 @@ export function ReviewsSettingsPage() {
         <header><div className="bb-review-logo-heading"><img src={'/review-logos/' + provider.id + '.svg'} alt={provider.name} />{provider.id === 'google' && <span>Reviews</span>}</div><span className={'bb-review-state ' + (verified ? 'is-checked' : '')}>{verified ? <CheckCircle2 size={14} /> : null}{isDemo ? 'Demo' : verified ? 'Checked' : 'Not connected'}</span></header>
         <p className="bb-domain-hint">{provider.detail}</p>
         <div className="bb-review-how"><h3>How to connect</h3><ol>{provider.steps.map((step) => <li key={step}>{step}</li>)}</ol><a className="bb-domain-link" href={provider.help} target="_blank" rel="noopener noreferrer">Official setup guide <ArrowUpRight size={15} /></a></div>
-        <label className="bb-settings-field">{provider.label}<input className="native-control-input px-4" value={website[provider.field] || ''} placeholder={provider.placeholder} maxLength={provider.id === 'google' ? 255 : 24} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(event) => { updateWebsite({ [provider.field]: event.target.value, [provider.id + 'ReviewsEnabled']: false, [provider.id + 'ReviewsVerifiedId']: '' }); setPreview((old) => ({ ...old, [provider.id]: [] })); setMessages((old) => ({ ...old, [provider.id]: '' })); }} /></label>
+        <label className="bb-settings-field">{provider.label}<input className="native-control-input px-4" disabled={Boolean(busy)} value={website[provider.field] || ''} placeholder={provider.placeholder} maxLength={255} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(event) => { updateWebsite({ [provider.field]: event.target.value, [provider.id + 'ReviewsEnabled']: false, [provider.id + 'ReviewsVerifiedId']: '' }); setPreview((old) => ({ ...old, [provider.id]: [] })); setMessages((old) => ({ ...old, [provider.id]: '' })); }} /></label>
         <button type="button" className="bb-primary-btn" disabled={Boolean(busy) || !value} onClick={() => check(provider)}><RefreshCw size={15} />{busy === provider.id ? 'Checking…' : isDemo ? 'Preview connection' : 'Check connection'}</button>
-        <label className="bb-review-toggle"><input type="checkbox" checked={enabled} disabled={!verified || Boolean(busy)} onChange={(event) => updateWebsite({ [provider.id + 'ReviewsEnabled']: event.target.checked, ...(event.target.checked ? { [provider.id === 'google' ? 'trustpilotReviewsEnabled' : 'googleReviewsEnabled']: false, sections: { ...(website.sections || {}), reviews: true } } : {}) })} /><span><strong>Show {provider.name} reviews on Home</strong><small>One provider at a time. Publish your website to apply changes.</small></span></label>
+        <label className="bb-review-toggle"><input type="checkbox" checked={enabled} disabled={!verified || Boolean(busy)} onChange={(event) => updateWebsite({ googleReviewsEnabled: event.target.checked, ...(event.target.checked ? { sections: { ...(website.sections || {}), reviews: true } } : {}) })} /><span><strong>Show {provider.name} reviews on Home</strong><small>Publish your website to apply changes.</small></span></label>
         {messages[provider.id] && <p className="bb-review-success" role="status">{messages[provider.id]}</p>}
         {errors[provider.id] && <p className="bb-reschedule-error" role="alert">{errors[provider.id]}</p>}
         {website[provider.id + 'ReviewsCheckedAt'] && <p className="bb-domain-hint">Last checked {new Date(website[provider.id + 'ReviewsCheckedAt']).toLocaleString()}</p>}
         {preview[provider.id]?.length > 0 && <div className="bb-review-preview"><h3>{isDemo ? 'Sample preview' : 'Review preview'}</h3>{preview[provider.id].map((review, index) => <article key={review.id || index}><span aria-label={String(review.rating) + ' out of 5 stars'}>{'★'.repeat(Math.max(0, Math.min(5, Math.round(Number(review.rating) || 0))))}</span><p>{review.quote}</p><strong>{review.name}</strong>{safeLink(review.reviewUrl) && <a href={safeLink(review.reviewUrl)} target="_blank" rel="noopener noreferrer">View original <ArrowUpRight size={13} /></a>}</article>)}</div>}
       </section>;
     })}</div>
-    <section className="bb-panel bb-review-privacy"><h2>Authentic reviews. No copying or editing.</h2><p>Connected reviews load from the provider when visitors open your Home page. Review text is not saved into your workspace or edited in the page builder. Failed requests never show invented reviews.</p><p>Google requires Maps and author attribution. Trustpilot imports stay unavailable until approved API/display access is configured. Manual testimonials remain separate.</p></section>
+    <section className="bb-panel bb-review-privacy"><h2>Authentic reviews. No copying or editing.</h2><p>Connected reviews load from Google when visitors open your Home page. Review text is not saved into your workspace or edited in the page builder. Failed requests never show invented reviews.</p><p>Google requires Maps and author attribution. Manual testimonials remain separate.</p></section>
   </div>;
 }
