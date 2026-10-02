@@ -721,6 +721,7 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 .bb-support-voice-player {
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -729,8 +730,8 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 .bb-support-voice-play {
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: 0;
   border-radius: 999px;
   display: grid;
@@ -786,6 +787,8 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 .bb-support-voice-seek {
+  opacity: 0;
+  width: 100%; height: 100%; margin: 0;
   position: absolute;
   inset: 0;
   border: 0;
@@ -793,6 +796,8 @@ html body .native-ui .bb-support-inbox-title {
   cursor: pointer;
   padding: 0;
 }
+.bb-support-voice-wave:focus-within { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 4px; }
+.bb-support-voice-error { flex-basis: 100%; font-size: 12px; line-height: 1.5; }
 
 .bb-support-voice-seek:disabled {
   cursor: default;

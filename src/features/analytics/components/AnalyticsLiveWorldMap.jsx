@@ -4,6 +4,7 @@ import worldMap from '../assets/worldEqualEarth.json';
 import { LiveCountryDetail } from './LiveCountryDetail';
 import { useMapViewport } from '../hooks/useMapViewport';
 import { REGIONAL_MAP_COUNTRIES } from '../utils/regionalTraffic';
+import { WORLD_MAP_FRAME } from '../utils/worldMapFrame';
 
 // The detailed Natural Earth paths stay memoized while live presence updates.
 const MapAreas = memo(function MapAreas({ areas, level }) {
@@ -38,7 +39,7 @@ export function AnalyticsLiveWorldMap({
   }, [sessions]);
   const [selectedArea, setSelectedArea] = useState(null);
   const [hoveredArea, setHoveredArea] = useState(null);
-  const viewport = useMapViewport({ width: worldMap.width, height: worldMap.height, initialZoom: 1, maxZoom: 4, enabled: !detailCountry, onGesture: () => { setSelectedArea(null); setHoveredArea(null); } });
+  const viewport = useMapViewport({ width: WORLD_MAP_FRAME.width, height: WORLD_MAP_FRAME.height, origin: WORLD_MAP_FRAME, initialZoom: 1, maxZoom: 4, enabled: !detailCountry, onGesture: () => { setSelectedArea(null); setHoveredArea(null); } });
   const { zoom, suppressClick } = viewport;
   const activeArea = hoveredArea ?? selectedArea;
   const visitorWord = Number(total) === 1 ? 'visitor' : 'visitors';

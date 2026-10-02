@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useElementWidth } from '../../../shared/ui/useElementWidth';
-import { CalendarRange, Plus, Trash2 } from 'lucide-react';
+import { CalendarRange, Plus, Trash2, Pencil, Clock } from 'lucide-react';
+import { listActiveShifts, removeActiveShift } from '../utils/activeShifts';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { TimeField } from '../../../shared/ui/TimeField';
@@ -94,6 +95,9 @@ export function ScheduleAvailabilityEditor({
   const [dayStatusSheetOpen, setDayStatusSheetOpen] = useState(false);
   const [applyShiftIndex, setApplyShiftIndex] = useState(null);
   const [activeEdit, setActiveEdit] = useState(false);
+  const shiftEditorRef = useRef(null);
+  const [deleteShiftKey, setDeleteShiftKey] = useState('');
+  const [shiftListPage, setShiftListPage] = useState(0);
   const [saveNotice, setSaveNotice] = useState(null);
   const saveNoticeTimerRef = useRef(null);
 
@@ -193,6 +197,11 @@ export function ScheduleAvailabilityEditor({
     () => getMaxBookableDateKey(availabilityRules, todayKey),
     [availabilityRules, todayKey]
   );
+  const activeShifts = useMemo(() => listActiveShifts(staffId, entry, availabilityRules, monthAnchor, todayKey, maxBookableDateKey), [staffId, entry, availabilityRules, monthAnchor, todayKey, maxBookableDateKey]);
+  useEffect(() => setDeleteShiftKey(''), [staffId, entry, monthAnchor]);
+  useEffect(() => setShiftListPage(0), [staffId, monthAnchor]);
+  const shiftPageCount = Math.max(1, Math.ceil(activeShifts.length / 6));
+  const safeShiftListPage = Math.min(shiftListPage, shiftPageCount - 1);
   const bookableWindowLabel = useMemo(() => {
     if (!maxBookableDateKey) return 'Availability period · no limit';
     return `Availability period · ${formatWindowDate(todayKey)} – ${formatWindowDate(maxBookableDateKey)}`;
@@ -615,8 +624,8 @@ export function ScheduleAvailabilityEditor({
   const applyShiftToDates = ({ dates = [], shift }) => {
     if (!staffId || !entry || !canEditSelected || !shift?.start || !shift?.end) return;
     let nextEntry = entry;
-    dates.forEach((dateKey) => {
-      if (!isDateWithinAdvanceWindow(dateKey, availabilityRules, { todayKey })) return;
+    const eligibleDates = dates.filter((dateKey) => isDateWithinAdvanceWindow(dateKey, availabilityRules, { todayKey }) && isBusinessOpenOnDate(dateKey, availabilityRules));
+    eligibleDates.forEach((dateKey) => {
       const existing = entry.days?.[dateKey];
       const nextBreaks = Array.isArray(existing?.breaks)
         ? existing.breaks.map((range) => ({ ...range }))
@@ -637,9 +646,9 @@ export function ScheduleAvailabilityEditor({
     });
     if (nextEntry !== entry) onSaveEntry?.(staffId, nextEntry);
     setApplyShiftIndex(null);
-    if (dates.length) {
-      setSelectedDay(dates[0]);
-      showSaveNotice('Shift applied', `${shift.start} – ${shift.end} · ${dates.length} ${dates.length === 1 ? 'day' : 'days'}`);
+    if (eligibleDates.length) {
+      setSelectedDay(eligibleDates[0]);
+      showSaveNotice('Shift applied', `${shift.start} – ${shift.end} · ${eligibleDates.length} ${eligibleDates.length === 1 ? 'day' : 'days'}`);
     }
   };
 
@@ -664,6 +673,14 @@ export function ScheduleAvailabilityEditor({
 
       <div className="bb-schedule-workspace bb-schedule-availability-workspace">
         <aside className="bb-schedule-sidebar bb-schedule-availability-sidebar" aria-label="Availability controls">
+          <label className="bb-schedule-mobile-staff bb-availability-mobile-profile">
+            <span>Availability for</span>
+            <select aria-label="Availability for" value={staffId} onChange={(event) => setStaffId(event.target.value)}>
+              {canEditRules ? <option value={BUSINESS_AVAILABILITY_ID}>Business hours</option> : null}
+              {visibleStaff.map((member) => <option key={member.id} value={member.id}>{member.name}</option>)}
+              {!canEditRules && !visibleStaff.length ? <option value="">No staff available</option> : null}
+            </select>
+          </label>
           <section className="bb-schedule-side-section">
             <span className="bb-schedule-side-label">Staff availability</span>
             <div className="bb-schedule-staff-filter" role="tablist" aria-label="Availability profile">
@@ -872,11 +889,11 @@ export function ScheduleAvailabilityEditor({
         />
 
           {!isBusinessFocus ? (
-            <section className="bb-schedule-side-section bb-schedule-shifts-below-calendar">
+            <section ref={shiftEditorRef} className="bb-schedule-side-section bb-schedule-shifts-below-calendar" aria-label="Edit shifts and breaks">
               <div className="bb-schedule-avail-sidebar-head">
-                <span className="bb-schedule-side-label">Shifts & breaks</span>
-                <span className="bb-schedule-avail-sidebar-meta">{formatDisplayDate(selectedDay)}</span>
+                <div className="bb-shift-editor-heading"><div className="bb-shift-editor-title-row"><h3 className="bb-shift-editor-title">Shifts &amp; breaks</h3><span className="bb-shift-editor-date"><CalendarRange size={16} aria-hidden="true" />{formatDisplayDate(selectedDay)}</span></div><p className="bb-schedule-avail-hint m-0">Working hours and breaks · {workspace.timezone || 'Business timezone'}</p></div>
               </div>
+              <div className="bb-shift-editor-status"><span>{statusLabelForDraft(dayDraftStatus)} · {formatDisplayDate(selectedDay)}</span><button type="button" className="bb-ghost-btn" disabled={!canUseActiveEdit} onClick={() => setDayStatusSheetOpen(true)}>Change day status</button></div>
               {draftShifts.length ? draftShifts.map((shift, index) => (
                 <div key={`sidebar-shift-${index}`} className="bb-schedule-avail-sidebar-shift">
                   <div className="bb-schedule-avail-sidebar-shift-head">
@@ -933,6 +950,26 @@ export function ScheduleAvailabilityEditor({
                   </button>
                 </>
               ) : null}
+            </section>
+          ) : null}
+          {!isBusinessFocus ? (
+            <section className="bb-active-shifts" aria-label="Active shifts">
+              <header><div><h3>Active shifts</h3><p>{monthAnchor.toLocaleDateString('en', { month: 'long', year: 'numeric' })} · {selectedMember?.name || 'Selected staff'} · {workspace.timezone || 'Business timezone'}</p></div><span>{activeShifts.length} shift{activeShifts.length === 1 ? '' : 's'}</span></header>
+              <p className="bb-schedule-avail-hint m-0">Upcoming shifts in this calendar month. Editing or deleting here changes this date only; existing bookings remain unchanged.</p>
+              {activeShifts.length ? <ul>{activeShifts.slice(safeShiftListPage * 6, (safeShiftListPage + 1) * 6).map((row) => {
+                const key = `${row.date}:${row.index}`;
+                const confirming = deleteShiftKey === key;
+                return <li key={key}>
+                  <span className="bb-active-shift-icon"><Clock size={18} aria-hidden="true" /></span>
+                  <div className="bb-active-shift-copy"><strong>{formatDisplayDate(row.date)}</strong><span>{row.start} – {row.end}</span><small>{row.recurring ? 'Weekly schedule' : 'Date-specific shift'}{row.breaks.length ? ` · ${row.breaks.length} break${row.breaks.length === 1 ? '' : 's'}` : ''}</small></div>
+                  {canEditSelected ? <div className="bb-active-shift-actions">
+                    <button type="button" className="bb-ghost-btn" aria-label={`Edit shift ${row.start} on ${row.date}`} onClick={() => { setSelectedDay(row.date); shiftEditorRef.current?.scrollIntoView({ block: 'center', behavior: 'auto' }); shiftEditorRef.current?.querySelector('input, button, select')?.focus({ preventScroll: true }); }}><Pencil size={15} /> Edit</button>
+                    <button type="button" className="bb-ghost-btn" aria-label={`Delete shift ${row.start} on ${row.date}`} onClick={() => setDeleteShiftKey(confirming ? '' : key)}><Trash2 size={15} /> Delete</button>
+                  </div> : null}
+                  {confirming ? <div className="bb-active-shift-confirm" role="group" aria-label="Confirm shift deletion"><span>Remove {row.start}–{row.end} on {formatDisplayDate(row.date)}?{row.ranges.length === 1 ? ' This marks the staff member off for this day.' : ''}</span><button type="button" className="bb-ghost-btn" onClick={() => setDeleteShiftKey('')}>Cancel</button><button type="button" className="bb-ghost-btn" onClick={() => { if (!canEditSelected) return; onSaveEntry?.(staffId, removeActiveShift(entry, row, availabilityRules)); setDeleteShiftKey(''); }}>Remove shift</button></div> : null}
+                </li>;
+              })}</ul> : <div className="bb-active-shifts-empty"><CalendarRange size={22} /><strong>No upcoming shifts this month</strong><span>Choose a working date above and add a shift, or move to another month.</span></div>}
+              {shiftPageCount > 1 ? <nav className="bb-active-shifts-pagination" aria-label="Shift list pages"><span>{safeShiftListPage * 6 + 1}–{Math.min((safeShiftListPage + 1) * 6, activeShifts.length)} of {activeShifts.length}</span><button type="button" className="bb-ghost-btn" disabled={safeShiftListPage === 0} onClick={() => { setShiftListPage(safeShiftListPage - 1); setDeleteShiftKey(''); }}>Previous shifts</button><button type="button" className="bb-ghost-btn" disabled={safeShiftListPage === shiftPageCount - 1} onClick={() => { setShiftListPage(safeShiftListPage + 1); setDeleteShiftKey(''); }}>Next shifts</button></nav> : null}
             </section>
           ) : null}
         {isBusinessFocus ? (

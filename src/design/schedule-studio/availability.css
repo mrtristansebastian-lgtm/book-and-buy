@@ -797,8 +797,8 @@
   --bb-avail-off: #d8b8ff;
   --bb-avail-off-deep: #d8b8ff;
   --bb-avail-off-ink: #101828;
-  --bb-avail-break: #ffc28a;
-  --bb-avail-break-deep: #ffc28a;
+  --bb-avail-break: #b9e3ff;
+  --bb-avail-break-deep: #b9e3ff;
   --bb-avail-break-ink: #101828;
   padding-bottom: 0.25rem;
 }
@@ -1093,7 +1093,9 @@
   border-color: transparent;
   background:
     linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent, linear-gradient(110deg, #b8ff6a, #5eead4, #c4b5fd, #f9a8d4)) border-box;
+    var(--native-accent-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
   border: 1px solid transparent;
 }
 
@@ -1140,7 +1142,9 @@
   border-color: transparent;
   background:
     linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent, linear-gradient(110deg, #b8ff6a, #5eead4, #c4b5fd, #f9a8d4)) border-box;
+    var(--native-accent-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
   box-shadow: none;
 }
 

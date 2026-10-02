@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { AlertTriangle, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Info, Smartphone } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
+import { AppSheet } from '../../../shared/ui/AppSheet';
+import { useElementWidth } from '../../../shared/ui/useElementWidth';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate, parseDateKey, toDateKey } from '../../../utils/dates';
 import {
@@ -27,6 +29,7 @@ import {
 import { DayTimelineMeter, buildTimelineAxisMarks } from '../components/DayTimelineMeter';
 import { AvailabilityMonthGrid } from '../components/AvailabilityMonthGrid';
 import { SpotInfoSheet } from '../components/SpotInfoSheet';
+import { StaffBookingList } from '../components/StaffBookingList';
 import { visibleScheduleStaff } from '../utils/dayOverview';
 import {
   bookingDateKey,
@@ -70,6 +73,9 @@ export function SchedulePage() {
   const mode = 'slots';
   const [focusStaffId, setFocusStaffId] = useState('');
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [googleCalendarOpen, setGoogleCalendarOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState('');
+  const [axisRef, axisWidth] = useElementWidth();
   const dateTrigger = useRef(null);
   const [day, setDay] = useState(() => toDateKey(new Date()));
   const [monthAnchor, setMonthAnchor] = useState(() => {
@@ -213,8 +219,8 @@ export function SchedulePage() {
   const dayEndMinutes = dayWindow.end;
   const daySpanHours = Math.max(1, (dayEndMinutes - dayStartMinutes) / 60);
   const boardAxisMarks = useMemo(
-    () => buildTimelineAxisMarks(dayStartMinutes, dayEndMinutes),
-    [dayStartMinutes, dayEndMinutes]
+    () => buildTimelineAxisMarks(dayStartMinutes, dayEndMinutes, axisWidth || 900),
+    [dayStartMinutes, dayEndMinutes, axisWidth]
   );
   const confirmedDayBookings = useMemo(
     () => slotBookings.filter(
@@ -222,6 +228,7 @@ export function SchedulePage() {
     ),
     [slotBookings, day]
   );
+  const selectedAppointment = confirmedDayBookings.find((booking) => booking.id === selectedAppointmentId);
   const confirmedBookingsByStaff = useMemo(() => {
     const grouped = new Map();
     confirmedDayBookings.forEach((booking) => {
@@ -348,8 +355,18 @@ export function SchedulePage() {
               </span>
             </div>
           </div>
+          <button type="button" className="bb-schedule-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">
+            <img src="/review-logos/google-calendar.webp" width="24" height="24" alt="" />
+            <span>Sync Google Calendar</span>
+          </button>
         </header>
       </div>
+      {googleCalendarOpen ? <AppSheet title="Google Calendar" eyebrow="BOOKING SYNC" onClose={() => setGoogleCalendarOpen(false)} panelClassName="bb-schedule-google-sheet" footer={<button type="button" className="bb-ghost-btn" onClick={() => setGoogleCalendarOpen(false)}>Done</button>}>
+        <div className="bb-schedule-google-intro"><img src="/review-logos/google-calendar.webp" width="48" height="48" alt="Google Calendar" /><div><h3>Your bookings, together.</h3><p>Keep confirmed appointments in your Google Calendar without changing how you manage your schedule.</p></div></div>
+        <ul className="bb-schedule-google-features"><li><Check size={18} /><span>Confirmed bookings appear as calendar events.</span></li><li><Check size={18} /><span>Accepted reschedules update the same event.</span></li><li><Check size={18} /><span>Cancelled bookings are removed from the calendar.</span></li></ul>
+        <p className="bb-schedule-google-policy">Bookings stay managed in Book &amp; Buy. Business hours, shifts and breaks are not exported. Changes made in Google Calendar won’t change a booking.</p>
+        <div className="bb-schedule-google-setup" role="status"><Info size={20} /><div><strong>Connection setup required</strong><p>Google Calendar sync is not enabled yet. The app’s secure Google connection must be configured before you can connect your account. No bookings have been synced.</p></div></div>
+      </AppSheet> : null}
 
       <div className="bb-schedule-workspace">
         <aside className="bb-schedule-sidebar" aria-label="Schedule calendar and filters">
@@ -419,18 +436,6 @@ export function SchedulePage() {
         {mode === 'slots' ? (
           period === 'day' || period === 'week' ? (
             <>
-              <section className="bb-schedule-mobile-day" aria-label="Full day schedule">
-                <div className="bb-schedule-mobile-day-heading"><strong>{dayHours.open ? 'Booking window' : 'Business closed'}</strong><span>{dayHours.open ? `${dayHours.openTime}–${dayHours.closeTime}` : 'No opening hours today'}</span></div>
-                {staffRows.map(({ member, timeline, bookingsWithConflict }) => (
-                  <article className="bb-schedule-mobile-lane" key={member.id || 'all'}>
-                    <header><strong>{member.name}</strong><span>{timeline.status === 'leave' ? 'On leave' : timeline.status === 'off' ? 'Off day' : timeline.status === 'business-closed' ? 'Closed' : `${bookingsWithConflict.length} booking${bookingsWithConflict.length === 1 ? '' : 's'}`}</span></header>
-                    {dayHours.open ? <DayTimelineMeter segments={timeline.segments} status={timeline.status} dayStart={dayStartMinutes} dayEnd={dayEndMinutes} /> : null}
-                    {bookingsWithConflict.length ? <div className="bb-schedule-mobile-bookings">{bookingsWithConflict.map(({ booking, conflict }) => <div className={`bb-schedule-mobile-booking${conflict ? ' is-conflict' : ''}`} key={booking.id}>
-                      <time>{formatBookingWindow(booking)}</time><strong>{booking.clientName || 'Client'}</strong><span>{booking.serviceName || 'Appointment'}</span><small>{conflict ? <><AlertTriangle size={13} />{conflict.label}</> : <><Check size={13} />Confirmed</>}</small>
-                    </div>)}</div> : <p className="bb-schedule-mobile-empty">No confirmed bookings for this team member.</p>}
-                  </article>
-                ))}
-              </section>
               {!dayHours.open ? (
                 <section className="bb-schedule-closed-day" aria-label="Business closed">
                   <CalendarDays size={24} aria-hidden="true" />
@@ -441,6 +446,7 @@ export function SchedulePage() {
                 </section>
               ) : (
                 <section className="bb-schedule-board bb-schedule-resource-board" aria-label="Daily staff appointment calendar">
+                  <p className="bb-schedule-rotate-hint"><Smartphone size={14} aria-hidden="true" />Rotate for a better view</p>
                   <div className="bb-schedule-board-scroll">
                     <div
                       className="bb-schedule-resource-grid"
@@ -449,6 +455,7 @@ export function SchedulePage() {
                       <div className="bb-schedule-resource-corner"><span>Team</span></div>
                       <div
                         className="bb-schedule-resource-axis"
+                        ref={axisRef}
                         aria-label={`${boardAxisMarks[0]?.label || dayHours.openTime} to ${boardAxisMarks[boardAxisMarks.length - 1]?.label || dayHours.closeTime}`}
                       >
                         {boardAxisMarks.map((mark) => (
@@ -481,7 +488,7 @@ export function SchedulePage() {
                                 {photo ? <img src={photo} alt="" /> : staffInitials(member.name)}
                               </span>
                               <span>
-                                <strong>{member.name}</strong>
+                                <strong title={member.name}><span className="bb-schedule-staff-full-name">{member.name}</span><span className="bb-schedule-staff-first-name" aria-label={member.name}>{String(member.name || 'Staff').trim().split(/\s+/)[0]}</span></strong>
                                 <small>{bookingsWithConflict.length} booking{bookingsWithConflict.length === 1 ? '' : 's'}</small>
                               </span>
                             </div>
@@ -507,7 +514,18 @@ export function SchedulePage() {
                                     key={booking.id}
                                     className={`bb-schedule-resource-event is-palette-${bookingIndex % 4}${conflict ? ' is-conflict' : ''}`}
                                     style={{ left: `${position.left}%`, width: `${position.width}%` }}
-                                    title={conflict?.label || 'Confirmed booking'}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`${booking.clientName || 'Client'}, ${booking.serviceName || 'Appointment'}, ${formatBookingWindow(booking)}${conflict ? `, ${conflict.label}` : ''}`}
+                                    aria-expanded={selectedAppointmentId === booking.id}
+                                    onClick={() => setSelectedAppointmentId((current) => current === booking.id ? '' : booking.id)}
+                                    onKeyDown={(event) => {
+                                      if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault();
+                                        setSelectedAppointmentId((current) => current === booking.id ? '' : booking.id);
+                                      }
+                                    }}
+                                    title={`${booking.clientName || 'Client'} · ${formatBookingWindow(booking)}${conflict ? ` · ${conflict.label}` : ''}`}
                                   >
                                     <span className="bb-schedule-event-kicker">{booking.serviceName || 'Appointment'}</span>
                                     <h3>{booking.clientName || 'Client'}</h3>
@@ -532,6 +550,15 @@ export function SchedulePage() {
                   </div>
                 </section>
               )}
+
+              {selectedAppointment ? (
+                <section className="bb-schedule-selected-appointment" aria-label="Selected appointment" aria-live="polite">
+                  <div><strong>{selectedAppointment.clientName || 'Client'}</strong><span>{selectedAppointment.serviceName || 'Appointment'}</span></div>
+                  <time>{formatBookingWindow(selectedAppointment)}</time>
+                  <span>{selectedAppointment.staffName || 'Team appointment'}</span>
+                  <button type="button" className="bb-ghost-btn" onClick={() => setSelectedAppointmentId('')}>Close details</button>
+                </section>
+              ) : null}
 
               {attentionBookings.length ? (
                 <section className="bb-schedule-attention" aria-label="Bookings needing attention">
@@ -819,6 +846,7 @@ export function SchedulePage() {
           </>
         )}
       </div>
+          <StaffBookingList day={day} staffId={focusStaffId} />
         </main>
       </div>
 

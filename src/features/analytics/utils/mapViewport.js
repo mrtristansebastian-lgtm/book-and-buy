@@ -1,6 +1,7 @@
-export function fitViewport(width, height, zoom = 1, center = { x: width / 2, y: height / 2 }) {
+export function fitViewport(width, height, zoom = 1, center, origin = { x: 0, y: 0 }) {
+  center ??= { x: origin.x + width / 2, y: origin.y + height / 2 };
   const w = width / zoom; const h = height / zoom;
-  return { x: Math.max(w / 2, Math.min(width - w / 2, center.x)), y: Math.max(h / 2, Math.min(height - h / 2, center.y)), zoom, width: w, height: h };
+  return { x: Math.max(origin.x + w / 2, Math.min(origin.x + width - w / 2, center.x)), y: Math.max(origin.y + h / 2, Math.min(origin.y + height - h / 2, center.y)), zoom, width: w, height: h };
 }
 
 export function screenToMap(point, rect, view) {
@@ -14,10 +15,10 @@ export function mapToScreen(point, rect, view) {
 }
 
 /** Same anchor-preserving transform for button zoom, mouse drag and touch pinch. */
-export function navigateMapGesture({ width, height, view, rect, from, to = from, ratio = 1, maxZoom = 4 }) {
+export function navigateMapGesture({ width, height, view, rect, from, to = from, ratio = 1, maxZoom = 4, origin }) {
   const zoom = Math.max(1, Math.min(maxZoom, view.zoom * ratio));
   const fixed = screenToMap(from, rect, view);
-  const fitted = fitViewport(width, height, zoom, view);
+  const fitted = fitViewport(width, height, zoom, view, origin);
   const destination = screenToMap(to, rect, fitted);
-  return fitViewport(width, height, zoom, { x: fitted.x + fixed.x - destination.x, y: fitted.y + fixed.y - destination.y });
+  return fitViewport(width, height, zoom, { x: fitted.x + fixed.x - destination.x, y: fitted.y + fixed.y - destination.y }, origin);
 }

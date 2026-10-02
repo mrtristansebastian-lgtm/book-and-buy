@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Mic, Pause, Play, Send, Square, Trash2 } from 'lucide-react';
 import { formatDuration } from '../utils/supportFormat';
+import { mediaDurationSeconds } from '../utils/voiceMedia';
 
 const BAR_COUNT = 22;
 
@@ -42,7 +43,7 @@ export function VoiceRecordingStrip({ elapsed = 0, levels = [], onStop, onDiscar
       >
         <Trash2 size={14} />
       </button>
-      <button type="button" className="bb-support-rec-stop" onClick={onStop}>
+      <button type="button" className="bb-support-rec-stop" onClick={onStop} aria-label="Stop recording and preview">
         <Square size={11} fill="currentColor" />
         Stop
       </button>
@@ -64,13 +65,14 @@ export function VoicePreviewStrip({
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentMs, setCurrentMs] = useState(0);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return undefined;
 
     const onTime = () => {
-      const dur = (audio.duration || durationMs / 1000) * 1000;
+      const dur = mediaDurationSeconds(audio.duration, durationMs) * 1000;
       const cur = audio.currentTime * 1000;
       setCurrentMs(cur);
       setProgress(dur > 0 ? Math.min(1, cur / dur) : 0);
@@ -82,9 +84,15 @@ export function VoicePreviewStrip({
     };
     audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('ended', onEnd);
+    const onPause = () => setPlaying(false);
+    const onError = () => { setPlaying(false); setError('Preview could not play. Try recording again.'); };
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('error', onError);
     return () => {
       audio.removeEventListener('timeupdate', onTime);
       audio.removeEventListener('ended', onEnd);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('error', onError);
       audio.pause();
     };
   }, [url, durationMs]);
@@ -104,19 +112,21 @@ export function VoicePreviewStrip({
       return;
     }
     try {
+      document.querySelectorAll('audio').forEach((other) => { if (other !== audio) other.pause(); });
       await audio.play();
+      setError('');
       setPlaying(true);
     } catch {
       setPlaying(false);
+      setError('Preview could not play. Try recording again.');
     }
   };
 
   const seek = (event) => {
     const audio = audioRef.current;
     if (!audio || !url) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-    const dur = audio.duration || durationMs / 1000;
+    const ratio = Number(event.target.value) / 100;
+    const dur = mediaDurationSeconds(audio.duration, durationMs);
     if (!Number.isFinite(dur) || dur <= 0) return;
     audio.currentTime = dur * ratio;
     setProgress(ratio);
@@ -127,6 +137,7 @@ export function VoicePreviewStrip({
 
   return (
     <div className="bb-support-rec-strip is-preview" role="status" aria-live="polite">
+      {error ? <span role="alert" className="bb-support-voice-error">{error}</span> : null}
       {url ? <audio ref={audioRef} src={url} preload="metadata" /> : null}
       <button
         type="button"
@@ -149,12 +160,12 @@ export function VoicePreviewStrip({
             />
           );
         })}
-        <button
-          type="button"
+        <input
+          type="range" min="0" max="100" step="1" value={Math.round(progress * 100)}
           className="bb-support-voice-seek"
           aria-label="Seek preview"
           disabled={!url || confirming}
-          onClick={seek}
+          onChange={seek}
         />
       </div>
       <span className="bb-support-rec-time is-preview-time">
@@ -176,7 +187,7 @@ export function VoicePreviewStrip({
         onClick={onConfirm}
       >
         <Send size={13} strokeWidth={2.25} />
-        Send
+        {confirming ? 'Sending…' : 'Send'}
       </button>
     </div>
   );

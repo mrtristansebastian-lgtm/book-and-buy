@@ -169,13 +169,13 @@ export function ClientMessagesPage({ threadId = '' }) {
   }, [active?.id, active?.unread, active?.unreadForClient, isRemoteActive, markThreadRead]);
 
   const sendPayload = async (payload) => {
-    if (!active?.id) return;
+    if (!active?.id) throw new Error('Choose a conversation before sending.');
     const next = { ...payload, from: 'client' };
     if (isRemoteActive) {
       await sendClientThreadMessage(active.id, next);
     } else if (sendThreadMessage) {
-      sendThreadMessage(active.id, next);
-    }
+      await sendThreadMessage(active.id, next);
+    } else throw new Error('Chat is not connected.');
   };
 
   return (
@@ -345,7 +345,7 @@ export function ClientMessagesPage({ threadId = '' }) {
                 />
               )}
 
-              <ChatComposer threadId={active.id} onSend={sendPayload} />
+              <ChatComposer key={active.id} localOnly={Boolean(workspace.isDemo)} threadId={active.id} onSend={sendPayload} />
               <RescheduleDialog controller={rescheduling} />
 
               {lightboxUrl ? (

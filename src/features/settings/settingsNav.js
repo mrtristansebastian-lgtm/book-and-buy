@@ -1,5 +1,5 @@
 export const SETTINGS_SECTIONS = [
-  { id: 'general', label: 'General' },
+  { id: 'general', label: 'Business' },
   { id: 'plan', label: 'Plan' },
   { id: 'billing', label: 'Billing' },
   { id: 'users', label: 'Users' },

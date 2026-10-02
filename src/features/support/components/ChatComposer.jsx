@@ -16,7 +16,8 @@ export function ChatComposer({
   prefill = '',
   onPrefillConsumed,
   onSend,
-  disabled = false
+  disabled = false,
+  localOnly = false
 }) {
   const [draft, setDraft] = useState('');
   const [pending, setPending] = useState([]);
@@ -25,23 +26,27 @@ export function ChatComposer({
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
   const inputRef = useRef(null);
+  const voiceUploadRef = useRef(null);
 
   const sendVoice = async ({ file, durationMs }) => {
+    if (disabled || !onSend) throw new Error('Chat is not available for sending.');
     setBusy(true);
     setNote('');
     try {
-      const result = await uploadChatAttachment(file, {
+      const result = voiceUploadRef.current?.file === file ? voiceUploadRef.current.result : await uploadChatAttachment(file, {
         threadId,
-        messageId: `voice-${Date.now()}`
+        messageId: `voice-${Date.now()}`, localOnly
       });
       if (!result.ok) {
         throw new Error(result.error || 'Could not upload voice note.');
       }
+      voiceUploadRef.current = { file, result };
       await onSend?.({
         body: '',
         type: 'voice',
         attachments: [{ ...result.attachment, durationMs }]
       });
+      voiceUploadRef.current = null;
     } catch (error) {
       setNote(error?.message || 'Could not send voice note.');
       throw error;
@@ -64,6 +69,7 @@ export function ChatComposer({
   }, [prefill, onPrefillConsumed]);
 
   const addFiles = async (fileList) => {
+    if (disabled || busy || voice.active) return;
     const files = Array.from(fileList || []);
     if (!files.length) return;
     setNote('');
@@ -78,7 +84,7 @@ export function ChatComposer({
       for (const file of files.slice(0, room)) {
         const result = await uploadChatAttachment(file, {
           threadId,
-          messageId: `draft-${Date.now()}`
+          messageId: `draft-${Date.now()}`, localOnly
         });
         if (result.ok) {
           next.push({
@@ -101,10 +107,12 @@ export function ChatComposer({
   };
 
   const send = async () => {
+    if (disabled || busy || voice.active) return;
     const body = draft.trim();
     if (!body && !pending.length) return;
     setBusy(true);
     try {
+      if (!onSend) throw new Error('Chat is not connected.');
       const kinds = new Set(pending.map((item) => item.kind));
       let type = 'text';
       if (!body && kinds.size === 1) {
@@ -120,6 +128,8 @@ export function ChatComposer({
       setDraft('');
       setPending([]);
       setNote('');
+    } catch (error) {
+      setNote(error?.message || 'Could not send. Your draft is kept so you can retry.');
     } finally {
       setBusy(false);
     }
@@ -169,7 +179,7 @@ export function ChatComposer({
           ))}
         </div>
       ) : null}
-      {note ? <p className="bb-muted m-0 text-xs">{note}</p> : null}
+      {note ? <p role="alert" className="bb-muted m-0 text-xs">{note}</p> : null}
 
       {voice.recording ? (
         <VoiceRecordingStrip

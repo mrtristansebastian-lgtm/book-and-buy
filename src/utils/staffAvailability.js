@@ -1,17 +1,17 @@
-import { addDays, parseDateKey, toDateKey } from './dates';
+import { addDays, parseDateKey, toDateKey } from './dates.js';
 import {
   alignTimeToWindowMinutes,
   minutesToTime,
   resolveTimeWindowMinutes,
   timeToMinutes
-} from './scheduleTime';
+} from './scheduleTime.js';
 
 export {
   alignTimeToWindowMinutes,
   minutesToTime,
   resolveTimeWindowMinutes,
   timeToMinutes
-} from './scheduleTime';
+} from './scheduleTime.js';
 
 export const WEEKDAY_KEYS = Object.freeze(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
 

@@ -539,11 +539,22 @@
   overflow: hidden;
 }
 
+/* More page space and a coast-to-coast fit; enlarge the frame, not a cropped zoom. */
+.bb-live-world-map:has(> .bb-live-world-stage:not(.bb-live-country-stage)) { overflow: visible; }
+.bb-live-world-stage:not(.bb-live-country-stage) { margin-top: 20px; }
+@media (min-width: 1000px) {
+  .bb-live-world-stage:not(.bb-live-country-stage) {
+    --bb-world-frame-width: max(100%, min(1600px, calc(100vw - 112px)));
+    width: var(--bb-world-frame-width);
+    margin-inline: calc((100% - var(--bb-world-frame-width)) / 2);
+  }
+}
+
 .bb-live-world-canvas {
   position: relative;
   width: 100%;
   max-width: none;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 940 / 432;
   margin: 0;
   transform-origin: center center;
   will-change: transform;

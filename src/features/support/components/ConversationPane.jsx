@@ -6,8 +6,10 @@ import { ClientFileDrawer } from './ClientFileDrawer';
 import { MessageTimeline } from './MessageBubble';
 import { useRescheduling } from '../hooks/useRescheduling';
 import { RescheduleDialog } from './RescheduleInterface';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
 
 export function ConversationPane({ inbox }) {
+  const { workspace } = useWorkspace();
   const {
     active,
     mobileShowChat,
@@ -122,6 +124,8 @@ export function ConversationPane({ inbox }) {
       />
 
       <ChatComposer
+        key={active.id}
+        localOnly={Boolean(workspace.isDemo)}
         threadId={active.id}
         prefill={composerPrefill}
         onPrefillConsumed={() => setComposerPrefill('')}

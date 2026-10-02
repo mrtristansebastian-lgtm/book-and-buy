@@ -1,23 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
 import { fitViewport, mapToScreen, screenToMap, navigateMapGesture } from '../utils/mapViewport';
 
-export function useMapViewport({ width = 1000, height = 500, initialZoom = 1, maxZoom = 4, enabled = true, onGesture }) {
+export function useMapViewport({ width = 1000, height = 500, origin, initialZoom = 1, maxZoom = 4, enabled = true, onGesture }) {
   const stageRef = useRef(null);
-  const [view, setView] = useState(() => fitViewport(width, height, initialZoom));
+  const [view, setView] = useState(() => fitViewport(width, height, initialZoom, undefined, origin));
   const viewRef = useRef(view); viewRef.current = view;
   const pointers = useRef(new Map()); const gesture = useRef(null); const suppressClick = useRef(false);
   const [size, setSize] = useState({ width, height });
+  // Mobile keeps a strip for the controls below the SVG; its stage is taller
+  // than the map itself. Gesture and callout coordinates must use the SVG.
+  const mapRect = () => stageRef.current?.querySelector('svg.bb-live-world-svg, svg.bb-live-country-svg')?.getBoundingClientRect() || stageRef.current?.getBoundingClientRect();
   useEffect(() => {
     const stage = stageRef.current; if (!stage) return undefined;
     const observer = new ResizeObserver(([entry]) => setSize({ width: entry.contentRect.width, height: entry.contentRect.height }));
     observer.observe(stage); return () => observer.disconnect();
   }, [enabled]);
   const update = (next) => { viewRef.current = next; setView(next); };
-  const reset = () => { update(fitViewport(width, height, initialZoom)); onGesture?.(); };
+  const reset = () => { update(fitViewport(width, height, initialZoom, undefined, origin)); onGesture?.(); };
   const setZoom = (value, anchor) => {
     const nextZoom = Math.max(1, Math.min(maxZoom, value));
-    const current = viewRef.current; const rect = stageRef.current?.getBoundingClientRect();
-    update(anchor && rect ? navigateMapGesture({ width, height, view: current, rect, from: anchor, ratio: nextZoom / current.zoom, maxZoom }) : fitViewport(width, height, nextZoom, current)); onGesture?.();
+    const current = viewRef.current; const rect = mapRect();
+    update(anchor && rect ? navigateMapGesture({ width, height, origin, view: current, rect, from: anchor, ratio: nextZoom / current.zoom, maxZoom }) : fitViewport(width, height, nextZoom, current, origin)); onGesture?.();
   };
   const snapshot = () => {
     const points = [...pointers.current.values()];
@@ -39,14 +42,14 @@ export function useMapViewport({ width = 1000, height = 500, initialZoom = 1, ma
       if (!pinching && start.view.zoom <= 1) return;
       if (!suppressClick.current && Math.hypot(next.midpoint.x - start.midpoint.x, next.midpoint.y - start.midpoint.y) < 5) return;
       suppressClick.current = true; onGesture?.(); event.currentTarget.setPointerCapture?.(event.pointerId);
-      const rect = event.currentTarget.getBoundingClientRect();
-      update(navigateMapGesture({ width, height, view: start.view, rect, from: start.midpoint, to: next.midpoint, ratio: pinching ? next.distance / start.distance : 1, maxZoom }));
+      const rect = mapRect();
+      update(navigateMapGesture({ width, height, origin, view: start.view, rect, from: start.midpoint, to: next.midpoint, ratio: pinching ? next.distance / start.distance : 1, maxZoom }));
     },
     onPointerUp(event) { pointers.current.delete(event.pointerId); gesture.current = pointers.current.size ? snapshot() : null; },
     onPointerCancel(event) { pointers.current.delete(event.pointerId); gesture.current = pointers.current.size ? snapshot() : null; }
   };
   return { stageRef, size, zoom: view.zoom, viewBox: `${view.x - view.width / 2} ${view.y - view.height / 2} ${view.width} ${view.height}`, setZoom, reset, bind, suppressClick, isGesturing: () => suppressClick.current && pointers.current.size > 0,
-    pointFromEvent: (event) => screenToMap({ x: event.clientX, y: event.clientY }, stageRef.current.getBoundingClientRect(), viewRef.current),
-    tooltip: (point) => { const result = mapToScreen(point, { width: size.width, height: size.height }, view); return { '--map-x': `${Math.max(95, Math.min(size.width - 95, result.x))}px`, '--map-y': `${Math.max(78, Math.min(size.height - 8, result.y))}px` }; }
+    pointFromEvent: (event) => screenToMap({ x: event.clientX, y: event.clientY }, mapRect(), viewRef.current),
+    tooltip: (point) => { const rect = mapRect(); const stage = stageRef.current?.getBoundingClientRect(); const result = mapToScreen(point, rect || { width: size.width, height: size.height }, view); return { '--map-x': `${Math.max(95, Math.min(size.width - 95, result.x + (rect && stage ? rect.left - stage.left : 0)))}px`, '--map-y': `${Math.max(78, Math.min(size.height - 8, result.y + (rect && stage ? rect.top - stage.top : 0)))}px` }; }
   };
 }

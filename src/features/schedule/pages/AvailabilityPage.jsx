@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Settings } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -25,7 +24,6 @@ export function AvailabilityPage() {
       ? BUSINESS_AVAILABILITY_ID
       : visibleStaff[0]?.id || staff[0]?.id || ''
   );
-  const [studioSettingsOpen, setStudioSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (staffId === BUSINESS_AVAILABILITY_ID) {
@@ -55,17 +53,6 @@ export function AvailabilityPage() {
                   <h1 className="bb-page-title bb-schedule-desk-title">Availability Studio</h1>
                 </span>
               </div>
-              {canEditRules ? (
-                <button
-                  type="button"
-                  className="bb-schedule-avail-studio-settings"
-                  aria-label="Availability settings"
-                  title="Settings"
-                  onClick={() => setStudioSettingsOpen(true)}
-                >
-                  <Settings size={18} strokeWidth={2.2} aria-hidden="true" />
-                </button>
-              ) : null}
             </div>
           </div>
         </header>
@@ -79,8 +66,6 @@ export function AvailabilityPage() {
         availabilityRules={workspace.availabilityRules || {}}
         onSaveEntry={(id, entry) => upsertStaffAvailability(id, entry)}
         onUpdateRules={updateAvailabilityRules}
-        studioSettingsOpen={studioSettingsOpen}
-        onStudioSettingsOpenChange={setStudioSettingsOpen}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { takeSupportFocusThread } from '../utils/supportFormat';
-import { addDoc, collection, doc, limit, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, limit, onSnapshot, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { getFirebase } from '../../../shared/firebase/client';
 import { APP_ID } from '../../../config/appConfig';
 import { subscribeThreadMessages } from '../../client-app/clientThreadsApi';
@@ -54,8 +54,10 @@ export function useSupportInbox() {
     if (ctx.workspace.isDemo || !remoteThreads.some((thread) => thread.id === id)) return sendLocalThreadMessage(id, payload);
     if (!firebase) throw new Error('Chat is not connected.');
     const at = Date.now();
-    await addDoc(collection(firebase.db, 'artifacts', APP_ID, 'clientThreads', id, 'messages'), { ...payload, from: 'business', at });
-    await updateDoc(doc(firebase.db, 'artifacts', APP_ID, 'clientThreads', id), { lastMessageAt: at, updatedAt: at, unreadForClient: true, lastMessagePreview: String(payload.body || 'Attachment').slice(0, 140) });
+    const batch = writeBatch(firebase.db);
+    batch.set(doc(collection(firebase.db, 'artifacts', APP_ID, 'clientThreads', id, 'messages')), { ...payload, from: 'business', at });
+    batch.update(doc(firebase.db, 'artifacts', APP_ID, 'clientThreads', id), { lastMessageAt: at, updatedAt: at, unreadForClient: true, lastMessagePreview: String(payload.body || (payload.type === 'voice' ? 'Voice note' : 'Attachment')).slice(0, 140) });
+    await batch.commit();
   };
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [clientDrawerOpen, setClientDrawerOpen] = useState(false);

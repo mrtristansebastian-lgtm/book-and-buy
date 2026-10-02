@@ -9,7 +9,8 @@ import {
   query,
   setDoc,
   updateDoc,
-  where
+  where,
+  writeBatch
 } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from '../../shared/firebase/client';
@@ -205,26 +206,31 @@ export async function markClientThreadRead(threadId) {
 }
 
 /** Send a client message into a thread. */
-export async function sendClientThreadMessage(threadId, { body, from = 'client' } = {}) {
+export async function sendClientThreadMessage(threadId, { body, from = 'client', type = 'text', attachments = [] } = {}) {
   const firebase = getFirebase();
   const text = String(body || '').trim();
-  if (!firebase || !threadId || !text) return null;
+  if (!firebase || !threadId) throw new Error('Chat is not connected.');
+  if (!text && !attachments.length) throw new Error('Add a message or attachment.');
   const now = Date.now();
   const message = {
-    type: 'text',
+    type,
+    ...(attachments.length ? { attachments } : {}),
     from,
     body: text,
     at: now
   };
   const messagesCol = collection(firebase.db, ...clientThreadMessagesPath(APP_ID, threadId));
-  const added = await addDoc(messagesCol, message);
-  await updateDoc(doc(firebase.db, ...clientThreadPath(APP_ID, threadId)), {
+  const added = doc(messagesCol);
+  const batch = writeBatch(firebase.db);
+  batch.set(added, message);
+  batch.update(doc(firebase.db, ...clientThreadPath(APP_ID, threadId)), {
     updatedAt: now,
     lastMessageAt: now,
     unread: true,
     unreadForClient: from !== 'client',
-    lastMessagePreview: text.slice(0, 140)
+    lastMessagePreview: (text || (type === 'voice' ? 'Voice note' : 'Attachment')).slice(0, 140)
   });
+  await batch.commit();
   return { id: added.id, ...message };
 }
 

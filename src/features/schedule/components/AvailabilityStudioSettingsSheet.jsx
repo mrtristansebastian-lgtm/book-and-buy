@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Clock, CalendarDays, X } from 'lucide-react';
 import { TimeField } from '../../../shared/ui/TimeField';
-import { WEEKDAY_KEYS, normalizeAvailabilityRules } from '../../../utils/staffAvailability';
+import { WEEKDAY_KEYS } from '../../../utils/staffAvailability';
+import { seedWeekdayHours, buildBusinessHoursPatch } from '../utils/businessHoursSettings';
 import { AdvanceBookingField } from './AdvanceBookingField';
 
 const WEEKDAY_LABELS = {
@@ -20,20 +21,7 @@ const SECTIONS = [
   { id: 'window', label: 'Booking window', Icon: CalendarDays }
 ];
 
-function seedWeekdayHours(availabilityRules = {}) {
-  const rules = normalizeAvailabilityRules(availabilityRules);
-  return WEEKDAY_KEYS.reduce((acc, key) => {
-    const row = rules.weekdayHours?.[key] || {};
-    acc[key] = {
-      open: Boolean(row.open),
-      openTime: row.openTime || rules.businessOpenTime || '09:00',
-      closeTime: row.closeTime || rules.businessCloseTime || '17:00'
-    };
-    return acc;
-  }, {});
-}
-
-function HoursSection({ availabilityRules, onUpdateRules }) {
+export function BusinessHoursSettings({ availabilityRules, onUpdateRules }) {
   const [draft, setDraft] = useState(() => seedWeekdayHours(availabilityRules));
 
   useEffect(() => {
@@ -47,11 +35,8 @@ function HoursSection({ availabilityRules, onUpdateRules }) {
     }));
   };
 
-  const rowsValid = WEEKDAY_KEYS.every((key) => {
-    const row = draft[key];
-    if (!row?.open) return true;
-    return Boolean(row.openTime && row.closeTime);
-  });
+  const patch = buildBusinessHoursPatch(draft);
+  const rowsValid = Boolean(patch);
   const openCount = WEEKDAY_KEYS.filter((key) => draft[key]?.open).length;
   const dirty = useMemo(() => {
     const seeded = seedWeekdayHours(availabilityRules);
@@ -60,14 +45,7 @@ function HoursSection({ availabilityRules, onUpdateRules }) {
 
   const save = () => {
     if (!rowsValid || openCount < 1) return;
-    const openWeekdays = WEEKDAY_KEYS.filter((key) => draft[key].open);
-    const seed = draft[openWeekdays[0]];
-    onUpdateRules?.({
-      weekdayHours: draft,
-      openWeekdays,
-      businessOpenTime: seed.openTime,
-      businessCloseTime: seed.closeTime
-    });
+    onUpdateRules?.(patch);
   };
 
   return (
@@ -219,7 +197,7 @@ export function AvailabilityStudioSettingsSheet({
               </header>
 
               {active?.id === 'hours' ? (
-                <HoursSection
+                <BusinessHoursSettings
                   availabilityRules={availabilityRules}
                   onUpdateRules={onUpdateRules}
                 />

@@ -60,7 +60,26 @@ html body .bb-client-shell .bb-settings-main h2.bb-page-title {
 .bb-owner-menu-sheet-body .bb-demo-panel-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .bb-owner-menu-sheet-body .bb-demo-panel-btn { white-space: normal; line-height: 1.25; }
 .bb-owner-apps-nav { position: relative; }
-.bb-menu-measure { position: absolute; inset: 0 0 auto; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; }
+.bb-owner-menu-sheet .bb-owner-menu-sheet-body { overflow-y: auto; scrollbar-width: none; }
+.bb-owner-menu-sheet .bb-owner-menu-sheet-body::-webkit-scrollbar { display: none; }
+.bb-owner-menu-sheet-body .bb-owner-apps-nav { min-height: min-content; gap: 12px; }
+.bb-owner-menu-sheet-body .bb-owner-apps-nav-groups { flex: 0 0 auto; display: grid; grid-template-columns: 1fr; gap: 0; }
+.native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding: 10px 0; gap: 8px; background: #fff; border-radius: 0; box-shadow: none; border: 0; border-bottom: 1px solid #edf0f2; }
+.bb-owner-menu-sheet-body .bb-appgroup-head { gap: 7px; }
+.native-ui .bb-owner-menu-sheet-body .bb-appgroup-title { font-size: 17px !important; line-height: 1.25; letter-spacing: -.3px; }
+.bb-owner-menu-sheet-body .bb-appgroup-icon { width: 18px; height: 18px; }
+.bb-owner-menu-sheet-body .bb-appgroup-icon svg { width: 16px; height: 16px; }
+.bb-owner-menu-sheet-body .bb-appgroup-row { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; }
+.bb-owner-menu-sheet-body .bb-appicon { --size: 40px; min-height: 64px; gap: 5px; }
+.bb-owner-menu-sheet-body .bb-appicon-label { font-size: 10px; line-height: 1.25; }
+.bb-owner-menu-sheet-body .bb-demo-panel--nav { margin-top: auto; padding-top: 10px; }
+@media (max-height: 740px) {
+  .native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding-block: 2px; gap: 4px; }
+  .native-ui .bb-owner-menu-sheet-body .bb-appicon { --size: 36px; min-height: 56px; }
+  .native-ui .bb-owner-menu-sheet-body .bb-owner-apps-nav { gap: 6px; }
+  .bb-owner-menu-sheet-body .bb-demo-panel-copy p { display: none; }
+  .native-ui .bb-owner-menu-sheet-body .bb-demo-panel--nav { padding-top: 6px; gap: 6px; }
+}
 
 .bb-editor-section-picker { display: none; grid-column: 1 / -1; gap: .5rem; font-size: .78rem; font-weight: 650; }
 .bb-editor-section-picker select { width: 100%; min-height: 44px; }
@@ -116,6 +135,13 @@ html body .bb-client-shell .bb-settings-main h2.bb-page-title {
 /* Mobile scheduling is a fitted day overview, not a shrunken desktop canvas. */
 .bb-schedule-mobile-controls, .bb-schedule-mobile-day { display: none; }
 /* Searchable management lists keep names and actions ahead of photography. */
+html body .native-ui .bb-managed-catalog .bb-services-desk-header .bb-page-action {
+  min-height: 48px;
+  padding: 0 22px;
+  gap: 8px;
+  font-size: 14px !important;
+}
+.bb-managed-catalog .bb-services-desk-header .bb-page-action svg { width: 18px; height: 18px; }
 .bb-catalog-toolbar { display: grid; grid-template-columns: minmax(180px, 1fr) auto auto; gap: 12px; align-items: center; margin: 8px 0 22px; }
 .bb-management-search { display: flex; align-items: center; gap: 10px; border: 1px solid #dfe3e8; border-radius: 24px; background: #fff; padding: 0 14px; color: #98a2b3; min-height: 46px; }
 .bb-managed-catalog .bb-management-search input { min-width: 0; min-height: 44px; flex: 1; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; outline: none !important; font: inherit; font-size: 13px; color: #101828; padding: 0 !important; }
@@ -187,9 +213,16 @@ html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actio
   .bb-managed-catalog .bb-catalog-toolbar { margin-inline: 16px; }
   .bb-shipping-preview { padding: 18px; }
 }
+.bb-schedule-desk .bb-schedule-resource-grid { grid-template-columns: 120px minmax(var(--schedule-track-min), 1fr); min-width: calc(120px + var(--schedule-track-min)); }
+.bb-schedule-desk .bb-schedule-resource-row { grid-template-columns: 120px minmax(var(--schedule-track-min), 1fr); }
+.bb-schedule-desk .bb-schedule-resource-person { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; padding: 14px 10px; gap: 8px; }
+.bb-schedule-desk .bb-schedule-resource-person strong { white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
+.bb-schedule-staff-first-name, .bb-schedule-rotate-hint { display: none; }
 @media (max-width: 920px) {
+  .bb-schedule-staff-full-name { display: none; }
+  .bb-schedule-staff-first-name { display: inline; }
   .bb-schedule-desk .bb-schedule-workspace { display: block; }
-  .bb-schedule-desk .bb-schedule-sidebar { border: 0; padding: 0 16px 16px; }
+  .bb-schedule-desk .bb-schedule-sidebar { border: 0; padding: 0 6px 16px; }
   .bb-schedule-mobile-controls { display: grid; gap: 12px; }
   .bb-schedule-day-navigation { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; }
   .bb-schedule-day-navigation button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; background: #fff; border: 1px solid #e4e7ec; border-radius: 12px; color: #101828; font: inherit; font-weight: 650; }
@@ -198,11 +231,23 @@ html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actio
   .bb-schedule-desk #schedule-date-picker { display: none; margin-top: 16px; }
   .bb-schedule-desk #schedule-date-picker.is-mobile-open { display: block; }
   .bb-schedule-desk .bb-schedule-sidebar > .bb-schedule-side-section { display: none; }
-  .bb-schedule-desk .bb-schedule-main { padding: 0 16px 24px; }
+  .bb-schedule-desk .bb-schedule-main { padding: 0 6px 24px; }
   .bb-schedule-desk .bb-schedule-stage-filters { padding: 14px 0; flex-direction: column; align-items: flex-start; gap: 6px; }
-  .bb-schedule-desk .bb-schedule-resource-board,
-  .bb-schedule-desk .bb-schedule-closed-day,
-  .bb-schedule-desk .bb-schedule-attention { display: none; }
+  .bb-schedule-desk .bb-schedule-resource-board { display: block; }
+  .bb-schedule-desk .bb-schedule-board-scroll { overflow: visible; max-height: none; scrollbar-gutter: auto; }
+  .bb-schedule-desk .bb-schedule-resource-grid { min-width: 0; grid-template-columns: 76px minmax(0, 1fr); }
+  .bb-schedule-desk .bb-schedule-resource-row { grid-template-columns: 76px minmax(0, 1fr); }
+  .bb-schedule-desk .bb-schedule-resource-track { min-width: 0; }
+  .bb-schedule-desk .bb-schedule-resource-person { grid-template-columns: minmax(0, 1fr); padding: 12px 6px; gap: 7px; justify-items: center; text-align: center; }
+  .bb-schedule-desk .bb-schedule-resource-person strong { white-space: normal; overflow-wrap: anywhere; }
+  .bb-schedule-desk .bb-schedule-resource-axis, .bb-schedule-desk .bb-schedule-resource-corner { position: relative; min-height: 56px; }
+  .bb-schedule-desk .bb-schedule-resource-axis span.is-start { padding-left: 4px; }
+  .bb-schedule-desk .bb-schedule-resource-axis span.is-end { padding-right: 4px; }
+  .bb-schedule-desk .bb-schedule-resource-event { min-width: 0; padding: 8px 4px; }
+  .bb-schedule-desk .bb-schedule-resource-event h3 { font-size: 12px; }
+  .bb-schedule-desk .bb-schedule-event-person { display: none; }
+  .bb-schedule-desk .bb-schedule-event-kicker { font-size: 10px; }
+  .bb-availability-mobile-profile { margin-bottom: 16px; }
   .bb-schedule-mobile-day { display: grid; gap: 16px; }
   .bb-schedule-mobile-day-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; border-top: 1px solid #eaecf0; font-size: 13px; }
   .bb-schedule-mobile-day-heading span { color: #667085; font-variant-numeric: tabular-nums; }
@@ -219,9 +264,129 @@ html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actio
   .bb-schedule-mobile-booking small { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #475467; margin-top: 6px; }
   .bb-schedule-mobile-booking.is-conflict { border-color: #f4b06a; }
 }
+@media (max-width: 920px) and (orientation: portrait) {
+  .bb-schedule-rotate-hint { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0 0 10px; padding: 0 2px; color: #667085; font-size: 11px; line-height: 1.5; }
+}
+@media (max-width: 600px) {
+  .native-ui .bb-owner-main:has(> .bb-schedule-desk) { padding-inline: 6px; }
+  .bb-schedule-desk .bb-schedule-sidebar { padding-inline: 2px; }
+  .bb-schedule-desk .bb-schedule-main { padding-inline: 2px; }
+}
+.bb-availability-mobile-profile { display: none; }
+.bb-schedule-selected-appointment { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px; border: 1px solid #e4e7ec; border-radius: 12px; margin-top: 12px; background: #fff; font-size: 13px; }
+.bb-schedule-selected-appointment > div { display: grid; gap: 4px; flex: 1; }
+.bb-schedule-selected-appointment span { color: #667085; }
+.bb-schedule-selected-appointment time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.bb-schedule-resource-event[role="button"] { cursor: pointer; }
+.bb-schedule-resource-event[role="button"]:focus-visible { outline: 2px solid #101828; outline-offset: -2px; }
+.bb-settings-business-hours .bb-schedule-hours-rows { max-width: 800px; width: 100%; }
+.native-ui .bb-settings-content--general > .bb-panel.bb-settings-business-hours { grid-template-columns: minmax(0, 1fr); }
+.bb-shift-editor-title { margin: 0; font-size: 22px; letter-spacing: -.025em; color: #101828; }
+.bb-shift-editor-heading { width: 100%; }
+.bb-shift-editor-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; margin-bottom: 8px; }
+.bb-shift-editor-date { display: inline-flex; align-items: center; gap: 8px; color: #344054; font-size: 14px; font-weight: 650; }
+.bb-schedule-side-section.bb-schedule-shifts-below-calendar { border: 0; box-shadow: none; border-radius: 0; }
+.bb-shift-editor-status { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 12px; color: #667085; }
+.bb-shift-editor-status button { min-height: 44px; }
+.bb-active-shifts-pagination { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.bb-active-shifts-pagination span { margin-right: auto; color: #667085; font-size: 12px; }
+.bb-active-shifts-pagination button { min-height: 44px; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-head { align-items: flex-start; gap: 16px; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-meta { flex-shrink: 0; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-add-row { grid-column: 1 / -1; display: flex; justify-content: flex-start; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-add-row button { width: auto; min-width: 120px; padding-inline: 16px; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-save { grid-column: 1 / -1; justify-self: end; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-shift { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px; }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-shift.is-break { border-left: 3px solid var(--bb-avail-break); }
+.bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-shift:not(.is-break) { border-left: 3px solid var(--bb-avail-open); }
+.bb-active-shifts { margin-top: 24px; padding-top: 24px; border-top: 1px solid #e4e7ec; }
+.bb-active-shifts header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.bb-active-shifts h3 { margin: 0; font-size: 18px; }
+.bb-active-shifts header p { margin: 6px 0 0; color: #667085; font-size: 12px; }
+.bb-active-shifts header > span { white-space: nowrap; background: #f2f4f7; border-radius: 20px; padding: 7px 12px; font-size: 12px; }
+.bb-active-shifts ul { padding: 0; margin: 16px 0 0; list-style: none; }
+.bb-active-shifts li { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 16px 0; border-top: 1px solid #eaecf0; }
+.bb-active-shift-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--bb-avail-open); color: var(--bb-avail-open-ink, #101828); }
+.bb-active-shift-copy { display: grid; gap: 5px; font-size: 13px; }
+.bb-active-shift-copy > span { font-variant-numeric: tabular-nums; color: #344054; }
+.bb-active-shift-copy small { color: #667085; font-size: 11px; }
+.bb-active-shift-actions { display: flex; gap: 6px; }
+.bb-active-shift-actions button, .bb-active-shift-confirm button { min-height: 44px; gap: 6px; }
+.bb-active-shift-confirm { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: #fff8f5; padding: 14px; border-radius: 10px; font-size: 12px; }
+.bb-active-shift-confirm > span { flex: 1 1 240px; }
+.bb-active-shifts-empty { display: grid; justify-items: center; gap: 10px; padding: 32px 16px; margin-top: 16px; background: #f9fafb; border-radius: 12px; text-align: center; font-size: 13px; }
+.bb-active-shifts-empty > span { color: #667085; max-width: 340px; }
+@media (max-width: 920px) {
+  .bb-schedule-desk .bb-availability-mobile-profile { display: grid; }
+  .bb-active-shifts li { grid-template-columns: 40px minmax(0, 1fr); }
+  .bb-active-shift-actions { grid-column: 2; flex-wrap: wrap; }
+  .bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-head { flex-wrap: wrap; }
+}
 @media (min-width: 600px) and (max-width: 920px) {
   .bb-managed-catalog .bb-catalog-toolbar { margin-inline: 16px; }
   html body .native-ui .bb-services-desk.bb-managed-catalog .bb-public-product-grid.bb-services-catalog-grid { margin-inline: 16px; }
   .bb-schedule-mobile-day { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   .bb-schedule-mobile-day-heading { grid-column: 1 / -1; }
+}
+.bb-schedule-booking-list { margin-top: 32px; padding-top: 28px; border-top: 1px solid #e8ebef; }
+.bb-schedule-booking-eyebrow { color: #667085; font-size: 10px; font-weight: 750; letter-spacing: .1em; margin: 0 0 8px; }
+.bb-schedule-booking-list h2 { margin: 0; font-size: 26px; letter-spacing: -.7px; }
+.bb-schedule-booking-list header > div > p:last-child { display: flex; align-items: center; gap: 7px; color: #667085; font-size: 13px; margin: 10px 0 0; }
+/* Shared chip preview: Schedule's quieter body typography, with the native
+   border following the same animated accent position throughout the suite. */
+.native-ui :is(.bb-ops-tab, .bb-support-filter-chip, .bb-clients-chip,
+  .bb-services-chip, .bb-services-duration-chip, .bb-products-chip,
+  .bb-client-content-tab, .bb-client-dm-chip, .bb-client-ig-chip,
+  .bb-schedule-staff-chip, .bb-schedule-booking-filters button) {
+  font-family: var(--bb-font-body) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+.native-ui :is(.bb-support-filter-label, .bb-client-support-chip-label) {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+}
+.native-ui :is(.bb-ops-tab, .bb-support-filter-chip, .bb-clients-chip,
+  .bb-services-chip, .bb-services-duration-chip, .bb-products-chip,
+  .bb-client-content-tab, .bb-client-dm-chip, .bb-schedule-staff-chip,
+  .bb-schedule-booking-filters button).is-active,
+.native-ui .bb-client-ig-chip.is-on {
+  border-color: transparent;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+}
+.bb-schedule-booking-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; }
+.bb-schedule-booking-filters button { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 9px 14px; border: 1px solid #e4e7ec; border-radius: 999px; background: #fff; font: inherit; font-size: 12px; color: #475467; cursor: pointer; }
+.bb-schedule-booking-filters button.is-active { color: #101828; border-color: transparent; background: linear-gradient(#fff,#fff) padding-box, var(--native-accent-gradient) border-box; background-size: auto, 420% 420%; background-position: 0 0, var(--native-accent-x) 50%; }
+.bb-schedule-booking-filters button > span { display: grid; place-items: center; min-width: 22px; height: 22px; background: #f0f2f5; border-radius: 50%; font-size: 10px; font-weight: 700; }
+.bb-schedule-booking-group { margin-top: 24px; }
+.bb-schedule-booking-staff { display: flex; align-items: center; gap: 10px; padding: 12px 0; }
+.bb-schedule-booking-staff > span:last-child { margin-left: auto; color: #667085; font-size: 12px; }
+.bb-schedule-booking-row { display: grid; grid-template-columns: minmax(160px,1fr) minmax(110px,.55fr) minmax(120px,.7fr) auto; align-items: center; gap: 18px; padding: 18px 0; border-top: 1px solid #eaecf0; }
+.bb-schedule-booking-client { display: grid; gap: 5px; min-width: 0; }
+.bb-schedule-booking-client strong { font-size: 14px; }
+.bb-schedule-booking-client > span { font-size: 12px; color: #667085; overflow-wrap: anywhere; }
+.bb-schedule-booking-time { display: flex; gap: 7px; align-items: center; font-size: 13px; font-variant-numeric: tabular-nums; }
+.bb-schedule-booking-status { display: flex; flex-wrap: wrap; gap: 5px; }
+.bb-schedule-booking-status > span { border-radius: 6px; padding: 5px 8px; font-size: 11px; background: #f2f4f7; color: #475467; }
+.bb-schedule-booking-status .is-confirmed { background: #dcffed; color: #195d3d; }
+.bb-schedule-booking-status .is-pending { background: #fff4db; color: #805b12; }
+.bb-schedule-booking-status .is-reschedule { background: #eef0ff; color: #505778; }
+.bb-schedule-booking-row > button, .bb-schedule-booking-empty > button { display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #e4e7ec; border-radius: 999px; background: #fff; min-height: 44px; padding: 8px 16px; font: inherit; font-size: 12px; cursor: pointer; }
+.bb-schedule-booking-empty { display: grid; justify-items: center; text-align: center; gap: 12px; padding: 36px 16px; color: #667085; }
+.bb-schedule-booking-empty strong { color: #101828; font-size: 15px; }
+.bb-schedule-booking-empty p { font-size: 13px; margin: 0; }
+@media (max-width: 640px) {
+  .bb-schedule-booking-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .bb-schedule-booking-filters button { justify-content: space-between; gap: 5px; padding-inline: 10px; font-size: 11px; }
+  .bb-schedule-booking-row { grid-template-columns: minmax(0,1fr) auto; gap: 12px; }
+  .bb-schedule-booking-time { grid-column: 1; grid-row: 2; }
+  .bb-schedule-booking-status { grid-column: 1; grid-row: 3; }
+  .bb-schedule-booking-row > button { grid-column: 2; grid-row: 1 / 4; }
 }

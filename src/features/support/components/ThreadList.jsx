@@ -4,37 +4,23 @@ import {
   CalendarDays,
   Mail,
   Clock3,
-  MessageSquare,
-  Reply,
   Search
 } from 'lucide-react';
 import { formatRelativeTime, messagePreview } from '../utils/supportFormat';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { PresenceAvatar } from './PresenceAvatar';
+import { matchesInboxFilter, toggleInboxFilter } from '../utils/threadFilters';
 
 const FILTERS = [
-  { id: 'all', label: 'All messages', Icon: MessageSquare },
   { id: 'unread', label: 'Unread', Icon: Mail },
+  { id: 'pending', label: 'Pending', Icon: Clock3 },
   { id: 'bookings', label: 'Bookings', Icon: CalendarDays },
-  { id: 'replied', label: 'Replied', Icon: Reply },
-  { id: 'waiting', label: 'Pending', Icon: Clock3 },
   { id: 'orders', label: 'Orders', Icon: Box }
 ];
 
 function lastMessage(thread) {
   const messages = thread?.messages || [];
   return messages[messages.length - 1] || null;
-}
-
-function matchesFilter(thread, filterId) {
-  if (filterId === 'all') return true;
-  if (filterId === 'unread') return Boolean(thread.unread);
-  if (filterId === 'bookings') return Boolean(thread.bookingId);
-  if (filterId === 'orders') return Boolean(thread.orderId);
-  const last = lastMessage(thread);
-  if (filterId === 'waiting') return last?.from === 'client';
-  if (filterId === 'replied') return last?.from === 'business' || last?.from === 'system';
-  return true;
 }
 
 function matchesQuery(thread, query) {
@@ -59,7 +45,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
   const counts = useMemo(() => {
     const next = {};
     for (const item of FILTERS) {
-      next[item.id] = threads.filter((thread) => matchesFilter(thread, item.id)).length;
+      next[item.id] = threads.filter((thread) => matchesInboxFilter(thread, item.id)).length;
     }
     return next;
   }, [threads]);
@@ -67,7 +53,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
   const visible = useMemo(
     () =>
       threads.filter(
-        (thread) => matchesFilter(thread, filter) && matchesQuery(thread, query)
+        (thread) => matchesInboxFilter(thread, filter) && matchesQuery(thread, query)
       ),
     [threads, filter, query]
   );
@@ -109,10 +95,10 @@ export function ThreadList({ threads, activeId, onSelect }) {
                 aria-pressed={active}
                 aria-label={`${label}, ${counts[id] || 0}`}
                 title={label}
-                onClick={() => setFilter(id)}
+                onClick={() => setFilter((current) => toggleInboxFilter(current, id))}
               >
                 <Icon size={15} strokeWidth={active ? 2.35 : 2} aria-hidden="true" />
-                <span className="bb-support-filter-label">{id === 'all' ? 'All' : label}</span>
+                <span className="bb-support-filter-label">{label}</span>
                 <span className="bb-support-filter-count">{counts[id] || 0}</span>
               </button>
             );

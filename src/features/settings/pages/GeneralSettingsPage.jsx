@@ -1,5 +1,6 @@
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { navigate } from '../../../app/routing';
+import { BusinessHoursSettings } from '../../schedule/components/AvailabilityStudioSettingsSheet';
 
 const CURRENCIES = [
   { value: 'R', label: 'R — South African Rand' },
@@ -22,7 +23,7 @@ const TIMEZONES = [
 ];
 
 export function GeneralSettingsPage() {
-  const { workspace, updateProfile } = useWorkspace();
+  const { workspace, updateProfile, updateAvailabilityRules } = useWorkspace();
 
   return (
     <div className="bb-settings-content bb-settings-content--general">
@@ -92,6 +93,10 @@ export function GeneralSettingsPage() {
         </label>
       </section>
 
+      <section className="bb-panel p-5 grid gap-3 bb-settings-business-hours">
+        <div className="bb-settings-section-heading"><h2>Business hours</h2><p>Your regular weekly opening hours, in {workspace.timezone || 'Africa/Johannesburg'}. Staff shifts and date-specific changes stay in Availability.</p></div>
+        <BusinessHoursSettings availabilityRules={workspace.availabilityRules || {}} onUpdateRules={updateAvailabilityRules} />
+      </section>
       <p className="bb-muted m-0 text-sm">
         Public pages and branding live in{' '}
         <button type="button" className="bb-ghost-btn inline px-2 py-0" onClick={() => navigate('/dashboard/website')}>

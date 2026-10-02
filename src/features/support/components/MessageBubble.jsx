@@ -73,7 +73,7 @@ export function MessageTimeline({ messages = [], onOpenImage, perspective = 'bus
                         url={att.url}
                         durationMs={att.durationMs}
                         tone={tone}
-                        demoTone={Boolean(att.demoTone) || !att.url}
+                        demoTone={Boolean(att.demoTone)}
                       />
                     );
                   }

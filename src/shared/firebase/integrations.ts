@@ -8,6 +8,7 @@ import {
 } from 'firebase/storage';
 import { doc, setDoc } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
+import { chatAttachmentMetadata } from '../../features/support/utils/voiceMedia';
 import { getFirebase, isFirebaseConfigured } from './client';
 import { firebaseCallables } from './callables';
 import { saveOwnerWorkspaceToFirestore } from './ownerWorkspace';
@@ -275,7 +276,7 @@ function attachmentKindFromMime(mime: string): 'image' | 'voice' | 'file' {
  */
 export async function uploadChatAttachment(
   file: File,
-  { threadId = 'local', messageId = `m-${Date.now()}` }: { threadId?: string; messageId?: string } = {}
+  { threadId = 'local', messageId = `m-${Date.now()}`, localOnly = false }: { threadId?: string; messageId?: string; localOnly?: boolean } = {}
 ) {
   if (!(file instanceof File)) {
     throw new Error('Choose a file.');
@@ -287,18 +288,11 @@ export async function uploadChatAttachment(
     throw new Error('Attachment must be under 25MB.');
   }
 
-  const kind = attachmentKindFromMime(file.type);
-  const meta = {
-    id: `att-${Date.now()}`,
-    kind,
-    name: file.name || 'attachment',
-    mime: file.type,
-    size: file.size
-  };
+  const meta = chatAttachmentMetadata(file);
 
   const firebase = getFirebase();
   const ownerId = firebase?.auth.currentUser?.uid;
-  if (!firebase || !ownerId) {
+  if (localOnly) {
     const url = await fileToDataUrl(file);
     return {
       ok: true as const,
@@ -308,18 +302,19 @@ export async function uploadChatAttachment(
     };
   }
 
+  if (!firebase || !ownerId) throw new Error('Sign in and reconnect before sending attachments.');
   const storage = getStorage(firebase.app);
   const safeThread = String(threadId || 'local').replace(/[^a-zA-Z0-9_-]/g, '');
   const safeMessage = String(messageId || `m-${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '');
   const fileName = sanitizeFileName(file.name || 'attachment');
   const objectPath = `artifacts/${APP_ID}/clientThreads/${safeThread}/attachments/${safeMessage}/${fileName}`;
   const storageRef = ref(storage, objectPath);
-  await uploadBytes(storageRef, file, { contentType: file.type });
+  await uploadBytes(storageRef, file, { contentType: file.type.split(';')[0] });
   const url = await getDownloadURL(storageRef);
   return {
     ok: true as const,
     localOnly: false,
-    attachment: { ...meta, url }
+    attachment: { ...meta, url, path: objectPath }
   };
 }
 

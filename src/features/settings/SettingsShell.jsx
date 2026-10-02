@@ -65,8 +65,8 @@ const COPY = {
   markets: { title: 'Markets', lede: 'Where you sell, what you offer and how it arrives.' },
   shipping: { title: 'Shipping', lede: 'Reusable delivery profiles for your products and markets.' },
   general: {
-    title: 'General',
-    lede: 'Business identity, currency, and timezone.'
+    title: 'Business settings',
+    lede: 'Business identity, contact details, timezone and opening hours.'
   },
   plan: {
     title: 'Plan',
@@ -86,7 +86,7 @@ const COPY = {
   },
   bookings: {
     title: 'Bookings',
-    lede: 'Booking policies. Hours and day status stay in Availability.'
+    lede: 'Booking policies and client rescheduling. Business hours live in Business settings.'
   },
   checkout: {
     title: 'Checkout',

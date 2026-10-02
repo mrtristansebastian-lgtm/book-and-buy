@@ -12,7 +12,7 @@ export function BookingsSettingsPage() {
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Booking policies</h2>
         <p className="bb-muted m-0 text-sm">
-          Control the advance booking window and client rescheduling. Opening hours, shifts and breaks live in Availability.
+          Control how far ahead clients can book, cancellation notice and client rescheduling.
         </p>
         <AdvanceBookingField
           days={rules.maxAdvanceBookingDays ?? 90}
@@ -44,7 +44,7 @@ export function BookingsSettingsPage() {
         className="bb-ghost-btn justify-self-start"
         onClick={() => navigate('/dashboard/availability')}
       >
-        Manage hours &amp; status →
+        Manage staff shifts &amp; day status →
       </button>
     </div>
   );

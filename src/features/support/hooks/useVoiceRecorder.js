@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { MAX_VOICE_DURATION_MS } from '../utils/voiceMedia';
 
 const BAR_COUNT = 22;
 
@@ -23,6 +24,9 @@ export function useVoiceRecorder({ onConfirm } = {}) {
   const streamRef = useRef(null);
   const previewUrlRef = useRef('');
   const onConfirmRef = useRef(onConfirm);
+  const aliveRef = useRef(true);
+  const startingRef = useRef(false);
+  const sendingRef = useRef(false);
   onConfirmRef.current = onConfirm;
 
   const revokePreview = useCallback(() => {
@@ -37,7 +41,7 @@ export function useVoiceRecorder({ onConfirm } = {}) {
     window.cancelAnimationFrame(rafRef.current);
     window.clearInterval(tickRef.current);
     try {
-      audioCtxRef.current?.close?.();
+      audioCtxRef.current?.close?.().catch?.(() => {});
     } catch {
       /* ignore */
     }
@@ -48,10 +52,13 @@ export function useVoiceRecorder({ onConfirm } = {}) {
   }, []);
 
   useEffect(
-    () => () => {
+    () => { aliveRef.current = true; return () => {
+      aliveRef.current = false;
+      const recorder = mediaRef.current;
+      if (recorder) { recorder.onstop = null; recorder.ondataavailable = null; if (recorder.state !== 'inactive') recorder.stop(); }
       cleanupAudio();
       revokePreview();
-    },
+    }; },
     [cleanupAudio, revokePreview]
   );
 
@@ -86,18 +93,22 @@ export function useVoiceRecorder({ onConfirm } = {}) {
   );
 
   const start = useCallback(async () => {
+    if (startingRef.current || mediaRef.current || sendingRef.current) return;
+    startingRef.current = true;
     setError('');
     revokePreview();
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       setError('Voice notes need microphone access in this browser.');
+      startingRef.current = false;
       return;
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!aliveRef.current) { stream.getTracks().forEach((track) => track.stop()); return; }
       streamRef.current = stream;
 
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) {
+      try { if (AudioCtx) {
         const ctx = new AudioCtx();
         const source = ctx.createMediaStreamSource(stream);
         const analyser = ctx.createAnalyser();
@@ -106,7 +117,7 @@ export function useVoiceRecorder({ onConfirm } = {}) {
         audioCtxRef.current = ctx;
         analyserRef.current = analyser;
         pumpLevels();
-      }
+      } } catch { /* Waveform is optional; capture still works. */ }
 
       const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
@@ -124,10 +135,11 @@ export function useVoiceRecorder({ onConfirm } = {}) {
       };
       recorder.onstop = () => {
         const discard = Boolean(recorder._bbDiscard);
-        const durationMs = Date.now() - startedAtRef.current;
+        const durationMs = Math.min(MAX_VOICE_DURATION_MS, Date.now() - startedAtRef.current);
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
         cleanupAudio();
         mediaRef.current = null;
+        if (!aliveRef.current) return;
         setElapsed(durationMs);
         setLevels(Array(BAR_COUNT).fill(0.18));
 
@@ -147,19 +159,25 @@ export function useVoiceRecorder({ onConfirm } = {}) {
         setPhase('preview');
       };
       mediaRef.current = recorder;
+      recorder.onerror = () => { recorder._bbDiscard = true; finishRecording({ discard: true }); setError('Recording stopped unexpectedly. Please record again.'); };
       startedAtRef.current = Date.now();
       setElapsed(0);
       setPhase('recording');
       tickRef.current = window.setInterval(() => {
         setElapsed(Date.now() - startedAtRef.current);
+        if (Date.now() - startedAtRef.current >= MAX_VOICE_DURATION_MS) finishRecording();
       }, 100);
       recorder.start(120);
-    } catch {
+    } catch (failure) {
       cleanupAudio();
-      setError('Microphone permission denied.');
+      mediaRef.current = null;
+      if (!aliveRef.current) return;
+      setError(failure?.name === 'NotAllowedError' ? 'Microphone access is blocked. Allow it in your browser settings, then try again.' : 'Could not start recording. Check your microphone and try again.');
       setPhase('idle');
+    } finally {
+      startingRef.current = false;
     }
-  }, [cleanupAudio, pumpLevels, revokePreview]);
+  }, [cleanupAudio, pumpLevels, revokePreview, finishRecording]);
 
   const discard = useCallback(() => {
     if (phase === 'recording') {
@@ -176,19 +194,25 @@ export function useVoiceRecorder({ onConfirm } = {}) {
   }, [finishRecording]);
 
   const confirm = useCallback(async () => {
-    if (!preview?.file) return;
+    if (!preview?.file || sendingRef.current) return;
+    sendingRef.current = true;
     const payload = {
       file: preview.file,
       durationMs: preview.durationMs,
       url: preview.url
     };
     try {
-      await onConfirmRef.current?.(payload);
+      if (!onConfirmRef.current) throw new Error('Chat is not connected.');
+      await onConfirmRef.current(payload);
+      if (!aliveRef.current) return;
       revokePreview();
       setElapsed(0);
       setPhase('idle');
-    } catch {
+    } catch (failure) {
+      if (aliveRef.current) setError(failure?.message || 'Could not send voice note. Try again.');
       // Keep preview so the user can retry after a failed upload/send.
+    } finally {
+      sendingRef.current = false;
     }
   }, [preview, revokePreview]);
 
