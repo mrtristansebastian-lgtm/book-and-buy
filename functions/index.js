@@ -26,8 +26,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 if (!getApps().length) initializeApp();
 
 const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
-const trustpilotApiKey = defineSecret('TRUSTPILOT_API_KEY');
 const trustpilotEnabled = process.env.TRUSTPILOT_INTEGRATION_ENABLED === 'true';
+const trustpilotApiKey = trustpilotEnabled ? defineSecret('TRUSTPILOT_API_KEY') : null;
 const trustpilotCallOptions = { secrets: trustpilotEnabled ? [trustpilotApiKey] : [], enforceAppCheck: true, maxInstances: 5 };
 const googlePlacesCallOptions = { secrets: [googlePlacesApiKey] };
 
