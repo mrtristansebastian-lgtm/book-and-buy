@@ -29,7 +29,7 @@ const TAB_ICONS = {
 
 export function OpsDeskTabs({ ariaLabel, value, onChange, options = [] }) {
   return (
-    <div className="bb-support-chips" role="toolbar" aria-label={ariaLabel}>
+    <div className="bb-support-chips bb-ops-filter-chips" role="toolbar" aria-label={ariaLabel}>
       {options.map((option) => {
         const active = value === option.id;
         const Icon = option.icon || TAB_ICONS[option.id] || ClipboardList;
@@ -41,7 +41,7 @@ export function OpsDeskTabs({ ariaLabel, value, onChange, options = [] }) {
             className={`bb-support-filter-chip${active ? ' is-active' : ''}`}
             onClick={() => onChange?.(option.id)}
           >
-            <span aria-hidden="true">
+            <span className="bb-ops-filter-icon" aria-hidden="true">
               <Icon size={13} strokeWidth={2.35} />
             </span>
             <span>{option.label}</span>

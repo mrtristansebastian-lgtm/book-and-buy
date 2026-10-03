@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Info, Pencil, Search, X } from 'lucide-react';
+import { Eye, Info, Pencil, Search, X } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -259,10 +259,7 @@ function StockProductCard({ product, onInfo, onEdit }) {
                   : ''}
             </span>
           </div>
-          <div className="bb-stock-row-summary">
-            <span className={`bb-stock-crate-qty is-${badge.tone}`}>{badge.label}</span>
-            <small>{hasVariants ? `${product.variants.filter((item) => item.available !== false).length} available variants` : formatWeight(product) !== '—' ? formatWeight(product) : 'Weight not set'}</small>
-          </div>
+          <span className="bb-stock-total-pill">{badge.label}</span>
           <div className="bb-stock-crate-actions">
             <button
               type="button"
@@ -270,8 +267,7 @@ function StockProductCard({ product, onInfo, onEdit }) {
               aria-label={`View ${product.name} stock information`}
               onClick={() => onInfo?.(product)}
             >
-              <span>Info</span>
-              <Info size={15} strokeWidth={2.2} aria-hidden="true" />
+              <Eye size={18} strokeWidth={2} aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -279,8 +275,7 @@ function StockProductCard({ product, onInfo, onEdit }) {
               aria-label={`Edit ${product.name} stock`}
               onClick={() => onEdit?.(product)}
             >
-              <span>Edit</span>
-              <Pencil size={15} strokeWidth={2.2} aria-hidden="true" />
+              <Pencil size={18} strokeWidth={2} aria-hidden="true" />
             </button>
           </div>
         </div>

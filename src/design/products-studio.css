@@ -883,7 +883,8 @@
 .bb-stock-row .bb-stock-crate-body { min-height: 0; }
 .bb-stock-row .bb-stock-crate-scene { padding: 0; perspective: none; }
 .bb-stock-row .bb-stock-crate-side, .bb-stock-row .bb-stock-crate-bottom { display: none; }
-.bb-stock-row .bb-stock-crate-body { display: grid; grid-template-columns: 64px minmax(0, 1fr) 140px 190px; align-items: center; gap: 1.25rem; padding: 1rem; border: 0; border-radius: 0; background: #fff; box-shadow: none; transform: none; animation: none; }
+.bb-stock-row .bb-stock-crate-body { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto 80px; align-items: center; gap: 1.25rem; padding: 1rem; border: 0; border-radius: 0; background: #fff; box-shadow: none; transform: none; animation: none; }
+.bb-stock-total-pill { display: inline-flex; align-items: center; justify-content: center; justify-self: start; min-height: 26px; padding: 4px 10px; border: 1px solid #e4e7ec; border-radius: 999px; background: #f8fafc; color: #475467; font-family: var(--bb-font-body); font-size: 12px; font-weight: 400; line-height: 1.3; font-variant-numeric: tabular-nums; }
 .bb-stock-row .bb-stock-crate-media { width: 64px; height: 64px; aspect-ratio: 1; border-radius: 9px; overflow: hidden; }
 .bb-stock-row .bb-stock-crate-media img { width: 100%; height: 100%; object-fit: cover; }
 .bb-stock-row .bb-stock-crate-stamp { min-width: 0; padding: 0; display: grid; gap: .35rem; }
@@ -893,7 +894,10 @@
 .bb-stock-row-summary { display: grid; justify-items: start; gap: .4rem; }
 .bb-stock-row-summary small { font-size: .72rem; color: #667085; }
 .bb-stock-row .bb-stock-crate-actions { margin: 0; padding: 0; border: 0; display: flex; gap: .5rem; }
-.bb-stock-row .bb-stock-crate-action { min-height: 44px; flex: 1; }
+.bb-stock-row .bb-stock-crate-action { min-height: 36px; height: 36px; width: 36px; flex: 0 0 36px; padding: 0; border-radius: 999px; justify-content: center; }
+.bb-stock-row .bb-stock-crate-action > svg { flex: 0 0 18px; width: 18px; height: 18px; margin: 0; }
+.bb-stock-row .bb-stock-crate-action.is-edit { background: #f8fafc; border-color: rgba(15, 23, 42, .12); }
+.bb-stock-row .bb-stock-crate-action.is-edit:hover { background: #fff; filter: none; }
 .bb-stock-edit-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 1.5rem; }
 .bb-stock-variant-nav { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
 .bb-stock-variant-nav > p { padding: .25rem .6rem .6rem; }
@@ -911,10 +915,15 @@
 .bb-stock-edit-sheet .bb-stock-section { background: #fff; border-radius: 10px; padding: 1rem; }
 .bb-stock-edit-sheet .bb-services-sheet-body { background: #fff; }
 @media (max-width: 700px) {
-  .bb-stock-row .bb-stock-crate-body { grid-template-columns: 52px minmax(0, 1fr); gap: .75rem; padding: 1rem .5rem; }
+  .bb-stock-row .bb-stock-crate-body { grid-template-columns: 52px minmax(0, 1fr); gap: 10px 12px; padding: 16px 8px; }
   .bb-stock-row .bb-stock-crate-media { width: 52px; height: 52px; }
   .bb-stock-row-summary { grid-column: 2; }
-  .bb-stock-row .bb-stock-crate-actions { grid-column: 2; width: 100%; max-width: 260px; }
+  .bb-stock-total-pill { grid-column: 2; grid-row: 2; }
+  .bb-stock-row .bb-stock-crate-actions { grid-column: 2; grid-row: 3; width: auto; justify-self: start; flex-direction: row; gap: 8px; }
+  .bb-stock-row .bb-stock-crate-media { grid-row: 1 / 3; align-self: start; }
+  .bb-stock-row .bb-stock-crate-stamp { grid-column: 2; }
+  .bb-stock-desk .bb-products-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 8px; }
+  .bb-stock-desk .bb-products-chip { min-height: 44px; width: 100%; margin: 0; justify-content: center; }
   .bb-stock-edit-layout { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
   .bb-stock-variant-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bb-stock-variant-nav > p { grid-column: 1 / -1; }

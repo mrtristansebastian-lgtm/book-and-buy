@@ -1,13 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, DollarSign, PackageCheck, Truck } from 'lucide-react';
+import { Check, DollarSign, PackageCheck, Truck } from 'lucide-react';
 import { navigate } from '../../../app/routing';
 import { toDateKey } from '../../../utils/dates';
 import {
-  formatPeriodLabel,
   getPeriodRange,
   isDateKeyInPeriod,
-  PERIOD_OPTIONS,
-  shiftPeriod
+  PERIOD_OPTIONS
 } from '../../../utils/periodFilters';
 import { formatCents } from '../../../utils/products';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
@@ -117,10 +115,6 @@ export function ProductOrdersDesk({ heading = null }) {
     () => getPeriodRange(day, period, customRange),
     [day, period, customRange]
   );
-  const periodLabel = useMemo(
-    () => formatPeriodLabel(day, period, customRange),
-    [day, period, customRange]
-  );
 
   const counts = useMemo(() => {
     const next = {
@@ -172,29 +166,6 @@ export function ProductOrdersDesk({ heading = null }) {
             onCustomSelect={() => setCustomPickerOpen(true)}
           />
 
-          <div className="bb-ops-toolbar-tools">
-            <div className="bb-schedule-day-nav">
-              <button
-                type="button"
-                className="bb-ghost-btn px-3"
-                onClick={() => setDay(shiftPeriod(day, period, -1))}
-                aria-label="Previous period"
-                disabled={period === 'all' || period === 'custom'}
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <div className="bb-schedule-day-label">{periodLabel}</div>
-              <button
-                type="button"
-                className="bb-ghost-btn px-3"
-                onClick={() => setDay(shiftPeriod(day, period, 1))}
-                aria-label="Next period"
-                disabled={period === 'all' || period === 'custom'}
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
         </div>
 
         <OpsDeskTabs
