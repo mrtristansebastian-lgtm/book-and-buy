@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { validateTeamProfile } from '../settingsValidation';
 
 export function UsersSettingsPage() {
   const { staff, upsertStaff, removeStaff } = useWorkspace();
+  const [error, setError] = useState('');
+  const [removing, setRemoving] = useState('');
   const [memberDraft, setMemberDraft] = useState({
     name: '',
     email: '',
@@ -12,7 +15,14 @@ export function UsersSettingsPage() {
 
   return (
     <div className="bb-settings-content bb-settings-content--users">
-      <section className="bb-panel p-5 grid gap-3">
+      <form className="bb-panel p-5 grid gap-3" onSubmit={(event) => {
+        event.preventDefault();
+        const problem = validateTeamProfile(memberDraft);
+        setError(problem);
+        if (problem) return;
+        upsertStaff({ ...memberDraft, name: memberDraft.name.trim(), email: memberDraft.email.trim(), role: memberDraft.role.trim() });
+        setMemberDraft({ name: '', email: '', role: '', accessRole: 'Staff' });
+      }}>
         <h2 className="bb-page-title text-xl m-0">Add a team profile</h2>
         <p className="bb-muted m-0 text-sm">
           Add people to your scheduling roster. Team profiles do not create accounts or grant access
@@ -22,18 +32,21 @@ export function UsersSettingsPage() {
           <label className="bb-settings-field">Name<input
             className="native-control-input px-4"
             placeholder="Name"
+            required maxLength={120} autoComplete="name"
             value={memberDraft.name}
             onChange={(event) => setMemberDraft((prev) => ({ ...prev, name: event.target.value }))}
           /></label>
           <label className="bb-settings-field">Email (optional)<input type="email"
             className="native-control-input px-4"
             placeholder="Email"
+            maxLength={254} autoComplete="email"
             value={memberDraft.email}
             onChange={(event) => setMemberDraft((prev) => ({ ...prev, email: event.target.value }))}
           /></label>
           <label className="bb-settings-field">Job title (optional)<input
             className="native-control-input px-4"
             placeholder="Role title"
+            maxLength={120}
             value={memberDraft.role}
             onChange={(event) => setMemberDraft((prev) => ({ ...prev, role: event.target.value }))}
           /></label>
@@ -48,18 +61,14 @@ export function UsersSettingsPage() {
           </select></label>
         </div>
         <button
-          type="button"
+          type="submit"
           className="bb-primary-btn justify-self-start"
           disabled={!memberDraft.name.trim()}
-          onClick={() => {
-            if (!memberDraft.name.trim()) return;
-            upsertStaff(memberDraft);
-            setMemberDraft({ name: '', email: '', role: '', accessRole: 'Staff' });
-          }}
         >
           Add team profile
         </button>
-      </section>
+        {error && <p className="bb-reschedule-error" role="alert">{error}</p>}
+      </form>
 
       <div className="grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Your team</h2>
@@ -76,9 +85,11 @@ export function UsersSettingsPage() {
               </span>
             </div>
             {member.accessRole !== 'Owner' ? (
-              <button type="button" className="bb-ghost-btn" onClick={() => removeStaff(member.id)}>
-                Remove
-              </button>
+              removing === member.id ? <div className="bb-settings-remove-confirm" role="group" aria-label={`Remove ${member.name}`}>
+                <span>Remove this team profile? Existing bookings are kept.</span>
+                <button type="button" className="bb-ghost-btn" onClick={() => setRemoving('')}>Keep profile</button>
+                <button type="button" className="bb-ghost-btn" onClick={() => { removeStaff(member.id); setRemoving(''); }}>Confirm removal</button>
+              </div> : <button type="button" className="bb-ghost-btn" aria-label={`Remove ${member.name}`} onClick={() => setRemoving(member.id)}>Remove</button>
             ) : null}
           </article>
         ))}

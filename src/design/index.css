@@ -32,6 +32,8 @@
 @import './market-controls.css';
 @import './market-country-picker.css';
 @import './audit-polish.css';
+@import './settings-polish.css';
+@import './count-badges.css';
 
 @tailwind base;
 @tailwind components;

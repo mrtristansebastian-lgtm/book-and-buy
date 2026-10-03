@@ -1,10 +1,13 @@
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { navigate } from '../../../app/routing';
+import { useState } from 'react';
 
 export function AccountSettingsPage() {
   const { user, signOut, isLocalMode } = useAuth();
   const { workspace, exitDemoMode } = useWorkspace();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   return (
     <div className="bb-settings-content bb-settings-content--account">
@@ -21,17 +24,21 @@ export function AccountSettingsPage() {
         {!workspace.isDemo && user ? <button
           type="button"
           className="bb-primary-btn justify-self-start"
+          disabled={busy}
           onClick={async () => {
+            if (busy) return;
+            setBusy(true); setError('');
             try {
-              await signOut?.();
+              await signOut();
+              navigate('/');
             } catch {
-              /* ignore */
-            }
-            navigate('/');
+              setError('Could not sign out. Please try again.');
+            } finally { setBusy(false); }
           }}
         >
-          Sign out
+          {busy ? 'Signing out…' : 'Sign out'}
         </button> : null}
+        {error && <p role="alert" className="bb-reschedule-error">{error}</p>}
       </section>
 
       <section className="bb-panel p-5 grid gap-2">

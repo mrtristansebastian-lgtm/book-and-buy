@@ -17,12 +17,7 @@ export function BookingsSettingsPage() {
         <AdvanceBookingField
           days={rules.maxAdvanceBookingDays ?? 90}
           until={rules.maxAdvanceBookingUntil || ''}
-          onChange={({ days, until }) =>
-            updateAvailabilityRules({
-              maxAdvanceBookingDays: days,
-              maxAdvanceBookingUntil: until || ''
-            })
-          }
+          onChange={updateAvailabilityRules}
         />
         <div className="bb-settings-explainer"><strong>Requests need your confirmation</strong><p>New bookings enter Requests as pending. Accepting a request confirms the booking; payment does not automatically confirm it. Automatic confirmation is not currently available.</p></div>
         <CancellationNoticeField value={rules.cancellationWindow || ''} onChange={(value) => updateAvailabilityRules({ cancellationWindow: value })} />

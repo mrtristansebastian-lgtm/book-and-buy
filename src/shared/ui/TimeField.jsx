@@ -1,4 +1,5 @@
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useDialogFocus } from './useDialogFocus';
 import { createPortal } from 'react-dom';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import {
@@ -44,6 +45,8 @@ export function TimeField({
   const autoId = useId();
   const fieldId = id || autoId;
   const [open, setOpen] = useState(false);
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, open, () => setOpen(false));
   const parsed = useMemo(() => parseTimeValue(value, '09:00'), [value]);
   const [draftHour, setDraftHour] = useState(parsed.hour);
   const [draftMinute, setDraftMinute] = useState(snapMinute(parsed.minute, minuteStep));
@@ -126,6 +129,8 @@ export function TimeField({
             >
               <div
                 className="bb-panel bb-time-picker-sheet"
+                ref={panelRef}
+                tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={`${fieldId}-title`}

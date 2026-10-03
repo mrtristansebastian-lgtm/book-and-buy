@@ -75,6 +75,15 @@ export function LocationsSettingsPage() {
               type="button"
               role="radio"
               aria-checked={venueMode === mode.id}
+              onKeyDown={(event) => {
+                if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                event.preventDefault();
+                const index = VENUE_MODES.findIndex((item) => item.id === mode.id);
+                const next = event.key === 'Home' ? 0 : event.key === 'End' ? VENUE_MODES.length - 1
+                  : (index + (['ArrowDown', 'ArrowRight'].includes(event.key) ? 1 : -1) + VENUE_MODES.length) % VENUE_MODES.length;
+                updateWebsite({ venueMode: VENUE_MODES[next].id });
+                event.currentTarget.parentElement.querySelectorAll('[role="radio"]')[next]?.focus();
+              }}
               className={`bb-venue-mode-btn${venueMode === mode.id ? ' is-active' : ''}`}
               onClick={() => updateWebsite({ venueMode: mode.id })}
             >

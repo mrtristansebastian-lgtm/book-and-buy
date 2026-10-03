@@ -66,16 +66,22 @@ html body .bb-client-shell .bb-settings-main h2.bb-page-title {
 .bb-owner-menu-sheet-body .bb-owner-apps-nav-groups { flex: 0 0 auto; display: grid; grid-template-columns: 1fr; gap: 0; }
 .native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding: 10px 0; gap: 8px; background: #fff; border-radius: 0; box-shadow: none; border: 0; border-bottom: 1px solid #edf0f2; }
 .bb-owner-menu-sheet-body .bb-appgroup-head { gap: 7px; }
-.native-ui .bb-owner-menu-sheet-body .bb-appgroup-title { font-size: 17px !important; line-height: 1.25; letter-spacing: -.3px; }
+.native-ui .bb-owner-menu-sheet-body .bb-appgroup-title { font-size: 21px !important; line-height: 1.35 !important; letter-spacing: -.4px; overflow: visible !important; padding-bottom: 2px; }
 .bb-owner-menu-sheet-body .bb-appgroup-icon { width: 18px; height: 18px; }
 .bb-owner-menu-sheet-body .bb-appgroup-icon svg { width: 16px; height: 16px; }
-.bb-owner-menu-sheet-body .bb-appgroup-row { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; }
-.bb-owner-menu-sheet-body .bb-appicon { --size: 40px; min-height: 64px; gap: 5px; }
-.bb-owner-menu-sheet-body .bb-appicon-label { font-size: 10px; line-height: 1.25; }
-.bb-owner-menu-sheet-body .bb-demo-panel--nav { margin-top: auto; padding-top: 10px; }
+.bb-owner-menu-sheet-body .bb-appgroup-row { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; }
+.native-ui .bb-owner-menu-sheet-body .bb-appicon { --size: 46px; min-height: 72px; gap: 6px; }
+.native-ui .bb-owner-menu-sheet-body .bb-appicon-label { font-size: 11px; line-height: 1.3; white-space: normal; }
+.bb-owner-menu-sheet-body .bb-demo-panel--nav { margin-top: 8px; padding-top: 10px; }
+@media (max-width: 600px) {
+  .native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding-block: 6px; gap: 5px; }
+  .native-ui .bb-owner-menu-sheet-body .bb-appgroup-title { font-size: 19px !important; }
+  .native-ui .bb-owner-menu-sheet-body .bb-appicon { --size: 44px; min-height: 66px; }
+}
 @media (max-height: 740px) {
-  .native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding-block: 2px; gap: 4px; }
-  .native-ui .bb-owner-menu-sheet-body .bb-appicon { --size: 36px; min-height: 56px; }
+  .native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding-block: 5px; gap: 4px; }
+  .native-ui .bb-owner-menu-sheet-body .bb-appgroup-title { font-size: 18px !important; }
+  .native-ui .bb-owner-menu-sheet-body .bb-appicon { --size: 40px; min-height: 60px; gap: 4px; }
   .native-ui .bb-owner-menu-sheet-body .bb-owner-apps-nav { gap: 6px; }
   .bb-owner-menu-sheet-body .bb-demo-panel-copy p { display: none; }
   .native-ui .bb-owner-menu-sheet-body .bb-demo-panel--nav { padding-top: 6px; gap: 6px; }

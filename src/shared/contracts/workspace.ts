@@ -227,7 +227,7 @@ export interface WebsiteSettings {
     productIds: string[]; variantKeys: string[]; serviceIds: string[]; shippingProfileIds: string[];
   }>;
   shippingProfiles?: Array<{
-    id: string; name: string; enabled: boolean; productMode: 'all' | 'selected';
+    id: string; name: string; customerFacingName?: string; enabled: boolean; productMode: 'all' | 'selected';
     productIds: string[]; variantKeys: string[]; rateCents: number;
     freeAboveCents: number | null; deliveryEstimate: string;
   }>;

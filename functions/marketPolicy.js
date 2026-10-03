@@ -32,6 +32,11 @@ export function profileApplies(profile, item) {
     || (profile.variantKeys || []).includes(`${item.productId}:${item.variantId || ''}`));
 }
 
+/** Never expose the internal profile name to a customer. */
+export function shippingDisplayName(profile) {
+  return String(profile?.customerFacingName || '').trim() || 'Delivery';
+}
+
 /** Each matching profile is charged once per order; mixed-profile orders add their rates. */
 export function shippingQuote(website, countryCode, items = [], subtotalCents = 0) {
   if (!/^[A-Z]{2}$/.test(String(countryCode || ''))) throw new Error('Choose a country before checkout.');

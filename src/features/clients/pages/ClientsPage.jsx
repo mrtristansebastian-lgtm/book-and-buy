@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   Cake,
+  FileText,
+  CalendarDays,
+  Package,
   Mail,
   MessageSquare,
   Pencil,
@@ -18,6 +21,8 @@ import { formatDisplayDate } from '../../../utils/dates';
 import { navigate } from '../../../app/routing';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
+import { DateField } from '../../../shared/ui/DateField';
 
 const emptyClient = () => ({
   id: '',
@@ -109,7 +114,7 @@ function tagsForTiers(tiers) {
   return tags;
 }
 
-export function ClientsPage() {
+export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToChat }) {
   const {
     clients,
     bookings,
@@ -125,6 +130,11 @@ export function ClientsPage() {
   const [mobileDetail, setMobileDetail] = useState(false);
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyClient);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  useEffect(() => { setDeleteConfirm(false); }, [selectedId, fileClient?.id]);
+  const editorRef = useRef(null);
+  useDialogFocus(editorRef, draftOpen, () => setDraftOpen(false));
+  useEffect(() => { onEditorOpenChange?.(draftOpen); }, [draftOpen, onEditorOpenChange]);
 
   const tiersById = useMemo(() => {
     const map = new Map();
@@ -188,22 +198,21 @@ export function ClientsPage() {
     }
   }, [filtered, selectedId, mobileDetail]);
 
-  const selected = filtered.find((client) => client.id === selectedId) || null;
+  const selected = fileClient
+    ? clients.find((client) => client.id === fileClient.id || (fileClient.email && client.email?.toLowerCase() === fileClient.email.toLowerCase())) || fileClient
+    : filtered.find((client) => client.id === selectedId) || null;
 
   const history = useMemo(() => {
     if (!selected) return { bookings: [], orders: [] };
-    const email = String(selected.email || '').toLowerCase();
-    const name = String(selected.name || '').toLowerCase();
+    const key = clientMatchKey(selected);
     return {
       bookings: bookings.filter(
         (booking) =>
-          String(booking.clientEmail || '').toLowerCase() === email ||
-          String(booking.clientName || '').toLowerCase() === name
+          recordMatchesClient(booking, key)
       ),
       orders: orders.filter(
         (order) =>
-          String(order.clientEmail || '').toLowerCase() === email ||
-          String(order.clientName || '').toLowerCase() === name
+          recordMatchesClient(order, key)
       )
     };
   }, [selected, bookings, orders]);
@@ -215,6 +224,7 @@ export function ClientsPage() {
 
   const closeMobileDetail = () => {
     setMobileDetail(false);
+    setSelectedId('');
   };
 
   const saveClient = () => {
@@ -239,6 +249,7 @@ export function ClientsPage() {
   const openMessage = (client) => {
     const thread = startThreadFromClient(client);
     if (thread?.id) setSupportFocusThread(thread.id);
+    onReturnToChat?.();
     navigate('/dashboard/communications');
   };
 
@@ -248,7 +259,7 @@ export function ClientsPage() {
   };
 
   return (
-    <div className={`bb-clients${mobileDetail && selected ? ' is-mobile-detail' : ''}`}>
+    <div className={`bb-clients${fileClient ? ' is-embedded-file' : ''}${mobileDetail && selected ? ' is-mobile-detail' : ''}`}>
       <header className="bb-clients-header">
         <div className="bb-clients-header-copy">
           <div className="bb-page-title-wrap">
@@ -290,13 +301,13 @@ export function ClientsPage() {
                     <button
                       key={id}
                       type="button"
-                      className={`bb-clients-chip${active ? ' is-active' : ''}`}
+                      className={`bb-clients-chip bb-support-filter-chip${active ? ' is-active' : ''}`}
                       aria-pressed={active}
                       onClick={() => setFilter(id)}
                     >
                       <Icon size={14} strokeWidth={active ? 2.4 : 2} aria-hidden="true" />
                       <span>{label}</span>
-                      <span className="bb-clients-chip-count">{count}</span>
+                      <span className="bb-clients-chip-count bb-support-filter-count">{count}</span>
                     </button>
                   );
                 })}
@@ -321,17 +332,14 @@ export function ClientsPage() {
                       const tags = tagsForTiers(tiers);
                       const meta = [client.phone, client.country].filter(Boolean).join(' / ');
                       return (
-                        <button
+                        <article
                           key={client.id}
-                          type="button"
                           className={`bb-clients-row${active ? ' is-active' : ''}`}
-                          onClick={() => openClient(client.id)}
-                          aria-current={active ? 'true' : undefined}
                         >
                           <span className="bb-clients-avatar" aria-hidden="true">
-                            {clientInitials(client.name)}
+                            {client.photoUrl || client.avatarUrl ? <img src={client.photoUrl || client.avatarUrl} alt="" /> : clientInitials(client.name)}
                           </span>
-                          <span className="bb-clients-row-copy">
+                          <button type="button" className="bb-clients-row-copy" aria-label={`View ${client.name}`} onClick={() => openClient(client.id)}>
                             <strong className="bb-clients-row-name">{client.name}</strong>
                             <span className="bb-clients-row-meta">
                               {meta || client.email || 'No contact details'}
@@ -348,8 +356,12 @@ export function ClientsPage() {
                                 ))}
                               </span>
                             ) : null}
+                          </button>
+                          <span className="bb-clients-row-actions">
+                            <button type="button" className="bb-clients-action" title="Open client file" aria-label={`Open file for ${client.name}`} onClick={() => openClient(client.id)}><FileText size={16} aria-hidden="true" /></button>
+                            <button type="button" className="bb-clients-action" title="Open chat" aria-label={`Open chat with ${client.name}`} onClick={() => openMessage(client)}><MessageSquare size={16} aria-hidden="true" /></button>
                           </span>
-                        </button>
+                        </article>
                       );
                     })}
                   </div>
@@ -368,14 +380,14 @@ export function ClientsPage() {
                     onClick={closeMobileDetail}
                   >
                     <ArrowLeft size={16} strokeWidth={2.2} />
-                    Contacts
+                    All clients
                   </button>
                 </div>
 
                 <div className="bb-clients-sheet-hero">
                   <div className="bb-clients-sheet-identity">
                     <span className="bb-clients-sheet-avatar" aria-hidden="true">
-                      {clientInitials(selected.name)}
+                      {selected.photoUrl || selected.avatarUrl ? <img src={selected.photoUrl || selected.avatarUrl} alt="" /> : clientInitials(selected.name)}
                     </span>
                     <div>
                       <h2 className="bb-clients-sheet-name">{selected.name}</h2>
@@ -413,18 +425,29 @@ export function ClientsPage() {
                     </button>
                     <button
                       type="button"
-                      className="bb-clients-action is-danger"
-                      onClick={() => {
-                        removeClient(selected.id);
-                        setSelectedId('');
-                        setMobileDetail(false);
-                      }}
+                      className="bb-clients-action is-danger bb-clients-delete-icon"
+                      aria-label="Delete client file"
+                      title="Delete client file"
+                      onClick={() => setDeleteConfirm(true)}
                     >
-                      <Trash2 size={14} /> Remove
+                      <Trash2 size={15} aria-hidden="true" />
                     </button>
                   </div>
                 </div>
 
+                {deleteConfirm && <section className="bb-clients-delete-confirm" role="alert" aria-label="Confirm client file deletion">
+                  <div><strong>Delete {selected.name}'s client file?</strong><p>This removes their saved contact details and notes. Booking and order history will be kept.</p></div>
+                  <div><button type="button" className="bb-clients-action" onClick={() => setDeleteConfirm(false)}>Keep file</button><button type="button" className="bb-clients-action is-danger" onClick={() => { removeClient(selected.id); setDeleteConfirm(false); onReturnToChat?.(); setSelectedId(''); setMobileDetail(false); }}>Delete file</button></div>
+                </section>}
+
+                <div className="bb-clients-file-summary" aria-label="Client activity summary">
+                  <div><strong>{history.bookings.length}</strong><span>Bookings</span></div>
+                  <div><strong>{history.orders.length}</strong><span>Orders</span></div>
+                  <div><strong>{history.bookings.filter((booking) => booking.status === 'pending').length}</strong><span>Pending bookings</span></div>
+                </div>
+                <div className="bb-clients-profile-grid">
+                <section className="bb-clients-contact-section" aria-label="Contact details">
+                <div className="bb-clients-section-heading"><User size={18} aria-hidden="true" /><div><h3 className="bb-clients-history-title">Contact details</h3><p>How to reach your client</p></div></div>
                 <div className="bb-clients-fields">
                   <div className="bb-clients-field">
                     <p className="bb-clients-field-label">Email</p>
@@ -469,18 +492,16 @@ export function ClientsPage() {
                       )}
                     </p>
                   </div>
-                  {selected.notes ? (
-                    <div className="bb-clients-field">
-                      <p className="bb-clients-field-label">Notes</p>
-                      <p className="bb-clients-field-value bb-clients-field-value--notes">
-                        {selected.notes}
-                      </p>
-                    </div>
-                  ) : null}
+                </div>
+                </section>
+                <section className="bb-clients-notes" aria-label="Client notes">
+                  <div className="bb-clients-section-heading"><FileText size={18} aria-hidden="true" /><div><h3 className="bb-clients-history-title">Client notes</h3><p>Preferences and helpful context</p></div><button type="button" className="bb-clients-action" aria-label="Edit client notes" title="Edit notes" onClick={() => openEdit(selected)}><Pencil size={15} aria-hidden="true" /></button></div>
+                  <p className={selected.notes ? 'bb-clients-field-value--notes' : 'bb-clients-history-empty'}>{selected.notes || 'No notes yet. Use Edit to add preferences or helpful reminders.'}</p>
+                </section>
                 </div>
 
                 <section className="bb-clients-history" aria-label="Bookings">
-                  <h3 className="bb-clients-history-title">Bookings</h3>
+                  <div className="bb-clients-section-heading"><CalendarDays size={18} aria-hidden="true" /><h3 className="bb-clients-history-title">Bookings <span>{history.bookings.length}</span></h3></div>
                   {history.bookings.length === 0 ? (
                     <p className="bb-clients-history-empty">No bookings yet.</p>
                   ) : (
@@ -488,19 +509,19 @@ export function ClientsPage() {
                       {history.bookings.map((booking) => (
                         <div key={booking.id} className="bb-clients-history-item">
                           <div>
-                            {booking.serviceName}
+                            <strong>{booking.serviceName || 'Booking'}</strong>
                             <span>
-                              {' '}
-                              · {formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}{' '}
-                              · {booking.status}
+                              {formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}
                             </span>
                           </div>
+                          <span className="bb-clients-record-status">{booking.status || 'Unknown status'}</span>
                           <button
                             type="button"
                             className="bb-clients-action"
                             onClick={() => {
                               const thread = startThreadFromBooking(booking);
                               if (thread?.id) setSupportFocusThread(thread.id);
+                              onReturnToChat?.();
                               navigate('/dashboard/communications');
                             }}
                           >
@@ -513,7 +534,7 @@ export function ClientsPage() {
                 </section>
 
                 <section className="bb-clients-history" aria-label="Orders">
-                  <h3 className="bb-clients-history-title">Orders</h3>
+                  <div className="bb-clients-section-heading"><Package size={18} aria-hidden="true" /><h3 className="bb-clients-history-title">Orders <span>{history.orders.length}</span></h3></div>
                   {history.orders.length === 0 ? (
                     <p className="bb-clients-history-empty">No orders yet.</p>
                   ) : (
@@ -522,8 +543,8 @@ export function ClientsPage() {
                         <div key={order.id} className="bb-clients-history-item">
                           <div>
                             {(order.items || []).map((item) => item.name).join(', ') || 'Order'}
-                            <span> · {order.status}</span>
                           </div>
+                          <span className="bb-clients-record-status">{order.status || 'Unknown status'}</span>
                         </div>
                       ))}
                     </div>
@@ -553,6 +574,8 @@ export function ClientsPage() {
           role="presentation"
         >
           <div
+            ref={editorRef}
+            tabIndex={-1}
             className="bb-clients-modal"
             role="dialog"
             aria-modal="true"
@@ -598,16 +621,16 @@ export function ClientsPage() {
                   }
                 />
               </label>
-              <label className="bb-clients-modal-field">
-                <span>Birthday</span>
-                <input
-                  type="date"
+              <div className="bb-clients-modal-field">
+                <DateField
+                  label="Birthday"
+                  placeholder="Choose birthday"
                   value={draft.birthday || ''}
-                  onChange={(event) =>
-                    setDraft((prev) => ({ ...prev, birthday: event.target.value }))
+                  onChange={(birthday) =>
+                    setDraft((prev) => ({ ...prev, birthday }))
                   }
                 />
-              </label>
+              </div>
               <label className="bb-clients-modal-field">
                 <span>Notes</span>
                 <textarea

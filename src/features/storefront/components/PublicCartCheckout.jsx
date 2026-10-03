@@ -29,7 +29,7 @@ import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import { getPublicPaymentOptions, ONLINE_GATEWAYS } from '../../../utils/payments';
 import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import { createPublicProductOrder } from '../../../utils/orders';
-import { catalogAllowed, resolveMarket, shippingQuote } from '../../../utils/markets';
+import { catalogAllowed, resolveMarket, shippingQuote, shippingDisplayName } from '../../../utils/markets';
 import { MARKET_COUNTRIES } from '../../../config/marketCountries';
 import { buildBookingCalendarUrl } from '../../../shared/firebase/integrations';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
@@ -1043,7 +1043,7 @@ export function PublicCartCheckout({
           <span>Total:</span>
           <span>{formatCents(cart.subtotalCents + delivery.amountInCents, cart.currency)}</span>
         </div>
-        {marketsConfigured && cart.hasProducts && <div className="bb-checkout-summary__row"><p>Shipping</p><p>{delivery.error ? 'Unavailable' : delivery.amountInCents === 0 ? 'Free' : formatCents(delivery.amountInCents, cart.currency)}</p></div>}
+        {marketsConfigured && cart.hasProducts && <div className="bb-checkout-summary__row"><p>{delivery.profileIds.length ? delivery.profileIds.map((id) => shippingDisplayName(workspace.website.shippingProfiles?.find((profile) => profile.id === id))).join(' + ') : 'Shipping'}</p><p>{delivery.error ? 'Unavailable' : delivery.amountInCents === 0 ? 'Free' : formatCents(delivery.amountInCents, cart.currency)}</p></div>}
       </section>
 
       {cart.hasServices ? (

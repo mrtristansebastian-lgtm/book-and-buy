@@ -39,7 +39,7 @@ export function MarketCountryPicker({ value, onChange, markets = [], label = 'Ad
       {selection && !open && <span className="bb-market-picker-selected-flag"><MarketFlag code={selection.code} name={selection.label} /></span>}
     </div>
     {open && <div className="bb-market-country-popover">
-      <div className="bb-market-picker-caption">{results.length} {allowRestOfWorld ? 'countries & markets' : results.length === 1 ? 'country' : 'countries'}</div>
+      <div className="bb-market-picker-caption">{results.length} {allowRestOfWorld ? results.length === 1 ? 'country or market' : 'countries & markets' : results.length === 1 ? 'country' : 'countries'}</div>
       <div role="listbox" id={listId} aria-label="Countries" ref={list} className="bb-market-country-options">
         {results.map((country, index) => <button type="button" role="option" id={`${id}-${country.code}`} aria-selected={value === country.code} aria-disabled={used.has(country.code)} tabIndex={-1}
           key={country.code} className={`bb-market-country-option${active === index ? ' is-highlighted' : ''}`} onMouseDown={(event) => event.preventDefault()} onMouseEnter={() => setActive(index)} onClick={() => choose(country)}>

@@ -90,6 +90,7 @@ export function BusinessHoursSettings({ availabilityRules, onUpdateRules }) {
         A closing time before opening continues into the next day. Matching times create a 24-hour day.
       </p>
       <div className="bb-schedule-avail-settings-section-actions">
+        {dirty && <button type="button" className="bb-ghost-btn" onClick={() => setDraft(seedWeekdayHours(availabilityRules))}>Discard hours changes</button>}
         <button
           type="button"
           className="bb-primary-btn"
@@ -99,6 +100,7 @@ export function BusinessHoursSettings({ availabilityRules, onUpdateRules }) {
           Save hours
         </button>
       </div>
+      {dirty && <p className="bb-schedule-avail-hint m-0" role="status">Opening hours have unsaved changes. Use Save hours to apply them.</p>}
     </div>
   );
 }

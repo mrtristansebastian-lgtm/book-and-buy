@@ -1,4 +1,5 @@
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useDialogFocus } from './useDialogFocus';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -25,6 +26,8 @@ export function DateField({
   const autoId = useId();
   const fieldId = id || autoId;
   const [open, setOpen] = useState(false);
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, open, () => setOpen(false));
   const selected = useMemo(() => parseDateKey(value) || new Date(), [value]);
   const [draftDay, setDraftDay] = useState(() => value || toDateKey(new Date()));
   const [monthAnchor, setMonthAnchor] = useState(
@@ -98,6 +101,8 @@ export function DateField({
             >
               <div
                 className="bb-panel bb-date-picker-sheet"
+                ref={panelRef}
+                tabIndex={-1}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={`${fieldId}-title`}

@@ -73,8 +73,8 @@ html body .native-ui :where(
 ) {
   line-height: 1 !important;
   font-variant-numeric: tabular-nums;
-  /* Optical centering: cap-height numerals sit slightly above their line box. */
-  padding-block-start: 0.18em !important;
+  /* Equal vertical padding keeps every numeric badge on its geometric centre. */
+  padding-block-start: 0 !important;
   padding-block-end: 0 !important;
   transform: none !important;
 }

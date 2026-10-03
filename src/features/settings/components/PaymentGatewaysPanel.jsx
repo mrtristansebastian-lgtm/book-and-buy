@@ -35,6 +35,7 @@ function OnlineGatewayCard({
   const [replaceSecret, setReplaceSecret] = useState(!gateway.configured);
 
   const save = async () => {
+    if (busy) return;
     setError('');
     setBusy(true);
     try {
@@ -84,6 +85,7 @@ function OnlineGatewayCard({
   };
 
   const disconnect = async () => {
+    if (busy) return;
     setError('');
     setBusy(true);
     try {

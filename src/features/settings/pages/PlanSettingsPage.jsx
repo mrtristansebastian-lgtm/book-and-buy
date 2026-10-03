@@ -35,6 +35,7 @@ export function PlanSettingsPage() {
           <button
             type="button"
             className={interval === 'month' ? 'bb-primary-btn' : 'bb-ghost-btn'}
+            aria-pressed={interval === 'month'}
             onClick={() => setInterval('month')}
           >
             Monthly
@@ -42,6 +43,7 @@ export function PlanSettingsPage() {
           <button
             type="button"
             className={interval === 'year' ? 'bb-primary-btn' : 'bb-ghost-btn'}
+            aria-pressed={interval === 'year'}
             onClick={() => setInterval('year')}
           >
             Annual (2 months free)
@@ -78,7 +80,6 @@ export function PlanSettingsPage() {
                 className={isCurrent ? 'bb-ghost-btn' : 'bb-primary-btn'}
                 disabled={isCurrent || !workspace.isDemo}
                 onClick={() => {
-                  updatePlan({ billingInterval: interval });
                   selectPlan(id);
                 }}
               >

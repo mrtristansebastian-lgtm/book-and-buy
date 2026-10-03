@@ -1,0 +1,28 @@
+/* Shared numeric badges: fixed single-digit circle, intrinsic width for larger counts.
+   Use bb-count-badge for new chip counts so no page needs its own centring rules. */
+html body .native-ui :is(.bb-count-badge, .bb-support-filter-count, .bb-clients-chip-count, .bb-ops-tab-count, .bb-catalog-variant-count, .bb-schedule-booking-filters > button > span) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  padding: 0 5px !important;
+  border: 0;
+  border-radius: 999px !important;
+  text-align: center !important;
+  text-indent: 0 !important;
+  line-height: 1 !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  font-variant-numeric: lining-nums tabular-nums !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  transform: none !important;
+  background: #eceef0 !important;
+  color: #475467 !important;
+}

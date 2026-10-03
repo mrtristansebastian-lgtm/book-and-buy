@@ -118,7 +118,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
               <button
                 key={thread.id}
                 type="button"
-                className={`bb-support-thread ${activeId === thread.id ? 'is-active' : ''}`}
+                className={`bb-support-thread ${activeId === thread.id ? 'is-active' : ''}${thread.unread ? ' is-unread' : ''}`}
                 onClick={() => onSelect(thread.id)}
               >
                 <PresenceAvatar

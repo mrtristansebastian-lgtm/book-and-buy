@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, ChevronDown, X } from 'lucide-react';
 import { DateField } from '../../../shared/ui/DateField';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import { addDays, parseDateKey, toDateKey } from '../../../utils/dates';
 
 const PRESET_OPTIONS = [
@@ -58,6 +59,8 @@ export function AdvanceBookingField({
     [days, until, todayKey]
   );
   const [open, setOpen] = useState(false);
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, open, () => setOpen(false));
   const [draftMode, setDraftMode] = useState(resolved.mode);
   const [draftUntil, setDraftUntil] = useState(
     resolved.until || toDateKey(addDays(new Date(), Math.max(1, Number(days) || 90)))
@@ -127,6 +130,8 @@ export function AdvanceBookingField({
         >
           <div
             className="bb-advance-picker-sheet"
+            ref={panelRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-labelledby="advance-booking-title"
@@ -141,15 +146,14 @@ export function AdvanceBookingField({
               </p>
             </header>
 
-            <div className="bb-advance-picker-presets" role="listbox" aria-label="Duration">
+            <div className="bb-advance-picker-presets" role="group" aria-label="Duration">
               {PRESET_OPTIONS.map((option) => {
                 const active = draftMode === option.id;
                 return (
                   <button
                     key={option.id}
                     type="button"
-                    role="option"
-                    aria-selected={active}
+                    aria-pressed={active}
                     className={`bb-advance-picker-preset${active ? ' is-active' : ''}`}
                     onClick={() => setDraftMode(option.id)}
                   >

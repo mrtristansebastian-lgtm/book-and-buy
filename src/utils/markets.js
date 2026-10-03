@@ -1,1 +1,1 @@
-export { getMarkets, marketPatch, resolveMarket, catalogAllowed, profileApplies, shippingQuote, filterWorkspaceForMarket, marketReadiness } from '../../functions/marketPolicy.js';
+export { getMarkets, marketPatch, resolveMarket, catalogAllowed, profileApplies, shippingQuote, shippingDisplayName, filterWorkspaceForMarket, marketReadiness } from '../../functions/marketPolicy.js';

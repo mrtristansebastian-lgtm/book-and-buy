@@ -1,0 +1,48 @@
+/* Settings audit: keep one readable rhythm without affecting public pages. */
+.bb-settings-main, .bb-settings-content, .bb-settings-content > * { min-width: 0; }
+.bb-settings-main :is(h1, h2, h3) { overflow: visible; }
+.bb-settings-content :is(button, a.bb-btn, summary) { min-height: 44px; }
+.bb-settings-content :is(button, a, summary):focus-visible {
+  outline: 2px solid var(--native-accent-border);
+  outline-offset: 3px;
+}
+.bb-settings-content :is(p, small, strong) { overflow-wrap: anywhere; }
+.bb-settings-content--users > form { padding: clamp(1.1rem, 2vw, 1.75rem); }
+.bb-settings-remove-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bb-settings-remove-confirm > span { flex-basis: 100%; font-size: .8rem; color: #667085; }
+.bb-settings-content--domains > .bb-domain-address { grid-template-columns: 44px minmax(0, 1fr); gap: 16px; }
+.bb-domain-address > .bb-settings-section-heading,
+.bb-domain-address > .bb-domain-public-address { grid-column: 2; min-width: 0; }
+.bb-domain-address > .bb-domain-icon { grid-column: 1; }
+.bb-domain-guides, .bb-domain-records { grid-column: 1 / -1; }
+.bb-domain-public-address code { overflow-wrap: anywhere; }
+.bb-settings-content--policies > p { grid-column: 1 / -1; }
+.bb-settings-content--plan .bb-settings-plan-card > :first-child { min-height: 80px; }
+.bb-settings-content--plan .bb-settings-plan-card { border: 1px solid #e9edf0; }
+.bb-settings :is(.bb-venue-mode-btn.is-active, .bb-domain-providers button.is-selected,
+  .bb-shipping-rate-mode button[aria-pressed="true"]) {
+  border-color: transparent;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x) 50%;
+  box-shadow: none;
+}
+@media (max-width: 960px) {
+  .bb-owner-main > .bb-settings .bb-settings-main { gap: 16px; }
+  .bb-settings-save-state { padding-inline: 16px; }
+  .bb-settings-content { gap: 16px; }
+  .bb-settings-content--domains > .bb-domain-address { grid-template-columns: 44px minmax(0, 1fr); }
+  .bb-settings-content--domains .bb-domain-address > :is(label, a, .bb-domain-public-address) { grid-column: 1 / -1; }
+  .bb-settings .bb-domain-head, .bb-settings .bb-domain-guide header { flex-wrap: wrap; }
+  .bb-settings .bb-domain-progress { gap: 12px; }
+  .bb-settings .bb-domain-progress li { min-width: 0; flex: 1; flex-wrap: wrap; }
+  .bb-settings-content--plan .bb-settings-plan-card > :first-child { min-height: 0; }
+  .bb-review-overview, .bb-review-privacy, .bb-pay-overview,
+  .bb-pay-method-section > .bb-settings-section-heading { padding-inline: 16px; }
+  .bb-settings .bb-commerce-intro { gap: 12px; }
+  .bb-settings .bb-market-add { gap: 12px; }
+  .bb-settings .bb-commerce-grid { gap: 16px; }
+  .bb-settings-content--users > .grid > h2 { padding-inline: 16px; }
+}
