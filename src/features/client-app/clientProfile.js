@@ -1,4 +1,5 @@
 import { APP_ID } from '../../config/appConfig';
+import { coordinateOrNull, readExploreViewState } from './exploreViewState';
 
 export const DEMO_CLIENT_EMAIL = 'aisha.naidoo@example.com';
 export const DEMO_CLIENT_NAME = 'Aisha Naidoo';
@@ -18,6 +19,8 @@ export function emptyClientProfile(overrides = {}) {
     exploreMaxKm: 30,
     exploreCategoryIds: [],
     exploreSearchHistory: [],
+    exploreContentTab: 'places',
+    exploreQueryText: '',
     clientLat: null,
     clientLng: null,
     clientCountryCode: '',
@@ -50,8 +53,10 @@ export function readLocalClientProfile() {
       exploreSearchHistory: Array.isArray(parsed.exploreSearchHistory)
         ? parsed.exploreSearchHistory.map(String).filter(Boolean).slice(0, 5)
         : [],
-      clientLat: Number.isFinite(Number(parsed.clientLat)) ? Number(parsed.clientLat) : null,
-      clientLng: Number.isFinite(Number(parsed.clientLng)) ? Number(parsed.clientLng) : null,
+      exploreContentTab: readExploreViewState(parsed).filter,
+      exploreQueryText: readExploreViewState(parsed).queryText,
+      clientLat: coordinateOrNull(parsed.clientLat, 90),
+      clientLng: coordinateOrNull(parsed.clientLng, 180),
       clientCountryCode: String(parsed.clientCountryCode || '')
         .trim()
         .toUpperCase(),

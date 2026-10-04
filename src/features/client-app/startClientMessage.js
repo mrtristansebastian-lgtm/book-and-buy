@@ -1,5 +1,6 @@
 import { navigate } from '../../app/routing';
 import { isFirebaseConfigured, ensureClientThread } from './clientThreadsApi';
+import { rememberMessageAnalytics } from '../../shared/analytics/beacon';
 
 /**
  * Instagram-style “Message” from a business profile / booking / order.
@@ -17,7 +18,8 @@ export async function startClientMessage({
   logoUrl = '',
   booking = null,
   order = null,
-  subject = ''
+  subject = '',
+  requireThread = false
 } = {}) {
   if (!profile?.email) {
     navigate('/app/auth');
@@ -36,7 +38,7 @@ export async function startClientMessage({
         ? `Order · ${order.id || 'Products'}`
         : `Message · ${bizName}`);
 
-  if (isFirebaseConfigured() && resolvedOwner) {
+  if (!workspace?.isDemo && isFirebaseConfigured() && resolvedOwner) {
     try {
       const thread = await ensureClientThread({
         ownerId: resolvedOwner,
@@ -51,11 +53,12 @@ export async function startClientMessage({
         orderId: order?.id || ''
       });
       if (thread?.id) {
+        rememberMessageAnalytics(thread.id, { ownerId: resolvedOwner, slug: workspaceSlug });
         navigate(`/app/messages/${thread.id}`);
         return thread;
       }
-    } catch {
-      /* fall through to local */
+    } catch (error) {
+      if (requireThread && !startThreadFromClient && !startThreadFromBooking && !startThreadFromOrder) throw error;
     }
   }
 
@@ -76,6 +79,7 @@ export async function startClientMessage({
     return local;
   }
 
+  if (requireThread) throw new Error('Could not open the conversation. Please try again.');
   navigate('/app/messages');
   return null;
 }

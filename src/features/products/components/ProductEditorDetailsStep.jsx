@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useState } from 'react';
 import { Plus, X } from 'lucide-react';
 
@@ -75,7 +76,7 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
             <label className="bb-services-field bb-products-compare-field">
               <span className="bb-services-field-label-row">
                 <span>Compare-at price</span>
-                <button
+                <Button action="remove" variant="destructive"
                   type="button"
                   className="bb-products-compare-clear"
                   onClick={clearCompareAt}
@@ -83,7 +84,7 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
                 >
                   <X size={14} strokeWidth={2.2} />
                   Remove
-                </button>
+                </Button>
               </span>
               <div className="bb-products-money">
                 <span className="bb-products-money-prefix">
@@ -103,14 +104,14 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
           ) : null}
 
           {!draft.quoteBased && !showCompareAt ? (
-            <button
+            <Button action="add" variant="primary"
               type="button"
               className="bb-products-compare-add"
               onClick={() => setShowCompareAt(true)}
             >
               <Plus size={15} strokeWidth={2.2} />
               Add compare-at price
-            </button>
+            </Button>
           ) : null}
         </div>
 

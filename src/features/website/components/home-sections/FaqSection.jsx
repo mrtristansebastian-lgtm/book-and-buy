@@ -1,3 +1,4 @@
+import { Button } from '../../../../shared/ui/Button';
 import { Plus, Trash2 } from 'lucide-react';
 import { EditableText, EditSection } from '../editable';
 
@@ -108,7 +109,7 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
             )}
             {editMode && faq.length < 8 ? (
               <div className="bb-public-section-actions">
-                <button
+                <Button action="add" variant="primary"
                   type="button"
                   className="bb-public-section-action"
                   onClick={() =>
@@ -122,7 +123,7 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
                 >
                   <Plus size={17} aria-hidden="true" />
                   Add FAQ
-                </button>
+                </Button>
               </div>
             ) : null}
           </div>

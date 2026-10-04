@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { memo, useId, useMemo, useState } from 'react';
 import { ArrowUpRight, Minus, Plus, RotateCcw } from 'lucide-react';
 import worldMap from '../assets/worldEqualEarth.json';
@@ -113,6 +114,7 @@ export function AnalyticsLiveWorldMap({
           <p className="bb-live-world-eyebrow">Live world</p>
           <h2>Your visitors. Worldwide.</h2>
         </div>
+        <div className="bb-live-world-toolbar">
         <div className="bb-live-world-meta">
           <span className="bb-live-world-count">
             <span className="bb-live-world-count-dot" aria-hidden="true" />
@@ -121,11 +123,12 @@ export function AnalyticsLiveWorldMap({
           </span>
           <span className="bb-live-world-window">Past 5 min</span>
           {usingDemo ? <span className="bb-live-world-demo">Demo</span> : null}
+        </div>
           {variant === 'home' && onOpenLiveStats ? (
-            <button type="button" className="bb-live-world-open" onClick={onOpenLiveStats}>
-              Open Live Stats
+            <Button action="open" variant="secondary" type="button" className="bb-live-world-open bb-home-utility-action" aria-label="Open Live Stats" onClick={onOpenLiveStats}>
+              Live stats
               <ArrowUpRight size={15} strokeWidth={2.2} aria-hidden="true" />
-            </button>
+            </Button>
           ) : null}
         </div>
       </header>

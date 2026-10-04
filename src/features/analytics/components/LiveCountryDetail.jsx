@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { ArrowLeft, Minus, Plus, RotateCcw } from 'lucide-react';
 import { REGIONAL_MAP_COUNTRIES, countrySessions, regionStats } from '../utils/regionalTraffic';
@@ -31,7 +32,7 @@ export function LiveCountryDetail({ country, sessions, total, usingDemo, onBack 
   const selectedPanel = data?.panels.find((item) => item.id === panel) || data?.panels[0];
   const regions = selectedPanel?.regions || [];
   return <section className="bb-live-world-map" aria-label={`${country.name} live visitor detail`}>
-    <header className="bb-live-world-head"><div className="bb-live-world-heading"><p className="bb-live-world-eyebrow">Live country · {hasMap ? 'States & provinces' : 'Regional statistics'}</p><h2>{country.name}</h2></div><div className="bb-live-world-meta"><span className="bb-live-world-count"><span className="bb-live-world-count-dot" /><strong>{total}</strong><span>{total === 1 ? 'live visitor' : 'live visitors'}</span></span><span className="bb-live-world-window">Past 5 min</span>{usingDemo && <span className="bb-live-world-demo">Demo</span>}<button className="bb-live-world-open" onClick={onBack}><ArrowLeft size={15} />World view</button></div></header>
+    <header className="bb-live-world-head"><div className="bb-live-world-heading"><p className="bb-live-world-eyebrow">Live country · {hasMap ? 'States & provinces' : 'Regional statistics'}</p><h2>{country.name}</h2></div><div className="bb-live-world-meta"><span className="bb-live-world-count"><span className="bb-live-world-count-dot" /><strong>{total}</strong><span>{total === 1 ? 'live visitor' : 'live visitors'}</span></span><span className="bb-live-world-window">Past 5 min</span>{usingDemo && <span className="bb-live-world-demo">Demo</span>}<Button action="back" variant="secondary" type="submit" className="bb-live-world-open" onClick={onBack}><ArrowLeft size={15} />World view</Button></div></header>
     {data?.panels.length > 1 && <div className="bb-live-country-panels" aria-label="Country areas">{data.panels.map((item) => <button type="button" key={item.id} aria-pressed={selectedPanel?.id === item.id} onClick={() => { setPanel(item.id); resetView(); }}>{item.label}</button>)}</div>}
     {hasMap && <div ref={viewport.stageRef} className={`bb-live-world-stage bb-live-country-stage${zoom > 1 ? ' is-zoomed' : ''}`} {...viewport.bind}>
       <div className="bb-live-world-controls" aria-label="Regional map controls">

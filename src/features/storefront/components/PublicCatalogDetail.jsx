@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ShoppingBag } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
@@ -130,14 +131,13 @@ export function PublicCatalogDetail({
               ? 'Choose your shopping country above to check availability.'
               : `${kind === 'service' ? 'Service' : 'Product'} is not available. It may have been removed or may not be sold in your country.`}
           </p>
-          <button
+          <Button action="back" variant="secondary"
             type="button"
             className="bb-ghost-btn justify-self-start"
             onClick={goBack}
           >
-            <ArrowLeft size={16} />
             Back to {catalogLabel}
-          </button>
+          </Button>
         </div>
       </section>
     );
@@ -186,7 +186,7 @@ export function PublicCatalogDetail({
       : !purchasable || (needsProductVariant && !selectedProductVariant);
 
   const cartButton = (
-    <button
+    <Button action="cart" variant="secondary"
       type="button"
       className="bb-public-catalog-cart"
       onClick={() => setPanel(panel === 'cart' ? 'detail' : 'cart')}
@@ -194,7 +194,7 @@ export function PublicCatalogDetail({
       <ShoppingBag size={15} />
       <span>Cart</span>
       <span className="bb-public-catalog-cart-count">{cart.count}</span>
-    </button>
+    </Button>
   );
 
   const addToCart = () => {
@@ -239,10 +239,10 @@ export function PublicCatalogDetail({
     >
       <div className="bb-public-measure-wide bb-public-detail-shell">
         <header className="bb-public-detail-toolbar">
-          <button type="button" className="bb-ghost-btn" onClick={goBack}>
+          <Button action="back" variant="secondary" type="button" className="bb-ghost-btn" onClick={goBack}>
             <ArrowLeft size={16} />
             Back to {catalogLabel}
-          </button>
+          </Button>
           {cartButton}
         </header>
 
@@ -313,6 +313,7 @@ export function PublicCatalogDetail({
                           <button
                             key={value}
                             type="button"
+                            aria-pressed={active}
                             className={`bb-products-public-value${
                               active ? ' is-active' : ''
                             }`}
@@ -380,7 +381,7 @@ export function PublicCatalogDetail({
               </div>
             ) : null}
 
-            <button
+            <Button action="addToCart" variant="primary"
               type="button"
               className="bb-public-product-cart-btn bb-public-detail-cart-btn"
               disabled={cartDisabled}
@@ -402,7 +403,7 @@ export function PublicCatalogDetail({
                         ? 'Unavailable'
                         : 'Add to cart'}
               </span>
-            </button>
+            </Button>
           </aside>
         </div>
       </div>

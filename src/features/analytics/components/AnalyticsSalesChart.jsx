@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import {
@@ -8,13 +9,15 @@ import {
 } from '../utils/analyticsMetrics';
 
 const PAD_DESKTOP = { top: 18, right: 18, bottom: 40, left: 56 };
-const PAD_MOBILE = { top: 12, right: 10, bottom: 34, left: 44 };
+const PAD_MOBILE = { top: 12, right: 12, bottom: 34, left: 44 };
 
 export function AnalyticsSalesChart({
   series = [],
   currency = 'R',
   metricId = 'revenue',
-  onMetricChange
+  onMetricChange,
+  metricOptions = CHART_METRICS,
+  showPicker = true
 }) {
   const gradientId = useId().replace(/:/g, '');
   const wrapRef = useRef(null);
@@ -24,15 +27,16 @@ export function AnalyticsSalesChart({
   const [menuOpen, setMenuOpen] = useState(false);
   const mobile = width < 560;
   const height = mobile ? 220 : 280;
-  const pad = mobile ? PAD_MOBILE : PAD_DESKTOP;
-  const metric = CHART_METRICS.find((m) => m.id === metricId) || CHART_METRICS[0];
+  const metric = metricOptions.find((m) => m.id === metricId) || metricOptions[0];
+  const basePad = mobile ? PAD_MOBILE : PAD_DESKTOP;
+  const pad = metric.format === 'money' ? { ...basePad, left: mobile ? 76 : 88 } : basePad;
 
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return undefined;
     const ro = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect?.width;
-      if (w) setWidth(Math.max(280, Math.floor(w)));
+      if (w) setWidth(Math.max(160, Math.floor(w)));
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -81,8 +85,9 @@ export function AnalyticsSalesChart({
 
   return (
     <div className="bb-analytics-chart" ref={wrapRef}>
-      <div className="bb-analytics-chart-toolbar" ref={menuRef}>
-        <button
+      {showPicker ? <div className="bb-analytics-chart-toolbar" ref={menuRef}>
+        <Button action="filter" variant="secondary"
+          selected={menuOpen}
           type="button"
           className="bb-analytics-metric-btn"
           aria-haspopup="listbox"
@@ -91,10 +96,10 @@ export function AnalyticsSalesChart({
         >
           <span>{metric.label}</span>
           <ChevronDown size={16} strokeWidth={2.2} aria-hidden="true" />
-        </button>
+        </Button>
         {menuOpen ? (
           <ul className="bb-analytics-metric-menu" role="listbox" aria-label="Chart metric">
-            {CHART_METRICS.map((option) => (
+            {metricOptions.map((option) => (
               <li key={option.id}>
                 <button
                   type="button"
@@ -113,7 +118,7 @@ export function AnalyticsSalesChart({
             ))}
           </ul>
         ) : null}
-      </div>
+      </div> : null}
 
       <svg
         className="bb-analytics-chart-svg"
@@ -160,7 +165,7 @@ export function AnalyticsSalesChart({
             key={`x-${tick.at}`}
             x={tick.x}
             y={baseline + 22}
-            textAnchor="middle"
+            textAnchor={tick.x === geometry.ticksX[0]?.x ? 'start' : tick.x === geometry.ticksX.at(-1)?.x ? 'end' : 'middle'}
             className="bb-analytics-chart-axis"
           >
             {tick.label}

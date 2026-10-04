@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { navigate } from '../../../app/routing';
@@ -17,14 +18,15 @@ export function AccountSettingsPage() {
           {workspace.isDemo ? 'You are exploring a sample business. This is not a signed-in business account.' : user?.email || (isLocalMode ? 'Saved on this device. No cloud account is signed in.' : 'Not signed in')}
         </p>
         {workspace.isDemo ? (
-          <button type="button" className="bb-ghost-btn justify-self-start" onClick={() => exitDemoMode?.()}>
+          <Button action="signOut" variant="secondary" type="button" className="bb-ghost-btn justify-self-start" onClick={() => exitDemoMode?.()}>
             Exit demo
-          </button>
+          </Button>
         ) : null}
-        {!workspace.isDemo && user ? <button
+        {!workspace.isDemo && user ? <Button action="signOut" variant="secondary"
           type="button"
           className="bb-primary-btn justify-self-start"
-          disabled={busy}
+          busy={busy}
+          busyLabel="Signing out…"
           onClick={async () => {
             if (busy) return;
             setBusy(true); setError('');
@@ -36,8 +38,8 @@ export function AccountSettingsPage() {
             } finally { setBusy(false); }
           }}
         >
-          {busy ? 'Signing out…' : 'Sign out'}
-        </button> : null}
+          Sign out
+        </Button> : null}
         {error && <p role="alert" className="bb-reschedule-error">{error}</p>}
       </section>
 

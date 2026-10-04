@@ -7,13 +7,15 @@ import {
   LIVE_VISITOR_WINDOW_MS,
   presenceWriteDue,
   roundApproxCoordinate,
-  shouldReuseAnalyticsSession,
   validGeoCoordinates
 } from './livePresence';
+import { anonymousMetadata, doNotTrackEnabled, nextAnonymousIdentity } from './anonymousIdentity';
 
 const SESSION_KEY = 'bb_analytics_sid';
 const WRITE_KEY = 'bb_analytics_presence_write';
 const GEO_KEY = 'bb_analytics_geo';
+const VISITOR_KEY = 'bb_analytics_visitor';
+const MESSAGE_KEY = 'bb_analytics_message_context';
 
 export type AnalyticsEventType =
   | 'page_view'
@@ -22,7 +24,9 @@ export type AnalyticsEventType =
   | 'begin_checkout'
   | 'purchase'
   | 'booking_started'
-  | 'booking_confirmed';
+  | 'booking_confirmed'
+  | 'discovery_visit'
+  | 'message_lead';
 
 export type CartStatus = 'active' | 'checkout' | 'abandoned' | 'converted';
 
@@ -40,6 +44,7 @@ export type SessionContext = {
   slug: string;
   ownerId: string;
   path?: string;
+  source?: 'places' | 'direct';
 };
 
 type GeoInfo = {
@@ -52,7 +57,6 @@ type GeoInfo = {
 
 let geoPromise: Promise<GeoInfo> | null = null;
 let lastPath = '';
-let commerceOnly = false;
 const memoryStorage = new Map<string, Record<string, unknown>>();
 
 function isBot(): boolean {
@@ -62,9 +66,8 @@ function isBot(): boolean {
 }
 
 function prefersDnt(): boolean {
-  if (typeof navigator === 'undefined') return false;
-  const dnt = (navigator as Navigator & { doNotTrack?: string }).doNotTrack;
-  return dnt === '1' || dnt === 'yes';
+  return doNotTrackEnabled(typeof navigator === 'undefined' ? null : navigator,
+    typeof window === 'undefined' ? null : window);
 }
 
 function deviceLabel(): string {
@@ -107,23 +110,24 @@ function createSessionId(): string {
 
 function getAnalyticsSession(ctx: SessionContext, now = Date.now()) {
   const key = `${SESSION_KEY}:${storageScope(ctx)}`;
-  const stored = readStoredJson(key);
-  const storedId = String(stored?.id || '');
-  const startedAt = Number(stored?.startedAt || 0);
-  const reusable = shouldReuseAnalyticsSession(stored, now);
-  const session = reusable
-    ? { id: storedId, startedAt, lastActivityAt: now }
-    : { id: createSessionId(), startedAt: now, lastActivityAt: now };
+  const visitorKey = `${VISITOR_KEY}:${storageScope(ctx)}`;
+  const { session, visitor } = nextAnonymousIdentity({
+    storedSession: readStoredJson(key), storedVisitor: readStoredJson(visitorKey),
+    source: ctx.source, now, createId: createSessionId
+  });
+  writeStoredJson(visitorKey, visitor);
   writeStoredJson(key, session);
   return session;
 }
 
 export function getAnalyticsSessionId(ctx: SessionContext): string {
+  if (!canWritePresence() || !ctx.ownerId || !ctx.slug) return '';
   return getAnalyticsSession(ctx).id;
 }
 
 export function getAnalyticsCartId(ctx: SessionContext): string {
-  return `cart_${getAnalyticsSessionId(ctx)}`;
+  const sessionId = getAnalyticsSessionId(ctx);
+  return sessionId ? `cart_${sessionId}` : '';
 }
 
 async function resolveGeo(): Promise<GeoInfo> {
@@ -162,11 +166,11 @@ async function resolveGeo(): Promise<GeoInfo> {
 }
 
 function canWritePresence(): boolean {
-  return isFirebaseConfigured() && !isBot() && !prefersDnt() && !commerceOnly;
+  return isFirebaseConfigured() && !isBot() && !prefersDnt();
 }
 
 function canWriteCommerce(): boolean {
-  return isFirebaseConfigured() && !isBot();
+  return canWritePresence();
 }
 
 function currentPublicPath(fallback = '/') {
@@ -183,14 +187,14 @@ function presenceWriteAllowed(ctx: SessionContext, now: number) {
   return true;
 }
 
-async function upsertSession(ctx: SessionContext, path: string) {
+async function upsertSession(ctx: SessionContext, path: string, force = false) {
   if (typeof navigator !== 'undefined' && navigator.locks) {
-    return navigator.locks.request(`bb-presence:${storageScope(ctx)}`, () => writePresence(ctx, path));
+    return navigator.locks.request(`bb-presence:${storageScope(ctx)}`, () => writePresence(ctx, path, force));
   }
-  return writePresence(ctx, path);
+  return writePresence(ctx, path, force);
 }
 
-async function writePresence(ctx: SessionContext, path: string) {
+async function writePresence(ctx: SessionContext, path: string, force = false) {
   if (!canWritePresence()) return;
   if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
   const firebase = getFirebase();
@@ -198,8 +202,9 @@ async function writePresence(ctx: SessionContext, path: string) {
 
   const now = Date.now();
   const session = getAnalyticsSession(ctx, now);
-  if (!presenceWriteAllowed(ctx, now)) return;
+  if (!force && !presenceWriteAllowed(ctx, now)) return;
   const geo = await resolveGeo();
+  if (!canWritePresence()) return;
   const ref = doc(firebase.db, ...analyticsSessionPath(APP_ID, session.id));
   const coordinates = validGeoCoordinates(geo.latitude, geo.longitude)
     ? { latitude: geo.latitude, longitude: geo.longitude }
@@ -211,11 +216,11 @@ async function writePresence(ctx: SessionContext, path: string) {
         sessionId: session.id,
         slug: ctx.slug,
         ownerId: ctx.ownerId,
+        ...anonymousMetadata(session),
         startedAt: session.startedAt,
         lastSeenAt: now,
         path: String(path || '/').slice(0, 500),
-        referrer:
-          typeof document !== 'undefined' ? String(document.referrer || '').slice(0, 500) : '',
+        referrer: safeReferrer(),
         country: geo.country || '',
         region: geo.region || '',
         city: geo.city || '',
@@ -234,7 +239,8 @@ async function writePresence(ctx: SessionContext, path: string) {
 export async function trackAnalyticsEvent(
   type: AnalyticsEventType,
   ctx: SessionContext,
-  extra: Record<string, unknown> = {}
+  extra: Record<string, unknown> = {},
+  eventId?: string
 ) {
   const commerce =
     type === 'purchase' ||
@@ -247,20 +253,72 @@ export async function trackAnalyticsEvent(
   if (!firebase || !ctx.slug || !ctx.ownerId) return;
 
   try {
-    const ref = doc(collection(firebase.db, 'artifacts', APP_ID, 'analyticsEvents'));
+    const session = getAnalyticsSession(ctx);
+    const ref = eventId ? doc(firebase.db, 'artifacts', APP_ID, 'analyticsEvents', eventId) :
+      doc(collection(firebase.db, 'artifacts', APP_ID, 'analyticsEvents'));
     await setDoc(ref, {
+      ...extra,
       type,
-      sessionId: getAnalyticsSessionId(ctx),
+      sessionId: session.id,
       slug: ctx.slug,
       ownerId: ctx.ownerId,
+      ...anonymousMetadata(session),
       at: Date.now(),
       path: String(ctx.path || lastPath || '/').slice(0, 500),
-      ...extra,
       createdAt: serverTimestamp()
     });
   } catch {
     /* best-effort */
   }
+}
+
+/** Strip referrer queries/fragments, which can contain email addresses or payment tokens. */
+function safeReferrer() {
+  try {
+    const url = new URL(typeof document === 'undefined' ? '' : document.referrer);
+    return `${url.origin}${url.pathname}`.slice(0, 500);
+  } catch { return ''; }
+}
+
+export function reportDiscoveryVisit(ctx: SessionContext) {
+  if (!canWritePresence() || !ctx.slug || !ctx.ownerId) return;
+  const entry: SessionContext = { ...ctx, source: 'places', path: '/app/find/places' };
+  getAnalyticsSession(entry);
+  void upsertSession(entry, entry.path!, true);
+  void trackAnalyticsEvent('discovery_visit', entry);
+}
+
+export function rememberMessageAnalytics(threadId: string, ctx: SessionContext) {
+  if (!canWritePresence() || !threadId || !ctx.ownerId || !ctx.slug) return;
+  writeStoredJson(`${MESSAGE_KEY}:${threadId}`, { ownerId: ctx.ownerId, slug: ctx.slug });
+}
+
+export function hasMessageAnalyticsContext(threadId: string): boolean {
+  return canWritePresence() && Boolean(readStoredJson(`${MESSAGE_KEY}:${threadId}`));
+}
+
+/** Called only after a first client message has successfully committed. No thread ID in event data. */
+export async function reportMessageLead(threadId: string) {
+  if (!canWritePresence() || !/^[a-zA-Z0-9_-]{1,128}$/.test(threadId)) return;
+  const stored = readStoredJson(`${MESSAGE_KEY}:${threadId}`);
+  if (!stored?.ownerId || !stored?.slug) return;
+  const ctx = { ownerId: String(stored.ownerId), slug: String(stored.slug), path: '/app/messages' };
+  try {
+    await upsertSession(ctx, ctx.path, true);
+    // Events are create-only in rules, so retries and concurrent first sends cannot double-count.
+    await trackAnalyticsEvent('message_lead', ctx, {}, `message_lead_${threadId}`);
+  } catch { /* The successfully sent message must not be affected by analytics. */ }
+}
+
+/** Optional attribution must never prevent a booking/order or opt-out. */
+export async function getAnalyticsAttribution(ctx: SessionContext) {
+  if (!canWritePresence() || !ctx.ownerId || !ctx.slug) return {};
+  try {
+    const session = getAnalyticsSession(ctx);
+    await upsertSession(ctx, currentPublicPath(), true);
+    if (!canWritePresence()) return {};
+    return { analyticsSessionId: session.id, analyticsSource: session.source };
+  } catch { return {}; }
 }
 
 export async function upsertAnalyticsCart(
@@ -314,14 +372,13 @@ export async function upsertAnalyticsCart(
 }
 
 export function startAnalyticsBeacon(ctx: SessionContext) {
-  commerceOnly = prefersDnt();
   if (!ctx.slug || !ctx.ownerId) return () => {};
-  if (isBot()) return () => {};
+  if (isBot() || prefersDnt()) return () => {};
 
   const recordActivity = () => {
     if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
     const nextPath = currentPublicPath(ctx.path || '/');
-    if (!commerceOnly) void upsertSession({ ...ctx, path: nextPath }, nextPath);
+    void upsertSession({ ...ctx, path: nextPath }, nextPath);
   };
 
   const onVisibility = () => {
@@ -341,7 +398,7 @@ export function startAnalyticsBeacon(ctx: SessionContext) {
 }
 
 export function reportPageView(ctx: SessionContext, path: string) {
-  if (commerceOnly || !canWritePresence()) return;
+  if (!canWritePresence()) return;
   lastPath = path;
   void upsertSession(ctx, path);
   void trackAnalyticsEvent('page_view', { ...ctx, path });

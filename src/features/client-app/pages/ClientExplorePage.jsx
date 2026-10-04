@@ -13,11 +13,11 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ClientAppShell } from '../ClientAppShell';
 import { ClientDeskLayout } from '../ClientDeskLayout';
 import { useClientProfile } from '../ClientProfileContext';
-import { startClientMessage } from '../startClientMessage';
 import { ExploreDiscoveryBar } from '../ExploreDiscoveryBar';
 import { ExploreBusinessOffers } from '../ExploreBusinessOffers';
 import { PlacesCards } from '../PlacesCards';
 import { filterDiscoverBusinesses, normalizeBiz } from '../exploreDiscovery';
+import { coordinateOrNull, readExploreViewState } from '../exploreViewState';
 
 const TABS = [
   { id: 'places', label: 'Places', kind: 'places', Icon: MapPin },
@@ -36,21 +36,20 @@ function offerItem(item, kind) {
 }
 
 export function ClientExplorePage() {
-  const { workspace, startThreadFromClient } = useWorkspace();
-  const { profile, updateExplorePrefs, togglePlaceSave } = useClientProfile();
-  const [filter, setFilter] = useState('places');
-  const [queryText, setQueryText] = useState('');
+  const { workspace } = useWorkspace();
+  const { profile, updateExplorePrefs } = useClientProfile();
+  const { filter, queryText } = readExploreViewState(profile);
+  const setFilter = (value) => updateExplorePrefs({ exploreContentTab: readExploreViewState({ exploreContentTab: value }).filter });
+  const setQueryText = (value) => updateExplorePrefs({ exploreQueryText: String(value || '') });
   const [remote, setRemote] = useState([]);
-  const [messagingSlug, setMessagingSlug] = useState('');
   const [geoStatus, setGeoStatus] = useState('idle');
   const [placeSheetOpen, setPlaceSheetOpen] = useState(false);
   const isDemo = Boolean(workspace?.isDemo || profile?.isDemo);
-  const savedPlaces = useMemo(() => new Set(profile?.savedPlaceSlugs || []), [profile?.savedPlaceSlugs]);
   const exploreMode = profile?.exploreMode === 'international' ? 'international' : 'local';
   const exploreMaxKm = Number(profile?.exploreMaxKm) || 30;
   const exploreCategoryIds = Array.isArray(profile?.exploreCategoryIds) ? profile.exploreCategoryIds : [];
-  const clientLat = Number.isFinite(Number(profile?.clientLat)) ? Number(profile.clientLat) : null;
-  const clientLng = Number.isFinite(Number(profile?.clientLng)) ? Number(profile.clientLng) : null;
+  const clientLat = coordinateOrNull(profile?.clientLat, 90);
+  const clientLng = coordinateOrNull(profile?.clientLng, 180);
   const clientCountryCode = String(profile?.clientCountryCode || '').trim().toUpperCase();
   const clientCity = String(profile?.clientCity || '').trim();
 
@@ -110,13 +109,6 @@ export function ClientExplorePage() {
     );
   };
 
-  const messageBiz = async (biz) => {
-    setMessagingSlug(biz.slug);
-    try {
-      await startClientMessage({ profile, workspace, startThreadFromClient, ownerId: biz.ownerId || workspace?.ownerId || workspace?.id || '', slug: biz.slug, brandName: biz.brandName, logoUrl: biz.logoUrl || '' });
-    } finally { setMessagingSlug(''); }
-  };
-
   return (
     <ClientAppShell section="find" title="Find">
       <ClientDeskLayout className="bb-client-ig-explore is-find" showContentTabs contentTab={filter} contentTabs={TABS} onContentTabChange={setFilter}>
@@ -132,15 +124,18 @@ export function ClientExplorePage() {
             onRequestGeo={requestGeo} onPickManualLocation={() => setPlaceSheetOpen(true)} />
         </div>
         {filter === 'places' ? (
-          visible.length ? <PlacesCards businesses={visible} messageBiz={messageBiz} messagingSlug={messagingSlug} savedPlaces={savedPlaces} togglePlaceSave={togglePlaceSave} /> :
+          visible.length ? <PlacesCards businesses={visible} analyticsEnabled={!isDemo} /> :
             <EmptyState compact title={clientLat == null && exploreMode === 'local' ? 'Share your location' : 'No places found'} description="Adjust your location, distance, category, or search." />
-        ) : <ExploreBusinessOffers kind={filter} businesses={offers} emptyTitle={filter === 'book' ? 'No bookable services found' : 'No products found'} emptyDescription="Adjust your location, distance, category, or search." />}
+        ) : <ExploreBusinessOffers kind={filter} businesses={offers} emptyTitle={filter === 'book' ? 'No bookable services found' : 'No products found'} emptyDescription="Adjust your location, distance, category, or search." analyticsEnabled={!isDemo} />}
         {placeSheetOpen ? <AppSheet onClose={() => setPlaceSheetOpen(false)} title="Set your location" lede="Used only to find relevant businesses near you.">
           <PlaceLocationField label="City or address" placeholder="Search a place near you" onChange={(place) => {
             if (!place) return;
-            updateExplorePrefs({ clientLat: place.lat || null, clientLng: place.lng || null, clientCountryCode: place.countryCode || '', clientCity: place.city || place.label || '' });
-            setGeoStatus(place.lat ? 'ready' : 'error');
-            if (place.lat) setPlaceSheetOpen(false);
+            const lat = coordinateOrNull(place.lat, 90);
+            const lng = coordinateOrNull(place.lng, 180);
+            const hasLocation = lat != null && lng != null;
+            updateExplorePrefs({ clientLat: lat, clientLng: lng, clientCountryCode: place.countryCode || '', clientCity: place.city || place.label || '' });
+            setGeoStatus(hasLocation ? 'ready' : 'error');
+            if (hasLocation) setPlaceSheetOpen(false);
           }} />
         </AppSheet> : null}
       </ClientDeskLayout>

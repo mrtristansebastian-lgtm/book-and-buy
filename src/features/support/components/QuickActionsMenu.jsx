@@ -1,31 +1,17 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useRef, useState } from 'react';
-import {
-  CalendarClock,
-  CheckCircle2,
-  ChevronDown,
-  Copy,
-  Eye,
-  Link2,
-  PackageCheck,
-  Wallet,
-  XCircle,
-  Zap
-} from 'lucide-react';
 
-function ActionItem({ icon: Icon, label, onClick, disabled = false, tone = 'default' }) {
+function ActionItem({ action, label, onClick, disabled = false, busy = false, variant = 'secondary' }) {
   return (
-    <button
+    <Button action={action} variant={variant} busy={busy}
       type="button"
       role="menuitem"
-      className={`bb-support-quick-item ${tone !== 'default' ? `is-${tone}` : ''}`}
+      className="bb-support-quick-item"
       disabled={disabled}
       onClick={onClick}
     >
-      <span className="bb-support-quick-item-icon" aria-hidden="true">
-        <Icon size={14} strokeWidth={2} />
-      </span>
       <span>{label}</span>
-    </button>
+    </Button>
   );
 }
 
@@ -48,6 +34,8 @@ export function QuickActionsMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const actionLock = useRef(false);
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -67,8 +55,12 @@ export function QuickActionsMenu({
   }, [open]);
 
   const run = async (fn) => {
+    if (actionLock.current) return;
+    actionLock.current = true;
+    setBusy(true);
     setError('');
     try { await fn?.(); setOpen(false); } catch (failure) { setError(failure.message || 'That action could not be completed.'); }
+    finally { actionLock.current = false; setBusy(false); }
   };
 
   const hasBookingActions = Boolean(linkedBooking);
@@ -78,45 +70,40 @@ export function QuickActionsMenu({
 
   return (
     <div className={`bb-support-quick-menu ${open ? 'is-open' : ''}`} ref={rootRef}>
-      <button
+      <Button action="quickActions" variant="secondary"
         type="button"
         className="bb-support-quick-trigger"
         aria-haspopup="menu"
         aria-expanded={open}
+        disabled={busy}
         onClick={() => setOpen((v) => !v)}
       >
-        <Zap size={13} strokeWidth={2.25} />
         <span>Quick actions</span>
-        <ChevronDown size={13} strokeWidth={2.25} className="bb-support-quick-chevron" />
-      </button>
+      </Button>
       {open ? (
-        <div className="bb-support-quick-panel" role="menu">
+        <div className="bb-support-quick-panel" role="menu" aria-busy={busy || undefined}>
           {hasBookingActions ? (
             <div className="bb-support-quick-group">
               <p className="bb-support-quick-label">Booking</p>
               {linkedBooking.status === 'pending' ? (
-                <ActionItem
-                  icon={CheckCircle2}
+                <ActionItem action="confirm" busy={busy}
                   label="Confirm booking"
-                  tone="positive"
+                  variant="positive"
                   onClick={() => run(onConfirmBooking)}
                 />
               ) : null}
               {linkedBooking.status === 'pending' || linkedBooking.status === 'waitlist' ? (
-                <ActionItem
-                  icon={XCircle}
+                <ActionItem action="decline" busy={busy}
                   label="Decline booking"
-                  tone="danger"
+                  variant="destructive"
                   onClick={() => run(onDeclineBooking)}
                 />
               ) : null}
-              <ActionItem
-                icon={CalendarClock}
+              <ActionItem action="reschedule" busy={busy}
                 label="Set up reschedule"
                 onClick={() => run(onSetupReschedule)}
               />
-              <ActionItem
-                icon={Eye}
+              <ActionItem action="view" busy={busy}
                 label="View booking"
                 onClick={() => run(onViewBooking)}
               />
@@ -127,20 +114,20 @@ export function QuickActionsMenu({
             <div className="bb-support-quick-group">
               <p className="bb-support-quick-label">Order</p>
               {linkedOrder.paymentStatus !== 'paid' ? (
-                <ActionItem
-                  icon={Wallet}
+                <ActionItem action="markPaid" busy={busy}
                   label="Mark order paid"
+                  variant="positive"
                   onClick={() => run(onMarkPaid)}
                 />
               ) : null}
               {linkedOrder.status === 'pending' ? (
-                <ActionItem
-                  icon={PackageCheck}
+                <ActionItem action="fulfil" busy={busy}
                   label="Mark fulfilled"
+                  variant="positive"
                   onClick={() => run(onFulfilOrder)}
                 />
               ) : null}
-              <ActionItem icon={Eye} label="View order" onClick={() => run(onViewOrder)} />
+              <ActionItem action="view" busy={busy} label="View order" onClick={() => run(onViewOrder)} />
             </div>
           ) : null}
 
@@ -148,15 +135,13 @@ export function QuickActionsMenu({
             <div className="bb-support-quick-group">
               <p className="bb-support-quick-label">Link</p>
               {clientBookings.length && !linkedBooking ? (
-                <ActionItem
-                  icon={Link2}
+                <ActionItem action="connect" busy={busy}
                   label="Link latest booking"
                   onClick={() => run(() => onLinkBooking?.(clientBookings[0]))}
                 />
               ) : null}
               {clientOrders.length && !linkedOrder ? (
-                <ActionItem
-                  icon={Link2}
+                <ActionItem action="connect" busy={busy}
                   label="Link latest order"
                   onClick={() => run(() => onLinkOrder?.(clientOrders[0]))}
                 />
@@ -166,8 +151,7 @@ export function QuickActionsMenu({
 
           <div className="bb-support-quick-group">
             {error && <p role="alert" className="bb-reschedule-error">{error}</p>}
-            <ActionItem
-              icon={Copy}
+            <ActionItem action="copy" busy={busy}
               label="Copy email"
               disabled={!clientEmail}
               onClick={() => run(onCopyEmail)}

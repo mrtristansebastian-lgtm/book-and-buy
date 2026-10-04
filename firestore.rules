@@ -330,9 +330,15 @@ service cloud.firestore {
 
     match /artifacts/{appId}/public/data/workspaces/{slug} {
       allow read: if true;
-      allow create, update: if signedIn() &&
+      allow create: if signedIn() &&
         request.resource.data.ownerId is string &&
         canAdmin(appId, request.resource.data.ownerId);
+      // A profile address belongs to its existing owner. Incoming ownership
+      // alone must never authorize replacing another business's profile.
+      allow update: if signedIn() &&
+        resource.data.ownerId is string &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        canAdmin(appId, resource.data.ownerId);
       allow delete: if signedIn() &&
         resource.data.ownerId is string &&
         canAdmin(appId, resource.data.ownerId);
@@ -380,12 +386,45 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    function analyticsIdentityValid() {
+      return !request.resource.data.keys().hasAny([
+        'analyticsVersion', 'visitorId', 'visitorFirstSeenAt', 'isReturningVisitor', 'source'
+      ]) || (
+        request.resource.data.keys().hasAll([
+          'analyticsVersion', 'visitorId', 'visitorFirstSeenAt', 'isReturningVisitor', 'source'
+        ]) &&
+        request.resource.data.analyticsVersion == 2 &&
+        request.resource.data.visitorId is string &&
+        request.resource.data.visitorId.matches('^[a-zA-Z0-9_-]{8,80}$') &&
+        request.resource.data.visitorFirstSeenAt is number &&
+        request.resource.data.visitorFirstSeenAt > 0 &&
+        request.resource.data.isReturningVisitor is bool &&
+        request.resource.data.source in ['places', 'direct']
+      );
+    }
+
+    function analyticsIdentityUnchanged() {
+      return (
+        !resource.data.keys().hasAny(['analyticsVersion']) &&
+        !request.resource.data.keys().hasAny(['analyticsVersion'])
+      ) || (
+        resource.data.keys().hasAny(['analyticsVersion']) &&
+        request.resource.data.keys().hasAny(['analyticsVersion']) &&
+        request.resource.data.analyticsVersion == resource.data.analyticsVersion &&
+        request.resource.data.visitorId == resource.data.visitorId &&
+        request.resource.data.visitorFirstSeenAt == resource.data.visitorFirstSeenAt &&
+        request.resource.data.isReturningVisitor == resource.data.isReturningVisitor &&
+        request.resource.data.source == resource.data.source
+      );
+    }
+
     function analyticsSessionValid() {
       return request.resource.data.keys().hasOnly([
           'sessionId', 'slug', 'ownerId', 'startedAt', 'lastSeenAt', 'path',
           'referrer', 'country', 'region', 'city', 'latitude', 'longitude',
-          'device', 'isBot', 'updatedAt'
-        ]) &&
+          'device', 'isBot', 'updatedAt',
+          'analyticsVersion', 'visitorId', 'visitorFirstSeenAt', 'isReturningVisitor', 'source'
+        ]) && analyticsIdentityValid() &&
         request.resource.data.sessionId is string &&
         request.resource.data.sessionId.size() >= 8 &&
         request.resource.data.sessionId.size() <= 80 &&
@@ -397,6 +436,9 @@ service cloud.firestore {
         request.resource.data.ownerId.size() <= 128 &&
         request.resource.data.startedAt is number &&
         request.resource.data.lastSeenAt is number &&
+        request.resource.data.lastSeenAt >= request.resource.data.startedAt &&
+        (!request.resource.data.keys().hasAny(['analyticsVersion']) ||
+          request.resource.data.visitorFirstSeenAt <= request.resource.data.startedAt) &&
         request.resource.data.path is string &&
         request.resource.data.path.size() <= 500 &&
         request.resource.data.referrer is string &&
@@ -436,7 +478,9 @@ service cloud.firestore {
           'begin_checkout',
           'purchase',
           'booking_started',
-          'booking_confirmed'
+          'booking_confirmed',
+          'discovery_visit',
+          'message_lead'
         ] &&
         request.resource.data.sessionId is string &&
         request.resource.data.sessionId.size() >= 8 &&
@@ -447,7 +491,11 @@ service cloud.firestore {
         request.resource.data.ownerId is string &&
         request.resource.data.ownerId.size() >= 1 &&
         request.resource.data.ownerId.size() <= 128 &&
-        request.resource.data.at is number;
+        request.resource.data.at is number && analyticsIdentityValid() &&
+        (!request.resource.data.keys().hasAny(['analyticsVersion']) ||
+          request.resource.data.visitorFirstSeenAt <= request.resource.data.at) &&
+        (!(request.resource.data.type in ['discovery_visit', 'message_lead']) ||
+          request.resource.data.analyticsVersion == 2);
     }
 
     function analyticsCartValid() {
@@ -486,7 +534,8 @@ service cloud.firestore {
         request.resource.data.sessionId == sessionId &&
         request.resource.data.ownerId == resource.data.ownerId &&
         request.resource.data.slug == resource.data.slug &&
-        request.resource.data.startedAt == resource.data.startedAt;
+        request.resource.data.startedAt == resource.data.startedAt &&
+        analyticsIdentityUnchanged();
       allow read: if resource.data.ownerId is string &&
         canStaff(appId, resource.data.ownerId);
       allow delete: if false;

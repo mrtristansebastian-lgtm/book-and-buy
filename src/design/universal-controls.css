@@ -1,0 +1,445 @@
+/* Explicit controls: each shape communicates purpose. The native accent and
+   Availability green connect the system without converting specialised controls. */
+:root {
+  --bb-control-height: 40px;
+  --bb-button-height: 40px;
+  --bb-filter-height: 36px;
+  --bb-control-radius: 0.85rem;
+  --bb-control-border: #e2e5e9;
+  --bb-control-ink: #101828;
+  --bb-control-muted: #667085;
+  --bb-control-placeholder: #98a2b3;
+  --bb-button-radius: 10px;
+  --bb-status-positive: #7dffb2;
+  --bb-status-positive-ink: #101828;
+  --bb-status-pending: #fff3d6;
+  --bb-status-info: #e0f2fe;
+  --bb-status-waitlist: #f0eaff;
+  --bb-status-danger: #fee4e2;
+  --bb-action-danger: #b42318;
+  --bb-action-danger-border: #fda29b;
+  --app-control-height: var(--bb-control-height);
+  --app-control-radius: var(--bb-control-radius);
+  --app-control-border: var(--bb-control-border);
+  --app-control-text: var(--bb-control-ink);
+  --app-control-placeholder: var(--bb-control-placeholder);
+}
+
+/* Class-based scope also reaches portaled dialogs outside .native-ui. */
+html body .bb-button[data-variant] {
+  --bb-button-fill: #fff;
+  position: relative;
+  appearance: none;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  gap: 0 !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: var(--bb-button-height) !important;
+  padding: 9px 16px !important;
+  border: 1px solid var(--bb-control-border) !important;
+  border-radius: var(--bb-button-radius) !important;
+  background: #fff !important;
+  color: var(--bb-control-ink) !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 13px !important;
+  font-weight: 550 !important;
+  line-height: 1.4 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  text-align: center !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  text-decoration: none !important;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.045) !important;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+html body .bb-button[data-variant="positive"] {
+  --bb-button-fill: var(--bb-status-positive);
+  background: var(--bb-status-positive) !important;
+  border-color: var(--bb-status-positive) !important;
+  color: var(--bb-status-positive-ink) !important;
+}
+html body .bb-button[data-variant="destructive"] {
+  border-color: var(--bb-action-danger-border) !important;
+  color: var(--bb-action-danger) !important;
+}
+html body .bb-button[data-variant]:hover:not(:disabled):not([aria-disabled="true"]) {
+  box-shadow: 0 2px 5px rgba(16, 24, 40, 0.09) !important;
+  filter: brightness(0.985);
+}
+html body .bb-button[data-variant]:is(:hover, :focus-visible, [aria-pressed="true"], [aria-selected="true"], [data-selected="true"]):not(:disabled):not([aria-disabled="true"]) {
+  border-color: transparent !important;
+  background-image: linear-gradient(var(--bb-button-fill), var(--bb-button-fill)), var(--native-accent-gradient) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--native-accent-x, 0%) 50% !important;
+}
+html body .bb-button[data-variant]:focus-visible,
+html body .bb-filter-chip:focus-visible { outline: 2px solid var(--bb-control-ink) !important; outline-offset: 3px; }
+html body .bb-button[data-variant]:disabled,
+html body .bb-button[data-variant][aria-disabled="true"],
+html body .bb-filter-chip:disabled { opacity: 0.5 !important; cursor: not-allowed; filter: none; box-shadow: none !important; }
+html body .bb-button[data-variant].is-busy { cursor: progress; }
+html body .bb-button[data-variant] > .bb-button-label { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; color: inherit !important; font: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; text-transform: none !important; }
+html body .bb-button[data-variant] .bb-button-text { min-width: 0; color: inherit !important; font: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; text-transform: none !important; }
+html body .bb-button[data-variant] :is(.bb-button-label, .bb-button-busy-label) :is(span, strong, small) { color: inherit !important; font: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; }
+html body .bb-button[data-variant] .bb-button-icon[data-bb-keep-icon] {
+  display: block !important;
+  flex: 0 0 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  color: #98a2b3 !important;
+  stroke-width: 1.6 !important;
+}
+html body .bb-button[data-variant="positive"] .bb-button-icon[data-bb-keep-icon] { color: #667085 !important; }
+.bb-button.is-busy .bb-button-label { opacity: 0; }
+.bb-button-busy-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 9px 16px; pointer-events: none; font: inherit !important; }
+html body .bb-button[data-variant] svg:not([data-bb-keep-icon]) { display: none !important; }
+
+/* Only explicitly mapped Delete/Remove actions become dustbin controls.
+   Their original wording remains available to assistive technology. */
+html body .bb-control-sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; border: 0 !important; overflow: hidden !important; clip-path: inset(50%) !important; white-space: nowrap !important; }
+html body .bb-button.is-icon-only[data-variant] { width: 36px !important; min-width: 36px !important; min-height: 36px !important; padding: 0 !important; flex: 0 0 36px !important; }
+html body .bb-button.is-icon-only[data-variant] .bb-button-label { gap: 0; }
+html body .bb-button.is-icon-only[data-variant] .bb-button-icon[data-bb-keep-icon] { width: 16px !important; height: 16px !important; flex-basis: 16px !important; }
+html body .bb-button.is-icon-only[data-variant] .bb-button-busy-label { padding: 0; }
+.bb-delete-busy-icon { animation: bb-delete-spin .8s linear infinite; color: currentColor; }
+@keyframes bb-delete-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .bb-delete-busy-icon { animation: none; } }
+
+/* Legacy danger actions were fixed-width icon squares. Text actions must keep
+   their intrinsic width now that Cancel/Decline labels are visible. */
+html body .bb-ops-action.bb-button[data-variant] { width: auto !important; flex: 0 0 auto !important; }
+
+/* Explicit label/count internals prevent inherited circle geometry on text. */
+html body .bb-filter-chip {
+  appearance: none;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  max-width: 100%;
+  height: auto !important;
+  min-height: var(--bb-filter-height) !important;
+  padding: 5px 12px !important;
+  border: 1px solid var(--bb-control-border) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  color: var(--bb-control-muted) !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  text-align: center !important;
+  white-space: normal !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+html body .bb-filter-chip:is(.is-active, :hover, :focus-visible, [aria-pressed="true"], [aria-selected="true"]):not(:disabled) {
+  border-color: transparent !important;
+  color: var(--bb-control-ink) !important;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--native-accent-x, 0%) 50% !important;
+  background-repeat: no-repeat !important;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04) !important;
+}
+html body .bb-filter-chip > .bb-filter-label {
+  display: block !important;
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font: inherit !important;
+  line-height: inherit !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+html body .bb-filter-chip > svg { display: none !important; }
+html body .bb-count-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  box-sizing: border-box !important;
+  width: auto !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  padding: 0 5px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #eceef0 !important;
+  color: #475467 !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  font-variant-numeric: lining-nums tabular-nums;
+  text-align: center !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  transform: none !important;
+}
+html body .bb-filter-group { display: flex; flex-wrap: wrap; gap: 8px; }
+
+html body .bb-status-badge[data-tone] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  box-sizing: border-box;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 4px 7px !important;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  background: #fff !important;
+  color: var(--bb-control-ink) !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  box-shadow: none !important;
+  cursor: default;
+}
+html body .bb-status-badge[data-tone]::before,
+html body .bb-status-badge[data-tone]::after { content: none !important; }
+html body .bb-status-badge[data-tone="positive"] { background: var(--bb-status-positive) !important; }
+html body .bb-status-badge[data-tone="pending"] { background: var(--bb-status-pending) !important; }
+html body .bb-status-badge[data-tone="info"] { background: var(--bb-status-info) !important; }
+html body .bb-status-badge[data-tone="waitlist"] { background: var(--bb-status-waitlist) !important; }
+html body .bb-status-badge[data-tone="danger"] { background: var(--bb-status-danger) !important; }
+html body .bb-status-badge[data-tone="neutral"] { border-color: var(--bb-control-border) !important; }
+html body .bb-status-badge[data-tone] > .bb-status-check { display: block !important; width: 12px; height: 12px; flex: 0 0 auto; margin: 0; }
+
+/* Bridge standalone native fields. Compound interiors, social composers and
+   clock digits keep their specialised layout rather than becoming text boxes. */
+html body :is(.bb-control-input, .bb-control-trigger, .bb-date-field-value, .bb-time-field-value, .bb-sort-field-value),
+html body .native-ui :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not(.native-control-nest):not(.native-search-input):not(.bb-time-clock-digit):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.bb-social-compose-tweet-input),
+  textarea:not(.native-control-nest):not(.bb-social-compose-tweet-input),
+  select:not(.native-control-nest):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input)
+) {
+  box-sizing: border-box !important;
+  min-width: 0;
+  height: auto !important;
+  min-height: var(--bb-control-height) !important;
+  max-height: none !important;
+  padding: 9px 14px !important;
+  border: 1px solid var(--bb-control-border) !important;
+  border-radius: var(--bb-control-radius) !important;
+  background-color: #fff !important;
+  color: var(--bb-control-ink) !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+  line-height: 1.4 !important;
+  box-shadow: none !important;
+}
+html body :is(.bb-control-input, .bb-control-trigger, .bb-date-field-value, .bb-time-field-value, .bb-sort-field-value):focus,
+html body .native-ui :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not(.native-control-nest):not(.native-search-input):not(.bb-time-clock-digit):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):not(.bb-social-compose-tweet-input),
+  textarea:not(.native-control-nest):not(.bb-social-compose-tweet-input),
+  select:not(.native-control-nest):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input)
+):focus {
+  outline: none !important;
+  border-color: transparent !important;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--native-accent-x, 0%) 50% !important;
+}
+html body .native-ui :is(input, textarea)::placeholder,
+html body .bb-control-input::placeholder { color: var(--bb-control-placeholder) !important; font-weight: 400 !important; }
+html body .bb-control-input:disabled,
+html body .native-ui :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), textarea, select):disabled { opacity: .55; cursor: not-allowed; }
+html body .native-ui textarea:not(.native-control-nest):not(.bb-social-compose-tweet-input),
+html body textarea.bb-control-input { min-height: 104px !important; resize: vertical; }
+html body .native-ui :is(.native-control-pill, .native-control-shell, .bb-products-money, .bb-stock-unit-field) :is(input, select, textarea) {
+  font-family: var(--bb-font-body) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+html body .native-ui select:not(.native-control-nest):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input) {
+  padding-right: 38px !important;
+  background-image: var(--app-control-chevron) !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 14px 14px !important;
+}
+html body .native-ui select:not(.native-control-nest):not(.booking-desk-native-select):not(.bb-social-compose-kicker-input):focus {
+  background-image: var(--app-control-chevron), linear-gradient(#fff, #fff), var(--native-accent-gradient) !important;
+  background-repeat: no-repeat !important;
+  background-origin: padding-box, border-box, border-box !important;
+  background-clip: padding-box, padding-box, border-box !important;
+  background-size: 14px 14px, 100% 100%, 420% 420% !important;
+  background-position: right 14px center, 0 0, var(--native-accent-x, 0%) 50% !important;
+}
+html body :is(.bb-control-input, .bb-control-trigger)[aria-invalid="true"],
+html body .native-ui :is(input, textarea, select)[aria-invalid="true"] { border-color: var(--bb-action-danger-border) !important; }
+html body :is(.bb-field-label, .bb-date-field-label, .bb-time-field-label, .bb-sort-field-label, .bb-place-field-label) {
+  font-family: var(--bb-font-body) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  line-height: 1.4;
+  color: #475467 !important;
+}
+.bb-field-error { color: var(--bb-action-danger); font-size: 12px; line-height: 1.4; margin-top: 5px; }
+.bb-field-hint { color: var(--bb-control-muted); font-size: 12px; line-height: 1.4; margin-top: 5px; }
+
+/* Existing search shells retain functional icons and capsule geometry. */
+html body .native-ui :is(.bb-search-field input, .bb-settings-search, .bb-clients-search input, .bb-finance-search input, .bb-stock-search input, input.native-search-input) {
+  height: auto !important;
+  min-height: var(--bb-control-height) !important;
+  max-height: none !important;
+  padding-block: 9px !important;
+  border-radius: 999px !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+}
+html body :is(.bb-control-search, .bb-client-search, .bb-client-ig-search, .bb-client-dm-search) {
+  box-sizing: border-box;
+  min-height: var(--bb-control-height);
+  padding-block: 0;
+  border: 1px solid var(--bb-control-border);
+  border-radius: 999px;
+  background: #fff;
+}
+html body :is(.bb-control-search, .bb-client-search, .bb-client-ig-search, .bb-client-dm-search):focus-within {
+  border-color: transparent;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 0%) 50%;
+}
+html body :is(.bb-control-search, .bb-client-search, .bb-client-ig-search, .bb-client-dm-search) input,
+html body :is(.bb-control-search, .bb-client-search, .bb-client-ig-search, .bb-client-dm-search) input:focus {
+  min-width: 0;
+  min-height: calc(var(--bb-control-height) - 2px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 8px 0 !important;
+  font-family: var(--bb-font-body) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+/* Period is a grouped capsule, independent of Button and FilterChip. */
+.native-ui .bb-segment-period { height: 40px !important; min-height: 40px !important; padding-block: 3px !important; box-sizing: border-box; }
+.native-ui .bb-segment-period > button { height: 34px !important; min-height: 34px !important; box-sizing: border-box; }
+html body .native-ui .bb-segment-period > button:not([aria-pressed="true"]) {
+  border-color: transparent !important;
+  background-image: none !important;
+}
+html body .native-ui .bb-segment-period > button:is(:hover, :focus-visible, [aria-pressed="true"]):not(:disabled) {
+  border-color: transparent !important;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--native-accent-x, 0%) 50% !important;
+}
+
+/* Ordinary glyph-only actions keep their geometry and icons, but share the
+   same quiet resting edge and interactive native border as text actions. */
+html body :is(.bb-services-sheet-close, .bb-client-file-close, .bb-owner-menu-close,
+  .bb-places-close, .bb-image-crop-icon-btn, .bb-finance-icon-btn,
+  .bb-clients-delete-icon, .bb-products-compare-clear, .bb-place-field-clear,
+  .bb-search-field-clear, .bb-biz-cat-picker-clear) {
+  border: 1px solid var(--bb-control-border) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+html body :is(.bb-services-sheet-close, .bb-client-file-close, .bb-owner-menu-close,
+  .bb-places-close, .bb-image-crop-icon-btn, .bb-finance-icon-btn,
+  .bb-clients-delete-icon, .bb-products-compare-clear, .bb-place-field-clear,
+  .bb-search-field-clear, .bb-biz-cat-picker-clear):is(:hover, :focus-visible, [aria-pressed="true"], [aria-selected="true"]):not(:disabled) {
+  border-color: transparent !important;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100%, 420% 420% !important;
+  background-position: 0 0, var(--native-accent-x, 0%) 50% !important;
+}
+
+/* Metadata is not selected or interactive. Decorative border gradients on
+   these old location/distance labels must not imply an active control. */
+html body :is(.bb-public-profile-chip, .bb-places-distance) {
+  border-color: var(--bb-control-border) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+/* Local-only review gallery, using the live components rather than mockups. */
+.bb-control-review { width: min(100%, 1100px); box-sizing: border-box; margin: 0 auto; padding: 32px; background: #fff; }
+.bb-control-review > header { position: relative; isolation: isolate; padding-block: 24px; }
+.bb-control-review > header::before { content: ''; position: absolute; z-index: -1; inset: -24px -32px; pointer-events: none; background: radial-gradient(ellipse at 18% 15%, rgba(185, 227, 255, .34), transparent 52%), radial-gradient(ellipse at 65% 25%, rgba(255, 212, 242, .27), transparent 60%); }
+.bb-control-review h1 { margin: 0 0 12px; font-family: var(--bb-font-display); }
+.bb-control-review h2 { margin: 0 0 16px; font-family: var(--bb-font-body); font-size: 20px; font-weight: 600; line-height: 1.4; }
+.bb-control-review p { color: var(--bb-control-muted); line-height: 1.5; }
+.bb-control-review > section { padding-block: 24px; border-bottom: 1px solid var(--bb-control-border); }
+.bb-control-review-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.bb-control-review-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 16px; }
+.bb-control-review-fields > label { display: grid; min-width: 0; gap: 8px; font-family: var(--bb-font-body); font-size: 12px; font-weight: 500; color: #475467; }
+@media (max-width: 899px) {
+  html body .bb-button.is-icon-only[data-variant] { width: 32px !important; min-width: 32px !important; min-height: 32px !important; flex-basis: 32px !important; }
+  :root { --bb-control-height: 44px; --bb-button-height: 32px; --bb-filter-height: 30px; }
+  html body .bb-button[data-variant] { padding: 5px 9px !important; }
+  html body .bb-button[data-variant] > .bb-button-label { gap: 5px; }
+  html body .bb-button[data-variant] .bb-button-icon[data-bb-keep-icon] { flex-basis: 14px !important; width: 14px !important; height: 14px !important; }
+  html body .bb-filter-chip { padding: 3px 10px !important; gap: 6px !important; }
+  html body .bb-button-busy-label { padding: 5px 9px; }
+  .native-ui .bb-segment-period { height: var(--bb-button-height) !important; min-height: var(--bb-button-height) !important; }
+  .native-ui .bb-segment-period > button { height: 26px !important; min-height: 26px !important; }
+  .bb-control-review { padding: 16px; }
+  .bb-control-review > header::before { inset-inline: -16px; }
+  .bb-control-review-fields { grid-template-columns: minmax(0, 1fr); }
+  .bb-stock-desk .bb-products-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bb-stock-desk .bb-products-chip { width: auto; }
+  .bb-studio-actions { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 6px; }
+  .bb-studio-actions .bb-button[data-variant] { flex: 0 1 auto; width: auto; }
+  html body .bb-schedule-shifts-below-calendar .bb-button.bb-schedule-avail-sidebar-save { width: auto; justify-self: start; }
+  html body .bb-schedule-shifts-below-calendar .bb-button.bb-schedule-avail-sidebar-apply { width: auto; justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body .bb-button[data-variant], html body .bb-filter-chip { transition: none; }
+}

@@ -1,14 +1,10 @@
 import { distanceKm } from '../../shared/geo/haversine';
 import { resolveMarket } from '../../utils/markets';
+import { coordinateOrNull } from './exploreViewState';
 import {
   categoryLabel,
   expandExploreCategoryFilter
 } from '../../config/businessCategories';
-
-function numOrNull(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
 
 export function normalizeBiz(raw = {}) {
   const slug = String(raw.slug || raw.id || '').trim();
@@ -19,8 +15,8 @@ export function normalizeBiz(raw = {}) {
     raw.categoryLabel || website.profileCategory || categoryLabel(categoryId) || ''
   ).trim();
   const venueMode = String(raw.venueMode || website.venueMode || 'physical').trim() || 'physical';
-  const locationLat = numOrNull(raw.locationLat ?? website.locationLat);
-  const locationLng = numOrNull(raw.locationLng ?? website.locationLng);
+  const locationLat = coordinateOrNull(raw.locationLat ?? website.locationLat, 90);
+  const locationLng = coordinateOrNull(raw.locationLng ?? website.locationLng, 180);
   const countryCode = String(raw.countryCode || website.countryCode || '')
     .trim()
     .toUpperCase();
@@ -120,6 +116,7 @@ export function filterDiscoverBusinesses(directory, prefs = {}) {
   } = prefs;
 
   const cats = expandExploreCategoryFilter(categoryIds);
+  const hasClientLocation = coordinateOrNull(clientLat, 90) != null && coordinateOrNull(clientLng, 180) != null;
   let list = (directory || []).map((biz) => ({ ...biz }));
 
   if (cats) {
@@ -127,6 +124,7 @@ export function filterDiscoverBusinesses(directory, prefs = {}) {
   }
 
   if (mode === 'local') {
+    if (!hasClientLocation) return [];
     list = list
       .filter((biz) => biz.venueMode === 'physical' || biz.venueMode === 'hybrid')
       .filter((biz) => hasCoords(biz))
@@ -145,7 +143,7 @@ export function filterDiscoverBusinesses(directory, prefs = {}) {
     .filter((biz) => servesClient(biz, clientCountryCode))
     .map((biz) => ({
       ...biz,
-      distanceKm: hasCoords(biz)
+      distanceKm: hasClientLocation && hasCoords(biz)
         ? distanceKm(clientLat, clientLng, biz.locationLat, biz.locationLng)
         : Infinity
     }))

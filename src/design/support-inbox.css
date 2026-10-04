@@ -378,6 +378,7 @@ html body .native-ui .bb-support-inbox-title {
   align-items: center;
   gap: 0.85rem;
   min-width: 0;
+  flex: 1 1 14rem;
 }
 
 .bb-support-header-copy {
@@ -393,6 +394,8 @@ html body .native-ui .bb-support-inbox-title {
   font-weight: 760;
   letter-spacing: -0.02em;
   color: #101828;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
 }
 
 .bb-support-presence-label {
@@ -476,6 +479,9 @@ html body .native-ui .bb-support-inbox-title {
   right: 0;
   z-index: 12;
   width: min(16.5rem, calc(100vw - 1.5rem));
+  max-height: min(32rem, calc(100dvh - 12rem - env(safe-area-inset-bottom, 0px)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: grid;
   gap: 0.2rem;
   padding: 0.35rem;
@@ -501,8 +507,8 @@ html body .native-ui .bb-support-inbox-title {
 
 .bb-support-quick-group {
   display: grid;
-  gap: 0.1rem;
-  padding: 0.15rem 0;
+  gap: 0.4rem;
+  padding: 0.35rem 0;
 }
 
 .bb-support-quick-group + .bb-support-quick-group {
@@ -518,7 +524,7 @@ html body .native-ui .bb-support-inbox-title {
   font-weight: 720;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #98a2b3;
+  color: #667085;
 }
 
 .bb-support-quick-item {
@@ -623,6 +629,7 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 .bb-support-bubble {
+  min-width: 0;
   max-width: min(78%, 28rem);
   display: grid;
   gap: 0.45rem;
@@ -630,6 +637,11 @@ html body .native-ui .bb-support-inbox-title {
   border-radius: 1.1rem;
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+.bb-support-bubble-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .bb-support-bubble.is-business {
@@ -674,7 +686,9 @@ html body .native-ui .bb-support-inbox-title {
   border-radius: 0.7rem;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  min-width: 12rem;
+  width: 12rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .bb-support-bubble.is-client .bb-support-attach-file {
@@ -735,8 +749,9 @@ html body .native-ui .bb-support-inbox-title {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  min-width: 13.5rem;
-  max-width: 18rem;
+  width: 13.5rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .bb-support-voice-play {
@@ -769,6 +784,7 @@ html body .native-ui .bb-support-inbox-title {
 .bb-support-voice-wave {
   position: relative;
   flex: 1 1 auto;
+  min-width: 0;
   height: 1.5rem;
   display: flex;
   align-items: center;
@@ -1194,6 +1210,24 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 @media (max-width: 1023px) {
+  .bb-support-list-head { padding: 12px 14px; gap: 10px; }
+
+  /* Anchor the popup to the full action row, not the narrower trigger. */
+  .bb-support-header-actions { position: relative; width: 100%; }
+  .bb-support-header-actions .bb-support-quick-menu { position: static; }
+  .bb-support-header-actions .bb-support-quick-panel {
+    right: 0;
+    width: min(16.5rem, 100%);
+    box-sizing: border-box;
+    max-height: min(32rem, calc(100dvh - 12rem - env(safe-area-inset-bottom, 0px)));
+  }
+
+  .bb-support-list-head .bb-support-chips.bb-support-chips--named {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
   .bb-support-thread {
     grid-template-columns: 48px minmax(0, 1fr) minmax(24px, auto);
     gap: 12px;

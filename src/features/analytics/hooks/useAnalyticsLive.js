@@ -20,9 +20,7 @@ import { useLivePresence } from './useLivePresence';
 import {
   activeCartRows,
   buildDemoAnalytics,
-  buildMetricSeries,
-  computeAnalyticsKpis,
-  computeFunnel,
+  getPeriodBounds,
   computeLiveStrip,
   filterByPeriod,
   liveSessionRows,
@@ -31,16 +29,17 @@ import {
   rankReferrers,
   rollupGeo
 } from '../utils/analyticsMetrics';
+import { buildTrafficReport, buildPlacesReport, buildTrafficSeries } from '../utils/trafficReports';
 
 function mapDocs(snap) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 export function useAnalyticsLive(periodId = 'week', customRange = {}, options = {}) {
-  const { metricId = 'revenue', mode = 'report' } = options;
+  const { metricId = 'sessions', mode = 'report' } = options;
   const liveMode = mode === 'live';
   const { user, isLocalMode } = useAuth();
-  const { workspace, orders, bookings, products } = useWorkspace();
+  const { workspace, orders, bookings } = useWorkspace();
   const ownerId = user?.uid || workspace?.ownerId || '';
   const allowDemo = Boolean(workspace?.isDemo) || (!user && (isLocalMode || !isFirebaseConfigured()));
   const configured = isFirebaseConfigured() && !isLocalMode && Boolean(ownerId) && !workspace?.isDemo;
@@ -52,6 +51,10 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now());
   const [usingDemo, setUsingDemo] = useState(allowDemo);
+  const [coverage, setCoverage] = useState({ sessions: true, events: true });
+  const bounds = getPeriodBounds(periodId, customRange);
+  const reportStart = liveMode ? null : bounds.start;
+  const reportEnd = liveMode ? null : bounds.end;
   const presence = useLivePresence({ enabled: liveMode });
 
   useEffect(() => {
@@ -113,8 +116,9 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     }
 
     if (!configured) {
+      setCoverage({ sessions: true, events: true });
       if (allowDemo) {
-        const demo = buildDemoAnalytics();
+        const demo = buildDemoAnalytics({ orders, bookings });
         setSessions(demo.sessions);
         setEvents(demo.events);
         setCarts(demo.carts);
@@ -142,13 +146,24 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     setUsingDemo(false);
     setLoading(true);
     setError('');
+    setSessions([]);
+    setEvents([]);
+    setCoverage({ sessions: false, events: false });
+    let readySessions = false;
+    let readyEvents = false;
+    const finishLoading = () => setLoading(!(readySessions && readyEvents));
+    const rangeConstraints = (key) => [
+      ...(reportStart == null ? [] : [where(key, '>=', reportStart)]),
+      ...(reportEnd == null ? [] : [where(key, '<=', reportEnd)]),
+      orderBy(key, 'desc'), limit(1001)
+    ];
 
     const unsubscribers = [];
     try {
       const sessionsQ = query(
         collection(firebase.db, 'artifacts', APP_ID, 'analyticsSessions'),
         where('ownerId', '==', ownerId),
-        limit(400)
+        ...rangeConstraints('startedAt')
       );
       unsubscribers.push(
         onSnapshot(
@@ -157,12 +172,15 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
             const rows = mapDocs(snap).sort(
               (a, b) => Number(b.lastSeenAt || 0) - Number(a.lastSeenAt || 0)
             );
-            setSessions(rows);
-            setLoading(false);
+            setSessions(rows.slice(0, 1000));
+            setCoverage((current) => ({ ...current, sessions: snap.size <= 1000 }));
+            readySessions = true;
+            finishLoading();
           },
           (err) => {
-            setError(err.message || 'Could not load sessions');
-            setLoading(false);
+            setError('Visitor data could not be loaded. Try again when the connection and analytics indexes are ready.');
+            readySessions = true;
+            finishLoading();
             setSessions([]);
             setEvents([]);
             setCarts([]);
@@ -174,16 +192,24 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
       const eventsQ = query(
         collection(firebase.db, 'artifacts', APP_ID, 'analyticsEvents'),
         where('ownerId', '==', ownerId),
-        limit(800)
+        ...rangeConstraints('at')
       );
       unsubscribers.push(
         onSnapshot(
           eventsQ,
-          (snap) =>
-            setEvents(
-              mapDocs(snap).sort((a, b) => Number(b.at || 0) - Number(a.at || 0))
-            ),
-          () => {}
+          (snap) => {
+            setEvents(mapDocs(snap).slice(0, 1000));
+            setCoverage((current) => ({ ...current, events: snap.size <= 1000 }));
+            readyEvents = true;
+            finishLoading();
+          },
+          () => {
+            setEvents([]);
+            setCoverage((current) => ({ ...current, events: false }));
+            setError('Traffic events could not be loaded. Insights may be incomplete.');
+            readyEvents = true;
+            finishLoading();
+          }
         )
       );
 
@@ -214,7 +240,7 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     }
 
     return () => unsubscribers.forEach((unsub) => unsub());
-  }, [configured, ownerId, allowDemo, liveMode]);
+  }, [configured, ownerId, allowDemo, liveMode, reportStart, reportEnd]);
 
   const effectiveSessions = liveMode ? presence.liveSessions : sessions;
   const effectiveUsingDemo = liveMode ? presence.usingDemo : usingDemo;
@@ -250,48 +276,10 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     [effectiveSessions, activityNow]
   );
 
-  const kpis = useMemo(
-    () =>
-      computeAnalyticsKpis({
-        sessions: periodSessions,
-        events: periodEvents,
-        carts: periodCarts,
-        orders,
-        bookings
-      }),
-    [periodSessions, periodEvents, periodCarts, orders, bookings]
-  );
-
-  const funnel = useMemo(
-    () => computeFunnel({ events: periodEvents, sessions: periodSessions }),
-    [periodEvents, periodSessions]
-  );
-
-  const series = useMemo(
-    () =>
-      buildMetricSeries({
-        metricId,
-        events: periodEvents,
-        sessions: periodSessions,
-        carts: periodCarts,
-        orders,
-        bookings,
-        products,
-        periodId,
-        customRange
-      }),
-    [
-      metricId,
-      periodEvents,
-      periodSessions,
-      periodCarts,
-      orders,
-      bookings,
-      products,
-      periodId,
-      customRange
-    ]
-  );
+  const complete = coverage.sessions && coverage.events;
+  const traffic = useMemo(() => buildTrafficReport({ sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd, complete }), [periodSessions, periodEvents, reportStart, reportEnd, complete]);
+  const discovery = useMemo(() => buildPlacesReport({ sessions: periodSessions, events: periodEvents, orders, bookings, start: reportStart, end: reportEnd, complete }), [periodSessions, periodEvents, orders, bookings, reportStart, reportEnd, complete]);
+  const series = useMemo(() => buildTrafficSeries({ metricId, sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd }), [metricId, periodSessions, periodEvents, reportStart, reportEnd]);
 
   const geo = useMemo(() => rollupGeo(periodSessions), [periodSessions]);
   const topPaths = useMemo(
@@ -314,8 +302,9 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     liveSessions,
     liveCountLabel: liveMode ? presence.liveCountLabel : String(live.liveVisitors || 0),
     liveCapped: liveMode ? presence.capped : false,
-    kpis,
-    funnel,
+    traffic,
+    discovery,
+    complete,
     series,
     geo,
     topPaths,

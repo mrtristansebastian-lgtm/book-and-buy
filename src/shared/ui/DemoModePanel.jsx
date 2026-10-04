@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import { FlaskConical } from 'lucide-react';
 import { navigate } from '../../app/routing';
 import { useWorkspace } from '../../features/workspace/WorkspaceContext';
@@ -45,7 +46,7 @@ export function DemoModePanel({
         </div>
       </header>
       <div className="bb-demo-panel-actions">
-        <button
+        <Button action="reset" variant="secondary"
           type="button"
           className="bb-ghost-btn bb-demo-panel-btn"
           onClick={() => {
@@ -59,8 +60,8 @@ export function DemoModePanel({
           }}
         >
           Reset demo
-        </button>
-        <button
+        </Button>
+        <Button action="signOut" variant="secondary"
           type="button"
           className="bb-ghost-btn bb-demo-panel-btn"
           onClick={() => {
@@ -74,9 +75,9 @@ export function DemoModePanel({
           }}
         >
           Exit demo
-        </button>
+        </Button>
         {variant === 'owner' ? (
-          <button
+          <Button action="create" variant="primary"
             type="button"
             className="bb-ink-btn bb-demo-panel-btn"
             onClick={() => {
@@ -86,9 +87,9 @@ export function DemoModePanel({
             }}
           >
             Create account
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button action="create" variant="primary"
             type="button"
             className="bb-ink-btn bb-demo-panel-btn"
             onClick={() => {
@@ -96,7 +97,7 @@ export function DemoModePanel({
             }}
           >
             Create account
-          </button>
+          </Button>
         )}
       </div>
     </section>

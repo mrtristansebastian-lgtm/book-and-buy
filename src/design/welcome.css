@@ -83,15 +83,9 @@
   width: 100%;
   margin: 0;
   padding: 1.05rem 1.15rem;
-  border: 1px solid transparent;
+  border: 1px solid #e2e5e9;
   border-radius: 1rem;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    var(
-      --native-accent-gradient,
-      linear-gradient(120deg, #b9e3ff, #ffd4f2, #ffe8a3)
-    )
-      border-box;
+  background: #fff;
   background-size: auto, 220% 100%;
   background-position: 0 0, var(--native-accent-x, 40%) 50%;
   text-align: left;
@@ -106,6 +100,10 @@
 
 .bb-welcome-choice:hover,
 .bb-welcome-choice:focus-visible {
+  border-color: transparent;
+  background: linear-gradient(#fff, #fff) padding-box, var(--native-accent-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 0%) 50%;
   transform: translateY(-1px);
   box-shadow: 0 16px 36px -28px rgba(15, 23, 42, 0.45);
   outline: none;
@@ -167,8 +165,35 @@
 
 .bb-welcome-form {
   display: grid;
+  min-width: 0;
   gap: 0.75rem;
   margin-top: 0.25rem;
+}
+
+.bb-welcome-panel > *,
+.bb-welcome-form > * {
+  min-width: 0;
+}
+
+.bb-welcome-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--bb-ink);
+  font-family: var(--bb-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.bb-welcome-field > input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.bb-welcome-form > .bb-button {
+  width: 100%;
 }
 
 .bb-welcome-local-note {
@@ -176,12 +201,15 @@
   font-size: 0.9rem;
   line-height: 1.4;
   color: var(--bb-muted, #667085);
+  overflow-wrap: anywhere;
 }
 
 .bb-welcome-error {
   margin: 0;
   font-size: 0.88rem;
   color: #b45309;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .bb-welcome-notice {
@@ -189,6 +217,7 @@
   font-size: 0.88rem;
   line-height: 1.4;
   color: #17663a;
+  overflow-wrap: anywhere;
 }
 
 .bb-welcome-demo {

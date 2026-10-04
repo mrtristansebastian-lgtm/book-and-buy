@@ -64,12 +64,13 @@
 
 .bb-time-field-pick {
   appearance: none;
+  align-self: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 2.65rem;
   padding: 0.55rem 1rem;
-  border: 1.5px solid transparent;
+  border: 1px solid #e2e5e9;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
@@ -78,16 +79,19 @@
   font-weight: 780;
   letter-spacing: -0.01em;
   color: #050505;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent-gradient, var(--native-accent-button-gradient)) border-box;
-  background-size: auto, 420% 420%;
-  background-position: 0 0, var(--native-accent-x, 40%) 50%;
+  background: #fff;
   box-shadow: none;
 }
 
 .bb-time-field-pick:hover:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.bb-time-field-pick:is(:hover, :focus-visible, [aria-pressed="true"]):not(:disabled) {
+  border-color: transparent;
+  background: linear-gradient(#fff, #fff) padding-box, var(--native-accent-gradient) border-box;
+  background-size: auto, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 0%) 50%;
 }
 
 .bb-time-field-pick:active:not(:disabled) {

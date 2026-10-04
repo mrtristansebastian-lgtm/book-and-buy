@@ -1,3 +1,4 @@
+import { Button } from '../../../../shared/ui/Button';
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowDown,
@@ -281,7 +282,7 @@ export function WhatWeOfferSection({
               </article>
             ))}
             {editMode && reasons.length < 8 ? (
-              <button
+              <Button action="add" variant="primary"
                 type="button"
                 className="bb-public-about-add-point"
                 onClick={() =>
@@ -301,7 +302,7 @@ export function WhatWeOfferSection({
               >
                 <Plus size={17} aria-hidden="true" />
                 Add point
-              </button>
+              </Button>
             ) : null}
           </div>
         </section>
@@ -405,7 +406,7 @@ function OfferMarker({
             )
           )}
         </div>
-        <button
+        <Button action="color" variant="primary"
           type="button"
           className="bb-style-reset"
           onClick={() => {
@@ -414,7 +415,7 @@ function OfferMarker({
           }}
         >
           Marker color
-        </button>
+        </Button>
       </StylePopover>
       <EditableColor
         open={colorOpen}

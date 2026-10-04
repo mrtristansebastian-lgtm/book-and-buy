@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { navigate } from '../../../app/routing';
 import { BusinessHoursSettings } from '../../schedule/components/AvailabilityStudioSettingsSheet';
@@ -82,13 +83,12 @@ export function GeneralSettingsPage() {
         <div className="bb-settings-section-heading"><h2>Business hours</h2><p>Your regular weekly opening hours, in {workspace.timezone || 'Africa/Johannesburg'}. Staff shifts and date-specific changes stay in Availability.</p></div>
         <BusinessHoursSettings availabilityRules={workspace.availabilityRules || {}} onUpdateRules={updateAvailabilityRules} />
       </section>
-      <p className="bb-muted m-0 text-sm">
-        Public pages and branding live in{' '}
-        <button type="button" className="bb-ghost-btn inline px-2 py-0" onClick={() => navigate('/dashboard/website')}>
-          E-Business
-        </button>
-        . Public URL is under Domains.
-      </p>
+      <div className="bb-settings-related-links">
+        <p className="bb-muted">Manage public pages and branding in E-Business. Your public address lives in Domains.</p>
+        <Button action="open" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => navigate('/dashboard/website')}>
+          Open E-Business
+        </Button>
+      </div>
     </div>
   );
 }

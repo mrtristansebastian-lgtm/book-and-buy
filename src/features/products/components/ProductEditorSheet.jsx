@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
@@ -415,47 +416,48 @@ export function ProductEditorSheet({
         </div>
 
         <footer className="bb-services-sheet-footer">
-          {!isEdit && <button
+          {!isEdit && <Button action="back" variant="secondary"
             type="button"
             className="bb-ghost-btn"
             onClick={goBack}
             disabled={stepIndex === 0}
           >
             Back
-          </button>}
+          </Button>}
           <div className="bb-services-sheet-footer-actions">
             {isLast || isEdit ? (
               <>
                 {isEdit && isLast && onDelete ? (
-                  <button
+                  <Button action="delete" variant="destructive"
                     type="button"
                     className="bb-ghost-btn"
                     onClick={onDelete}
                   >
                     Delete
-                  </button>
+                  </Button>
                 ) : null}
-                <button type="button" className="bb-ghost-btn" onClick={onClose}>
+                <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button action="save" variant="primary"
                   type="button"
                   className="bb-primary-btn"
                   onClick={save}
-                  disabled={busy}
+                  busy={busy}
+                  busyLabel="Saving…"
                 >
                   {isEdit ? 'Save changes' : 'Save product'}
-                </button>
+                </Button>
               </>
             ) : (
-              <button
+              <Button action="continue" variant="primary"
                 type="button"
                 className="bb-primary-btn"
                 onClick={goContinue}
                 disabled={busy}
               >
                 Continue
-              </button>
+              </Button>
             )}
           </div>
         </footer>

@@ -81,9 +81,10 @@ export function ServiceEditorReviewStep({
             staff.map((member) => {
               const on = (draft.staffIds || []).includes(member.id);
               return (
-                <button
+                <FilterChip
                   key={member.id}
                   type="button"
+                  selected={on}
                   className={`bb-services-chip${on ? ' is-active' : ''}`}
                   onClick={() =>
                     patch({
@@ -94,7 +95,7 @@ export function ServiceEditorReviewStep({
                   }
                 >
                   {member.name}
-                </button>
+                </FilterChip>
               );
             })
           )}
@@ -112,3 +113,4 @@ export function ServiceEditorReviewStep({
     </section>
   );
 }
+import { FilterChip } from '../../../shared/ui/FilterChip';

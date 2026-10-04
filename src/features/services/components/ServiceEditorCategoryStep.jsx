@@ -1,3 +1,5 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import { Plus } from 'lucide-react';
 import { ExploreCategoryPicker } from '../../../shared/ui/ExploreCategoryPicker';
 
@@ -16,34 +18,35 @@ export function ServiceEditorCategoryStep({
       <h3 className="bb-services-section-title">Category</h3>
       <p className="bb-services-section-lede">Store categories stay flexible and shape your Book page navigation.</p>
       <div className="bb-services-category-chips">
-        <button
+        <FilterChip
           type="button"
+          selected={!draft.category}
           className={`bb-services-chip${!draft.category ? ' is-active' : ''}`}
           onClick={() => patch({ category: '' })}
         >
           None
-        </button>
+        </FilterChip>
         {categoryOptions.map((label) => {
           const active = draft.category === label;
           return (
-            <button
+            <FilterChip
               key={label}
               type="button"
+              selected={active}
               className={`bb-services-chip${active ? ' is-active' : ''}`}
               onClick={() => patch({ category: label })}
             >
               {label}
-            </button>
+            </FilterChip>
           );
         })}
-        <button
+        <Button action="add" variant="primary"
           type="button"
           className="bb-services-chip bb-services-chip--add"
           onClick={() => setAddingCategory(true)}
         >
-          <Plus size={14} />
           Add
-        </button>
+        </Button>
       </div>
       {addingCategory ? (
         <div className="bb-services-category-add">
@@ -60,10 +63,10 @@ export function ServiceEditorCategoryStep({
               }
             }}
           />
-          <button type="button" className="bb-primary-btn" onClick={commitCategory}>
+          <Button action="save" variant="primary" type="button" className="bb-primary-btn" onClick={commitCategory}>
             Save
-          </button>
-          <button
+          </Button>
+          <Button action="cancel" variant="secondary"
             type="button"
             className="bb-ghost-btn"
             onClick={() => {
@@ -72,7 +75,7 @@ export function ServiceEditorCategoryStep({
             }}
           >
             Cancel
-          </button>
+          </Button>
         </div>
       ) : null}
       <ExploreCategoryPicker mode="book" value={draft} onChange={patch} />

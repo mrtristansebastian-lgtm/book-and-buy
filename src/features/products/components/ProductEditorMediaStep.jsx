@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { ChevronDown, ChevronUp, ImagePlus, Trash2 } from 'lucide-react';
 
 export function ProductEditorMediaStep({
@@ -50,7 +51,7 @@ export function ProductEditorMediaStep({
             </div>
           </div>
         ))}
-        <button
+        <Button action="upload" variant="secondary"
           type="button"
           className="bb-products-gallery-add"
           disabled={busy}
@@ -58,7 +59,7 @@ export function ProductEditorMediaStep({
         >
           <ImagePlus size={18} />
           <strong>Upload</strong>
-        </button>
+        </Button>
       </div>
       <input
         ref={fileRef}

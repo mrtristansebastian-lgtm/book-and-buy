@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { Plus, Trash2 } from 'lucide-react';
 
 export function ProductEditorVariantsStep({
@@ -23,7 +24,7 @@ export function ProductEditorVariantsStep({
             live on Stock.
           </p>
         </div>
-        <button
+        <Button action="add" variant="primary"
           type="button"
           className="bb-ghost-btn"
           onClick={addOption}
@@ -31,7 +32,7 @@ export function ProductEditorVariantsStep({
         >
           <Plus size={14} />
           Add option
-        </button>
+        </Button>
       </div>
 
       {options.length === 0 ? (
@@ -103,7 +104,7 @@ export function ProductEditorVariantsStep({
                     }
                   }}
                 />
-                <button
+                <Button action="add" variant="primary"
                   type="button"
                   className="bb-primary-btn"
                   onClick={() => {
@@ -115,7 +116,7 @@ export function ProductEditorVariantsStep({
                   }}
                 >
                   Add
-                </button>
+                </Button>
               </div>
             </div>
           ))}

@@ -62,6 +62,7 @@ export function PublicSurfaceRenderer({
   showHeader: _showHeader = true,
   publicMode = false,
   trackAnalytics = false,
+  marketPicker = null,
   onOpenItem,
   onCloseItem,
   onUpdateWebsite,
@@ -106,6 +107,7 @@ export function PublicSurfaceRenderer({
           }`}
           data-page={pageId}
         >
+          {marketPicker}
           <PublicCatalogDetail
             kind={kind}
             item={item}
@@ -142,6 +144,7 @@ export function PublicSurfaceRenderer({
           preview={preview}
           editMode={editMode}
           publicMode={publicMode}
+          marketPicker={marketPicker}
           onOpenItem={onOpenItem}
           onUpdateWebsite={onUpdateWebsite}
           onUpdateProfile={onUpdateProfile}

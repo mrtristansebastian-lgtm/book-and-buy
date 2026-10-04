@@ -2,6 +2,7 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { randomUUID, createHash } from 'node:crypto';
 import { shippingQuote } from './marketPolicy.js';
 import { getPublicPaymentOptions } from './payments/publicOptions.js';
+import { verifiedAnalyticsAttribution } from './analyticsAttribution.js';
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
@@ -58,7 +59,11 @@ export async function placeMarketOrder(data, auth, db = getFirestore()) {
     if (prior.exists) { if (prior.data().fingerprint !== fingerprint) fail('This request identifier was already used for a different order.'); return prior.data().order; }
     if (!snap.exists) fail('Business unavailable.');
     const workspace = snap.data();
-    const order = { ...priceMarketOrder(workspace, data, auth), id: randomUUID(), ownerId, timestamp: Date.now(), revision: 1 };
+    const attribution = await verifiedAnalyticsAttribution(data, ownerId, data.slug, async (id) => {
+      const session = await tx.get(db.doc(`artifacts/${APP_ID}/analyticsSessions/${id}`));
+      return session.exists ? session.data() : null;
+    });
+    const order = { ...priceMarketOrder(workspace, data, auth), ...attribution, id: randomUUID(), ownerId, timestamp: Date.now(), revision: 1 };
     tx.update(settings, { orders: [order, ...(workspace.orders || [])] });
     tx.set(receipt, { fingerprint, order, createdAt: FieldValue.serverTimestamp() });
     return order;

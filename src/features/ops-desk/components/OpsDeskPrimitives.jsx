@@ -1,52 +1,24 @@
-import {
-  Bell,
-  CalendarDays,
-  Check,
-  CircleHelp,
-  ClipboardList,
-  Clock3,
-  History,
-  Layers,
-  MessageSquare,
-  Package,
-  Truck,
-  X
-} from 'lucide-react';
-
-const TAB_ICONS = {
-  upcoming: CalendarDays,
-  review: Bell,
-  confirmed: Check,
-  waitlist: Clock3,
-  history: History,
-  all: Layers,
-  new: Bell,
-  accepted: Check,
-  shipped: Truck,
-  fulfilled: Package,
-  cancelled: X
-};
+import { CircleHelp } from 'lucide-react';
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 
 export function OpsDeskTabs({ ariaLabel, value, onChange, options = [] }) {
   return (
     <div className="bb-support-chips bb-ops-filter-chips" role="toolbar" aria-label={ariaLabel}>
       {options.map((option) => {
         const active = value === option.id;
-        const Icon = option.icon || TAB_ICONS[option.id] || ClipboardList;
         return (
-          <button
+          <FilterChip
             key={option.id}
             type="button"
-            aria-pressed={active}
+            selected={active}
+            count={option.count ?? 0}
             className={`bb-support-filter-chip${active ? ' is-active' : ''}`}
             onClick={() => onChange?.(option.id)}
           >
-            <span className="bb-ops-filter-icon" aria-hidden="true">
-              <Icon size={13} strokeWidth={2.35} />
-            </span>
             <span>{option.label}</span>
-            <span className="bb-support-filter-count">{option.count ?? 0}</span>
-          </button>
+          </FilterChip>
         );
       })}
     </div>
@@ -55,7 +27,7 @@ export function OpsDeskTabs({ ariaLabel, value, onChange, options = [] }) {
 
 export function OpsStatusBadge({ status = '', label }) {
   const tone = String(status || 'pending').toLowerCase().replace(/\s+/g, '-');
-  return <span className={`bb-ops-badge is-${tone}`}>{label || status}</span>;
+  return <StatusBadge className={`bb-ops-badge is-${tone}`} status={status} label={label || status} />;
 }
 
 export function OpsAvatar({ name = '', src = '' }) {
@@ -76,23 +48,27 @@ export function OpsAvatar({ name = '', src = '' }) {
   );
 }
 
-export function OpsAction({ children, onClick, tone = 'default', ariaLabel, className = '', iconOnly = false }) {
+export function OpsAction({ children, onClick, tone = 'default', variant, ariaLabel, className = '', iconOnly = false, disabled = false, busy = false, busyLabel, ...props }) {
+  const actionVariant = variant || ({ primary: 'primary', positive: 'positive', danger: 'destructive' }[tone] || 'secondary');
+  const Component = iconOnly ? 'button' : Button;
   return (
-    <button
+    <Component
+      {...props}
       type="button"
       className={`bb-ops-action ${tone !== 'default' ? `is-${tone}` : ''}${iconOnly ? ' is-icon' : ''} ${className}`.trim()}
       onClick={onClick}
       aria-label={ariaLabel}
+      disabled={disabled || busy}
+      {...(!iconOnly ? { variant: actionVariant, busy, busyLabel } : {})}
     >
       {children}
-    </button>
+    </Component>
   );
 }
 
 export function OpsChatAction({ onClick }) {
   return (
-    <OpsAction onClick={onClick}>
-      <MessageSquare size={13} strokeWidth={2.2} />
+    <OpsAction action="chat" onClick={onClick}>
       Chat
     </OpsAction>
   );
@@ -100,8 +76,7 @@ export function OpsChatAction({ onClick }) {
 
 export function OpsDeclineAction({ onClick, label = 'Decline' }) {
   return (
-    <OpsAction tone="danger" ariaLabel={label} onClick={onClick}>
-      <X size={14} strokeWidth={2.4} />
+    <OpsAction action="decline" tone="danger" ariaLabel={label} onClick={onClick}>
       <span>{label}</span>
     </OpsAction>
   );

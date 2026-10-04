@@ -6,22 +6,16 @@ import { PublicSurfaceRenderer } from './components/PublicSurfaceRenderer';
 import { useAuth } from '../auth/AuthContext';
 import { filterWorkspaceForMarket, resolveMarket } from '../../utils/markets';
 import { MarketCountryPicker } from '../settings/components/MarketCountryPicker';
-
-function titleCaseSlug(slug) {
-  return String(slug || '')
-    .split('-')
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
+import { Button } from '../../shared/ui/Button';
+import { navigate } from '../../app/routing';
+import { resolvePublicProfile } from './publicProfileState';
 
 export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = true }) {
   const { user } = useAuth();
   const { workspace: local } = useWorkspace();
-  const [remote, setRemote] = useState(null);
+  const configured = isFirebaseConfigured();
+  const [lookup, setLookup] = useState({ slug: '', status: 'loading', workspace: null });
   const [buyerCountry, setBuyerCountry] = useState('');
-  const [loadingRemote, setLoadingRemote] = useState(() => isFirebaseConfigured());
-  const [loadTried, setLoadTried] = useState(!isFirebaseConfigured());
   const localMatch = slug === local.slug ||
     ((slug === 'flour-and-flame' || slug === 'flameandflour') &&
       (local.isDemo || local.slug === 'flour-and-flame' || local.slug === 'flameandflour'));
@@ -29,76 +23,64 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
 
   useEffect(() => {
     let cancelled = false;
-    if (useLocalDemo || !isFirebaseConfigured()) {
-      setRemote(null);
-      setLoadingRemote(false);
-      setLoadTried(true);
+    setBuyerCountry('');
+    if (useLocalDemo || !configured) {
+      setLookup({ slug, status: 'ready', workspace: null });
       return undefined;
     }
-
-    setRemote(null);
-    setLoadingRemote(true);
-    setLoadTried(false);
+    setLookup({ slug, status: 'loading', workspace: null });
     loadPublicWorkspaceFromFirestore(slug)
       .then((doc) => {
-        if (!cancelled) setRemote(doc);
+        if (!cancelled) setLookup({ slug, status: 'ready', workspace: doc });
       })
       .catch(() => {
-        if (!cancelled) setRemote(null);
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoadingRemote(false);
-          setLoadTried(true);
-        }
+        if (!cancelled) setLookup({ slug, status: 'error', workspace: null });
       });
 
     return () => {
       cancelled = true;
     };
-  }, [slug, useLocalDemo]);
+  }, [slug, useLocalDemo, configured]);
 
-  const workspace =
-    (useLocalDemo ? local : remote) ||
-    (localMatch
-      ? local
-      : {
-          ...local,
-          slug,
-          brandName: titleCaseSlug(slug),
-          services: [],
-          products: [],
-          website: {
-            ...(local.website || {}),
-            pages: { home: true, book: true, buy: true }
-          }
-        });
-  const ownerViewingOwnSite = Boolean(user?.uid && workspace?.ownerId === user.uid);
-  const marketConfigured = Array.isArray(workspace.website?.markets);
-  const market = resolveMarket(workspace.website || {}, buyerCountry);
-  const buyerWorkspace = filterWorkspaceForMarket(workspace, buyerCountry);
-
-  if (!useLocalDemo && loadingRemote && !loadTried) {
+  const resolved = resolvePublicProfile({ slug, local, lookup, configured, useLocalDemo,
+    viewerId: user?.uid, allowOwnerPreview: allowLocalDemo });
+  if (resolved.status === 'loading') {
     return (
       <div className="bb-shell native-ui min-h-screen grid place-items-center bb-muted">
-        Loading public site…
+        Loading business profile…
       </div>
     );
   }
+  if (!resolved.workspace) {
+    return <div className="bb-shell native-ui min-h-screen bg-white grid place-items-center">
+      <section className="bb-public-profile-unavailable">
+        <h1>Business profile unavailable</h1>
+        <p>{resolved.status === 'error' ? 'We could not load this profile. Please try again shortly.' : 'This profile has not been published, or the link is no longer available.'}</p>
+        <Button action="back" variant="secondary" onClick={() => navigate('/app/find')}>Back to Places</Button>
+      </section>
+    </div>;
+  }
+  const workspace = resolved.workspace;
+  const ownerViewingOwnSite = Boolean(user?.uid && workspace.ownerId === user.uid);
+  const marketConfigured = Array.isArray(workspace.website?.markets);
+  const showCountryPicker = marketConfigured && ['book', 'buy', 'cart', 'checkout'].includes(page);
+  const market = resolveMarket(workspace.website || {}, buyerCountry);
+  const buyerWorkspace = filterWorkspaceForMarket(workspace, buyerCountry);
 
   return (
     <div className="bb-shell native-ui min-h-screen bg-white">
-      {marketConfigured && <div className="bb-public-market-picker">
-        <MarketCountryPicker label="Your shopping country" value={buyerCountry} onChange={setBuyerCountry} allowRestOfWorld={false} resetOnSearch={false} />
-        {!buyerCountry && <span role="status">Choose your country to see available products and services.</span>}
-        {buyerCountry && !market?.enabled && <span role="status">This business does not currently sell to this country.</span>}
-      </div>}
+      {!useLocalDemo && !resolved.publicMode ? <p className="bb-public-profile-preview-notice" role="status">Owner preview — this profile is not published yet.</p> : null}
       <PublicSurfaceRenderer
         workspace={buyerWorkspace}
         page={page || 'home'}
         itemId={itemId || ''}
-        publicMode={!useLocalDemo && (Boolean(remote) || !localMatch)}
-        trackAnalytics={!useLocalDemo && !ownerViewingOwnSite}
+        publicMode={resolved.publicMode}
+        trackAnalytics={resolved.publicMode && !ownerViewingOwnSite}
+        marketPicker={showCountryPicker ? <div className="bb-public-market-picker">
+          <MarketCountryPicker label="Your shopping country" value={buyerCountry} onChange={setBuyerCountry} allowRestOfWorld={false} resetOnSearch={false} />
+          {!buyerCountry && <span role="status">Choose your country to see available products and services.</span>}
+          {buyerCountry && !market?.enabled && <span role="status">This business does not currently sell to this country.</span>}
+        </div> : null}
       />
     </div>
   );

@@ -254,7 +254,7 @@ export function ProductOrdersDesk({ heading = null }) {
                 <div className="bb-ops-actions">
                   <OpsChatAction onClick={() => openChat(order)} />
                   {order.paymentStatus !== 'paid' ? (
-                    <OpsAction onClick={() => markOrderPaid(order.id)}>
+                    <OpsAction action="markPaid" variant="positive" onClick={() => markOrderPaid(order.id)}>
                       <DollarSign size={13} strokeWidth={2.4} />
                       Mark paid
                     </OpsAction>
@@ -265,8 +265,8 @@ export function ProductOrdersDesk({ heading = null }) {
                   )}
                   {status === 'pending' ? (
                     <div className="bb-ops-action-cluster">
-                      <OpsAction
-                        tone="primary"
+                      <OpsAction action="accept"
+                        variant="positive"
                         ariaLabel="Accept order"
                         onClick={() => acceptOrder(order.id)}
                       >
@@ -278,7 +278,7 @@ export function ProductOrdersDesk({ heading = null }) {
                   ) : null}
                   {status === 'accepted' ? (
                     <div className="bb-ops-action-cluster">
-                      <OpsAction tone="primary" onClick={() => shipOrder(order.id)}>
+                      <OpsAction action="ship" tone="primary" onClick={() => shipOrder(order.id)}>
                         <Truck size={13} strokeWidth={2.2} />
                         Ship
                       </OpsAction>
@@ -287,7 +287,7 @@ export function ProductOrdersDesk({ heading = null }) {
                   ) : null}
                   {status === 'shipped' ? (
                     <div className="bb-ops-action-cluster">
-                      <OpsAction tone="primary" onClick={() => fulfilOrder(order.id)}>
+                      <OpsAction action="fulfil" variant="positive" onClick={() => fulfilOrder(order.id)}>
                         <PackageCheck size={13} strokeWidth={2.2} />
                         Fulfilled
                       </OpsAction>

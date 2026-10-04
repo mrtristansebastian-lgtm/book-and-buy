@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Clock, CalendarDays, X } from 'lucide-react';
@@ -90,15 +91,15 @@ export function BusinessHoursSettings({ availabilityRules, onUpdateRules }) {
         A closing time before opening continues into the next day. Matching times create a 24-hour day.
       </p>
       <div className="bb-schedule-avail-settings-section-actions">
-        {dirty && <button type="button" className="bb-ghost-btn" onClick={() => setDraft(seedWeekdayHours(availabilityRules))}>Discard hours changes</button>}
-        <button
+        {dirty && <Button action="reset" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setDraft(seedWeekdayHours(availabilityRules))}>Discard hours changes</Button>}
+        <Button action="save" variant="primary"
           type="button"
           className="bb-primary-btn"
           disabled={!dirty || !rowsValid || openCount < 1}
           onClick={save}
         >
           Save hours
-        </button>
+        </Button>
       </div>
       {dirty && <p className="bb-schedule-avail-hint m-0" role="status">Opening hours have unsaved changes. Use Save hours to apply them.</p>}
     </div>

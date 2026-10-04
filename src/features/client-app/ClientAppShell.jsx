@@ -124,10 +124,11 @@ export function ClientAppShell({
 
   return (
     <div
-      className={`bb-client-shell native-ui${hideHeader ? ' is-headerless' : ''}${
+      className={`bb-client-shell native-ui${hideHeader ? ' is-headerless' : ' has-flowing-header'}${
         dockHidden ? ' is-dock-hidden' : ''
       }`}
     >
+      <main className="bb-client-main">
       {hideHeader ? null : (
         <header className="bb-client-top">
           <BrandMark
@@ -146,7 +147,8 @@ export function ClientAppShell({
         </header>
       )}
 
-      <main className="bb-client-main">{children}</main>
+      {children}
+      </main>
 
       <nav className="bb-client-tabs" aria-label="Client navigation">
         {TABS.map((tab) => {

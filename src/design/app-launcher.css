@@ -16,6 +16,7 @@
 
 .bb-launcher {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.35rem;
   width: 100%;
   max-width: 1280px;
@@ -24,6 +25,7 @@
 }
 
 .bb-launcher-header {
+  min-width: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -80,6 +82,7 @@
 
 .bb-launcher-header-copy {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.35rem;
   min-width: 0;
 }
@@ -210,14 +213,9 @@
   outline-offset: 2px;
 }
 
-/* Featured (revenue) stat carries the live accent as ink on a white card */
+/* Currency values need stable dark ink throughout the native accent cycle. */
 .bb-stat.is-featured .bb-stat-value {
-  background-image: var(--native-accent-button-gradient);
-  background-size: 420% 420%;
-  background-position: var(--native-accent-x) 50%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--bb-ink);
 }
 
 .bb-stat-label {
@@ -730,6 +728,9 @@
     align-items: flex-start;
     flex-direction: column;
   }
+  .bb-launcher-header-copy { width: 100%; min-width: 0; }
+  .bb-launcher-header-copy .bb-page-title-wrap { display: block; width: 100%; min-width: 0; max-width: 100%; }
+  .bb-launcher-header-copy h1 { max-width: 100%; overflow-wrap: anywhere; }
 
   .bb-launcher-tools {
     width: 100%;

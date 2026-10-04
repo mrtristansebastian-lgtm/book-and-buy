@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { Check, Copy, ExternalLink, Globe2, Sparkles } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
@@ -7,12 +8,11 @@ import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import {
   FINANCE_PERIODS,
   buildFinanceLedger,
-  computeFinanceMetrics,
-  filterLedgerByPeriod,
   formatMoney,
-  getPeriodBounds,
-  periodTitle
+  getPeriodBounds
 } from '../../finance/utils/financeLedger';
+import { buildFinanceMetricView, formatFinanceMetricValue } from '../../finance/utils/financeMetrics';
+import { DashboardStat } from '../../../shared/ui/DashboardStat';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { EmptyState } from '../../../shared/ui/EmptyState';
@@ -67,7 +67,6 @@ export function OverviewPage() {
     label: period.label,
     shortLabel: period.shortLabel
   }));
-  const periodLabel = periodTitle(periodId, customRange).toLowerCase();
   const todayKey = toDateKey(new Date());
   const publicHomePath = publicPagePath(workspace.slug || 'your-business', 'home');
   const personName = resolvePersonName({ user, staff, workspace });
@@ -100,25 +99,31 @@ export function OverviewPage() {
   }, [bookings, periodId, customRange]);
 
   const revenue = useMemo(() => {
-    const ledger = buildFinanceLedger({ bookings, orders, services, brandName: workspace.brandName });
-    return computeFinanceMetrics(filterLedgerByPeriod(ledger, periodId, customRange), periodId);
-  }, [bookings, orders, services, workspace.brandName, periodId, customRange]);
+    const ledger = buildFinanceLedger({ bookings, orders, services, brandName: workspace.brandName, currency });
+    return {
+      paid: buildFinanceMetricView({ ledger, metricId: 'revenue', periodId, customRange, currency }),
+      pending: buildFinanceMetricView({ ledger, metricId: 'pending_payments', periodId, customRange, currency })
+    };
+  }, [bookings, orders, services, workspace.brandName, currency, periodId, customRange]);
+  const revenueNote = [revenue.paid.unavailableReason, revenue.paid.coverageNote || revenue.paid.currencyNote].filter(Boolean).join(' ');
 
   const stats = [
     {
       id: 'revenue',
-      label: `Revenue ${periodLabel}`,
-      value: formatMoney(revenue.totalRevenueInCents, currency),
+      label: 'Revenue',
+      value: formatFinanceMetricValue(revenue.paid.value, 'money', currency),
       hint:
-        revenue.pendingInCents > 0
-          ? `${formatMoney(revenue.pendingInCents, currency)} pending`
-          : `${plural(revenue.paidCount, 'payment', 'payments')}`,
+        !revenue.paid.available
+          ? revenue.paid.unavailableReason
+          : revenue.pending.value > 0
+            ? `${formatMoney(revenue.pending.value, currency)} pending`
+            : `${plural(revenue.paid.receiptCount, 'payment', 'payments')}`,
       to: 'finance',
       featured: true
     },
     {
       id: 'bookings',
-      label: periodId === 'all' ? 'Upcoming bookings' : `Upcoming bookings ${periodLabel}`,
+      label: 'Upcoming bookings',
       value: upcomingBookings,
       hint: upcomingBookings > 0 ? 'on the schedule' : 'nothing booked',
       to: 'staff'
@@ -185,26 +190,28 @@ export function OverviewPage() {
             onCustomSelect={() => setCustomPickerOpen(true)}
           />
 
-          <div className="bb-launcher-live">
+          <div className="bb-launcher-live" role="group" aria-label="Public profile actions">
+            <span className="bb-launcher-live-status">
             <span className="bb-launcher-live-dot" aria-hidden="true" />
             <span className="bb-launcher-live-label">Live site</span>
-            <button
+            </span>
+            <Button action="copy" variant="secondary"
               type="button"
-              className="bb-launcher-live-btn"
+              className="bb-launcher-live-btn bb-home-utility-action"
               onClick={copyPublicLink}
               aria-label="Copy public site link"
             >
               {copied ? <Check size={14} strokeWidth={2.4} /> : <Copy size={14} strokeWidth={2.2} />}
               {copied ? 'Copied' : 'Copy link'}
-            </button>
-            <button
+            </Button>
+            <Button action="open" variant="secondary"
               type="button"
-              className="bb-launcher-live-btn is-primary"
+              className="bb-launcher-live-btn bb-home-utility-action"
               onClick={() => navigate(publicHomePath)}
             >
               <ExternalLink size={14} strokeWidth={2.2} />
               Open
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -229,14 +236,14 @@ export function OverviewPage() {
             title="Make it yours"
             description="Add a logo, build your home page, and publish your first post. No sample content — just your business."
             action={
-              <button
+              <Button action="settings" variant="primary"
                 type="button"
                 className="bb-primary-btn"
                 onClick={() => navigate('/dashboard/website')}
               >
                 <Globe2 size={16} strokeWidth={2.2} aria-hidden="true" />
                 Set up home page
-              </button>
+              </Button>
             }
           />
         </section>
@@ -248,17 +255,22 @@ export function OverviewPage() {
         style={{ '--i': 1 }}
       >
         {stats.map((stat) => (
-          <button
+          <DashboardStat
             key={stat.id}
+            as="button"
             type="button"
+            titleTag="span"
+            appearance="operational"
             className={`bb-stat${stat.featured ? ' is-featured' : ''}${stat.alert ? ' is-alert' : ''}`}
+            value={stat.value}
+            label={stat.label}
+            aria-describedby={stat.id === 'revenue' && revenueNote ? 'bb-home-revenue-note' : undefined}
+            title={stat.hint}
             onClick={() => navigate(`/dashboard/${stat.to}`)}
-          >
-            <span className="bb-stat-value">{stat.value}</span>
-            <span className="bb-stat-label">{stat.label}</span>
-          </button>
+          />
         ))}
       </section>
+      {revenueNote ? <p id="bb-home-revenue-note" className="bb-home-metric-note">{revenueNote}</p> : null}
 
       <div className="bb-launcher-enter" style={{ '--i': 1.35 }}>
         <AnalyticsLiveWorldMap

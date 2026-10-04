@@ -1,5 +1,7 @@
+import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
-import { Check, ExternalLink, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Check, Eye, EyeOff } from 'lucide-react';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { GATEWAY_META, ONLINE_GATEWAY_IDS } from '../../finance/config/gatewayMeta';
 import { ensureGatewayRoster, getPublicPaymentOptions, last4 } from '../../../utils/payments';
 import { APP_ID } from '../../../config/appConfig';
@@ -112,7 +114,7 @@ function OnlineGatewayCard({
         <div className="grid gap-1 min-w-0">
           <div className="bb-pay-provider-title">
             <h3 className="bb-pay-logo-heading"><img className={`bb-pay-logo is-${gateway.gatewayType}`} src={`/payment-logos/${gateway.gatewayType}.${gateway.gatewayType === 'paypal' ? 'png' : 'svg'}`} alt={meta.name} /></h3>
-            <span className={`bb-pay-status is-${status.id}`}>{status.label}</span>
+            <StatusBadge className="bb-pay-status" status={status.id} label={status.label} />
           </div>
           <p className="bb-muted m-0 text-sm">{meta.blurb}</p>
           {gateway.configured && gateway.credentialSummary?.publicKeyLast4 ? (
@@ -125,7 +127,7 @@ function OnlineGatewayCard({
         <div className="flex flex-wrap gap-2">
           {gateway.configured ? (
             <>
-              <button
+              <Button action="reconnect" variant="primary"
                 type="button"
                 className="bb-ghost-btn"
                 disabled={busy}
@@ -135,15 +137,15 @@ function OnlineGatewayCard({
                 }}
               >
                 Reconnect
-              </button>
-              <button type="button" className="bb-ghost-btn" disabled={busy} onClick={() => { if (window.confirm(`Disconnect ${meta.name}? Clients will no longer be able to use it at checkout.`)) disconnect(); }}>
+              </Button>
+              <Button action="disconnect" variant="destructive" type="button" className="bb-ghost-btn" disabled={busy} onClick={() => { if (window.confirm(`Disconnect ${meta.name}? Clients will no longer be able to use it at checkout.`)) disconnect(); }}>
                 Disconnect
-              </button>
+              </Button>
             </>
           ) : (
-            <button type="button" className="bb-primary-btn" onClick={() => setOpen(true)}>
+            <Button action="connect" variant="primary" type="button" className="bb-primary-btn" onClick={() => setOpen(true)}>
               Connect
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -191,13 +193,13 @@ function OnlineGatewayCard({
                   disabled
                   readOnly
                 />
-                <button
+                <Button action="replace" variant="secondary"
                   type="button"
                   className="bb-ghost-btn"
                   onClick={() => setReplaceSecret(true)}
                 >
                   Replace secret
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="bb-pay-secret-row">
@@ -236,31 +238,27 @@ function OnlineGatewayCard({
           ) : null}
 
           <div className="flex flex-wrap gap-2 items-center">
-            <button
+            <Button action="save" variant="primary"
               type="button"
               className="bb-primary-btn"
-              disabled={busy || (replaceSecret && !secretKey.trim()) || !publicKey.trim()}
+              disabled={(replaceSecret && !secretKey.trim()) || !publicKey.trim()}
+              busy={busy}
+              busyLabel="Saving…"
               onClick={save}
             >
-              {busy ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" /> Saving…
-                </>
-              ) : (
-                cloudReady ? 'Save & verify' : 'Save demo connection'
-              )}
-            </button>
-            <a
+              {cloudReady ? 'Save & verify' : 'Save demo connection'}
+            </Button>
+            <Button action="open" as="a" variant="secondary"
               className="bb-ghost-btn inline-flex items-center gap-1"
               href={meta.docsUrl}
               target="_blank"
               rel="noreferrer"
             >
-              Open {meta.name} keys <ExternalLink size={14} />
-            </a>
-              <button type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
+              Open {meta.name} keys
+            </Button>
+              <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
                 Cancel
-              </button>
+              </Button>
           </div>
           {error ? <p className="bb-pay-error m-0" role="alert">{error}</p> : null}
         </div>

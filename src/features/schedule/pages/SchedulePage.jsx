@@ -1,5 +1,7 @@
+import { Button } from '../../../shared/ui/Button';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Info, Smartphone } from 'lucide-react';
+import { AlertTriangle, CalendarDays, Check, Clock3, ChevronDown, ChevronLeft, ChevronRight, Info, Smartphone } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { AppSheet } from '../../../shared/ui/AppSheet';
 import { useElementWidth } from '../../../shared/ui/useElementWidth';
@@ -355,13 +357,12 @@ export function SchedulePage() {
               </span>
             </div>
           </div>
-          <button type="button" className="bb-schedule-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">
-            <img src="/review-logos/google-calendar.webp" width="24" height="24" alt="" />
-            <span>Sync Google Calendar</span>
-          </button>
+          <Button action="sync" icon={<img src="/review-logos/google-calendar.webp" alt="" />} variant="primary" type="button" className="bb-schedule-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">
+            Sync Google Calendar
+          </Button>
         </header>
       </div>
-      {googleCalendarOpen ? <AppSheet title="Google Calendar" eyebrow="BOOKING SYNC" onClose={() => setGoogleCalendarOpen(false)} panelClassName="bb-schedule-google-sheet" footer={<button type="button" className="bb-ghost-btn" onClick={() => setGoogleCalendarOpen(false)}>Done</button>}>
+      {googleCalendarOpen ? <AppSheet title="Google Calendar" eyebrow="BOOKING SYNC" onClose={() => setGoogleCalendarOpen(false)} panelClassName="bb-schedule-google-sheet" footer={<Button action="close" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setGoogleCalendarOpen(false)}>Done</Button>}>
         <div className="bb-schedule-google-intro"><img src="/review-logos/google-calendar.webp" width="48" height="48" alt="Google Calendar" /><div><h3>Your bookings, together.</h3><p>Keep confirmed appointments in your Google Calendar without changing how you manage your schedule.</p></div></div>
         <ul className="bb-schedule-google-features"><li><Check size={18} /><span>Confirmed bookings appear as calendar events.</span></li><li><Check size={18} /><span>Accepted reschedules update the same event.</span></li><li><Check size={18} /><span>Cancelled bookings are removed from the calendar.</span></li></ul>
         <p className="bb-schedule-google-policy">Bookings stay managed in Book &amp; Buy. Business hours, shifts and breaks are not exported. Changes made in Google Calendar won’t change a booking.</p>
@@ -410,12 +411,6 @@ export function SchedulePage() {
             {renderStaffFilter()}
           </div>
 
-          <div className="bb-schedule-side-section bb-schedule-legend">
-            <span className="bb-schedule-side-label">Categories</span>
-            <span><i className="is-lilac" /> Appointments</span>
-            <span><i className="is-blue" /> Consultations</span>
-            <span><i className="is-pink" /> Classes</span>
-          </div>
         </aside>
 
         <main className="bb-schedule-main">
@@ -449,10 +444,10 @@ export function SchedulePage() {
                   <p className="bb-schedule-rotate-hint"><Smartphone size={14} aria-hidden="true" />Rotate for a better view</p>
                   <div className="bb-schedule-board-scroll">
                     <div
-                      className="bb-schedule-resource-grid"
+                      className={`bb-schedule-resource-grid${focusStaffId ? ' is-single-staff' : ''}`}
                       style={{ '--schedule-hour-count': daySpanHours }}
                     >
-                      <div className="bb-schedule-resource-corner"><span>Team</span></div>
+                      {!focusStaffId && <div className="bb-schedule-resource-corner"><span>Team</span></div>}
                       <div
                         className="bb-schedule-resource-axis"
                         ref={axisRef}
@@ -483,7 +478,7 @@ export function SchedulePage() {
                               : 'Available';
                         return (
                           <div className={`bb-schedule-resource-row is-${timeline.status}`} key={member.id || 'all'}>
-                            <div className="bb-schedule-resource-person">
+                            {!focusStaffId && <div className="bb-schedule-resource-person">
                               <span className="bb-schedule-resource-avatar" style={{ '--staff-color': member.color || '#101828' }}>
                                 {photo ? <img src={photo} alt="" /> : staffInitials(member.name)}
                               </span>
@@ -491,7 +486,7 @@ export function SchedulePage() {
                                 <strong title={member.name}><span className="bb-schedule-staff-full-name">{member.name}</span><span className="bb-schedule-staff-first-name" aria-label={member.name}>{String(member.name || 'Staff').trim().split(/\s+/)[0]}</span></strong>
                                 <small>{bookingsWithConflict.length} booking{bookingsWithConflict.length === 1 ? '' : 's'}</small>
                               </span>
-                            </div>
+                            </div>}
                             <div className={`bb-schedule-resource-track is-${timeline.status}`}>
                               <div className="bb-schedule-resource-lines" aria-hidden="true">
                                 {boardAxisMarks.slice(1, -1).map((mark) => (
@@ -507,12 +502,12 @@ export function SchedulePage() {
                                   />
                                 ))}
                               </div>
-                              {visibleBookings.map(({ booking, conflict }, bookingIndex) => {
+                              {visibleBookings.map(({ booking, conflict }) => {
                                 const position = bookingHorizontalPosition(booking, dayStartMinutes, dayEndMinutes);
                                 return (
                                   <article
                                     key={booking.id}
-                                    className={`bb-schedule-resource-event is-palette-${bookingIndex % 4}${conflict ? ' is-conflict' : ''}`}
+                                    className={`bb-schedule-resource-event${conflict ? ' is-conflict' : ''}`}
                                     style={{ left: `${position.left}%`, width: `${position.width}%` }}
                                     role="button"
                                     tabIndex={0}
@@ -527,16 +522,14 @@ export function SchedulePage() {
                                     }}
                                     title={`${booking.clientName || 'Client'} · ${formatBookingWindow(booking)}${conflict ? ` · ${conflict.label}` : ''}`}
                                   >
-                                    <span className="bb-schedule-event-kicker">{booking.serviceName || 'Appointment'}</span>
+                                    <span className="bb-schedule-event-kicker"><CalendarDays size={14} aria-hidden="true" /><span>{booking.serviceName || 'Appointment'}</span></span>
                                     <h3>{booking.clientName || 'Client'}</h3>
-                                    <time>{formatBookingWindow(booking)}</time>
+                                    <time><Clock3 size={13} aria-hidden="true" />{formatBookingWindow(booking)}</time>
                                     {conflict ? (
                                       <span className="bb-schedule-event-conflict"><AlertTriangle size={12} />{conflict.label}</span>
                                     ) : null}
                                     <div className="bb-schedule-event-person">
-                                      <span>{clientInitials(booking.clientName)}</span>
-                                      <b>{booking.staffName || member.name}</b>
-                                      <Check size={13} aria-label="Confirmed" />
+                                      <StatusBadge className="bb-schedule-card-status" status="confirmed" label="Confirmed" />
                                     </div>
                                   </article>
                                 );
@@ -556,7 +549,7 @@ export function SchedulePage() {
                   <div><strong>{selectedAppointment.clientName || 'Client'}</strong><span>{selectedAppointment.serviceName || 'Appointment'}</span></div>
                   <time>{formatBookingWindow(selectedAppointment)}</time>
                   <span>{selectedAppointment.staffName || 'Team appointment'}</span>
-                  <button type="button" className="bb-ghost-btn" onClick={() => setSelectedAppointmentId('')}>Close details</button>
+                  <Button action="close" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setSelectedAppointmentId('')}>Close details</Button>
                 </section>
               ) : null}
 
@@ -727,9 +720,7 @@ export function SchedulePage() {
                                         : ''}
                                     </p>
                                   </div>
-                                  <span className="bb-schedule-status-chip is-confirmed">
-                                    Confirmed
-                                  </span>
+                                  <StatusBadge className="bb-schedule-status-chip is-confirmed" status="confirmed" label="Confirmed" />
                                 </article>
                               );
                             })}
@@ -789,9 +780,7 @@ export function SchedulePage() {
                     <article key={service.id} className="bb-schedule-spot-card">
                       <div className={`bb-schedule-spot-media${imageSrc ? '' : ' is-empty'}`}>
                         {imageSrc ? <img src={imageSrc} alt="" /> : null}
-                        <span className={`bb-schedule-status-chip is-${status}`}>
-                          {statusLabel(status)}
-                        </span>
+                        <StatusBadge className={`bb-schedule-status-chip is-${status}`} status={status} label={statusLabel(status)} />
                       </div>
 
                       <div className="bb-schedule-spot-card-body">
@@ -829,14 +818,14 @@ export function SchedulePage() {
                           <span style={{ width: `${fill}%` }} />
                         </div>
 
-                        <button
+                        <Button action="view" variant="secondary"
                           type="button"
                           className="bb-schedule-spot-info"
                           onClick={() => setInfoSpotId(service.id)}
                         >
-                          <Info size={15} strokeWidth={2.2} />
+
                           <span>Info</span>
-                        </button>
+                        </Button>
                       </div>
                     </article>
                   );

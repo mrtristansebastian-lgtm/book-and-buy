@@ -453,7 +453,7 @@ export function activeCartRows(carts = [], now = Date.now()) {
 export { buildChartGeometry };
 
 /** Realistic demo payload so local/unconfigured mode still feels finished. */
-export function buildDemoAnalytics({ now = Date.now() } = {}) {
+export function buildDemoAnalytics({ now = Date.now(), orders = [], bookings = [] } = {}) {
   const day = DAY_MS;
   const sessions = [];
   const events = [];
@@ -469,10 +469,19 @@ export function buildDemoAnalytics({ now = Date.now() } = {}) {
   const products = ['Sourdough loaf', 'Weekend brunch', 'Gift box', 'Flat white'];
 
   for (let i = 0; i < 48; i += 1) {
-    const at = now - Math.floor(Math.random() * 10) * day - Math.floor(Math.random() * 12) * 3600000;
+    const at = now - (i % 10) * day - (i % 12) * 3600000;
     const sid = `demo_s_${i}`;
     const geo = geos[i % geos.length];
     sessions.push({
+      analyticsVersion: 2,
+      visitorId: `demo_visitor_${i % 24}`,
+      visitorFirstSeenAt: i % 4 === 0 ? now - 30 * day : at,
+      isReturningVisitor: i % 4 === 0,
+      source: i % 3 === 0 ? 'places' : 'direct',
+      engagedTimeMs: (i % 6) * 8000,
+      engaged: (i % 6) * 8000 >= 10000,
+      pageViewCount: 1,
+      ...(i >= 4 ? { endedAt: at + (i % 6) * 8000 } : {}),
       sessionId: sid,
       startedAt: at,
       lastSeenAt:
@@ -485,7 +494,11 @@ export function buildDemoAnalytics({ now = Date.now() } = {}) {
       device: i % 2 === 0 ? 'mobile' : 'desktop',
       isBot: false
     });
-    events.push({ type: 'page_view', sessionId: sid, at, path: paths[i % paths.length] });
+    events.push({ id: `demo_page_${i}`, analyticsVersion: 2, source: i % 3 === 0 ? 'places' : 'direct', type: 'page_view', sessionId: sid, at, path: paths[i % paths.length] });
+    if (i % 3 === 0) {
+      events.push({ id: `demo_discovery_${i}`, analyticsVersion: 2, source: 'places', type: 'discovery_visit', sessionId: sid, at: at + 1000, path: '/places/profile' });
+      if (i < 24 && i % 6 === 0) events.push({ id: `demo_lead_${i}`, analyticsVersion: 2, source: 'places', type: 'message_lead', threadId: `demo_thread_${i}`, sessionId: sid, at: at + 2000 });
+    }
     if (i % 2 === 0) {
       events.push({
         type: 'product_view',
@@ -520,6 +533,31 @@ export function buildDemoAnalytics({ now = Date.now() } = {}) {
         valueCents: 22000 + (i % 4) * 4000
       });
     }
+  }
+
+  // Repeated browser identities retain one first-seen date across their sessions.
+  const visitorFirstSeen = new Map();
+  for (const session of sessions) visitorFirstSeen.set(session.visitorId, Math.min(visitorFirstSeen.get(session.visitorId) ?? Infinity, session.visitorFirstSeenAt));
+  for (const session of sessions) {
+    session.visitorFirstSeenAt = visitorFirstSeen.get(session.visitorId);
+    session.isReturningVisitor = session.startedAt > session.visitorFirstSeenAt;
+  }
+  for (const [type, source, records] of [['purchase', 'order', orders], ['booking_confirmed', 'booking', bookings]]) {
+    records.slice(0, 3).forEach((record, index) => {
+      if (!record.id) return;
+      const session = sessions[index * 3];
+      events.push({ id: `demo_${source}_${record.id}`, analyticsVersion: 2, source: 'places', type,
+        sessionId: session.sessionId, at: Number(record.timestamp) || now - index * day,
+        ...(source === 'order' ? { orderId: record.id } : { bookingId: record.id }) });
+    });
+  }
+  const sessionsById = new Map(sessions.map(session => [session.sessionId, session]));
+  for (const event of events) {
+    const session = sessionsById.get(event.sessionId);
+    if (!session) continue;
+    Object.assign(event, { analyticsVersion: 2, visitorId: session.visitorId,
+      visitorFirstSeenAt: session.visitorFirstSeenAt, isReturningVisitor: session.isReturningVisitor,
+      source: session.source });
   }
 
   for (let i = 0; i < 5; i += 1) {

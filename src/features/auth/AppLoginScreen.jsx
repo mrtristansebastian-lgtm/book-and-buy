@@ -1,3 +1,5 @@
+import { Button } from '../../shared/ui/Button';
+import { FilterChip } from '../../shared/ui/FilterChip';
 import { useState } from 'react';
 import { navigate } from '../../app/routing';
 import { BrandMark } from '../../shared/ui/BrandMark';
@@ -18,7 +20,8 @@ export function AppLoginScreen() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [busyAction, setBusyAction] = useState('');
+  const busy = Boolean(busyAction);
 
   const isIndividual = audience === 'individual';
   const isBusiness = audience === 'business';
@@ -39,7 +42,7 @@ export function AppLoginScreen() {
     setAudience(null);
     setError('');
     setNotice('');
-    setBusy(false);
+    setBusyAction('');
   };
 
   const finishBusiness = () => {
@@ -59,8 +62,9 @@ export function AppLoginScreen() {
     navigate('/app/home', { replace: true });
   };
 
-  const runAuth = async (action, { justSignedUp = false } = {}) => {
-    setBusy(true);
+  const runAuth = async (action, { justSignedUp = false, source = 'email' } = {}) => {
+    if (busy) return;
+    setBusyAction(source);
     setError('');
     setNotice('');
     try {
@@ -81,12 +85,13 @@ export function AppLoginScreen() {
     } catch (err) {
       setError(err?.message || 'Sign-in failed');
     } finally {
-      setBusy(false);
+      setBusyAction('');
     }
   };
 
   const runLocalContinue = () => {
-    setBusy(true);
+    if (busy) return;
+    setBusyAction('local');
     setError('');
     try {
       if (isIndividual) {
@@ -100,12 +105,13 @@ export function AppLoginScreen() {
     } catch (err) {
       setError(err?.message || 'Something went wrong');
     } finally {
-      setBusy(false);
+      setBusyAction('');
     }
   };
 
   const viewDemo = () => {
-    setBusy(true);
+    if (busy) return;
+    setBusyAction('demo');
     setError('');
     try {
       if (isIndividual) {
@@ -119,7 +125,7 @@ export function AppLoginScreen() {
     } catch (err) {
       setError(err?.message || 'Could not open demo');
     } finally {
-      setBusy(false);
+      setBusyAction('');
     }
   };
 
@@ -146,15 +152,15 @@ export function AppLoginScreen() {
                 onClick={() => chooseAudience('business')}
               >
                 <span className="bb-welcome-choice-label">I’m a business</span>
-                <span className="bb-welcome-choice-hint">Run bookings, storefront, and clients</span>
+                <span className="bb-welcome-choice-hint">Create a free profile. Get discovered on Places.</span>
               </button>
             </div>
           </section>
         ) : (
           <section className="bb-welcome-panel bb-welcome-panel--auth" key="auth">
-            <button type="button" className="bb-welcome-back" onClick={goBack} disabled={busy}>
+            <Button action="back" variant="secondary" type="button" className="bb-welcome-back" onClick={goBack} disabled={busy}>
               Back
-            </button>
+            </Button>
             <BrandMark size="lg" className="bb-welcome-brand-slot" />
             <h1 className="bb-welcome-auth-title">
               {isIndividual ? 'Continue as an individual' : 'Continue as a business'}
@@ -162,7 +168,7 @@ export function AppLoginScreen() {
             <p className="bb-welcome-auth-copy">
               {isIndividual
                 ? 'Sign in, create an account, or explore the individual demo.'
-                : 'Sign in, create an account, or explore the business demo.'}
+                : 'Sign in or create your free business profile. No subscription or card required.'}
             </p>
 
             {configured ? (
@@ -181,31 +187,39 @@ export function AppLoginScreen() {
                   );
                 }}
               >
-                <div className="bb-segment">
-                  <button
+                <div className="bb-filter-group">
+                  <FilterChip
                     type="button"
-                    aria-pressed={mode === 'signin'}
+                    disabled={busy}
+                    selected={mode === 'signin'}
                     onClick={() => setMode('signin')}
                   >
                     Sign in
-                  </button>
-                  <button
+                  </FilterChip>
+                  <FilterChip
                     type="button"
-                    aria-pressed={mode === 'signup'}
+                    disabled={busy}
+                    selected={mode === 'signup'}
                     onClick={() => setMode('signup')}
                   >
                     Create account
-                  </button>
+                  </FilterChip>
                 </div>
                 {isIndividual && mode === 'signup' ? (
+                  <label className="bb-welcome-field">
+                    <span>Your name</span>
                   <input
                     className="native-control-input px-4"
                     placeholder="Your name"
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
                     autoComplete="name"
+                    disabled={busy}
                   />
+                  </label>
                 ) : null}
+                <label className="bb-welcome-field">
+                  <span>Email</span>
                 <input
                   className="native-control-input px-4"
                   type="email"
@@ -214,7 +228,13 @@ export function AppLoginScreen() {
                   onChange={(event) => setEmail(event.target.value)}
                   required
                   autoComplete="email"
+                  disabled={busy}
+                  autoCapitalize="none"
+                  spellCheck={false}
                 />
+                </label>
+                <label className="bb-welcome-field">
+                  <span>Password</span>
                 <input
                   className="native-control-input px-4"
                   type="password"
@@ -224,20 +244,22 @@ export function AppLoginScreen() {
                   required
                   minLength={6}
                   autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                  disabled={busy}
                 />
-                {error ? <p className="bb-welcome-error">{error}</p> : null}
-                {notice ? <p className="bb-welcome-notice">{notice}</p> : null}
-                <button type="submit" className="bb-primary-btn" disabled={busy}>
-                  {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
-                </button>
-                <button
+                </label>
+                {error ? <p className="bb-welcome-error" role="alert">{error}</p> : null}
+                {notice ? <p className="bb-welcome-notice" role="status">{notice}</p> : null}
+                <Button action={mode === 'signin' ? 'signIn' : 'create'} busy={busyAction === 'email'} busyLabel="Please wait…" variant="primary" type="submit" className="bb-primary-btn" disabled={busy}>
+                  {mode === 'signin' ? 'Sign in' : 'Create account'}
+                </Button>
+                <Button action="signIn" busy={busyAction === 'google'} busyLabel="Connecting…" variant="primary"
                   type="button"
                   className="bb-ghost-btn"
                   disabled={busy}
-                  onClick={() => runAuth(() => signInGoogle())}
+                  onClick={() => runAuth(() => signInGoogle(), { source: 'google' })}
                 >
                   Continue with Google
-                </button>
+                </Button>
               </form>
             ) : (
               <div className="bb-welcome-form">
@@ -246,30 +268,26 @@ export function AppLoginScreen() {
                   <code>VITE_FIREBASE_CONFIG</code> to <code>.env.local</code> (see{' '}
                   <code>docs/firebase-launch-checklist.md</code>).
                 </p>
-                {error ? <p className="bb-welcome-error">{error}</p> : null}
-                <button
+                {error ? <p className="bb-welcome-error" role="alert">{error}</p> : null}
+                <Button action={isBusiness ? 'create' : 'continue'} busy={busyAction === 'local'} busyLabel="Please wait…" variant="primary"
                   type="button"
                   className="bb-primary-btn"
                   disabled={busy}
                   onClick={runLocalContinue}
                 >
-                  {busy
-                    ? 'Please wait…'
-                    : isBusiness
-                      ? 'Create account'
-                      : 'Get started'}
-                </button>
+                  {isBusiness ? 'Create account' : 'Get started'}
+                </Button>
               </div>
             )}
 
-            <button
+            <Button action="view" busy={busyAction === 'demo'} busyLabel="Opening…" variant="secondary"
               type="button"
               className="bb-welcome-demo"
               disabled={busy}
               onClick={viewDemo}
             >
               {isIndividual ? 'View individual demo' : 'View business demo'}
-            </button>
+            </Button>
           </section>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
@@ -350,10 +351,10 @@ export function ProductsPage({ routeRest = [] }) {
             </span>
           </div>
         </div>
-        <button type="button" className="bb-page-action" onClick={openCreate}>
+        <Button action="add" variant="primary" type="button" className="bb-page-action" onClick={openCreate}>
           <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
           Add product
-        </button>
+        </Button>
       </header>
 
       <CatalogToolbar query={query} onQueryChange={setQuery} status={catalogStatus} onStatusChange={setCatalogStatus} count={visibleProducts.length} total={products.length} noun="products" />
@@ -361,8 +362,8 @@ export function ProductsPage({ routeRest = [] }) {
         <div className="bb-services-catalog-empty">
           No products yet. Add your first item.
         </div>
-      ) : visibleProducts.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching products</strong><p>Try a different name, SKU, category or status.</p><button className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</button></div> : (
-        <div className="bb-public-product-grid bb-services-catalog-grid">
+      ) : visibleProducts.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching products</strong><p>Try a different name, SKU, category or status.</p><Button action="clear" variant="secondary" className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</Button></div> : (
+        <div className="bb-public-product-grid bb-business-catalog-grid">
           {visibleProducts.map((product) => (
             <ProductCatalogCard
               key={product.id}

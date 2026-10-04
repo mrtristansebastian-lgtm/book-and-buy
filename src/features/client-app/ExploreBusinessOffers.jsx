@@ -1,14 +1,16 @@
+import { Button } from '../../shared/ui/Button';
 import { useEffect, useRef, useState } from 'react';
-import { CalendarDays, ChevronRight, Eye, Navigation, ShoppingBag } from 'lucide-react';
+import { CalendarDays, ChevronRight, Navigation, ShoppingBag } from 'lucide-react';
 import { navigate, publicItemPath, publicPagePath } from '../../app/routing';
 import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { EmptyState } from '../../shared/ui/EmptyState';
+import { reportDiscoveryVisit } from '../../shared/analytics/beacon';
 
 function itemImage(item = {}) {
   return item.imageUrls?.[0] || item.imageUrl || item.image || '';
 }
 
-function ExploreBusinessOfferCard({ biz, kind }) {
+function ExploreBusinessOfferCard({ biz, kind, analyticsEnabled }) {
   const railRef = useRef(null);
   const [canScrollForward, setCanScrollForward] = useState(false);
 
@@ -36,6 +38,10 @@ function ExploreBusinessOfferCard({ biz, kind }) {
   const scrollForward = () => {
     railRef.current?.scrollBy({ left: 196, behavior: 'smooth' });
   };
+  const openBusiness = (path) => {
+    if (analyticsEnabled) reportDiscoveryVisit({ ownerId: biz.ownerId, slug: biz.slug });
+    navigate(path);
+  };
 
   return (
     <article className={`bb-marketplace-business is-${kind}`}>
@@ -43,7 +49,8 @@ function ExploreBusinessOfferCard({ biz, kind }) {
         <button
           type="button"
           className="bb-marketplace-business-identity"
-          onClick={() => navigate(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
+          onClick={() => openBusiness(publicPagePath(biz.slug, 'home'))}
+          aria-label={`View ${biz.brandName} business profile`}
         >
           <span className="bb-marketplace-business-logo" aria-hidden="true">
           {biz.logoUrl ? <img src={biz.logoUrl} alt="" /> : <BlankMedia variant="avatar" />}
@@ -75,14 +82,14 @@ function ExploreBusinessOfferCard({ biz, kind }) {
           </span>
         </button>
 
-        <button
+        <Button action="view" variant="primary"
           type="button"
           className="bb-page-action bb-marketplace-store-link bb-marketplace-store-link--desktop"
-          onClick={() => navigate(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
+          onClick={() => openBusiness(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
         >
           {kind === 'book' ? 'View services' : 'View shop'}
-          <ChevronRight size={16} aria-hidden="true" />
-        </button>
+
+        </Button>
       </header>
 
       <div className="bb-marketplace-shelf">
@@ -93,7 +100,7 @@ function ExploreBusinessOfferCard({ biz, kind }) {
           {biz.items.map((item) => {
             const imageSrc = itemImage(item);
             const page = kind === 'book' ? 'book' : 'buy';
-            const openItem = () => navigate(publicItemPath(biz.slug, page, item.id));
+            const openItem = () => openBusiness(publicItemPath(biz.slug, page, item.id));
             const PrimaryIcon = kind === 'book' ? CalendarDays : ShoppingBag;
             return (
               <article key={item.id} className="bb-public-product-card">
@@ -112,14 +119,14 @@ function ExploreBusinessOfferCard({ biz, kind }) {
                   </div>
                 </button>
                 <div className="bb-public-product-actions">
-                  <button type="button" className="bb-public-product-cart-btn" onClick={openItem}>
+                  <Button action={kind === 'book' ? 'book' : 'cart'} variant="primary" type="button" className="bb-public-product-cart-btn" onClick={openItem}>
                     <span>{kind === 'book' ? 'Book' : 'Buy'}</span>
-                    <PrimaryIcon size={13} strokeWidth={2.2} aria-hidden="true" />
-                  </button>
-                  <button type="button" className="bb-public-product-more-btn" onClick={openItem}>
+
+                  </Button>
+                  <Button action="view" variant="secondary" type="button" className="bb-public-product-more-btn" onClick={openItem}>
                     <span>View</span>
-                    <Eye size={13} strokeWidth={2.2} aria-hidden="true" />
-                  </button>
+
+                  </Button>
                 </div>
               </article>
             );
@@ -138,14 +145,14 @@ function ExploreBusinessOfferCard({ biz, kind }) {
         ) : null}
       </div>
 
-      <button
+      <Button action="view" variant="primary"
         type="button"
         className="bb-page-action bb-marketplace-store-link bb-marketplace-store-link--mobile"
-        onClick={() => navigate(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
+        onClick={() => openBusiness(publicPagePath(biz.slug, kind === 'book' ? 'book' : 'buy'))}
       >
         {kind === 'book' ? 'View services' : 'View shop'}
-        <ChevronRight size={16} aria-hidden="true" />
-      </button>
+
+      </Button>
     </article>
   );
 }
@@ -157,7 +164,8 @@ export function ExploreBusinessOffers({
   kind = 'buy',
   businesses = [],
   emptyTitle = '',
-  emptyDescription = ''
+  emptyDescription = '',
+  analyticsEnabled = false
 }) {
   if (!businesses.length) {
     return (
@@ -177,7 +185,7 @@ export function ExploreBusinessOffers({
   return (
     <div className="bb-explore-biz-list" aria-label={kind === 'book' ? 'Book offers' : 'Buy offers'}>
       {businesses.map((biz) => (
-        <ExploreBusinessOfferCard key={biz.slug} biz={biz} kind={kind} />
+        <ExploreBusinessOfferCard key={biz.slug} biz={biz} kind={kind} analyticsEnabled={analyticsEnabled} />
       ))}
     </div>
   );

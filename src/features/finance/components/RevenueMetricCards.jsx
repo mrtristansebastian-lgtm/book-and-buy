@@ -1,26 +1,27 @@
-import { formatMoney } from '../utils/financeLedger';
+import { useId } from 'react';
+import { formatFinanceMetricValue } from '../utils/financeMetrics';
+import { DashboardStat } from '../../../shared/ui/DashboardStat';
 
-export function RevenueMetricCards({ metrics, currency = 'R' }) {
+/** A single selected statistic and its companion chart share one metric state. */
+export function RevenueMetricCards({ metricView, currency = 'R' }) {
+  const titleId = useId();
+  const { metric, value, available, description, unavailableReason } = metricView;
+  const detail = [unavailableReason || description, unavailableReason && metricView.currencyNote].filter(Boolean).join(' ');
+  const disclosure = unavailableReason || metricView.coverageNote;
   return (
-    <div className="bb-finance-metrics">
-      <article className="bb-finance-metric bb-finance-metric--hero">
-        <p className="bb-finance-metric-label">Total Revenue</p>
-        <p className="bb-finance-metric-value">
-          {formatMoney(metrics.totalRevenueInCents, currency)}
-        </p>
-      </article>
-      <article className="bb-finance-metric">
-        <p className="bb-finance-metric-label">Average Monthly Revenue</p>
-        <p className="bb-finance-metric-value">
-          {formatMoney(metrics.averageMonthlyInCents, currency, { decimals: true })}
-        </p>
-      </article>
-      <article className="bb-finance-metric">
-        <p className="bb-finance-metric-label">Pending Payments</p>
-        <p className="bb-finance-metric-value">
-          {formatMoney(metrics.pendingInCents, currency)}
-        </p>
-      </article>
+    <div className="bb-finance-readout">
+    <DashboardStat
+      className="bb-finance-metric-card"
+      appearance="primary"
+      titleTag="h2"
+      labelId={titleId}
+      label={metric.label}
+      value={formatFinanceMetricValue(value, metric.format, currency)}
+      note={detail}
+      noteHidden
+      valueProps={{ 'data-unavailable': !available || undefined, 'aria-live': 'polite', 'aria-atomic': true }}
+    />
+    {disclosure ? <p className="bb-finance-readout-disclosure">{disclosure}</p> : null}
     </div>
   );
 }

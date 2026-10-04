@@ -10,7 +10,9 @@ export function AnalyticsHeader({
   customRange,
   onCustomRangeChange,
   usingDemo = false,
-  title = 'Reports'
+  title = 'Reports',
+  headline,
+  description
 }) {
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
   const periodOptions = ANALYTICS_PERIODS.map((period) => ({
@@ -29,10 +31,11 @@ export function AnalyticsHeader({
             <span className="bb-page-title-main">
               <div className="bb-page-header-glow" aria-hidden="true" />
               <h1 className="bb-page-title bb-analytics-title">
-                {periodTitle(periodId, customRange)}
+                {headline || periodTitle(periodId, customRange)}
               </h1>
             </span>
           </div>
+          {description ? <p className="bb-reports-intro">{periodTitle(periodId, customRange)} · {description}</p> : null}
           {usingDemo ? (
             <p className="bb-analytics-demo-note">Demo data · Sample activity, not your live business statistics.</p>
           ) : null}

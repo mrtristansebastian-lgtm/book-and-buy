@@ -1,4 +1,5 @@
-import { ArrowLeft, UserRound } from 'lucide-react';
+import { Button } from '../../../shared/ui/Button';
+import { ArrowLeft } from 'lucide-react';
 import { formatPresenceLabel } from '../utils/supportFormat';
 import { PresenceAvatar } from './PresenceAvatar';
 import { QuickActionsMenu } from './QuickActionsMenu';
@@ -19,7 +20,7 @@ export function ChatHeader({
     <header className="bb-support-header">
       <div className="bb-support-header-main">
         {showBack ? (
-          <button type="button" className="bb-ghost-btn px-3 py-2" onClick={onBack}>
+          <button type="button" className="bb-ghost-btn px-3 py-2" aria-label="Back to inbox" onClick={onBack}>
             <ArrowLeft size={16} />
           </button>
         ) : null}
@@ -32,10 +33,9 @@ export function ChatHeader({
         </div>
       </div>
       <div className="bb-support-header-actions">
-        <button type="button" className="bb-ghost-btn" onClick={onOpenClient}>
-          <UserRound size={14} />
+        <Button action="openFile" variant="secondary" type="button" className="bb-ghost-btn" onClick={onOpenClient}>
           Client file
-        </button>
+        </Button>
         <QuickActionsMenu {...quickActionProps} />
       </div>
     </header>

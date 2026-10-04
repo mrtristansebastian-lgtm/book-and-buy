@@ -1,5 +1,7 @@
+import { Button } from '../../../shared/ui/Button';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { useRef, useState } from 'react';
-import { ArrowUpRight, CheckCircle2, RefreshCw, Star } from 'lucide-react';
+import { ArrowUpRight, Star } from 'lucide-react';
 import { firebaseCallables } from '../../../shared/firebase/callables';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 
@@ -41,11 +43,11 @@ export function ReviewsSettingsPage() {
       const enabled = Boolean(website[provider.id + 'ReviewsEnabled']);
       const verified = value && website[provider.id + 'ReviewsVerifiedId'] === value;
       return <section className="bb-panel bb-review-provider" key={provider.id}>
-        <header><div className="bb-review-logo-heading"><img src={'/review-logos/' + provider.id + '.svg'} alt={provider.name} />{provider.id === 'google' && <span>Reviews</span>}</div><span className={'bb-review-state ' + (verified ? 'is-checked' : '')}>{verified ? <CheckCircle2 size={14} /> : null}{isDemo ? 'Demo' : verified ? 'Checked' : 'Not connected'}</span></header>
+        <header><div className="bb-review-logo-heading"><img src={'/review-logos/' + provider.id + '.svg'} alt={provider.name} />{provider.id === 'google' && <span>Reviews</span>}</div><StatusBadge status={isDemo ? 'demo' : verified ? 'connected' : 'inactive'}>{isDemo ? 'Demo' : verified ? 'Checked' : 'Not connected'}</StatusBadge></header>
         <p className="bb-domain-hint">{provider.detail}</p>
         <div className="bb-review-how"><h3>How to connect</h3><ol>{provider.steps.map((step) => <li key={step}>{step}</li>)}</ol><a className="bb-domain-link" href={provider.help} target="_blank" rel="noopener noreferrer">Official setup guide <ArrowUpRight size={15} /></a></div>
         <label className="bb-settings-field">{provider.label}<input className="native-control-input px-4" disabled={Boolean(busy)} value={website[provider.field] || ''} placeholder={provider.placeholder} maxLength={255} autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(event) => { updateWebsite({ [provider.field]: event.target.value, [provider.id + 'ReviewsEnabled']: false, [provider.id + 'ReviewsVerifiedId']: '', [provider.id + 'ReviewsCheckedAt']: '' }); setPreview((old) => ({ ...old, [provider.id]: [] })); setMessages((old) => ({ ...old, [provider.id]: '' })); setErrors((old) => ({ ...old, [provider.id]: '' })); }} /></label>
-        <button type="button" className="bb-primary-btn" disabled={Boolean(busy) || !value} onClick={() => check(provider)}><RefreshCw size={15} />{busy === provider.id ? 'Checking…' : isDemo ? 'Preview connection' : 'Check connection'}</button>
+        <Button action="connect" variant="primary" type="button" className="bb-primary-btn" disabled={(Boolean(busy) && busy !== provider.id) || !value} busy={busy === provider.id} busyLabel="Checking…" onClick={() => check(provider)}>{isDemo ? 'Preview connection' : 'Check connection'}</Button>
         <label className="bb-review-toggle"><input type="checkbox" checked={enabled} disabled={!verified || Boolean(busy)} onChange={(event) => updateWebsite({ googleReviewsEnabled: event.target.checked, ...(event.target.checked ? { sections: { ...(website.sections || {}), reviews: true } } : {}) })} /><span><strong>Show {provider.name} reviews on Home</strong><small>Publish your website to apply changes.</small></span></label>
         {messages[provider.id] && <p className="bb-review-success" role="status">{messages[provider.id]}</p>}
         {errors[provider.id] && <p className="bb-reschedule-error" role="alert">{errors[provider.id]}</p>}

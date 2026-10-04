@@ -14,25 +14,27 @@ export function DurationPicker({ label, value, onChange, hint = '' }) {
         {DURATION_PRESETS.map((preset) => {
           const active = minutes === preset;
           return (
-            <button
+            <FilterChip
               key={preset}
               type="button"
+              selected={active}
               className={`bb-services-duration-chip${active ? ' is-active' : ''}`}
               onClick={() => onChange(String(preset))}
             >
               {preset} min
-            </button>
+            </FilterChip>
           );
         })}
-        <button
+        <FilterChip
           type="button"
+          selected={isCustom}
           className={`bb-services-duration-chip${isCustom ? ' is-active' : ''}`}
           onClick={() => {
             if (!isCustom) onChange(minutes ? String(minutes) : '75');
           }}
         >
           Custom
-        </button>
+        </FilterChip>
       </div>
       {isCustom || !minutes ? (
         <label className="bb-services-field">
@@ -49,3 +51,4 @@ export function DurationPicker({ label, value, onChange, hint = '' }) {
     </div>
   );
 }
+import { FilterChip } from '../../../shared/ui/FilterChip';

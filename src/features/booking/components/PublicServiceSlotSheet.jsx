@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { DateField } from '../../../shared/ui/DateField';
 import { getDaySlots, getMaxBookableDateKey } from '../../../utils/availability';
@@ -168,10 +169,10 @@ export function PublicServiceSlotSheet({
           </header>
           {variantPicker}
           <footer className="bb-public-slot-sheet-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
+            <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button action="confirm" variant="primary"
               type="button"
               className="bb-primary-btn"
               disabled={!canConfirmSpot}
@@ -185,7 +186,7 @@ export function PublicServiceSlotSheet({
               }}
             >
               {confirmLabel}
-            </button>
+            </Button>
           </footer>
         </div>
       </div>
@@ -264,10 +265,10 @@ export function PublicServiceSlotSheet({
         ) : null}
 
         <footer className="bb-public-slot-sheet-actions">
-          <button type="button" className="bb-ghost-btn" onClick={onClose}>
+          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button action="confirm" variant="primary"
             type="button"
             className="bb-primary-btn"
             disabled={!canConfirm}
@@ -277,7 +278,7 @@ export function PublicServiceSlotSheet({
             }}
           >
             {confirmLabel}
-          </button>
+          </Button>
         </footer>
       </div>
     </div>

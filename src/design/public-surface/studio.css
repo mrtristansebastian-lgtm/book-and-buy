@@ -1,4 +1,4 @@
-/* Canvas-first studio — fixed toolbar, scrolling page surface */
+/* Canvas-first studio — toolbar and preview share the owner page scroller. */
 .bb-studio-canvas {
   display: flex;
   flex-direction: column;
@@ -6,12 +6,13 @@
   width: 100%;
   min-width: 0;
   min-height: 0;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   /* visible so page-title glow can sit in the corner like other desks */
   overflow: visible;
 }
 
-/* Lock shell to viewport so only the stage scrolls (not Social Studio) */
+/* Keep the application's dock outside the page scroller. The preview itself
+   has natural height, so the toolbar moves with it instead of being pinned. */
 .bb-shell:has(.bb-studio-canvas) {
   height: 100dvh;
   max-height: 100dvh;
@@ -50,11 +51,11 @@
 .bb-owner-main:has(> .bb-studio-canvas) {
   flex: 1 1 auto;
   min-height: 0;
-  /* clip stage scroll, but don’t kill title-corner glow */
-  overflow-x: visible;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: block;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bb-studio-toolbar {
@@ -131,8 +132,8 @@
 
   .bb-studio-canvas {
     gap: 0.55rem;
-    min-height: 100%;
-    height: 100%;
+    min-height: 0;
+    height: auto;
   }
 
   .bb-studio-toolbar {
@@ -330,19 +331,17 @@
   justify-items: stretch;
   min-width: 0;
   min-height: 0;
-  flex: 1 1 auto;
-  overflow: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  flex: 0 0 auto;
+  overflow: visible;
 }
 
 /*
- * Book / Buy catalog in studio: fill the stage like live 100dvh desk.
- * Heading + categories stay put; only the card grid scrolls.
- * No empty overscroll when cards don’t fill the pane.
+ * Catalog previews retain their desktop columns and phone card layout, but
+ * contribute their entire height to the page. No nested card-grid scroller
+ * should silently pin the surrounding page heading or filter band.
  */
 .bb-studio-stage:has(.bb-public-catalog-desk) {
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
@@ -352,11 +351,11 @@
 }
 
 .bb-studio-stage:has(.bb-public-catalog-desk) > .bb-studio-surface {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
-  height: 100%;
-  max-height: 100%;
-  overflow: hidden;
+  height: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-surface,
@@ -369,25 +368,22 @@
 .bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-shell,
 .bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-layout,
 .bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-main {
-  height: 100% !important;
-  max-height: 100% !important;
+  height: auto !important;
+  max-height: none !important;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-side {
-  height: 100%;
-  max-height: 100%;
+  height: auto;
+  max-height: none;
   min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
+  overflow: visible;
 }
 
 .bb-studio-surface:has(.bb-public-catalog-desk) .bb-public-catalog-desk-grid {
   min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: none;
+  overflow: visible;
 }
 
 .bb-studio-edit-hint {

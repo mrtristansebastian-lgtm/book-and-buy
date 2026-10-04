@@ -1,3 +1,5 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
@@ -211,22 +213,21 @@ export function ClientMessagesPage({ threadId = '' }) {
               </label>
 
               <div className="bb-support-chips bb-support-chips--named bb-support-chips--customer" role="toolbar" aria-label="Message filters">
-                {FILTERS.map(({ id, label, Icon }) => {
+                {FILTERS.map(({ id, label }) => {
                   const on = filter === id;
                   return (
-                    <button
+                    <FilterChip
                       key={id}
                       type="button"
                       className={`bb-support-filter-chip${on ? ' is-active' : ''}`}
-                      aria-pressed={on}
+                      selected={on}
+                      count={counts[id] || 0}
                       aria-label={`${label}, ${counts[id] || 0}`}
                       title={label}
                       onClick={() => setFilter(on ? 'all' : id)}
                     >
-                      <Icon size={15} strokeWidth={on ? 2.35 : 2} aria-hidden="true" />
                       <span className="bb-support-filter-label">{label}</span>
-                      <span className="bb-support-filter-count">{counts[id] || 0}</span>
-                    </button>
+                    </FilterChip>
                   );
                 })}
               </div>
@@ -242,13 +243,13 @@ export function ClientMessagesPage({ threadId = '' }) {
                       : 'No conversations match this filter.'}
                   </p>
                   {mine.length === 0 ? (
-                    <button
+                    <Button action="search" variant="primary"
                       type="button"
                       className="bb-primary-btn mt-3"
                       onClick={() => navigate('/app/find')}
                     >
                       Find businesses
-                    </button>
+                    </Button>
                   ) : null}
                 </div>
               ) : (
@@ -327,7 +328,7 @@ export function ClientMessagesPage({ threadId = '' }) {
                     </p>
                   </div>
                   </div>
-                {active.bookingId && <button className="bb-ghost-btn bb-client-reschedule" disabled={!rescheduling.clientAllowed} onClick={rescheduling.show}>Reschedule</button>}
+                {active.bookingId && <Button action="reschedule" variant="secondary" className="bb-ghost-btn bb-client-reschedule" disabled={!rescheduling.clientAllowed} onClick={rescheduling.show}>Reschedule</Button>}
               </header>
 
               {activeMessages.length === 0 ? (

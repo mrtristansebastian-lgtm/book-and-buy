@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { Eye, ShoppingBag } from 'lucide-react';
 import { navigate, publicItemPath } from '../../../app/routing';
@@ -76,7 +77,7 @@ export function PublicBookingFlow({
     'Choose a service and request a time.';
 
   const cartButton = (
-    <button
+    <Button action="cart" variant="secondary"
       type="button"
       className={`bb-public-catalog-cart${cartOpen ? ' is-open' : ''}`}
       onClick={toggleCart}
@@ -86,7 +87,7 @@ export function PublicBookingFlow({
       <ShoppingBag size={15} />
       <span>Cart</span>
       <span className="bb-public-catalog-cart-count">{cart.count}</span>
-    </button>
+    </Button>
   );
 
   const categoryTabsEl = (
@@ -142,7 +143,7 @@ export function PublicBookingFlow({
               </div>
             </button>
             <div className="bb-public-product-actions">
-              <button
+              <Button action="addToCart" variant="primary"
                 type="button"
                 className="bb-public-product-cart-btn"
                 disabled={inCart}
@@ -150,15 +151,15 @@ export function PublicBookingFlow({
               >
                 <span>{inCart ? 'In cart' : 'Add'}</span>
                 <ShoppingBag size={13} strokeWidth={2.2} aria-hidden="true" />
-              </button>
-              <button
+              </Button>
+              <Button action="view" variant="secondary"
                 type="button"
                 className="bb-public-product-more-btn"
                 onClick={() => openDetail(item.id)}
               >
                 <span>View</span>
                 <Eye size={13} strokeWidth={2.2} aria-hidden="true" />
-              </button>
+              </Button>
             </div>
           </article>
         );
@@ -196,7 +197,7 @@ export function PublicBookingFlow({
           <div className="bb-public-catalog-main">
             <header className="bb-public-catalog-intro">
               <div className="bb-public-catalog-intro-copy">
-                <h1 className="bb-public-catalog-intro-title">Our Services</h1>
+                <h2 className="bb-public-catalog-intro-title">Our Services</h2>
                 <p className="bb-public-catalog-intro-body">{introBody}</p>
               </div>
               <div className="bb-public-catalog-intro-actions">{cartButton}</div>

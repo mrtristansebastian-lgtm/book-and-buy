@@ -1,3 +1,4 @@
+import { Button } from '../../../../shared/ui/Button';
 import { useEffect, useId, useRef, useState } from 'react';
 import { firebaseCallables } from '../../../../shared/firebase/callables';
 import {
@@ -244,7 +245,7 @@ export function ReviewsSection({
           {contentEditMode ? (
             <div className="bb-public-section-actions bb-public-reviews-actions">
               {reviews.length < 6 ? (
-                <button
+                <Button action="add" variant="primary"
                   type="button"
                   className="bb-public-section-action"
                   onClick={() =>
@@ -257,10 +258,10 @@ export function ReviewsSection({
                   }
                 >
                   Add review
-                </button>
+                </Button>
               ) : null}
               {reviews.length > 0 ? (
-                <button
+                <Button action="remove" variant="destructive"
                   type="button"
                   className="bb-public-section-action"
                   aria-label="Remove last review"
@@ -271,7 +272,7 @@ export function ReviewsSection({
                   }
                 >
                   Remove review
-                </button>
+                </Button>
               ) : null}
             </div>
           ) : null}

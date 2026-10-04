@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import { useMemo, useState } from 'react';
 import { Check, ChevronDown, X } from 'lucide-react';
 
@@ -74,9 +75,9 @@ export function SortField({
             </div>
 
             <footer className="bb-sort-picker-actions">
-              <button type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
+              <Button action="close" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
                 <X size={15} /> Close
-              </button>
+              </Button>
             </footer>
           </div>
         </div>

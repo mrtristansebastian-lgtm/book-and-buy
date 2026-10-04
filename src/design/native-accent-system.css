@@ -289,9 +289,13 @@
             50% { --native-accent-x: 100%; }
         }
 
-        .native-ui,
-        .native-home {
+        /* One root phase is inherited by application surfaces and body portals. */
+        :root {
             animation: native-accent-sync var(--native-accent-duration) var(--native-accent-easing) infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            :root { animation: none; }
         }
 
         .native-ui .bg-\[\#39FF14\] {

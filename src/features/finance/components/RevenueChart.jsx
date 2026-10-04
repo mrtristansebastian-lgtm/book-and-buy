@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Maximize2, X } from 'lucide-react';
-import { formatMoney } from '../utils/financeLedger';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
+import { FINANCE_METRICS, formatFinanceMetricValue } from '../utils/financeMetrics';
 import {
   buildChartGeometry,
   nearestCoordByX
@@ -27,15 +28,30 @@ function formatTooltipWhen(at, label) {
 function ChartSvg({
   series,
   currency,
-  width,
+  width: fallbackWidth,
   height,
   pad,
   gradientId,
   active,
   onHover,
-  onLeave
+  onLeave,
+  metric = FINANCE_METRICS[0]
 }) {
   const svgRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [width, setWidth] = useState(fallbackWidth);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    const measure = () => {
+      const next = Math.round(canvas.getBoundingClientRect().width);
+      if (next > 0) setWidth(Math.max(160, next));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [fallbackWidth]);
   const geometry = useMemo(
     () => buildChartGeometry(series, { width, height, pad, yTickCount: 5 }),
     [series, width, height, pad]
@@ -54,13 +70,13 @@ function ChartSvg({
   const baseline = chartPad.top + plot.height;
 
   return (
-    <div className="bb-finance-chart-canvas">
+    <div className="bb-finance-chart-canvas" ref={canvasRef}>
       <svg
         ref={svgRef}
         className="bb-finance-chart-svg"
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="Revenue over time"
+        aria-label={`${metric.label} over time`}
         onPointerMove={handlePointer}
         onPointerLeave={() => onLeave?.()}
         onPointerDown={handlePointer}
@@ -87,7 +103,7 @@ function ChartSvg({
               textAnchor="end"
               className="bb-finance-chart-axis bb-finance-chart-axis--y"
             >
-              {formatMoney(tick.valueCents, currency, { decimals: false })}
+              {formatFinanceMetricValue(tick.valueCents, metric.format, currency, { axis: true })}
             </text>
           </g>
         ))}
@@ -148,7 +164,7 @@ function ChartSvg({
             {formatTooltipWhen(active.at, active.label)}
           </div>
           <div className="bb-finance-chart-tooltip-value">
-            {formatMoney(active.amountInCents, currency)}
+            {formatFinanceMetricValue(active.amountInCents, metric.format, currency)}
           </div>
         </div>
       ) : null}
@@ -156,11 +172,21 @@ function ChartSvg({
   );
 }
 
-export function RevenueChart({ series = [], currency = 'R' }) {
+export function RevenueChart({ series = [], currency = 'R', metric = FINANCE_METRICS[0], unavailableReason = '' }) {
   const [expanded, setExpanded] = useState(false);
   const [active, setActive] = useState(null);
   const [compact, setCompact] = useState(false);
   const gradientId = useId().replace(/:/g, '');
+  const dialogRef = useRef(null);
+  const triggerRef = useRef(null);
+  const wasExpanded = useRef(false);
+  const closeChart = () => { setExpanded(false); setActive(null); };
+  useDialogFocus(dialogRef, expanded, closeChart);
+  useEffect(() => {
+    if (wasExpanded.current && !expanded) triggerRef.current?.focus();
+    wasExpanded.current = expanded;
+  }, [expanded]);
+  useEffect(() => setActive(null), [series, metric.id]);
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 720px)');
@@ -172,23 +198,29 @@ export function RevenueChart({ series = [], currency = 'R' }) {
 
   const width = expanded ? 960 : compact ? 390 : 640;
   const height = expanded ? 420 : compact ? 260 : 300;
-  const pad = expanded || !compact ? CHART_PAD_DESKTOP : CHART_PAD_MOBILE;
+  const moneyPad = expanded || !compact ? CHART_PAD_DESKTOP : CHART_PAD_MOBILE;
+  const pad = metric.format === 'count' ? { ...moneyPad, left: compact && !expanded ? 44 : 56 } : moneyPad;
 
   const chart = (
     <div className={`bb-finance-chart${expanded ? ' is-expanded' : ''}`}>
       <div className="bb-finance-chart-toolbar">
+        <div className="bb-finance-chart-copy">
+          <h2 className="bb-finance-chart-title">Over time</h2>
+          <p className="bb-finance-chart-description">{metric.chartDescription}</p>
+        </div>
         <button
+          ref={expanded ? undefined : triggerRef}
           type="button"
           className="bb-finance-icon-btn"
           aria-label={expanded ? 'Close chart' : 'Expand chart'}
-          onClick={() => setExpanded((value) => !value)}
+          onClick={() => { setActive(null); setExpanded((value) => !value); }}
         >
           {expanded ? <X size={16} strokeWidth={2.2} /> : <Maximize2 size={16} strokeWidth={2.2} />}
         </button>
       </div>
 
-      {!series.length ? (
-        <div className="bb-finance-chart-empty">No paid revenue in this period yet.</div>
+      {unavailableReason || !series.length ? (
+        <div className="bb-finance-chart-empty">{unavailableReason || metric.emptyLabel}</div>
       ) : (
         <ChartSvg
           series={series}
@@ -200,6 +232,7 @@ export function RevenueChart({ series = [], currency = 'R' }) {
           active={active}
           onHover={(point) => setActive(point)}
           onLeave={() => setActive(null)}
+          metric={metric}
         />
       )}
     </div>
@@ -209,12 +242,9 @@ export function RevenueChart({ series = [], currency = 'R' }) {
     return (
       <div
         className="bb-finance-chart-overlay"
-        onClick={() => {
-          setExpanded(false);
-          setActive(null);
-        }}
+        onClick={closeChart}
       >
-        <div onClick={(event) => event.stopPropagation()}>{chart}</div>
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${metric.label} chart`} tabIndex={-1} onClick={(event) => event.stopPropagation()}>{chart}</div>
       </div>
     );
   }

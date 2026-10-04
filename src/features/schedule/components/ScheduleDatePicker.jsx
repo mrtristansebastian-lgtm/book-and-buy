@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import {
@@ -95,7 +96,7 @@ export function ScheduleDatePicker({ day, onApply, onClose }) {
         </div>
 
         <footer className="bb-services-sheet-footer">
-          <button
+          <Button action="today" variant="secondary"
             type="button"
             className="bb-ghost-btn"
             onClick={() => {
@@ -105,14 +106,14 @@ export function ScheduleDatePicker({ day, onApply, onClose }) {
             }}
           >
             Today
-          </button>
+          </Button>
           <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
+            <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Cancel
-            </button>
-            <button type="button" className="bb-primary-btn" onClick={() => onApply?.({ day: draftDay })}>
+            </Button>
+            <Button action="apply" variant="primary" type="button" className="bb-primary-btn" onClick={() => onApply?.({ day: draftDay })}>
               Apply
-            </button>
+            </Button>
           </div>
         </footer>
       </div>

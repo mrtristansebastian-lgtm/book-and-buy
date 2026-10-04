@@ -1,3 +1,4 @@
+import { Button } from '../../../../shared/ui/Button';
 import { EditableText, EditSection } from '../editable';
 
 export function MapSection({ website, editMode, preview, hidden, patchWebsite }) {
@@ -76,7 +77,7 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
               </div>
             ) : null}
             {website.mapLinkUrl || website.mapEmbedUrl ? (
-              <a
+              <Button as="a" action="open"
                 className="bb-public-section-action"
                 href={website.mapLinkUrl || website.mapEmbedUrl}
                 target="_blank"
@@ -86,7 +87,7 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
                 }}
               >
                 Open in Maps
-              </a>
+              </Button>
             ) : null}
           </div>
           <div className="bb-public-map-wrap">

@@ -1,3 +1,4 @@
+import { Button } from '../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import {
@@ -66,13 +67,13 @@ export function BusinessCategoryPicker({
       {selectedId ? (
         <p className="bb-biz-cat-picker-selected">
           Selected: <strong>{categoryLabel(selectedId)}</strong>
-          <button
+          <Button action="clear" variant="secondary"
             type="button"
             className="bb-biz-cat-picker-clear"
             onClick={() => onChange?.({ categoryId: '', label: '' })}
           >
             Clear
-          </button>
+          </Button>
         </p>
       ) : null}
 

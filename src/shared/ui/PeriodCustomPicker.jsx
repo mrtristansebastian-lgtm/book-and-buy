@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
@@ -145,7 +146,7 @@ export function PeriodCustomPicker({
         <p className="bb-date-picker-summary">{summary}</p>
 
         <footer className="bb-date-picker-actions">
-          <button
+          <Button action="today" variant="primary"
             type="button"
             className="bb-ghost-btn"
             onClick={() => {
@@ -157,12 +158,12 @@ export function PeriodCustomPicker({
             }}
           >
             Today
-          </button>
+          </Button>
           <div className="bb-date-picker-actions-end">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
+            <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button action="apply" variant="primary"
               type="button"
               className="bb-primary-btn"
               disabled={!span.start}
@@ -171,7 +172,7 @@ export function PeriodCustomPicker({
               }}
             >
               Apply
-            </button>
+            </Button>
           </div>
         </footer>
       </div>

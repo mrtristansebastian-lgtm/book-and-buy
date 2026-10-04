@@ -1,0 +1,36 @@
+/* Positive status surfaces share Availability's working-day green. */
+:root { --bb-status-positive: #7dffb2; --bb-status-positive-ink: #101828; }
+html body :is(
+  .bb-schedule-booking-status .is-confirmed,
+  .bb-schedule-card-status,
+  .bb-schedule-agenda-badge,
+  .bb-schedule-status-chip.is-confirmed,
+  .bb-schedule-status-chip.is-upcoming,
+  .bb-schedule-spot-pill.is-live,
+  .bb-ops-badge.is-confirmed,
+  .bb-ops-badge.is-accepted,
+  .bb-ops-badge.is-fulfilled,
+  .bb-home-status.is-confirmed,
+  .bb-home-status.is-accepted,
+  .bb-finance-receipt-stamp--paid,
+  .bb-finance-sheet-flash,
+  .bb-settings-flash,
+  .bb-pay-status.is-live,
+  .bb-stock-crate-qty.is-ok,
+  .bb-reschedule-status.is-accepted,
+  .bb-reschedule-card.is-accepted .bb-reschedule-status,
+  .bb-support-quick-item.is-positive .bb-support-quick-item-icon
+) { background: var(--bb-status-positive); background-image: none; color: var(--bb-status-positive-ink); border-color: var(--bb-status-positive); }
+.bb-review-success, .bb-locations-hint.is-ok, .bb-stock-variant-nav small { color: var(--bb-status-positive-ink); }
+.bb-support-presence-dot.is-online { background: var(--bb-status-positive); }
+
+/* Confirmed badges match the booking card, including its checkmark. */
+html body :is(.bb-schedule-card-status, .bb-schedule-booking-status .is-confirmed, .bb-schedule-status-chip.is-confirmed, .bb-ops-badge.is-confirmed, .bb-home-status.is-confirmed, .bb-clients-record-status[data-status="confirmed"], .bb-schedule-booking-status[data-status="confirmed"]) {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  width: auto; height: auto; min-height: 0; padding: 4px 7px;
+  border: 0; border-radius: 5px; background: var(--bb-status-positive); color: var(--bb-status-positive-ink);
+  font-family: var(--bb-font-body) !important; font-size: 11px !important; font-weight: 400 !important;
+  line-height: 1.2 !important; letter-spacing: normal !important; text-transform: capitalize !important;
+  white-space: nowrap; box-shadow: none;
+}
+html body :is(.bb-schedule-booking-status .is-confirmed, .bb-schedule-status-chip.is-confirmed, .bb-ops-badge.is-confirmed, .bb-home-status.is-confirmed, .bb-clients-record-status[data-status="confirmed"], .bb-schedule-booking-status[data-status="confirmed"])::before { content: '✓'; display: inline-block; font-size: 12px; line-height: 1; }

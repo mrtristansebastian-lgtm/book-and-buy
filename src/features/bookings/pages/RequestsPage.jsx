@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
@@ -19,10 +20,10 @@ export function RequestsPage() {
                 <h1 className="bb-page-title">Requests</h1>
               </span>
             </div>
-            <button type="button" className="bb-page-action" onClick={() => setManualOpen(true)}>
+            <Button action="book" variant="primary" type="button" className="bb-page-action" onClick={() => setManualOpen(true)}>
               <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
               Manual booking
-            </button>
+            </Button>
           </header>
         }
       />

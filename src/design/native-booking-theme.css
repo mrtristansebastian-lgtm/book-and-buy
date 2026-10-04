@@ -1,5 +1,5 @@
         .native-booking-theme {
-            animation: native-accent-sync var(--native-accent-duration) var(--native-accent-easing) infinite;
+            /* Accent position is inherited from :root, including in portals. */
         }
 
         .native-booking-theme .booking-gradient-accent {
@@ -10,15 +10,17 @@
         }
 
         .native-booking-theme .booking-gradient-button {
-            color: #050505 !important;
+            color: #101828 !important;
+            border: 1px solid #e2e5e9 !important;
+            background: #fff !important;
+            box-shadow: none !important;
+        }
+
+        .native-booking-theme .booking-gradient-button:is(:hover, :focus-visible, .is-active, .is-selected, [aria-pressed="true"], [aria-selected="true"]):not(:disabled) {
             border-color: transparent !important;
-            background-color: #eaffdf !important;
-            background-image:
-                linear-gradient(180deg, rgba(255,255,255,0.48), rgba(255,255,255,0.16)),
-                var(--native-booking-accent-gradient) !important;
-            background-size: 100% 100%, 420% 420% !important;
+            background: linear-gradient(#fff, #fff) padding-box, var(--native-accent-gradient) border-box !important;
+            background-size: auto, 420% 420% !important;
             background-position: 0 0, var(--native-accent-x) 50% !important;
-            box-shadow: 0 22px 50px -34px var(--native-accent-button-glow) !important;
         }
 
         .native-booking-theme .booking-gradient-date,
@@ -38,19 +40,20 @@
 
         .native-booking-theme .booking-gradient-chip {
             color: #050505 !important;
-            border: 1px solid transparent !important;
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96)) padding-box,
-                var(--native-booking-accent-gradient) border-box !important;
-            background-size: auto, 420% 420% !important;
-            background-position: 0 0, var(--native-accent-x) 50% !important;
+            border: 1px solid #e2e5e9 !important;
+            background: #fff !important;
         }
 
         .native-booking-theme .booking-gradient-border {
+            border: 1px solid #e2e5e9 !important;
+            background: #fff !important;
+        }
+
+        .native-booking-theme :is(.booking-gradient-chip, .booking-gradient-border):is(:hover, :focus-visible, .is-active, .is-selected, [aria-pressed="true"], [aria-selected="true"]) {
             border: 1px solid transparent !important;
             background:
-                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98)) padding-box,
-                var(--native-booking-accent-gradient) border-box !important;
+                linear-gradient(#fff, #fff) padding-box,
+                var(--native-accent-gradient) border-box !important;
             background-size: auto, 420% 420% !important;
             background-position: 0 0, var(--native-accent-x) 50% !important;
         }
@@ -126,9 +129,15 @@
         }
 
         .native-theme-soft-slot {
+            border-color: #e2e5e9 !important;
+            background: #fff !important;
+        }
+
+        .native-theme-soft-slot:is(:hover, :focus-visible, .is-active, .is-selected, [aria-pressed="true"], [aria-selected="true"]) {
+            border-color: transparent !important;
             background:
-                linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95)) padding-box,
-                var(--native-booking-accent-gradient) border-box !important;
+                linear-gradient(#fff, #fff) padding-box,
+                var(--native-accent-gradient) border-box !important;
             background-size: auto, 420% 420% !important;
             background-position: 0 0, var(--native-accent-x) 50% !important;
         }

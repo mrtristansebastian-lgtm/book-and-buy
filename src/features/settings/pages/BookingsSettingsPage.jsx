@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { AdvanceBookingField } from '../../schedule/components/AdvanceBookingField';
 import { navigate } from '../../../app/routing';
@@ -34,13 +35,13 @@ export function BookingsSettingsPage() {
         <p className="bb-muted m-0 text-sm">Clients propose a new time in their booking conversation. The original booking stays unchanged until you accept. Turning this off prevents new client proposals.</p>
       </section>
 
-      <button
+      <Button action="calendar" variant="secondary"
         type="button"
         className="bb-ghost-btn justify-self-start"
         onClick={() => navigate('/dashboard/availability')}
       >
-        Manage staff shifts &amp; day status →
-      </button>
+        Manage staff shifts &amp; day status
+      </Button>
     </div>
   );
 }

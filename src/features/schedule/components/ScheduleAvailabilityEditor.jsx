@@ -1,6 +1,9 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useElementWidth } from '../../../shared/ui/useElementWidth';
-import { CalendarRange, Plus, Trash2, Pencil, Clock } from 'lucide-react';
+import { CalendarRange, Trash2, Clock } from 'lucide-react';
 import { listActiveShifts, removeActiveShift } from '../utils/activeShifts';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -721,20 +724,20 @@ export function ScheduleAvailabilityEditor({
           <section className="bb-schedule-side-section bb-schedule-availability-control-section">
             <div className="bb-schedule-avail-sidebar-head">
               <span className="bb-schedule-side-label">Day status</span>
-              <span className={`bb-schedule-avail-day-status-chip is-${dayDraftStatus}`}>{statusLabelForDraft(dayDraftStatus)}</span>
+              <StatusBadge className={`bb-schedule-avail-day-status-chip is-${dayDraftStatus}`} status={dayDraftStatus} label={statusLabelForDraft(dayDraftStatus)} />
             </div>
             <div className="bb-schedule-avail-sidebar-statuses" role="group" aria-label="Change day status">
               {paintBrushOptions.map((option) => (
-                <button
+                <FilterChip
                   key={option.id}
                   type="button"
                   className={`bb-schedule-avail-sidebar-status is-${option.id}${dayDraftStatus === option.id ? ' is-active' : ''}`}
+                  selected={dayDraftStatus === option.id}
                   disabled={!canUseActiveEdit || (option.id !== 'business-closed' && dayLockedByBusinessClose)}
                   onClick={() => commitDayStatus(option.id)}
                 >
-                  <span aria-hidden="true" />
                   {option.label}
-                </button>
+                </FilterChip>
               ))}
             </div>
           </section>
@@ -779,14 +782,14 @@ export function ScheduleAvailabilityEditor({
                     </span>
                   </button>
                   {activeEdit ? (
-                    <button
+                    <Button action="calendar" variant="secondary"
                       type="button"
                       className="bb-schedule-avail-select-range-btn"
                       onClick={() => setSelectRangeOpen(true)}
                     >
-                      <CalendarRange size={16} strokeWidth={2.2} aria-hidden="true" />
+
                       Select range
-                    </button>
+                    </Button>
                   ) : null}
                 </div>
               ) : null}
@@ -825,14 +828,14 @@ export function ScheduleAvailabilityEditor({
                   : 'Each tap cycles Working → Off day → Leave. Need many days? Use Select range.'}
               </p>
             </div>
-            <button
+            <Button action="calendar" variant="secondary"
               type="button"
               className="bb-schedule-avail-select-range-btn is-bar"
               onClick={() => setSelectRangeOpen(true)}
             >
-              <CalendarRange size={16} strokeWidth={2.2} aria-hidden="true" />
+
               Select range
-            </button>
+            </Button>
           </div>
         ) : null}
 
@@ -893,7 +896,7 @@ export function ScheduleAvailabilityEditor({
               <div className="bb-schedule-avail-sidebar-head">
                 <div className="bb-shift-editor-heading"><div className="bb-shift-editor-title-row"><h3 className="bb-shift-editor-title">Shifts &amp; breaks</h3><span className="bb-shift-editor-date"><CalendarRange size={16} aria-hidden="true" />{formatDisplayDate(selectedDay)}</span></div><p className="bb-schedule-avail-hint m-0">Working hours and breaks · {workspace.timezone || 'Business timezone'}</p></div>
               </div>
-              <div className="bb-shift-editor-status"><span>{statusLabelForDraft(dayDraftStatus)} · {formatDisplayDate(selectedDay)}</span><button type="button" className="bb-ghost-btn" disabled={!canUseActiveEdit} onClick={() => setDayStatusSheetOpen(true)}>Change day status</button></div>
+              <div className="bb-shift-editor-status"><span>{statusLabelForDraft(dayDraftStatus)} · {formatDisplayDate(selectedDay)}</span><Button action="settings" variant="secondary" type="button" className="bb-ghost-btn" disabled={!canUseActiveEdit} onClick={() => setDayStatusSheetOpen(true)}>Change day status</Button></div>
               {draftShifts.length ? draftShifts.map((shift, index) => (
                 <div key={`sidebar-shift-${index}`} className="bb-schedule-avail-sidebar-shift">
                   <div className="bb-schedule-avail-sidebar-shift-head">
@@ -911,9 +914,9 @@ export function ScheduleAvailabilityEditor({
                     </div>
                   ) : <strong>{shift.start} – {shift.end}</strong>}
                   {canEditDayTimes ? (
-                    <button type="button" className="bb-schedule-avail-sidebar-apply" onClick={() => setApplyShiftIndex(index)}>
-                      <CalendarRange size={14} aria-hidden="true" /> Apply this shift to dates
-                    </button>
+                    <Button action="apply" variant="primary" type="button" className="bb-schedule-avail-sidebar-apply" onClick={() => setApplyShiftIndex(index)}>
+                       Apply this shift to dates
+                    </Button>
                   ) : null}
                 </div>
               )) : <p className="bb-schedule-avail-hint m-0">No shift set for this day.</p>}
@@ -938,16 +941,16 @@ export function ScheduleAvailabilityEditor({
               {canEditDayTimes ? (
                 <>
                   <div className="bb-schedule-avail-sidebar-add-row">
-                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])}>
-                      <Plus size={15} aria-hidden="true" /> Shift
-                    </button>
-                    <button type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftBreaks((prev) => [...prev, { start: '12:00', end: '13:00' }])}>
-                      <Plus size={15} aria-hidden="true" /> Break
-                    </button>
+                    <Button action="add" variant="primary" type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftShifts((prev) => [...prev, { start: openTime, end: closeTime }])}>
+                       Shift
+                    </Button>
+                    <Button action="add" variant="primary" type="button" className="bb-schedule-avail-sidebar-action" onClick={() => setDraftBreaks((prev) => [...prev, { start: '12:00', end: '13:00' }])}>
+                       Break
+                    </Button>
                   </div>
-                  <button type="button" className="bb-primary-btn bb-schedule-avail-sidebar-save" disabled={!canSaveDay} onClick={() => saveDay()}>
+                  <Button action="save" variant="primary" type="button" className="bb-primary-btn bb-schedule-avail-sidebar-save" disabled={!canSaveDay} onClick={() => saveDay()}>
                     Save day
-                  </button>
+                  </Button>
                 </>
               ) : null}
             </section>
@@ -963,13 +966,13 @@ export function ScheduleAvailabilityEditor({
                   <span className="bb-active-shift-icon"><Clock size={18} aria-hidden="true" /></span>
                   <div className="bb-active-shift-copy"><strong>{formatDisplayDate(row.date)}</strong><span>{row.start} – {row.end}</span><small>{row.recurring ? 'Weekly schedule' : 'Date-specific shift'}{row.breaks.length ? ` · ${row.breaks.length} break${row.breaks.length === 1 ? '' : 's'}` : ''}</small></div>
                   {canEditSelected ? <div className="bb-active-shift-actions">
-                    <button type="button" className="bb-ghost-btn" aria-label={`Edit shift ${row.start} on ${row.date}`} onClick={() => { setSelectedDay(row.date); shiftEditorRef.current?.scrollIntoView({ block: 'center', behavior: 'auto' }); shiftEditorRef.current?.querySelector('input, button, select')?.focus({ preventScroll: true }); }}><Pencil size={15} /> Edit</button>
-                    <button type="button" className="bb-ghost-btn" aria-label={`Delete shift ${row.start} on ${row.date}`} onClick={() => setDeleteShiftKey(confirming ? '' : key)}><Trash2 size={15} /> Delete</button>
+                    <Button action="edit" variant="secondary" type="button" className="bb-ghost-btn" aria-label={`Edit shift ${row.start} on ${row.date}`} onClick={() => { setSelectedDay(row.date); shiftEditorRef.current?.scrollIntoView({ block: 'center', behavior: 'auto' }); shiftEditorRef.current?.querySelector('input, button, select')?.focus({ preventScroll: true }); }}> Edit</Button>
+                    <Button action="delete" variant="destructive" type="button" className="bb-ghost-btn" aria-label={`Delete shift ${row.start} on ${row.date}`} onClick={() => setDeleteShiftKey(confirming ? '' : key)}> Delete</Button>
                   </div> : null}
-                  {confirming ? <div className="bb-active-shift-confirm" role="group" aria-label="Confirm shift deletion"><span>Remove {row.start}–{row.end} on {formatDisplayDate(row.date)}?{row.ranges.length === 1 ? ' This marks the staff member off for this day.' : ''}</span><button type="button" className="bb-ghost-btn" onClick={() => setDeleteShiftKey('')}>Cancel</button><button type="button" className="bb-ghost-btn" onClick={() => { if (!canEditSelected) return; onSaveEntry?.(staffId, removeActiveShift(entry, row, availabilityRules)); setDeleteShiftKey(''); }}>Remove shift</button></div> : null}
+                  {confirming ? <div className="bb-active-shift-confirm" role="group" aria-label="Confirm shift deletion"><span>Remove {row.start}–{row.end} on {formatDisplayDate(row.date)}?{row.ranges.length === 1 ? ' This marks the staff member off for this day.' : ''}</span><Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setDeleteShiftKey('')}>Cancel</Button><Button action="delete" variant="destructive" type="button" className="bb-ghost-btn" onClick={() => { if (!canEditSelected) return; onSaveEntry?.(staffId, removeActiveShift(entry, row, availabilityRules)); setDeleteShiftKey(''); }}>Remove shift</Button></div> : null}
                 </li>;
               })}</ul> : <div className="bb-active-shifts-empty"><CalendarRange size={22} /><strong>No upcoming shifts this month</strong><span>Choose a working date above and add a shift, or move to another month.</span></div>}
-              {shiftPageCount > 1 ? <nav className="bb-active-shifts-pagination" aria-label="Shift list pages"><span>{safeShiftListPage * 6 + 1}–{Math.min((safeShiftListPage + 1) * 6, activeShifts.length)} of {activeShifts.length}</span><button type="button" className="bb-ghost-btn" disabled={safeShiftListPage === 0} onClick={() => { setShiftListPage(safeShiftListPage - 1); setDeleteShiftKey(''); }}>Previous shifts</button><button type="button" className="bb-ghost-btn" disabled={safeShiftListPage === shiftPageCount - 1} onClick={() => { setShiftListPage(safeShiftListPage + 1); setDeleteShiftKey(''); }}>Next shifts</button></nav> : null}
+              {shiftPageCount > 1 ? <nav className="bb-active-shifts-pagination" aria-label="Shift list pages"><span>{safeShiftListPage * 6 + 1}–{Math.min((safeShiftListPage + 1) * 6, activeShifts.length)} of {activeShifts.length}</span><Button action="back" variant="secondary" type="button" className="bb-ghost-btn" disabled={safeShiftListPage === 0} onClick={() => { setShiftListPage(safeShiftListPage - 1); setDeleteShiftKey(''); }}>Previous shifts</Button><Button action="continue" variant="secondary" type="button" className="bb-ghost-btn" disabled={safeShiftListPage === shiftPageCount - 1} onClick={() => { setShiftListPage(safeShiftListPage + 1); setDeleteShiftKey(''); }}>Next shifts</Button></nav> : null}
             </section>
           ) : null}
         {isBusinessFocus ? (
@@ -1100,24 +1103,24 @@ export function ScheduleAvailabilityEditor({
           <h3 className="bb-schedule-avail-title">
             {formatDisplayDate(selectedDay)} · Day
           </h3>
-          <span
+          <StatusBadge
             className={`bb-schedule-avail-day-status-chip is-${dayDraftStatus}`}
-          >
-            {statusLabelForDraft(dayDraftStatus)}
-          </span>
+            status={dayDraftStatus}
+            label={statusLabelForDraft(dayDraftStatus)}
+          />
         </div>
 
         {isBusinessFocus ? (
           canEditRules ? (
             <>
               <div className="bb-schedule-avail-day-toolbar">
-                <button
+                <Button action="settings" variant="secondary"
                   type="button"
                   className="bb-schedule-avail-day-tool-btn"
                   onClick={() => setDayStatusSheetOpen(true)}
                 >
                   Change status
-                </button>
+                </Button>
               </div>
               <p className="bb-schedule-avail-hint">
                 {dayDraftStatus === 'business-closed'
@@ -1126,14 +1129,14 @@ export function ScheduleAvailabilityEditor({
               </p>
               <div className="bb-schedule-avail-day-actions">
                 <span className="bb-schedule-avail-hint">Or confirm again below.</span>
-                <button
+                <Button action="save" variant="primary"
                   type="button"
                   className="bb-primary-btn"
                   disabled={!canSaveDay}
                   onClick={() => saveDay()}
                 >
                   Save changes
-                </button>
+                </Button>
               </div>
             </>
           ) : (
@@ -1152,26 +1155,26 @@ export function ScheduleAvailabilityEditor({
         ) : (
           <>
             <div className="bb-schedule-avail-day-toolbar">
-              <button
+              <Button action="settings" variant="secondary"
                 type="button"
                 className="bb-schedule-avail-day-tool-btn"
                 onClick={() => setDayStatusSheetOpen(true)}
               >
                 Change status
-              </button>
+              </Button>
               {canEditDayTimes ? (
                 <>
-                  <button
+                  <Button action="add" variant="primary"
                     type="button"
                     className="bb-schedule-avail-day-tool-btn is-break"
                     onClick={() =>
                       setDraftBreaks((prev) => [...prev, { start: '12:00', end: '13:00' }])
                     }
                   >
-                    <Plus size={15} strokeWidth={2.3} aria-hidden="true" />
+
                     Add break
-                  </button>
-                  <button
+                  </Button>
+                  <Button action="add" variant="primary"
                     type="button"
                     className="bb-schedule-avail-day-tool-btn is-shift"
                     onClick={() =>
@@ -1181,9 +1184,9 @@ export function ScheduleAvailabilityEditor({
                       ])
                     }
                   >
-                    <Plus size={15} strokeWidth={2.3} aria-hidden="true" />
+
                     Add shift
-                  </button>
+                  </Button>
                 </>
               ) : null}
             </div>
@@ -1270,14 +1273,14 @@ export function ScheduleAvailabilityEditor({
                   ? 'Change status saves immediately. Save again after editing shifts or breaks.'
                   : 'Change status saves immediately.'}
               </span>
-              <button
+              <Button action="save" variant="primary"
                 type="button"
                 className="bb-primary-btn"
                 disabled={!canSaveDay}
                 onClick={() => saveDay()}
               >
                 Save changes
-              </button>
+              </Button>
             </div>
           </>
         )}

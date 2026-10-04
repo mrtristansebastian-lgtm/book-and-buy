@@ -109,6 +109,11 @@
   border-top: 1px solid rgba(15, 23, 42, 0.08);
 }
 
+.bb-checkout-summary__row > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .bb-checkout-summary__icon {
   display: inline-grid;
   place-items: center;
@@ -124,7 +129,7 @@
   font-weight: 720;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(15, 23, 42, 0.42);
+  color: #667085;
 }
 
 .bb-checkout-summary__value {
@@ -149,6 +154,11 @@
   font-weight: 740;
   letter-spacing: -0.02em;
   color: #101828;
+}
+
+.bb-checkout-summary__total > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .bb-checkout-slots {
@@ -237,6 +247,7 @@
 
 .bb-checkout-field__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
@@ -257,11 +268,12 @@
   font-family: var(--bb-font-body);
   font-size: 0.68rem;
   font-weight: 560;
-  color: rgba(15, 23, 42, 0.38);
+  color: #667085;
 }
 
 .bb-checkout-field input,
-.bb-checkout-field textarea {
+.bb-checkout-field textarea,
+.bb-checkout-field select {
   width: 100%;
   margin: 0;
   box-sizing: border-box;
@@ -513,6 +525,10 @@ button.bb-checkout-tile {
   display: flex;
   flex-wrap: wrap;
   gap: 0.55rem;
+}
+
+.bb-checkout-companion__actions > .bb-button {
+  flex: 1 1 180px;
 }
 
 .bb-checkout-companion__btn {

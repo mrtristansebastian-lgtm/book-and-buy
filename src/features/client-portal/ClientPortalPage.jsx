@@ -1,3 +1,4 @@
+import { Button } from '../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { navigate } from '../../app/routing';
 import { BrandMark } from '../../shared/ui/BrandMark';
@@ -50,9 +51,9 @@ export function ClientPortalPage() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
-          <button type="submit" className="bb-primary-btn justify-self-start">
+          <Button action="search" variant="primary" type="submit" className="bb-primary-btn justify-self-start">
             Find my activity
-          </button>
+          </Button>
         </form>
 
         {lookup ? (

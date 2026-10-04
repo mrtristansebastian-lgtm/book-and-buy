@@ -1,21 +1,8 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ArrowLeft,
-  Cake,
-  FileText,
-  CalendarDays,
-  Package,
-  Mail,
-  MessageSquare,
-  Pencil,
-  Phone,
-  Plus,
-  Search,
-  Star,
-  Trash2,
-  User,
-  Users
-} from 'lucide-react';
+import { FileText, Cake, CalendarDays, Package, Mail, Pencil, Phone, Search, Star, Trash2, User, Users } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
 import { navigate } from '../../../app/routing';
@@ -282,10 +269,10 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
               aria-label="Search clients"
             />
           </label>
-          <button type="button" className="bb-page-action" onClick={() => openEdit()}>
-            <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
+          <Button action="addClient" variant="primary" type="button" className="bb-page-action" onClick={() => openEdit()}>
+
             Add client
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -294,21 +281,20 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
           <aside className="bb-clients-directory">
             <div className="bb-clients-directory-head">
               <div className="bb-clients-chips" role="toolbar" aria-label="Client filters">
-                {CLIENT_FILTERS.map(({ id, label, Icon }) => {
+                {CLIENT_FILTERS.map(({ id, label }) => {
                   const active = filter === id;
                   const count = filterCounts[id] ?? 0;
                   return (
-                    <button
+                    <FilterChip
                       key={id}
                       type="button"
                       className={`bb-clients-chip bb-support-filter-chip${active ? ' is-active' : ''}`}
-                      aria-pressed={active}
+                      selected={active}
+                      count={count}
                       onClick={() => setFilter(id)}
                     >
-                      <Icon size={14} strokeWidth={active ? 2.4 : 2} aria-hidden="true" />
                       <span>{label}</span>
-                      <span className="bb-clients-chip-count bb-support-filter-count">{count}</span>
-                    </button>
+                    </FilterChip>
                   );
                 })}
               </div>
@@ -332,14 +318,18 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                       const tags = tagsForTiers(tiers);
                       const meta = [client.phone, client.country].filter(Boolean).join(' / ');
                       return (
-                        <article
+                        <button
                           key={client.id}
+                          type="button"
                           className={`bb-clients-row${active ? ' is-active' : ''}`}
+                          aria-label={`Open client file for ${client.name}`}
+                          aria-pressed={active}
+                          onClick={() => openClient(client.id)}
                         >
                           <span className="bb-clients-avatar" aria-hidden="true">
                             {client.photoUrl || client.avatarUrl ? <img src={client.photoUrl || client.avatarUrl} alt="" /> : clientInitials(client.name)}
                           </span>
-                          <button type="button" className="bb-clients-row-copy" aria-label={`View ${client.name}`} onClick={() => openClient(client.id)}>
+                          <span className="bb-clients-row-copy">
                             <strong className="bb-clients-row-name">{client.name}</strong>
                             <span className="bb-clients-row-meta">
                               {meta || client.email || 'No contact details'}
@@ -356,12 +346,8 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                                 ))}
                               </span>
                             ) : null}
-                          </button>
-                          <span className="bb-clients-row-actions">
-                            <button type="button" className="bb-clients-action" title="Open client file" aria-label={`Open file for ${client.name}`} onClick={() => openClient(client.id)}><FileText size={16} aria-hidden="true" /></button>
-                            <button type="button" className="bb-clients-action" title="Open chat" aria-label={`Open chat with ${client.name}`} onClick={() => openMessage(client)}><MessageSquare size={16} aria-hidden="true" /></button>
                           </span>
-                        </article>
+                        </button>
                       );
                     })}
                   </div>
@@ -374,14 +360,14 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
             <div className="bb-clients-sheet" key={selected.id}>
               <div className="bb-clients-sheet-scroll">
                 <div className="bb-clients-sheet-bar">
-                  <button
+                  <Button action="back" variant="secondary"
                     type="button"
                     className="bb-clients-back"
                     onClick={closeMobileDetail}
                   >
-                    <ArrowLeft size={16} strokeWidth={2.2} />
+
                     All clients
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="bb-clients-sheet-hero">
@@ -409,20 +395,20 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                     </div>
                   </div>
                   <div className="bb-clients-actions">
-                    <button
+                    <Button action="chat" variant="secondary"
                       type="button"
                       className="bb-clients-action"
                       onClick={() => openMessage(selected)}
                     >
-                      <MessageSquare size={14} /> Message
-                    </button>
-                    <button
+                       Message
+                    </Button>
+                    <Button action="edit" variant="secondary"
                       type="button"
                       className="bb-clients-action"
                       onClick={() => openEdit(selected)}
                     >
-                      <Pencil size={14} /> Edit
-                    </button>
+                       Edit
+                    </Button>
                     <button
                       type="button"
                       className="bb-clients-action is-danger bb-clients-delete-icon"
@@ -437,7 +423,7 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
 
                 {deleteConfirm && <section className="bb-clients-delete-confirm" role="alert" aria-label="Confirm client file deletion">
                   <div><strong>Delete {selected.name}'s client file?</strong><p>This removes their saved contact details and notes. Booking and order history will be kept.</p></div>
-                  <div><button type="button" className="bb-clients-action" onClick={() => setDeleteConfirm(false)}>Keep file</button><button type="button" className="bb-clients-action is-danger" onClick={() => { removeClient(selected.id); setDeleteConfirm(false); onReturnToChat?.(); setSelectedId(''); setMobileDetail(false); }}>Delete file</button></div>
+                  <div><Button action="cancel" variant="secondary" type="button" className="bb-clients-action" onClick={() => setDeleteConfirm(false)}>Keep file</Button><Button action="delete" variant="destructive" type="button" className="bb-clients-action is-danger" onClick={() => { removeClient(selected.id); setDeleteConfirm(false); onReturnToChat?.(); setSelectedId(''); setMobileDetail(false); }}>Delete file</Button></div>
                 </section>}
 
                 <div className="bb-clients-file-summary" aria-label="Client activity summary">
@@ -514,8 +500,8 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                               {formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}
                             </span>
                           </div>
-                          <span className="bb-clients-record-status">{booking.status || 'Unknown status'}</span>
-                          <button
+                          <StatusBadge className="bb-clients-record-status" status={booking.status} label={booking.status || 'Unknown status'} />
+                          <Button action="chat" variant="secondary"
                             type="button"
                             className="bb-clients-action"
                             onClick={() => {
@@ -526,7 +512,7 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                             }}
                           >
                             Message
-                          </button>
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -540,11 +526,11 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                   ) : (
                     <div className="bb-clients-history-list">
                       {history.orders.map((order) => (
-                        <div key={order.id} className="bb-clients-history-item">
+                        <div key={order.id} className="bb-clients-history-item is-order">
                           <div>
                             {(order.items || []).map((item) => item.name).join(', ') || 'Order'}
                           </div>
-                          <span className="bb-clients-record-status">{order.status || 'Unknown status'}</span>
+                          <StatusBadge className="bb-clients-record-status" status={order.status} label={order.status || 'Unknown status'} />
                         </div>
                       ))}
                     </div>
@@ -642,12 +628,12 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
               </label>
             </div>
             <div className="bb-clients-modal-actions">
-              <button type="button" className="bb-ghost-btn" onClick={() => setDraftOpen(false)}>
+              <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setDraftOpen(false)}>
                 Cancel
-              </button>
-              <button type="button" className="bb-primary-btn" onClick={saveClient}>
+              </Button>
+              <Button action="save" variant="primary" type="button" className="bb-primary-btn" onClick={saveClient}>
                 Save client
-              </button>
+              </Button>
             </div>
           </div>
         </div>

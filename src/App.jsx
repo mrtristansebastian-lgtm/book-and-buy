@@ -12,6 +12,7 @@ import { useWorkspace } from './features/workspace/WorkspaceContext';
 import { BrandMark } from './shared/ui/BrandMark';
 import { useViewportZoomGate } from './shared/ui/useViewportZoomGate';
 import { useCustomDomain } from './features/website/useCustomDomain';
+import { ControlReview } from './shared/ui/ControlReview';
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAppRoute());
@@ -42,6 +43,8 @@ export default function App() {
       navigate('/app/account', { replace: true });
     }
   }, [route.kind, profileReady, isClient]);
+
+  if (import.meta.env.DEV && window.location.hash === '#/control-review') return <ControlReview />;
 
   if (!ready || !profileReady || customDomain.loading) {
     return (

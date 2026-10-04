@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useMemo } from 'react';
 import { PlaceLocationField } from '../../../shared/ui/PlaceLocationField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -140,7 +141,7 @@ export function LocationsSettingsPage() {
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Selling internationally</h2>
         <p className="bb-muted m-0 text-sm">Countries you serve, catalog availability and delivery connections now live in Markets.</p>
-        <a href="#/dashboard/settings/markets" className="bb-btn">Manage markets →</a>
+        <Button as="a" action="settings" href="#/dashboard/settings/markets" className="bb-btn">Manage markets</Button>
       </section>
     </div>
   );

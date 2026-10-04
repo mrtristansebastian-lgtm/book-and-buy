@@ -311,12 +311,8 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
   min-height: 1.75rem;
   padding: 0.28rem 0.78rem;
   border-radius: 999px;
-  border: 1.5px solid transparent;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent-button-gradient) border-box;
-  background-size: auto, 420% 420%;
-  background-position: 0 0, var(--native-accent-x) 50%;
+  border: 1.5px solid #e2e5e9;
+  background: #fff;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   color: #101828;
   box-sizing: border-box;
@@ -1823,12 +1819,8 @@ html body .native-ui .bb-public-surface .bb-public-profile-username {
 }
 
 .bb-public-about-pillar-marker.is-icon {
-  border: 2px solid transparent;
-  background:
-    linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent-button-gradient) border-box;
-  background-size: auto, 420% 420%;
-  background-position: 0 0, var(--native-accent-x) 50%;
+  border: 2px solid #e2e5e9;
+  background: #fff;
   color: #101828;
 }
 
@@ -1859,10 +1851,11 @@ button.bb-public-about-pillar-marker:hover {
   color: #d3ff5f;
 }
 
-button.bb-public-about-pillar-marker.is-icon:hover {
+button.bb-public-about-pillar-marker.is-icon:is(:hover, :focus-visible, [aria-pressed="true"], [aria-selected="true"]) {
+  border-color: transparent;
   background:
     linear-gradient(#fff, #fff) padding-box,
-    var(--native-accent-button-gradient) border-box;
+    var(--native-accent-gradient) border-box;
   background-size: auto, 420% 420%;
   background-position: 0 0, var(--native-accent-x) 50%;
   color: #101828;
@@ -4212,7 +4205,7 @@ html body .native-ui .bb-public-surface .bb-public-map-frame-accent {
   background-blend-mode: soft-light, normal !important;
 }
 
-html body .native-ui .bb-public-surface .bb-public-product-cart-btn {
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn:not(.bb-button) {
   background: #fff !important;
   background-image: none !important;
   color: #101828 !important;
@@ -4234,9 +4227,9 @@ html body .native-ui .bb-public-surface .bb-public-book-strip .bb-primary-btn :w
   color: #050505 !important;
 }
 
-html body .native-ui .bb-public-surface .bb-public-product-cart-btn,
-html body .native-ui .bb-public-surface .bb-public-product-cart-btn :where(span, svg),
-html body .native-ui .bb-public-surface .bb-public-product-more-btn {
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn:not(.bb-button),
+html body .native-ui .bb-public-surface .bb-public-product-cart-btn:not(.bb-button) :where(span, svg),
+html body .native-ui .bb-public-surface .bb-public-product-more-btn:not(.bb-button) {
   color: #101828 !important;
 }
 

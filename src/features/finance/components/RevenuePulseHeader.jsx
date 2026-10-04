@@ -2,13 +2,11 @@ import { useState } from 'react';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
-import { CURRENCY_OPTIONS, FINANCE_PERIODS, periodTitle } from '../utils/financeLedger';
+import { FINANCE_PERIODS, periodTitle } from '../utils/financeLedger';
 
 export function RevenuePulseHeader({
   periodId,
   onPeriodChange,
-  currency,
-  onCurrencyChange,
   customRange,
   onCustomRangeChange
 }) {
@@ -34,21 +32,6 @@ export function RevenuePulseHeader({
         </div>
 
         <div className="bb-finance-header-controls">
-          <label className="bb-finance-currency">
-            <span className="sr-only">Currency</span>
-            <select
-              value={currency}
-              onChange={(event) => onCurrencyChange?.(event.target.value)}
-              aria-label="Currency"
-            >
-              {CURRENCY_OPTIONS.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
           <PeriodSegmentedControl
             variant="period"
             ariaLabel="Time period"

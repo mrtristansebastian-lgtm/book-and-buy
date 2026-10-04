@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useDialogFocus } from './useDialogFocus';
 import { createPortal } from 'react-dom';
@@ -108,7 +109,7 @@ export function TimeField({
         >
           <span className={display ? '' : 'is-placeholder'}>{display || placeholder}</span>
         </button>
-        <button
+        <Button action="time" variant="primary"
           type="button"
           className="bb-time-field-pick"
           disabled={disabled}
@@ -117,7 +118,7 @@ export function TimeField({
           }}
         >
           Pick
-        </button>
+        </Button>
       </div>
 
       {open && typeof document !== 'undefined'
@@ -266,12 +267,12 @@ export function TimeField({
             </div>
 
             <footer className="bb-time-picker-actions">
-              <button type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
+              <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
                 Cancel
-              </button>
-              <button type="button" className="bb-primary-btn" onClick={confirm}>
+              </Button>
+              <Button action="confirm" variant="primary" type="button" className="bb-primary-btn" onClick={confirm}>
                 Confirm
-              </button>
+              </Button>
             </footer>
           </div>
         </div>,

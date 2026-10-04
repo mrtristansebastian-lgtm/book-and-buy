@@ -1,4 +1,7 @@
+import { Button } from '../../shared/ui/Button';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useDetailDialog } from '../../shared/ui/useDetailDialog';
 import { X, ZoomIn, ZoomOut } from 'lucide-react';
 import {
   clampImagePan,
@@ -55,6 +58,12 @@ export function ImageCropModal({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [ratioId, setRatioId] = useState('original');
+  const cancelRef = useRef({ busy, onCancel });
+  cancelRef.current = { busy, onCancel };
+  const cancel = useCallback(() => {
+    if (!cancelRef.current.busy) cancelRef.current.onCancel?.();
+  }, []);
+  const dialogRef = useDetailDialog(open, cancel);
 
   const ratioOptions = preset.ratioOptions || null;
 
@@ -115,20 +124,6 @@ export function ImageCropModal({
     observer.observe(node);
     return () => observer.disconnect();
   }, [open]);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const onKey = (event) => {
-      if (event.key === 'Escape' && !busy) onCancel?.();
-    };
-    window.addEventListener('keydown', onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [open, busy, onCancel]);
 
   const chosenRatio = ratioOptions?.find((option) => option.id === ratioId);
   const frameAspect =
@@ -279,10 +274,10 @@ export function ImageCropModal({
     }
   };
 
-  if (!open) return null;
+  if (!open || typeof document === 'undefined') return null;
 
-  return (
-    <div className="bb-image-crop" role="dialog" aria-modal="true" aria-label="Crop photo">
+  return createPortal(
+    <div ref={dialogRef} className="bb-image-crop" role="dialog" aria-modal="true" aria-label="Crop photo" aria-busy={busy || undefined}>
       <div className="bb-image-crop-shell">
         <header className="bb-image-crop-head">
           <button
@@ -298,14 +293,14 @@ export function ImageCropModal({
             <p className="bb-image-crop-eyebrow">Crop</p>
             <h2 className="bb-image-crop-title">{formatAspectLabel(frameAspect)}</h2>
           </div>
-          <button
+          <Button action="confirm" variant="secondary" busy={busy} busyLabel="Saving…"
             type="button"
             className="bb-image-crop-done"
             disabled={busy || loading || !frame}
             onClick={confirm}
           >
-            {busy ? '…' : 'Done'}
-          </button>
+            Done
+          </Button>
         </header>
 
         <div className="bb-image-crop-stage" ref={stageRef}>
@@ -378,8 +373,8 @@ export function ImageCropModal({
           </label>
         </div>
 
-        {error ? <p className="bb-image-crop-error">{error}</p> : null}
+        {error ? <p className="bb-image-crop-error" role="alert">{error}</p> : null}
       </div>
-    </div>
+    </div>, document.body
   );
 }

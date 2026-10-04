@@ -8,12 +8,12 @@ import { TransactionReceiptCard } from '../components/TransactionReceiptCard';
 import { navigate } from '../../../app/routing';
 import {
   buildFinanceLedger,
-  buildRevenueSeries,
-  computeFinanceMetrics,
   filterLedgerByPeriod,
   filterLedgerRows,
   ledgerToCsv
 } from '../utils/financeLedger';
+import { FINANCE_METRICS, buildFinanceMetricView } from '../utils/financeMetrics';
+import { MetricPicker } from '../../../shared/ui/MetricPicker';
 
 export function FinancePage() {
   const {
@@ -22,8 +22,7 @@ export function FinancePage() {
     orders,
     services,
     markPaid,
-    markOrderPaid,
-    updateProfile
+    markOrderPaid
   } = useWorkspace();
 
   const [periodId, setPeriodId] = useState('all');
@@ -33,6 +32,7 @@ export function FinancePage() {
   const [status, setStatus] = useState('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('newest');
+  const [metricId, setMetricId] = useState('revenue');
 
   const ledger = useMemo(
     () =>
@@ -40,9 +40,10 @@ export function FinancePage() {
         bookings,
         orders,
         services,
-        brandName: workspace.brandName
+        brandName: workspace.brandName,
+        currency
       }),
-    [bookings, orders, services, workspace.brandName]
+    [bookings, orders, services, workspace.brandName, currency]
   );
 
   const periodLedger = useMemo(
@@ -50,14 +51,9 @@ export function FinancePage() {
     [ledger, periodId, customRange]
   );
 
-  const metrics = useMemo(
-    () => computeFinanceMetrics(periodLedger, periodId),
-    [periodLedger, periodId]
-  );
-
-  const series = useMemo(
-    () => buildRevenueSeries(periodLedger, periodId, customRange),
-    [periodLedger, periodId, customRange]
+  const metricView = useMemo(
+    () => buildFinanceMetricView({ ledger, metricId, periodId, customRange, currency }),
+    [ledger, metricId, periodId, customRange, currency]
   );
 
   const visibleRows = useMemo(() => {
@@ -91,15 +87,18 @@ export function FinancePage() {
       <RevenuePulseHeader
         periodId={periodId}
         onPeriodChange={setPeriodId}
-        currency={currency}
-        onCurrencyChange={(next) => updateProfile({ currency: next })}
         customRange={customRange}
         onCustomRangeChange={setCustomRange}
       />
 
+      <div className="bb-finance-stat-selector">
+        <span className="bb-field-label">Statistic</span>
+        <MetricPicker value={metricId} options={FINANCE_METRICS} onChange={setMetricId} ariaLabel="Choose finance statistic" />
+      </div>
+
       <section className="bb-finance-pulse">
-        <RevenueMetricCards metrics={metrics} currency={currency} />
-        <RevenueChart series={series} currency={currency} />
+        <RevenueMetricCards metricView={metricView} currency={currency} />
+        <RevenueChart series={metricView.series} currency={currency} metric={metricView.metric} unavailableReason={metricView.unavailableReason} />
       </section>
 
       <section className="bb-finance-ledger">

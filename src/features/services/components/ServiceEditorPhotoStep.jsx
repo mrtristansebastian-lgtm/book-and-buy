@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { ImagePlus, Replace } from 'lucide-react';
 
 export function ServiceEditorPhotoStep({ draft, busy, fileRef, onPick }) {
@@ -22,7 +23,7 @@ export function ServiceEditorPhotoStep({ draft, busy, fileRef, onPick }) {
         )}
       </button>
       {draft.image ? (
-        <button
+        <Button action="replace" variant="secondary"
           type="button"
           className="bb-ghost-btn bb-services-photo-replace"
           onClick={() => fileRef.current?.click()}
@@ -30,7 +31,7 @@ export function ServiceEditorPhotoStep({ draft, busy, fileRef, onPick }) {
         >
           <Replace size={14} />
           Replace
-        </button>
+        </Button>
       ) : null}
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPick} />
     </section>

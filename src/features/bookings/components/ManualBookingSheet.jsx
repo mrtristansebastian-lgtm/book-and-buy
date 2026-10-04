@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getDaySlots } from '../../../utils/availability';
@@ -182,12 +183,12 @@ export function ManualBookingSheet({ onClose }) {
         </select></label>
         {!canSubmit && <p className="bb-muted m-0 text-sm" id="manual-booking-requirements">Select an available time and enter the client's name to create a booking.</p>}
         <div className="flex gap-2 justify-end">
-          <button type="button" className="bb-ghost-btn" onClick={onClose}>
+          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
             Cancel
-          </button>
-          <button type="button" className="bb-primary-btn" disabled={saving || !canSubmit} aria-describedby={!canSubmit ? 'manual-booking-requirements' : undefined} onClick={submit}>
-            {saving ? 'Creating…' : 'Create booking'}
-          </button>
+          </Button>
+          <Button action="book" variant="primary" type="button" className="bb-primary-btn" disabled={!canSubmit} busy={saving} busyLabel="Creating…" aria-describedby={!canSubmit ? 'manual-booking-requirements' : undefined} onClick={submit}>
+            Create booking
+          </Button>
         </div>
       </div>
     </div>

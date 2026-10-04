@@ -325,8 +325,8 @@ html body .native-ui .bb-primary-btn :where(span, strong, small, p) {
   stroke-width: 2.35;
 }
 
-html body .native-ui .bb-page-action,
-html body .native-ui .bb-page-action :where(span, strong, small) {
+html body .native-ui .bb-page-action:not(.bb-button),
+html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small) {
   color: #101828 !important;
   font-size: 0.8rem !important;
   font-weight: 740 !important;
@@ -431,7 +431,7 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
 
 /*
  * Universal page frame: shell fills the viewport; MiniAppBar stays put;
- * only .bb-owner-main scrolls; page headings stick to the top of that scroller.
+ * only .bb-owner-main scrolls; page headings move naturally with that content.
  */
 .bb-shell.is-launcher,
 .bb-shell.is-miniapp:not(.is-support-flush) {
@@ -483,9 +483,9 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
 ),
 .bb-owner-main > .grid > header:first-child,
 .bb-owner-main > .grid > .bb-page-title-wrap:first-child {
-  position: sticky;
-  top: 0;
-  z-index: 12;
+  position: relative;
+  top: auto;
+  z-index: auto;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(14px) saturate(1.15);
   -webkit-backdrop-filter: blur(14px) saturate(1.15);
@@ -520,7 +520,7 @@ html body .native-ui .bb-page-action :where(span, strong, small) {
   -webkit-backdrop-filter: none;
 }
 
-/* One sticky band: heading + period toggles / filters / search */
+/* One flowing band: heading + period toggles / filters / search */
 .bb-owner-main .bb-page-chrome {
   display: grid;
   gap: 0.75rem;

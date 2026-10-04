@@ -251,12 +251,12 @@ export function BookingRequestsDesk({ heading = null }) {
 
                 <div className="bb-ops-actions">
                   <OpsChatAction onClick={() => openChat(booking)} />
-                  <OpsAction onClick={() => runBookingAction(() => markPaid(booking.id))}>
+                  <OpsAction action="markPaid" variant="positive" onClick={() => runBookingAction(() => markPaid(booking.id))}>
                     <DollarSign size={13} strokeWidth={2.4} />
                     Mark paid
                   </OpsAction>
                   {!closed && status !== 'waitlist' ? (
-                    <OpsAction onClick={() => runBookingAction(() => waitlistBooking(booking.id))}>
+                    <OpsAction action="waitlist" onClick={() => runBookingAction(() => waitlistBooking(booking.id))}>
                       <Hourglass size={13} strokeWidth={2.2} />
                       Waitlist
                     </OpsAction>
@@ -267,8 +267,8 @@ export function BookingRequestsDesk({ heading = null }) {
                   )}
                   {needsApprove ? (
                     <div className="bb-ops-action-cluster">
-                      <OpsAction
-                        tone="primary"
+                      <OpsAction action="accept"
+                        variant="positive"
                         ariaLabel="Approve"
                         onClick={() => runBookingAction(() => confirmBooking(booking.id))}
                       >

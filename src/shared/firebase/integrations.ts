@@ -6,7 +6,7 @@ import {
   uploadBytes,
   uploadBytesResumable
 } from 'firebase/storage';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, runTransaction } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { chatAttachmentMetadata } from '../../features/support/utils/voiceMedia';
 import { getFirebase, isFirebaseConfigured } from './client';
@@ -14,6 +14,7 @@ import { firebaseCallables } from './callables';
 import { saveOwnerWorkspaceToFirestore } from './ownerWorkspace';
 import { publicWorkspacePath } from './paths';
 import { buildPublicWorkspaceSnapshot } from './publicSnapshot';
+import { ProfileAddressUnavailableError, writeOwnedPublicProfile } from './publicProfileOwnership';
 
 export const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
@@ -464,7 +465,16 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
   }
 
   const path = publicWorkspacePath(APP_ID, slug);
-  await setDoc(doc(firebase.db, ...path), snapshot, { merge: true });
+  try {
+    await runTransaction(firebase.db, (transaction) =>
+      writeOwnedPublicProfile(transaction, doc(firebase.db, ...path), snapshot)
+    );
+  } catch (error) {
+    if (error instanceof ProfileAddressUnavailableError) {
+      return { ok: false as const, localOnly: true, reason: error.message };
+    }
+    throw error;
+  }
   await saveOwnerWorkspaceToFirestore(ownerId, {
     ...workspace,
     ownerId,

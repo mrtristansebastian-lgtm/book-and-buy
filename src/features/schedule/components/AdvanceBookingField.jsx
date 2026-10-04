@@ -1,5 +1,6 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronDown, X } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { DateField } from '../../../shared/ui/DateField';
 import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import { addDays, parseDateKey, toDateKey } from '../../../utils/dates';
@@ -188,17 +189,17 @@ export function AdvanceBookingField({
             </div>
 
             <footer className="bb-advance-picker-actions">
-              <button type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
-                <X size={15} /> Cancel
-              </button>
-              <button
+              <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
+                 Cancel
+              </Button>
+              <Button action="apply" variant="primary"
                 type="button"
                 className="bb-primary-btn"
                 disabled={!canApply}
                 onClick={apply}
               >
                 Apply
-              </button>
+              </Button>
             </footer>
           </div>
         </div>

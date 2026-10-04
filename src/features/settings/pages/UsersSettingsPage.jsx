@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { validateTeamProfile } from '../settingsValidation';
@@ -60,13 +61,13 @@ export function UsersSettingsPage() {
             <option value="Staff">Staff</option>
           </select></label>
         </div>
-        <button
+        <Button action="addClient" variant="primary"
           type="submit"
           className="bb-primary-btn justify-self-start"
           disabled={!memberDraft.name.trim()}
         >
           Add team profile
-        </button>
+        </Button>
         {error && <p className="bb-reschedule-error" role="alert">{error}</p>}
       </form>
 
@@ -78,7 +79,7 @@ export function UsersSettingsPage() {
             key={member.id}
             className="bb-panel p-4 flex flex-wrap items-center justify-between gap-3"
           >
-            <div className="grid gap-0.5">
+            <div className="bb-settings-team-copy grid gap-0.5">
               <strong>{member.name}</strong>
               <span className="bb-muted text-sm">
                 {[member.role, member.accessRole, member.email].filter(Boolean).join(' · ')}
@@ -87,9 +88,9 @@ export function UsersSettingsPage() {
             {member.accessRole !== 'Owner' ? (
               removing === member.id ? <div className="bb-settings-remove-confirm" role="group" aria-label={`Remove ${member.name}`}>
                 <span>Remove this team profile? Existing bookings are kept.</span>
-                <button type="button" className="bb-ghost-btn" onClick={() => setRemoving('')}>Keep profile</button>
-                <button type="button" className="bb-ghost-btn" onClick={() => { removeStaff(member.id); setRemoving(''); }}>Confirm removal</button>
-              </div> : <button type="button" className="bb-ghost-btn" aria-label={`Remove ${member.name}`} onClick={() => setRemoving(member.id)}>Remove</button>
+                <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setRemoving('')}>Keep profile</Button>
+                <Button action="delete" variant="destructive" type="button" className="bb-ghost-btn" onClick={() => { removeStaff(member.id); setRemoving(''); }}>Confirm removal</Button>
+              </div> : <Button action="remove" variant="destructive" type="button" className="bb-ghost-btn" aria-label={`Remove ${member.name}`} onClick={() => setRemoving(member.id)}>Remove</Button>
             ) : null}
           </article>
         ))}

@@ -50,7 +50,7 @@ export const TAB_HINTS = {
   products: 'Your catalogue',
   orders: 'Fulfil & ship',
   stock: 'Levels & alerts',
-  website: 'Hero, about, photos',
+  website: 'Banner, profile and details',
   'website-book': 'Services page',
   'website-buy': 'Storefront page',
   'website-checkout': 'Cart flow',
@@ -91,7 +91,7 @@ export const launcherApps = [
   {
     id: 'presence',
     label: 'E-Business',
-    blurb: 'Your public pages and storefront.',
+    blurb: 'Your business profile, Book and Buy.',
     icon: Globe2,
     tabs: ['website', 'website-book', 'website-buy', 'website-checkout'],
     size: 'lg',

@@ -1,3 +1,5 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import { useEffect, useMemo, useState } from 'react';
 import { AppSheet } from '../../../shared/ui/AppSheet';
 import { DateField } from '../../../shared/ui/DateField';
@@ -44,10 +46,10 @@ export function SelectRangeSheet({
       panelClassName="bb-schedule-avail-sheet-panel"
       footer={
         <div className="bb-services-sheet-footer-actions">
-          <button type="button" className="bb-ghost-btn" onClick={onClose}>
+          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button action="save" variant="primary"
             type="button"
             className="bb-primary-btn"
             disabled={!canApply}
@@ -63,7 +65,7 @@ export function SelectRangeSheet({
             }}
           >
             Save {activeLabel.toLowerCase()}
-          </button>
+          </Button>
         </div>
       }
     >
@@ -88,18 +90,19 @@ export function SelectRangeSheet({
         <p className="bb-schedule-avail-range-status-label">Status for this period</p>
         <div className="bb-schedule-avail-status" role="tablist" aria-label="Availability status">
           {statusOptions.map((option) => (
-            <button
+            <FilterChip
               key={option.id}
               type="button"
               role="tab"
               aria-selected={status === option.id}
+              selected={status === option.id}
               className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
                 status === option.id ? ' is-active' : ''
               }`}
               onClick={() => setStatus(option.id)}
             >
               {option.label}
-            </button>
+            </FilterChip>
           ))}
         </div>
       </div>

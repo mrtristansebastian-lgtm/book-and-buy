@@ -1,12 +1,26 @@
-/** Book and Buy SaaS plans — source of truth for Settings → Plan. */
+/** Profile access and legacy SaaS plan information for Settings → Plan. */
 
 export const BILLING_CURRENCY = 'ZAR';
 export const BILLING_SYMBOL = 'R';
 export const TRIAL_DAYS = 14;
+export const FREE_PROFILE_PLAN_ID = 'free';
 
 export const PLAN_IDS = ['starter', 'studio', 'business'];
 
 export const BILLING_PLANS = {
+  free: {
+    id: FREE_PROFILE_PLAN_ID,
+    name: 'Free profile',
+    blurb: 'Your business on Book and Buy, with no subscription required.',
+    monthlyPrice: 0,
+    annualPrice: 0,
+    features: [
+      'Your business profile with a banner and profile photo',
+      'Book and Buy sections for your services and products',
+      'Publish your profile to be discovered on Places',
+      'Customer messages and business details'
+    ]
+  },
   starter: {
     id: 'starter',
     name: 'Starter',
@@ -109,8 +123,8 @@ export function formatPlanPrice(amount, { interval = 'month' } = {}) {
   return interval === 'year' ? `${formatted}/yr` : `${formatted}/mo`;
 }
 
-export function getPlan(planId = 'starter') {
-  return BILLING_PLANS[planId] || BILLING_PLANS.starter;
+export function getPlan(planId = FREE_PROFILE_PLAN_ID) {
+  return BILLING_PLANS[planId] || BILLING_PLANS.free;
 }
 
 export function createDefaultPlanFields({ isDemo = false } = {}) {
@@ -122,11 +136,10 @@ export function createDefaultPlanFields({ isDemo = false } = {}) {
       trialEndsAt: null
     };
   }
-  const trialEndsAt = Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000;
   return {
-    planId: 'starter',
+    planId: FREE_PROFILE_PLAN_ID,
     billingInterval: 'month',
-    planStatus: 'trialing',
-    trialEndsAt
+    planStatus: 'active',
+    trialEndsAt: null
   };
 }

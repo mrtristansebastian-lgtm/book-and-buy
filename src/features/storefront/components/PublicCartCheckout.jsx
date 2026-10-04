@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUpRight,
@@ -39,7 +40,8 @@ import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
 import {
   trackAnalyticsEvent,
-  upsertAnalyticsCart
+  upsertAnalyticsCart,
+  getAnalyticsAttribution
 } from '../../../shared/analytics/beacon';
 
 function readCheckoutReturnParams() {
@@ -265,6 +267,7 @@ export function PublicCartCheckout({
   const [result, setResult] = useState(() => previewResult || null);
   const [submitting, setSubmitting] = useState(false);
   const bookingRequests = useRef(new Map());
+  const requestAttribution = useRef(new Map());
   const [returnState, setReturnState] = useState(null);
   const [slotEditItem, setSlotEditItem] = useState(null);
   const [step, setStep] = useState(() => {
@@ -450,10 +453,13 @@ export function PublicCartCheckout({
       try {
         const signature = JSON.stringify({ slug: workspace.slug, ...payload });
         if (!bookingRequests.current.has(signature)) bookingRequests.current.set(signature, crypto.randomUUID());
+        if (!requestAttribution.current.has(signature)) requestAttribution.current.set(signature,
+          await getAnalyticsAttribution({ ownerId: workspace.ownerId, slug: workspace.slug }));
         const remote = await firebaseCallables.createPublicBookingRequest({
           slug: workspace.slug,
           requestId: bookingRequests.current.get(signature),
-          ...payload
+          ...payload,
+          ...requestAttribution.current.get(signature)
         });
         return { ...payload, id: remote?.id || `bk-${Date.now()}`, ...(remote || {}) };
       } catch (failure) {
@@ -480,12 +486,15 @@ export function PublicCartCheckout({
 
     if (publicMode && isFirebaseConfigured() && workspace.slug) {
       try {
+        if (!requestAttribution.current.has(signature)) requestAttribution.current.set(signature,
+          await getAnalyticsAttribution({ ownerId: workspace.ownerId, slug: workspace.slug }));
         const remote = await firebaseCallables.createPublicProductOrder({
           requestId: bookingRequests.current.get(signature),
           slug: workspace.slug,
           items: productItems,
           client,
-          paymentMethod
+          paymentMethod,
+          ...requestAttribution.current.get(signature)
         });
         if (remote && typeof remote === 'object') return remote;
         throw new Error('The order service returned no confirmation.');
@@ -689,7 +698,7 @@ export function PublicCartCheckout({
             <p className="bb-checkout-flow__lede">{returnState.note}</p>
           ) : null}
         </div>
-        <button
+        <Button action="continue" variant="primary"
           type="button"
           className="bb-checkout-cta"
           onClick={() => {
@@ -699,7 +708,7 @@ export function PublicCartCheckout({
         >
           Continue browsing
           <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-        </button>
+        </Button>
       </div>
     );
   }
@@ -781,33 +790,33 @@ export function PublicCartCheckout({
             </div>
           </div>
           <div className="bb-checkout-companion__actions">
-            <button
+            <Button action="orders" variant="secondary"
               type="button"
               className="bb-checkout-companion__btn bb-checkout-companion__btn--portal"
               onClick={() => navigate('/portal')}
             >
               My bookings & orders
               <ArrowUpRight size={14} strokeWidth={2.4} aria-hidden="true" />
-            </button>
-            <button
+            </Button>
+            <Button action="download" variant="primary"
               type="button"
               className="bb-checkout-companion__btn bb-checkout-companion__btn--app"
               onClick={() => navigate('/portal?install=1')}
             >
               Add app
               <Download size={14} strokeWidth={2.4} aria-hidden="true" />
-            </button>
+            </Button>
           </div>
         </div>
 
         <div className="bb-checkout-secondary">
           {calendarUrl ? (
-            <a className="bb-ghost-btn" href={calendarUrl} target="_blank" rel="noreferrer">
+            <Button as="a" action="calendar" className="bb-ghost-btn" href={calendarUrl} target="_blank" rel="noreferrer">
               Add to Google Calendar
-            </a>
+            </Button>
           ) : null}
           {!lockedPreview ? (
-            <button
+            <Button action="continue" variant="primary"
               type="button"
               className="bb-ghost-btn"
               onClick={() => {
@@ -827,7 +836,7 @@ export function PublicCartCheckout({
               }}
             >
               Continue browsing
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>
@@ -841,10 +850,10 @@ export function PublicCartCheckout({
         <p className="bb-checkout-flow__lede">
           Add services from Book or products from Buy. Quote-based products stay request-only.
         </p>
-        <button type="button" className="bb-checkout-cta" onClick={onBack}>
+        <Button action="continue" variant="primary" type="button" className="bb-checkout-cta" onClick={onBack}>
           Continue browsing
           <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-        </button>
+        </Button>
       </div>
     );
   }
@@ -943,6 +952,7 @@ export function PublicCartCheckout({
             <button
               type="button"
               className={`bb-checkout-tile${details.emailUpdates ? ' is-checked' : ''}`}
+              aria-pressed={details.emailUpdates}
               onClick={() =>
                 setDetails((prev) => ({ ...prev, emailUpdates: !prev.emailUpdates }))
               }
@@ -993,20 +1003,19 @@ export function PublicCartCheckout({
           {submitNote ? <p className="bb-checkout-flow__lede">{submitNote}</p> : null}
 
           {!lockedPreview ? (
-            <button
+            <Button action="back" variant="secondary"
               type="button"
               className="bb-checkout-flow__back"
               onClick={() => setStep('review')}
             >
               <ChevronLeft size={14} strokeWidth={2.4} aria-hidden="true" />
               Back to review
-            </button>
+            </Button>
           ) : null}
 
-          <button type="submit" className="bb-checkout-cta" disabled={!canSubmit || lockedPreview}>
-            {submitting ? 'Submitting…' : copy.detailsCta}
-            <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-          </button>
+          <Button action="continue" variant="primary" type="submit" className="bb-checkout-cta" disabled={!canSubmit || lockedPreview} busy={submitting} busyLabel="Submitting…">
+            {copy.detailsCta}
+          </Button>
         </form>
       </div>
     );
@@ -1014,10 +1023,10 @@ export function PublicCartCheckout({
 
   return (
     <div className="bb-checkout-flow">
-      <button type="button" className="bb-checkout-flow__back" onClick={onBack}>
+      <Button action="edit" variant="secondary" type="button" className="bb-checkout-flow__back" onClick={onBack}>
         <ChevronLeft size={14} strokeWidth={2.4} aria-hidden="true" />
         Edit selection
-      </button>
+      </Button>
 
       <div className="bb-checkout-flow__intro bb-checkout-flow__intro--center">
         <p className="bb-checkout-flow__eyebrow">{copy.reviewEyebrow}</p>
@@ -1077,13 +1086,13 @@ export function PublicCartCheckout({
                   <strong className="bb-cart-time-action-title">{item.name}</strong>
                 {!item.dateKey || !item.time ? <p className="bb-muted m-0 text-sm">Choose an available date and time to continue.</p> : null}
                 {!lockedPreview ? (
-                  <button
+                  <Button action="calendar" variant={item.dateKey && item.time ? 'secondary' : 'primary'}
                     type="button"
                     className="bb-ghost-btn justify-self-start"
                     onClick={() => setSlotEditItem(item)}
                   >
                     {item.dateKey && item.time ? 'Change date & time' : 'Pick date & time'}
-                  </button>
+                  </Button>
                 ) : null}
               </div>
             );
@@ -1121,19 +1130,19 @@ export function PublicCartCheckout({
                 >
                   +
                 </button>
-                <button
+                <Button action="remove" variant="destructive"
                   type="button"
                   className="bb-ghost-btn px-3 py-1 text-xs"
                   onClick={() => cart.removeItem(item.lineKey)}
                 >
                   Remove
-                </button>
+                </Button>
               </div>
             </div>
           ))
         : null}
 
-      <button
+      <Button action="continue" variant="primary"
         type="button"
         className="bb-checkout-cta"
         disabled={!canContinueDetails || lockedPreview}
@@ -1144,7 +1153,7 @@ export function PublicCartCheckout({
       >
         Complete your details
         <ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" />
-      </button>
+      </Button>
 
       <PublicServiceSlotSheet
         open={Boolean(slotEditItem)}

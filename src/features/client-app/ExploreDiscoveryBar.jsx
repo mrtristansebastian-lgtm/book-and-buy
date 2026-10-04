@@ -1,36 +1,7 @@
+import { Button } from '../../shared/ui/Button';
+import { FilterChip } from '../../shared/ui/FilterChip';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import {
-  ArrowLeft,
-  Bike,
-  BookOpen,
-  Car,
-  ChevronRight,
-  Clock3,
-  Cookie,
-  Download,
-  Dumbbell,
-  Flower,
-  Gem,
-  Globe2,
-  GraduationCap,
-  Hand,
-  Home,
-  Image,
-  Lamp,
-  Layers,
-  MapPin,
-  Navigation,
-  PartyPopper,
-  PawPrint,
-  Search,
-  Shirt,
-  ShoppingBag,
-  Smartphone,
-  Sparkles,
-  Ticket,
-  UtensilsCrossed,
-  X
-} from 'lucide-react';
+import { Bike, BookOpen, Car, ChevronRight, Clock3, Cookie, Download, Dumbbell, Flower, Gem, GraduationCap, Hand, Home, Image, Lamp, Layers, MapPin, PartyPopper, PawPrint, Search, Shirt, ShoppingBag, Smartphone, Sparkles, Ticket, UtensilsCrossed, X } from 'lucide-react';
 import {
   EXPLORE_MODE_FILTERS,
   bookCategoryGroups,
@@ -99,14 +70,14 @@ function modeKeyFromChip(id) {
 
 function PickCell({ label, selected = false, onClick }) {
   return (
-    <button
+    <FilterChip
       type="button"
       className={`bb-explore-pick${selected ? ' is-on' : ''}`}
-      aria-pressed={selected}
+      selected={selected}
       onClick={onClick}
     >
       <span className="bb-explore-pick-label">{label}</span>
-    </button>
+    </FilterChip>
   );
 }
 
@@ -353,26 +324,26 @@ export function ExploreDiscoveryBar({
     <div className="bb-explore-discovery" ref={rootRef}>
       <div className="bb-explore-discovery-row">
         <div className="bb-explore-discovery-modes" role="tablist" aria-label="Discovery mode">
-          <button
+          <FilterChip
             type="button"
             role="tab"
             aria-selected={mode === 'local'}
+            selected={mode === 'local'}
             className={`bb-explore-mode${mode === 'local' ? ' is-active' : ''}`}
             onClick={() => onModeChange?.('local')}
           >
-            <Navigation size={13} strokeWidth={2.4} aria-hidden="true" />
             Local
-          </button>
-          <button
+          </FilterChip>
+          <FilterChip
             type="button"
             role="tab"
             aria-selected={mode === 'international'}
+            selected={mode === 'international'}
             className={`bb-explore-mode${mode === 'international' ? ' is-active' : ''}`}
             onClick={() => onModeChange?.('international')}
           >
-            <Globe2 size={13} strokeWidth={2.4} aria-hidden="true" />
             International
-          </button>
+          </FilterChip>
         </div>
 
         {mode === 'local' ? (
@@ -382,7 +353,7 @@ export function ExploreDiscoveryBar({
             {geoStatus === 'loading' ? (
               <span className="bb-explore-near-status">…</span>
             ) : (
-              <button
+              <Button action={geoStatus === 'ready' || clientCity ? 'edit' : 'search'} variant="secondary"
                 type="button"
                 className="bb-explore-near-btn"
                 onClick={
@@ -390,7 +361,7 @@ export function ExploreDiscoveryBar({
                 }
               >
                 {geoStatus === 'ready' || clientCity ? 'Change' : 'Locate'}
-              </button>
+              </Button>
             )}
           </div>
         ) : (
@@ -495,13 +466,13 @@ export function ExploreDiscoveryBar({
               <section className="bb-explore-search-section">
                 <header className="bb-explore-search-section-head">
                   <span>Recent</span>
-                  <button
+                  <Button action="clear" variant="secondary"
                     type="button"
                     className="bb-explore-search-section-action"
                     onClick={() => onSearchHistoryChange?.([])}
                   >
                     Clear
-                  </button>
+                  </Button>
                 </header>
                 <ul className="bb-explore-search-history">
                   {searchHistory.slice(0, HISTORY_MAX).map((term) => (
@@ -523,10 +494,10 @@ export function ExploreDiscoveryBar({
             <section className="bb-explore-search-section">
               <header className="bb-explore-search-section-head">
                 {step !== 'mode' && !typed ? (
-                  <button type="button" className="bb-explore-search-back" onClick={goBack}>
-                    <ArrowLeft size={14} strokeWidth={2.3} aria-hidden="true" />
+                  <Button action="back" variant="secondary" type="button" className="bb-explore-search-back" onClick={goBack}>
+
                     {stepTitle}
-                  </button>
+                  </Button>
                 ) : (
                   <span>{typed ? 'Results' : stepTitle}</span>
                 )}
@@ -651,13 +622,13 @@ export function ExploreDiscoveryBar({
               )}
             </section>
 
-            <button
+            <Button action="search" variant="primary"
               type="button"
               className="bb-explore-search-submit"
               onClick={() => commitSearch(draft)}
             >
               Done &amp; search
-            </button>
+            </Button>
           </div>
           ) : null}
         </div>

@@ -97,7 +97,7 @@ export const workspaceTabLabels = {
   products: 'Products',
   orders: 'Orders',
   stock: 'Stock',
-  website: 'Home page',
+  website: 'Business profile',
   'website-book': 'Book page',
   'website-buy': 'Buy page',
   'website-checkout': 'Cart & checkout',

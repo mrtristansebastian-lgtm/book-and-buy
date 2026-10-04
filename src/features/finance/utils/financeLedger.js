@@ -16,6 +16,12 @@ export const CURRENCY_OPTIONS = [
   { id: 'EUR', label: 'EUR', symbol: '€' }
 ];
 
+export function normalizeFinanceCurrency(currency = 'R') {
+  const value = String(currency || 'R').trim().toUpperCase();
+  const aliases = { R: 'ZAR', ZAR: 'ZAR', '$': 'USD', USD: 'USD', '€': 'EUR', EUR: 'EUR', '£': 'GBP', GBP: 'GBP' };
+  return Object.prototype.hasOwnProperty.call(aliases, value) ? aliases[value] : value;
+}
+
 /** Map raw payment statuses onto finance ledger buckets. */
 export function normalizeFinanceStatus(raw = '') {
   const value = String(raw || '').toLowerCase();
@@ -34,7 +40,9 @@ export function formatMoney(cents = 0, currency = 'R', { decimals = 'auto' } = {
     decimals === true || (decimals === 'auto' && Math.abs(amount % 1) > 0.001);
   const [intPart, frac = ''] = amount.toFixed(useDecimals ? 2 : 0).split('.');
   const spaced = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-  const symbol = CURRENCY_OPTIONS.find((item) => item.id === currency)?.symbol || currency || 'R';
+  const normalized = normalizeFinanceCurrency(currency);
+  const symbols = { ZAR: 'R', USD: '$', EUR: '€', GBP: '£' };
+  const symbol = Object.prototype.hasOwnProperty.call(symbols, normalized) ? symbols[normalized] : currency || 'R';
   return useDecimals ? `${symbol} ${spaced},${frac}` : `${symbol} ${spaced}`;
 }
 
@@ -70,10 +78,32 @@ function methodLabel(method = '') {
   return method || '—';
 }
 
+function explicitCents(value) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
+/** Cost is only a transaction snapshot; mutable product/variant costs are not a historical basis. */
+function orderProductSnapshots(order) {
+  const items = order.items || [];
+  const lineRevenue = items.map((item) => explicitCents(item.lineTotalCents));
+  const productRevenueInCents = explicitCents(order.subtotalCents) ??
+    (items.length && lineRevenue.every((value) => value != null) ? lineRevenue.reduce((sum, value) => sum + value, 0) : null);
+  const lineCosts = items.map((item) => {
+    const total = explicitCents(item.lineCostInCents);
+    if (total != null) return total;
+    const unit = explicitCents(item.unitCostInCents);
+    const quantity = Number(item.quantity);
+    return unit != null && Number.isInteger(quantity) && quantity > 0 ? unit * quantity : null;
+  });
+  const costBasisInCents = explicitCents(order.costBasisInCents) ??
+    (items.length && lineCosts.every((value) => value != null) ? lineCosts.reduce((sum, value) => sum + value, 0) : null);
+  return { productRevenueInCents, costBasisInCents };
+}
+
 /**
  * Unify bookings + product orders into a single finance ledger.
  */
-export function buildFinanceLedger({ bookings = [], orders = [], services = [], brandName = '' } = {}) {
+export function buildFinanceLedger({ bookings = [], orders = [], services = [], brandName = '', currency = 'R' } = {}) {
   const fromBookings = (bookings || []).map((booking) => {
     const createdAt = bookingTimestamp(booking);
     return {
@@ -91,12 +121,19 @@ export function buildFinanceLedger({ bookings = [], orders = [], services = [], 
         }
       ],
       amountInCents: serviceAmountCents(booking, services),
-      currency: booking.currency || 'R',
+      // Legacy receipts may show today's service price as a display fallback,
+      // but that is not an authoritative historical financial amount.
+      amountAuthoritative: explicitCents(booking.amountInCents) != null,
+      currency: booking.currency || currency,
+      currencyAssumed: !booking.currency,
       paymentStatus: normalizeFinanceStatus(booking.paymentStatus),
       method: methodLabel(booking.paymentMethod || booking.paymentGateway || ''),
       createdAt,
       paidAt: booking.paymentStatus === 'paid' ? Number(booking.paidAt) || createdAt : null,
       reference: booking.paymentReference || booking.id,
+      refundedAt: Number(booking.refundedAt) || null,
+      refundedAmountInCents: explicitCents(booking.refundedAmountInCents),
+      analyticsSource: ['places', 'direct'].includes(booking.analyticsSource) ? booking.analyticsSource : null,
       brandName
     };
   });
@@ -119,12 +156,18 @@ export function buildFinanceLedger({ bookings = [], orders = [], services = [], 
         lineTotalCents: item.lineTotalCents ?? 0
       })),
       amountInCents: Number(order.amountInCents) || 0,
-      currency: order.currency || 'R',
+      amountAuthoritative: explicitCents(order.amountInCents) != null,
+      currency: order.currency || currency,
+      currencyAssumed: !order.currency,
       paymentStatus: normalizeFinanceStatus(order.paymentStatus),
       method: methodLabel(order.paymentMethod),
       createdAt,
       paidAt: order.paymentStatus === 'paid' ? Number(order.paidAt) || createdAt : null,
       reference: order.paymentReference || order.id,
+      ...orderProductSnapshots(order),
+      refundedAt: Number(order.refundedAt) || null,
+      refundedAmountInCents: explicitCents(order.refundedAmountInCents),
+      analyticsSource: ['places', 'direct'].includes(order.analyticsSource) ? order.analyticsSource : null,
       brandName
     };
   });

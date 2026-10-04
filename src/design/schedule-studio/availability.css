@@ -1325,6 +1325,18 @@
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 720px) {
+  .bb-schedule-avail-page-header .bb-schedule-desk-copy { width: 100%; }
+  .bb-schedule-avail-title-row .bb-page-title-wrap { width: 100%; align-items: flex-start; }
+  .bb-schedule-avail-title-row .bb-page-title-main { flex: 1 1 auto; }
+  html body .native-ui .bb-schedule-avail-title-row .bb-page-title {
+    white-space: normal !important;
+    overflow-wrap: normal;
+  }
 }
 
 .bb-schedule-avail-studio-settings {

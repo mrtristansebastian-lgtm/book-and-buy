@@ -1,4 +1,7 @@
-import { Pencil, X } from 'lucide-react';
+import { Button } from '../../../shared/ui/Button';
+import { X } from 'lucide-react';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
+import { useDetailDialog } from '../../../shared/ui/useDetailDialog';
 import {
   formatCompareAtPrice,
   formatProductPrice,
@@ -13,6 +16,7 @@ export function ProductInfoSheet({
   onEdit,
   variant = 'sheet'
 }) {
+  const dialogRef = useDetailDialog(Boolean(product), onClose, variant === 'page');
   if (!product) return null;
 
   const isPage = variant === 'page';
@@ -28,7 +32,8 @@ export function ProductInfoSheet({
 
   return (
     <div
-      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      ref={dialogRef}
+      className={`bb-services-sheet bb-catalog-detail${isPage ? ' is-page' : ''}`}
       role={isPage ? 'region' : 'dialog'}
       aria-modal={isPage ? undefined : true}
       aria-labelledby="product-info-title"
@@ -69,7 +74,7 @@ export function ProductInfoSheet({
               </div>
               <div className="bb-product-info-copy">
                 <div className="bb-product-info-badges">
-                  <span className="bb-product-info-badge">{statusLabel}</span>
+                  <StatusBadge status={status} label={statusLabel} />
                   {category ? (
                     <span className="bb-product-info-badge is-soft">{category}</span>
                   ) : null}
@@ -106,14 +111,6 @@ export function ProductInfoSheet({
                 <dt>Category</dt>
                 <dd>{category || '—'}</dd>
               </div>
-              <div>
-                <dt>Price</dt>
-                <dd>{price || '—'}</dd>
-              </div>
-              <div>
-                <dt>Compare-at</dt>
-                <dd>{compareAt || '—'}</dd>
-              </div>
             </dl>
 
             {hasVariants ? (
@@ -145,18 +142,17 @@ export function ProductInfoSheet({
 
         <footer className="bb-services-sheet-footer">
           <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
+            <Button action="close" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Close
-            </button>
+            </Button>
             {onEdit ? (
-              <button
+              <Button action="edit" variant="secondary"
                 type="button"
                 className="bb-primary-btn"
                 onClick={() => onEdit(product)}
               >
-                <Pencil size={15} strokeWidth={2.2} />
                 Edit
-              </button>
+              </Button>
             ) : null}
           </div>
         </footer>

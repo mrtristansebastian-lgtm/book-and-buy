@@ -1,3 +1,5 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 
@@ -15,22 +17,24 @@ export function ChipList({ values = [], selected, onSelect, onAdd, addLabel = 'A
 
   return (
     <div className="bb-products-chips">
-      <button
+      <FilterChip
         type="button"
+        selected={!selected}
         className={`bb-products-chip${!selected ? ' is-active' : ''}`}
         onClick={() => onSelect?.('')}
       >
         None
-      </button>
+      </FilterChip>
       {values.map((label) => (
-        <button
+        <FilterChip
           key={label}
           type="button"
+          selected={selected === label}
           className={`bb-products-chip${selected === label ? ' is-active' : ''}`}
           onClick={() => onSelect?.(label)}
         >
           {label}
-        </button>
+        </FilterChip>
       ))}
       {adding ? (
         <div className="bb-products-inline-add">
@@ -47,10 +51,10 @@ export function ChipList({ values = [], selected, onSelect, onAdd, addLabel = 'A
               }
             }}
           />
-          <button type="button" className="bb-primary-btn" onClick={commit}>
+          <Button action="add" variant="primary" type="button" className="bb-primary-btn" onClick={commit}>
             Add
-          </button>
-          <button
+          </Button>
+          <Button action="cancel" variant="secondary"
             type="button"
             className="bb-ghost-btn"
             onClick={() => {
@@ -59,17 +63,16 @@ export function ChipList({ values = [], selected, onSelect, onAdd, addLabel = 'A
             }}
           >
             Cancel
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
+        <Button action="add" variant="primary"
           type="button"
           className="bb-products-chip bb-products-chip--add"
           onClick={() => setAdding(true)}
         >
-          <Plus size={13} />
           {addLabel}
-        </button>
+        </Button>
       )}
     </div>
   );

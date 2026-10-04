@@ -1,3 +1,4 @@
+import { Button } from '../../../../shared/ui/Button';
 import { useMemo } from 'react';
 import {
   BRAND_SWATCHES,
@@ -91,7 +92,7 @@ export function EditableColor({
         <p className="bb-style-popover-note">Uses the animated brand accent gradient.</p>
       )}
 
-      <button
+      <Button action="reset" variant="secondary"
         type="button"
         className="bb-style-reset"
         onClick={() => {
@@ -100,7 +101,7 @@ export function EditableColor({
         }}
       >
         Reset to default
-      </button>
+      </Button>
     </StylePopover>
   );
 }

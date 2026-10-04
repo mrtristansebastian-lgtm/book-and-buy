@@ -440,6 +440,7 @@
 .bb-clients-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.45rem;
 }
 
@@ -485,7 +486,7 @@
 
 .bb-clients-field {
   display: grid;
-  grid-template-columns: 5.5rem 1fr;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
   gap: 0.65rem;
   align-items: baseline;
   padding: 0.7rem 0;
@@ -514,6 +515,8 @@
   font-weight: 650;
   color: var(--bb-clients-ink);
   word-break: break-word;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .bb-clients-field-value a {
@@ -522,7 +525,11 @@
   gap: 0.4rem;
   color: inherit;
   text-decoration: none;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
+
+.bb-clients-field-value a svg { flex-shrink: 0; }
 
 .bb-clients-field-value a:hover {
   color: var(--bb-clients-accent);
@@ -773,7 +780,7 @@
   gap: 10px;
   min-height: 104px;
   padding: 14px 12px;
-  cursor: default;
+  cursor: pointer;
   background: #fff;
 }
 .bb-clients-row:hover { background: #fafbfc; }
@@ -887,8 +894,7 @@
   .bb-clients-row-copy .bb-clients-row-name { order: 0; max-width: 100%; }
   .bb-clients-row-copy .bb-clients-tags { order: 1; }
   .bb-clients-row-copy .bb-clients-row-meta { order: 2; flex-basis: 100%; }
-  .bb-clients-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .bb-clients-chip:last-child { grid-column: 1 / -1; }
+  .bb-clients .bb-clients-chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .bb-clients-row { grid-template-columns: 48px minmax(0, 1fr); gap: 12px; padding: 18px 12px; }
   .bb-clients-avatar { width: 48px; height: 48px; align-self: start; }
   .bb-clients-row-actions { grid-column: 2; flex-wrap: wrap; }
@@ -905,6 +911,20 @@
 }
 
 /* Client file: white workspace, deliberate sections and compact activity rows. */
+button.bb-clients-row {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--bb-clients-line);
+  border-radius: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+button.bb-clients-row:focus-visible {
+  outline: 2px solid #101828;
+  outline-offset: -3px;
+}
 .bb-client-file-overlay { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(16,24,40,.32); }
 .bb-client-file-dialog { width: min(1040px, 100%); max-height: calc(100dvh - 48px); display: flex; flex-direction: column; min-height: 0; background: #fff; border-radius: 20px; overflow: auto; box-shadow: 0 24px 80px rgba(16,24,40,.18); }
 .bb-client-file-dialog-head { position: sticky; top: 0; z-index: 2; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: #fff; border-bottom: 1px solid #edf0f2; }
@@ -929,12 +949,13 @@
 }
 .bb-clients-tools { gap: 10px; flex-wrap: nowrap; }
 .bb-clients-search { width: 280px; min-width: 0; flex: 0 1 280px; }
-html body .native-ui .bb-clients-search .native-search-input { height: 48px !important; min-height: 48px !important; font-size: 14px; font-weight: 400; }
-html body .native-ui .bb-clients-tools .bb-page-action { min-height: 48px; padding: 0 22px; gap: 8px; font-size: 14px !important; }
+html body .native-ui .bb-clients-search .native-search-input { height: auto !important; min-height: var(--bb-control-height, 40px) !important; font-size: 14px; font-weight: 400; }
+html body .native-ui .bb-clients-tools .bb-page-action:not(.bb-button) { min-height: 48px; padding: 0 22px; gap: 8px; font-size: 14px !important; }
 .bb-clients-tools .bb-page-action svg { width: 18px; height: 18px; }
 @media (max-width: 860px) {
-  .bb-clients-tools { width: 100%; padding-left: 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; }
-  .bb-clients-search { width: 100%; }
+  .bb-clients-tools { width: 100%; min-width: 0; padding-left: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .bb-clients-search { width: auto; min-width: min(160px, 100%); flex: 1 1 160px; }
+  .bb-clients-tools .bb-page-action { flex: 0 0 auto; margin-left: auto; }
   html body .native-ui .bb-clients-tools .bb-page-action { padding-inline: 14px; }
 }
 .bb-clients .bb-clients-sheet { background: #fff; min-width: 0; }
@@ -945,7 +966,7 @@ html body .native-ui .bb-clients-tools .bb-page-action { min-height: 48px; paddi
 .bb-clients-sheet-name { font-size: clamp(24px, 2.3vw, 32px); }
 .bb-clients-actions { justify-content: flex-end; }
 .bb-clients-sheet .bb-clients-action { border-radius: 999px; }
-.bb-clients-sheet .bb-clients-delete-icon { width: 34px; min-width: 34px; padding: 0; justify-content: center; }
+.bb-clients-sheet .bb-clients-delete-icon { width: 40px; min-width: 40px; height: 40px; padding: 0; justify-content: center; }
 .bb-clients-delete-confirm { display: grid; gap: 14px; padding: 16px; border: 1px solid #fee4e2; border-radius: 12px; background: #fff; }
 .bb-clients-delete-confirm strong { font-size: 14px; color: #b42318; }
 .bb-clients-delete-confirm p { font-size: 13px; color: #667085; line-height: 1.6; margin: 6px 0 0; }
@@ -972,6 +993,10 @@ html body .native-ui .bb-clients-tools .bb-page-action { min-height: 48px; paddi
 .bb-clients-history-title { font-size: 17px; }
 .bb-clients-history-title > span { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 999px; background: #f2f4f7; line-height: 1; }
 .bb-clients-history-item { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; padding: 16px 0; }
+.bb-clients-history-item.is-order { grid-template-columns: minmax(0, 1fr) auto; }
+.bb-clients-history-item > div { min-width: 0; overflow-wrap: anywhere; }
+.bb-clients-sheet-name { overflow-wrap: anywhere; line-height: 1.25; }
+.bb-clients-section-heading > button:not(.bb-button) { width: 40px; min-width: 40px; height: 40px; padding: 0; }
 .bb-clients-history-item strong { font-weight: 600; font-size: 14px; }
 .bb-clients-history-item .bb-clients-record-status { color: #475467; background: #f2f4f7; border-radius: 999px; padding: 5px 10px; font-size: 11px; text-transform: capitalize; }
 .bb-clients-history-empty { padding: 4px 0 8px; line-height: 1.6; }
@@ -991,4 +1016,6 @@ html body .native-ui .bb-clients-tools .bb-page-action { min-height: 48px; paddi
   .bb-clients-file-summary span { font-size: 12px; }
   .bb-clients-history-item { gap: 10px; grid-template-columns: minmax(0, 1fr) auto; }
   .bb-clients-history-item > button { grid-column: 1 / -1; justify-self: start; }
+  .bb-clients-sheet .bb-clients-delete-icon,
+  .bb-clients-section-heading > button:not(.bb-button) { width: 44px; min-width: 44px; height: 44px; }
 }

@@ -4,8 +4,8 @@ export function WebsiteStudioPage() {
   return (
     <WebsiteSurfaceStudio
       surface="home"
-      title="Home page"
-      lede="Edit the public Home page — copy, images, and section layout."
+      title="E-Business"
+      lede="Your Book & Buy profile. Add a cover photo, profile photo and business details — this is what customers open from Places."
     />
   );
 }

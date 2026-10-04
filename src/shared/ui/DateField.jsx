@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useDialogFocus } from './useDialogFocus';
 import { createPortal } from 'react-dom';
@@ -80,7 +81,7 @@ export function DateField({
         >
           <span className={display ? '' : 'is-placeholder'}>{display || placeholder}</span>
         </button>
-        <button
+        <Button action="calendar" variant="primary"
           type="button"
           className="bb-date-field-pick"
           disabled={disabled}
@@ -89,7 +90,7 @@ export function DateField({
           }}
         >
           Pick
-        </button>
+        </Button>
       </div>
 
       {open && typeof document !== 'undefined'
@@ -175,7 +176,7 @@ export function DateField({
                 <p className="bb-date-picker-summary">{formatDisplayDate(draftDay)}</p>
 
                 <footer className="bb-date-picker-actions">
-                  <button
+                  <Button action="today" variant="secondary"
                     type="button"
                     className="bb-ghost-btn"
                     onClick={() => {
@@ -187,19 +188,19 @@ export function DateField({
                     }}
                   >
                     Today
-                  </button>
+                  </Button>
                   <div className="bb-date-picker-actions-end">
-                    <button type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
+                    <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setOpen(false)}>
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button action="confirm" variant="primary"
                       type="button"
                       className="bb-primary-btn"
                       disabled={!draftDay || isDisabledDay(draftDay)}
                       onClick={confirm}
                     >
                       Confirm
-                    </button>
+                    </Button>
                   </div>
                 </footer>
               </div>

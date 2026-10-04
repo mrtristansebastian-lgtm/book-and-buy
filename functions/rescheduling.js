@@ -2,6 +2,7 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { randomUUID, createHash } from 'node:crypto';
 import { availableRescheduleSlots, bookingError, bookingSlot, nextProposal, validateBookingSlot } from './bookingDomain.js';
 import { resolveMarket, catalogAllowed } from './marketPolicy.js';
+import { verifiedAnalyticsAttribution } from './analyticsAttribution.js';
 
 const APP_ID = 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
@@ -109,6 +110,10 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
       if (booking.scheduleType === 'class_session') { const elapsed = Date.parse(`${service.sessionEndDate || service.sessionStartDate}T${service.sessionEndTime}:00Z`) - Date.parse(`${service.sessionStartDate}T${service.sessionStartTime}:00Z`); booking.durationMinutes = elapsed > 0 ? elapsed / 60000 : 60; }
       booking.amountInCents = ['quote', 'free'].includes(service.priceType) ? 0 : Math.round(Number(String(variant?.price ?? service.price ?? '').replace(/[^\d.]/g, '')) * 100) || 0;
       booking.variantName = variant?.name || ''; booking.currency = workspace.currency || 'R'; booking.source = 'public';
+      Object.assign(booking, await verifiedAnalyticsAttribution(data, ownerId, data.slug, async (sessionId) => {
+        const session = await tx.get(db.doc(`artifacts/${APP_ID}/analyticsSessions/${sessionId}`));
+        return session.exists ? session.data() : null;
+      }));
     }
     if (['pending', 'confirmed'].includes(booking.status) && (!old || old.date !== booking.date || old.time !== booking.time || old.staffId !== booking.staffId || old.status !== booking.status)) validateBookingSlot(workspace, booking, bookingSlot(booking), workspace.bookings || []);
     const bookings = old ? workspace.bookings.map((b) => b.id === id ? booking : b) : [...(workspace.bookings || []), booking];

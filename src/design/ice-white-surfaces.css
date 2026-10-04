@@ -1,0 +1,22 @@
+/* Page canvases are ice-white; borders provide structure, not grey slabs. */
+.native-ui {
+  --bb-bg: #fff;
+  --bb-surface: #fff;
+  --bb-panel: #fff;
+}
+.native-ui .bb-owner-content,
+.native-ui .bb-owner-main,
+.native-ui .bb-client-main,
+.native-ui .bb-settings,
+.native-ui .bb-settings-content,
+.native-ui .bb-settings-panel,
+.native-ui .bb-settings-rail,
+.native-ui .bb-settings-rail-foot,
+.native-ui .bb-clients-board,
+.native-ui .bb-clients-directory,
+.native-ui .bb-clients-sheet,
+.native-ui .bb-support-stage,
+.native-ui .bb-support-list,
+.native-ui .bb-support-chat {
+  background-color: #fff !important;
+}

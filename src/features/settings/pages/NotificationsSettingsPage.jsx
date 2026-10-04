@@ -16,13 +16,13 @@ export function NotificationsSettingsPage() {
         <h2 className="bb-page-title text-xl m-0">Owner email alerts</h2>
         <p className="bb-muted m-0 text-sm">Not available yet. Bookings, orders and messages still appear in your app. Saved email preferences are retained, but no alert emails are being sent.</p>
         {EMAIL_TOGGLES.map(([key, label]) => (
-          <label key={key} className="flex items-center gap-2 text-sm font-semibold">
+          <label key={key} className="bb-settings-email-toggle flex items-center gap-2 text-sm font-semibold">
             <input
               type="checkbox"
               checked={false}
               disabled
             />
-            {label}<span className="bb-settings-unavailable">Not available</span>
+            <span className="bb-settings-toggle-copy">{label}</span><span className="bb-settings-unavailable">Not available</span>
           </label>
         ))}
       </section>

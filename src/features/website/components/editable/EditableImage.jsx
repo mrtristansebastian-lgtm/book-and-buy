@@ -1,5 +1,6 @@
+import { Button } from '../../../../shared/ui/Button';
 import { useEffect, useRef, useState } from 'react';
-import { ImagePlus, Trash2, Upload } from 'lucide-react';
+import { ImagePlus, Pencil, Trash2, Upload } from 'lucide-react';
 import { uploadPublicImage } from '../../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../../media/ImageCropModal';
 import { BlankMedia } from '../../../../shared/ui/BlankMedia';
@@ -15,8 +16,10 @@ export function EditableImage({
   className = '',
   imgClassName = '',
   placeholderLabel = 'Upload image',
+  editLabel = 'Edit image',
   storageFolder = 'website',
-  preset = 'about'
+  preset = 'about',
+  compact = false
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(src || '');
@@ -37,8 +40,12 @@ export function EditableImage({
     const onDoc = (event) => {
       if (popRef.current && !popRef.current.contains(event.target)) setOpen(false);
     };
+    const onKey = (event) => {
+      if (event.key === 'Escape') { event.stopPropagation(); setOpen(false); }
+    };
     document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
   }, [open]);
 
   const saveUrl = (url) => {
@@ -112,7 +119,7 @@ export function EditableImage({
         {src ? (
           <img src={src} alt={alt} className={imgClassName || 'w-full h-full object-cover'} />
         ) : (
-          <div className="bb-editable-image-blank">
+          <div className={`bb-editable-image-blank${compact ? ' is-compact' : ''}`}>
             <BlankMedia
               variant={
                 preset === 'logo'
@@ -126,7 +133,10 @@ export function EditableImage({
               className="bb-editable-image-blank-media"
             />
             <div className="bb-editable-image-blank-frame" aria-hidden="true" />
-            <button
+            {compact ? <button type="button" className="bb-editable-image-compact" disabled={busy}
+              aria-label={placeholderLabel || 'Add image'} onClick={() => setOpen(true)}>
+              <ImagePlus size={22} strokeWidth={1.6} aria-hidden="true" />
+            </button> : <><Button action="upload" variant="secondary"
               type="button"
               className="bb-editable-image-upload"
               disabled={busy}
@@ -134,15 +144,16 @@ export function EditableImage({
             >
               <Upload size={18} strokeWidth={2.1} aria-hidden="true" />
               <span>{busy ? 'Uploading…' : placeholderLabel || 'Upload image'}</span>
-            </button>
-            <button
+            </Button>
+            <Button action="link" variant="secondary"
               type="button"
               className="bb-editable-image-url-link"
               disabled={busy}
               onClick={() => setOpen(true)}
             >
               or paste URL
-            </button>
+            </Button>
+            </>}
             {error ? <p className="bb-editable-image-blank-error">{error}</p> : null}
           </div>
         )}
@@ -157,15 +168,18 @@ export function EditableImage({
 
         {!isEmpty ? (
           <div className="bb-editable-image-actions">
-            <button
+            {compact ? <button type="button" className="bb-editable-image-hit bb-editable-image-icon"
+              disabled={busy} aria-label={busy ? 'Uploading image' : editLabel} aria-expanded={open}
+              onClick={() => setOpen((prev) => !prev)}><Pencil size={16} strokeWidth={1.6} aria-hidden="true" /></button> : <Button action="edit" variant="secondary"
               type="button"
               className="bb-editable-image-hit"
               onClick={() => setOpen((prev) => !prev)}
-              aria-label={busy ? 'Uploading image' : 'Edit image'}
+              aria-label={busy ? 'Uploading image' : editLabel}
+              aria-expanded={open}
             >
               <ImagePlus size={14} strokeWidth={2.2} aria-hidden="true" />
               <span>{busy ? 'Uploading…' : 'Edit'}</span>
-            </button>
+            </Button>}
             <button
               type="button"
               className="bb-editable-image-delete"
@@ -199,39 +213,39 @@ export function EditableImage({
               />
             </label>
             <div className="flex flex-wrap gap-2 justify-end">
-              <button
+              <Button action="upload" variant="secondary"
                 type="button"
                 className="bb-ghost-btn py-1.5 px-3 text-xs"
                 disabled={busy}
                 onClick={() => fileRef.current?.click()}
               >
                 Upload &amp; crop
-              </button>
+              </Button>
               {src || draft.trim() ? (
-                <button
+                <Button action="crop" variant="secondary"
                   type="button"
                   className="bb-ghost-btn py-1.5 px-3 text-xs"
                   disabled={busy}
                   onClick={() => openCrop(draft.trim() || src)}
                 >
                   Adjust crop
-                </button>
+                </Button>
               ) : null}
-              <button
+              <Button action="cancel" variant="secondary"
                 type="button"
                 className="bb-ghost-btn py-1.5 px-3 text-xs"
                 onClick={() => setOpen(false)}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button action="save" variant="primary"
                 type="button"
                 className="bb-primary-btn py-1.5 px-3 text-xs"
                 disabled={busy}
                 onClick={() => saveUrl(draft.trim())}
               >
                 Save URL
-              </button>
+              </Button>
             </div>
             {error ? <p className="m-0 text-xs text-red-600">{error}</p> : null}
           </div>
@@ -247,6 +261,7 @@ export function EditableImage({
           if (busy) return;
           setCropOpen(false);
           setCropSource(null);
+          popRef.current?.querySelector('button[aria-expanded], .bb-editable-image-compact')?.focus();
         }}
         onConfirm={onCropConfirm}
       />

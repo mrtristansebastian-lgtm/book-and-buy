@@ -1,15 +1,7 @@
+import { Button } from '../../../shared/ui/Button';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardList,
-  Lock,
-  Bookmark,
-  MessageCircle,
-  Settings2,
-  UserRound
-} from 'lucide-react';
+import { CalendarDays, ChevronRight, ClipboardList, Lock, Bookmark, Settings2, UserRound } from 'lucide-react';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { APP_ID } from '../../../config/appConfig';
 import { navigate, publicPagePath } from '../../../app/routing';
@@ -27,6 +19,7 @@ import { useClientProfile } from '../ClientProfileContext';
 import { startClientMessage } from '../startClientMessage';
 import { PlacesCards } from '../PlacesCards';
 import { normalizeBiz } from '../exploreDiscovery';
+import { activityStatusLabel, customerOrderSummary, customerOrderTitle } from '../customerActivity';
 
 const SECTIONS = [
   {
@@ -79,7 +72,7 @@ const ACCOUNT_GROUPS = [
 ];
 
 function StatusPill({ children }) {
-  return <span className="bb-client-pill">{children}</span>;
+  return <StatusBadge className="bb-client-pill" status={children} label={activityStatusLabel(children) || 'Unknown'} />;
 }
 
 function initials(name = '', email = '') {
@@ -142,14 +135,14 @@ function GeneralSettings({ profile, updateClientProfile, setClientPresence }) {
               className="sr-only"
               onChange={onPickPhoto}
             />
-            <button
+            <Button action="upload" busy={photoBusy} busyLabel="Uploading…" variant="primary"
               type="button"
               className="bb-ghost-btn justify-self-start"
               disabled={photoBusy}
               onClick={() => fileRef.current?.click()}
             >
-              {photoBusy ? 'Uploading…' : 'Upload photo'}
-            </button>
+              Upload photo
+            </Button>
             {photoError ? <p className="m-0 text-sm text-[#b42318]">{photoError}</p> : null}
           </div>
         </div>
@@ -170,12 +163,12 @@ function GeneralSettings({ profile, updateClientProfile, setClientPresence }) {
             onChange={(event) => updateClientProfile({ email: event.target.value })}
           />
         </label>
-        {profile?.photoURL ? <button type="button" className="bb-ghost-btn justify-self-start" disabled={photoBusy} onClick={async () => {
+        {profile?.photoURL ? <Button action="delete" busy={photoBusy} variant="destructive" type="button" className="bb-ghost-btn justify-self-start" disabled={photoBusy} onClick={async () => {
           setPhotoBusy(true); setPhotoError('');
           try { await updateClientProfile({ photoURL: '' }); }
           catch (error) { setPhotoError(error?.message || 'Could not remove photo. Please try again.'); }
           finally { setPhotoBusy(false); }
-        }}>Remove profile photo</button> : null}
+        }}>Remove profile photo</Button> : null}
         <label className="flex items-start gap-3 text-sm font-semibold pt-1">
           <input
             type="checkbox"
@@ -210,7 +203,7 @@ function AccountSettings({ clearClientSession, showDemo }) {
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">{showDemo ? 'Demo profile' : 'Your session'}</h2>
         <p className="bb-muted m-0 text-sm">{showDemo ? 'You are exploring with a sample customer profile. No customer account has been created.' : 'Sign out of your customer account on this device.'}</p>
-        {!showDemo ? <button
+        {!showDemo ? <Button action="signOut" variant="secondary"
           type="button"
           className="bb-primary-btn justify-self-start"
           onClick={async () => {
@@ -219,7 +212,7 @@ function AccountSettings({ clearClientSession, showDemo }) {
           }}
         >
           Sign out
-        </button> : null}
+        </Button> : null}
       </section>
       {showDemo ? <DemoModePanel className="bb-demo-panel--account" variant="client" /> : null}
     </div>
@@ -355,9 +348,9 @@ export function ClientAccountPage({ section = '' }) {
     );
   } else if (active?.id === 'bookings') {
     body = (
-      <div className="bb-client-stack">
+      <div className="bb-client-stack bb-client-activity">
         {myBookings.length === 0 ? (
-          <div className="bb-client-empty"><p>No bookings yet. Find a business and book your first service.</p><button type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find services</button></div>
+          <div className="bb-client-empty"><p>No bookings yet. Find a business and book your first service.</p><Button action="search" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find services</Button></div>
         ) : (
           myBookings.map((booking) => (
             <article key={booking.id} className="bb-client-item">
@@ -368,14 +361,14 @@ export function ClientAccountPage({ section = '' }) {
               <p className="bb-muted m-0 text-sm">
                 {formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}
               </p>
-              <p className="bb-muted m-0 text-sm">{booking.paymentStatus}</p>
-              <button
+              {booking.paymentStatus && <div className="bb-client-activity-payment"><span>Payment</span><StatusBadge status={booking.paymentStatus} label={activityStatusLabel(booking.paymentStatus)} /></div>}
+              <Button action="chat" variant="secondary"
                 type="button"
                 className="bb-client-text-btn"
                 onClick={() => messageAbout('booking', booking)}
               >
-                <MessageCircle size={14} /> Message business
-              </button>
+                 Message business
+              </Button>
             </article>
           ))
         )}
@@ -383,26 +376,25 @@ export function ClientAccountPage({ section = '' }) {
     );
   } else if (active?.id === 'orders') {
     body = (
-      <div className="bb-client-stack">
+      <div className="bb-client-stack bb-client-activity">
         {myOrders.length === 0 ? (
-          <div className="bb-client-empty"><p>No orders yet. Discover products from businesses on Book and Buy.</p><button type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find products</button></div>
+          <div className="bb-client-empty"><p>No orders yet. Discover products from businesses on Book and Buy.</p><Button action="search" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find products</Button></div>
         ) : (
           myOrders.map((order) => (
             <article key={order.id} className="bb-client-item">
               <div className="bb-client-item-top">
-                <strong>{order.clientName || 'Order'}</strong>
+                <strong>{customerOrderTitle(order)}</strong>
                 <StatusPill>{order.status}</StatusPill>
               </div>
-              <p className="bb-muted m-0 text-sm">
-                {formatCents(order.amountInCents || 0)} · {order.paymentStatus}
-              </p>
-              <button
+              {customerOrderSummary(order) && <p className="bb-muted m-0 text-sm">{customerOrderSummary(order)}</p>}
+              <div className="bb-client-activity-payment"><strong>{formatCents(order.amountInCents || 0, order.currency || 'R')}</strong>{order.paymentStatus && <StatusBadge status={order.paymentStatus} label={activityStatusLabel(order.paymentStatus)} />}</div>
+              <Button action="chat" variant="secondary"
                 type="button"
                 className="bb-client-text-btn"
                 onClick={() => messageAbout('order', order)}
               >
-                <MessageCircle size={14} /> Message business
-              </button>
+                 Message business
+              </Button>
             </article>
           ))
         )}
@@ -422,7 +414,7 @@ export function ClientAccountPage({ section = '' }) {
         <Bookmark size={24} />
         <strong>No saved places yet</strong>
         <span>Save a business from Find and it will appear here.</span>
-        <button type="button" className="bb-primary-btn" onClick={() => navigate('/app/find')}>Find places</button>
+        <Button action="search" variant="primary" type="button" className="bb-primary-btn" onClick={() => navigate('/app/find')}>Find places</Button>
       </div>
     );
   } else if (active?.id === 'account') {
@@ -499,10 +491,10 @@ export function ClientAccountPage({ section = '' }) {
         ) : (
           <div className="bb-settings-main">
             <header className="bb-settings-main-head">
-              <button type="button" className="bb-settings-back" onClick={goList}>
-                <ChevronLeft size={16} strokeWidth={2.4} aria-hidden="true" />
+              <Button action="back" variant="secondary" type="button" className="bb-settings-back" onClick={goList}>
+
                 Account
-              </button>
+              </Button>
               <div className="bb-page-title-wrap">
                 <div className="bb-page-header-glow" aria-hidden="true" />
                 <h1 className="bb-page-title">{active.label}</h1>

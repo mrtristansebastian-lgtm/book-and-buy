@@ -1,5 +1,6 @@
+import { Button } from '../../../shared/ui/Button';
 import { useRef, useState } from 'react';
-import { ArrowLeft, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { ClientsPage } from '../../clients/pages/ClientsPage';
 import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 
@@ -11,7 +12,7 @@ export function ClientFileDrawer({ open, onClose, client }) {
   return <div className="bb-client-file-overlay" onClick={onClose}>
     <section ref={panel} className="bb-client-file-dialog" role="dialog" aria-modal="true" aria-label={`Client file for ${client.name}`} tabIndex={-1} onClick={(event) => event.stopPropagation()}>
       <header className="bb-client-file-dialog-head">
-        <button type="button" className="bb-client-file-back" onClick={onClose}><ArrowLeft size={18} aria-hidden="true" /> Back to chat</button>
+        <Button action="back" variant="secondary" type="button" className="bb-client-file-back" onClick={onClose}> Back to chat</Button>
         <span>Client file</span>
         <button type="button" className="bb-client-file-close" aria-label="Close client file" onClick={onClose}><X size={18} aria-hidden="true" /></button>
       </header>

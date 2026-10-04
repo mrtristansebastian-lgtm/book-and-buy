@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import {
   Box,
   CalendarDays,
@@ -85,22 +86,21 @@ export function ThreadList({ threads, activeId, onSelect }) {
         </label>
 
         <div className="bb-support-chips bb-support-chips--named" role="toolbar" aria-label="Inbox filters">
-          {FILTERS.map(({ id, label, Icon }) => {
+          {FILTERS.map(({ id, label }) => {
             const active = filter === id;
             return (
-              <button
+              <FilterChip
                 key={id}
                 type="button"
                 className={`bb-support-filter-chip${active ? ' is-active' : ''}`}
-                aria-pressed={active}
+                selected={active}
+                count={counts[id] || 0}
                 aria-label={`${label}, ${counts[id] || 0}`}
                 title={label}
                 onClick={() => setFilter((current) => toggleInboxFilter(current, id))}
               >
-                <Icon size={15} strokeWidth={active ? 2.35 : 2} aria-hidden="true" />
                 <span className="bb-support-filter-label">{label}</span>
-                <span className="bb-support-filter-count">{counts[id] || 0}</span>
-              </button>
+              </FilterChip>
             );
           })}
         </div>

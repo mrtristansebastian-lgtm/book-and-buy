@@ -1,6 +1,10 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import { useEffect, useMemo, useState } from 'react';
 import { Eye, Info, Pencil, Search, X } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
+import { useDetailDialog } from '../../../shared/ui/useDetailDialog';
+import { ProductCatalogCard } from '../components/ProductCatalogCard';
 import { navigate } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
@@ -316,6 +320,7 @@ function useIsMobileEditor() {
 }
 
 function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
+  const dialogRef = useDetailDialog(Boolean(product), onClose, variant === 'page');
   if (!product) return null;
   const badge = stockBadge(product);
   const status = normalizeProductStatus(product);
@@ -325,7 +330,8 @@ function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
 
   return (
     <div
-      className={`bb-services-sheet${isPage ? ' is-page' : ''}`}
+      className={`bb-services-sheet bb-catalog-detail${isPage ? ' is-page' : ''}`}
+      ref={dialogRef}
       role={isPage ? 'region' : 'dialog'}
       aria-modal={isPage ? undefined : true}
       aria-labelledby="stock-info-title"
@@ -351,7 +357,7 @@ function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
                 {imageSrc ? <img src={imageSrc} alt="" /> : null}
               </div>
               <div className="bb-stock-info-copy">
-                <span className={`bb-stock-crate-qty is-${badge.tone}`}>{badge.label}</span>
+                <span className="bb-stock-total-pill">{badge.label}</span>
                 <p className="bb-muted m-0">
                   {[product.category, status]
                     .filter(Boolean)
@@ -362,10 +368,10 @@ function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
             </div>
 
             <dl className="bb-stock-info-facts">
-              <div>
+              {!hasVariants && <div>
                 <dt>SKU</dt>
                 <dd>{product.sku || '—'}</dd>
-              </div>
+              </div>}
               <div>
                 <dt>Quantity</dt>
                 <dd>
@@ -374,14 +380,14 @@ function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
                     : getProductTotalStockQty(product)}
                 </dd>
               </div>
-              <div>
+              {!hasVariants && <div>
                 <dt>Weight</dt>
                 <dd>{formatWeight(product)}</dd>
-              </div>
-              <div>
+              </div>}
+              {!hasVariants && <div>
                 <dt>Dimensions</dt>
                 <dd>{formatDims(product)}</dd>
-              </div>
+              </div>}
               <div>
                 <dt>Stock label</dt>
                 <dd>{product.stockLabel || '—'}</dd>
@@ -414,6 +420,7 @@ function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
                           .filter(Boolean)
                           .join(' · ')}
                       </span>
+                      <span>{[formatWeight(variant) !== '—' ? formatWeight(variant) : null, formatDims(variant) !== '—' ? formatDims(variant) : null].filter(Boolean).join(' · ')}</span>
                     </li>
                   ))}
                 </ul>
@@ -423,14 +430,13 @@ function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
         </div>
         <footer className="bb-services-sheet-footer">
           <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
+            <Button action="close" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Close
-            </button>
+            </Button>
             {onEdit ? (
-              <button type="button" className="bb-primary-btn" onClick={() => onEdit(product)}>
-                <Pencil size={15} strokeWidth={2.2} />
+              <Button action="edit" variant="secondary" type="button" className="bb-primary-btn" onClick={() => onEdit(product)}>
                 Edit stock
-              </button>
+              </Button>
             ) : null}
           </div>
         </footer>
@@ -522,12 +528,12 @@ function StockEditSheet({ product, onClose, onSave, variant = 'sheet' }) {
             {savedFlash ? 'Saved' : 'Save to update inventory, delivery details and storefront stock display.'}
           </span>
           <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-ghost-btn" onClick={onClose}>
+            <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Cancel
-            </button>
-            <button type="button" className="bb-primary-btn" onClick={save}>
+            </Button>
+            <Button action="save" variant="primary" type="button" className="bb-primary-btn" onClick={save}>
               Save stock
-            </button>
+            </Button>
           </div>
         </footer>
       </div>
@@ -536,7 +542,7 @@ function StockEditSheet({ product, onClose, onSave, variant = 'sheet' }) {
 }
 
 export function StockPage({ routeRest = [] }) {
-  const { products, upsertProduct } = useWorkspace();
+  const { products, upsertProduct, removeProduct } = useWorkspace();
   const isMobile = useIsMobileEditor();
   const [query, setQuery] = useState('');
   const [filterId, setFilterId] = useState('all');
@@ -674,18 +680,19 @@ export function StockPage({ routeRest = [] }) {
             </label>
             <div className="bb-products-chips" role="tablist" aria-label="Stock filters">
               {FILTERS.map((filter) => (
-                <button
+                <FilterChip
                   key={filter.id}
                   type="button"
                   role="tab"
                   aria-selected={filterId === filter.id}
+                  selected={filterId === filter.id}
                   className={`bb-products-chip${
                     filterId === filter.id ? ' is-active' : ''
                   }`}
                   onClick={() => setFilterId(filter.id)}
                 >
                   {filter.label}
-                </button>
+                </FilterChip>
               ))}
             </div>
           </div>
@@ -695,13 +702,13 @@ export function StockPage({ routeRest = [] }) {
       {products.length === 0 ? (
         <div className="bb-services-catalog-empty">
           No products yet.{' '}
-          <button
+          <Button action="add" variant="primary"
             type="button"
             className="bb-stock-link"
             onClick={() => navigate('/dashboard/products')}
           >
             Add products
-          </button>{' '}
+          </Button>{' '}
           first, then set stock here.
         </div>
       ) : filtered.length === 0 ? (
@@ -709,12 +716,14 @@ export function StockPage({ routeRest = [] }) {
           No products match this filter.
         </div>
       ) : (
-        <div className="bb-stock-room">
+        <div className="bb-public-product-grid bb-business-catalog-grid">
           {filtered.map((product) => (
-            <StockProductCard
+            <ProductCatalogCard
               key={product.id}
               product={product}
-              onInfo={openInfo}
+              onView={openInfo}
+              stockLabel={stockBadge(product).label}
+              onRemove={(item) => removeProduct(item.id)}
               onEdit={openEdit}
             />
           ))}

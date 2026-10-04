@@ -1,3 +1,4 @@
+import { Button } from '../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Bell,
@@ -70,11 +71,11 @@ const COPY = {
   },
   plan: {
     title: 'Plan',
-    lede: 'Choose the Book and Buy plan that fits your studio.'
+    lede: 'Your profile access and Book and Buy plan information.'
   },
   billing: {
     title: 'Billing',
-    lede: 'Subscription payment method and invoices for Book and Buy.'
+    lede: 'Profile billing information, separate from your customer payments.'
   },
   users: {
     title: 'Users',
@@ -257,7 +258,7 @@ export function SettingsShell({ section: sectionProp }) {
         </header>
         <div className={`bb-settings-save-state is-${saveStatus}`} role={saveError ? 'alert' : 'status'}>
           <span>{saveError || (workspace.isDemo ? 'Demo changes save on this device' : saveStatus === 'saving' ? 'Saving changes…' : saveStatus === 'saved' ? 'All changes saved' : 'Changes save automatically')}</span>
-          {saveError && <button type="button" className="bb-ghost-btn" onClick={retrySave}>Retry save</button>}
+          {saveError && <Button action="retry" variant="primary" type="button" className="bb-ghost-btn" onClick={retrySave}>Retry save</Button>}
         </div>
         {body}
       </div>

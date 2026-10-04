@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { AppSheet } from '../../../shared/ui/AppSheet';
 import { AvailabilityMonthGrid } from './AvailabilityMonthGrid';
@@ -81,15 +82,15 @@ export function ApplyShiftDatesSheet({
       bodyClassName="bb-schedule-avail bb-schedule-apply-shift-body"
       footer={
         <div className="bb-services-sheet-footer-actions">
-          <button type="button" className="bb-ghost-btn" onClick={onClose}>Cancel</button>
-          <button
+          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>Cancel</Button>
+          <Button action="apply" variant="primary"
             type="button"
             className="bb-primary-btn"
             disabled={!applicableDays.length}
             onClick={() => onApply?.({ dates: applicableDays, shift })}
           >
             Apply to {applicableDays.length || 0} {applicableDays.length === 1 ? 'day' : 'days'}
-          </button>
+          </Button>
         </div>
       }
     >

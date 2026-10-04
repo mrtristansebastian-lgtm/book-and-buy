@@ -137,8 +137,21 @@ export function buildChartGeometry(series = [], { width, height, pad, yTickCount
     };
   }
 
-  const maxCents = Math.max(...series.map((pt) => Number(pt.amountInCents) || 0), 0);
-  const { niceMaxCents, ticksCents } = niceScale(maxCents, yTickCount);
+  const values = series.map((pt) => Number(pt.amountInCents) || 0);
+  const maxCents = Math.max(...values, 0);
+  const minCents = Math.min(...values, 0);
+  const positiveScale = niceScale(maxCents, yTickCount);
+  let niceMaxCents = positiveScale.niceMaxCents;
+  let niceMinCents = 0;
+  let ticksCents = positiveScale.ticksCents;
+  if (minCents < 0) {
+    const { stepCents } = niceScale(maxCents - minCents, yTickCount);
+    niceMinCents = Math.floor(minCents / stepCents) * stepCents;
+    niceMaxCents = Math.ceil(maxCents / stepCents) * stepCents;
+    ticksCents = [];
+    for (let value = niceMinCents; value <= niceMaxCents; value += stepCents) ticksCents.push(value);
+  }
+  const domainSpan = Math.max(niceMaxCents - niceMinCents, 1);
 
   const t0 = Number(series[0].at) || 0;
   const t1 = Number(series[series.length - 1].at) || t0;
@@ -147,19 +160,19 @@ export function buildChartGeometry(series = [], { width, height, pad, yTickCount
   const coords = series.map((point) => {
     const t = Number(point.at) || t0;
     const x = p.left + ((t - t0) / tSpan) * plotW;
-    const y = p.top + plotH - ((Number(point.amountInCents) || 0) / niceMaxCents) * plotH;
+    const y = p.top + plotH - (((Number(point.amountInCents) || 0) - niceMinCents) / domainSpan) * plotH;
     return { x, y, ...point };
   });
 
   const line = coords
     .map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(2)} ${c.y.toFixed(2)}`)
     .join(' ');
-  const baseline = (p.top + plotH).toFixed(2);
+  const baseline = (p.top + plotH - ((0 - niceMinCents) / domainSpan) * plotH).toFixed(2);
   const area = `${line} L ${coords[coords.length - 1].x.toFixed(2)} ${baseline} L ${coords[0].x.toFixed(2)} ${baseline} Z`;
 
   const ticksY = ticksCents.map((valueCents) => ({
     valueCents,
-    y: p.top + plotH - (valueCents / niceMaxCents) * plotH
+    y: p.top + plotH - ((valueCents - niceMinCents) / domainSpan) * plotH
   }));
 
   const xIndices = pickXTickIndices(coords);
@@ -177,6 +190,7 @@ export function buildChartGeometry(series = [], { width, height, pad, yTickCount
     ticksY,
     ticksX,
     niceMaxCents,
+    niceMinCents,
     pad: p,
     plot: { x: p.left, y: p.top, width: plotW, height: plotH }
   };

@@ -1,0 +1,51 @@
+/* Page headings and their filter/search bands scroll with content. These are
+   explicit page-chrome selectors: navigation docks, calendar axes and dialog
+   footers deliberately keep their independent behavior. Relative positioning
+   preserves the native splash layers without pinning them to the viewport. */
+html body :is(
+  .bb-page-chrome,
+  .bb-launcher-header,
+  .bb-clients-header,
+  .bb-finance-header,
+  .bb-analytics-header,
+  .bb-studio-toolbar,
+  .bb-settings-mobile-index-head,
+  .bb-settings-main-head,
+  .bb-schedule-desk-header,
+  .bb-services-desk-header,
+  .bb-client-top,
+  .bb-client-ig-top,
+  .bb-client-social-chips,
+  .bb-client-desk.has-tabs .bb-client-desk-rail,
+  .bb-public-header,
+  .bb-public-profile-tabs,
+  .bb-services-sheet.is-page .bb-services-sheet-head
+) {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  z-index: auto !important;
+}
+html body :is(.bb-client-settings .bb-settings-mobile-index-head,
+  .bb-client-settings.is-mobile-detail .bb-settings-main-head,
+  .bb-client-ig-top,
+  .bb-client-desk.has-tabs .bb-client-desk-rail) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html body .bb-owner-main > .grid > :is(header, .bb-page-title-wrap):first-child {
+  position: relative !important;
+  top: auto !important;
+  z-index: auto !important;
+}
+/* Client page chrome lives inside the same scroller as the page body, rather
+   than a fixed-height shell row. The bottom navigation remains independent. */
+.bb-client-shell.has-flowing-header { grid-template-rows: minmax(0, 1fr) var(--bb-client-tab-h); }
+@media (max-width: 899px) {
+  .bb-client-shell.has-flowing-header.is-dock-hidden:not(:has(.bb-client-home-feed.is-vertical-open)):not(:has(.bb-client-ig-explore.is-immersive .bb-vertical-watch)) {
+    grid-template-rows: minmax(0, 1fr) 0;
+  }
+}
+@media (min-width: 900px) {
+  .bb-client-shell.has-flowing-header .bb-client-top { padding-left: 1.1rem; }
+}

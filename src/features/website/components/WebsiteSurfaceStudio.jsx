@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import {
@@ -149,15 +150,15 @@ export function WebsiteSurfaceStudio({
             <p className="bb-muted m-0 text-sm bb-studio-toolbar-lede">{lede}</p>
           </div>
           <div className="bb-studio-actions">
-            <button
+            <Button action="open" variant="secondary"
               type="button"
               className="bb-studio-action bb-studio-action--ghost"
               onClick={() => navigate(publicPagePath(workspace.slug, livePage))}
             >
               <ExternalLink size={14} strokeWidth={2.2} />
               Open live
-            </button>
-            <button
+            </Button>
+            <Button action="publish" variant="secondary"
               type="button"
               className={`bb-studio-action bb-studio-action--primary${
                 canToggleVisibility && !pageVisible ? ' is-unpublished' : ''
@@ -166,7 +167,7 @@ export function WebsiteSurfaceStudio({
               onClick={onPublishAction}
             >
               {publishLabel}
-            </button>
+            </Button>
           </div>
         </div>
 

@@ -918,7 +918,7 @@
   .bb-stock-row .bb-stock-crate-body { grid-template-columns: 52px minmax(0, 1fr); gap: 10px 12px; padding: 16px 8px; }
   .bb-stock-row .bb-stock-crate-media { width: 52px; height: 52px; }
   .bb-stock-row-summary { grid-column: 2; }
-  .bb-stock-total-pill { grid-column: 2; grid-row: 2; }
+  .bb-stock-row .bb-stock-total-pill { grid-column: 2; grid-row: 2; }
   .bb-stock-row .bb-stock-crate-actions { grid-column: 2; grid-row: 3; width: auto; justify-self: start; flex-direction: row; gap: 8px; }
   .bb-stock-row .bb-stock-crate-media { grid-row: 1 / 3; align-self: start; }
   .bb-stock-row .bb-stock-crate-stamp { grid-column: 2; }

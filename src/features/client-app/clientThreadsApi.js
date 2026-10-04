@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { APP_ID } from '../../config/appConfig';
 import { getFirebase, isFirebaseConfigured } from '../../shared/firebase/client';
+import { hasMessageAnalyticsContext, reportMessageLead } from '../../shared/analytics/beacon';
 import {
   clientThreadMessagesPath,
   clientThreadPath,
@@ -220,6 +221,13 @@ export async function sendClientThreadMessage(threadId, { body, from = 'client',
     at: now
   };
   const messagesCol = collection(firebase.db, ...clientThreadMessagesPath(APP_ID, threadId));
+  let firstClientMessage = false;
+  if (from === 'client' && hasMessageAnalyticsContext(threadId)) {
+    try {
+      const prior = await getDocs(query(messagesCol, where('from', '==', 'client'), limit(1)));
+      firstClientMessage = prior.empty;
+    } catch { /* Missing analytics evidence must not prevent sending. */ }
+  }
   const added = doc(messagesCol);
   const batch = writeBatch(firebase.db);
   batch.set(added, message);
@@ -231,6 +239,7 @@ export async function sendClientThreadMessage(threadId, { body, from = 'client',
     lastMessagePreview: (text || (type === 'voice' ? 'Voice note' : 'Attachment')).slice(0, 140)
   });
   await batch.commit();
+  if (firstClientMessage) void reportMessageLead(threadId);
   return { id: added.id, ...message };
 }
 

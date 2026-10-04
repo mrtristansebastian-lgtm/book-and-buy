@@ -1,4 +1,5 @@
 import { Download, Search, Settings } from 'lucide-react';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 
 const STATUS_OPTIONS = [
   { id: 'all', label: 'All statuses' },
@@ -21,9 +22,6 @@ export function FinanceLedgerToolbar({
   onOpenSettings,
   onDownload
 }) {
-  const chipLabel =
-    STATUS_OPTIONS.find((option) => option.id === status)?.label?.toUpperCase() || 'ALL';
-
   return (
     <div className="bb-finance-ledger-head">
       <div className="bb-finance-ledger-title-row">
@@ -48,34 +46,25 @@ export function FinanceLedgerToolbar({
             <Download size={16} strokeWidth={2.2} />
           </button>
           <div className="bb-finance-tab-toggle" role="tablist" aria-label="Receipt source">
-            <button
+            <FilterChip
               type="button"
               role="tab"
-              aria-selected={tab === 'bookings'}
+              selected={tab === 'bookings'}
               className={tab === 'bookings' ? 'is-active' : ''}
               onClick={() => onTabChange?.('bookings')}
             >
               Bookings
-            </button>
-            <button
+            </FilterChip>
+            <FilterChip
               type="button"
               role="tab"
-              aria-selected={tab === 'orders'}
+              selected={tab === 'orders'}
               className={tab === 'orders' ? 'is-active' : ''}
               onClick={() => onTabChange?.('orders')}
             >
               Orders
-            </button>
+            </FilterChip>
           </div>
-          <button
-            type="button"
-            className="bb-finance-status-chip"
-            onClick={() =>
-              onStatusChange?.(status === 'paid' ? 'all' : 'paid')
-            }
-          >
-            {status === 'all' ? 'ALL' : chipLabel}
-          </button>
         </div>
       </div>
 
@@ -84,20 +73,21 @@ export function FinanceLedgerToolbar({
           <Search size={16} strokeWidth={2.2} className="bb-search-field-icon" aria-hidden="true" />
           <input
             type="search"
+            aria-label="Search receipts"
             className="native-search-input"
             placeholder="Search client, title, reference…"
             value={query}
             onChange={(event) => onQueryChange?.(event.target.value)}
           />
         </label>
-        <select value={status} onChange={(event) => onStatusChange?.(event.target.value)}>
+        <select aria-label="Payment status filter" value={status} onChange={(event) => onStatusChange?.(event.target.value)}>
           {STATUS_OPTIONS.map((option) => (
             <option key={option.id} value={option.id}>
               {option.label}
             </option>
           ))}
         </select>
-        <select value={sort} onChange={(event) => onSortChange?.(event.target.value)}>
+        <select aria-label="Sort receipts" value={sort} onChange={(event) => onSortChange?.(event.target.value)}>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
         </select>

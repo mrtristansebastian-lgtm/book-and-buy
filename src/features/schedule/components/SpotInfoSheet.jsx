@@ -1,5 +1,7 @@
+import { Button } from '../../../shared/ui/Button';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   countServiceSpotBookings,
   getServiceOpenSpots,
@@ -14,7 +16,15 @@ import {
 
 export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) {
   const [actionError, setActionError] = useState('');
-  const confirm = async (id) => { setActionError(''); try { await onConfirm?.(id); } catch (error) { setActionError(error.message || 'The booking was not changed.'); } };
+  const [pendingId, setPendingId] = useState('');
+  const actionLock = useRef(false);
+  const confirm = async (id) => {
+    if (actionLock.current) return;
+    actionLock.current = true; setPendingId(id); setActionError('');
+    try { await onConfirm?.(id); }
+    catch (error) { setActionError(error.message || 'The booking was not changed.'); }
+    finally { actionLock.current = false; setPendingId(''); }
+  };
   if (!service) return null;
 
   const capacity = Math.max(1, Number(service.capacity) || 1);
@@ -46,7 +56,7 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
             <div className="bb-schedule-spot-sheet-copy">
               <p className="bb-services-sheet-eyebrow">Spot programme</p>
               <h2 className="bb-services-sheet-title">{service.name}</h2>
-              <span className={`bb-schedule-spot-pill is-${status}`}>{statusLabel(status)}</span>
+              <StatusBadge className={`bb-schedule-spot-pill is-${status}`} status={status} label={statusLabel(status)} />
             </div>
           </div>
           <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose}>
@@ -90,19 +100,22 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
                   <article key={booking.id} className="bb-schedule-booking">
                     <div className="bb-schedule-booking-top">
                       <strong>{booking.clientName || 'Guest'}</strong>
-                      <span className="bb-schedule-booking-status">{booking.status}</span>
+                      <StatusBadge className="bb-schedule-booking-status" status={booking.status} label={booking.status} />
                     </div>
                     <div className="bb-schedule-booking-client">
                       {booking.clientEmail || booking.clientPhone || 'No contact'}
                     </div>
                     {booking.status === 'pending' ? (
-                      <button
+                      <Button action="confirm" variant="positive"
+                        busy={pendingId === booking.id}
+                        busyLabel="Confirming…"
+                        disabled={Boolean(pendingId)}
                         type="button"
                         className="bb-primary-btn text-sm py-2"
                         onClick={() => confirm(booking.id)}
                       >
                         Confirm seat
-                      </button>
+                      </Button>
                     ) : null}
                   </article>
                 ))}
@@ -114,9 +127,9 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
         <footer className="bb-services-sheet-footer">
           <span />
           <div className="bb-services-sheet-footer-actions">
-            <button type="button" className="bb-primary-btn" onClick={onClose}>
+            <Button action="close" variant="secondary" type="button" className="bb-primary-btn" onClick={onClose}>
               Close
-            </button>
+            </Button>
           </div>
         </footer>
       </div>

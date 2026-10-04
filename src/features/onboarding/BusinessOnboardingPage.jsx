@@ -1,3 +1,4 @@
+import { Button } from '../../shared/ui/Button';
 import { useState } from 'react';
 import { E_BUSINESS_PLATFORM_NAME } from '../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../app/routing';
@@ -52,9 +53,9 @@ export function BusinessOnboardingPage() {
       <div className="w-full max-w-lg grid gap-6">
         <header className="grid gap-2">
           <BrandMark size="lg" className="bb-onboarding-brand" />
-          <h1 className="bb-page-title text-3xl m-0">Set up your workspace</h1>
+          <h1 className="bb-page-title text-3xl m-0">Set up your free business profile</h1>
           <p className="bb-muted m-0">
-            Step {STEPS.indexOf(step) + 1} of {STEPS.length} — then publish your {E_BUSINESS_PLATFORM_NAME}.
+            Step {STEPS.indexOf(step) + 1} of {STEPS.length} — create your profile in {E_BUSINESS_PLATFORM_NAME}, then publish to Places when you are ready. No subscription or card required.
           </p>
         </header>
 
@@ -77,7 +78,7 @@ export function BusinessOnboardingPage() {
               />
             </label>
             <label className="grid gap-1 text-sm">
-              <span className="font-semibold">Business web address</span>
+              <span className="font-semibold">Profile address</span>
               <input
                 className="native-control-input px-4"
                 value={form.slug}
@@ -110,21 +111,21 @@ export function BusinessOnboardingPage() {
                 onChange={(event) => setForm((prev) => ({ ...prev, tagline: event.target.value }))}
               />
             </label>
-            <button
+            <Button action="continue" variant="primary"
               type="button"
               className="bb-primary-btn justify-self-start"
               disabled={!form.brandName.trim()}
               onClick={() => setStep('pages')}
             >
               Continue
-            </button>
+            </Button>
           </section>
         ) : null}
 
         {step === 'pages' ? (
           <section className="bb-panel p-5 grid gap-3">
             <h2 className="bb-page-title text-xl m-0">{E_BUSINESS_PLATFORM_NAME}</h2>
-            <p className="bb-muted m-0 text-sm">Choose which public pages to turn on first.</p>
+            <p className="bb-muted m-0 text-sm">Choose what customers can do on your profile. You can change these sections later.</p>
             {[
               ['enableBook', 'Book — services and appointments'],
               ['enableBuy', 'Buy — products and orders']
@@ -141,12 +142,12 @@ export function BusinessOnboardingPage() {
               </label>
             ))}
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="bb-ghost-btn" onClick={() => setStep('business')}>
+              <Button action="back" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setStep('business')}>
                 Back
-              </button>
-              <button type="button" className="bb-primary-btn" onClick={() => setStep('ready')}>
+              </Button>
+              <Button action="continue" variant="primary" type="button" className="bb-primary-btn" onClick={() => setStep('ready')}>
                 Continue
-              </button>
+              </Button>
             </div>
           </section>
         ) : null}
@@ -155,21 +156,22 @@ export function BusinessOnboardingPage() {
           <section className="bb-panel p-5 grid gap-3">
             <h2 className="bb-page-title text-xl m-0">You are ready</h2>
             <p className="bb-muted m-0 text-sm">
-              {form.brandName || 'Your business'} will open at{' '}
+              Your free profile for {form.brandName || 'your business'} will open at{' '}
               <strong>#{publicPagePath(form.slug || 'your-business', 'home')}</strong>.
             </p>
             <ul className="m-0 pl-5 text-sm grid gap-1">
-              <li>Home is always on</li>
-              {form.enableBook ? <li>Book page enabled</li> : null}
-              {form.enableBuy ? <li>Buy page enabled</li> : null}
+              <li>Business profile always included</li>
+              {form.enableBook ? <li>Book section enabled</li> : null}
+              {form.enableBuy ? <li>Buy section enabled</li> : null}
+              <li>Add a banner, profile photo and business details in E-Business, then publish to appear on Places</li>
             </ul>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="bb-ghost-btn" onClick={() => setStep('pages')}>
+              <Button action="back" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => setStep('pages')}>
                 Back
-              </button>
-              <button type="button" className="bb-ink-btn" onClick={finish}>
+              </Button>
+              <Button action="open" variant="primary" type="button" className="bb-ink-btn" onClick={finish}>
                 Open workspace
-              </button>
+              </Button>
             </div>
           </section>
         ) : null}

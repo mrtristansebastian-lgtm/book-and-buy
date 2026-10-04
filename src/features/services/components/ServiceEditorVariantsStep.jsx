@@ -1,3 +1,5 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -49,10 +51,9 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
             minimum duration. No stock tracking for services.
           </p>
         </div>
-        <button type="button" className="bb-ghost-btn" onClick={addVariant}>
-          <Plus size={14} />
+        <Button action="add" variant="primary" type="button" className="bb-ghost-btn" onClick={addVariant}>
           Add variant
-        </button>
+        </Button>
       </div>
 
       {variants.length === 0 ? (
@@ -136,9 +137,10 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                 </div>
                 <div className="bb-services-duration-presets">
                   {DURATION_PRESETS.map((mins) => (
-                    <button
+                    <FilterChip
                       key={mins}
                       type="button"
+                      selected={Number(variant.minDuration) === mins}
                       className={`bb-services-chip${
                         Number(variant.minDuration) === mins ? ' is-active' : ''
                       }`}
@@ -147,7 +149,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                       }
                     >
                       {mins} min
-                    </button>
+                    </FilterChip>
                   ))}
                 </div>
                 <label className="bb-services-check">

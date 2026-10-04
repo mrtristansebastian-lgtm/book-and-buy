@@ -1,3 +1,4 @@
+import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { CatalogToolbar } from '../../../shared/ui/CatalogToolbar';
 import { filterManagedCatalog } from '../../../utils/catalogSearch';
@@ -12,6 +13,7 @@ import {
 } from '../../../utils/services';
 import { ServiceCatalogCard } from '../components/ServiceCatalogCard';
 import { ServiceEditorSheet } from '../components/ServiceEditorSheet';
+import { ServiceInfoSheet } from '../components/ServiceInfoSheet';
 
 const emptyDraft = () => ({
   id: '',
@@ -99,6 +101,7 @@ export function ServicesPage({ routeRest = [] }) {
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
   const [query, setQuery] = useState('');
+  const [viewService, setViewService] = useState(null);
   const [catalogStatus, setCatalogStatus] = useState('all');
   const visibleServices = useMemo(() => filterManagedCatalog(services, query, catalogStatus), [services, query, catalogStatus]);
 
@@ -217,10 +220,10 @@ export function ServicesPage({ routeRest = [] }) {
             </span>
           </div>
         </div>
-        <button type="button" className="bb-page-action" onClick={openCreate}>
+        <Button action="add" variant="primary" type="button" className="bb-page-action" onClick={openCreate}>
           <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
           Add service
-        </button>
+        </Button>
       </header>
 
       <CatalogToolbar query={query} onQueryChange={setQuery} status={catalogStatus} onStatusChange={setCatalogStatus} count={visibleServices.length} total={services.length} noun="services" />
@@ -228,12 +231,13 @@ export function ServicesPage({ routeRest = [] }) {
         <div className="bb-services-catalog-empty">
           No services yet. Add your first offering.
         </div>
-      ) : visibleServices.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching services</strong><p>Try a different name, category or status.</p><button className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</button></div> : (
-        <div className="bb-public-product-grid bb-services-catalog-grid">
+      ) : visibleServices.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching services</strong><p>Try a different name, category or status.</p><Button action="clear" variant="secondary" className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</Button></div> : (
+        <div className="bb-public-product-grid bb-business-catalog-grid">
           {visibleServices.map((service) => (
             <ServiceCatalogCard
               key={service.id}
               service={service}
+              onView={setViewService}
               bookings={workspace.bookings || []}
               onEdit={openEdit}
               onRemove={(item) => removeService(item.id)}
@@ -242,6 +246,7 @@ export function ServicesPage({ routeRest = [] }) {
         </div>
       )}
 
+      {viewService && <ServiceInfoSheet service={viewService} staff={staff} onClose={() => setViewService(null)} onEdit={(service) => { setViewService(null); openEdit(service); }} />}
       {!isMobile ? (
         <ServiceEditorSheet
           open={draftOpen}

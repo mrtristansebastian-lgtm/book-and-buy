@@ -1,0 +1,114 @@
+import { useState } from 'react';
+import { MapPin } from 'lucide-react';
+import { EditableImage, EditableText, EditSection } from './editable';
+import { Button } from '../../../shared/ui/Button';
+import { isPublicPageEnabled } from '../../../config/eBusinessPlatform';
+import { navigate } from '../../../app/routing';
+import { useClientProfile } from '../../client-app/ClientProfileContext';
+import { startClientMessage } from '../../client-app/startClientMessage';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { profileSignInPath } from '../../client-app/profileAuthReturn';
+
+/** One identity for the public profile, discovery and the E-Business editor.
+ * Keep the existing image/copy fields so published merchant content isn't lost.
+ */
+export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsite, onUpdateProfile, onOpenTab }) {
+  const website = workspace.website || {};
+  const { profile, isPlaceSaved, togglePlaceSave } = useClientProfile();
+  const { workspace: local, startThreadFromClient } = useWorkspace();
+  const [messaging, setMessaging] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
+  const name = String(workspace.brandName || 'Your business').trim();
+  const bio = website.homeSubtext || website.subcopy || workspace.tagline || '';
+  const location = website.profileLocation || [website.city, website.region].filter(Boolean).join(', ');
+  const category = website.profileCategory || '';
+  const logo = website.logoUrl || workspace.logoUrl || '';
+  const showBook = isPublicPageEnabled(website.pages, 'book');
+  const showBuy = isPublicPageEnabled(website.pages, 'buy');
+  const interactive = !preview && !editMode;
+
+  const message = async () => {
+    if (!profile?.email) { navigate(profileSignInPath(workspace.slug)); return; }
+    if (messaging) return;
+    setError('');
+    setMessaging(true);
+    try {
+      await startClientMessage({
+        profile, workspace, requireThread: true,
+        // Local demo threads must never be used for a different real business.
+        startThreadFromClient: workspace.isDemo && workspace.slug === local.slug ? startThreadFromClient : undefined
+      });
+    } catch {
+      setError('Could not open the conversation. Please try again.');
+    } finally { setMessaging(false); }
+  };
+  const save = async () => {
+    if (!profile?.email) { navigate(profileSignInPath(workspace.slug)); return; }
+    if (saving) return;
+    setSaving(true);
+    setError('');
+    try { await togglePlaceSave(workspace.slug); }
+    catch { setError('Could not save this business. Please try again.'); }
+    finally { setSaving(false); }
+  };
+  const share = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href.replace(/#.*$/, `#/w/${encodeURIComponent(workspace.slug)}`));
+      setCopied(true);
+    } catch { setError('Could not copy the profile link. You can copy it from your browser address bar.'); }
+  };
+
+  return (
+    <EditSection editMode={editMode} title="Business profile" sectionId="profile" className="bb-business-profile-identity">
+      {interactive ? <nav className="bb-business-profile-public-nav" aria-label="Business profile navigation">
+        <Button action="back" variant="secondary" onClick={() => navigate('/app/find')}>Back to Places</Button>
+        <Button action="copy" variant="secondary" onClick={share} aria-live="polite">{copied ? 'Link copied' : 'Share profile'}</Button>
+      </nav> : null}
+      <div className="bb-business-profile-banner">
+        <EditableImage editMode={editMode} src={website.heroImageUrl || website.heroImage || ''}
+          alt={`${name} cover photo`} className="bb-business-profile-banner-media"
+          preset="socialBanner" storageFolder="brand" placeholderLabel="Add cover photo" editLabel="Edit cover photo"
+          onChange={(url) => patchWebsite({ heroImageUrl: url })} />
+      </div>
+      <div className="bb-business-profile-details">
+        <div className="bb-business-profile-photo">
+          <EditableImage editMode={editMode} src={logo} alt={`${name} profile photo`}
+            className="bb-business-profile-photo-media" preset="logo" storageFolder="brand" compact
+            placeholderLabel="Add profile photo" editLabel="Edit profile photo" onChange={(url) => {
+              onUpdateProfile?.({ logoUrl: url });
+              patchWebsite({ logoUrl: url });
+            }} />
+        </div>
+        <div className="bb-business-profile-copy">
+          <EditableText as="h1" className="bb-business-profile-name" editMode={editMode}
+            value={name} placeholder="Business name" website={website} patchWebsite={patchWebsite}
+            colorTokenId="profile.name" onChange={(value) => {
+              const next = value.trim() || 'Your business';
+              onUpdateProfile?.({ brandName: next });
+            }} />
+          {(category || location) ? <p className="bb-business-profile-meta">
+            {category ? <span>{category}</span> : null}
+            {category && location ? <span aria-hidden="true">·</span> : null}
+            {location ? <span><MapPin size={14} aria-hidden="true" />{location}</span> : null}
+          </p> : null}
+          <EditableText as="p" className="bb-business-profile-bio" editMode={editMode} multiline
+            value={bio} placeholder="A short introduction to your business" website={website}
+            patchWebsite={patchWebsite} colorTokenId="profile.bio"
+            onChange={(value) => patchWebsite({ homeSubtext: value, subcopy: value })} />
+          {editMode ? <p className="bb-business-profile-edit-note">Edit your name, introduction and photos here. Location and business category are managed in Business settings.</p> : null}
+        </div>
+        <div className="bb-business-profile-actions">
+          {showBook ? <Button action="book" variant="primary" disabled={editMode} onClick={() => onOpenTab?.('book')}>{website.ctaLabel || 'Book'}</Button> : null}
+          {showBuy ? <Button action="buy" variant="secondary" disabled={editMode} onClick={() => onOpenTab?.('buy')}>{website.buyCtaLabel || 'Buy'}</Button> : null}
+          {interactive ? <>
+            <Button action="chat" variant="secondary" busy={messaging} onClick={message}>Message</Button>
+            <Button action="save" variant="secondary" busy={saving} selected={isPlaceSaved(workspace.slug)} aria-pressed={isPlaceSaved(workspace.slug)} onClick={save}>{isPlaceSaved(workspace.slug) ? 'Saved' : 'Save'}</Button>
+          </> : null}
+        </div>
+      </div>
+      {error ? <p className="bb-business-profile-error" role="alert">{error}</p> : null}
+    </EditSection>
+  );
+}

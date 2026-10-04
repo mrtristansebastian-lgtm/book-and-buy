@@ -1,12 +1,174 @@
 /* Settings audit: keep one readable rhythm without affecting public pages. */
 .bb-settings-main, .bb-settings-content, .bb-settings-content > * { min-width: 0; }
 .bb-settings-main :is(h1, h2, h3) { overflow: visible; }
-.bb-settings-content :is(button, a.bb-btn, summary) { min-height: 44px; }
+.bb-settings-content summary { min-height: var(--bb-control-height, 40px); }
 .bb-settings-content :is(button, a, summary):focus-visible {
   outline: 2px solid var(--native-accent-border);
   outline-offset: 3px;
 }
 .bb-settings-content :is(p, small, strong) { overflow-wrap: anywhere; }
+
+/* Settings are forms, not marketing pages: clear section hierarchy, calm body
+   copy and consistent labels without changing shared action/filter controls. */
+.bb-settings-main .bb-settings-content {
+  --native-h2-size: 18px;
+  --native-h3-size: 16px;
+  --native-h2-weight: 700;
+  --native-h3-weight: 650;
+  --native-label-size: 13px;
+  --native-label-weight: 500;
+  --native-subtext-weight: 400;
+  --native-subtext-line-height: 1.5;
+}
+.bb-settings .bb-settings-main .bb-settings-content h2 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4 !important;
+}
+.bb-settings .bb-settings-main .bb-settings-content h3 {
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.4 !important;
+}
+.bb-settings-main .bb-settings-content :is(.bb-settings-field, .bb-market-field,
+  label.grid > .font-semibold, label.flex.font-semibold, .bb-place-field-label) {
+  font-family: var(--bb-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  min-width: 0;
+}
+.bb-settings-main .bb-settings-content :is(.bb-settings-section-heading p,
+  .bb-domain-hint, .bb-pay-card-head p, .bb-review-privacy p) {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+.native-ui .bb-settings-main :is(.bb-settings-explainer, .bb-settings-stub,
+  .bb-commerce-empty, .bb-domain-public-address, .bb-policy-preview > div,
+  .bb-shipping-preview-result:not(.is-warning)) {
+  background: #fff;
+  border: 1px solid #e9edf0;
+}
+.bb-settings-main :is(.bb-settings-explainer > strong, .bb-shipping-rate-mode > strong,
+  .bb-catalog-picker-heading, .bb-policy-preview summary, .bb-location-advanced summary,
+  .bb-shipping-preview-products summary) { font-weight: 500; }
+
+/* Business hours must span the complete panel, not one of the business-details
+   columns. Compact screens keep Opens/Closes side by side, with touch-sized
+   picker actions below the time values when there isn't room for both inline. */
+.bb-settings-content--general > .bb-settings-business-hours { grid-template-columns: minmax(0, 1fr); }
+.bb-settings-business-hours > .bb-schedule-avail-settings-section { grid-column: 1 / -1; min-width: 0; }
+.bb-settings-main .bb-schedule-hours-rows { gap: 8px; }
+.bb-settings-main .bb-schedule-hours-row { padding: 10px 12px; background: #fff; border-color: #e9edf0; }
+.native-ui .bb-settings-main .bb-schedule-hours-day:has(> input[type="checkbox"]) {
+  min-height: var(--bb-control-height, 40px);
+  padding: 0;
+  border: 0;
+  font-family: var(--bb-font-body);
+  font-size: 13px;
+  font-weight: 500;
+}
+.bb-settings-main .bb-schedule-hours-times { gap: 12px; }
+.bb-settings-main .bb-schedule-hours-times .bb-time-field { gap: 6px; }
+.bb-settings-main .bb-schedule-hours-times .bb-time-field-label {
+  color: #667085;
+  font-family: var(--bb-font-body);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.bb-settings-main .bb-schedule-hours-closed-label { font-size: 13px; font-weight: 400; color: #667085; }
+.bb-settings-main .bb-schedule-avail-settings-section-actions { flex-wrap: wrap; gap: 8px; }
+.bb-settings-main .bb-advance-field { gap: 8px; }
+.bb-settings-main .bb-advance-field-label {
+  font-family: var(--bb-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #101828;
+}
+.bb-settings-main .bb-advance-field-value {
+  min-height: var(--bb-control-height, 40px);
+  font-family: var(--bb-font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  padding: 9px 14px;
+  border-color: #e2e5e9;
+}
+.bb-settings-main :is(.bb-advance-picker-preset, .bb-advance-picker-custom-toggle) {
+  background: #fff;
+  border-color: #e2e5e9;
+  min-height: var(--bb-control-height, 40px);
+  font-family: var(--bb-font-body);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+.bb-settings-main :is(.bb-advance-field-value, .bb-advance-picker-preset, .bb-advance-picker-custom-toggle):is(:hover, :focus-visible, .is-active):not(:disabled) {
+  border-color: transparent;
+  background-image: linear-gradient(#fff, #fff), var(--native-accent-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 0%) 50%;
+}
+.bb-settings-related-links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.bb-settings-related-links > p { flex: 1 1 240px; margin: 0; font-size: 13px; line-height: 1.6; }
+
+/* Field indicators reserve their own space; the shared input padding must not
+   let an API key or address run beneath its reveal/clear control. */
+html body .bb-settings-main :is(.bb-pay-secret-row input, .bb-place-field-control input) { padding-right: 52px !important; }
+.bb-settings-main :is(.bb-pay-eye, .bb-place-field-clear) {
+  width: var(--bb-control-height, 40px);
+  height: var(--bb-control-height, 40px);
+  min-height: var(--bb-control-height, 40px);
+  padding: 0;
+  right: 2px;
+}
+html body .bb-settings-main .bb-catalog-search input { padding-left: 40px !important; }
+html body .native-ui .bb-settings-content--policies textarea { min-height: 192px !important; }
+
+/* Provider headers and merchant-authored identifiers can be long. Let rows
+   expand instead of shrinking the logo, badge or text into an unreadable gap. */
+.bb-settings-main :is(.bb-domain-head, .bb-domain-guide header,
+  .bb-review-provider > header, .bb-commerce-section-head) { flex-wrap: wrap; }
+.bb-settings-main :is(.bb-domain-head, .bb-domain-guide header,
+  .bb-review-provider > header, .bb-commerce-section-head) > * { min-width: 0; }
+.bb-settings-main .bb-review-logo-heading { max-width: 100%; }
+.bb-settings-main .bb-review-logo-heading img { flex: 0 1 135px; min-width: 0; }
+.bb-settings-main .bb-review-toggle > span { min-width: 0; line-height: 1.5; }
+.bb-settings-main .bb-review-toggle strong { font-weight: 500; }
+.bb-settings-main .bb-domain-status { font-family: var(--bb-font-body); font-size: 11px; font-weight: 400; border-radius: 5px; padding: 5px 8px; }
+.bb-settings-main .bb-commerce-total { background: #fff; border: 1px solid #e9edf0; border-radius: 5px; font-size: 12px; font-weight: 400; padding: 6px 9px; }
+.bb-settings-main .bb-market-row > span { min-width: 0; font-weight: 500; }
+.bb-settings-main .bb-market-row small { flex-shrink: 0; font-weight: 400; }
+.bb-settings-main .bb-market-row > .bb-status-badge { flex-shrink: 0; }
+.bb-settings-main .bb-shipping-connected-markets > a > span { min-width: 0; overflow-wrap: anywhere; }
+.bb-settings-main .bb-shipping-connected-markets small { flex-shrink: 0; }
+.bb-settings-main .bb-shipping-connected-markets > a > .bb-status-badge { flex-shrink: 0; margin-left: auto; }
+.bb-settings-main .bb-shipping-preview-products summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bb-settings-main .bb-shipping-preview-products summary > span { float: none; text-align: right; }
+.bb-settings-main .bb-shipping-preview-products summary > .bb-shipping-basket-label { flex: 1; text-align: left; font-size: 13px; font-weight: 500; color: #101828; }
+.bb-settings-main .bb-shipping-preview-products summary > svg { flex: 0 0 16px; color: #98a2b3; }
+.bb-settings-main .bb-shipping-preview-products[open] summary > svg { transform: rotate(180deg); }
+.bb-settings-main .bb-shipping-preview-products label > span { min-width: 0; overflow-wrap: anywhere; line-height: 1.5; }
+.bb-settings-main .bb-settings-team-copy { min-width: 0; flex: 1 1 180px; }
+.bb-settings-main .bb-settings-team-copy :is(strong, span) { overflow-wrap: anywhere; line-height: 1.5; }
+.bb-settings-main .bb-settings-team-copy strong { font-size: 14px; font-weight: 600; }
+.bb-settings-main .bb-settings-team-copy span { font-size: 13px; font-weight: 400; }
+.bb-settings-main .bb-settings-email-toggle { flex-wrap: wrap; }
+.bb-settings-main .bb-settings-email-toggle > .bb-settings-toggle-copy { flex: 1 1 120px; min-width: 0; }
+.bb-settings-main .bb-settings-unavailable { font-family: var(--bb-font-body); font-size: 11px; font-weight: 400; line-height: 1.4; }
+.bb-settings-content--plan > .flex > .flex { flex-wrap: wrap; }
+.bb-settings-main .bb-settings-plan-price { font-size: 24px; font-weight: 700; line-height: 1.3; }
+.bb-settings-main .bb-settings-plan-card ul { font-size: 13px; font-weight: 400; line-height: 1.6; }
 .bb-settings-content--users > form { padding: clamp(1.1rem, 2vw, 1.75rem); }
 .bb-settings-remove-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .bb-settings-remove-confirm > span { flex-basis: 100%; font-size: .8rem; color: #667085; }
@@ -30,9 +192,13 @@
   box-shadow: none;
 }
 @media (max-width: 960px) {
-  .bb-owner-main > .bb-settings .bb-settings-main { gap: 16px; }
+  .bb-owner-main > .bb-settings .bb-settings-main { gap: 12px; }
   .bb-settings-save-state { padding-inline: 16px; }
-  .bb-settings-content { gap: 16px; }
+  .bb-settings-content { gap: 12px; }
+  .bb-settings-content > .bb-panel, .bb-settings-content.bb-panel,
+  .bb-settings-content .bb-panel { padding: 14px; }
+  .bb-settings-content--general > .bb-panel { gap: 14px; }
+  .bb-settings-content--users > form { padding: 14px; }
   .bb-settings-content--domains > .bb-domain-address { grid-template-columns: 44px minmax(0, 1fr); }
   .bb-settings-content--domains .bb-domain-address > :is(label, a, .bb-domain-public-address) { grid-column: 1 / -1; }
   .bb-settings .bb-domain-head, .bb-settings .bb-domain-guide header { flex-wrap: wrap; }
@@ -43,6 +209,16 @@
   .bb-pay-method-section > .bb-settings-section-heading { padding-inline: 16px; }
   .bb-settings .bb-commerce-intro { gap: 12px; }
   .bb-settings .bb-market-add { gap: 12px; }
-  .bb-settings .bb-commerce-grid { gap: 16px; }
+  .bb-settings .bb-commerce-grid { gap: 12px; }
   .bb-settings-content--users > .grid > h2 { padding-inline: 16px; }
+}
+@media (max-width: 560px) {
+  .bb-settings-main .bb-schedule-hours-row { padding: 10px; }
+  .bb-settings-main .bb-schedule-hours-times { gap: 10px; }
+  .bb-settings-main .bb-domain-record-list article { grid-template-columns: 36px minmax(0, 1fr); gap: 8px 12px; }
+  .bb-settings-main .bb-domain-record-list article > button { grid-column: 2; justify-self: start; }
+}
+@media (max-width: 400px) {
+  .bb-settings-main .bb-schedule-hours-times .bb-time-field-control { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .bb-settings-main .bb-schedule-hours-times .bb-time-field-control > button { width: 100%; }
 }

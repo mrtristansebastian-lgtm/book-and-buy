@@ -1,3 +1,5 @@
+import { Button } from '../../../shared/ui/Button';
+import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { formatMoney } from '../utils/financeLedger';
 
 function formatReceiptDate(ts) {
@@ -18,7 +20,7 @@ export function TransactionReceiptCard({
   brandName = '',
   onMarkPaid
 }) {
-  const displayCurrency = currency || row.currency || 'R';
+  const displayCurrency = row.currency || currency || 'R';
 
   return (
     <article className={`bb-finance-receipt bb-finance-receipt--${row.paymentStatus}`}>
@@ -33,9 +35,9 @@ export function TransactionReceiptCard({
               {formatReceiptDate(row.createdAt)}
             </p>
           </div>
-          <span className={`bb-finance-receipt-stamp bb-finance-receipt-stamp--${row.paymentStatus}`}>
+          <StatusBadge status={row.paymentStatus} className={`bb-finance-receipt-stamp bb-finance-receipt-stamp--${row.paymentStatus}`}>
             {row.paymentStatus}
-          </span>
+          </StatusBadge>
         </header>
 
         <div className="bb-finance-receipt-rule" aria-hidden="true" />
@@ -68,9 +70,9 @@ export function TransactionReceiptCard({
         </footer>
 
         {row.paymentStatus !== 'paid' && onMarkPaid ? (
-          <button type="button" className="bb-finance-receipt-pay" onClick={() => onMarkPaid(row)}>
+          <Button action="markPaid" variant="positive" type="button" className="bb-finance-receipt-pay" onClick={() => onMarkPaid(row)}>
             Mark paid
-          </button>
+          </Button>
         ) : null}
       </div>
       <div className="bb-finance-receipt-serration bb-finance-receipt-serration--bottom" aria-hidden="true" />

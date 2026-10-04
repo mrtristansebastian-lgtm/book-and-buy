@@ -1,3 +1,5 @@
+import { Button } from '../../../shared/ui/Button';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 import { useEffect, useMemo, useState } from 'react';
 import { AppSheet } from '../../../shared/ui/AppSheet';
 import { BUSINESS_STATUS_OPTIONS, STATUS_OPTIONS } from './availabilityEditorUtils';
@@ -38,10 +40,10 @@ export function ChangeDayStatusSheet({
       panelClassName="bb-schedule-avail-sheet-panel is-compact"
       footer={
         <div className="bb-services-sheet-footer-actions">
-          <button type="button" className="bb-ghost-btn" onClick={onClose}>
+          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button action="save" variant="primary"
             type="button"
             className="bb-primary-btn"
             onClick={() => {
@@ -50,24 +52,25 @@ export function ChangeDayStatusSheet({
             }}
           >
             Save {activeLabel.toLowerCase()}
-          </button>
+          </Button>
         </div>
       }
     >
       <div className="bb-schedule-avail-status" role="tablist" aria-label="Day status">
         {statusOptions.map((option) => (
-          <button
+          <FilterChip
             key={option.id}
             type="button"
             role="tab"
             aria-selected={status === option.id}
+            selected={status === option.id}
             className={`bb-schedule-avail-status-btn is-paint is-${option.id}${
               status === option.id ? ' is-active' : ''
             }`}
             onClick={() => setStatus(option.id)}
           >
             {option.label}
-          </button>
+          </FilterChip>
         ))}
       </div>
     </AppSheet>
