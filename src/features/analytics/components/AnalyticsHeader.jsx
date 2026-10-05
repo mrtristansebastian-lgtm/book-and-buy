@@ -11,7 +11,9 @@ export function AnalyticsHeader({
   onCustomRangeChange,
   usingDemo = false,
   headline,
-  description
+  description,
+  onBack,
+  backLabel
 }) {
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
   const periodOptions = ANALYTICS_PERIODS.map((period) => ({
@@ -25,7 +27,7 @@ export function AnalyticsHeader({
       <div className="bb-analytics-header-top">
         <div className="bb-analytics-header-copy">
           <div className="bb-page-title-wrap">
-            <PageBackButton />
+            <PageBackButton onClick={onBack} ariaLabel={backLabel || 'Back to Home'} />
             <span className="bb-page-title-main">
               <div className="bb-page-header-glow" aria-hidden="true" />
               <h1 className="bb-page-title bb-analytics-title">

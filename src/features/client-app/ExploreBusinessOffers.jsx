@@ -4,12 +4,18 @@ import { ChevronRight, Navigation } from 'lucide-react';
 import { navigate, publicItemPath, publicPagePath } from '../../app/routing';
 import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { EmptyState } from '../../shared/ui/EmptyState';
-import { reportDiscoveryVisit } from '../../shared/analytics/beacon';
+import { reportDiscoveryVisit, reportOfferClick } from '../../shared/analytics/beacon';
+import { useDiscoveryImpressions } from '../../shared/analytics/useDiscoveryImpressions';
 import { PublicOfferCard } from '../storefront/components/PublicOfferCard';
+import { useAuth } from '../auth/AuthContext';
 
 function ExploreBusinessOfferCard({ biz, kind, analyticsEnabled }) {
+  const { user } = useAuth();
+  const trackDiscovery = analyticsEnabled && user?.uid !== biz.ownerId;
+  const cardRef = useRef(null);
   const railRef = useRef(null);
   const [canScrollForward, setCanScrollForward] = useState(false);
+  useDiscoveryImpressions(cardRef, { enabled: trackDiscovery, ownerId: biz.ownerId, slug: biz.slug, surface: kind }, biz.items);
 
   useEffect(() => {
     const rail = railRef.current;
@@ -36,16 +42,17 @@ function ExploreBusinessOfferCard({ biz, kind, analyticsEnabled }) {
     railRef.current?.scrollBy({ left: 196, behavior: 'smooth' });
   };
   const openBusiness = (path) => {
-    if (analyticsEnabled) reportDiscoveryVisit({ ownerId: biz.ownerId, slug: biz.slug });
+    if (trackDiscovery) reportDiscoveryVisit({ ownerId: biz.ownerId, slug: biz.slug }, { surface: kind });
     navigate(path);
   };
 
   return (
-    <article className={`bb-marketplace-business is-${kind}`}>
+    <article ref={cardRef} className={`bb-marketplace-business is-${kind}`}>
       <header className="bb-marketplace-business-head">
         <button
           type="button"
           className="bb-marketplace-business-identity"
+          data-discovery-target="business"
           onClick={() => openBusiness(publicPagePath(biz.slug, 'home'))}
           aria-label={`View ${biz.brandName} business profile`}
         >
@@ -96,7 +103,14 @@ function ExploreBusinessOfferCard({ biz, kind, analyticsEnabled }) {
         >
           {biz.items.map((item) => {
             const page = kind === 'book' ? 'book' : 'buy';
-            const openItem = () => openBusiness(publicItemPath(biz.slug, page, item.id));
+            const openItem = () => {
+              if (trackDiscovery) {
+                const context = { ownerId: biz.ownerId, slug: biz.slug, source: 'places', discoverySurface: kind };
+                reportDiscoveryVisit(context, { surface: kind, target: 'offer' });
+                reportOfferClick(context, { ...item, kind: page === 'book' ? 'service' : 'product' });
+              }
+              navigate(publicItemPath(biz.slug, page, item.id));
+            };
             return (
               <PublicOfferCard key={item.id} item={item} kind={kind} price={item.priceLabel} onOpen={openItem} />
             );

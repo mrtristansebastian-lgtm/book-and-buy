@@ -94,7 +94,7 @@ test('missing location/referrer/device metadata stays Unknown, not fabricated Di
   assert.equal(report.referrers.find(row => row.label === 'Unknown').count, 1);
   assert.equal(report.referrers.find(row => row.label === 'Direct').count, 1);
   assert.equal(report.referrers.find(row => row.label === 'google.com').count, 1);
-  assert.equal(report.referrers.find(row => row.label === 'Book & Buy Places').count, 1);
+  assert.equal(report.referrers.find(row => row.label === 'Book & Buy discovery').count, 1);
   assert.equal(report.devices.find(row => row.label === 'Unknown').count, 3);
 });
 

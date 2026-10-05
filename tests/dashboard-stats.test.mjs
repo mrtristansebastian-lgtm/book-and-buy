@@ -70,11 +70,17 @@ test('shared stat accepts unavailable/long values, semantic headings and live up
   assert.ok(!valueRule.nodes.some((node) => node.prop === 'white-space' && node.value === 'nowrap'));
 });
 
-test('Finance, Reports and Home use one stat primitive while period controls and stat links remain separate', () => {
+test('Finance and Home retain shared stat readouts while Reports links open dedicated statistic pages', () => {
   const revenue = readFileSync(new URL('../src/features/finance/components/RevenueMetricCards.jsx', import.meta.url), 'utf8');
   const reports = readFileSync(new URL('../src/features/analytics/pages/AnalyticsPage.jsx', import.meta.url), 'utf8');
   const home = readFileSync(new URL('../src/features/dashboard/pages/OverviewPage.jsx', import.meta.url), 'utf8');
-  for (const source of [revenue, reports, home]) assert.match(source, /import \{ DashboardStat \}/);
+  for (const source of [revenue, home]) assert.match(source, /import \{ DashboardStat \}/);
+  assert.doesNotMatch(reports, /DashboardStat|<ReportStat/);
+  assert.match(reports, /<a className="bb-report-metric-link"[^>]+href=\{hrefFor\(metric\.id\)\}/);
+  assert.match(reports, /getReportStatistic\(routeRest\[0\]\)/);
+  assert.match(reports, /const hrefFor = id => `#\$\{base\}\/\$\{id\}\?\$\{periodQuery\}`/);
+  assert.match(reports, /<AnalyticsSalesChart[^>]+series=\{history\.series\}/);
+  assert.match(reports, /<ReportHistory metric=\{metric\} history=\{history\} total=\{stat\?\.value\}/);
   assert.doesNotMatch(revenue, /MetricPicker|<button/);
   assert.match(home, /as="button"/);
   assert.match(home, /onClick=\{\(\) => navigate\(`\/dashboard\/\$\{stat\.to\}`\)\}/);
@@ -83,7 +89,7 @@ test('Finance, Reports and Home use one stat primitive while period controls and
   assert.doesNotMatch(home, /computeFinanceMetrics|filterLedgerByPeriod/);
 });
 
-test('dashboard hierarchy is explicit: operational Home, primary Finance and quieter report insights', () => {
+test('dashboard hierarchy preserves operational Home, primary Finance and categorical Reports totals', () => {
   for (const appearance of ['operational', 'primary', 'insight', 'supporting']) {
     const html = render({ appearance, label: 'Total', value: 42 });
     assert.match(html, new RegExp(`data-appearance="${appearance}"`));
@@ -95,8 +101,10 @@ test('dashboard hierarchy is explicit: operational Home, primary Finance and qui
   const reports = readFileSync(new URL('../src/features/analytics/pages/AnalyticsPage.jsx', import.meta.url), 'utf8');
   const home = readFileSync(new URL('../src/features/dashboard/pages/OverviewPage.jsx', import.meta.url), 'utf8');
   assert.match(revenue, /appearance="primary"/);
-  assert.match(reports, /appearance = 'insight'/);
-  assert.equal((reports.match(/<ReportStat appearance="supporting"/g) || []).length, 4);
+  assert.match(reports, /REPORT_GROUPS\.map\(group => <ReportCategory/);
+  assert.match(reports, /<section className="bb-report-category" aria-labelledby=\{`report-\$\{group\.id\}`\}/);
+  assert.match(reports, /className="bb-report-metric-label">\{metric\.label\}/);
+  assert.match(reports, /className="bb-report-metric-value">\{count\(stats\[metric\.id\]\?\.value\)\}/);
   assert.match(home, /appearance="operational"/);
   assert.match(home, /aria-describedby=\{stat\.id === 'revenue' && revenueNote \? 'bb-home-revenue-note'/);
   assert.ok(home.indexOf('id="bb-home-revenue-note"') > home.indexOf('</section>', home.indexOf('className="bb-launcher-stats')));
@@ -117,10 +125,13 @@ test('readout scale differentiates the pages without gradient fills or oversized
   assert.equal(insight['min-height'], '112px');
   assert.equal(supporting['box-shadow'], 'none');
   assert.equal(supporting['--bb-stat-size'], '26px');
-  const mobile = css.nodes.find((node) => node.type === 'atrule' && node.params === '(max-width: 700px)');
+  const mobile = css.nodes.find((node) => node.type === 'atrule' && node.params === '(max-width: 700px)' &&
+    node.nodes.some((child) => child.selector === '.bb-dashboard-stat[data-appearance="primary"]'));
   const mobilePrimary = mobile.nodes.find((node) => node.selector === '.bb-dashboard-stat[data-appearance="primary"]');
   assert.ok(mobilePrimary.nodes.some((node) => node.prop === 'min-height' && node.value === '128px'));
-  assert.ok(mobile.nodes.some((node) => node.selector === '.bb-reports-details' && node.nodes.some((decl) => decl.prop === 'grid-template-columns' && decl.value === 'repeat(2,minmax(0,1fr))')));
+  const reportMobile = css.nodes.find((node) => node.type === 'atrule' && node.params === '(max-width: 700px)' &&
+    node.nodes.some((child) => child.selector === '.bb-report-metric-row'));
+  assert.ok(reportMobile.nodes.some((node) => node.selector === '.bb-report-metric-row' && node.nodes.some((decl) => decl.prop === 'grid-template-columns' && decl.value === 'repeat(2,minmax(0,1fr))')));
 });
 
 test('Home has a focal revenue tile and four compact operational readouts, adapting to two phone columns', () => {
@@ -141,7 +152,8 @@ test('Home has a focal revenue tile and four compact operational readouts, adapt
   const lead = values(rule('.bb-launcher-stats > .bb-dashboard-stat.is-featured', tablet));
   assert.equal(lead['grid-column'], '1 / -1');
   assert.equal(lead['grid-row'], 'auto');
-  const mobile = css.nodes.find((node) => node.type === 'atrule' && node.params === '(max-width: 700px)');
+  const mobile = css.nodes.find((node) => node.type === 'atrule' && node.params === '(max-width: 700px)' &&
+    node.nodes.some((child) => child.selector === '.bb-dashboard-stat[data-appearance="operational"]'));
   assert.equal(values(rule('.bb-dashboard-stat[data-appearance="operational"]', mobile))['min-height'], '88px');
   assert.equal(values(rule('.bb-launcher-stats > .bb-dashboard-stat.is-featured', mobile))['--bb-stat-size'], '36px');
 });

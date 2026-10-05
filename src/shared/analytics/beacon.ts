@@ -10,12 +10,14 @@ import {
   validGeoCoordinates
 } from './livePresence';
 import { anonymousMetadata, doNotTrackEnabled, nextAnonymousIdentity } from './anonymousIdentity';
+import { DISCOVERY_SURFACES, discoveryEventMetadata, discoveryImpressionId } from './discoveryAttribution';
 
 const SESSION_KEY = 'bb_analytics_sid';
 const WRITE_KEY = 'bb_analytics_presence_write';
 const GEO_KEY = 'bb_analytics_geo';
 const VISITOR_KEY = 'bb_analytics_visitor';
 const MESSAGE_KEY = 'bb_analytics_message_context';
+const DISCOVERY_KEY = 'bb_analytics_discovery';
 
 export type AnalyticsEventType =
   | 'page_view'
@@ -45,6 +47,7 @@ export type SessionContext = {
   ownerId: string;
   path?: string;
   source?: 'places' | 'direct';
+  discoverySurface?: 'places' | 'book' | 'buy';
 };
 
 type GeoInfo = {
@@ -58,6 +61,8 @@ type GeoInfo = {
 let geoPromise: Promise<GeoInfo> | null = null;
 let lastPath = '';
 const memoryStorage = new Map<string, Record<string, unknown>>();
+const convertedCarts = new Set<string>();
+const observedDiscoveryImpressions = new Set<string>();
 
 function isBot(): boolean {
   if (typeof navigator === 'undefined') return true;
@@ -108,16 +113,22 @@ function createSessionId(): string {
     : `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function getAnalyticsSession(ctx: SessionContext, now = Date.now()) {
-  const key = `${SESSION_KEY}:${storageScope(ctx)}`;
-  const visitorKey = `${VISITOR_KEY}:${storageScope(ctx)}`;
+function getAnalyticsSession(ctx: SessionContext, now = Date.now(), impression = false) {
+  const identityScope = impression ? `impression:${storageScope(ctx)}` : storageScope(ctx);
+  const key = `${SESSION_KEY}:${identityScope}`;
+  const visitorKey = `${VISITOR_KEY}:${identityScope}`;
   const { session, visitor } = nextAnonymousIdentity({
     storedSession: readStoredJson(key), storedVisitor: readStoredJson(visitorKey),
-    source: ctx.source, now, createId: createSessionId
+    source: impression ? 'direct' : ctx.source, now, createId: createSessionId
   });
   writeStoredJson(visitorKey, visitor);
   writeStoredJson(key, session);
   return session;
+}
+
+/** Visibility is independent of the customer's first actual business visit. */
+function getDiscoveryImpressionSession(ctx: SessionContext) {
+  return getAnalyticsSession(ctx, Date.now(), true);
 }
 
 export function getAnalyticsSessionId(ctx: SessionContext): string {
@@ -253,11 +264,17 @@ export async function trackAnalyticsEvent(
   if (!firebase || !ctx.slug || !ctx.ownerId) return;
 
   try {
-    const session = getAnalyticsSession(ctx);
+    const session = type === 'discovery_visit' && extra.discoveryAction === 'impression'
+      ? getDiscoveryImpressionSession(ctx) : getAnalyticsSession(ctx);
     const ref = eventId ? doc(firebase.db, 'artifacts', APP_ID, 'analyticsEvents', eventId) :
       doc(collection(firebase.db, 'artifacts', APP_ID, 'analyticsEvents'));
     await setDoc(ref, {
       ...extra,
+      ...discoveryEventMetadata({
+        surface: ctx.discoverySurface,
+        stored: readStoredJson(`${DISCOVERY_KEY}:${storageScope(ctx)}`),
+        sessionId: session.id
+      }),
       type,
       sessionId: session.id,
       slug: ctx.slug,
@@ -280,12 +297,37 @@ function safeReferrer() {
   } catch { return ''; }
 }
 
-export function reportDiscoveryVisit(ctx: SessionContext) {
+export function reportDiscoveryVisit(
+  ctx: SessionContext,
+  { surface = 'places', target = 'business' }: { surface?: 'places' | 'book' | 'buy'; target?: 'business' | 'offer' } = {}
+) {
   if (!canWritePresence() || !ctx.slug || !ctx.ownerId) return;
-  const entry: SessionContext = { ...ctx, source: 'places', path: '/app/find/places' };
-  getAnalyticsSession(entry);
+  const entry: SessionContext = { ...ctx, source: 'places', discoverySurface: surface, path: `/app/find/${surface}` };
+  const session = getAnalyticsSession(entry);
+  writeStoredJson(`${DISCOVERY_KEY}:${storageScope(ctx)}`, { sessionId: session.id, surface });
   void upsertSession(entry, entry.path!, true);
-  void trackAnalyticsEvent('discovery_visit', entry);
+  if (target === 'business') void trackAnalyticsEvent('discovery_visit', entry, {
+    discoveryAction: 'business_open', discoveryTarget: 'business'
+  });
+}
+
+export function reportDiscoveryImpression(
+  ctx: SessionContext,
+  surface: 'places' | 'book' | 'buy',
+  item?: { id?: string; name?: string; kind?: string }
+) {
+  if (!canWritePresence() || !ctx.slug || !ctx.ownerId || !DISCOVERY_SURFACES.includes(surface)) return;
+  const session = getDiscoveryImpressionSession(ctx);
+  const kind = item ? (item.kind === 'service' || item.kind === 'book' ? 'service' : 'product') : 'business';
+  const eventId = discoveryImpressionId({ sessionId: session.id, surface, itemKind: kind, itemId: item?.id || '' });
+  if (observedDiscoveryImpressions.has(eventId)) return;
+  observedDiscoveryImpressions.add(eventId);
+  // Impressions do not create presence documents or change the visit's acquisition source.
+  void trackAnalyticsEvent('discovery_visit', { ...ctx, discoverySurface: surface, path: `/app/find/${surface}` }, {
+    discoveryAction: 'impression', discoveryTarget: kind,
+    ...(item ? { itemKind: kind, itemName: String(item.name || '').slice(0, 160),
+      ...(kind === 'service' ? { serviceId: item.id || '' } : { productId: item.id || '' }) } : {})
+  }, eventId);
 }
 
 export function rememberMessageAnalytics(threadId: string, ctx: SessionContext) {
@@ -339,6 +381,11 @@ export async function upsertAnalyticsCart(
 
   const sessionId = getAnalyticsSessionId(ctx);
   const cartId = getAnalyticsCartId(ctx);
+  // Checkout removes submitted lines from the UI cart. That cleanup must not
+  // overwrite a successful conversion with an empty abandoned-cart snapshot.
+  if (status === 'converted') convertedCarts.add(cartId);
+  else if (items.length > 0) convertedCarts.delete(cartId);
+  else if (status === 'abandoned' && convertedCarts.has(cartId)) return;
   const ref = doc(firebase.db, ...analyticsCartPath(APP_ID, cartId));
   const safeItems = (items || []).slice(0, 50).map((item) => ({
     lineKey: String(item.lineKey || '').slice(0, 120),
@@ -406,13 +453,23 @@ export function reportPageView(ctx: SessionContext, path: string) {
 
 export function reportProductView(
   ctx: SessionContext,
-  product: { id?: string; name?: string }
+  product: { id?: string; name?: string; kind?: string },
+  interaction: 'view' | 'click' = 'view'
 ) {
   if (!canWritePresence()) return;
+  const kind = product.kind === 'service' || product.kind === 'book' ? 'service' : 'product';
   void trackAnalyticsEvent('product_view', ctx, {
-    productId: product.id || '',
-    productName: String(product.name || '').slice(0, 160)
+    commerceVersion: 1,
+    interaction,
+    itemKind: kind,
+    ...(interaction === 'click' && ctx.discoverySurface ? { discoveryAction: 'offer_click' } : {}),
+    ...(kind === 'service' ? { serviceId: product.id || '' } : { productId: product.id || '' }),
+    itemName: String(product.name || '').slice(0, 160)
   });
+}
+
+export function reportOfferClick(ctx: SessionContext, item: { id?: string; name?: string; kind?: string }) {
+  reportProductView(ctx, item, 'click');
 }
 
 export const LIVE_WINDOW_MS = LIVE_VISITOR_WINDOW_MS;

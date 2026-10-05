@@ -102,7 +102,7 @@ export function computeAnalyticsKpis({
   const sessionsCount = sessionIds.size || sessions.length;
   const uniqueVisitors = sessionsCount;
 
-  const productViews = events.filter((e) => e.type === 'product_view').length;
+  const productViews = events.filter((e) => e.type === 'product_view' && e.interaction !== 'click').length;
   const addToCarts = events.filter((e) => e.type === 'add_to_cart').length;
   const checkouts = events.filter((e) => e.type === 'begin_checkout').length;
   const purchases = events.filter(
@@ -147,7 +147,7 @@ export function computeAnalyticsKpis({
 export function computeFunnel({ events = [], sessions = [] } = {}) {
   const sessionsCount = new Set(sessions.map((s) => s.sessionId).filter(Boolean)).size ||
     sessions.length;
-  const productViews = events.filter((e) => e.type === 'product_view').length;
+  const productViews = events.filter((e) => e.type === 'product_view' && e.interaction !== 'click').length;
   const addToCart = events.filter((e) => e.type === 'add_to_cart').length;
   const checkout = events.filter((e) => e.type === 'begin_checkout').length;
   const purchase = events.filter(
@@ -411,8 +411,8 @@ export function rankPaths(sessions = [], events = []) {
 export function rankProducts(events = []) {
   return rankCounts(
     events
-      .filter((e) => e.type === 'product_view' || e.type === 'add_to_cart')
-      .map((e) => e.productName || e.productId || 'Product')
+      .filter((e) => (e.type === 'product_view' && e.interaction !== 'click') || e.type === 'add_to_cart')
+      .map((e) => e.itemName || e.serviceName || e.productName || e.serviceId || e.productId || 'Offer')
   ).slice(0, 8);
 }
 
@@ -453,7 +453,7 @@ export function activeCartRows(carts = [], now = Date.now()) {
 export { buildChartGeometry };
 
 /** Realistic demo payload so local/unconfigured mode still feels finished. */
-export function buildDemoAnalytics({ now = Date.now(), orders = [], bookings = [] } = {}) {
+export function buildDemoAnalytics({ now = Date.now(), orders = [], bookings = [], products: catalogProducts = [], services: catalogServices = [] } = {}) {
   const day = DAY_MS;
   const sessions = [];
   const events = [];
@@ -467,11 +467,20 @@ export function buildDemoAnalytics({ now = Date.now(), orders = [], bookings = [
   ];
   const paths = ['/home', '/buy', '/book', '/buy/loaf-01', '/checkout'];
   const products = ['Sourdough loaf', 'Weekend brunch', 'Gift box', 'Flat white'];
+  const offers = [
+    ...(catalogProducts.length ? catalogProducts.slice(0, 4) : products.map((name, index) => ({ id: `p${index}`, name }))).map(item => ({ ...item, kind: 'product' })),
+    ...(catalogServices.length ? catalogServices.slice(0, 2) : [{ id: 'cooking', name: 'Cooking' }, { id: 'baking', name: 'Baking' }]).map(item => ({ ...item, kind: 'service' }))
+  ];
 
   for (let i = 0; i < 48; i += 1) {
-    const at = now - (i % 10) * day - (i % 12) * 3600000;
+    const at = now - (i % 10) * day - (i % 12) * 3600000 - 180000;
     const sid = `demo_s_${i}`;
     const geo = geos[i % geos.length];
+    const discoverySurface = i % 3 === 0 ? ['places', 'buy', 'book'][Math.floor(i / 3) % 3] : '';
+    const candidates = discoverySurface === 'book' ? offers.filter(item => item.kind === 'service') : discoverySurface === 'buy' ? offers.filter(item => item.kind === 'product') : offers;
+    const offer = candidates[Math.floor(i / 2) % candidates.length];
+    const offerData = { commerceVersion: 1, itemKind: offer.kind, itemName: offer.name,
+      ...(offer.kind === 'service' ? { serviceId: offer.id } : { productId: offer.id }) };
     sessions.push({
       analyticsVersion: 2,
       visitorId: `demo_visitor_${i % 24}`,
@@ -496,30 +505,34 @@ export function buildDemoAnalytics({ now = Date.now(), orders = [], bookings = [
     });
     events.push({ id: `demo_page_${i}`, analyticsVersion: 2, source: i % 3 === 0 ? 'places' : 'direct', type: 'page_view', sessionId: sid, at, path: paths[i % paths.length] });
     if (i % 3 === 0) {
-      events.push({ id: `demo_discovery_${i}`, analyticsVersion: 2, source: 'places', type: 'discovery_visit', sessionId: sid, at: at + 1000, path: '/places/profile' });
+      events.push({ id: `demo_discovery_${i}`, analyticsVersion: 2, source: 'places', type: 'discovery_visit', discoveryAction: 'business_open', discoveryTarget: 'business', sessionId: sid, at: at + 1000, path: `/app/find/${discoverySurface}` });
+      events.push({ id: `demo_impression_${i}`, analyticsVersion: 2, source: 'direct', type: 'discovery_visit', discoveryAction: 'impression', discoveryTarget: discoverySurface === 'places' ? 'business' : offer.kind, ...offerData, sessionId: sid, at: at + 500 });
       if (i < 24 && i % 6 === 0) events.push({ id: `demo_lead_${i}`, analyticsVersion: 2, source: 'places', type: 'message_lead', threadId: `demo_thread_${i}`, sessionId: sid, at: at + 2000 });
     }
     if (i % 2 === 0) {
       events.push({
         type: 'product_view',
+        ...offerData,
+        interaction: 'view',
         sessionId: sid,
         at: at + 30000,
-        productId: `p${i % 4}`,
-        productName: products[i % 4]
       });
+      if (i % 4 === 0) events.push({ id: `demo_click_${i}`, type: 'product_view', interaction: 'click', ...(discoverySurface && discoverySurface !== 'places' ? { discoveryAction: 'offer_click' } : {}),
+        ...offerData, sessionId: sid, at: at + 29000 });
     }
     if (i % 3 === 0) {
       events.push({
         type: 'add_to_cart',
+        ...offerData,
         sessionId: sid,
         at: at + 60000,
-        productName: products[i % 4],
         valueCents: 12000 + (i % 5) * 2500
       });
     }
     if (i % 5 === 0) {
       events.push({
         type: 'begin_checkout',
+        commerceVersion: 1,
         sessionId: sid,
         at: at + 90000,
         valueCents: 18000
@@ -558,15 +571,17 @@ export function buildDemoAnalytics({ now = Date.now(), orders = [], bookings = [
     Object.assign(event, { analyticsVersion: 2, visitorId: session.visitorId,
       visitorFirstSeenAt: session.visitorFirstSeenAt, isReturningVisitor: session.isReturningVisitor,
       source: session.source });
+    const index = Number(session.sessionId.split('_').at(-1));
+    if (session.source === 'places') Object.assign(event, { discoveryVersion: 1, discoverySurface: ['places', 'buy', 'book'][Math.floor(index / 3) % 3] });
   }
 
   for (let i = 0; i < 5; i += 1) {
     carts.push({
       cartId: `demo_cart_${i}`,
       sessionId: `demo_s_${i}`,
-      status: i === 0 ? 'checkout' : 'active',
+      status: i === 0 ? 'checkout' : i === 2 ? 'converted' : i === 3 ? 'abandoned' : 'active',
       valueCents: 15000 + i * 3500,
-      updatedAt: now - i * 45000,
+      updatedAt: i === 4 ? now - 3600000 : now - i * 45000,
       items: [
         {
           name: products[i % products.length],

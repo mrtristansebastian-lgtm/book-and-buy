@@ -52,7 +52,7 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
       ) : tab === 'live-stats' ? (
         <LiveStatsPage />
       ) : tab === 'analytics' ? (
-        <AnalyticsPage />
+        <AnalyticsPage routeRest={rest} />
       ) : tab === 'clients' ? (
         <ClientsPage />
       ) : tab === 'settings' ? (

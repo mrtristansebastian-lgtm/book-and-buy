@@ -231,6 +231,7 @@ export function PublicCartCheckout({
   const { user } = useAuth();
   const { profile, isClient } = useClientProfile();
   const workspace = catalogWorkspace || ctx.workspace;
+  const analyticsEnabled = publicMode && !lockedPreview && user?.uid !== workspace?.ownerId;
   const bookings =
     (catalogWorkspace && catalogWorkspace !== ctx.workspace
       ? catalogWorkspace.bookings
@@ -288,7 +289,7 @@ export function PublicCartCheckout({
   }, [previewResult]);
 
   useEffect(() => {
-    if (!publicMode || lockedPreview || step !== 'details') return;
+    if (!analyticsEnabled || step !== 'details') return;
     const ownerId = workspace?.ownerId;
     const slug = workspace?.slug;
     if (!ownerId || !slug) return;
@@ -303,7 +304,7 @@ export function PublicCartCheckout({
         valueCents: cart.subtotalCents
       }
     );
-  }, [step, publicMode, lockedPreview, workspace?.ownerId, workspace?.slug]);
+  }, [step, analyticsEnabled, workspace?.ownerId, workspace?.slug]);
 
   useEffect(() => {
     if (lockedPreview) return undefined;
@@ -455,7 +456,7 @@ export function PublicCartCheckout({
         const signature = JSON.stringify({ slug: workspace.slug, ...payload });
         if (!bookingRequests.current.has(signature)) bookingRequests.current.set(signature, crypto.randomUUID());
         if (!requestAttribution.current.has(signature)) requestAttribution.current.set(signature,
-          await getAnalyticsAttribution({ ownerId: workspace.ownerId, slug: workspace.slug }));
+          analyticsEnabled ? await getAnalyticsAttribution({ ownerId: workspace.ownerId, slug: workspace.slug }) : {});
         const remote = await firebaseCallables.createPublicBookingRequest({
           slug: workspace.slug,
           requestId: bookingRequests.current.get(signature),
@@ -488,7 +489,7 @@ export function PublicCartCheckout({
     if (publicMode && isFirebaseConfigured() && workspace.slug) {
       try {
         if (!requestAttribution.current.has(signature)) requestAttribution.current.set(signature,
-          await getAnalyticsAttribution({ ownerId: workspace.ownerId, slug: workspace.slug }));
+          analyticsEnabled ? await getAnalyticsAttribution({ ownerId: workspace.ownerId, slug: workspace.slug }) : {});
         const remote = await firebaseCallables.createPublicProductOrder({
           requestId: bookingRequests.current.get(signature),
           slug: workspace.slug,
@@ -571,7 +572,7 @@ export function PublicCartCheckout({
 
         const ownerId = workspace?.ownerId;
         const slug = workspace?.slug;
-        if (publicMode && ownerId && slug) {
+        if (analyticsEnabled && ownerId && slug) {
           const valueCents = productSnapshot.reduce(
             (sum, item) => sum + (item.unitPriceCents || 0) * (item.quantity || 0),
             0

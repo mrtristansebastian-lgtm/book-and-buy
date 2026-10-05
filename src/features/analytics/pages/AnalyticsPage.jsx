@@ -1,114 +1,128 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowUpRight, CircleHelp, Users, ShoppingBag, CalendarDays, ShoppingCart, Compass, MapPin, Search } from 'lucide-react';
 import { useAnalyticsLive } from '../hooks/useAnalyticsLive';
 import { AnalyticsHeader } from '../components/AnalyticsHeader';
 import { AnalyticsSalesChart } from '../components/AnalyticsSalesChart';
 import { AnalyticsRankTable } from '../components/AnalyticsRankTable';
-import { REPORT_METRICS } from '../utils/trafficReports';
-import { MetricPicker } from '../../../shared/ui/MetricPicker';
+import { AnalyticsOfferTable } from '../components/AnalyticsOfferTable';
+import { AnalyticsStatHelp } from '../components/AnalyticsStatHelp';
+import { REPORT_GROUPS, getReportStatistic, buildReportHistory } from '../utils/reportCatalog';
+import { ANALYTICS_PERIODS } from '../utils/analyticsMetrics';
+import { buildCommerceReport } from '../utils/commerceReports';
 import { Button } from '../../../shared/ui/Button';
-import { DashboardStat } from '../../../shared/ui/DashboardStat';
-import { navigate } from '../../../app/routing';
+import { getLocationPath, navigate } from '../../../app/routing';
 
-const count = (value) => Number(value).toLocaleString();
-const percent = (value) => `${Number(value).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
-const duration = (value) => {
-  const seconds = Math.round(Number(value) / 1000);
-  return seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
-};
+const icons = { audience: Users, products: ShoppingBag, services: CalendarDays, checkout: ShoppingCart, discovery: Compass, places: MapPin, buy: Search, book: Search };
+const count = value => value == null ? '—' : Number(value).toLocaleString();
+const currentQuery = () => new URLSearchParams(getLocationPath().split('?')[1] || '');
+const intervalLabel = unit => ({ hour: 'Hourly', day: 'Daily', week: 'Weekly', month: 'Monthly', year: 'Yearly' })[unit];
+const intervalDate = unit => unit === 'hour' ? { month: 'short', day: 'numeric', hour: 'numeric' } : unit === 'year' ? { year: 'numeric' } : unit === 'month' ? { month: 'long', year: 'numeric' } : { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
 
-function ReportStat({ label, value, available = true, note, format = count, appearance = 'insight' }) {
-  return (
-    <DashboardStat className="bb-reports-stat" appearance={appearance} label={label} value={available && value != null ? format(value) : '—'} note={note} noteHidden />
-  );
+function ReportCategory({ group, stats, hrefFor, onExplain }) {
+  const Icon = icons[group.id];
+  return <section className="bb-report-category" aria-labelledby={`report-${group.id}`}>
+    <header className="bb-report-category-head">
+      <span className="bb-report-category-icon" aria-hidden="true"><Icon size={18} strokeWidth={1.8} /></span>
+      <div><h2 id={`report-${group.id}`}>{group.title}</h2><p>{group.description}</p></div>
+    </header>
+    <div className="bb-report-metric-row" style={{ '--report-columns': group.metrics.length }}>
+      {group.metrics.map(metric => <div className="bb-report-metric-cell" key={metric.id}>
+        <a className="bb-report-metric-link" href={hrefFor(metric.id)} aria-label={`${metric.label}: ${count(stats[metric.id]?.value)}. View ${group.title.toLowerCase()} report`}>
+        <span className="bb-report-metric-label">{metric.label}</span>
+        <span className="bb-report-metric-value">{count(stats[metric.id]?.value)}</span>
+        <ArrowUpRight className="bb-report-metric-arrow" size={14} aria-hidden="true" />
+        </a>
+        <button type="button" className="bb-report-help-trigger" aria-label={`About ${group.title.toLowerCase()}: ${metric.label}`} aria-haspopup="dialog" onClick={() => onExplain(metric.id)}><CircleHelp size={14} strokeWidth={1.7} aria-hidden="true" /></button>
+      </div>)}
+    </div>
+  </section>;
 }
 
-/** Traffic and acquisition only; authoritative money metrics live in Finance. */
-export function AnalyticsPage() {
-  const [periodId, setPeriodId] = useState('week');
-  const [customRange, setCustomRange] = useState({ from: '', to: '' });
-  const [metricId, setMetricId] = useState('sessions');
-  const data = useAnalyticsLive(periodId, customRange, { metricId });
-  const traffic = data.traffic;
-  const discovery = data.discovery;
-  const metric = REPORT_METRICS.find((item) => item.id === metricId) || REPORT_METRICS[0];
-  const value = traffic.metrics;
-  const available = traffic.availability;
-  const places = discovery.metrics;
-  const placesAvailable = discovery.availability;
-  const visitorTrackingMissing = !available.uniqueVisitors || !available.returningVisitors;
+function ReportHistory({ metric, history, total }) {
+  const [limit, setLimit] = useState(15);
+  useEffect(() => setLimit(15), [metric.id, history.series.length, history.series[0]?.at]);
+  const rows = [...history.series].reverse();
+  const peak = Math.max(1, ...rows.map(row => row.raw));
+  return <section className="bb-report-history" aria-label={`${metric.label} history`}>
+    <header className="bb-report-detail-section-head"><div><h2>Activity history</h2><p>{intervalLabel(history.unit)} totals · most recent first</p></div><span>{rows.length} {history.unit}s</span></header>
+    <table className="bb-report-history-table">
+      <thead><tr><th scope="col">Period</th><th scope="col">{metric.label}</th></tr></thead>
+      <tbody>{rows.length ? rows.slice(0, limit).map(row => <tr key={row.at}><th scope="row">{new Date(row.at).toLocaleString(undefined, intervalDate(history.unit))}{history.unit === 'week' ? <small>through {new Date(row.end).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</small> : null}</th><td><span className="bb-report-history-bar" aria-hidden="true" style={{ '--activity-width': `${row.raw / peak * 100}%` }} /><span>{count(row.raw)}</span></td></tr>) : <tr><td colSpan={2}>No recorded history for the selected period.</td></tr>}</tbody>
+      <tfoot><tr><th scope="row">Selected period</th><td>{count(total)}</td></tr></tfoot>
+    </table>
+    {rows.length > limit ? <Button action="view" variant="secondary" onClick={() => setLimit(value => value + 30)}>Show more history</Button> : null}
+    {metric.distinct ? <p className="bb-reports-note">Each row counts visitors or conversations once for that time. They can appear in more than one row, so adding the rows may give a higher number than the period total.</p> : null}
+    {metric.snapshot ? <p className="bb-reports-note">Carts appear under their latest activity date. If a customer comes back, the cart's status and its place in this history can change.</p> : null}
+  </section>;
+}
 
-  return (
-    <div className="bb-analytics bb-reports">
-      <AnalyticsHeader
-        periodId={periodId}
-        onPeriodChange={setPeriodId}
-        customRange={customRange}
-        onCustomRangeChange={setCustomRange}
-        usingDemo={data.usingDemo}
-        headline="Reports" description="Your audience, traffic and Places discovery"
-      />
+export function AnalyticsPage({ routeRest = [] }) {
+  const [helpId, setHelpId] = useState(null);
+  const [periodId, setPeriodId] = useState(() => ANALYTICS_PERIODS.some(row => row.id === currentQuery().get('period')) ? currentQuery().get('period') : 'week');
+  const [customRange, setCustomRange] = useState(() => ({ from: currentQuery().get('from') || '', to: currentQuery().get('to') || '' }));
+  const metric = getReportStatistic(routeRest[0]);
+  const helpMetric = getReportStatistic(helpId);
+  useEffect(() => setHelpId(null), [metric?.id]);
+  const routeQuery = getLocationPath().split('?')[1] || '';
+  useEffect(() => {
+    const params = new URLSearchParams(routeQuery);
+    const selected = params.get('period');
+    if (ANALYTICS_PERIODS.some(row => row.id === selected)) {
+      setPeriodId(selected);
+      if (selected === 'custom') setCustomRange({ from: params.get('from') || '', to: params.get('to') || '' });
+    }
+  }, [routeQuery]);
+  const data = useAnalyticsLive(periodId, customRange);
+  const report = data.reports;
+  const history = useMemo(() => metric && report ? buildReportHistory({ report, metricId: metric.id, periodId }) : { series: [], unit: 'day' }, [report, metric?.id, periodId]);
+  const base = getLocationPath().startsWith('/demo') ? '/demo/analytics' : '/dashboard/analytics';
+  const periodQuery = new URLSearchParams({ period: periodId, ...(periodId === 'custom' ? customRange : {}) }).toString();
+  const hrefFor = id => `#${base}/${id}?${periodQuery}`;
+  const stat = metric ? report?.stats[metric.id] : null;
+  const offerReport = useMemo(() => {
+    if (!metric?.kind || !report) return null;
+    const commerce = metric.surface ? buildCommerceReport({ ...report.options, events: report.options.events.filter(row => row.discoverySurface === metric.surface) }) : report.commerce;
+    return { ...commerce, items: commerce.items.filter(row => row.kind === metric.kind) };
+  }, [report, metric?.id]);
+  const selectPeriod = selected => {
+    setPeriodId(selected);
+    if (selected !== 'custom') navigate(`${base}${metric ? `/${metric.id}` : ''}?period=${selected}`, { replace: true });
+  };
+  const selectCustomRange = range => {
+    setCustomRange(range);
+    setPeriodId('custom');
+    navigate(`${base}${metric ? `/${metric.id}` : ''}?${new URLSearchParams({ period: 'custom', ...range })}`, { replace: true });
+  };
 
-      {data.loading ? <p className="bb-reports-data-notice" role="status">Loading your traffic insights…</p> : null}
-      {data.error && !data.usingDemo ? <p className="bb-analytics-error" role="alert">{data.error}</p> : null}
-      {!data.complete && !data.loading && !data.error ? <p className="bb-reports-data-notice">Showing the latest 1,000 sessions and events in this period. Choose a shorter period for complete insights.</p> : null}
-
-      <section className="bb-reports-summary" aria-label="Traffic overview">
-        <ReportStat label="Unique visitors" value={value.uniqueVisitors} available={available.uniqueVisitors} note="Anonymous visitors, not sessions" />
-        <ReportStat label="Sessions" value={value.sessions} available={available.sessions} note="Visits to your website" />
-        <ReportStat label="Page views" value={value.pageViews} available={available.pageViews} note="Recorded page openings" />
-        <ReportStat label="Returning visitors" value={value.returningVisitors} available={available.returningVisitors} note="Visitors who came back" />
+  return <div className={`bb-analytics bb-reports bb-report-workspace${metric ? ' is-detail' : ''}`}>
+    <AnalyticsHeader periodId={periodId} onPeriodChange={selectPeriod} customRange={customRange} onCustomRangeChange={selectCustomRange} usingDemo={data.usingDemo}
+      headline={metric?.label || 'Reports'} description={metric ? metric.groupTitle : 'A clear picture of your business activity'}
+      onBack={metric ? () => navigate(`${base}?${periodQuery}`) : undefined} backLabel={metric ? 'Back to Reports' : undefined} />
+    {data.loading ? <p className="bb-reports-data-notice" role="status">Loading your insights…</p> : null}
+    {data.error && !data.usingDemo ? <p className="bb-analytics-error" role="alert">{data.error}</p> : null}
+    {!data.complete && !data.loading && !data.error ? <p className="bb-reports-data-notice">This period exceeds the latest 1,000 sessions, events or carts. Choose a shorter period for complete insights.</p> : null}
+    {metric ? <>
+      <section className="bb-report-detail-total" aria-label="Selected period total">
+        <div><span className="bb-report-eyebrow">{metric.groupTitle} · period total<button type="button" className="bb-report-help-trigger" aria-label={`About ${metric.groupTitle.toLowerCase()}: ${metric.label}`} aria-haspopup="dialog" onClick={() => setHelpId(metric.id)}><CircleHelp size={14} strokeWidth={1.7} aria-hidden="true" /></button></span><strong>{count(stat?.value)}</strong></div>
+        <p>{metric.description}</p>
       </section>
-      {visitorTrackingMissing && !data.loading ? <p className="bb-reports-note">Visitor identity wasn’t recorded for some older visits. Unique and returning visitor totals will appear for periods with complete visitor tracking.</p> : null}
-
       <section className="bb-analytics-panel bb-analytics-chart-panel">
-        <header className="bb-reports-chart-head">
-          <div>
-            <h2 className="bb-analytics-panel-title">Traffic over time</h2>
-            <p>{metric.lede || metric.description}</p>
-          </div>
-          <MetricPicker value={metricId} options={REPORT_METRICS} onChange={setMetricId} ariaLabel="Choose traffic statistic" />
-        </header>
-        {data.series.length ? <AnalyticsSalesChart
-          series={data.series}
-          currency={data.currency}
-          metricId={metricId}
-          metricOptions={REPORT_METRICS} showPicker={false}
-        /> : <p className="bb-analytics-empty">This statistic needs visitor tracking for the selected period.</p>}
+        <header className="bb-report-detail-section-head"><div><h2>{metric.label} over time</h2><p>{intervalLabel(history.unit)} activity for the selected period</p></div></header>
+        {stat?.available ? <AnalyticsSalesChart series={history.series} metricId={metric.id} metricOptions={[metric]} showPicker={false} /> : <div className="bb-report-unavailable"><span>Tracking unavailable</span><p>This statistic wasn’t recorded for the selected period. New tracked activity will populate this report.</p></div>}
       </section>
-
-
-      <section aria-label="Audience engagement">
-        <header className="bb-reports-section-head"><div><h2>Your audience</h2><p>Understand who visits and how they engage.</p></div></header>
-        <div className="bb-reports-details">
-          <ReportStat appearance="supporting" label="New visitors" value={value.newVisitors} available={available.newVisitors} />
-          <ReportStat appearance="supporting" label="Engagement rate" value={value.engagementRate} available={available.engagementRate} format={percent} />
-          <ReportStat appearance="supporting" label="Bounce rate" value={value.bounceRate} available={available.bounceRate} format={percent} />
-          <ReportStat appearance="supporting" label="Average engaged time" value={value.averageDurationMs} available={available.averageDurationMs} format={duration} />
-        </div>
-        {!available.averageDurationMs ? <p className="bb-reports-note">Time and engagement are shown only when measured. A missing value isn’t a zero.</p> : null}
-      </section>
-
-      <div className="bb-reports-detail-grid">
-        <AnalyticsRankTable title="Traffic sources" lede="Where your sessions come from" rows={traffic.referrers} empty="No traffic sources recorded yet." />
-        <AnalyticsRankTable title="Popular pages" lede="Recorded page views · no estimated views" rows={traffic.popularPages} empty="No page views recorded yet." />
-        <AnalyticsRankTable title="Locations" lede="Approximate locations of your sessions" rows={traffic.locations} empty="No location data recorded yet." />
-        <AnalyticsRankTable title="Devices" lede="How people browse your business" rows={traffic.devices} empty="No device data recorded yet." />
-      </div>
-
-      <section className="bb-reports-places" aria-label="Places discovery insights">
-        <header className="bb-reports-section-head">
-          <div><h2>Places discovery</h2><p>See what happens after people find your business in Places, Book or Buy discovery.</p></div>
-          <Button action="open" variant="secondary" onClick={() => navigate('/dashboard/finance')}>Financial insights</Button>
-        </header>
-        <div className="bb-reports-summary">
-          <ReportStat label="Discovery visits" value={places.profileVisits} available={placesAvailable.profileVisits} note="Business or offer openings" />
-          <ReportStat label="Message leads" value={places.messageLeads} available={placesAvailable.messageLeads} note="Conversations with a first message" />
-          <ReportStat label="Sales" value={places.orders} available={placesAvailable.orders} note="Attributed product orders" />
-          <ReportStat label="Bookings" value={places.bookings} available={placesAvailable.bookings} note="Attributed booking requests" />
-        </div>
-        <p className="bb-reports-note">Places attribution starts when someone opens your business from discovery and follows that visit. Older orders, bookings and messages aren’t assigned a source retroactively. Revenue and profit live in Finance.</p>
-        {!placesAvailable.profileVisits ? <p className="bb-reports-data-notice">No Places tracking is available for this period yet. New discovery activity will populate these insights; “—” means not recorded.</p> : null}
-      </section>
-    </div>
-  );
+      <ReportHistory metric={metric} history={history} total={stat?.value} />
+      {offerReport ? <AnalyticsOfferTable report={offerReport} title={metric.kind === 'service' ? 'Service activity' : 'Product activity'} /> : null}
+      {metric.groupId === 'audience' && report ? <div className="bb-reports-detail-grid">
+        <AnalyticsRankTable title="Traffic sources" lede="Where recorded sessions come from" rows={report.traffic.referrers} empty="No sources recorded yet." />
+        <AnalyticsRankTable title="Devices" lede="How customers browse" rows={report.traffic.devices} empty="No devices recorded yet." />
+        <AnalyticsRankTable title="Locations" lede="Approximate session locations" rows={report.traffic.locations} empty="No locations recorded yet." />
+      </div> : null}
+      {metric.surface || metric.discoveryKey ? <p className="bb-reports-note">These totals use visits we can link to discovery. Older visits may appear only under Discovery outcomes. Money and payment stats are in Finance.</p> : null}
+    </> : <>
+      <div className="bb-report-overview-guide"><span>Business insights</span><p>Select any total to explore its trend and history.</p><span className="bb-report-period-caption">Totals for the selected period</span></div>
+      <div className="bb-report-categories">{REPORT_GROUPS.map(group => <ReportCategory key={group.id} group={group} stats={report?.stats || {}} hrefFor={hrefFor} onExplain={setHelpId} />)}</div>
+      <p className="bb-reports-note bb-report-overview-note">“—” means we don't have that stat for these dates yet. Older discovery activity may appear only under Discovery outcomes. Money and payment stats are in <a href={base.startsWith('/demo') ? '#/demo/finance' : '#/dashboard/finance'}>Finance</a>.</p>
+    </>}
+    {helpMetric ? <AnalyticsStatHelp metric={helpMetric} available={report?.stats[helpMetric.id]?.available} href={metric ? undefined : hrefFor(helpMetric.id)} onClose={() => setHelpId(null)} /> : null}
+  </div>;
 }

@@ -30,6 +30,8 @@ import {
   rollupGeo
 } from '../utils/analyticsMetrics';
 import { buildTrafficReport, buildPlacesReport, buildTrafficSeries } from '../utils/trafficReports';
+import { buildCommerceReport } from '../utils/commerceReports';
+import { buildReportDashboard } from '../utils/reportCatalog';
 
 function mapDocs(snap) {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -51,7 +53,8 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now());
   const [usingDemo, setUsingDemo] = useState(allowDemo);
-  const [coverage, setCoverage] = useState({ sessions: true, events: true });
+  const [coverage, setCoverage] = useState({ sessions: true, events: true, carts: false });
+  const [cartTracking, setCartTracking] = useState(false);
   const bounds = getPeriodBounds(periodId, customRange);
   const reportStart = liveMode ? null : bounds.start;
   const reportEnd = liveMode ? null : bounds.end;
@@ -116,9 +119,10 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     }
 
     if (!configured) {
-      setCoverage({ sessions: true, events: true });
+      setCoverage({ sessions: true, events: true, carts: true });
+      setCartTracking(allowDemo);
       if (allowDemo) {
-        const demo = buildDemoAnalytics({ orders, bookings });
+        const demo = buildDemoAnalytics({ orders, bookings, products: workspace.products, services: workspace.services });
         setSessions(demo.sessions);
         setEvents(demo.events);
         setCarts(demo.carts);
@@ -148,10 +152,13 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     setError('');
     setSessions([]);
     setEvents([]);
-    setCoverage({ sessions: false, events: false });
+    setCoverage({ sessions: false, events: false, carts: false });
+    setCartTracking(false);
+    setCarts([]);
     let readySessions = false;
     let readyEvents = false;
-    const finishLoading = () => setLoading(!(readySessions && readyEvents));
+    let readyCarts = false;
+    const finishLoading = () => setLoading(!(readySessions && readyEvents && readyCarts));
     const rangeConstraints = (key) => [
       ...(reportStart == null ? [] : [where(key, '>=', reportStart)]),
       ...(reportEnd == null ? [] : [where(key, '<=', reportEnd)]),
@@ -216,18 +223,30 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
       const cartsQ = query(
         collection(firebase.db, 'artifacts', APP_ID, 'analyticsCarts'),
         where('ownerId', '==', ownerId),
-        limit(200)
+        ...(reportStart == null ? [] : [where('serverUpdatedAt', '>=', Timestamp.fromMillis(reportStart))]),
+        ...(reportEnd == null ? [] : [where('serverUpdatedAt', '<=', Timestamp.fromMillis(reportEnd))]),
+        orderBy('serverUpdatedAt', 'desc'),
+        limit(1001)
       );
       unsubscribers.push(
         onSnapshot(
           cartsQ,
-          (snap) =>
-            setCarts(
-              mapDocs(snap).sort(
-                (a, b) => Number(b.updatedAt || 0) - Number(a.updatedAt || 0)
-              )
-            ),
-          () => {}
+          (snap) => {
+            setCarts(mapDocs(snap).slice(0, 1000).map(cart => ({ ...cart,
+              updatedAt: analyticsTimestampMs(cart.serverUpdatedAt) || Number(cart.updatedAt || 0) })));
+            setCartTracking(true);
+            setCoverage(current => ({ ...current, carts: snap.size <= 1000 }));
+            readyCarts = true;
+            finishLoading();
+          },
+          () => {
+            setCarts([]);
+            setCartTracking(false);
+            setCoverage(current => ({ ...current, carts: false }));
+            setError('Cart activity could not be loaded. Cart insights may be incomplete.');
+            readyCarts = true;
+            finishLoading();
+          }
         )
       );
     } catch (err) {
@@ -276,10 +295,16 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     [effectiveSessions, activityNow]
   );
 
-  const complete = coverage.sessions && coverage.events;
+  const complete = coverage.sessions && coverage.events && coverage.carts;
   const traffic = useMemo(() => buildTrafficReport({ sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd, complete }), [periodSessions, periodEvents, reportStart, reportEnd, complete]);
   const discovery = useMemo(() => buildPlacesReport({ sessions: periodSessions, events: periodEvents, orders, bookings, start: reportStart, end: reportEnd, complete }), [periodSessions, periodEvents, orders, bookings, reportStart, reportEnd, complete]);
+  const commerce = useMemo(() => buildCommerceReport({ sessions, events: periodEvents, carts: periodCarts,
+    products: workspace.products || [], services: workspace.services || [], start: reportStart, end: reportEnd,
+    now: activityNow, cartTracking }), [sessions, periodEvents, periodCarts, workspace.products, workspace.services, reportStart, reportEnd, activityNow, cartTracking]);
   const series = useMemo(() => buildTrafficSeries({ metricId, sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd }), [metricId, periodSessions, periodEvents, reportStart, reportEnd]);
+  const reports = useMemo(() => liveMode ? null : buildReportDashboard({ sessions, events, carts, orders, bookings,
+    products: workspace.products || [], services: workspace.services || [], start: reportStart, end: reportEnd,
+    now: activityNow, cartTracking, complete }), [liveMode, sessions, events, carts, orders, bookings, workspace.products, workspace.services, reportStart, reportEnd, activityNow, cartTracking, complete]);
 
   const geo = useMemo(() => rollupGeo(periodSessions), [periodSessions]);
   const topPaths = useMemo(
@@ -304,6 +329,8 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     liveCapped: liveMode ? presence.capped : false,
     traffic,
     discovery,
+    commerce,
+    reports,
     complete,
     series,
     geo,

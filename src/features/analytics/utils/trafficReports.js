@@ -65,7 +65,7 @@ function eventIdentity(row, index) {
   // Older fixtures have no document id. Collapse only exact retry signatures.
   const at = reportTimestampMs(eventTime(row));
   if (at === null) return `unidentified-event:${index}`;
-  return JSON.stringify([row.type, row.sessionId, at, row.path, row.productId, row.orderId, row.bookingId, row.threadId]);
+  return JSON.stringify([row.type, row.sessionId, at, row.path, row.productId, row.serviceId, row.interaction, row.itemKind, row.orderId, row.bookingId, row.threadId]);
 }
 
 export function dedupeReportEvents(rows = []) {
@@ -82,7 +82,7 @@ function prepare({ sessions = [], events = [], start = null, end = null } = {}) 
   const botIds = new Set(sessions.filter(row => row?.isBot).map(sessionId).filter(Boolean));
   return {
     sessions: allSessions.filter(row => timeInBounds(sessionTime(row), start, end)),
-    events: dedupeReportEvents(events).filter(row => !botIds.has(text(row.sessionId)) && timeInBounds(eventTime(row), start, end))
+    events: dedupeReportEvents(events).filter(row => row.discoveryAction !== 'impression' && !botIds.has(text(row.sessionId)) && timeInBounds(eventTime(row), start, end))
   };
 }
 
@@ -108,7 +108,7 @@ export function reportPageLabel(raw) {
 }
 
 function referrerLabel(row) {
-  if (isPlaces(row)) return 'Book & Buy Places';
+  if (isPlaces(row)) return 'Book & Buy discovery';
   if (!has(row, 'referrer')) return 'Unknown';
   const referrer = text(row.referrer);
   if (!referrer) return 'Direct';
@@ -140,6 +140,7 @@ function explicitEngaged(row, pageViews = 0) {
 /** Shared public-traffic summary. `complete` describes query coverage, not data invention. */
 export function buildTrafficReport(options = {}) {
   const { start = null, end = null, tracking = {}, complete = true, limit = 8 } = options;
+  const classificationStart = options.visitorCohortStart ?? start;
   const { sessions, events } = prepare(options);
   const identified = sessions.filter(row => text(row.visitorId));
   const visitorActivity = visitorObservations(sessions, events);
@@ -154,10 +155,10 @@ export function buildTrafficReport(options = {}) {
   for (const group of visitorGroups.values()) {
     const firstSeen = group.map(row => reportTimestampMs(row.visitorFirstSeenAt)).filter(value => value !== null);
     const flags = group.map(row => row.isReturningVisitor).filter(value => typeof value === 'boolean');
-    if (start != null && firstSeen.length) {
+    if (classificationStart != null && firstSeen.length) {
       const first = Math.min(...firstSeen);
       if (end != null && first > end) unclassifiedVisitors += 1;
-      else if (first < start) returningVisitors += 1; else newVisitors += 1;
+      else if (first < classificationStart) returningVisitors += 1; else newVisitors += 1;
     } else if (flags.includes(false)) newVisitors += 1;
     else if (flags.length) returningVisitors += 1;
     else unclassifiedVisitors += 1;
@@ -301,7 +302,7 @@ export function buildPlacesReport(options = {}) {
   return {
     metrics: {
       profileVisits: discoveryAvailable ? uniqueEventsBy(visits, 'sessionId') : null,
-      messageLeads: messagesAvailable ? uniqueEventsBy(leads, 'threadId') : null,
+      messageLeads: messagesAvailable ? new Set(leads.map((row, index) => text(row.threadId || row.eventId || row.id || row.sessionId) || eventIdentity(row, index))).size : null,
       orders: attributionAvailable && orderDatesAvailable ? orderIds.length : null,
       bookings: attributionAvailable && bookingDatesAvailable ? bookingIds.length : null,
       paidRevenueCents: revenueAvailable ? [...revenueByCurrency.values()].reduce((sum, value) => sum + value, 0) : null,

@@ -75,3 +75,45 @@ test('preview checkout does not process payment return parameters', () => {
   assert.equal(run(), undefined);
   assert.equal(returnReads, 0, 'Studio previews must not confirm real payments');
 });
+
+test('checkout analytics excludes owner visits and previews while customer checkout still records activity', () => {
+  const source = parse('src/features/storefront/components/PublicCartCheckout.jsx');
+  const enabled = find(source, (node) => ts.isVariableDeclaration(node) && node.name.getText(source) === 'analyticsEnabled')[0];
+  const canTrack = new Function('publicMode', 'lockedPreview', 'user', 'workspace',
+    `return (${enabled.initializer.getText(source)});`);
+  const workspace = { ownerId: 'business-owner', slug: 'test-shop' };
+  assert.equal(canTrack(true, false, { uid: 'business-owner' }, workspace), false);
+  assert.equal(canTrack(true, true, { uid: 'customer' }, workspace), false);
+  assert.equal(canTrack(false, false, { uid: 'customer' }, workspace), false);
+  assert.equal(canTrack(true, false, null, workspace), true);
+  assert.equal(canTrack(true, false, { uid: 'customer' }, workspace), true);
+
+  const effect = find(source, (node) => ts.isCallExpression(node) && node.expression.getText(source) === 'useEffect' &&
+    node.arguments[0]?.getText(source).includes("trackAnalyticsEvent('begin_checkout'"))[0];
+  const tracked = [];
+  const synced = [];
+  const run = (analyticsEnabled) => new Function('analyticsEnabled', 'step', 'workspace', 'cart', 'trackAnalyticsEvent', 'upsertAnalyticsCart',
+    `return (${effect.arguments[0].getText(source)});`)(analyticsEnabled, 'details', workspace,
+    { subtotalCents: 1000, items: [{ productId: 'p1', quantity: 1 }] }, (...args) => tracked.push(args), (...args) => synced.push(args))();
+  run(false);
+  assert.equal(tracked.length, 0);
+  assert.equal(synced.length, 0);
+  run(true);
+  assert.equal(tracked.length, 1);
+  assert.equal(tracked[0][0], 'begin_checkout');
+  assert.equal(synced[0][1].status, 'checkout');
+
+  const attributionCalls = find(source, (node) => ts.isCallExpression(node) && node.expression.getText(source) === 'getAnalyticsAttribution');
+  assert.equal(attributionCalls.length, 2, 'Both product and booking submissions obtain optional attribution');
+  for (const call of attributionCalls) {
+    const condition = call.parent.parent;
+    assert.ok(ts.isConditionalExpression(condition));
+    assert.equal(condition.condition.getText(source), 'analyticsEnabled', 'Owner submissions must also skip attribution session writes');
+    assert.equal(condition.whenFalse.getText(source), '{}');
+  }
+  const purchase = find(source, (node) => ts.isCallExpression(node) && node.expression.getText(source) === 'trackAnalyticsEvent' &&
+    node.arguments[0].getText(source) === "'purchase'")[0];
+  const guards = [];
+  for (let parent = purchase.parent; parent; parent = parent.parent) if (ts.isIfStatement(parent)) guards.push(parent.expression.getText(source));
+  assert.ok(guards.includes('analyticsEnabled && ownerId && slug'), 'Conversion events must use the same analytics policy as checkout starts');
+});

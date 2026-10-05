@@ -208,3 +208,20 @@ The production build continues to report existing bundle-size and ineffective
 dynamic-import warnings. Browser review covers the rendered demo/local flows;
 live authentication, uploads and financial transactions require their normal
 integration checks.
+# Reports redesign — 5 October 2026
+
+Reports uses eight categorized rows with 32 linked totals: audience, products, services, carts and checkout, overall discovery outcomes, Places, Find products and Find services. Each statistic has a direct route, period total, definition, trend chart and history table. Period selection and custom dates persist in the URL and when returning to Reports. Mobile rows use two columns with the existing page gutters.
+
+Quick totals show product/service page views, the subset of views from discovery, and item cart additions. Visible discovery appearances are separate from page views and website visitors, and Places/Find Book/Find Buy event metadata follows recorded entry activity. Overall discovery outcomes retain historical generic attribution; channel splits use classified events and actual order/booking records. Payment and revenue remain in Finance. Abandonment is a current cart snapshot after 30 minutes of inactivity, explicitly described in the detail view.
+
+Places, Find products and Find services reach deduplicate visible listing impressions by tracked visitor identity across repeat anonymous visits and matching listings. Profile views from Places count actual profile page openings following recorded Places acquisition, rather than clicks alone. The report definitions explain the use of anonymous browser identities. Older Find appearances links resolve to the Reach reports.
+
+Every category has a short introduction describing its scope. All 32 totals have a separate question-mark button that opens a compact explanation dialog, with an optional link to the trend and history. The popup fits narrow phones, traps keyboard focus, closes with Escape or the backdrop, restores its opener and respects reduced motion.
+
+Browser checks cover 320px and 390px mobile overview/detail layouts, product breakdown tables, period switching and custom dates, plus desktop category rows. Aggregation checks cover retries, bots, missing historical measurements, actual discovery outcomes and additive/distinct history semantics.
+
+Owner and preview checkout activity is excluded from customer analytics, including attribution session writes. Two local Firestore emulator checks pass against the actual rules for discovery/commerce metadata, create-only event retries, session/cart ownership and the owner-scoped range queries used by Reports. Existing production rules and indexes support the changes.
+
+History calculates only the selected statistic and shares indexed discovery attribution across its intervals. All 32 statistics match full-dashboard calculations in monthly/all-time parity tests; each new history call rebuilds its index to avoid stale observations. A bounded 1,000-session/1,000-event benchmark with 300 orders and 200 bookings reduced representative monthly histories to 12–35ms and all-time histories to 17–135ms on the local machine.
+
+Final Reports release suite: 283 passed, zero failed; eight emulator checks were skipped in the default run. The two new analytics-rule checks also passed separately against the local Firestore emulator. TypeScript and health checks passed. Live authentication and real customer checkout were not submitted during browser review.

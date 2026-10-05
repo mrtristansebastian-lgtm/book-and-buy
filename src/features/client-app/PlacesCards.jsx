@@ -1,9 +1,12 @@
 import { ChevronRight, Navigation } from 'lucide-react';
+import { useRef } from 'react';
 import { navigate, publicPagePath } from '../../app/routing';
 import { formatDistanceKm } from '../../shared/geo/haversine';
 import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { getBusinessProfileMeta } from './exploreDiscovery';
 import { reportDiscoveryVisit } from '../../shared/analytics/beacon';
+import { useDiscoveryImpressions } from '../../shared/analytics/useDiscoveryImpressions';
+import { useAuth } from '../auth/AuthContext';
 
 function Picture({ src, variant }) {
   return src ? <img src={src} alt="" onError={(event) => { event.currentTarget.style.display = 'none'; }} /> : <BlankMedia variant={variant} />;
@@ -41,11 +44,15 @@ function Identity({ biz, showFullAddress = false, showLocation = true, showDista
 
 /** Places is an entry point to the same profile the business edits in E-Business. */
 export function PlacesCards({ businesses, analyticsEnabled = false }) {
+  const { user } = useAuth();
+  const listRef = useRef(null);
+  useDiscoveryImpressions(listRef, { enabled: analyticsEnabled, surface: 'places', excludeOwnerId: user?.uid }, businesses);
   return (
-    <div className="bb-places-list">
+    <div ref={listRef} className="bb-places-list">
       {businesses.map((item) => <article className="bb-places-row" key={item.slug}>
-        <button type="button" className="bb-places-open" onClick={() => {
-          if (analyticsEnabled) reportDiscoveryVisit({ ownerId: item.ownerId, slug: item.slug });
+        <button type="button" className="bb-places-open" data-discovery-target="business"
+          data-discovery-owner-id={item.ownerId} data-discovery-slug={item.slug} onClick={() => {
+          if (analyticsEnabled && user?.uid !== item.ownerId) reportDiscoveryVisit({ ownerId: item.ownerId, slug: item.slug });
           navigate(publicPagePath(item.slug, 'home'));
         }} aria-label={`View ${item.brandName} business profile`}>
           <span className="bb-places-row-art"><Picture src={item.heroImageUrl} variant="banner" /><span className="bb-places-avatar"><Picture src={item.logoUrl} variant="avatar" /></span></span>

@@ -16,7 +16,9 @@ export function PublicOfferCard({
   const category = getCatalogCategory(item, kind === 'book' ? 'Service' : 'Product');
   return (
     <article className={`bb-offer-card is-${kind}${className ? ` ${className}` : ''}`}>
-      <button type="button" className="bb-offer-card-surface" onClick={onOpen} aria-label={`View ${item.name}`}>
+      <button type="button" className="bb-offer-card-surface" onClick={onOpen} aria-label={`View ${item.name}`}
+        data-analytics-item-id={item.id} data-analytics-item-name={item.name}
+        data-analytics-item-kind={kind === 'book' ? 'service' : 'product'}>
         <div className="bb-offer-card-media">
           {image ? <img src={image} alt="" loading="lazy" /> : <BlankMedia variant="square" />}
           {availability ? <span className="bb-offer-card-availability">{availability}</span> : null}
