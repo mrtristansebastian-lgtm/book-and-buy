@@ -547,14 +547,13 @@
   overflow: hidden;
 }
 
-/* More page space and a coast-to-coast fit; enlarge the frame, not a cropped zoom. */
+/* Keep the original coast-to-coast projection in the page's own generous frame. */
 .bb-live-world-map:has(> .bb-live-world-stage:not(.bb-live-country-stage)) { overflow: visible; }
 .bb-live-world-stage:not(.bb-live-country-stage) { margin-top: 20px; }
 @media (min-width: 1000px) {
   .bb-live-world-stage:not(.bb-live-country-stage) {
-    --bb-world-frame-width: max(100%, min(1600px, calc(100vw - 112px)));
-    width: var(--bb-world-frame-width);
-    margin-inline: calc((100% - var(--bb-world-frame-width)) / 2);
+    width: 100%;
+    margin-inline: 0;
   }
 }
 
@@ -566,6 +565,16 @@
   margin: 0;
   transform-origin: center center;
   will-change: transform;
+}
+
+.bb-flat-world-map > .bb-live-world-stage { margin-top: 8px; padding-bottom: 58px; }
+.bb-flat-world-map .bb-live-world-controls { display: flex; top: auto; bottom: 8px; left: 0; gap: 6px; }
+.bb-flat-world-map .bb-live-world-controls button { width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 10px; box-shadow: 0 2px 6px #10182806; }
+.bb-flat-world-map .bb-live-world-canvas { aspect-ratio: 924 / 416; }
+@media (max-width: 640px) {
+  .bb-flat-world-map > .bb-live-world-stage:not(.bb-live-country-stage) { width: calc(100% + 24px); margin-inline: -12px; padding-bottom: 64px; }
+  .bb-flat-world-map .bb-live-world-controls { left: 12px; }
+  .bb-flat-world-map .bb-live-world-controls button { width: 44px; height: 44px; }
 }
 
 .bb-live-world-stage.is-zoomed { cursor: grab; touch-action: none; }
