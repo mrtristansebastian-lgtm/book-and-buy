@@ -36,8 +36,7 @@ export function filterByPeriod(rows, periodId, customRange, timeKey = 'at') {
 }
 
 export function computeLiveStrip({ sessions = [], carts = [], now = Date.now() } = {}) {
-  const liveCutoff = now - LIVE_WINDOW_MS;
-  const liveSessions = sessions.filter((s) => liveActivityMs(s) >= liveCutoff && !s.isBot);
+  const liveSessions = liveSessionRows(sessions, now);
   const activeCarts = carts.filter(
     (c) =>
       (c.status === 'active' || c.status === 'checkout') &&
@@ -56,17 +55,26 @@ export function computeLiveStrip({ sessions = [], carts = [], now = Date.now() }
 /** Current, non-bot sessions for the Live Stats operations view. */
 export function liveSessionRows(sessions = [], now = Date.now()) {
   const liveCutoff = now - LIVE_WINDOW_MS;
+  const seen = new Set();
   return (sessions || [])
     .filter((session) => liveActivityMs(session) >= liveCutoff && !session.isBot)
     .sort((a, b) => liveActivityMs(b) - liveActivityMs(a))
+    .filter((session, index) => {
+      const key = session.visitorId ? `visitor:${session.visitorId}` : `session:${session.sessionId || session.id || index}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .map((session, index) => {
-      const latitude = Number(session.latitude);
-      const longitude = Number(session.longitude);
+      const latitude = session.latitude;
+      const longitude = session.longitude;
       const hasCoordinates = validGeoCoordinates(latitude, longitude);
       return {
         id:
           session.sessionId ||
+          session.id ||
           `${String(session.path || '/')}-${liveActivityMs(session)}-${index}`,
+        visitorId: typeof session.visitorId === 'string' ? session.visitorId : '',
         path: String(session.path || '/'),
         city: String(session.city || '').trim(),
         region: String(session.region || '').trim(),

@@ -282,7 +282,8 @@ export function OverviewPage() {
           error={livePresence.error}
           usingDemo={livePresence.usingDemo}
           variant="home"
-          onOpenLiveStats={() => navigate('/dashboard/live-stats')}
+          capped={livePresence.capped}
+          onOpenLiveStats={() => navigate(`${workspace.isDemo ? '/demo' : '/dashboard'}/live-stats`)}
         />
       </div>
     </div>

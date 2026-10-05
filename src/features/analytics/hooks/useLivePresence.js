@@ -114,7 +114,7 @@ export function useLivePresence({ enabled = true } = {}) {
     activityNow,
     liveSessions,
     liveCount: liveSessions.length,
-    liveCountLabel: capped ? `${MAX_LIVE_SESSION_DOCS}+` : String(liveSessions.length),
+    liveCountLabel: capped ? `${liveSessions.length}+` : String(liveSessions.length),
     capped
   };
 }

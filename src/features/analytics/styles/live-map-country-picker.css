@@ -1,0 +1,17 @@
+.bb-live-map-country-picker{position:relative;min-width:0;width:220px;max-width:100%;z-index:12}
+.bb-live-map-country-trigger{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;background:#fff;border:1px solid #e5e9ed;border-radius:12px;padding:8px 12px;color:#172031;text-align:left;font:inherit;cursor:pointer}
+.bb-live-map-country-trigger>span:not(.bb-live-country-flag){display:grid;flex:1;min-width:0;gap:2px}
+.bb-live-map-country-trigger small{font-size:10px;color:#758091;font-weight:500;line-height:1.2}
+.bb-live-map-country-trigger strong{font-size:12px;font-weight:650;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bb-live-map-country-trigger .bb-live-country-flag,.bb-live-map-country-options .bb-live-country-flag{width:23px;height:17px;flex:0 0 23px;border:0;border-radius:0;background:none}
+.bb-live-map-country-popover{position:absolute;top:calc(100% + 8px);right:0;width:min(320px,calc(100vw - 40px));border:1px solid #e5e9ed;border-radius:14px;background:#fff;box-shadow:0 14px 45px #10182816;overflow:hidden;z-index:50}
+.bb-live-map-country-search{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid #edf0f3;color:#8b95a5}
+.bb-live-map-country-search input{min-width:0;width:100%;height:36px;min-height:36px!important;padding:0!important;background:#fff;border:0!important;box-shadow:none!important;border-radius:0!important;font:inherit;font-size:12px;color:#172031;outline-offset:3px}
+.bb-live-map-country-options{max-height:min(315px,45dvh);padding:5px;overflow-y:auto;overscroll-behavior:contain}
+.bb-live-map-country-options button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;border:0;border-radius:8px;background:#fff;padding:9px;color:#172031;text-align:left;font:inherit;font-size:12px;cursor:pointer}
+.bb-live-map-country-options button>span:not(.bb-live-country-flag){flex:1}
+.bb-live-map-country-options button.is-highlighted{background:#f3f6f8}
+.bb-live-map-country-options small{color:#778194;font-size:10px;white-space:nowrap}
+.bb-live-map-country-options p{margin:0;padding:15px 9px;color:#778194;font-size:12px;line-height:1.5}
+.bb-live-map-country-trigger:focus-visible,.bb-live-map-country-options button:focus-visible{outline:2px solid #2d4852;outline-offset:2px}
+@media(max-width:650px){.bb-live-map-country-picker{width:100%}.bb-live-map-country-popover{width:100%;left:0;right:auto}}

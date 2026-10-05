@@ -1,0 +1,19 @@
+.bb-live-globe { min-width: 0; }
+.bb-live-globe-stage { position: relative; width: 100%; height: clamp(350px, 46vw, 560px); overflow: hidden; background: radial-gradient(ellipse at 50% 43%, #f6f8fa 0%, #eef2f5 66%, #e9eff3 100%); cursor: grab; touch-action: none; isolation: isolate; }
+.bb-live-globe-stage::after { content: ''; position: absolute; left: 29%; right: 29%; bottom: 5%; height: 5%; border-radius: 50%; background: #43596a; opacity: .08; filter: blur(13px); z-index: -1; }
+.bb-live-globe-stage.is-dragging, .bb-live-globe.is-dragging .bb-live-globe-stage { cursor: grabbing; touch-action: none; }
+.bb-live-globe-canvas { display: block; width: 100%; height: 100%; }
+.bb-live-globe-stage:focus-visible { outline: 2px solid #998663; outline-offset: -4px; }
+.bb-live-globe-controls { position: absolute; top: 18px; right: 18px; display: grid; gap: 5px; z-index: 3; }
+.bb-live-globe-controls button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #dce2e6; border-radius: 9px; background: rgba(255,255,255,.94); color: #3c4650; cursor: pointer; box-shadow: 0 2px 5px #17263505; }
+.bb-live-globe-controls button:disabled { color: #aeb6bd; cursor: default; }
+.bb-live-globe-controls button:focus-visible, .bb-live-globe-pin:focus-visible { outline: 2px solid #907446; outline-offset: 3px; }
+.bb-live-globe-pin { position: absolute; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; transform: translate(-50%,-50%); cursor: pointer; z-index: 2; }
+.bb-live-globe-pin span { display: grid; place-items: center; min-width: 14px; height: 14px; padding: 0 3px; border-radius: 20px; background: #7b5832; border: 2px solid #fff9ef; box-shadow: 0 0 0 5px #ae875337, 0 2px 9px #58412e24; color: #fff; font-size: 9px; font-weight: 700; line-height: 1; }
+.bb-live-globe-pin span:not(:empty) { height: 23px; min-width: 23px; font-size: 11px; }
+.bb-live-globe-callout { position: absolute; left: 16px; bottom: 16px; max-width: calc(100% - 32px); display: grid; gap: 3px; padding: 13px 16px; border: 1px solid #dce2e6; border-radius: 12px; background: rgba(255,255,255,.96); box-shadow: 0 5px 18px #24394b0a; color: #263b4a; pointer-events: none; }
+.bb-live-globe-callout strong { font-size: 13px; }.bb-live-globe-callout span { color: #6b7781; font-size: 12px; }.bb-live-globe-callout small { color: #967445; font-size: 11px; }
+.bb-live-globe-unavailable { position: absolute; left: 15%; right: 15%; top: 43%; text-align: center; color: #6b7781; font-size: 13px; line-height: 1.6; }
+.bb-live-globe-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 18px; color: #7c8790; font-size: 11px; border-top: 1px solid #e8edf0; }
+.bb-live-globe-legend { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }.bb-live-globe-legend span { display: flex; align-items: center; gap: 6px; }.bb-live-globe-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }.bb-live-globe-legend .is-market { background: #c0cfc7; }.bb-live-globe-legend .is-active { background: #aa814e; }
+@media (max-width: 600px) { .bb-live-globe-stage { height: 350px; }.bb-live-globe-controls { top: 12px; right: 12px; }.bb-live-globe-controls button { width: 44px; height: 44px; }.bb-live-globe-footer { align-items: flex-start; flex-direction: column; gap: 8px; padding: 12px 14px; }.bb-live-globe-legend { gap: 13px; } }

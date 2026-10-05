@@ -34,7 +34,7 @@ export function AnalyticsActiveCarts({
           <ShoppingBag size={18} aria-hidden="true" />
           <div>
             <p>No active carts right now</p>
-            <span>Carts touched in the last 30 minutes will appear here.</span>
+            <span>Carts used in the past 10 minutes will appear here.</span>
           </div>
         </div>
       ) : (

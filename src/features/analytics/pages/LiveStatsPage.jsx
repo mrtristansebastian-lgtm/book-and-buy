@@ -60,11 +60,13 @@ export function LiveStatsPage() {
         error={data.error}
         usingDemo={data.usingDemo}
         variant="live"
+        capped={data.liveCapped}
       />
 
       <div className="bb-live-desk">
         <AnalyticsLiveVisitors
           sessions={data.liveSessions}
+          totalLabel={data.liveCountLabel}
           total={data.live?.liveVisitors || 0}
           now={data.activityNow}
         />

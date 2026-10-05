@@ -325,7 +325,7 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     activityNow,
     live,
     liveSessions,
-    liveCountLabel: liveMode ? presence.liveCountLabel : String(live.liveVisitors || 0),
+    liveCountLabel: liveMode && presence.capped ? `${live.liveVisitors}+` : String(live.liveVisitors || 0),
     liveCapped: liveMode ? presence.capped : false,
     traffic,
     discovery,
