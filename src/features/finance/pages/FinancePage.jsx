@@ -1,19 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { RevenuePulseHeader } from '../components/RevenuePulseHeader';
-import { RevenueMetricCards } from '../components/RevenueMetricCards';
-import { RevenueChart } from '../components/RevenueChart';
 import { FinanceLedgerToolbar } from '../components/FinanceLedgerToolbar';
 import { TransactionReceiptCard } from '../components/TransactionReceiptCard';
-import { navigate } from '../../../app/routing';
+import { getLocationPath, navigate, workspacePagePath } from '../../../app/routing';
 import {
   buildFinanceLedger,
+  FINANCE_PERIODS,
   filterLedgerByPeriod,
   filterLedgerRows,
   ledgerToCsv
 } from '../utils/financeLedger';
-import { FINANCE_METRICS, buildFinanceMetricView } from '../utils/financeMetrics';
-import { MetricPicker } from '../../../shared/ui/MetricPicker';
+
+const currentQuery = () => new URLSearchParams(getLocationPath().split('?')[1] || '');
+const queryPeriod = (params) => FINANCE_PERIODS.some((period) => period.id === params.get('period')) ? params.get('period') : 'all';
+const queryTab = (params) => params.get('tab') === 'orders' ? 'orders' : 'bookings';
 
 export function FinancePage() {
   const {
@@ -25,14 +26,43 @@ export function FinancePage() {
     markOrderPaid
   } = useWorkspace();
 
-  const [periodId, setPeriodId] = useState('all');
-  const [customRange, setCustomRange] = useState({ from: '', to: '' });
+  const [periodId, setPeriodId] = useState(() => queryPeriod(currentQuery()));
+  const [customRange, setCustomRange] = useState(() => ({ from: currentQuery().get('from') || '', to: currentQuery().get('to') || '' }));
   const currency = workspace.currency || 'R';
-  const [tab, setTab] = useState('bookings');
+  const [tab, setTab] = useState(() => queryTab(currentQuery()));
   const [status, setStatus] = useState('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState('newest');
-  const [metricId, setMetricId] = useState('revenue');
+  const [paymentBusy, setPaymentBusy] = useState({});
+  const [paymentErrors, setPaymentErrors] = useState({});
+  const paymentInFlight = useRef(new Set());
+  const routeQuery = getLocationPath().split('?')[1] || '';
+  useEffect(() => {
+    const params = new URLSearchParams(routeQuery);
+    setPeriodId(queryPeriod(params));
+    setTab(queryTab(params));
+    setCustomRange({ from: params.get('from') || '', to: params.get('to') || '' });
+  }, [routeQuery]);
+
+  const updatePermalink = (selectedPeriod, range, selectedTab = tab) => {
+    const params = new URLSearchParams({ period: selectedPeriod, tab: selectedTab,
+      ...(selectedPeriod === 'custom' ? range : {}) });
+    navigate(`${workspacePagePath('finance')}?${params}`, { replace: true });
+  };
+
+  const selectPeriod = (selected) => {
+    setPeriodId(selected);
+    if (selected !== 'custom') updatePermalink(selected, customRange);
+  };
+  const selectCustomRange = (range) => {
+    setCustomRange(range);
+    setPeriodId('custom');
+    updatePermalink('custom', range);
+  };
+  const selectTab = (selected) => {
+    setTab(selected);
+    updatePermalink(periodId, customRange, selected);
+  };
 
   const ledger = useMemo(
     () =>
@@ -51,11 +81,6 @@ export function FinancePage() {
     [ledger, periodId, customRange]
   );
 
-  const metricView = useMemo(
-    () => buildFinanceMetricView({ ledger, metricId, periodId, customRange, currency }),
-    [ledger, metricId, periodId, customRange, currency]
-  );
-
   const visibleRows = useMemo(() => {
     const source = tab === 'orders' ? 'order' : 'booking';
     const base = periodLedger.filter((row) => row.source === source);
@@ -72,54 +97,57 @@ export function FinancePage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `finance-${tab}-${Date.now()}.csv`;
+    anchor.download = `receipts-invoices-${tab}-${Date.now()}.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
   };
 
-  const handleMarkPaid = (row) => {
-    if (row.source === 'booking') markPaid?.(row.sourceId);
-    else markOrderPaid?.(row.sourceId);
+  const handleMarkPaid = async (row) => {
+    if (row.canMarkPaid !== true || paymentInFlight.current.has(row.id)) return;
+    paymentInFlight.current.add(row.id);
+    setPaymentBusy((previous) => ({ ...previous, [row.id]: true }));
+    setPaymentErrors((previous) => ({ ...previous, [row.id]: '' }));
+    try {
+      const handler = row.source === 'booking' ? markPaid : markOrderPaid;
+      if (typeof handler !== 'function') throw new Error('Payment confirmation is unavailable. Please try again.');
+      const result = await handler(row.sourceId);
+      if (result === null) throw new Error('Payment could not be confirmed. Please try again.');
+    } catch (error) {
+      setPaymentErrors((previous) => ({ ...previous, [row.id]: error?.message || 'Payment could not be confirmed. Please try again.' }));
+    } finally {
+      paymentInFlight.current.delete(row.id);
+      setPaymentBusy((previous) => ({ ...previous, [row.id]: false }));
+    }
   };
 
   return (
     <div className="bb-finance">
       <RevenuePulseHeader
         periodId={periodId}
-        onPeriodChange={setPeriodId}
+        onPeriodChange={selectPeriod}
         customRange={customRange}
-        onCustomRangeChange={setCustomRange}
+        onCustomRangeChange={selectCustomRange}
       />
-
-      <div className="bb-finance-stat-selector">
-        <span className="bb-field-label">Statistic</span>
-        <MetricPicker value={metricId} options={FINANCE_METRICS} onChange={setMetricId} ariaLabel="Choose finance statistic" />
-      </div>
-
-      <section className="bb-finance-pulse">
-        <RevenueMetricCards metricView={metricView} currency={currency} />
-        <RevenueChart series={metricView.series} currency={currency} metric={metricView.metric} unavailableReason={metricView.unavailableReason} />
-      </section>
 
       <section className="bb-finance-ledger">
         <FinanceLedgerToolbar
           tab={tab}
-          onTabChange={setTab}
+          onTabChange={selectTab}
           status={status}
           onStatusChange={setStatus}
           query={query}
           onQueryChange={setQuery}
           sort={sort}
           onSortChange={setSort}
-          onOpenSettings={() => navigate('/dashboard/settings/payments')}
+          onOpenSettings={() => navigate(`${workspace.isDemo ? '/demo' : '/dashboard'}/settings/payments`)}
           onDownload={downloadCsv}
         />
 
         {visibleRows.length === 0 ? (
           <div className="bb-finance-empty">
             {tab === 'orders'
-              ? 'No order receipts match these filters.'
-              : 'No booking receipts match these filters.'}
+              ? 'No order receipts or invoices match these filters.'
+              : 'No booking receipts or invoices match these filters.'}
           </div>
         ) : (
           <div className="bb-finance-receipts">
@@ -131,6 +159,8 @@ export function FinancePage() {
                 mode={tab}
                 brandName={workspace.brandName}
                 onMarkPaid={handleMarkPaid}
+                markingPaid={Boolean(paymentBusy[row.id])}
+                paymentError={paymentErrors[row.id] || ''}
               />
             ))}
           </div>

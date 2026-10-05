@@ -25,10 +25,10 @@ export function RevenuePulseHeader({
             <PageBackButton />
             <span className="bb-page-title-main">
               <div className="bb-page-header-glow" aria-hidden="true" />
-              <h1 className="bb-page-title bb-finance-title">Finance</h1>
+              <h1 className="bb-page-title bb-finance-title">Receipts &amp; invoices</h1>
             </span>
           </div>
-          <p className="bb-muted m-0 text-sm">{periodTitle(periodId, customRange)} · Revenue and payment records</p>
+          <p className="bb-muted m-0 text-sm">{periodTitle(periodId, customRange)} · Paid receipts and invoices waiting for payment</p>
         </div>
 
         <div className="bb-finance-header-controls">

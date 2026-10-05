@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowUpRight, CircleHelp, Users, ShoppingBag, CalendarDays, ShoppingCart, Compass, MapPin, Search } from 'lucide-react';
+import { CircleHelp, Users, ShoppingBag, CalendarDays, ShoppingCart, Compass, MapPin, Search } from 'lucide-react';
 import { useAnalyticsLive } from '../hooks/useAnalyticsLive';
 import { AnalyticsHeader } from '../components/AnalyticsHeader';
 import { AnalyticsSalesChart } from '../components/AnalyticsSalesChart';
@@ -9,53 +9,13 @@ import { AnalyticsStatHelp } from '../components/AnalyticsStatHelp';
 import { REPORT_GROUPS, getReportStatistic, buildReportHistory } from '../utils/reportCatalog';
 import { ANALYTICS_PERIODS } from '../utils/analyticsMetrics';
 import { buildCommerceReport } from '../utils/commerceReports';
-import { Button } from '../../../shared/ui/Button';
+import { ReportCategory } from '../components/ReportCategory';
+import { ReportHistory, intervalLabel } from '../components/ReportHistory';
 import { getLocationPath, navigate } from '../../../app/routing';
 
 const icons = { audience: Users, products: ShoppingBag, services: CalendarDays, checkout: ShoppingCart, discovery: Compass, places: MapPin, buy: Search, book: Search };
 const count = value => value == null ? '—' : Number(value).toLocaleString();
 const currentQuery = () => new URLSearchParams(getLocationPath().split('?')[1] || '');
-const intervalLabel = unit => ({ hour: 'Hourly', day: 'Daily', week: 'Weekly', month: 'Monthly', year: 'Yearly' })[unit];
-const intervalDate = unit => unit === 'hour' ? { month: 'short', day: 'numeric', hour: 'numeric' } : unit === 'year' ? { year: 'numeric' } : unit === 'month' ? { month: 'long', year: 'numeric' } : { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-
-function ReportCategory({ group, stats, hrefFor, onExplain }) {
-  const Icon = icons[group.id];
-  return <section className="bb-report-category" aria-labelledby={`report-${group.id}`}>
-    <header className="bb-report-category-head">
-      <span className="bb-report-category-icon" aria-hidden="true"><Icon size={18} strokeWidth={1.8} /></span>
-      <div><h2 id={`report-${group.id}`}>{group.title}</h2><p>{group.description}</p></div>
-    </header>
-    <div className="bb-report-metric-row" style={{ '--report-columns': group.metrics.length }}>
-      {group.metrics.map(metric => <div className="bb-report-metric-cell" key={metric.id}>
-        <a className="bb-report-metric-link" href={hrefFor(metric.id)} aria-label={`${metric.label}: ${count(stats[metric.id]?.value)}. View ${group.title.toLowerCase()} report`}>
-        <span className="bb-report-metric-label">{metric.label}</span>
-        <span className="bb-report-metric-value">{count(stats[metric.id]?.value)}</span>
-        <ArrowUpRight className="bb-report-metric-arrow" size={14} aria-hidden="true" />
-        </a>
-        <button type="button" className="bb-report-help-trigger" aria-label={`About ${group.title.toLowerCase()}: ${metric.label}`} aria-haspopup="dialog" onClick={() => onExplain(metric.id)}><CircleHelp size={14} strokeWidth={1.7} aria-hidden="true" /></button>
-      </div>)}
-    </div>
-  </section>;
-}
-
-function ReportHistory({ metric, history, total }) {
-  const [limit, setLimit] = useState(15);
-  useEffect(() => setLimit(15), [metric.id, history.series.length, history.series[0]?.at]);
-  const rows = [...history.series].reverse();
-  const peak = Math.max(1, ...rows.map(row => row.raw));
-  return <section className="bb-report-history" aria-label={`${metric.label} history`}>
-    <header className="bb-report-detail-section-head"><div><h2>Activity history</h2><p>{intervalLabel(history.unit)} totals · most recent first</p></div><span>{rows.length} {history.unit}s</span></header>
-    <table className="bb-report-history-table">
-      <thead><tr><th scope="col">Period</th><th scope="col">{metric.label}</th></tr></thead>
-      <tbody>{rows.length ? rows.slice(0, limit).map(row => <tr key={row.at}><th scope="row">{new Date(row.at).toLocaleString(undefined, intervalDate(history.unit))}{history.unit === 'week' ? <small>through {new Date(row.end).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</small> : null}</th><td><span className="bb-report-history-bar" aria-hidden="true" style={{ '--activity-width': `${row.raw / peak * 100}%` }} /><span>{count(row.raw)}</span></td></tr>) : <tr><td colSpan={2}>No recorded history for the selected period.</td></tr>}</tbody>
-      <tfoot><tr><th scope="row">Selected period</th><td>{count(total)}</td></tr></tfoot>
-    </table>
-    {rows.length > limit ? <Button action="view" variant="secondary" onClick={() => setLimit(value => value + 30)}>Show more history</Button> : null}
-    {metric.distinct ? <p className="bb-reports-note">Each row counts visitors or conversations once for that time. They can appear in more than one row, so adding the rows may give a higher number than the period total.</p> : null}
-    {metric.snapshot ? <p className="bb-reports-note">Carts appear under their latest activity date. If a customer comes back, the cart's status and its place in this history can change.</p> : null}
-  </section>;
-}
-
 export function AnalyticsPage({ routeRest = [] }) {
   const [helpId, setHelpId] = useState(null);
   const [periodId, setPeriodId] = useState(() => ANALYTICS_PERIODS.some(row => row.id === currentQuery().get('period')) ? currentQuery().get('period') : 'week');
@@ -96,8 +56,8 @@ export function AnalyticsPage({ routeRest = [] }) {
 
   return <div className={`bb-analytics bb-reports bb-report-workspace${metric ? ' is-detail' : ''}`}>
     <AnalyticsHeader periodId={periodId} onPeriodChange={selectPeriod} customRange={customRange} onCustomRangeChange={selectCustomRange} usingDemo={data.usingDemo}
-      headline={metric?.label || 'Reports'} description={metric ? metric.groupTitle : 'A clear picture of your business activity'}
-      onBack={metric ? () => navigate(`${base}?${periodQuery}`) : undefined} backLabel={metric ? 'Back to Reports' : undefined} />
+      headline={metric?.label || 'Traffic reports'} description={metric ? metric.groupTitle : 'A clear picture of your business activity'}
+      onBack={metric ? () => navigate(`${base}?${periodQuery}`) : undefined} backLabel={metric ? 'Back to Traffic reports' : undefined} />
     {data.loading ? <p className="bb-reports-data-notice" role="status">Loading your insights…</p> : null}
     {data.error && !data.usingDemo ? <p className="bb-analytics-error" role="alert">{data.error}</p> : null}
     {!data.complete && !data.loading && !data.error ? <p className="bb-reports-data-notice">This period exceeds the latest 1,000 sessions, events or carts. Choose a shorter period for complete insights.</p> : null}
@@ -117,11 +77,11 @@ export function AnalyticsPage({ routeRest = [] }) {
         <AnalyticsRankTable title="Devices" lede="How customers browse" rows={report.traffic.devices} empty="No devices recorded yet." />
         <AnalyticsRankTable title="Locations" lede="Approximate session locations" rows={report.traffic.locations} empty="No locations recorded yet." />
       </div> : null}
-      {metric.surface || metric.discoveryKey ? <p className="bb-reports-note">These totals use visits we can link to discovery. Older visits may appear only under Discovery outcomes. Money and payment stats are in Finance.</p> : null}
+      {metric.surface || metric.discoveryKey ? <p className="bb-reports-note">These totals use visits we can link to discovery. Older visits may appear only under Discovery outcomes. Money and payment stats are in Financial reports.</p> : null}
     </> : <>
       <div className="bb-report-overview-guide"><span>Business insights</span><p>Select any total to explore its trend and history.</p><span className="bb-report-period-caption">Totals for the selected period</span></div>
-      <div className="bb-report-categories">{REPORT_GROUPS.map(group => <ReportCategory key={group.id} group={group} stats={report?.stats || {}} hrefFor={hrefFor} onExplain={setHelpId} />)}</div>
-      <p className="bb-reports-note bb-report-overview-note">“—” means we don't have that stat for these dates yet. Older discovery activity may appear only under Discovery outcomes. Money and payment stats are in <a href={base.startsWith('/demo') ? '#/demo/finance' : '#/dashboard/finance'}>Finance</a>.</p>
+      <div className="bb-report-categories">{REPORT_GROUPS.map(group => <ReportCategory key={group.id} group={group} stats={report?.stats || {}} hrefFor={hrefFor} onExplain={setHelpId} icon={icons[group.id]} />)}</div>
+      <p className="bb-reports-note bb-report-overview-note">“—” means we don't have that stat for these dates yet. Older discovery activity may appear only under Discovery outcomes. Money and payment stats are in <a href={base.startsWith('/demo') ? '#/demo/finance-reports' : '#/dashboard/finance-reports'}>Financial reports</a>.</p>
     </>}
     {helpMetric ? <AnalyticsStatHelp metric={helpMetric} available={report?.stats[helpMetric.id]?.available} href={metric ? undefined : hrefFor(helpMetric.id)} onClose={() => setHelpId(null)} /> : null}
   </div>;

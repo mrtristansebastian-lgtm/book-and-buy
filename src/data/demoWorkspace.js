@@ -208,7 +208,7 @@ export const DEMO_CLIENTS = [
 export const DEMO_THREADS_SCHEMA = 4;
 export const DEMO_ORDERS_SCHEMA = 3;
 /** Bump when demo finance ledger sample bookings/orders change. */
-export const DEMO_FINANCE_SCHEMA = 2;
+export const DEMO_FINANCE_SCHEMA = 3;
 
 export const DEMO_THREADS = [
   {
@@ -712,6 +712,13 @@ export const DEMO_PRODUCTS = normalizeProductList([
   }
 ]);
 
+// Illustrative costs saved with these sample receipts, independent of catalog edits.
+const demoProductReceiptCosts = {
+  'artisan-bread-box': 13000,
+  'fresh-pasta-starter-set': 20000,
+  'kitchen-notes': 11000
+};
+
 const sampleOrders = [
   {
     id: 'ord-1',
@@ -887,7 +894,20 @@ const sampleOrders = [
     source: 'public_shop',
     timestamp: Date.now() - 1000 * 60 * 60 * 24 * 3
   }
-];
+].map((order) => {
+  const items = order.items.map((item) => ({
+    ...item,
+    unitCostInCents: demoProductReceiptCosts[item.productId],
+    lineCostInCents: demoProductReceiptCosts[item.productId] * item.quantity
+  }));
+  return {
+    ...order,
+    items,
+    subtotalCents: items.reduce((total, item) => total + item.lineTotalCents, 0),
+    costBasisInCents: items.reduce((total, item) => total + item.lineCostInCents, 0),
+    ...(order.paymentStatus === 'paid' ? { amountPaidInCents: order.amountInCents } : {})
+  };
+});
 
 const sampleBookings = [
   {
@@ -908,6 +928,7 @@ const sampleBookings = [
     paymentStatus: 'paid',
     paymentMethod: 'stripe',
     amountInCents: 295000,
+    costBasisInCents: 120000,
     currency: 'R',
     paidAt: Date.now() - 1000 * 60 * 60 * 6,
     timestamp: Date.now() - 1000 * 60 * 60 * 48,
@@ -933,6 +954,7 @@ const sampleBookings = [
     paymentStatus: 'unpaid',
     paymentMethod: 'manual_eft',
     amountInCents: 980000,
+    costBasisInCents: 450000,
     currency: 'R',
     timestamp: Date.now() - 1000 * 60 * 60 * 8,
     staffId: 'sofia-martins',
@@ -957,6 +979,7 @@ const sampleBookings = [
     paymentStatus: 'manual_pending',
     paymentMethod: 'manual_eft',
     amountInCents: 280000,
+    costBasisInCents: 110000,
     currency: 'R',
     timestamp: Date.now() - 1000 * 60 * 60 * 20,
     staffId: 'jordan-lee',
@@ -979,6 +1002,7 @@ const sampleBookings = [
     status: 'waitlist',
     paymentStatus: 'unpaid',
     amountInCents: 1680000,
+    costBasisInCents: 720000,
     currency: 'R',
     timestamp: Date.now() - 1000 * 60 * 60 * 30,
     staffId: 'maya-patel',
@@ -1002,6 +1026,7 @@ const sampleBookings = [
     paymentStatus: 'paid',
     paymentMethod: 'paystack',
     amountInCents: 890000,
+    costBasisInCents: 400000,
     currency: 'R',
     paidAt: Date.now() - 1000 * 60 * 60 * 24 * 9,
     timestamp: Date.now() - 1000 * 60 * 60 * 24 * 10,
@@ -1026,6 +1051,7 @@ const sampleBookings = [
     paymentStatus: 'paid',
     paymentMethod: 'cash',
     amountInCents: 1550000,
+    costBasisInCents: 700000,
     currency: 'R',
     paidAt: Date.now() - 1000 * 60 * 60 * 24 * 22,
     timestamp: Date.now() - 1000 * 60 * 60 * 24 * 23,
@@ -1033,7 +1059,10 @@ const sampleBookings = [
     staffName: 'Thando Mokoena',
     source: 'public'
   }
-];
+].map((booking) => ({
+  ...booking,
+  ...(booking.paymentStatus === 'paid' ? { amountPaidInCents: booking.amountInCents } : {})
+}));
 
 export function createDemoWorkspace() {
   const workspace = {

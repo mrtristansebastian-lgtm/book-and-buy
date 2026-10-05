@@ -22,6 +22,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
         name: '',
         description: '',
         price: draft.price || '',
+        cost: '',
         minDuration: draft.minDuration || draft.duration || '60',
         available: true
       }
@@ -135,6 +136,18 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                     />
                   </label>
                 </div>
+                <label className="bb-services-field">
+                  <span>Cost per booking ({currency}, optional)</span>
+                  <input
+                    className="native-control-input bb-services-control"
+                    inputMode="decimal"
+                    value={variant.cost ?? ''}
+                    placeholder="Use the main service cost"
+                    aria-describedby={`service-variant-cost-${variant.id}`}
+                    onChange={(event) => patchVariant(variant.id, { cost: event.target.value })}
+                  />
+                  <small className="bb-services-field-hint" id={`service-variant-cost-${variant.id}`}>Private to your team. Leave blank to use the main service cost, or enter this option’s own cost.</small>
+                </label>
                 <div className="bb-services-duration-presets">
                   {DURATION_PRESETS.map((mins) => (
                     <FilterChip

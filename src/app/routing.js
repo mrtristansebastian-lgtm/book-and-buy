@@ -23,6 +23,12 @@ export function getLocationPath() {
   return window.location.pathname || '/';
 }
 
+/** Keep guest-demo navigation inside the demo workspace. */
+export function workspacePagePath(tab = 'overview') {
+  const prefix = getLocationPath().startsWith('/demo') ? '/demo' : '/dashboard';
+  return `${prefix}/${tab}`;
+}
+
 export function parseAppRoute(path = getLocationPath()) {
   const clean = path.split('?')[0].replace(/\/+$/, '') || '/';
   const parts = clean.split('/').filter(Boolean);

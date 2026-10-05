@@ -118,7 +118,7 @@ export function OverviewPage() {
           : revenue.pending.value > 0
             ? `${formatMoney(revenue.pending.value, currency)} pending`
             : `${plural(revenue.paid.receiptCount, 'payment', 'payments')}`,
-      to: 'finance',
+      to: 'finance-reports/revenue',
       featured: true
     },
     {
@@ -266,7 +266,7 @@ export function OverviewPage() {
             label={stat.label}
             aria-describedby={stat.id === 'revenue' && revenueNote ? 'bb-home-revenue-note' : undefined}
             title={stat.hint}
-            onClick={() => navigate(`/dashboard/${stat.to}`)}
+            onClick={() => navigate(`${workspace.isDemo ? '/demo' : '/dashboard'}/${stat.to}`)}
           />
         ))}
       </section>

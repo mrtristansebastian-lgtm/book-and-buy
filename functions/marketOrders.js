@@ -3,6 +3,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { shippingQuote } from './marketPolicy.js';
 import { getPublicPaymentOptions } from './payments/publicOptions.js';
 import { verifiedAnalyticsAttribution } from './analyticsAttribution.js';
+import { catalogUnitCostCents, paymentConfirmationSnapshot, clientTransactionSnapshot } from './financialSnapshots.js';
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
@@ -28,7 +29,10 @@ export function priceMarketOrder(workspace, data, auth = null) {
     if (stock != null && String(stock).trim() !== '' && (!Number.isFinite(Number(stock)) || quantity > Number(stock))) fail('There is not enough stock for your order.');
     const unitPriceCents = Math.round(Number(String(variant?.price ?? product.price ?? '').replace(/[^\d.]/g, '')) * 100);
     if (!Number.isSafeInteger(unitPriceCents) || unitPriceCents < 0) fail('The product price is invalid.');
-    return { productId: product.id, variantId: variant?.id || '', name: product.name, variantLabel: variant?.title || Object.values(variant?.optionValues || {}).join(' / '), quantity: item.quantity, unitPriceCents, lineTotalCents: item.quantity * unitPriceCents };
+    const unitCostInCents = catalogUnitCostCents(product, variant);
+    const lineCostInCents = unitCostInCents == null ? null : item.quantity * unitCostInCents;
+    return { productId: product.id, variantId: variant?.id || '', name: product.name, variantLabel: variant?.title || Object.values(variant?.optionValues || {}).join(' / '), quantity: item.quantity, unitPriceCents, lineTotalCents: item.quantity * unitPriceCents,
+      ...(Number.isSafeInteger(lineCostInCents) ? { unitCostInCents, lineCostInCents } : {}) };
   });
   const subtotalCents = items.reduce((sum, item) => sum + item.lineTotalCents, 0);
   const configured = Array.isArray(workspace.website?.markets);
@@ -36,7 +40,9 @@ export function priceMarketOrder(workspace, data, auth = null) {
   if (configured && !String(client.shippingAddress || '').trim()) fail('Enter your delivery address.');
   const amountInCents = subtotalCents + shipping.amountInCents;
   if (!Number.isSafeInteger(amountInCents)) fail('The order total is invalid.');
+  const costBasisInCents = items.every((item) => Number.isSafeInteger(item.lineCostInCents)) ? items.reduce((sum, item) => sum + item.lineCostInCents, 0) : null;
   return { requestType: 'product_order', orderType: 'product', items, subtotalCents, amountInCents,
+    ...(Number.isSafeInteger(costBasisInCents) ? { costBasisInCents } : {}),
     shippingAmountInCents: shipping.amountInCents, shippingProfileIds: shipping.profileIds,
     shippingAddress: String(client.shippingAddress || '').trim().slice(0, 1500), clientCountry: String(client.country || '').trim(),
     clientName: String(client.clientName).trim().slice(0, 120), clientEmail: String(client.clientEmail).trim().toLowerCase(),
@@ -56,7 +62,7 @@ export async function placeMarketOrder(data, auth, db = getFirestore()) {
   const fingerprint = createHash('sha256').update(JSON.stringify(data)).digest('hex');
   return db.runTransaction(async (tx) => {
     const [snap, prior] = await Promise.all([tx.get(settings), tx.get(receipt)]);
-    if (prior.exists) { if (prior.data().fingerprint !== fingerprint) fail('This request identifier was already used for a different order.'); return prior.data().order; }
+    if (prior.exists) { if (prior.data().fingerprint !== fingerprint) fail('This request identifier was already used for a different order.'); return clientTransactionSnapshot(prior.data().order); }
     if (!snap.exists) fail('Business unavailable.');
     const workspace = snap.data();
     const attribution = await verifiedAnalyticsAttribution(data, ownerId, data.slug, async (id) => {
@@ -66,7 +72,7 @@ export async function placeMarketOrder(data, auth, db = getFirestore()) {
     const order = { ...priceMarketOrder(workspace, data, auth), ...attribution, id: randomUUID(), ownerId, timestamp: Date.now(), revision: 1 };
     tx.update(settings, { orders: [order, ...(workspace.orders || [])] });
     tx.set(receipt, { fingerprint, order, createdAt: FieldValue.serverTimestamp() });
-    return order;
+    return clientTransactionSnapshot(order);
   });
 }
 
@@ -89,7 +95,7 @@ export async function updateMarketOrder(data, auth, db = getFirestore()) {
     }
     if (data.patch?.paymentStatus != null) {
       if (data.patch.paymentStatus !== 'paid' || !['cash', 'manual_eft'].includes(current.paymentMethod)) fail('Online payments must be confirmed by the payment provider.');
-      patch.paymentStatus = 'paid';
+      Object.assign(patch, paymentConfirmationSnapshot(current));
     }
     const order = { ...current, ...patch, updatedAt: Date.now(), revision: (current.revision || 0) + 1 };
     tx.update(settings, { orders: orders.map((item) => item.id === data.id ? order : item) });

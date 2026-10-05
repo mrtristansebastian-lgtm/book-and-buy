@@ -3,6 +3,7 @@ import { randomUUID, createHash } from 'node:crypto';
 import { availableRescheduleSlots, bookingError, bookingSlot, nextProposal, validateBookingSlot } from './bookingDomain.js';
 import { resolveMarket, catalogAllowed } from './marketPolicy.js';
 import { verifiedAnalyticsAttribution } from './analyticsAttribution.js';
+import { catalogUnitCostCents, paymentConfirmationSnapshot, clientTransactionSnapshot } from './financialSnapshots.js';
 
 const APP_ID = 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
@@ -38,7 +39,7 @@ export async function getRescheduleContext(data, auth, db = getFirestore()) {
     const context = await readContext(tx, db, auth, data.threadId);
     const { workspace, booking, current, role } = context;
     const day = data.dateKey || booking.dateKey || booking.date;
-    return { booking, proposal: current, timezone: workspace.timezone || 'UTC', role, slots: availableRescheduleSlots(workspace, booking, day, workspace.bookings || []), clientAllowed: workspace.availabilityRules?.reschedulingAllowed !== false };
+    return { booking: role === 'client' ? clientTransactionSnapshot(booking) : booking, proposal: current, timezone: workspace.timezone || 'UTC', role, slots: availableRescheduleSlots(workspace, booking, day, workspace.bookings || []), clientAllowed: workspace.availabilityRules?.reschedulingAllowed !== false };
   });
 }
 export async function respondToReschedule(data, auth, db = getFirestore()) {
@@ -61,7 +62,7 @@ export async function respondToReschedule(data, auth, db = getFirestore()) {
       // This shared settings document is also the transaction guard for all booking writes.
       tx.update(settingsRef, { bookings, bookingRevision: (workspace.bookingRevision || 0) + 1 });
       tx.set(db.doc(`${ownerRoot}/bookings/${booking.id}`), { ...nextBooking, ownerId: thread.ownerId, serverUpdatedAt: timestamp });
-      tx.set(db.doc(`artifacts/${APP_ID}/clientAccess/${thread.clientEmail}/bookings/${booking.id}`), { ...nextBooking, ownerId: thread.ownerId, serverUpdatedAt: timestamp });
+      tx.set(db.doc(`artifacts/${APP_ID}/clientAccess/${thread.clientEmail}/bookings/${booking.id}`), { ...clientTransactionSnapshot(nextBooking), ownerId: thread.ownerId, serverUpdatedAt: timestamp });
       tx.set(db.doc(`${ownerRoot}/notifications/reschedule-${requestId}`), { type: 'reschedule', audience: 'owner', ownerId: thread.ownerId, clientEmail: thread.clientEmail, bookingId: booking.id, body: `Booking rescheduled · ${booking.serviceName}`, read: false, createdAt: now });
       tx.set(db.doc(`artifacts/${APP_ID}/clientAccess/${thread.clientEmail}/notifications/reschedule-${requestId}`), { type: 'reschedule', audience: 'client', ownerId: thread.ownerId, clientEmail: thread.clientEmail, bookingId: booking.id, body: `New booking time · ${proposal.proposed.dateKey} ${proposal.proposed.time}`, read: false, createdAt: now });
     }
@@ -88,7 +89,7 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
     const workspace = snap.data();
     const receiptRef = publicRequest ? db.doc(`artifacts/${APP_ID}/users/${ownerId}/idempotencyKeys/booking-${data.requestId}`) : null;
     const fingerprint = publicRequest ? requestHash(data) : null;
-    if (receiptRef) { const receipt = await tx.get(receiptRef); if (receipt.exists) { if (receipt.data().fingerprint !== fingerprint) bookingError('Request ID already used.', 'already-exists'); return receipt.data().booking; } }
+    if (receiptRef) { const receipt = await tx.get(receiptRef); if (receipt.exists) { if (receipt.data().fingerprint !== fingerprint) bookingError('Request ID already used.', 'already-exists'); return clientTransactionSnapshot(receipt.data().booking); } }
     if (!publicRequest && await participant(tx, db, auth, ownerId, '') !== 'business') bookingError('Business access required.', 'permission-denied');
     const old = (workspace.bookings || []).find((b) => b.id === id);
     if (old && data.expectedRevision !== (old.revision || 0)) bookingError('This booking changed. Refresh before editing.', 'aborted');
@@ -96,6 +97,20 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
     const patch = Object.fromEntries(Object.entries(input).filter(([key, value]) => allowed.includes(key) && value !== undefined));
     const service = (workspace.services || []).find((s) => s.id === (old?.serviceId || patch.serviceId)); if (!service) bookingError('Service unavailable.');
     const booking = { ...(old || {}), ...patch, id, ownerId, serviceName: old?.serviceName || service.name, status: publicRequest ? 'pending' : patch.status || old?.status || 'pending', paymentStatus: publicRequest ? 'unpaid' : patch.paymentStatus || old?.paymentStatus || 'unpaid', revision: (old?.revision || 0) + 1, updatedAt: Date.now(), timestamp: old?.timestamp || Date.now() };
+    if (!old) {
+      const variant = booking.variantId ? (service.variants || []).find((item) => item.id === booking.variantId) : null;
+      const costBasisInCents = catalogUnitCostCents(service, variant);
+      if (costBasisInCents != null) booking.costBasisInCents = costBasisInCents;
+      // Manual bookings need a receipt price too; don't use a future catalog
+      // price as a substitute for what this booking originally cost.
+      if (!publicRequest && booking.amountInCents == null) {
+        const configuredPrice = String(variant?.price ?? service.price ?? '').trim();
+        const priceInCents = ['quote', 'free'].includes(service.priceType) ? 0 : configuredPrice ? Math.round(Number(configuredPrice.replace(/[^\d.]/g, '')) * 100) : null;
+        if (Number.isSafeInteger(priceInCents) && priceInCents >= 0) booking.amountInCents = priceInCents;
+      }
+      booking.currency = booking.currency || workspace.currency || 'R';
+    }
+    if (!publicRequest && booking.paymentStatus === 'paid') Object.assign(booking, paymentConfirmationSnapshot({ ...booking, paymentStatus: old?.paymentStatus || 'unpaid' }));
     if (publicRequest) {
       if (Array.isArray(workspace.website?.markets) && (!/^[A-Z]{2}$/.test(booking.clientCountry || '') || !catalogAllowed(resolveMarket(workspace.website, booking.clientCountry), 'service', service.id))) bookingError('This service is not available in the selected country.');
       if (service.active === false || service.available === false) bookingError('Service unavailable.');
@@ -119,8 +134,8 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
     const bookings = old ? workspace.bookings.map((b) => b.id === id ? booking : b) : [...(workspace.bookings || []), booking];
     tx.update(settingsRef, { bookings, bookingRevision: (workspace.bookingRevision || 0) + 1 });
     tx.set(db.doc(`artifacts/${APP_ID}/users/${ownerId}/bookings/${id}`), booking);
-    if (booking.clientEmail && !booking.clientEmail.includes('/')) tx.set(db.doc(`artifacts/${APP_ID}/clientAccess/${booking.clientEmail}/bookings/${id}`), booking);
+    if (booking.clientEmail && !booking.clientEmail.includes('/')) tx.set(db.doc(`artifacts/${APP_ID}/clientAccess/${booking.clientEmail}/bookings/${id}`), clientTransactionSnapshot(booking));
     if (receiptRef) tx.set(receiptRef, { fingerprint, booking, createdAt: FieldValue.serverTimestamp() });
-    return booking;
+    return publicRequest ? clientTransactionSnapshot(booking) : booking;
   });
 }

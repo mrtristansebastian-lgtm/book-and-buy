@@ -10,5 +10,7 @@ export async function verifiedAnalyticsAttribution(data, ownerId, slug, readSess
   const session = await readSession(data.analyticsSessionId);
   if (!session || session.analyticsVersion !== 2 || session.sessionId !== data.analyticsSessionId ||
       session.ownerId !== ownerId || session.slug !== slug || session.source !== data.analyticsSource) return {};
-  return { analyticsSessionId: session.sessionId, analyticsSource: session.source };
+  return { analyticsSessionId: session.sessionId, analyticsSource: session.source,
+    ...(session.source === 'places' && ['places', 'buy', 'book'].includes(session.acquisitionSurface)
+      ? { discoverySurface: session.acquisitionSurface } : {}) };
 }

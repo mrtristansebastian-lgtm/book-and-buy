@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { nextAnonymousIdentity, doNotTrackEnabled, anonymousMetadata } from '../src/shared/analytics/anonymousIdentity.js';
 import { verifiedAnalyticsAttribution } from '../functions/analyticsAttribution.js';
-import { placeMarketOrder } from '../functions/marketOrders.js';
+import { placeMarketOrder, updateMarketOrder } from '../functions/marketOrders.js';
 import { writeGuardedBooking } from '../functions/rescheduling.js';
 
 const now = 1_800_000_000_000;
@@ -68,6 +68,15 @@ test('authoritative orders/bookings accept only a matching business session and 
   await assert.rejects(verifiedAnalyticsAttribution({ ...data, analyticsSource: 'forged' }, 'business', 'shop', async () => session));
   await assert.rejects(verifiedAnalyticsAttribution({ ...data, analyticsSessionId: '../private' }, 'business', 'shop', async () => session));
   await assert.rejects(verifiedAnalyticsAttribution({ analyticsSessionId: data.analyticsSessionId }, 'business', 'shop', async () => session));
+});
+
+test('receipt channels come only from a verified session acquisition, never checkout claims or generic legacy Places', async () => {
+  const claimed = { ...data, discoverySurface: 'places', acquisitionSurface: 'places' };
+  assert.deepEqual(await verifiedAnalyticsAttribution(claimed, 'business', 'shop', async () => ({ ...session, acquisitionSurface: 'buy' })), { ...data, discoverySurface: 'buy' });
+  assert.deepEqual(await verifiedAnalyticsAttribution(claimed, 'business', 'shop', async () => session), data);
+  assert.deepEqual(await verifiedAnalyticsAttribution(claimed, 'business', 'shop', async () => ({ ...session, acquisitionSurface: 'fake' })), data);
+  const direct = { ...data, analyticsSource: 'direct' };
+  assert.deepEqual(await verifiedAnalyticsAttribution(direct, 'business', 'shop', async () => ({ ...session, source: 'direct', acquisitionSurface: 'buy' })), direct);
 });
 
 test('first-message analytics follows successful send and cannot count empty threads or retries', () => {
@@ -150,4 +159,61 @@ test('public bookings retain verified attribution across canonical copies and re
   assert.equal(booking.source, 'public');
   assert.equal(rows.get(`artifacts/book-and-buy-v1/users/business/bookings/${booking.id}`).analyticsSource, 'places');
   assert.equal(rows.get(`artifacts/book-and-buy-v1/clientAccess/client@example.test/bookings/${booking.id}`).analyticsSessionId, data.analyticsSessionId);
+});
+
+test('product cost and channel snapshots survive catalog edits and payment retries, while checkout keeps costs private', async () => {
+  const { db, rows, settingsPath } = fixtureDb({ analyticsSession: { ...session, acquisitionSurface: 'buy' } });
+  rows.get(settingsPath).products[0].cost = '5.50';
+  const input = { ...data, discoverySurface: 'places', slug: 'shop', requestId: 'financial_order', items: [{ productId: 'p', quantity: 2, unitCostInCents: 1 }],
+    client: { clientName: 'Client', clientEmail: 'client@example.test' }, paymentMethod: 'cash' };
+  const response = await placeMarketOrder(input, null, db);
+  const stored = rows.get(settingsPath).orders[0];
+  assert.equal(stored.costBasisInCents, 1100);
+  assert.equal(stored.items[0].unitCostInCents, 550);
+  assert.equal(stored.discoverySurface, 'buy');
+  assert.equal(response.costBasisInCents, undefined);
+  assert.equal(response.items[0].unitCostInCents, undefined);
+  rows.get(settingsPath).products[0].cost = '100';
+  assert.equal((await placeMarketOrder(input, null, db)).items[0].unitCostInCents, undefined);
+  const paid = await updateMarketOrder({ ownerId: 'business', id: stored.id, expectedRevision: 1, patch: { paymentStatus: 'paid' } }, { uid: 'business', token: { email_verified: true } }, db);
+  assert.ok(paid.paidAt > 0);
+  assert.equal(paid.amountPaidInCents, 6000);
+  assert.equal(paid.costBasisInCents, 1100);
+  const repeated = await updateMarketOrder({ ownerId: 'business', id: stored.id, expectedRevision: paid.revision, patch: { paymentStatus: 'paid' } }, { uid: 'business', token: { email_verified: true } }, db);
+  assert.equal(repeated.paidAt, paid.paidAt);
+});
+
+test('service costs are recorded once from the trusted variant and remain private in client copies', async () => {
+  const { db, rows, settingsPath } = fixtureDb({ analyticsSession: { ...session, acquisitionSurface: 'book' } });
+  Object.assign(rows.get(settingsPath).services[0], { cost: 12, variants: [{ id: 'v', name: 'Option', price: 70, cost: 18 }] });
+  const day = new Date(Date.now() + 4 * 86400_000).toISOString().slice(0, 10);
+  const input = { ...data, discoverySurface: 'buy', slug: 'shop', requestId: 'financial_booking', serviceId: 's', variantId: 'v', date: day,
+    dateKey: day, time: '10:00', clientName: 'Client', clientEmail: 'client@example.test', amountInCents: 1, costBasisInCents: 1 };
+  const response = await writeGuardedBooking(input, null, db, true);
+  const stored = rows.get(settingsPath).bookings[0];
+  assert.equal(stored.costBasisInCents, 1800);
+  assert.equal(stored.amountInCents, 7000);
+  assert.equal(stored.discoverySurface, 'book');
+  assert.equal(response.costBasisInCents, undefined);
+  assert.equal(rows.get(`artifacts/book-and-buy-v1/clientAccess/client@example.test/bookings/${stored.id}`).costBasisInCents, undefined);
+  rows.get(settingsPath).services[0].variants[0].cost = 99;
+  const paid = await writeGuardedBooking({ ownerId: 'business', booking: { id: stored.id, paymentStatus: 'paid' }, expectedRevision: stored.revision }, { uid: 'business', token: { email: 'owner@example.test', email_verified: true } }, db);
+  assert.equal(paid.costBasisInCents, 1800);
+  assert.equal(paid.amountPaidInCents, 7000);
+  assert.ok(paid.paidAt > 0);
+  assert.equal(rows.get(`artifacts/book-and-buy-v1/clientAccess/client@example.test/bookings/${stored.id}`).costBasisInCents, undefined);
+});
+
+test('a manual owner booking records catalog price and cost before any future catalog edits', async () => {
+  const { db, rows, settingsPath } = fixtureDb();
+  rows.get(settingsPath).services[0].cost = 12;
+  const day = new Date(Date.now() + 4 * 86400_000).toISOString().slice(0, 10);
+  const auth = { uid: 'business', token: { email: 'owner@example.test', email_verified: true } };
+  const booking = await writeGuardedBooking({ ownerId: 'business', booking: { serviceId: 's', date: day, dateKey: day, time: '10:00', clientName: 'Client', clientEmail: 'client@example.test' } }, auth, db);
+  assert.equal(booking.amountInCents, 5000);
+  assert.equal(booking.costBasisInCents, 1200);
+  assert.equal(booking.currency, 'R');
+  rows.get(settingsPath).services[0].price = 99;
+  const paid = await writeGuardedBooking({ ownerId: 'business', booking: { id: booking.id, paymentStatus: 'paid' }, expectedRevision: booking.revision }, auth, db);
+  assert.equal(paid.amountPaidInCents, 5000);
 });

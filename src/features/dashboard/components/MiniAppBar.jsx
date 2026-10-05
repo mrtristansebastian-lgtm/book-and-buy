@@ -1,4 +1,4 @@
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { workspaceTabLabels } from '../../../config/routeConfig';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 
@@ -23,7 +23,7 @@ export function MiniAppBar({ app, tab }) {
                 key={id}
                 type="button"
                 aria-pressed={tab === id}
-                onClick={() => navigate(`/dashboard/${id}`)}
+                onClick={() => navigate(workspacePagePath(id))}
               >
                 <span>{workspaceTabLabels[id]}</span>
                 {badge > 0 ? (

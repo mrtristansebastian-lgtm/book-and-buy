@@ -10,6 +10,17 @@ export const createServiceVariantId = () =>
 
 export const DURATION_PRESETS = [30, 45, 60, 90, 120];
 
+/** Blank costs stay unknown; an explicit zero is a known zero cost. */
+export const normalizeServiceCost = (value) => {
+  if (value == null || (typeof value === 'string' && !value.trim())) return '';
+  if (!['number', 'string'].includes(typeof value)) return '';
+  const amount = Number(value);
+  return Number.isFinite(amount) && amount >= 0 ? amount : '';
+};
+
+export const isValidOptionalServiceCost = (value) =>
+  value == null || (typeof value === 'string' && !value.trim()) || normalizeServiceCost(value) !== '';
+
 export const parseDurationMinutes = (value) => {
   const n = Number(String(value ?? '').replace(/[^\d.]/g, ''));
   return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
@@ -20,6 +31,7 @@ export const normalizeServiceVariant = (variant = {}, index = 0) => ({
   name: String(variant.name || '').trim() || `Option ${index + 1}`,
   description: String(variant.description || '').trim(),
   price: variant.price ?? '',
+  cost: normalizeServiceCost(variant.cost),
   minDuration: variant.minDuration ?? '',
   available: variant.available !== false
 });
@@ -235,6 +247,7 @@ export const normalizeService = (service = {}, index = 0) => {
     exploreSubcategoryId: hasExploreCategory ? exploreSubcategoryId : '',
     description: service.description || '',
     price: service.price ?? '',
+    cost: normalizeServiceCost(service.cost),
     currency: service.currency || 'R',
     priceType: service.priceType || 'fixed',
     duration,

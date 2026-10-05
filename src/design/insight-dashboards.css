@@ -243,6 +243,13 @@ html body .native-ui .bb-report-workspace .bb-analytics-panel-title { font-size:
 .bb-report-history-table thead th:last-child { text-align: right; padding-right: 0; width: auto; }
 .bb-report-history-table td > span:last-child { position: relative; display: inline-block; min-width: 3ch; }
 .bb-report-history-bar { position: absolute; height: 20px; width: var(--activity-width); max-width: calc(100% - 70px); left: 0; top: 50%; transform: translateY(-50%); background: #f0edf8; border-radius: 3px; }
+.bb-report-history-bar.is-negative { background: #fceeee; }
+.bb-financial-reports .bb-report-metric-value { font-size: 23px; line-height: 1.25; letter-spacing: -.035em; padding-right: 12px; }
+.bb-financial-reports .bb-report-metric-value.is-long { font-size: 18px; }
+.bb-financial-reports .bb-report-detail-total strong { font-size: clamp(32px,3.3vw,48px); overflow-wrap: anywhere; }
+.bb-financial-report-notes { display: grid; gap: 8px; }
+.bb-financial-report-notes p { margin: 0; }
+.bb-analytics-chart-svg:focus-visible { outline: 2px solid #6941c6; outline-offset: 4px; border-radius: 4px; }
 .bb-report-history-table tfoot :is(th,td) { font-weight: 600; padding-block: 18px; border-bottom: 0; }
 .bb-report-history-table small { display: block; margin-top: 4px; color: #98a2b3; font-size: 11px; }
 .bb-report-history > .bb-button { margin-top: 12px; }
@@ -274,6 +281,9 @@ html body .native-ui .bb-report-workspace .bb-analytics-panel-title { font-size:
   .bb-report-help-overlay { padding: 16px; }
   .bb-report-help-dialog { padding: 22px; border-radius: 18px; }
   .bb-report-metric-value { font-size: 26px; }
+  .bb-financial-reports .bb-report-metric-value { font-size: 20px; padding-right: 8px; }
+  .bb-financial-reports .bb-report-metric-value.is-long { font-size: 17px; }
+  .bb-financial-reports .bb-report-detail-total strong { font-size: clamp(30px,8vw,40px); }
   .bb-report-metric-arrow { right: 16px; bottom: 18px; }
   .bb-report-detail-total { grid-template-columns: minmax(0,1fr); gap: 16px; padding-block: 2px 6px; }
   .bb-report-detail-total > div { gap: 10px; }

@@ -8,6 +8,7 @@ import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
   isValidServiceSessionWindow,
+  isValidOptionalServiceCost,
   parseDurationMinutes
 } from '../../../utils/services';
 import { ServiceEditorCategoryStep } from './ServiceEditorCategoryStep';
@@ -134,6 +135,10 @@ export function ServiceEditorSheet({
         setError('Add a service name.');
         return false;
       }
+      if (!isValidOptionalServiceCost(draft.cost)) {
+        setError('Enter a booking cost of 0 or more, or leave it blank.');
+        return false;
+      }
     }
     if (id === 'category' && !isValidExploreCategoryPair(
       draft.exploreMainCategoryId,
@@ -148,6 +153,10 @@ export function ServiceEditorSheet({
       for (const variant of rows) {
         if (!String(variant.name || '').trim()) {
           setError('Each variant needs a name.');
+          return false;
+        }
+        if (!isValidOptionalServiceCost(variant.cost)) {
+          setError(`Enter a cost of 0 or more for “${variant.name}”, or leave it blank.`);
           return false;
         }
         if (!parseDurationMinutes(variant.minDuration)) {

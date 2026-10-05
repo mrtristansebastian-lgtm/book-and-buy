@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react';
 import { LAUNCHER_TAB } from '../../config/appLauncher';
-import { navigate } from '../../app/routing';
+import { navigate, workspacePagePath } from '../../app/routing';
 
 /** Circular back control for owner mini-app page headings. */
 export function PageBackButton({
@@ -16,7 +16,7 @@ export function PageBackButton({
       onClick={
         onClick ||
         (() => {
-          navigate(`/dashboard/${LAUNCHER_TAB}`);
+          navigate(workspacePagePath(LAUNCHER_TAB));
         })
       }
     >

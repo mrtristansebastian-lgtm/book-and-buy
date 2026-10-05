@@ -26,7 +26,7 @@ export function FinanceLedgerToolbar({
     <div className="bb-finance-ledger-head">
       <div className="bb-finance-ledger-title-row">
         <h2 className="bb-finance-ledger-title">
-          {tab === 'orders' ? 'Order receipts' : 'Booking receipts'}
+          {tab === 'orders' ? 'Order records' : 'Booking records'}
         </h2>
         <div className="bb-finance-ledger-actions">
           <button
@@ -45,7 +45,7 @@ export function FinanceLedgerToolbar({
           >
             <Download size={16} strokeWidth={2.2} />
           </button>
-          <div className="bb-finance-tab-toggle" role="tablist" aria-label="Receipt source">
+          <div className="bb-finance-tab-toggle" role="tablist" aria-label="Record source">
             <FilterChip
               type="button"
               role="tab"
@@ -73,7 +73,7 @@ export function FinanceLedgerToolbar({
           <Search size={16} strokeWidth={2.2} className="bb-search-field-icon" aria-hidden="true" />
           <input
             type="search"
-            aria-label="Search receipts"
+            aria-label="Search receipts and invoices"
             className="native-search-input"
             placeholder="Search client, title, reference…"
             value={query}
@@ -87,7 +87,7 @@ export function FinanceLedgerToolbar({
             </option>
           ))}
         </select>
-        <select aria-label="Sort receipts" value={sort} onChange={(event) => onSortChange?.(event.target.value)}>
+        <select aria-label="Sort receipts and invoices" value={sort} onChange={(event) => onSortChange?.(event.target.value)}>
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
         </select>

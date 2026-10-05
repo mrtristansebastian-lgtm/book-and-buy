@@ -274,13 +274,13 @@ test('finance ledger names every filter and forwards each change without alterin
     onOpenSettings: () => changes.push(['settings']), onDownload: () => changes.push(['download']) };
   const tree = FinanceLedgerToolbar(props);
   const named = (label) => first(tree, (node) => node.props['aria-label'] === label);
-  assert.equal(named('Search receipts').props.value, 'Aisha');
+  assert.equal(named('Search receipts and invoices').props.value, 'Aisha');
   assert.equal(named('Payment status filter').props.value, 'pending');
-  assert.equal(named('Sort receipts').props.value, 'oldest');
-  assert.equal(named('Receipt source').props.role, 'tablist');
-  named('Search receipts').props.onChange({ target: { value: 'Owen' } });
+  assert.equal(named('Sort receipts and invoices').props.value, 'oldest');
+  assert.equal(named('Record source').props.role, 'tablist');
+  named('Search receipts and invoices').props.onChange({ target: { value: 'Owen' } });
   named('Payment status filter').props.onChange({ target: { value: 'refunded' } });
-  named('Sort receipts').props.onChange({ target: { value: 'newest' } });
+  named('Sort receipts and invoices').props.onChange({ target: { value: 'newest' } });
   named('Payment settings').props.onClick();
   named('Download CSV').props.onClick();
   const tabs = elements(tree, (node) => node.props.role === 'tab');
@@ -290,7 +290,7 @@ test('finance ledger names every filter and forwards each change without alterin
   assert.deepEqual(changes, [['query', 'Owen'], ['status', 'refunded'], ['sort', 'newest'], ['settings'], ['download'], ['tab', 'bookings']]);
   const html = renderToStaticMarkup(React.createElement(FinanceLedgerToolbar, props));
   assert.match(html, /role="tab"[^>]*aria-selected="true"/);
-  assert.match(html, /Order receipts/);
+  assert.match(html, /Order records/);
   assert.doesNotMatch(html, /aria-pressed=/);
 });
 

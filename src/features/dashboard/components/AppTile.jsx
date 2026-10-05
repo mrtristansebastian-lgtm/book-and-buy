@@ -1,14 +1,14 @@
 import { ChevronRight } from 'lucide-react';
 import { TAB_HINTS, TAB_ICONS } from '../../../config/appLauncher';
 import { workspaceTabLabels } from '../../../config/routeConfig';
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { AppIcon } from './AppIcon';
 
 /** One launcher section: category heading + either app icons or a list of pages. */
 export function AppTile({ app, badgeFor, index = 0, view = 'icons', onSelect = null }) {
   const Icon = app.icon;
   const open = (tabId) => {
-    navigate(`/dashboard/${tabId}`);
+    navigate(workspacePagePath(tabId));
     onSelect?.(tabId);
   };
 

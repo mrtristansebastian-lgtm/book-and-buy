@@ -5,7 +5,7 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
         <div>
           <h3 className="bb-services-section-title">Details</h3>
           <p className="bb-services-section-lede">
-            Name, description, and pricing clients will see.
+            Set your name, description, price and private booking cost.
           </p>
         </div>
       </div>
@@ -70,6 +70,21 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
             </div>
           </label>
         )}
+        <label className="bb-services-field">
+          <span>Cost per booking (optional)</span>
+          <div className="bb-products-money">
+            <span className="bb-products-money-prefix">{currency}</span>
+            <input
+              className="native-control-input bb-services-control native-control-nest"
+              inputMode="decimal"
+              value={draft.cost ?? ''}
+              placeholder="Leave blank if unknown"
+              aria-describedby="bb-service-cost-hint"
+              onChange={(event) => patch({ cost: event.target.value })}
+            />
+          </div>
+          <small className="bb-services-field-hint" id="bb-service-cost-hint">Your cost to deliver one booking. Only you and your team see it. Add it to track profit on new bookings.</small>
+        </label>
       </div>
     </section>
   );

@@ -2,11 +2,11 @@ import { Button } from '../../../shared/ui/Button';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import {
-  buildChartGeometry,
   CHART_METRICS,
   chartPointDisplay,
   formatChartValue
 } from '../utils/analyticsMetrics';
+import { buildReportChartGeometry } from '../utils/reportChartGeometry';
 
 const PAD_DESKTOP = { top: 18, right: 18, bottom: 40, left: 56 };
 const PAD_MOBILE = { top: 12, right: 12, bottom: 34, left: 44 };
@@ -28,8 +28,11 @@ export function AnalyticsSalesChart({
   const mobile = width < 560;
   const height = mobile ? 220 : 280;
   const metric = metricOptions.find((m) => m.id === metricId) || metricOptions[0];
-  const basePad = mobile ? PAD_MOBILE : PAD_DESKTOP;
-  const pad = metric.format === 'money' ? { ...basePad, left: mobile ? 76 : 88 } : basePad;
+  const pad = useMemo(() => {
+    const basePad = mobile ? PAD_MOBILE : PAD_DESKTOP;
+    return metric.format === 'money' ? { ...basePad, left: mobile ? 76 : 88 } : basePad;
+  }, [metric.format, mobile]);
+  useEffect(() => setActive(null), [metricId]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -54,9 +57,12 @@ export function AnalyticsSalesChart({
   }, [menuOpen]);
 
   const geometry = useMemo(
-    () => buildChartGeometry(series, { width, height, pad, yTickCount: 5 }),
+    () => buildReportChartGeometry(series, { width, height, pad, yTickCount: 5 }),
     [series, width, height, pad]
   );
+  useEffect(() => {
+    setActive(current => current ? geometry.knownCoords.find(point => point.at === current.at) || null : null);
+  }, [geometry]);
 
   const handlePointer = (event) => {
     const svg = event.currentTarget;
@@ -64,7 +70,7 @@ export function AnalyticsSalesChart({
     const svgX = ((event.clientX - rect.left) / rect.width) * width;
     let best = null;
     let bestDist = Infinity;
-    for (const c of geometry.coords || []) {
+    for (const c of geometry.knownCoords) {
       const d = Math.abs(c.x - svgX);
       if (d < bestDist) {
         bestDist = d;
@@ -76,8 +82,19 @@ export function AnalyticsSalesChart({
 
   const { pad: chartPad, plot } = geometry;
   const baseline = chartPad.top + plot.height;
+  const handleKey = event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Escape'].includes(event.key)) return;
+    event.preventDefault();
+    if (event.key === 'Escape') { setActive(null); return; }
+    const points = geometry.knownCoords;
+    const index = points.findIndex(point => point.at === active?.at);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? points.length - 1 : index < 0 ? (event.key === 'ArrowLeft' ? points.length - 1 : 0) : Math.max(0, Math.min(points.length - 1, index + (event.key === 'ArrowLeft' ? -1 : 1)));
+    setActive(points[next] || null);
+  };
   const formatTick = (valueCents) =>
-    formatChartValue(
+    metric.format === 'money' && Math.abs(valueCents) >= 1_000_000
+      ? `${currency === 'ZAR' ? 'R' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency} ${Number(valueCents / 100).toLocaleString(undefined, { notation: 'compact', maximumFractionDigits: 1 })}`
+      : formatChartValue(
       chartPointDisplay({ amountInCents: valueCents }, metric.format),
       metric.format,
       currency
@@ -125,6 +142,10 @@ export function AnalyticsSalesChart({
         viewBox={`0 0 ${width} ${height}`}
         role="img"
         aria-label={`${metric.label} over time`}
+        tabIndex={0}
+        onKeyDown={handleKey}
+        onFocus={() => setActive(geometry.knownCoords.at(-1) || null)}
+        onBlur={() => setActive(null)}
         onPointerMove={handlePointer}
         onPointerLeave={() => setActive(null)}
       >
@@ -155,10 +176,11 @@ export function AnalyticsSalesChart({
           </g>
         ))}
 
-        {geometry.area ? (
-          <path d={geometry.area} className="bb-analytics-chart-area" fill={`url(#${gradientId})`} />
-        ) : null}
-        {geometry.line ? <path d={geometry.line} className="bb-analytics-chart-line" /> : null}
+        {geometry.paths.map((path, index) => <g key={index}>
+          <path d={path.area} className="bb-analytics-chart-area" fill={`url(#${gradientId})`} />
+          <path d={path.line} className="bb-analytics-chart-line" />
+          {path.points.length === 1 ? <circle cx={path.points[0].x} cy={path.points[0].y} r="3" className="bb-analytics-chart-dot" /> : null}
+        </g>)}
 
         {(geometry.ticksX || []).map((tick) => (
           <text
@@ -187,7 +209,7 @@ export function AnalyticsSalesChart({
       </svg>
 
       {active ? (
-        <div className="bb-analytics-chart-tooltip">
+        <div className="bb-analytics-chart-tooltip" role="status">
           <div className="bb-analytics-chart-tooltip-when">{active.label}</div>
           <div className="bb-analytics-chart-tooltip-value">
             {formatChartValue(
@@ -198,6 +220,7 @@ export function AnalyticsSalesChart({
           </div>
         </div>
       ) : null}
+      {geometry.missing > 0 ? <p className="bb-reports-note">Gaps mark intervals with too little data to calculate this stat.</p> : null}
     </div>
   );
 }

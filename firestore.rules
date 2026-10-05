@@ -423,8 +423,12 @@ service cloud.firestore {
           'sessionId', 'slug', 'ownerId', 'startedAt', 'lastSeenAt', 'path',
           'referrer', 'country', 'region', 'city', 'latitude', 'longitude',
           'device', 'isBot', 'updatedAt',
-          'analyticsVersion', 'visitorId', 'visitorFirstSeenAt', 'isReturningVisitor', 'source'
+          'analyticsVersion', 'visitorId', 'visitorFirstSeenAt', 'isReturningVisitor', 'source', 'acquisitionSurface'
         ]) && analyticsIdentityValid() &&
+        (!request.resource.data.keys().hasAny(['acquisitionSurface']) || (
+          request.resource.data.analyticsVersion == 2 && request.resource.data.source == 'places' &&
+          request.resource.data.acquisitionSurface in ['places', 'buy', 'book']
+        )) &&
         request.resource.data.sessionId is string &&
         request.resource.data.sessionId.size() >= 8 &&
         request.resource.data.sessionId.size() <= 80 &&
@@ -535,6 +539,9 @@ service cloud.firestore {
         request.resource.data.ownerId == resource.data.ownerId &&
         request.resource.data.slug == resource.data.slug &&
         request.resource.data.startedAt == resource.data.startedAt &&
+        ((!resource.data.keys().hasAny(['acquisitionSurface']) && !request.resource.data.keys().hasAny(['acquisitionSurface'])) ||
+          (resource.data.keys().hasAny(['acquisitionSurface']) && request.resource.data.keys().hasAny(['acquisitionSurface']) &&
+            request.resource.data.acquisitionSurface == resource.data.acquisitionSurface)) &&
         analyticsIdentityUnchanged();
       allow read: if resource.data.ownerId is string &&
         canStaff(appId, resource.data.ownerId);

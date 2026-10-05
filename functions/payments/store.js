@@ -1,6 +1,7 @@
 import { getFirestore } from 'firebase-admin/firestore';
 import { decryptSecret } from './encrypt.js';
 import { pathJoin } from './publicOptions.js';
+import { paymentConfirmationSnapshot } from '../financialSnapshots.js';
 
 export function settingsDocRef(appId, ownerId) {
   return getFirestore().doc(pathJoin('artifacts', appId, 'users', ownerId, 'config', 'settings'));
@@ -93,11 +94,11 @@ export async function markSourcePaid({
   sourceId,
   providerPaymentId,
   gatewayType
-}) {
+}, db = getFirestore()) {
   if (!sourceId) return { ok: false, reason: 'missing sourceId' };
-  const ref = settingsDocRef(appId, ownerId);
+  const ref = db.doc(pathJoin('artifacts', appId, 'users', ownerId, 'config', 'settings'));
   const field = sourceType === 'order' ? 'orders' : 'bookings';
-  await getFirestore().runTransaction(async (tx) => {
+  await db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     const data = snap.exists ? snap.data() || {} : {};
     const list = Array.isArray(data[field]) ? [...data[field]] : [];
@@ -105,8 +106,7 @@ export async function markSourcePaid({
     if (idx < 0) return;
     list[idx] = {
       ...list[idx],
-      paymentStatus: 'paid',
-      paidAt: Date.now(),
+      ...paymentConfirmationSnapshot(list[idx]),
       providerPaymentId: providerPaymentId || list[idx].providerPaymentId || '',
       paymentGateway: gatewayType || list[idx].paymentGateway || list[idx].paymentMethod
     };

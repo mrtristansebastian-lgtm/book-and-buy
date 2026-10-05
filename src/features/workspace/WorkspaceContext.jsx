@@ -72,6 +72,7 @@ export function WorkspaceProvider({ children }) {
       const next = hydrateDemoWorkspace(prev);
       if (
         next.websiteSchema === prev.websiteSchema &&
+        next.financeSchema === prev.financeSchema &&
         next.website?.aboutBody === prev.website?.aboutBody &&
         (next.website?.venueImages?.length || 0) === (prev.website?.venueImages?.length || 0)
       ) {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Home, MessageCircle, Menu, X } from 'lucide-react';
 import { LAUNCHER_TAB, appForTab } from '../../../config/appLauncher';
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { BrandMark } from '../../../shared/ui/BrandMark';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 import { MiniAppBar } from './MiniAppBar';
@@ -30,12 +30,12 @@ export function OwnerWorkspaceShell({ tab, children }) {
 
   const goHome = () => {
     setMenuOpen(false);
-    navigate('/dashboard/overview');
+    navigate(workspacePagePath('overview'));
   };
 
   const goMessages = () => {
     setMenuOpen(false);
-    navigate('/dashboard/communications');
+    navigate(workspacePagePath('communications'));
   };
 
   const shellMode = isLauncher

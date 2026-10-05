@@ -68,7 +68,7 @@ export const BILLING_PLANS = {
       'All payment gateways',
       'Booking policies & advance window',
       'Client checkout field toggles',
-      'Finance ledger',
+      'Receipts & invoices',
       'Priority email support'
     ],
     includes: {

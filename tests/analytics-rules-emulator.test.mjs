@@ -81,11 +81,18 @@ test('analytics session and cart rules preserve ownership, anonymous identity an
   const sessionPath = `artifacts/book-and-buy-v1/analyticsSessions/${sessionId}`;
   const session = { sessionId, ownerId, slug: 'test-shop', analyticsVersion: 2, visitorId: `visitor_${suffix}`,
     visitorFirstSeenAt: now - 1000, isReturningVisitor: false, source: 'places', startedAt: now, lastSeenAt: now,
-    path: '/test-shop/home', referrer: '', country: '', region: '', city: '', device: 'desktop', isBot: false };
+    path: '/test-shop/home', referrer: '', country: '', region: '', city: '', device: 'desktop', isBot: false, acquisitionSurface: 'buy' };
   await ok(await commit(sessionPath, session, 'updatedAt'));
   await ok(await commit(sessionPath, { ...session, lastSeenAt: now + 1 }, 'updatedAt'));
   await denied(await commit(sessionPath, { ...session, ownerId: 'different-owner' }, 'updatedAt'));
   await denied(await commit(sessionPath, { ...session, visitorId: `different_${suffix}` }, 'updatedAt'));
+  await denied(await commit(sessionPath, { ...session, acquisitionSurface: 'places' }, 'updatedAt'));
+  const { acquisitionSurface, ...withoutAcquisition } = session;
+  await denied(await commit(sessionPath, withoutAcquisition, 'updatedAt'));
+  const directId = `direct_${suffix}`;
+  await denied(await commit(`artifacts/book-and-buy-v1/analyticsSessions/${directId}`, { ...session, sessionId: directId, source: 'direct' }, 'updatedAt'));
+  const invalidId = `invalid_${suffix}`;
+  await denied(await commit(`artifacts/book-and-buy-v1/analyticsSessions/${invalidId}`, { ...session, sessionId: invalidId, acquisitionSurface: 'unknown' }, 'updatedAt'));
   await denied(await read(sessionPath, 'different-owner'));
   await ok(await read(sessionPath, ownerId));
   await ok(await query('analyticsSessions', ownerId, 'startedAt', encode(now)));

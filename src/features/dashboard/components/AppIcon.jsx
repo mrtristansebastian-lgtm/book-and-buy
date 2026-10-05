@@ -1,6 +1,6 @@
 import { TAB_HINTS, TAB_ICONS } from '../../../config/appLauncher';
 import { workspaceTabLabels } from '../../../config/routeConfig';
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 
 /** iOS-style app icon: category-tinted squircle + white glyph, count badge, label. */
 export function AppIcon({ tabId, fallbackIcon, tint, badge = 0, index = 0, onSelect = null }) {
@@ -16,7 +16,7 @@ export function AppIcon({ tabId, fallbackIcon, tint, badge = 0, index = 0, onSel
       title={TAB_HINTS[tabId]}
       aria-label={badge > 0 ? `${label}, ${badge} waiting` : label}
       onClick={() => {
-        navigate(`/dashboard/${tabId}`);
+        navigate(workspacePagePath(tabId));
         onSelect?.(tabId);
       }}
     >

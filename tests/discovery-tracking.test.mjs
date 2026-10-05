@@ -86,6 +86,24 @@ test('Places and Find business links record explicit business opens on their act
   assert.equal(events()[1].data.path, '/app/find/book');
 });
 
+test('receipt acquisition is saved with presence and stays stable through navigation and other discovery clicks', async () => {
+  const { api, writes, advance } = beaconFixture();
+  const context = { ownerId: 'owner-a', slug: 'shop-a' };
+  api.reportDiscoveryVisit(context, { surface: 'buy', target: 'offer' });
+  await api.getAnalyticsAttribution(context);
+  const presence = () => writes.filter(row => row.path.includes('analyticsSessions'));
+  assert.equal(presence().at(-1).data.acquisitionSurface, 'buy');
+  const sessionId = presence().at(-1).data.sessionId;
+  api.reportDiscoveryVisit(context, { surface: 'book', target: 'offer' });
+  await api.getAnalyticsAttribution(context);
+  assert.equal(presence().at(-1).data.acquisitionSurface, 'buy');
+  assert.equal(presence().at(-1).data.sessionId, sessionId);
+  advance(31 * 60_000);
+  await api.getAnalyticsAttribution(context);
+  assert.equal(presence().at(-1).data.source, 'direct');
+  assert.equal(presence().at(-1).data.acquisitionSurface, undefined);
+});
+
 test('visible listing impressions are unique, do not create presence, and do not claim a discovery visit', () => {
   const { api, events, writes } = beaconFixture();
   const context = { ownerId: 'owner-a', slug: 'shop-a' };

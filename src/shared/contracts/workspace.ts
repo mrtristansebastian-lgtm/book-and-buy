@@ -78,6 +78,8 @@ export interface WorkspaceServiceVariant {
   name: string;
   description?: string;
   price?: string | number;
+  /** Private cost per booking, in major currency units. Blank means unknown / inherit. */
+  cost?: string | number;
   /** Minimum duration in minutes for this package / option. */
   minDuration?: string | number;
   available?: boolean;
@@ -88,6 +90,8 @@ export interface WorkspaceService {
   name: string;
   description?: string;
   price?: string | number;
+  /** Private cost per booking, in major currency units. Blank means unknown. */
+  cost?: string | number;
   priceType?: "fixed" | "from" | "free" | string;
   duration?: string | number;
   fixedDuration?: boolean;

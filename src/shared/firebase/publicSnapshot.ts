@@ -103,7 +103,29 @@ function publicProducts(products: unknown) {
       image: product.image,
       imageUrls: product.imageUrls || [],
       options: Array.isArray(product.options) ? product.options : [],
-      variants: Array.isArray(product.variants) ? product.variants : [],
+      variants: Array.isArray(product.variants)
+        ? product.variants
+          .filter((variant): variant is AnyRecord => Boolean(variant && typeof variant === 'object'))
+          .map((variant) => ({
+            id: variant.id,
+            title: variant.title,
+            optionValues: variant.optionValues || {},
+            price: variant.price,
+            priceInCents: variant.priceInCents,
+            compareAtPrice: variant.compareAtPrice,
+            sku: variant.sku || '',
+            stockAvailable: variant.stockAvailable,
+            weight: variant.weight,
+            weightUnit: variant.weightUnit,
+            length: variant.length,
+            width: variant.width,
+            height: variant.height,
+            dimensionUnit: variant.dimensionUnit,
+            size: variant.size,
+            imageUrl: variant.imageUrl || '',
+            available: variant.available !== false
+          }))
+        : [],
       stockNote: product.stockNote,
       status: 'active',
       active: true

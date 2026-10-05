@@ -13,6 +13,7 @@ import { BuyStudioPage } from '../website/pages/BuyStudioPage';
 import { CheckoutStudioPage } from '../website/pages/CheckoutStudioPage';
 import { SupportInboxPage } from '../support/pages/SupportInboxPage';
 import { FinancePage } from '../finance/pages/FinancePage';
+import { FinancialReportsPage } from '../finance/pages/FinancialReportsPage';
 import { AnalyticsPage } from '../analytics/pages/AnalyticsPage';
 import { LiveStatsPage } from '../analytics/pages/LiveStatsPage';
 import { ClientsPage } from '../clients/pages/ClientsPage';
@@ -49,6 +50,8 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
         <SupportInboxPage />
       ) : tab === 'finance' ? (
         <FinancePage />
+      ) : tab === 'finance-reports' ? (
+        <FinancialReportsPage routeRest={rest} />
       ) : tab === 'live-stats' ? (
         <LiveStatsPage />
       ) : tab === 'analytics' ? (

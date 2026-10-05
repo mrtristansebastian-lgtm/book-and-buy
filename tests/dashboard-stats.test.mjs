@@ -27,9 +27,34 @@ function load(path) {
   return module.exports;
 }
 const { DashboardStat } = load('../src/shared/ui/DashboardStat.jsx');
+const { ReportCategory } = load('../src/features/analytics/components/ReportCategory.jsx');
+const { ReportHistory } = load('../src/features/analytics/components/ReportHistory.jsx');
 const { buildFinanceLedger } = load('../src/features/finance/utils/financeLedger.js');
 const { buildFinanceMetricView } = load('../src/features/finance/utils/financeMetrics.js');
 const render = (props) => renderToStaticMarkup(React.createElement(DashboardStat, props));
+
+test('financial category totals retain exact values, unknown data and separate help actions', () => {
+  const group = { id: 'products', title: 'Products', description: 'All your product sales.', metrics: [{ id: 'revenue', label: 'Paid revenue', format: 'money' }, { id: 'profit', label: 'Gross profit', format: 'money' }] };
+  const html = renderToStaticMarkup(React.createElement(ReportCategory, { group, stats: { revenue: { value: 123456789 }, profit: { value: null } }, hrefFor: id => `#/demo/finance-reports/${id}?period=custom&from=2026-10-01&to=2026-10-05`, onExplain() {}, formatValue: value => value == null ? '—' : `R ${value / 100}` }));
+  assert.match(html, /href="#\/demo\/finance-reports\/revenue\?period=custom&amp;from=2026-10-01&amp;to=2026-10-05"/);
+  assert.match(html, />R 1234567\.89<\/span>/);
+  assert.match(html, />—<\/span>/);
+  assert.match(html, /aria-label="About products: Gross profit" aria-haspopup="dialog"/);
+  for (const [, body] of html.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)) assert.doesNotMatch(body, /<button/, 'Help does not nest a button inside the stat link');
+});
+
+test('financial history distinguishes unknown intervals, zero, losses and weighted period rates', () => {
+  const metric = { id: 'rate', label: 'Gross margin', ratio: true };
+  const history = { unit: 'day', series: [{ at: 1000, raw: 0 }, { at: 86401000, raw: null }, { at: 172801000, raw: -25 }] };
+  const html = renderToStaticMarkup(React.createElement(ReportHistory, { metric, history, total: -5, title: 'Financial history', formatValue: value => value == null ? '—' : `${value}%` }));
+  assert.match(html, /Daily rates/);
+  assert.match(html, />0%<\/span>/);
+  assert.match(html, />—<\/span>/);
+  assert.match(html, />-25%<\/span>/);
+  assert.match(html, /bb-report-history-bar is-negative/);
+  assert.match(html, /Selected period<\/th><td>-5%<\/td>/);
+  assert.match(html, /uses all its activity together/);
+});
 
 test('dashboard readouts always show the value above the label and keep explanation accessible', () => {
   const html = render({ label: 'Unique visitors', value: '12,345', note: 'Anonymous visitors, not sessions' });
@@ -73,17 +98,18 @@ test('shared stat accepts unavailable/long values, semantic headings and live up
 test('Finance and Home retain shared stat readouts while Reports links open dedicated statistic pages', () => {
   const revenue = readFileSync(new URL('../src/features/finance/components/RevenueMetricCards.jsx', import.meta.url), 'utf8');
   const reports = readFileSync(new URL('../src/features/analytics/pages/AnalyticsPage.jsx', import.meta.url), 'utf8');
+  const category = readFileSync(new URL('../src/features/analytics/components/ReportCategory.jsx', import.meta.url), 'utf8');
   const home = readFileSync(new URL('../src/features/dashboard/pages/OverviewPage.jsx', import.meta.url), 'utf8');
   for (const source of [revenue, home]) assert.match(source, /import \{ DashboardStat \}/);
   assert.doesNotMatch(reports, /DashboardStat|<ReportStat/);
-  assert.match(reports, /<a className="bb-report-metric-link"[^>]+href=\{hrefFor\(metric\.id\)\}/);
+  assert.match(category, /<a className="bb-report-metric-link"[^>]+href=\{hrefFor\(metric\.id\)\}/);
   assert.match(reports, /getReportStatistic\(routeRest\[0\]\)/);
   assert.match(reports, /const hrefFor = id => `#\$\{base\}\/\$\{id\}\?\$\{periodQuery\}`/);
   assert.match(reports, /<AnalyticsSalesChart[^>]+series=\{history\.series\}/);
   assert.match(reports, /<ReportHistory metric=\{metric\} history=\{history\} total=\{stat\?\.value\}/);
   assert.doesNotMatch(revenue, /MetricPicker|<button/);
   assert.match(home, /as="button"/);
-  assert.match(home, /onClick=\{\(\) => navigate\(`\/dashboard\/\$\{stat\.to\}`\)\}/);
+  assert.match(home, /onClick=\{\(\) => navigate\(`\$\{workspace\.isDemo \? '\/demo' : '\/dashboard'\}\/\$\{stat\.to\}`\)\}/);
   assert.match(home, /PeriodSegmentedControl/);
   assert.match(home, /metricId: 'revenue'.*periodId, customRange, currency/);
   assert.doesNotMatch(home, /computeFinanceMetrics|filterLedgerByPeriod/);
@@ -99,12 +125,13 @@ test('dashboard hierarchy preserves operational Home, primary Finance and catego
   assert.match(render({ appearance: 'invalid', label: 'Total', value: 42 }), /data-appearance="standard"/);
   const revenue = readFileSync(new URL('../src/features/finance/components/RevenueMetricCards.jsx', import.meta.url), 'utf8');
   const reports = readFileSync(new URL('../src/features/analytics/pages/AnalyticsPage.jsx', import.meta.url), 'utf8');
+  const category = readFileSync(new URL('../src/features/analytics/components/ReportCategory.jsx', import.meta.url), 'utf8');
   const home = readFileSync(new URL('../src/features/dashboard/pages/OverviewPage.jsx', import.meta.url), 'utf8');
   assert.match(revenue, /appearance="primary"/);
   assert.match(reports, /REPORT_GROUPS\.map\(group => <ReportCategory/);
-  assert.match(reports, /<section className="bb-report-category" aria-labelledby=\{`report-\$\{group\.id\}`\}/);
-  assert.match(reports, /className="bb-report-metric-label">\{metric\.label\}/);
-  assert.match(reports, /className="bb-report-metric-value">\{count\(stats\[metric\.id\]\?\.value\)\}/);
+  assert.match(category, /<section className="bb-report-category" aria-labelledby=\{`report-\$\{group\.id\}`\}/);
+  assert.match(category, /className="bb-report-metric-label">\{metric\.label\}/);
+  assert.match(category, /formatValue\(stats\[metric\.id\]\?\.value, metric\)/);
   assert.match(home, /appearance="operational"/);
   assert.match(home, /aria-describedby=\{stat\.id === 'revenue' && revenueNote \? 'bb-home-revenue-note'/);
   assert.ok(home.indexOf('id="bb-home-revenue-note"') > home.indexOf('</section>', home.indexOf('className="bb-launcher-stats')));

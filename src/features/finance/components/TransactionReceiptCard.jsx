@@ -18,9 +18,15 @@ export function TransactionReceiptCard({
   currency,
   mode = 'bookings',
   brandName = '',
-  onMarkPaid
+  onMarkPaid,
+  markingPaid = false,
+  paymentError = ''
 }) {
   const displayCurrency = row.currency || currency || 'R';
+  const documentLabel = row.paymentStatus === 'paid' ? 'Receipt'
+    : row.paymentStatus === 'refunded' ? 'Refund record' : 'Invoice';
+  const awaitingPayment = ['pending', 'unpaid', 'failed'].includes(row.paymentStatus);
+  const onlinePayment = ['stripe', 'paypal', 'paystack', 'card'].includes(row.paymentMethod);
 
   return (
     <article className={`bb-finance-receipt bb-finance-receipt--${row.paymentStatus}`}>
@@ -30,6 +36,8 @@ export function TransactionReceiptCard({
           <div>
             <p className="bb-finance-receipt-brand">{row.brandName || brandName || 'Book and Buy'}</p>
             <p className="bb-finance-receipt-meta">
+              {documentLabel}
+              {' · '}
               {row.source === 'booking' || mode === 'bookings' ? 'Booking' : 'Order'}
               {' · '}
               {formatReceiptDate(row.createdAt)}
@@ -69,10 +77,14 @@ export function TransactionReceiptCard({
           <p className="bb-finance-receipt-total">{formatMoney(row.amountInCents, displayCurrency)}</p>
         </footer>
 
-        {row.paymentStatus !== 'paid' && onMarkPaid ? (
-          <Button action="markPaid" variant="secondary" type="button" className="bb-finance-receipt-pay" onClick={() => onMarkPaid(row)}>
+        {awaitingPayment && row.canMarkPaid === true && onMarkPaid ? (
+          <Button action="markPaid" variant="secondary" type="button" className="bb-finance-receipt-pay" onClick={() => onMarkPaid(row)} busy={markingPaid} busyLabel="Confirming…">
             Mark paid
           </Button>
+        ) : null}
+        {paymentError ? <p className="bb-muted m-0 text-sm" role="alert">{paymentError}</p> : null}
+        {awaitingPayment && onlinePayment && row.canMarkPaid !== true ? (
+          <p className="bb-muted m-0 text-xs">Your payment provider updates this record when payment is confirmed.</p>
         ) : null}
       </div>
       <div className="bb-finance-receipt-serration bb-finance-receipt-serration--bottom" aria-hidden="true" />

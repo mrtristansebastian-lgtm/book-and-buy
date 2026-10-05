@@ -55,9 +55,16 @@ function serviceAmountCents(booking, services = []) {
   return getProductUnitPriceCents(service);
 }
 
+function timestampMs(value) {
+  if (value && typeof value.toMillis === 'function') return timestampMs(value.toMillis());
+  if (value && typeof value === 'object' && typeof value.seconds === 'number') return timestampMs(value.seconds * 1000);
+  if (value instanceof Date) return timestampMs(value.getTime());
+  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 && value <= 8_640_000_000_000_000 ? value : null;
+}
+
 function bookingTimestamp(booking) {
-  if (Number(booking.paidAt)) return Number(booking.paidAt);
-  if (Number(booking.timestamp)) return Number(booking.timestamp);
+  const timestamp = timestampMs(booking.timestamp) ?? timestampMs(booking.createdAt);
+  if (timestamp != null) return timestamp;
   if (booking.dateKey || booking.date) {
     const key = booking.dateKey || booking.date;
     const [y, m, d] = String(key).split('-').map(Number);
@@ -66,7 +73,7 @@ function bookingTimestamp(booking) {
       return new Date(y, m - 1, d, Number(hours[0]) || 12, Number(hours[1]) || 0).getTime();
     }
   }
-  return Date.now();
+  return null;
 }
 
 function methodLabel(method = '') {
@@ -76,6 +83,12 @@ function methodLabel(method = '') {
   if (value === 'manual_eft') return 'Manual EFT';
   if (value === 'cash') return 'Cash';
   return method || '—';
+}
+
+function paymentActionFields(record, source) {
+  const paymentMethod = String(record.paymentMethod || record.paymentGateway || '').toLowerCase();
+  const manual = ['cash', 'manual_eft'].includes(paymentMethod) || (source === 'booking' && !paymentMethod);
+  return { paymentMethod, canMarkPaid: manual && ['unpaid', 'pending', 'failed'].includes(normalizeFinanceStatus(record.paymentStatus)) };
 }
 
 function explicitCents(value) {
@@ -106,6 +119,9 @@ function orderProductSnapshots(order) {
 export function buildFinanceLedger({ bookings = [], orders = [], services = [], brandName = '', currency = 'R' } = {}) {
   const fromBookings = (bookings || []).map((booking) => {
     const createdAt = bookingTimestamp(booking);
+    const actualCreatedAt = timestampMs(booking.timestamp) ?? timestampMs(booking.createdAt);
+    const actualPaidAt = timestampMs(booking.paidAt);
+    const amountInCents = explicitCents(booking.amountPaidInCents) ?? serviceAmountCents(booking, services);
     return {
       id: `booking:${booking.id}`,
       sourceId: booking.id,
@@ -117,29 +133,41 @@ export function buildFinanceLedger({ bookings = [], orders = [], services = [], 
         {
           name: booking.serviceName || 'Booking',
           quantity: 1,
-          lineTotalCents: serviceAmountCents(booking, services)
+          lineTotalCents: amountInCents
         }
       ],
-      amountInCents: serviceAmountCents(booking, services),
+      amountInCents,
       // Legacy receipts may show today's service price as a display fallback,
       // but that is not an authoritative historical financial amount.
-      amountAuthoritative: explicitCents(booking.amountInCents) != null,
+      amountAuthoritative: explicitCents(booking.amountPaidInCents) != null || explicitCents(booking.amountInCents) != null,
+      serviceRevenueInCents: explicitCents(booking.amountPaidInCents) ?? explicitCents(booking.amountInCents),
+      costBasisInCents: explicitCents(booking.costBasisInCents),
       currency: booking.currency || currency,
       currencyAssumed: !booking.currency,
       paymentStatus: normalizeFinanceStatus(booking.paymentStatus),
       method: methodLabel(booking.paymentMethod || booking.paymentGateway || ''),
+      ...paymentActionFields(booking, 'booking'),
       createdAt,
-      paidAt: booking.paymentStatus === 'paid' ? Number(booking.paidAt) || createdAt : null,
+      actualCreatedAt,
+      createdAtAuthoritative: actualCreatedAt != null,
+      paidAt: actualPaidAt ?? (booking.paymentStatus === 'paid' ? createdAt : null),
+      actualPaidAt,
+      paidAtAuthoritative: actualPaidAt != null,
       reference: booking.paymentReference || booking.id,
-      refundedAt: Number(booking.refundedAt) || null,
+      refundedAt: timestampMs(booking.refundedAt),
+      refundedAtAuthoritative: timestampMs(booking.refundedAt) != null,
       refundedAmountInCents: explicitCents(booking.refundedAmountInCents),
+      refundIsFull: booking.refundIsFull === true,
       analyticsSource: ['places', 'direct'].includes(booking.analyticsSource) ? booking.analyticsSource : null,
+      analyticsSessionId: typeof booking.analyticsSessionId === 'string' ? booking.analyticsSessionId : null,
+      discoverySurface: booking.analyticsSource === 'places' && ['places', 'buy', 'book'].includes(booking.discoverySurface) ? booking.discoverySurface : null,
       brandName
     };
   });
 
   const fromOrders = (orders || []).map((order) => {
-    const createdAt = Number(order.timestamp) || Date.now();
+    const createdAt = timestampMs(order.timestamp) ?? timestampMs(order.createdAt);
+    const actualPaidAt = timestampMs(order.paidAt);
     return {
       id: `order:${order.id}`,
       sourceId: order.id,
@@ -155,19 +183,28 @@ export function buildFinanceLedger({ bookings = [], orders = [], services = [], 
         quantity: item.quantity || 1,
         lineTotalCents: item.lineTotalCents ?? 0
       })),
-      amountInCents: Number(order.amountInCents) || 0,
-      amountAuthoritative: explicitCents(order.amountInCents) != null,
+      amountInCents: explicitCents(order.amountPaidInCents) ?? explicitCents(order.amountInCents) ?? 0,
+      amountAuthoritative: explicitCents(order.amountPaidInCents) != null || explicitCents(order.amountInCents) != null,
       currency: order.currency || currency,
       currencyAssumed: !order.currency,
       paymentStatus: normalizeFinanceStatus(order.paymentStatus),
       method: methodLabel(order.paymentMethod),
+      ...paymentActionFields(order, 'order'),
       createdAt,
-      paidAt: order.paymentStatus === 'paid' ? Number(order.paidAt) || createdAt : null,
+      actualCreatedAt: createdAt,
+      createdAtAuthoritative: createdAt != null,
+      paidAt: actualPaidAt ?? (order.paymentStatus === 'paid' ? createdAt : null),
+      actualPaidAt,
+      paidAtAuthoritative: actualPaidAt != null,
       reference: order.paymentReference || order.id,
       ...orderProductSnapshots(order),
-      refundedAt: Number(order.refundedAt) || null,
+      refundedAt: timestampMs(order.refundedAt),
+      refundedAtAuthoritative: timestampMs(order.refundedAt) != null,
       refundedAmountInCents: explicitCents(order.refundedAmountInCents),
+      refundIsFull: order.refundIsFull === true,
       analyticsSource: ['places', 'direct'].includes(order.analyticsSource) ? order.analyticsSource : null,
+      analyticsSessionId: typeof order.analyticsSessionId === 'string' ? order.analyticsSessionId : null,
+      discoverySurface: order.analyticsSource === 'places' && ['places', 'buy', 'book'].includes(order.discoverySurface) ? order.discoverySurface : null,
       brandName
     };
   });
@@ -368,7 +405,7 @@ export function ledgerToCsv(rows = []) {
   ];
   const lines = rows.map((row) =>
     [
-      new Date(row.createdAt).toISOString(),
+      row.createdAt ? new Date(row.createdAt).toISOString() : '',
       row.source,
       csvEscape(row.clientName),
       csvEscape(row.title),

@@ -31,6 +31,7 @@ const { FINANCE_METRICS, buildFinanceMetricView, formatFinanceMetricValue } = lo
 const { buildChartGeometry } = load('../src/features/finance/utils/financeChartScale.js');
 const { RevenueMetricCards } = load('../src/features/finance/components/RevenueMetricCards.jsx');
 const { TransactionReceiptCard } = load('../src/features/finance/components/TransactionReceiptCard.jsx');
+const { parseAppRoute, workspacePagePath } = load('../src/app/routing.js');
 const at = (day, month = 9) => new Date(2026, month, day, 12).getTime();
 const now = at(4);
 const ledger = [
@@ -171,40 +172,94 @@ test('every metric and period shares one card/chart state with explicit honest e
   assert.equal(buildFinanceMetricView({ metricId: '__proto__', ledger, now }).metric.id, 'revenue');
 });
 
-test('finance statistic selector is a standalone field above the stat/chart panel and drives both', () => {
+test('receipts page keeps financial reporting separate while retaining the ledger and period controls', () => {
   const source = readFileSync(new URL('../src/features/finance/pages/FinancePage.jsx', import.meta.url), 'utf8');
   const file = ts.createSourceFile('FinancePage.jsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
-  let picker;
-  let card;
-  let chart;
+  const components = new Set();
   const walk = (node) => {
     if (ts.isJsxSelfClosingElement(node)) {
       const tag = node.tagName.getText(file);
-      if (tag === 'MetricPicker') picker = node;
-      if (tag === 'RevenueMetricCards') card = node;
-      if (tag === 'RevenueChart') chart = node;
+      components.add(tag);
     }
     ts.forEachChild(node, walk);
   };
   walk(file);
-  assert.ok(picker && card && chart);
-  assert.ok(picker.getStart(file) < card.getStart(file));
-  assert.ok(picker.parent.getText(file).includes('bb-finance-stat-selector'));
-  assert.ok(!picker.parent.getText(file).includes('bb-finance-pulse'));
-  assert.match(picker.getText(file), /value=\{metricId\}.*onChange=\{setMetricId\}/);
-  assert.match(card.getText(file), /metricView=\{metricView\}/);
-  assert.match(chart.getText(file), /series=\{metricView\.series\}.*metric=\{metricView\.metric\}/);
+  assert.ok(components.has('RevenuePulseHeader'));
+  assert.ok(components.has('FinanceLedgerToolbar'));
+  assert.ok(components.has('TransactionReceiptCard'));
+  assert.ok(!components.has('MetricPicker'));
+  assert.ok(!components.has('RevenueMetricCards'));
+  assert.ok(!components.has('RevenueChart'));
+  assert.match(source, /filterLedgerByPeriod\(ledger, periodId, customRange\)/);
 });
 
-test('Finance has no independent currency override; business settings remains the source of currency', () => {
+test('receipts have no independent currency override; business settings remains the source of currency', () => {
   const page = readFileSync(new URL('../src/features/finance/pages/FinancePage.jsx', import.meta.url), 'utf8');
   const header = readFileSync(new URL('../src/features/finance/components/RevenuePulseHeader.jsx', import.meta.url), 'utf8');
   assert.doesNotMatch(header, /CURRENCY_OPTIONS|onCurrencyChange|aria-label="Currency"|<select/);
   assert.doesNotMatch(page, /updateProfile|onCurrencyChange|setCurrency/);
   assert.match(page, /const currency = workspace\.currency \|\| 'R'/);
-  assert.match(page, /buildFinanceMetricView\(\{ ledger, metricId, periodId, customRange, currency \}\)/);
+  assert.match(page, /buildFinanceLedger\(/);
+  assert.match(page, /currency=\{currency\}/);
   assert.match(header, /PeriodSegmentedControl/);
   assert.match(header, /PeriodCustomPicker/);
+});
+
+test('paid records are receipts, unpaid records are invoices and refunds cannot be marked paid again', () => {
+  const render = (paymentStatus) => renderToStaticMarkup(React.createElement(TransactionReceiptCard, {
+    row: { ...ledger[1], paymentStatus, canMarkPaid: true, lineItems: [] }, onMarkPaid() {}
+  }));
+  assert.match(render('paid'), /Receipt/);
+  assert.doesNotMatch(render('paid'), /Mark paid/);
+  for (const status of ['pending', 'unpaid', 'failed']) {
+    assert.match(render(status), /Invoice/);
+    assert.match(render(status), /Mark paid/);
+  }
+  assert.match(render('refunded'), /Refund record/);
+  assert.doesNotMatch(render('refunded'), /Mark paid/);
+});
+
+test('online-provider invoices explain confirmation and cannot use the manual Mark paid action', () => {
+  for (const paymentMethod of ['stripe', 'paystack', 'paypal', 'card']) {
+    const html = renderToStaticMarkup(React.createElement(TransactionReceiptCard, {
+      row: { ...ledger[1], paymentStatus: 'pending', paymentMethod, canMarkPaid: false, lineItems: [] }, onMarkPaid() {}
+    }));
+    assert.doesNotMatch(html, /Mark paid/);
+    assert.match(html, /payment provider updates this record when payment is confirmed/);
+  }
+});
+
+test('manual confirmation shows a disabled busy action and an accessible local failure message', () => {
+  const html = renderToStaticMarkup(React.createElement(TransactionReceiptCard, {
+    row: { ...ledger[1], paymentStatus: 'unpaid', paymentMethod: 'cash', canMarkPaid: true, lineItems: [] },
+    onMarkPaid() {}, markingPaid: true, paymentError: 'Payment could not be confirmed. Please try again.'
+  }));
+  assert.match(html, /disabled=""/);
+  assert.match(html, /aria-busy="true"/);
+  assert.match(html, /Confirming…/);
+  assert.match(html, /role="alert"[^>]*>Payment could not be confirmed/);
+});
+
+test('financial reports and legacy receipt routes work in owner and guest-demo workspaces', () => {
+  for (const prefix of ['/dashboard', '/demo']) {
+    const route = parseAppRoute(`${prefix}/finance-reports/revenue?period=month`);
+    assert.equal(route.kind, 'owner');
+    assert.equal(route.tab, 'finance-reports');
+    assert.deepEqual(route.rest, ['revenue']);
+    assert.equal(parseAppRoute(`${prefix}/finance`).tab, 'finance', 'Saved finance links still open records');
+    assert.equal(parseAppRoute(`${prefix}/analytics`).tab, 'analytics', 'Saved report links still open traffic reports');
+  }
+  const previousWindow = globalThis.window;
+  try {
+    globalThis.window = { location: { hash: '#/demo/analytics?period=month' } };
+    assert.equal(workspacePagePath('finance-reports/revenue'), '/demo/finance-reports/revenue');
+    assert.equal(workspacePagePath('overview'), '/demo/overview');
+    globalThis.window.location.hash = '#/dashboard/finance';
+    assert.equal(workspacePagePath('analytics'), '/dashboard/analytics');
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  }
 });
 
 test('mixed currencies are never added or relabelled; native totals show omissions and legacy assumptions', () => {

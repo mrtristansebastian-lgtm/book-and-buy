@@ -19,6 +19,7 @@ const emptyDraft = () => ({
   id: '',
   name: '',
   price: '',
+  cost: '',
   duration: '60',
   fixedDuration: true,
   minDuration: '',
@@ -43,6 +44,7 @@ function toDraft(service) {
     id: service.id,
     name: service.name || '',
     price: String(service.price ?? ''),
+    cost: String(service.cost ?? ''),
     duration: String(service.duration ?? '60'),
     fixedDuration: service.fixedDuration !== false,
     minDuration: String(service.minDuration ?? ''),
@@ -65,6 +67,7 @@ function toDraft(service) {
           name: variant.name || '',
           description: variant.description || '',
           price: String(variant.price ?? ''),
+          cost: String(variant.cost ?? ''),
           minDuration: String(variant.minDuration ?? ''),
           available: variant.available !== false
         }))

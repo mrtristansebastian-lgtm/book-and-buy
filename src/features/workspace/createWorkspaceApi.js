@@ -11,6 +11,7 @@ import {
 } from '../../utils/staffAccess';
 import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 import { MODE_KEY, OWNER_KEY, DEMO_KEY, safeParse } from './workspacePersistence';
+import { demoBookingSnapshot, demoOrderCostSnapshot, demoPaymentSnapshot } from './demoFinancialSnapshots';
 
 export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError = () => {} }) {
     const updateBooking = async (id, patch) => {
@@ -24,7 +25,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
       setWorkspace((prev) => ({
         ...prev,
         bookings: prev.bookings.map((booking) =>
-          booking.id === id ? { ...booking, ...patch, updatedAt: Date.now() } : booking
+          booking.id === id ? { ...booking, ...patch, ...demoPaymentSnapshot(booking, patch), updatedAt: Date.now() } : booking
         )
       }));
     };
@@ -46,7 +47,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
       setWorkspace((prev) => ({
         ...prev,
         orders: prev.orders.map((order) =>
-          order.id === id ? { ...order, ...patch, updatedAt: Date.now() } : order
+          order.id === id ? { ...order, ...patch, ...demoPaymentSnapshot(order, patch), updatedAt: Date.now() } : order
         )
       }));
       return { id, ...patch };
@@ -134,8 +135,10 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           setWorkspace((prev) => ({ ...prev, bookings: [remote, ...prev.bookings.filter((b) => b.id !== remote.id)] }));
           return remote;
         }
-        setWorkspace((prev) => ({ ...prev, bookings: [record, ...prev.bookings] }));
-        return record;
+        const snapshot = demoBookingSnapshot(record, workspace);
+        const demoRecord = snapshot.paymentStatus === 'paid' ? { ...snapshot, ...demoPaymentSnapshot({ ...snapshot, paymentStatus: 'unpaid' }, { paymentStatus: 'paid' }) } : snapshot;
+        setWorkspace((prev) => ({ ...prev, bookings: [demoRecord, ...prev.bookings] }));
+        return demoRecord;
       },
       updateBooking,
       applyDemoReschedule: (threadId, proposal, actor) => {
@@ -155,7 +158,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           setWorkspace((prev) => ({ ...prev, orders: prev.orders.some((item) => item.id === order.id) ? prev.orders : [order, ...prev.orders] }));
           return order;
         }
-        const order = createPublicProductOrder({
+        const order = demoOrderCostSnapshot(createPublicProductOrder({
           workspaceSlug: workspace.slug,
           workspaceName: workspace.brandName,
           items,
@@ -163,7 +166,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           shipping,
           currency: workspace.currency || 'R',
           paymentMethod
-        });
+        }), workspace.products);
         setWorkspace((prev) => ({ ...prev, orders: [order, ...prev.orders] }));
         return order;
       },

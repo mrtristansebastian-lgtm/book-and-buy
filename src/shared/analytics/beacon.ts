@@ -117,10 +117,15 @@ function getAnalyticsSession(ctx: SessionContext, now = Date.now(), impression =
   const identityScope = impression ? `impression:${storageScope(ctx)}` : storageScope(ctx);
   const key = `${SESSION_KEY}:${identityScope}`;
   const visitorKey = `${VISITOR_KEY}:${identityScope}`;
+  const storedSession = readStoredJson(key);
   const { session, visitor } = nextAnonymousIdentity({
-    storedSession: readStoredJson(key), storedVisitor: readStoredJson(visitorKey),
+    storedSession, storedVisitor: readStoredJson(visitorKey),
     source: impression ? 'direct' : ctx.source, now, createId: createSessionId
   });
+  // Acquisition belongs to the original entry into this visit. Later browsing
+  // keeps it stable, and impressions never become receipt attribution.
+  if (!impression && session.id !== storedSession?.id && session.source === 'places' &&
+      ctx.discoverySurface && DISCOVERY_SURFACES.includes(ctx.discoverySurface)) session.acquisitionSurface = ctx.discoverySurface;
   writeStoredJson(visitorKey, visitor);
   writeStoredJson(key, session);
   return session;
@@ -228,6 +233,7 @@ async function writePresence(ctx: SessionContext, path: string, force = false) {
         slug: ctx.slug,
         ownerId: ctx.ownerId,
         ...anonymousMetadata(session),
+        ...(session.acquisitionSurface ? { acquisitionSurface: session.acquisitionSurface } : {}),
         startedAt: session.startedAt,
         lastSeenAt: now,
         path: String(path || '/').slice(0, 500),

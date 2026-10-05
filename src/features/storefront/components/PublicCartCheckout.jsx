@@ -320,7 +320,7 @@ export function PublicCartCheckout({
       if (!params.attemptId || !isFirebaseConfigured()) {
         setReturnState({
           kind: 'paid_local',
-          note: 'Payment return received. Confirm in Finance if the studio uses cloud payments.'
+          note: 'Payment return received. Confirm in Receipts & invoices if the studio uses cloud payments.'
         });
         return;
       }
