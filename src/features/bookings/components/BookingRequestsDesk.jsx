@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button } from '../../../shared/ui/Button';
 import { Check, DollarSign, Hourglass } from 'lucide-react';
-import { navigate } from '../../../app/routing';
-import { toDateKey } from '../../../utils/dates';
+import { getLocationPath, navigate, workspacePagePath } from '../../../app/routing';
+import { parseDateKey, toDateKey } from '../../../utils/dates';
 import {
   getPeriodRange,
   isDateKeyInPeriod,
@@ -116,6 +117,22 @@ export function BookingRequestsDesk({ heading = null }) {
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
   const [sortBy, setSortBy] = useState('latest');
+  const locationPath = typeof window === 'undefined' ? '' : getLocationPath();
+  const focusParams = new URLSearchParams(locationPath.split('?')[1] || '');
+  const focusedId = focusParams.get('booking') || '';
+  const focusedBooking = bookings.find(booking => String(booking.id) === focusedId);
+  const focusedDate = focusedBooking ? bookingDateKey(focusedBooking) : '';
+  const appliedFocus = useRef('');
+  useEffect(() => {
+    if (!focusedBooking) { if (!focusedId) appliedFocus.current = ''; return; }
+    const key = `${focusedId}|${focusedDate}`;
+    if (appliedFocus.current === key) return;
+    appliedFocus.current = key;
+    const date = parseDateKey(focusedDate);
+    setFilter('all');
+    setPeriod(date && toDateKey(date) === focusedDate ? 'day' : 'all');
+    if (date && toDateKey(date) === focusedDate) setDay(focusedDate);
+  }, [focusedId, focusedDate, Boolean(focusedBooking)]);
   const todayKey = toDateKey(new Date());
   const periodRange = useMemo(
     () => getPeriodRange(day, period, customRange),
@@ -145,16 +162,32 @@ export function BookingRequestsDesk({ heading = null }) {
     () =>
       bookings
         .filter((booking) => matchesFilter(booking, filter, todayKey))
-        .filter((booking) => isDateKeyInPeriod(bookingDateKey(booking), periodRange))
+        .filter((booking) => period === 'all' || isDateKeyInPeriod(bookingDateKey(booking), periodRange))
         .slice()
         .sort((a, b) => compareBookings(a, b, sortBy)),
-    [bookings, filter, periodRange, sortBy, todayKey]
+    [bookings, filter, period, periodRange, sortBy, todayKey]
   );
+
+  useEffect(() => {
+    if (!focusedId || !rows.some(booking => String(booking.id) === focusedId) || typeof document === 'undefined') return undefined;
+    const frame = requestAnimationFrame(() => {
+      const target = document.getElementById(`request-booking-${focusedId}`);
+      target?.scrollIntoView({ block: 'nearest' });
+      target?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focusedId, rows.length, period, filter, day]);
+
+  const clearFocus = () => {
+    focusParams.delete('booking');
+    const queryString = focusParams.toString();
+    navigate(locationPath.split('?')[0] + (queryString ? `?${queryString}` : ''), { replace: true });
+  };
 
   const openChat = (booking) => {
     const thread = startThreadFromBooking(booking);
     if (thread?.id) setSupportFocusThread(thread.id);
-    navigate('/dashboard/communications');
+    navigate(workspacePagePath('communications'));
   };
 
   const serviceFor = (booking) =>
@@ -202,6 +235,7 @@ export function BookingRequestsDesk({ heading = null }) {
         </div>
       </div>
 
+      {focusedBooking ? <div className="bb-ops-booking-focus" role="status"><span>Selected booking · <strong>{focusedBooking.clientName || 'Client'}</strong></span><Button action="clear" variant="secondary" onClick={clearFocus}>Clear selection</Button></div> : null}
       <div className="bb-ops-rows">
         {rows.length === 0 ? (
           <div className="bb-ops-empty">No booking requests in this view.</div>
@@ -220,7 +254,7 @@ export function BookingRequestsDesk({ heading = null }) {
             const needsApprove = status === 'pending';
 
             return (
-              <article key={booking.id} className="bb-ops-row">
+              <article key={booking.id} id={`request-booking-${booking.id}`} tabIndex={booking.id === focusedId ? -1 : undefined} aria-label={`Booking for ${booking.clientName || 'client'}`} className={`bb-ops-row${booking.id === focusedId ? ' is-focused-booking' : ''}`}>
                 <div className="bb-ops-person">
                   <OpsAvatar name={booking.clientName} />
                   <div className="bb-ops-person-copy">

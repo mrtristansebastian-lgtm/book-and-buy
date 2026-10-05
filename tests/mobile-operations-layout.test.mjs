@@ -43,9 +43,13 @@ test('the Google Calendar action uses its logo as one inline icon, not content s
   const action = page.match(/<Button action="sync"[\s\S]*?<\/Button>/)?.[0];
   assert.ok(action);
   assert.match(action, /icon=\{<img src="\/review-logos\/google-calendar\.webp" alt="" \/>\}/);
-  assert.match(action, />\s*Sync Google Calendar\s*<\/Button>/);
-  const declarations = mobileDeclarations('design/schedule-studio/desk.css', '.bb-schedule-google-button');
-  assert.equal(declarations.get('width'), 'auto');
+  assert.match(action, />\s*Google Calendar\s*<\/Button>/);
+  assert.match(action, /variant="secondary"/, 'An unconfigured calendar connection stays a secondary action');
+  const declarations = new Map();
+  postcss.parse(source('features/schedule/styles/schedule-agenda.css')).walkRules(rule => {
+    if (rule.selector === '.bb-schedule-agenda-page .bb-agenda-google-button') rule.walkDecls(declaration => declarations.set(declaration.prop, declaration.value));
+  });
+  assert.equal(declarations.get('flex'), '0 0 auto');
 });
 
 test('availability page headings have space to wrap on narrow screens', () => {

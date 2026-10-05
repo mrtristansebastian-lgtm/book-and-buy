@@ -25,6 +25,7 @@ const STATUS_LABELS = Object.freeze({
 export function AvailabilityMonthGrid({
   monthAnchor,
   selectedDay,
+  todayKey: businessTodayKey,
   onSelectDay,
   onPreviousMonth,
   onNextMonth,
@@ -39,7 +40,7 @@ export function AvailabilityMonthGrid({
   className = ''
 }) {
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
-  const todayKey = toDateKey(new Date());
+  const todayKey = businessTodayKey || toDateKey(new Date());
 
   return (
     <div className={`bb-availability-month-grid${className ? ` ${className}` : ''}`}>

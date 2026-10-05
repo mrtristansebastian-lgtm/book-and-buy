@@ -210,6 +210,11 @@
   border-bottom: 0;
 }
 
+.bb-ops-booking-focus { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .7rem; padding: .8rem 0; color: #667085; font-size: .8rem; }
+.bb-ops-booking-focus strong { color: #344054; font-weight: 600; }
+.bb-ops-row.is-focused-booking { background: #f8fafc; border-radius: 12px; box-shadow: inset 3px 0 #94a3b8; outline: 1px solid #e2e8f0; outline-offset: -1px; }
+.bb-ops-row.is-focused-booking:focus-visible { outline: 2px solid #6941c6; outline-offset: 2px; }
+
 /* Col 1 — person */
 .bb-ops-person {
   display: flex;

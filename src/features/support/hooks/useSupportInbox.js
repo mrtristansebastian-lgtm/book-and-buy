@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { takeSupportFocusThread } from '../utils/supportFormat';
 import { collection, doc, limit, onSnapshot, query, updateDoc, where, writeBatch } from 'firebase/firestore';
@@ -25,19 +25,61 @@ export function useSupportInbox() {
     cancelOrder
   } = ctx;
 
-  const [activeId, setActiveId] = useState('');
-  const [remoteThreads, setRemoteThreads] = useState([]);
-  const [remoteMessages, setRemoteMessages] = useState([]);
+  const ownerId = ctx.workspace.ownerId || '';
+  const demo = ctx.workspace.isDemo === true;
+  const scope = `${demo ? 'demo' : 'owner'}:${ownerId}`;
+  const [selection, setSelection] = useState({ scope, id: '' });
+  const activeId = selection.scope === scope ? selection.id : '';
+  const setActiveId = id => setSelection({ scope, id });
+  // Keep Schedule/Requests focus until the asynchronous owner thread listener
+  // contains it. Consuming storage again on each snapshot loses this request.
+  const focusThread = useRef(undefined);
+  if (focusThread.current === undefined) focusThread.current = { scope, id: takeSupportFocusThread() };
+  if (focusThread.current.scope !== scope) focusThread.current = { scope, id: '' };
+  const focusId = focusThread.current.scope === scope ? focusThread.current.id : '';
+  const requestedId = focusId || activeId;
+  const [remoteList, setRemoteList] = useState({ scope: '', threads: [] });
+  const [focusedRemote, setFocusedRemote] = useState({ scope: '', id: '', thread: null });
+  const [messageState, setMessageState] = useState({ scope: '', id: '', messages: [] });
+  const remoteThreads = useMemo(() => {
+    const merged = new Map((remoteList.scope === scope ? remoteList.threads : []).map(thread => [thread.id, thread]));
+    if (focusedRemote.scope === scope && focusedRemote.id === requestedId && focusedRemote.thread) {
+      merged.set(focusedRemote.id, focusedRemote.thread);
+    }
+    return [...merged.values()];
+  }, [remoteList, focusedRemote, requestedId, scope]);
+  const remoteMessages = messageState.scope === scope && messageState.id === activeId ? messageState.messages : [];
   useEffect(() => {
+    let active = true;
+    setRemoteList({ scope, threads: [] });
     const firebase = getFirebase();
-    if (ctx.workspace.isDemo || !firebase || !ctx.workspace.ownerId) { setRemoteThreads([]); return undefined; }
-    return onSnapshot(query(collection(firebase.db, 'artifacts', APP_ID, 'clientThreads'), where('ownerId', '==', ctx.workspace.ownerId), limit(60)), (snapshot) => setRemoteThreads(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), () => setRemoteThreads([]));
-  }, [ctx.workspace.isDemo, ctx.workspace.ownerId]);
+    if (demo || !firebase || !ownerId) return undefined;
+    const unsubscribe = onSnapshot(query(collection(firebase.db, 'artifacts', APP_ID, 'clientThreads'), where('ownerId', '==', ownerId), limit(60)), snapshot => {
+      if (active) setRemoteList({ scope, threads: snapshot.docs.filter(item => item.data().ownerId === ownerId).map(item => ({ ...item.data(), id: item.id })) });
+    }, () => { if (active) setRemoteList({ scope, threads: [] }); });
+    return () => { active = false; unsubscribe(); };
+  }, [scope, demo, ownerId]);
+  // A requested conversation may be older than the bounded inbox query. Read
+  // that existing document separately, and include it only for this owner.
   useEffect(() => {
-    setRemoteMessages([]);
+    let active = true;
+    setFocusedRemote({ scope, id: requestedId, thread: null });
+    const firebase = getFirebase();
+    if (demo || !firebase || !ownerId || !/^[a-zA-Z0-9_-]{1,128}$/.test(requestedId)) return undefined;
+    const unsubscribe = onSnapshot(doc(firebase.db, 'artifacts', APP_ID, 'clientThreads', requestedId), snapshot => {
+      if (!active) return;
+      const data = snapshot.exists() ? snapshot.data() : null;
+      setFocusedRemote({ scope, id: requestedId, thread: data?.ownerId === ownerId ? { ...data, id: requestedId } : null });
+    }, () => { if (active) setFocusedRemote({ scope, id: requestedId, thread: null }); });
+    return () => { active = false; unsubscribe(); };
+  }, [scope, demo, ownerId, requestedId]);
+  useEffect(() => {
+    let active = true;
+    setMessageState({ scope, id: activeId, messages: [] });
     if (!activeId || !remoteThreads.some((thread) => thread.id === activeId)) return undefined;
-    return subscribeThreadMessages(activeId, setRemoteMessages);
-  }, [activeId, remoteThreads.map((thread) => thread.id).join('|')]);
+    const unsubscribe = subscribeThreadMessages(activeId, messages => { if (active) setMessageState({ scope, id: activeId, messages }); });
+    return () => { active = false; unsubscribe(); };
+  }, [scope, activeId, remoteThreads.map((thread) => thread.id).join('|')]);
   const updateThread = (id, patch) => {
     const firebase = getFirebase();
     if (ctx.workspace.isDemo || !remoteThreads.some((thread) => thread.id === id)) return updateLocalThread(id, patch);
@@ -65,14 +107,20 @@ export function useSupportInbox() {
   const [composerPrefill, setComposerPrefill] = useState('');
 
   useEffect(() => {
-    const focusId = takeSupportFocusThread();
+    setSelection({ scope, id: '' });
+    setMobileShowChat(false);
+    setClientDrawerOpen(false);
+  }, [scope]);
+
+  useEffect(() => {
     if (focusId && sorted.some((thread) => thread.id === focusId)) {
+      focusThread.current = { scope, id: '' };
       setActiveId(focusId);
       setMobileShowChat(true);
       return;
     }
     if (!activeId && sorted[0]?.id) setActiveId(sorted[0].id);
-  }, [sorted, activeId]);
+  }, [sorted, activeId, focusId, scope]);
 
   const active = sorted.find((thread) => thread.id === activeId) || sorted[0] || null;
 
@@ -148,6 +196,7 @@ export function useSupportInbox() {
     clientOrders.find((order) => order.id === active?.orderId) || clientOrders[0] || null;
 
   const selectThread = (id) => {
+    focusThread.current = { scope, id: '' };
     setActiveId(id);
     setMobileShowChat(true);
     setClientDrawerOpen(false);
