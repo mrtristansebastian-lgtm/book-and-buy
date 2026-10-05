@@ -1,5 +1,6 @@
 import { Button } from '../../../shared/ui/Button';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { DateField } from '../../../shared/ui/DateField';
 import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
@@ -54,6 +55,7 @@ export function AdvanceBookingField({
   onChange,
   disabled = false
 }) {
+  const fieldId = useId();
   const todayKey = toDateKey(new Date());
   const resolved = useMemo(
     () => resolveMode(days, until, todayKey),
@@ -107,23 +109,24 @@ export function AdvanceBookingField({
   return (
     <>
       <div className={`bb-advance-field${disabled ? ' is-disabled' : ''}`}>
-        <span className="bb-advance-field-label">Future calendar availability period</span>
+        <span id={`${fieldId}-label`} className="bb-advance-field-label">Future calendar availability period</span>
         <button
           type="button"
           className="bb-advance-field-value"
           disabled={disabled}
           aria-haspopup="dialog"
           aria-expanded={open}
+          aria-labelledby={`${fieldId}-label ${fieldId}-value`}
           onClick={() => {
             if (!disabled) setOpen(true);
           }}
         >
-          <span>{triggerLabel}</span>
+          <span id={`${fieldId}-value`}>{triggerLabel}</span>
           <ChevronDown size={15} strokeWidth={2.4} />
         </button>
       </div>
 
-      {open ? (
+      {open && typeof document !== 'undefined' ? createPortal(
         <div
           className="bb-advance-picker-backdrop"
           role="presentation"
@@ -135,11 +138,11 @@ export function AdvanceBookingField({
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
-            aria-labelledby="advance-booking-title"
+            aria-labelledby={`${fieldId}-title`}
             onClick={(event) => event.stopPropagation()}
           >
             <header className="bb-advance-picker-head">
-              <h2 id="advance-booking-title" className="bb-advance-picker-title">
+              <h2 id={`${fieldId}-title`} className="bb-advance-picker-title">
                 Future calendar availability period
               </h2>
               <p className="bb-advance-picker-hint">
@@ -202,7 +205,7 @@ export function AdvanceBookingField({
               </Button>
             </footer>
           </div>
-        </div>
+        </div>, document.body
       ) : null}
     </>
   );

@@ -466,7 +466,9 @@ button.bb-checkout-tile {
   width: 100%;
   padding: 1.15rem 1.15rem 1.1rem;
   border-radius: 1.35rem;
-  background: linear-gradient(90deg, #dff7b8 0%, #d7f3e8 42%, #d5f0f6 100%);
+  background: var(--native-brand-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
   text-align: left;
   box-sizing: border-box;
 }

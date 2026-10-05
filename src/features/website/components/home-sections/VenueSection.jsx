@@ -50,7 +50,12 @@ export function VenueSection({ website, venueImages = [], editMode, hidden, patc
       {active && typeof document !== 'undefined' ? createPortal(
         <div className="bb-business-photo-overlay">
           <div className="bb-business-photo-backdrop" onClick={close} />
-          <section ref={dialogRef} className="bb-business-photo-dialog" role="dialog" aria-modal="true" aria-label="Business photo">
+          <section ref={dialogRef} className="bb-business-photo-dialog" role="dialog" aria-modal="true" aria-label="Business photo"
+            onKeyDown={(event) => {
+              if (visible.length < 2 || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+              event.preventDefault();
+              setViewerIndex((index) => (index + (event.key === 'ArrowRight' ? 1 : -1) + visible.length) % visible.length);
+            }}>
             <header><span>Photos</span><Button action="close" variant="secondary" onClick={close}>Close</Button></header>
             <img src={active.url} alt={active.caption || 'Business photo'} />
             {active.caption ? <p>{active.caption}</p> : null}

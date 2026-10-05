@@ -49,8 +49,8 @@ export function BusinessOnboardingPage() {
   };
 
   return (
-    <div className="bb-shell native-ui min-h-screen flex items-center justify-center px-5 py-10">
-      <div className="w-full max-w-lg grid gap-6">
+    <div className="bb-shell native-ui bb-onboarding">
+      <div className="bb-onboarding-content">
         <header className="grid gap-2">
           <BrandMark size="lg" className="bb-onboarding-brand" />
           <h1 className="bb-page-title text-3xl m-0">Set up your free business profile</h1>

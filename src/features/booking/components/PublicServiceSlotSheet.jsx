@@ -1,6 +1,7 @@
 import { Button } from '../../../shared/ui/Button';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DateField } from '../../../shared/ui/DateField';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import { getDaySlots, getMaxBookableDateKey } from '../../../utils/availability';
 import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import {
@@ -45,6 +46,8 @@ export function PublicServiceSlotSheet({
   onClose,
   onConfirm
 }) {
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, open && Boolean(service), onClose);
   const todayKey = toDateKey(new Date());
   const maxBookableDateKey = useMemo(
     () => getMaxBookableDateKey(workspace.availabilityRules, todayKey),
@@ -153,6 +156,8 @@ export function PublicServiceSlotSheet({
         onClick={onClose}
       >
         <div
+          ref={panelRef}
+          tabIndex={-1}
           className="bb-panel bb-public-slot-sheet"
           role="dialog"
           aria-modal="true"
@@ -200,6 +205,8 @@ export function PublicServiceSlotSheet({
   return (
     <div className="bb-public-slot-sheet-backdrop" role="presentation" onClick={onClose}>
       <div
+        ref={panelRef}
+        tabIndex={-1}
         className="bb-panel bb-public-slot-sheet"
         role="dialog"
         aria-modal="true"

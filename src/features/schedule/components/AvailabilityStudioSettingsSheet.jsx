@@ -1,8 +1,9 @@
 import { Button } from '../../../shared/ui/Button';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Clock, CalendarDays, X } from 'lucide-react';
 import { TimeField } from '../../../shared/ui/TimeField';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import { WEEKDAY_KEYS } from '../../../utils/staffAvailability';
 import { seedWeekdayHours, buildBusinessHoursPatch } from '../utils/businessHoursSettings';
 import { AdvanceBookingField } from './AdvanceBookingField';
@@ -112,6 +113,8 @@ export function AvailabilityStudioSettingsSheet({
   onClose,
   showBusinessHours = true
 }) {
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, true, onClose);
   const sections = SECTIONS.filter((section) => {
     if (section.id === 'hours') return showBusinessHours;
     return true;
@@ -129,19 +132,6 @@ export function AvailabilityStudioSettingsSheet({
           lede: 'How far ahead clients can book on your calendar.'
         };
 
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKey = (event) => {
-      if (event.key === 'Escape') onClose?.();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [onClose]);
-
   if (typeof document === 'undefined') return null;
 
   return createPortal(
@@ -152,7 +142,7 @@ export function AvailabilityStudioSettingsSheet({
       aria-label="Availability settings"
     >
       <div className="bb-services-sheet-backdrop" onClick={onClose} />
-      <div className="bb-services-sheet-panel bb-schedule-avail-settings-panel">
+      <div ref={panelRef} tabIndex={-1} className="bb-services-sheet-panel bb-schedule-avail-settings-panel">
         <header className="bb-services-sheet-head">
           <div>
             <p className="bb-services-sheet-eyebrow">Availability Studio</p>
@@ -161,10 +151,10 @@ export function AvailabilityStudioSettingsSheet({
           <button
             type="button"
             className="bb-ghost-btn bb-services-sheet-close"
-            aria-label="Close"
+            aria-label="Close availability settings"
             onClick={onClose}
           >
-            <X size={18} />
+            <X size={18} aria-hidden="true" />
           </button>
         </header>
 

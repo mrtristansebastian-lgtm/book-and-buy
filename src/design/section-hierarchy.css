@@ -1,0 +1,122 @@
+/* Major reporting sections have one small brand landmark, leaving data and
+   secondary tables on quiet surfaces. The accent shares the dock's phase. */
+.bb-reports .bb-analytics-chart-panel { overflow: visible; }
+.bb-sort-picker-sheet { max-height: calc(100dvh - 32px); box-sizing: border-box; overscroll-behavior: contain; border-radius: 16px; }
+.bb-sort-picker-backdrop { box-sizing: border-box; }
+/* Nested pickers stay above the scheduling/settings sheet that opened them. */
+.bb-advance-picker-backdrop { z-index: 160; }
+.bb-date-picker-backdrop, .bb-time-picker-backdrop { z-index: 180; }
+.bb-settings-business-hours .bb-schedule-hours-rows { max-width: none; }
+.bb-image-crop-head { grid-template-columns: 44px minmax(0,1fr) auto; }
+.bb-image-crop-icon-btn { width: 44px; height: 44px; }
+.bb-image-crop-done, .bb-image-crop-ratio { min-height: 44px; }
+.bb-image-crop-shell { max-height: calc(100dvh - 24px); }
+.bb-image-crop-stage { min-height: 0; overflow: auto; }
+@media (max-width: 899px) {
+  html body .bb-launcher .bb-button.bb-home-utility-action[data-variant] { min-height: 36px !important; padding: 6px 10px !important; }
+}
+.bb-reports-section-head > div:first-child,
+.bb-reports-chart-head > div:first-child,
+.bb-finance-ledger-title-row > .bb-finance-ledger-title,
+.bb-analytics > .bb-analytics-panel > .bb-analytics-panel-head {
+  position: relative;
+  min-width: 0;
+  padding-top: 15px;
+}
+.bb-reports-section-head > div:first-child::before,
+.bb-reports-chart-head > div:first-child::before,
+.bb-finance-ledger-title-row > .bb-finance-ledger-title::before,
+.bb-analytics > .bb-analytics-panel > .bb-analytics-panel-head::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background-image: var(--native-brand-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 0%) 50%;
+  pointer-events: none;
+}
+.bb-reports-section-head,
+.bb-reports-chart-head,
+.bb-finance-ledger-title-row {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.bb-reports-section-head,
+.bb-reports-chart-head { align-items: flex-start; }
+.bb-reports-section-head > div:first-child,
+.bb-reports-chart-head > div:first-child { flex: 1 1 260px; }
+.bb-reports-section-head > div:first-child > h2,
+.bb-reports-chart-head > div:first-child > h2 { margin: 0; }
+.bb-reports-section-head > div:first-child > p,
+.bb-reports-chart-head > div:first-child > p {
+  margin: 6px 0 0;
+  max-width: 65ch;
+  line-height: 1.6;
+}
+.bb-analytics-panel-head { gap: 6px; }
+.bb-analytics-panel-head--row { gap: 16px; }
+.bb-finance-ledger-head { gap: 16px; }
+.bb-finance-ledger-title-row { align-items: flex-end; }
+.bb-finance-ledger-title-row > .bb-finance-ledger-title { margin: 0; }
+.bb-finance-ledger-actions { min-width: 0; max-width: 100%; flex-wrap: wrap; }
+
+/* Empty states use the same readable structure across feeds and libraries;
+   only their icon carries a brand fill, rather than the whole empty pane. */
+.bb-empty-state {
+  gap: 8px;
+  padding: 32px 16px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.bb-empty-state.is-compact { gap: 8px; padding: 24px 16px; }
+.bb-empty-state-icon,
+.bb-client-saved-empty > svg {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  margin-bottom: 4px;
+  border-radius: 16px;
+  color: #101828;
+  background-image: var(--native-brand-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 0%) 50%;
+}
+.bb-client-saved-empty > svg { padding: 14px; }
+html body .native-ui .bb-empty-state-title,
+html body .native-ui .bb-client-saved-empty > strong {
+  margin: 0;
+  max-width: 28ch;
+  font-size: 20px !important;
+  font-weight: 650 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -.02em !important;
+  overflow-wrap: anywhere;
+}
+.bb-empty-state-copy,
+.bb-client-saved-empty > span {
+  max-width: 36ch;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.bb-empty-state-actions {
+  max-width: 100%;
+  gap: 8px;
+  margin-top: 16px;
+}
+.bb-client-saved-empty { gap: 8px; padding: 32px 16px; }
+.bb-client-saved-empty > .bb-button { margin-top: 16px; max-width: 100%; }
+@media (max-width: 700px) {
+  .bb-finance-ledger-title-row { align-items: flex-start; }
+  .bb-finance-ledger-actions { width: 100%; }
+  .bb-reports-section-head > div:first-child,
+  .bb-reports-chart-head > div:first-child { flex-basis: 100%; }
+}

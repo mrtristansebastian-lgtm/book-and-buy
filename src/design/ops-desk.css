@@ -40,6 +40,18 @@
 }
 .bb-ops-filter-icon svg { display: block; }
 
+/* Ops filters share the inbox chip component, but the desk uses its full page
+   width. Keep each status at its content width instead of inheriting the
+   inbox's three-column sidebar grid. */
+.bb-support-chips.bb-ops-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.bb-ops-filter-chips > .bb-filter-chip { flex: 0 1 auto; width: auto; }
+
 @media (max-width: 640px) {
   .bb-ops-page-head { flex-wrap: wrap; }
   .bb-support-chips.bb-ops-filter-chips {

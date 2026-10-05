@@ -1868,12 +1868,11 @@
 
 /* Flush Schedule shell — sharp, aligned and intentionally page-like. */
 .bb-owner-main:has(> .bb-schedule-desk) {
-  padding-inline: clamp(0.85rem, 1.6vw, 1.5rem);
   background: #fff;
 }
 
 .bb-schedule-desk {
-  gap: 0.75rem;
+  gap: var(--bb-page-gap, 1.5rem);
   background: #fff;
 }
 
@@ -1955,7 +1954,6 @@
 }
 
 @media (max-width: 720px) {
-  .bb-owner-main:has(> .bb-schedule-desk) { padding-inline: 0.75rem; }
   .bb-schedule-workspace { border-top: 0; }
   .bb-schedule-sidebar,
   .bb-schedule-main { padding-top: 0.65rem; }

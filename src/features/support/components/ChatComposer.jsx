@@ -218,7 +218,7 @@ export function ChatComposer({
           <input
             ref={inputRef}
             type="text"
-            className="bb-support-composer-input"
+            className="bb-support-composer-input native-control-nest"
             placeholder={pending.length ? 'Add a caption…' : 'Message…'}
             value={draft}
             disabled={disabled || busy}

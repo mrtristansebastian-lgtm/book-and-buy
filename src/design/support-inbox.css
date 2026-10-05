@@ -41,7 +41,7 @@
 }
 
 .bb-support-list-head {
-  padding: 0.95rem 1rem 0.9rem;
+  padding: 1rem var(--bb-page-gutter, 1rem);
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   display: grid;
   gap: 0.85rem;
@@ -61,14 +61,6 @@
   width: min(16rem, 130%);
   height: 4.5rem;
   left: -1rem;
-}
-
-.bb-support-inbox-title {
-  font-size: clamp(1.55rem, 2.6vw, 2.05rem);
-}
-
-html body .native-ui .bb-support-inbox-title {
-  font-size: clamp(1.55rem, 2.6vw, 2.05rem) !important;
 }
 
 .bb-support-search {
@@ -179,7 +171,7 @@ html body .native-ui .bb-support-inbox-title {
   border: 0;
   border-bottom: 1px solid rgba(15, 23, 42, 0.05);
   background: transparent;
-  padding: 1.2rem 1.05rem;
+  padding: 1.2rem var(--bb-page-gutter, 1rem);
   cursor: pointer;
 }
 
@@ -229,7 +221,8 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 .bb-support-avatar-face {
-  position: relative;
+  position: absolute;
+  inset: 0;
   min-width: 0;
   min-height: 0;
   width: 100%;
@@ -364,7 +357,7 @@ html body .native-ui .bb-support-inbox-title {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.95rem 1.1rem;
+  padding: 0.95rem var(--bb-page-gutter, 1rem);
   border-bottom: 1px solid rgba(15, 23, 42, 0.06);
   flex-shrink: 0;
   position: sticky;
@@ -579,7 +572,7 @@ html body .native-ui .bb-support-inbox-title {
   overflow-x: hidden;
   overflow-y: auto;
   min-height: 0;
-  padding: 1.1rem 1.15rem 1.25rem;
+  padding: 1.1rem var(--bb-page-gutter, 1rem) 1.25rem;
   display: grid;
   gap: 0.65rem;
   align-content: start;
@@ -840,7 +833,7 @@ html body .native-ui .bb-support-inbox-title {
 
 .bb-support-composer-wrap {
   border-top: 1px solid rgba(15, 23, 42, 0.06);
-  padding: 0.65rem 0.9rem 0.75rem;
+  padding: 0.65rem var(--bb-page-gutter, 1rem) 0.75rem;
   display: grid;
   gap: 0.4rem;
   background: #fff;
@@ -1210,7 +1203,18 @@ html body .native-ui .bb-support-inbox-title {
 }
 
 @media (max-width: 1023px) {
-  .bb-support-list-head { padding: 12px 14px; gap: 10px; }
+  .bb-support-list-head { padding: 1rem var(--bb-page-gutter, 1rem); gap: 12px; }
+
+  /* Keep the text area and attachment/voice/send targets inside a single
+     composer shell, with enough room for separate touch targets. */
+  .bb-support-composer { min-height: 56px; height: 56px; padding-inline: 4px; }
+  .bb-support-composer-icon,
+  .bb-support-composer-send { width: 44px; height: 44px; }
+  .bb-support-rec-strip { min-height: 56px; height: auto; padding-block: 5px; }
+  .bb-support-rec-stop,
+  .bb-support-rec-send,
+  .bb-support-quick-item { min-height: 44px; height: auto; }
+  .bb-support-attach-file-dl { width: 44px; height: 44px; }
 
   /* Anchor the popup to the full action row, not the narrower trigger. */
   .bb-support-header-actions { position: relative; width: 100%; }
@@ -1232,7 +1236,7 @@ html body .native-ui .bb-support-inbox-title {
     grid-template-columns: 48px minmax(0, 1fr) minmax(24px, auto);
     gap: 12px;
     min-height: 88px;
-    padding: 16px;
+    padding: 16px var(--bb-page-gutter, 1rem);
   }
 
   .bb-support-thread > .bb-support-avatar {

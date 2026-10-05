@@ -109,7 +109,7 @@ test('only explicit Delete and Remove actions become accessible dustbin-only but
   assert.match(busy, /bb-control-sr-only">Deleting…/);
 });
 
-test('dustbin geometry is square, centered and compact, without shrinking other actions', () => {
+test('dustbin geometry is square and centered with a comfortable mobile touch target', () => {
   const css = postcss.parse(readFileSync(new URL('../src/design/universal-controls.css', import.meta.url), 'utf8'));
   const values = node => Object.fromEntries(node.nodes.filter(n => n.type === 'decl').map(n => [n.prop,n.value]));
   const base = values(css.nodes.find(n => n.selector === 'html body .bb-button.is-icon-only[data-variant]'));
@@ -118,8 +118,10 @@ test('dustbin geometry is square, centered and compact, without shrinking other 
   assert.equal(base.padding, '0');
   const mobile = css.nodes.find(n => n.type === 'atrule' && n.params === '(max-width: 899px)');
   const compact = values(mobile.nodes.find(n => n.selector === 'html body .bb-button.is-icon-only[data-variant]'));
-  assert.equal(compact.width, '32px');
-  assert.equal(compact['min-height'], '32px');
+  assert.equal(compact.width, '36px');
+  assert.equal(compact['min-width'], '36px');
+  assert.equal(compact['min-height'], '36px');
+  assert.equal(compact['flex-basis'], '36px');
   const label = values(css.nodes.find(n => n.selector === 'html body .bb-control-sr-only'));
   assert.equal(label['clip-path'], 'inset(50%)');
   assert.notEqual(label.display, 'none');
@@ -237,13 +239,13 @@ test('busy actions keep their original icon and label in layout with an accessib
   assert.ok(overlayRule.nodes.some((node) => node.type === 'decl' && node.prop === 'position' && node.value === 'absolute'));
 });
 
-test('mobile actions stay compact globally and in narrow profile previews without shrinking fields or clipping labels', () => {
+test('mobile actions have comfortable touch targets globally and in narrow profile previews without clipping labels', () => {
   const css = postcss.parse(readFileSync(new URL('../src/design/universal-controls.css', import.meta.url), 'utf8'));
   const declarations = (rule) => Object.fromEntries((rule.nodes || []).filter((node) => node.type === 'decl').map((node) => [node.prop, node.value]));
   const mobile = css.nodes.find((node) => node.type === 'atrule' && node.name === 'media' && node.params === '(max-width: 899px)');
   const tokens = declarations(mobile.nodes.find((node) => node.selector === ':root'));
-  assert.equal(tokens['--bb-button-height'], '32px');
-  assert.equal(tokens['--bb-filter-height'], '30px');
+  assert.equal(tokens['--bb-button-height'], '36px');
+  assert.equal(tokens['--bb-filter-height'], '32px');
   assert.equal(tokens['--bb-control-height'], '44px', 'Fields retain their comfortable input geometry');
   const base = declarations(css.nodes.find((node) => node.selector === 'html body .bb-button[data-variant]'));
   assert.equal(base['align-self'], 'center', 'Grid rows must not stretch action height');
@@ -257,8 +259,11 @@ test('mobile actions stay compact globally and in narrow profile previews withou
   const counts = declarations(css.nodes.find((node) => node.selector === 'html body .bb-count-badge'));
   assert.equal(counts.height, '22px', 'Exact counts retain their centered badge, not truncated tiny circles');
   const profile = postcss.parse(readFileSync(new URL('../src/design/business-profile.css', import.meta.url), 'utf8'));
-  const narrow = profile.nodes.find((node) => node.type === 'atrule' && node.name === 'container' && node.params === 'bb-profile-width (max-width: 600px)');
-  assert.equal(declarations(narrow.nodes.find((node) => node.selector === '.bb-business-profile'))['--bb-button-height'], '32px');
+  const narrow = profile.nodes.find((node) => node.type === 'atrule' && node.name === 'container' && node.params === 'bb-profile-width (max-width: 599px)');
+  const profileTokens = declarations(narrow.nodes.find((node) => node.selector === '.bb-business-profile'));
+  assert.equal(profileTokens['--bb-button-height'], '36px');
+  assert.equal(profileTokens['--bb-control-height'], '44px');
+  assert.equal(profileTokens['--bb-filter-height'], '32px');
 });
 
 test('filter chips preserve zero and arbitrarily large exact counts', () => {

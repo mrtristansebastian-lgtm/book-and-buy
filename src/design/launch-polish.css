@@ -23,10 +23,10 @@ html body .native-ui :is(.bb-analytics-panel-lede, .bb-analytics-demo-note, .bb-
   html body .native-ui :is(.bb-analytics-panel-title, .bb-finance-ledger-title) { font-size: 21px !important; }
   .bb-analytics-panel { padding: 16px; }
   .bb-analytics-kpi { min-height: 92px; padding-inline: 8px; }
-  .bb-finance-icon-btn { width: 44px; height: 44px; flex: 0 0 44px; }
+  .bb-finance-icon-btn { width: 36px; height: 36px; flex: 0 0 36px; }
   .bb-finance-ledger-title-row { align-items: flex-start; }
-  .bb-finance-ledger-head { padding-inline: 16px; min-width: 0; }
-  .bb-analytics { padding-inline: 16px; box-sizing: border-box; }
+  .bb-finance-ledger-head { padding-inline: 0; min-width: 0; }
+  .bb-analytics { padding-inline: 0; box-sizing: border-box; }
   .bb-finance-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .bb-finance-metric { padding: 12px; }
   .bb-finance-metric--hero { grid-column: 1 / -1; }

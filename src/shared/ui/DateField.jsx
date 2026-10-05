@@ -160,6 +160,9 @@ export function DateField({
                         key={key}
                         type="button"
                         disabled={blocked}
+                        aria-label={date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                        aria-pressed={isSelected}
+                        aria-current={isToday ? 'date' : undefined}
                         className={`bb-schedule-picker-day${isSelected ? ' is-selected' : ''}${
                           isToday ? ' is-today' : ''
                         }${inMonth ? '' : ' is-outside'}${blocked ? ' is-blocked' : ''}`}
@@ -173,7 +176,7 @@ export function DateField({
                   })}
                 </div>
 
-                <p className="bb-date-picker-summary">{formatDisplayDate(draftDay)}</p>
+                <p className="bb-date-picker-summary" aria-live="polite">{formatDisplayDate(draftDay)}</p>
 
                 <footer className="bb-date-picker-actions">
                   <Button action="today" variant="secondary"

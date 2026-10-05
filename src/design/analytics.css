@@ -8,7 +8,8 @@
   --bb-analytics-accent-soft: rgba(13, 148, 136, 0.14);
   --bb-analytics-sky: #38bdf8;
   display: grid;
-  gap: 1.35rem;
+  min-width: 0;
+  gap: var(--bb-page-gap, 1.5rem);
   padding-bottom: 2.25rem;
   animation: bb-analytics-rise 0.5s ease both;
 }
@@ -51,6 +52,7 @@
 .bb-analytics-header-copy {
   display: grid;
   gap: 0.25rem;
+  min-width: 0;
 }
 
 .bb-analytics-eyebrow {
@@ -554,7 +556,7 @@
   position: relative;
   width: 100%;
   max-width: none;
-  aspect-ratio: 940 / 432;
+  aspect-ratio: 924 / 416;
   margin: 0;
   transform-origin: center center;
   will-change: transform;
@@ -915,8 +917,19 @@
     padding: 0;
   }
 
+  .bb-live-world-stage:not(.bb-live-country-stage) {
+    width: 100%;
+    min-height: 0;
+    margin-inline: 0;
+    padding-bottom: 56px;
+  }
+
   .bb-live-world-canvas {
     width: 100%;
+    max-width: none;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 924 / 416;
     margin: 0;
   }
   .bb-live-world-controls { top: .6rem; left: .6rem; }

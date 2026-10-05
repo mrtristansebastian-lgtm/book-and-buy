@@ -46,13 +46,13 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
     viewerId: user?.uid, allowOwnerPreview: allowLocalDemo });
   if (resolved.status === 'loading') {
     return (
-      <div className="bb-shell native-ui min-h-screen grid place-items-center bb-muted">
+      <div className="bb-shell bb-public-page-shell is-profile-status native-ui min-h-screen grid place-items-center bb-muted">
         Loading business profile…
       </div>
     );
   }
   if (!resolved.workspace) {
-    return <div className="bb-shell native-ui min-h-screen bg-white grid place-items-center">
+    return <div className="bb-shell bb-public-page-shell is-profile-status native-ui min-h-screen bg-white grid place-items-center">
       <section className="bb-public-profile-unavailable">
         <h1>Business profile unavailable</h1>
         <p>{resolved.status === 'error' ? 'We could not load this profile. Please try again shortly.' : 'This profile has not been published, or the link is no longer available.'}</p>
@@ -68,7 +68,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
   const buyerWorkspace = filterWorkspaceForMarket(workspace, buyerCountry);
 
   return (
-    <div className="bb-shell native-ui min-h-screen bg-white">
+    <div className="bb-shell bb-public-page-shell native-ui min-h-screen bg-white">
       {!useLocalDemo && !resolved.publicMode ? <p className="bb-public-profile-preview-notice" role="status">Owner preview — this profile is not published yet.</p> : null}
       <PublicSurfaceRenderer
         workspace={buyerWorkspace}

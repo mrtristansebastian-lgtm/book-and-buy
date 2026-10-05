@@ -1,24 +1,27 @@
 /* Shared public E-Business layout */
+.bb-shell.bb-public-page-shell {
+  display: block;
+  height: auto;
+  max-height: none;
+  min-height: 100dvh;
+  overflow: visible;
+  background: #fff;
+}
+
+.bb-shell.bb-public-page-shell.is-profile-status {
+  display: grid;
+  place-items: center;
+  padding: var(--bb-page-gutter, 1rem);
+  box-sizing: border-box;
+}
+
 .bb-public-surface {
-  --bb-public-gutter: 1.25rem;
-  --bb-public-gutter-lg: 2.5rem;
+  --bb-public-gutter: var(--bb-page-gutter, 1rem);
   --bb-public-measure: 52rem;
   --bb-public-measure-wide: 64rem;
   --bb-public-header-h: 3.75rem;
   min-height: 100%;
   background: #fff;
-}
-
-@media (min-width: 768px) {
-  .bb-public-surface {
-    --bb-public-gutter: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .bb-public-surface {
-    --bb-public-gutter: var(--bb-public-gutter-lg);
-  }
 }
 
 .bb-public-gutter {

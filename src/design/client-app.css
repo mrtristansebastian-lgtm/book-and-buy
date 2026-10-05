@@ -1,6 +1,7 @@
 /* Client app shell ? mobile phone chrome; PC full-width like business mini-apps */
 
 .bb-client-shell {
+  --bb-client-gutter: var(--bb-page-gutter, 1rem);
   --bb-client-tab-h: calc(4rem + env(safe-area-inset-bottom, 0px));
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) var(--bb-client-tab-h);
@@ -29,7 +30,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   min-height: 3.25rem;
-  padding: 0.85rem 1rem 0.75rem;
+  padding: 0.85rem var(--bb-client-gutter) 0.75rem;
   padding-top: max(0.85rem, env(safe-area-inset-top));
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
   background: rgba(255, 255, 255, 0.94);
@@ -121,6 +122,7 @@
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   background: #fafafa;
+  scrollbar-width: thin;
 }
 
 .bb-client-tabs {
@@ -184,8 +186,8 @@
     justify-content: space-between;
     gap: 1.25rem;
     min-height: 3.5rem;
-    padding: 0.85rem 1.1rem 0.8rem;
-    padding-left: calc(1.1rem + var(--bb-client-dock-w));
+    padding: 0.85rem var(--bb-client-gutter) 0.8rem;
+    padding-left: calc(var(--bb-client-gutter) + var(--bb-client-dock-w));
     border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     background: rgba(255, 255, 255, 0.88);
     flex: 0 0 auto;
@@ -273,8 +275,8 @@
 
 @media (min-width: 1280px) {
   .bb-client-top {
-    padding-inline: 1.1rem;
-    padding-left: calc(1.1rem + var(--bb-client-dock-w, 4.35rem));
+    padding-inline: var(--bb-client-gutter);
+    padding-left: calc(var(--bb-client-gutter) + var(--bb-client-dock-w, 4.35rem));
   }
 }
 
@@ -377,7 +379,7 @@
 .bb-client-stack {
   display: grid;
   gap: 0.55rem;
-  padding: 0.85rem 1rem 1.5rem;
+  padding: 0.85rem var(--bb-client-gutter) 1.5rem;
 }
 
 /* Client account = business settings list chrome */
@@ -403,10 +405,10 @@
   box-shadow: none;
 }
 
-.bb-client-settings .bb-settings-mobile-index-head {
+.bb-client-shell .bb-client-settings.is-mobile-index .bb-settings-mobile-index-head {
   display: grid;
   gap: 0.25rem;
-  padding: 0.75rem 1.1rem 0.85rem;
+  padding: 0.75rem var(--bb-client-gutter) 0.85rem;
   padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
   position: sticky;
   top: 0;
@@ -428,7 +430,7 @@
   gap: 0.85rem;
   width: 100%;
   margin: 0;
-  padding: 0.95rem 1.15rem 1.05rem;
+  padding: 0.95rem var(--bb-client-gutter) 1.05rem;
   border: 0;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
   border-bottom: 1px solid rgba(15, 23, 42, 0.08);
@@ -495,7 +497,7 @@
   align-items: center;
   gap: 0.95rem;
   min-height: 3.85rem;
-  padding: 1.05rem 1.15rem;
+  padding: 1.05rem var(--bb-client-gutter);
   border-radius: 0;
   border-bottom: 1px solid rgba(15, 23, 42, 0.1);
   font-family: var(--bb-font-display);
@@ -536,7 +538,7 @@
   gap: 0.75rem;
   width: 100%;
   margin: 0.65rem 0 0;
-  padding: 0.95rem 1.15rem;
+  padding: 0.95rem var(--bb-client-gutter);
   border: 0;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
@@ -557,11 +559,14 @@
 }
 
 .bb-client-settings .bb-demo-panel--account {
-  margin: 0.85rem 1rem 1.25rem;
+  margin: 0.85rem var(--bb-client-gutter) 1.25rem;
 }
 
 .bb-client-settings.is-mobile-detail .bb-settings-main {
-  padding: 0.75rem 1rem 1.5rem;
+  width: min(100%, 52rem);
+  margin-inline: auto;
+  box-sizing: border-box;
+  padding: 0.75rem var(--bb-client-gutter) 1.5rem;
   padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
 }
 
@@ -630,7 +635,9 @@
   width: 3.25rem;
   height: 3.25rem;
   border-radius: 50%;
-  background: linear-gradient(160deg, #d2cbff, #ffd4f2);
+  background: var(--native-brand-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 40%) 50%;
   color: #050505;
   font-weight: 800;
   font-size: 1.15rem;
@@ -1008,7 +1015,7 @@
   z-index: 8;
   display: grid;
   gap: 0.65rem;
-  padding: 0.65rem 0.85rem 0.7rem;
+  padding: 0.65rem var(--bb-client-gutter) 0.7rem;
   padding-top: max(0.65rem, env(safe-area-inset-top));
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(14px);
@@ -3377,7 +3384,8 @@
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 1.5rem;
+  padding: var(--bb-page-gutter, 1rem);
+  box-sizing: border-box;
   background:
     radial-gradient(80% 60% at 20% 0%, #b9e3ff55, transparent 60%),
     radial-gradient(70% 50% at 90% 10%, #ffd4f255, transparent 55%),
@@ -3392,6 +3400,10 @@
   background: #fff;
   border-radius: 1.25rem;
   box-shadow: 0 18px 48px -28px rgba(15, 23, 42, 0.35);
+}
+
+@media (max-width: 599px) {
+  .bb-client-auth-card { padding: 1rem; border-radius: 1rem; }
 }
 
 .bb-client-auth-title {
@@ -3610,6 +3622,8 @@
   padding: 0.5rem 0.85rem;
   appearance: none;
   border: 0;
+  border-radius: 0;
+  box-shadow: none;
   background: transparent;
   color: #475467;
   font-family: var(--bb-font-body);
@@ -3645,7 +3659,7 @@
 .bb-client-content-tab.is-active::after {
   background-image: var(--native-accent-gradient);
   background-repeat: no-repeat;
-  background-size: 240% 100%;
+  background-size: 420% 420%;
   background-position: var(--native-accent-x, 40%) 50%;
 }
 
@@ -3795,7 +3809,7 @@
 @media (max-width: 899px) {
   .bb-client-ig-explore .bb-client-ig-top {
     gap: 0.62rem;
-    padding: 0.65rem 0.75rem 0.72rem;
+    padding: 0.65rem var(--bb-client-gutter) 0.72rem;
     padding-top: 0.65rem;
     border-bottom-color: #e7eaf0;
     background: #fff;
@@ -3888,6 +3902,13 @@
   gap: 0.45rem;
 }
 
+@media (max-width: 359px) {
+  .bb-client-ig-explore .bb-explore-discovery-row { flex-wrap: wrap; }
+  .bb-client-ig-explore .bb-explore-near { width: 100%; justify-content: space-between; }
+  .bb-client-ig-explore .bb-explore-near .bb-button { flex-shrink: 0; }
+  .bb-client-ig-explore .bb-explore-near .bb-button-text { white-space: nowrap !important; }
+}
+
 .bb-explore-near {
   display: inline-flex;
   align-items: center;
@@ -3899,7 +3920,11 @@
   font-weight: 550;
 }
 
+.bb-explore-near > svg,
+.bb-explore-near > .bb-button { flex-shrink: 0; }
+
 .bb-explore-near-text {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3999,6 +4024,8 @@
     --native-accent-button-gradient,
     linear-gradient(120deg, #b9e3ff, #ffd4f2, #ffe8a3)
   );
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 40%) 50%;
 }
 
 .bb-distance-slider-input {
@@ -5227,7 +5254,7 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
 /* Find marketplace — scalable business shelves for Book and Buy. */
 .bb-client-ig-explore.is-find .bb-explore-biz-list {
   gap: 0.85rem;
-  padding: 0.75rem clamp(0.7rem, 1.6vw, 1.35rem) 1.5rem;
+  padding: 0.75rem var(--bb-client-gutter) 1.5rem;
   background: #fff;
 }
 
@@ -5320,7 +5347,7 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
   flex: 0 0 auto;
 }
 
-.bb-marketplace-store-link--mobile { display: none !important; }
+html body .bb-button[data-variant].bb-marketplace-store-link--mobile { display: none !important; }
 
 .bb-marketplace-shelf {
   position: relative;
@@ -5394,7 +5421,7 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
 @media (max-width: 899px) {
   .bb-client-ig-explore.is-find .bb-explore-biz-list {
     gap: 0.65rem;
-    padding: 0.55rem 0 1.25rem;
+    padding: 0.55rem var(--bb-client-gutter) 1.25rem;
   }
 
   .bb-marketplace-business {
@@ -5427,8 +5454,8 @@ html body .native-ui .bb-find-offer-preview-copy h2 {
   .bb-marketplace-business-details .bb-public-profile-location { font-size: 0.75rem; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; }
   .bb-marketplace-business-details .bb-places-distance { max-width: 100%; min-height: 1.5rem; padding: 0.18rem 0.4rem; font-size: 0.75rem; white-space: normal; flex-wrap: wrap; }
 
-  .bb-marketplace-store-link--desktop { display: none !important; }
-  .bb-marketplace-store-link--mobile {
+  html body .bb-button[data-variant].bb-marketplace-store-link--desktop { display: none !important; }
+  html body .bb-button[data-variant].bb-marketplace-store-link--mobile {
     display: inline-flex !important;
     width: fit-content;
     max-width: calc(100% - 1.24rem);
@@ -5671,7 +5698,7 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
 .bb-social-notifications-page-head .bb-page-title { margin: 0; }
 
 /* Same grouped mini-app launcher language as the owner workspace menu. */
-.bb-client-account-launcher { display: grid; gap: 0.65rem; }
+.bb-client-account-launcher { display: grid; gap: 1rem; padding-inline: var(--bb-client-gutter); }
 .bb-client-settings .bb-settings-rail { width: min(100%, 52rem); margin-inline: auto; }
 .bb-client-account-group {
   display: grid;
@@ -5711,11 +5738,13 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
   height: 2.8rem;
   border: 0;
   border-radius: 0.78rem;
-  background: linear-gradient(145deg, #bff9ff, #aee8ff);
+  background: var(--native-brand-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 40%) 50%;
   box-shadow: 0 7px 15px rgba(56, 189, 248, 0.18);
 }
 .bb-client-account-group.is-violet .bb-client-account-app-icon {
-  background: linear-gradient(145deg, #edc8ff, #d3c7ff);
+  background-image: var(--native-brand-gradient);
   box-shadow: 0 7px 15px rgba(139, 92, 246, 0.16);
 }
 .bb-client-account-group .bb-client-account-app strong { max-width: 5.4rem; font-size: 0.68rem; line-height: 1.12; font-weight: 760; }
@@ -5727,7 +5756,7 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
   .bb-client-account-group { gap: 0.65rem; padding: 0.75rem 0.7rem; }
   .bb-client-account-group h2 { font-size: 1.35rem; }
   .bb-client-account-group .bb-client-account-app-icon { width: 2.65rem; height: 2.65rem; }
-  .bb-client-settings.is-mobile-detail .bb-settings-main { padding-inline: 12px; }
+  .bb-client-settings.is-mobile-detail .bb-settings-main { padding-inline: var(--bb-client-gutter); }
   .bb-client-settings.is-mobile-detail .bb-settings-main > .grid > .bb-panel { padding: 14px; }
   .bb-social-notifications-page { padding: 0; }
 }

@@ -185,10 +185,10 @@ html body .bb-launcher .bb-home-utility-action .bb-button-icon[data-bb-keep-icon
   .bb-dashboard-stat[data-appearance="primary"] { --bb-stat-size: 36px; min-height: 128px; padding: 24px; }
   .bb-dashboard-stat[data-appearance="insight"] { --bb-stat-size: 28px; min-height: 96px; padding: 16px; }
   .bb-dashboard-stat[data-appearance="supporting"] { --bb-stat-size: 24px; min-height: 88px; padding: 16px; }
-  .bb-finance-metric-card { margin-inline: 16px; }
+  .bb-finance-metric-card { margin-inline: 0; }
   .bb-finance-readout-disclosure { margin-inline: 0; }
-  .bb-finance-chart { border-radius: 0; }
-  .bb-finance-stat-selector { padding-inline: 16px; justify-content: space-between; }
+  .bb-finance-chart { border-radius: 14px; }
+  .bb-finance-stat-selector { padding-inline: 0; justify-content: space-between; }
   .bb-finance-stat-selector .bb-metric-picker { flex: 1 1 auto; max-width: 240px; }
   .bb-reports { gap: 18px; }
   .bb-reports .bb-analytics-header { padding-bottom: 16px; }

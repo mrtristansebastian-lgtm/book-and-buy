@@ -1,0 +1,85 @@
+/* Place identity leads; address and distance remain quiet, left-aligned metadata. */
+/* Managed catalogs keep photographs prominent and separate each item clearly. */
+html body .native-ui .bb-managed-catalog .bb-public-product-grid { gap: 16px; }
+html body .native-ui .bb-business-catalog-card .bb-public-product-surface { border-radius: 14px; overflow: hidden; }
+html body .native-ui .bb-business-catalog-card .bb-public-product-media { border-radius: 12px 12px 0 0; overflow: hidden; }
+html body .native-ui .bb-business-catalog-card .bb-public-product-price-row { padding: 16px; gap: 6px; }
+@media (max-width: 599px) {
+  html body .native-ui .bb-managed-catalog .bb-public-product-grid { gap: 12px; }
+  html body .native-ui .bb-business-catalog-card .bb-public-product-price-row { padding: 12px; }
+}
+.bb-places-list { gap: 12px; }
+.bb-client-ig-explore.is-find .bb-client-desk-stage { width: 100%; max-width: var(--bb-content-max, 90rem); margin-inline: auto; }
+.bb-client-ig-explore.is-find .bb-places-list { padding-inline: var(--bb-client-gutter, 1rem); box-sizing: border-box; }
+.bb-client-activity { width: 100%; max-width: 800px; gap: 16px; }
+.bb-client-activity .bb-client-item { padding: 20px; border: 1px solid #e2e5e9; border-radius: 14px; gap: 12px; }
+.bb-marketplace-business { border-radius: 16px; box-shadow: none; }
+.bb-marketplace-business-head { padding: 16px; }
+.bb-marketplace-shelf { padding: 16px; }
+.bb-marketplace-offers { grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
+html body .native-ui .bb-public-product-grid > .bb-public-product-card:not(.bb-business-catalog-card) { border: 1px solid #e2e5e9; border-radius: 14px; overflow: hidden; }
+html body .native-ui .bb-public-product-grid > .bb-public-product-card:not(.bb-business-catalog-card) .bb-public-product-surface { border: 0; border-radius: 0; box-shadow: none; }
+html body .native-ui .bb-public-product-grid > .bb-public-product-card:not(.bb-business-catalog-card) .bb-public-product-price-row { padding: 12px; gap: 6px; text-align: left; align-items: start; justify-items: start; }
+html body .native-ui .bb-public-product-grid > .bb-public-product-card:not(.bb-business-catalog-card) :is(.bb-public-product-name,.bb-public-product-price) { text-align: left; line-height: 1.4 !important; }
+html body .native-ui .bb-public-product-grid > .bb-public-product-card:not(.bb-business-catalog-card) .bb-public-product-actions { border: 0; border-radius: 0; padding: 0 12px 12px; gap: 8px; }
+@media (min-width: 900px) {
+  .bb-places-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); align-items: start; }
+}
+.bb-places-row { border-radius: 16px; overflow: hidden; }
+.bb-places-open { padding: 12px; gap: 16px; }
+.bb-places-row-art { border-radius: 10px; }
+.bb-places-row-identity { gap: 12px; }
+.bb-places-title-block { gap: 4px; }
+.bb-places-row .bb-places-detail-row { display: grid; gap: 6px; justify-items: start; }
+.bb-places-row .bb-places-meta { width: 100%; max-height: none; }
+.bb-places-row .bb-places-category { color: #667085; font-size: 13px; line-height: 1.5; }
+html body .bb-places-row .bb-public-profile-chip {
+  justify-content: flex-start; text-align: left; width: auto; max-width: 100%;
+  border: 0 !important; padding: 0; background: transparent !important;
+  font-weight: 400;
+}
+.bb-places-row .bb-public-profile-location { text-align: left; font-weight: 400; color: #475467; }
+.bb-places-row .bb-public-profile-chip-icon { flex-shrink: 0; }
+html body .bb-places-row .bb-places-distance { border: 0 !important; background: transparent !important; padding: 0; justify-content: flex-start; color: #667085; }
+.bb-places-row .bb-places-distance :is(strong, span, svg) { color: #667085; }
+.bb-places-open:focus-visible { outline: 2px solid var(--native-accent-border); outline-offset: -3px; }
+.bb-explore-near-btn .bb-button-text { white-space: nowrap !important; overflow-wrap: normal; }
+@media (max-width: 599px) {
+  .bb-client-ig-explore .bb-explore-discovery-row { flex-wrap: wrap; gap: 8px; }
+  .bb-client-ig-explore .bb-explore-near { flex: 1 1 12rem; width: auto; min-height: 44px; margin-left: 0; justify-content: flex-start; overflow: visible; }
+  .bb-client-ig-explore .bb-explore-near-text { flex: 1 1 auto; max-width: none; }
+  .bb-places-open { grid-template-columns: 88px minmax(0, 1fr) 20px; padding: 10px; gap: 12px; }
+  .bb-places-row-art { min-height: 116px; }
+  .bb-places-row .bb-places-name { font-size: 16px; line-height: 1.35; }
+  .bb-places-row-identity { gap: 10px; }
+  .bb-places-row .bb-places-detail-row { gap: 6px; }
+  .bb-places-row .bb-public-profile-location { font-size: 12px; line-height: 1.5; }
+  .bb-places-row .bb-places-distance { min-height: 18px; }
+  .bb-client-account-launcher { gap: 16px; padding-inline: var(--bb-client-gutter, 1rem); }
+  .bb-client-account-group { border-radius: 14px; padding: 16px; box-shadow: none; }
+  .bb-client-settings .bb-client-account-group .bb-client-account-apps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .bb-client-account-group .bb-client-account-app strong { font-size: 12px; line-height: 1.4; font-weight: 600; }
+  .bb-client-activity .bb-client-item { padding: 16px; }
+  .bb-client-settings .bb-demo-panel-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .bb-client-settings .bb-demo-panel-actions > :last-child { grid-column: 1 / -1; }
+}
+@media (max-width: 899px) {
+  .bb-marketplace-business { margin-inline: 0; border: 1px solid #e2e5e9; box-shadow: none; }
+  .bb-marketplace-business-head { padding: 12px; }
+  .bb-marketplace-shelf { padding: 12px 0 12px 12px; }
+  .bb-marketplace-offers.bb-public-product-grid { gap: 12px; padding-right: 12px; scroll-padding-inline: 12px; }
+  html body .bb-button[data-variant].bb-marketplace-store-link--mobile { margin: 0 12px 12px; }
+}
+@media (max-width: 860px) {
+  .bb-clients.is-mobile-detail .bb-clients-sheet-scroll { padding-inline: 0; }
+}
+@media (max-width: 359px) {
+  .bb-explore-near { justify-content: flex-start; gap: 8px; }
+  .bb-explore-near-text { flex: 1; text-align: left; }
+}
+@media (max-width: 600px) {
+  .bb-owner-main > .bb-settings .bb-settings-content > .bb-commerce-intro.bb-panel > div { display: contents; }
+  .bb-owner-main > .bb-settings .bb-commerce-intro > div > h2 { align-self: center; }
+  .bb-owner-main > .bb-settings .bb-commerce-intro > div > p { grid-column: 1 / -1; text-align: left; }
+  .bb-owner-main > .bb-settings .bb-commerce-intro > :is(.bb-btn,.bb-commerce-total) { grid-column: 1 / -1; }
+}

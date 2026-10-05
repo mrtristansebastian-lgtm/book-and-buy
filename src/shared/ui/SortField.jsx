@@ -1,6 +1,8 @@
 import { Button } from './Button';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronDown, X } from 'lucide-react';
+import { useDialogFocus } from './useDialogFocus';
 
 export function SortField({
   label = 'Sort',
@@ -12,6 +14,8 @@ export function SortField({
   disabled = false
 }) {
   const [open, setOpen] = useState(false);
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, open, () => setOpen(false));
   const selected = useMemo(
     () => options.find((option) => option.id === value) || options[0] || null,
     [options, value]
@@ -33,6 +37,8 @@ export function SortField({
             disabled={disabled}
             onClick={() => setOpen(true)}
             aria-haspopup="dialog"
+            aria-expanded={open}
+            aria-label={`${label}: ${selected?.label || 'Choose'}`}
           >
             <span className={selected ? '' : 'is-placeholder'}>
               {selected?.label || 'Choose'}
@@ -42,9 +48,11 @@ export function SortField({
         </div>
       </div>
 
-      {open ? (
+      {open && typeof document !== 'undefined' ? createPortal(
         <div className="bb-sort-picker-backdrop" role="presentation" onClick={() => setOpen(false)}>
           <div
+            ref={panelRef}
+            tabIndex={-1}
             className="bb-sort-picker-sheet"
             role="dialog"
             aria-modal="true"
@@ -80,7 +88,7 @@ export function SortField({
               </Button>
             </footer>
           </div>
-        </div>
+        </div>, document.body
       ) : null}
     </>
   );

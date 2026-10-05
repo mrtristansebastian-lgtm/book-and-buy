@@ -1,6 +1,8 @@
 import { Button } from '../../../shared/ui/Button';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import {
   buildMonthGrid,
   formatDisplayDate,
@@ -10,6 +12,8 @@ import {
 import { WEEKDAYS } from '../pages/schedulePageUtils';
 
 export function ScheduleDatePicker({ day, onApply, onClose }) {
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, true, onClose);
   const selected = parseDateKey(day) || new Date();
   const [draftDay, setDraftDay] = useState(() => toDateKey(selected));
   const [monthAnchor, setMonthAnchor] = useState(
@@ -18,7 +22,9 @@ export function ScheduleDatePicker({ day, onApply, onClose }) {
   const monthDays = useMemo(() => buildMonthGrid(monthAnchor), [monthAnchor]);
   const todayKey = toDateKey(new Date());
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
       className="bb-services-sheet"
       role="dialog"
@@ -26,15 +32,15 @@ export function ScheduleDatePicker({ day, onApply, onClose }) {
       aria-label="Pick day"
     >
       <div className="bb-services-sheet-backdrop" onClick={onClose} />
-      <div className="bb-services-sheet-panel bb-schedule-picker-sheet">
+      <div ref={panelRef} tabIndex={-1} className="bb-services-sheet-panel bb-schedule-picker-sheet">
         <header className="bb-services-sheet-head">
           <div>
             <p className="bb-services-sheet-eyebrow">Calendar</p>
             <h2 className="bb-services-sheet-title">Pick day</h2>
             <p className="bb-services-sheet-lede">Jump to a date.</p>
           </div>
-          <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose}>
-            <X size={16} />
+          <button type="button" className="bb-ghost-btn bb-services-sheet-close" aria-label="Close date picker" onClick={onClose}>
+            <X size={16} aria-hidden="true" />
           </button>
         </header>
 
@@ -81,6 +87,9 @@ export function ScheduleDatePicker({ day, onApply, onClose }) {
                 <button
                   key={key}
                   type="button"
+                  aria-label={date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  aria-pressed={isSelected}
+                  aria-current={isToday ? 'date' : undefined}
                   className={`bb-schedule-picker-day${isSelected ? ' is-selected' : ''}${
                     isToday ? ' is-today' : ''
                   }${inMonth ? '' : ' is-outside'}`}
@@ -92,7 +101,7 @@ export function ScheduleDatePicker({ day, onApply, onClose }) {
             })}
           </div>
 
-          <p className="bb-schedule-picker-summary">{formatDisplayDate(draftDay)}</p>
+          <p className="bb-schedule-picker-summary" aria-live="polite">{formatDisplayDate(draftDay)}</p>
         </div>
 
         <footer className="bb-services-sheet-footer">
@@ -117,6 +126,6 @@ export function ScheduleDatePicker({ day, onApply, onClose }) {
           </div>
         </footer>
       </div>
-    </div>
+    </div>, document.body
   );
 }

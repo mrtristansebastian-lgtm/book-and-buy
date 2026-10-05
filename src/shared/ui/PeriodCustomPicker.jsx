@@ -1,6 +1,8 @@
 import { Button } from './Button';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useDialogFocus } from './useDialogFocus';
 import {
   buildMonthGrid,
   formatDisplayDate,
@@ -26,6 +28,9 @@ export function PeriodCustomPicker({
   onClose,
   onApply
 }) {
+  const panelRef = useRef(null);
+  const titleId = useId();
+  useDialogFocus(panelRef, open, onClose);
   const seed = from || toDateKey(new Date());
   const [draftStart, setDraftStart] = useState(seed);
   const [draftEnd, setDraftEnd] = useState(to || seed);
@@ -49,28 +54,30 @@ export function PeriodCustomPicker({
     setMonthAnchor(new Date(date.getFullYear(), date.getMonth(), 1));
   }, [open, from, to]);
 
-  if (!open) return null;
+  if (!open || typeof document === 'undefined') return null;
 
   const summary =
     span.start && span.end && span.start !== span.end
       ? `${formatDisplayDate(span.start)} – ${formatDisplayDate(span.end)}`
       : formatDisplayDate(span.start || draftStart);
 
-  return (
+  return createPortal(
     <div
       className="bb-date-picker-backdrop"
       role="presentation"
       onClick={onClose}
     >
       <div
+        ref={panelRef}
+        tabIndex={-1}
         className="bb-panel bb-date-picker-sheet"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="period-custom-picker-title"
+        aria-labelledby={titleId}
         onClick={(event) => event.stopPropagation()}
       >
         <header className="bb-date-picker-head">
-          <h2 id="period-custom-picker-title" className="bb-date-picker-title">
+          <h2 id={titleId} className="bb-date-picker-title">
             Custom period
           </h2>
           <p className="bb-date-picker-hint">
@@ -123,6 +130,9 @@ export function PeriodCustomPicker({
               <button
                 key={key}
                 type="button"
+                aria-label={date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                aria-pressed={Boolean(inRange)}
+                aria-current={isToday ? 'date' : undefined}
                 className={`bb-schedule-picker-day${isEdge ? ' is-selected' : ''}${
                   inRange && !isEdge ? ' is-range' : ''
                 }${isToday ? ' is-today' : ''}${inMonth ? '' : ' is-outside'}`}
@@ -143,7 +153,7 @@ export function PeriodCustomPicker({
           })}
         </div>
 
-        <p className="bb-date-picker-summary">{summary}</p>
+        <p className="bb-date-picker-summary" aria-live="polite">{summary}</p>
 
         <footer className="bb-date-picker-actions">
           <Button action="today" variant="primary"
@@ -176,6 +186,6 @@ export function PeriodCustomPicker({
           </div>
         </footer>
       </div>
-    </div>
+    </div>, document.body
   );
 }

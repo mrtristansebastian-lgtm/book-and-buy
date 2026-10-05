@@ -1,0 +1,120 @@
+/* Catalog hierarchy: introduction and Cart, native category picker, then offers. */
+.bb-public-catalog-desk .bb-public-catalog-layout {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0 !important;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-side {
+  display: none !important;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-main {
+  gap: 20px !important;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-intro {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start !important;
+  gap: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-intro-copy {
+  display: grid !important;
+  gap: 6px;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-intro-title {
+  font-size: clamp(22px, 2vw, 30px) !important;
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-intro-body {
+  max-width: 60ch;
+  font-size: 14px !important;
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: normal;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-intro-actions {
+  display: inline-flex !important;
+  align-self: start;
+  width: auto !important;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-mobile-tools {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  justify-items: start;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+
+.bb-public-catalog-desk .bb-public-catalog-mobile-tools > .bb-public-catalog-cart,
+.bb-public-catalog-desk .bb-public-catalog-mobile-tools:not(:has(.bb-public-catalog-category-field)) {
+  display: none !important;
+}
+
+.bb-public-catalog-category-field {
+  min-width: 0;
+  width: min(100%, 340px);
+}
+
+.bb-public-catalog-category-field .bb-sort-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.bb-public-catalog-category-field .bb-sort-field-control {
+  width: 100%;
+  min-width: 0;
+}
+
+.bb-public-catalog-category-field .bb-sort-field-value {
+  width: 100%;
+  min-width: 0 !important;
+  min-height: 44px !important;
+}
+
+.bb-public-catalog-category-field .bb-sort-field-value > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 960px) {
+  .bb-public-catalog-desk .bb-public-catalog-main {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .bb-public-catalog-desk .bb-public-catalog-main:has(.bb-public-catalog-category-field) {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 959px) {
+  .bb-public-catalog-category-field {
+    width: 100%;
+  }
+}
+
+@container bb-device (max-width: 959px) {
+  .bb-public-catalog-desk .bb-public-catalog-main,
+  .bb-public-catalog-desk .bb-public-catalog-main:has(.bb-public-catalog-category-field) {
+    grid-template-rows: auto !important;
+  }
+
+  .bb-public-catalog-category-field {
+    width: 100%;
+  }
+}

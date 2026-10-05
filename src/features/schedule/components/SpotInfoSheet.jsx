@@ -2,6 +2,8 @@ import { Button } from '../../../shared/ui/Button';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { X } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import {
   countServiceSpotBookings,
   getServiceOpenSpots,
@@ -15,6 +17,8 @@ import {
 } from '../pages/schedulePageUtils';
 
 export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) {
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, Boolean(service), onClose);
   const [actionError, setActionError] = useState('');
   const [pendingId, setPendingId] = useState('');
   const actionLock = useRef(false);
@@ -25,7 +29,7 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
     catch (error) { setActionError(error.message || 'The booking was not changed.'); }
     finally { actionLock.current = false; setPendingId(''); }
   };
-  if (!service) return null;
+  if (!service || typeof document === 'undefined') return null;
 
   const capacity = Math.max(1, Number(service.capacity) || 1);
   const booked = countServiceSpotBookings(service, bookings);
@@ -38,7 +42,7 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
     .filter((booking) => ACTIVE.has(String(booking.status || '')))
     .sort((a, b) => String(b.createdAt || 0).localeCompare(String(a.createdAt || 0)));
 
-  return (
+  return createPortal(
     <div
       className="bb-services-sheet"
       role="dialog"
@@ -46,7 +50,7 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
       aria-label={`${service.name} details`}
     >
       <div className="bb-services-sheet-backdrop" onClick={onClose} />
-      <div className="bb-services-sheet-panel bb-schedule-spot-sheet">
+      <div ref={panelRef} tabIndex={-1} className="bb-services-sheet-panel bb-schedule-spot-sheet">
         {actionError && <p className="bb-reschedule-error" role="alert">{actionError}</p>}
         <header className="bb-services-sheet-head">
           <div className="bb-schedule-spot-sheet-head">
@@ -59,8 +63,8 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
               <StatusBadge className={`bb-schedule-spot-pill is-${status}`} status={status} label={statusLabel(status)} />
             </div>
           </div>
-          <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose}>
-            <X size={16} />
+          <button type="button" className="bb-ghost-btn bb-services-sheet-close" aria-label="Close session details" onClick={onClose}>
+            <X size={16} aria-hidden="true" />
           </button>
         </header>
 
@@ -133,6 +137,6 @@ export function SpotInfoSheet({ service, staff, bookings, onClose, onConfirm }) 
           </div>
         </footer>
       </div>
-    </div>
+    </div>, document.body
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Home, MessageCircle, Menu, X } from 'lucide-react';
 import { LAUNCHER_TAB, appForTab } from '../../../config/appLauncher';
 import { navigate } from '../../../app/routing';
@@ -6,6 +6,7 @@ import { BrandMark } from '../../../shared/ui/BrandMark';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 import { MiniAppBar } from './MiniAppBar';
 import { OwnerAppsNav } from './OwnerAppsNav';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 
 const DOCK_ICON_STROKE = 2;
 
@@ -20,19 +21,12 @@ export function OwnerWorkspaceShell({ tab, children }) {
   const supportFlush = tab === 'communications';
   const showDock = isLauncher || supportFlush;
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  useDialogFocus(menuRef, menuOpen && showDock, () => setMenuOpen(false));
 
   useEffect(() => {
     setMenuOpen(false);
   }, [tab]);
-
-  useEffect(() => {
-    if (!menuOpen) return undefined;
-    const onKey = (event) => {
-      if (event.key === 'Escape') setMenuOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [menuOpen]);
 
   const goHome = () => {
     setMenuOpen(false);
@@ -86,6 +80,10 @@ export function OwnerWorkspaceShell({ tab, children }) {
       {showDock ? (
         <>
           <div
+            id="bb-owner-menu"
+            ref={menuRef}
+            tabIndex={-1}
+            inert={menuOpen ? undefined : ''}
             className={`bb-owner-menu-sheet${menuOpen ? ' is-open' : ''}`}
             role="dialog"
             aria-modal="true"

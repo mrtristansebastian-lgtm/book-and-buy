@@ -1,12 +1,13 @@
 import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
-import { Eye, ShoppingBag } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { navigate, publicItemPath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../PublicCartContext';
 import { PublicCartCheckout } from './PublicCartCheckout';
 import { CatalogCategoryTabs } from './CatalogCategoryTabs';
-import { formatProductPrice, isProductPubliclyVisible, productHasVariants } from '../../../utils/products';
+import { PublicOfferCard } from './PublicOfferCard';
+import { formatProductPrice, isProductPubliclyVisible } from '../../../utils/products';
 import {
   buildCatalogCategoryTabs,
   filterCatalogByCategory
@@ -48,7 +49,6 @@ export function PublicStorefront({
     navigate(publicItemPath(workspace.slug, 'buy', productId));
   };
 
-  const openCart = () => setPanel('cart');
   const closeCart = () => setPanel('shop');
   const toggleCart = () => setPanel(cartOpen ? 'shop' : 'cart');
 
@@ -80,55 +80,12 @@ export function PublicStorefront({
   );
 
   const renderCard = (product) => {
-    const quote = product.quoteBased || product.priceType === 'quote';
-    const hasOptions = productHasVariants(product);
-    const imageSrc = product.imageUrls?.[0] || product.image || '';
     const price = formatProductPrice(product);
 
     return (
-      <article key={product.id} className="bb-public-product-card">
-        <button
-          type="button"
-          className="bb-public-product-surface"
-          onClick={() => openDetail(product.id)}
-          aria-label={`View ${product.name}`}
-        >
-          <div className="bb-public-product-media">
-            {imageSrc ? <img src={imageSrc} alt="" /> : null}
-          </div>
-          <div className="bb-public-product-price-row">
-            <h2 className="bb-public-product-name">{product.name}</h2>
-            <p className="bb-public-product-price">{price || '—'}</p>
-          </div>
-        </button>
-        <div className="bb-public-product-actions">
-          <Button action={quote ? 'view' : hasOptions ? 'settings' : 'addToCart'} variant="primary"
-            type="button"
-            className="bb-public-product-cart-btn"
-            disabled={quote}
-            onClick={() => {
-              if (quote) return;
-              if (hasOptions) {
-                openDetail(product.id);
-                return;
-              }
-              cart.addItem(product);
-              openCart();
-            }}
-          >
-            <span>{quote ? 'Quote' : hasOptions ? 'Options' : 'Add'}</span>
-            <ShoppingBag size={13} strokeWidth={2.2} aria-hidden="true" />
-          </Button>
-          <Button action="view" variant="secondary"
-            type="button"
-            className="bb-public-product-more-btn"
-            onClick={() => openDetail(product.id)}
-          >
-            <span>View</span>
-            <Eye size={13} strokeWidth={2.2} aria-hidden="true" />
-          </Button>
-        </div>
-      </article>
+      <PublicOfferCard key={product.id} item={product} price={price}
+        onOpen={() => openDetail(product.id)}
+      />
     );
   };
 
@@ -151,6 +108,7 @@ export function PublicStorefront({
       catalogWorkspace={workspace}
       workspaceName={workspaceName || workspace.brandName}
       publicMode={publicMode}
+      lockedPreview={preview}
       onBack={closeCart}
     />
   );

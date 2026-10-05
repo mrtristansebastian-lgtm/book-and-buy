@@ -67,7 +67,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
             <PageBackButton />
             <span className="bb-page-title-main">
               <div className="bb-page-header-glow" aria-hidden="true" />
-              <h2 className="bb-page-title bb-support-inbox-title">Inbox</h2>
+              <h1 className="bb-page-title bb-support-inbox-title">Inbox</h1>
             </span>
           </div>
           <p className="bb-muted m-0 text-xs mt-1">Bookings, orders, and client messages</p>

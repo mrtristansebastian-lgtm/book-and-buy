@@ -12,15 +12,15 @@ const declarations = (rule) => Object.fromEntries((rule?.nodes || [])
 const rootRule = controls.nodes.find((node) => node.type === 'rule' && node.selector === ':root');
 const compact = controls.nodes.find((node) => node.type === 'atrule' && node.params === '(max-width: 899px)');
 
-test('compact buttons and filters have independent tokens instead of inheriting mobile field height', () => {
+test('buttons, filters and fields retain independent tokens with comfortable mobile touch targets', () => {
   const tokens = declarations(rootRule);
   assert.equal(tokens['--bb-button-height'], '40px');
   assert.equal(tokens['--bb-filter-height'], '36px');
   assert.equal(tokens['--bb-control-height'], '40px');
   const mobileTokens = declarations(compact.nodes.find((node) => node.type === 'rule' && node.selector === ':root'));
   assert.equal(mobileTokens['--bb-control-height'], '44px', 'Fields keep their comfortable mobile target');
-  assert.equal(mobileTokens['--bb-button-height'], '32px');
-  assert.equal(mobileTokens['--bb-filter-height'], '30px');
+  assert.equal(mobileTokens['--bb-button-height'], '36px');
+  assert.equal(mobileTokens['--bb-filter-height'], '32px');
   const button = declarations(controls.nodes.find((node) => node.type === 'rule' && node.selector === 'html body .bb-button[data-variant]'));
   const filter = declarations(controls.nodes.find((node) => node.type === 'rule' && node.selector === 'html body .bb-filter-chip'));
   assert.equal(button['min-height'], 'var(--bb-button-height)');
@@ -31,14 +31,14 @@ test('compact buttons and filters have independent tokens instead of inheriting 
   assert.equal(filter['white-space'], 'normal');
 });
 
-test('mobile button padding is compact without shrinking readable typography or count badges', () => {
+test('mobile button padding supports touch targets without shrinking readable typography or count badges', () => {
   const button = declarations(compact.nodes.find((node) => node.type === 'rule' && node.selector === 'html body .bb-button[data-variant]'));
-  assert.equal(button.padding, '5px 9px');
+  assert.equal(button.padding, '6px 10px');
   const filter = declarations(compact.nodes.find((node) => node.type === 'rule' && node.selector === 'html body .bb-filter-chip'));
   assert.equal(filter.padding, '3px 10px');
   assert.equal(filter.gap, '6px');
   const busy = declarations(compact.nodes.find((node) => node.type === 'rule' && node.selector === 'html body .bb-button-busy-label'));
-  assert.equal(busy.padding, button.padding, 'Busy text follows the same compact inner geometry');
+  assert.equal(busy.padding, button.padding, 'Busy text follows the same inner geometry');
   const base = declarations(controls.nodes.find((node) => node.type === 'rule' && node.selector === 'html body .bb-button[data-variant]'));
   assert.equal(base['font-size'], '13px');
   assert.equal(base['font-weight'], '550');
@@ -50,7 +50,7 @@ test('mobile button padding is compact without shrinking readable typography or 
   assert.equal(count['justify-content'], 'center');
 });
 
-test('period toggles keep their independent capsule geometry at the same compact button height', () => {
+test('period toggles retain their inset capsule geometry within the mobile touch height', () => {
   const outer = declarations(controls.nodes.find((node) => node.type === 'rule' && node.selector === '.native-ui .bb-segment-period'));
   const inner = declarations(controls.nodes.find((node) => node.type === 'rule' && node.selector === '.native-ui .bb-segment-period > button'));
   assert.equal(outer.height, '40px');
@@ -59,7 +59,8 @@ test('period toggles keep their independent capsule geometry at the same compact
   const mobileOuter = declarations(compact.nodes.find((node) => node.type === 'rule' && node.selector === '.native-ui .bb-segment-period'));
   const mobileInner = declarations(compact.nodes.find((node) => node.type === 'rule' && node.selector === '.native-ui .bb-segment-period > button'));
   assert.equal(mobileOuter.height, 'var(--bb-button-height)');
-  assert.equal(mobileInner.height, '26px');
+  assert.equal(mobileInner.height, '30px');
+  assert.equal(mobileInner['min-height'], '30px');
   const gradient = controls.nodes.find((node) => node.type === 'rule' && node.selector.includes('.bb-segment-period > button:is(:hover'));
   assert.ok(gradient?.selector.includes('[aria-pressed="true"]'), 'Selected capsule appearance remains intact');
 });
@@ -103,7 +104,9 @@ test('non-sticky page chrome is narrowly scoped and leaves navigation, calendar 
 test('page-flow overrides load after legacy page chrome and shared controls', () => {
   const sheet = postcss.parse(read('src/design/index.css'));
   const imports = sheet.nodes.filter((node) => node.type === 'atrule' && node.name === 'import').map((node) => node.params);
-  assert.equal(imports.at(-1), "'./page-flow.css'");
+  for (const legacy of ["'./app-shell.css'", "'./client-app.css'", "'./public-surface/index.css'"]) {
+    assert.ok(imports.indexOf("'./page-flow.css'") > imports.indexOf(legacy), `Flow overrides follow ${legacy}`);
+  }
   assert.ok(imports.indexOf("'./page-flow.css'") > imports.indexOf("'./universal-controls.css'"));
 });
 
@@ -145,7 +148,7 @@ test('customer dock hiding retains the new two-row shell while immersive-view ex
 test('desktop customer headers do not add a second dock-width gutter after joining the scroller', () => {
   const desktop = flow.nodes.find((node) => node.type === 'atrule' && node.params === '(min-width: 900px)');
   const header = desktop.nodes.find((node) => node.type === 'rule' && node.selector === '.bb-client-shell.has-flowing-header .bb-client-top');
-  assert.equal(declarations(header)['padding-left'], '1.1rem');
+  assert.equal(declarations(header)['padding-inline'], 'var(--bb-client-gutter)');
   const client = postcss.parse(read('src/design/client-app.css'));
   const desktopShell = [];
   client.walkRules('.bb-client-shell', (rule) => {

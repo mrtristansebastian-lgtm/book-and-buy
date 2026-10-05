@@ -416,6 +416,11 @@
   display: none;
 }
 
+/* Empty messages belong to the full catalog, rather than its first card slot. */
+:is(.bb-public-service-list, .bb-public-product-grid) > p {
+  grid-column: 1 / -1;
+}
+
 /* Public cards retain two familiar actions, with room for the shared icon and
    label. Business cards have a separate three-action footer layout. */
 @media (max-width: 599px) {

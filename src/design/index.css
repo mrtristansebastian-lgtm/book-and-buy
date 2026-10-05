@@ -42,6 +42,12 @@
 @import './insight-dashboards.css';
 @import './business-profile.css';
 @import './page-flow.css';
+@import './section-hierarchy.css';
+@import './discovery-polish.css';
+@import './brand-parity-polish.css';
+@import './offer-cards.css';
+@import './catalog-navigation-polish.css';
+@import './product-detail-polish.css';
 
 @tailwind base;
 @tailwind components;

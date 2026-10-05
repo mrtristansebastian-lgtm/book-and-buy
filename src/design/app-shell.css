@@ -93,7 +93,7 @@ html body .native-ui .bb-page-title {
   z-index: 0;
   left: -1.35rem;
   top: 50%;
-  width: min(22rem, 118%);
+  width: min(22rem, calc(100% + 1.35rem));
   height: 5.75rem;
   transform: translateY(-52%);
   overflow: visible;
@@ -101,6 +101,7 @@ html body .native-ui .bb-page-title {
 
 .bb-page-title-main .bb-page-header-glow {
   left: -1.1rem;
+  width: min(22rem, calc(100% + 1.1rem));
 }
 
 .bb-page-header-glow::before,
@@ -114,7 +115,7 @@ html body .native-ui .bb-page-title {
 }
 
 .bb-page-header-glow::before {
-  width: 11.5rem;
+  width: min(11.5rem, 70%);
   height: 11.5rem;
   left: 0;
   top: 50%;
@@ -123,9 +124,9 @@ html body .native-ui .bb-page-title {
 }
 
 .bb-page-header-glow::after {
-  width: 10rem;
+  width: min(10rem, 65%);
   height: 10rem;
-  left: 7.25rem;
+  left: 35%;
   top: 42%;
   transform: translateY(-50%);
   background:
@@ -424,7 +425,9 @@ html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small)
 }
 
 .bb-owner-main {
-  padding: 1.25rem 1rem calc(1.25rem + var(--bb-owner-dock-pad));
+  padding: var(--bb-page-gap) var(--bb-page-inset-end)
+    calc(var(--bb-page-gap) + var(--bb-owner-dock-pad) + env(safe-area-inset-bottom, 0px))
+    var(--bb-page-inset-start);
   min-width: 0;
   min-height: 0;
 }
@@ -467,6 +470,8 @@ html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small)
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
 }
 
 .bb-owner-main :is(
@@ -724,7 +729,7 @@ html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small)
 @media (max-width: 899px) {
   .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main,
   .bb-shell:has(.bb-studio-canvas):not(.is-support-flush) .bb-owner-main {
-    padding-bottom: 0.75rem !important;
+    padding-bottom: calc(var(--bb-page-gap) + env(safe-area-inset-bottom, 0px));
   }
 
   .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main:has(.bb-schedule-avail),
@@ -1094,7 +1099,7 @@ html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small)
 
 @media (min-width: 768px) {
   .bb-owner-main {
-    padding: 1.75rem 1.75rem calc(1.75rem + var(--bb-owner-dock-pad));
+    padding-inline: var(--bb-page-inset-start) var(--bb-page-inset-end);
   }
 }
 
@@ -1134,14 +1139,14 @@ html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small)
   .bb-owner-main {
     overflow: auto;
     flex: 1 1 auto;
-    padding: 1.75rem 1.75rem 1.75rem;
-    padding-left: calc(1.75rem + var(--bb-owner-dock-inline));
+    padding: var(--bb-page-gap) var(--bb-page-inset-end) var(--bb-page-gap);
+    padding-left: calc(var(--bb-page-inset-start) + var(--bb-owner-dock-inline));
     -webkit-overflow-scrolling: touch;
   }
 
   .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main {
-    padding-left: 1.75rem;
-    padding-bottom: 1.25rem;
+    padding-left: var(--bb-page-inset-start);
+    padding-bottom: calc(var(--bb-page-gap) + env(safe-area-inset-bottom, 0px));
   }
 
   /* Left vertical dock */
@@ -1296,12 +1301,12 @@ html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small)
 
 @media (min-width: 1280px) {
   .bb-owner-main {
-    padding: 1.85rem 2.25rem 2rem;
-    padding-left: calc(1.85rem + var(--bb-owner-dock-inline));
+    padding: var(--bb-page-gap) var(--bb-page-inset-end) var(--bb-page-gap);
+    padding-left: calc(var(--bb-page-inset-start) + var(--bb-owner-dock-inline));
   }
 
   .bb-shell.is-miniapp:not(.is-support-flush) .bb-owner-main {
-    padding-left: 1.85rem;
+    padding-left: var(--bb-page-inset-start);
   }
 
   .bb-owner-menu-sheet {
@@ -1411,53 +1416,31 @@ html body .native-ui .bb-page-action:not(.bb-button) :where(span, strong, small)
 }
 
 
+/* One frame on every owner page. Cards retain their own interior spacing. */
+.bb-owner-main:not(.is-flush) > :is(
+  .bb-launcher, .bb-services-desk, .bb-schedule-desk, .bb-finance,
+  .bb-analytics, .bb-clients, .bb-settings, .grid
+) {
+  width: 100%;
+  max-width: var(--bb-content-max);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+/* The editor's canvas is full bleed; its toolbar still uses the page frame. */
+.bb-owner-main .bb-studio-toolbar {
+  padding-top: 0;
+  padding-inline: 0;
+}
 @media (max-width: 899px) {
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) {
-    padding-inline: 0;
-    padding-top: 0.55rem;
-    padding-bottom: 1rem;
-    background: #fff;
+  .bb-owner-main .bb-studio-toolbar {
+    padding-top: var(--bb-page-gap);
+    padding-inline: var(--bb-page-inset-start) var(--bb-page-inset-end);
   }
+}
 
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .grid,
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-services-desk,
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-schedule-desk,
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-clients,
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .bb-finance {
-    gap: 0.85rem;
-  }
-
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .grid > header,
-  .bb-shell.is-miniapp .bb-owner-main:not(.is-flush) > .grid > .bb-page-title-wrap,
-  .bb-shell.is-miniapp .bb-owner-main .bb-services-desk-header,
-  .bb-shell.is-miniapp .bb-owner-main .bb-schedule-desk-header,
-  .bb-shell.is-miniapp .bb-owner-main .bb-clients-header,
-  .bb-shell.is-miniapp .bb-owner-main .bb-finance-header,
-  .bb-shell.is-miniapp .bb-owner-main .bb-stock-toolbar {
-    padding-inline: 1rem;
-  }
-
-  .bb-shell.is-miniapp .bb-owner-main .bb-ops-desk,
-  .bb-shell.is-miniapp .bb-owner-main .bb-panel {
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    background: #fff;
-  }
-
-  .bb-shell.is-miniapp .bb-owner-main .bb-ops-desk {
-    padding-inline: 1rem;
-    padding-top: 0.55rem;
-  }
-
-  .bb-shell.is-miniapp .bb-owner-main .bb-panel {
-    padding-inline: 1rem;
-  }
-
-  .bb-shell.is-miniapp .bb-owner-main .bb-services-catalog-grid,
-  .bb-shell.is-miniapp .bb-owner-main .bb-stock-room,
-  .bb-shell.is-miniapp .bb-owner-main .bb-clients-board,
-  .bb-shell.is-miniapp .bb-owner-main .bb-finance-pulse {
-    padding-inline: 1rem;
-  }
+.bb-owner-main .bb-page-chrome > :is(
+  .bb-services-desk-header, .bb-schedule-desk-header, .bb-stock-toolbar
+) {
+  padding-inline: 0;
 }

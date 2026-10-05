@@ -1,15 +1,20 @@
 /* Clients — phonebook directory */
 
-.bb-clients {
+.bb-clients,
+.bb-clients-modal-overlay {
   --bb-clients-ink: #101828;
   --bb-clients-muted: #667085;
   --bb-clients-paper: #fafbfc;
   --bb-clients-paper-deep: #f2f4f7;
   --bb-clients-line: rgba(15, 23, 42, 0.08);
   --bb-clients-accent: #0f766e;
+}
+
+.bb-clients {
   position: relative;
   display: grid;
-  gap: 1.25rem;
+  min-width: 0;
+  gap: var(--bb-page-gap, 1.5rem);
   padding-bottom: 1.75rem;
 }
 
@@ -24,6 +29,7 @@
 .bb-clients-header-copy {
   display: grid;
   gap: 0.2rem;
+  min-width: 0;
 }
 
 .bb-clients-eyebrow {
@@ -611,7 +617,7 @@
 .bb-clients-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: 150;
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -652,8 +658,36 @@
   }
 }
 
+.bb-clients-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.bb-clients-modal-close {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  background: #fff;
+  color: #475467;
+  cursor: pointer;
+}
+
+.bb-clients-modal-close:focus-visible { outline: 2px solid #101828; outline-offset: 3px; }
+
 .bb-clients-modal-title {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--bb-font-display);
   font-size: 1.35rem;
   font-weight: 800;
@@ -766,8 +800,6 @@
 }
 
 /* Compact directory beside the client file; mobile uses list/detail navigation. */
-.bb-shell .bb-owner-main:has(> .bb-clients) { padding-left: 0 !important; }
-.bb-clients-header { padding-left: 28px; }
 .bb-clients-directory { background: #fff; }
 .bb-clients-board-inner { grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); min-height: min(72vh, 42rem); }
 .bb-clients-directory { border-right: 1px solid var(--bb-clients-line); }
@@ -876,8 +908,6 @@
 }
 .bb-clients-row-copy { border: 0; padding: 0; background: transparent; text-align: left; cursor: pointer; color: inherit; font: inherit; }
 @media (max-width: 860px) {
-  .bb-clients-header { padding-left: 16px; }
-  .bb-clients.is-mobile-detail .bb-clients-sheet-scroll { padding-left: 16px; }
   .bb-clients-board-inner { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .bb-clients-directory { border-right: 0; }
   .bb-clients .bb-clients-sheet { display: none; }
@@ -938,7 +968,6 @@ button.bb-clients-row:focus-visible {
 .bb-clients.is-embedded-file .bb-clients-board-inner { display: block; border: 0; min-height: 0; }
 .bb-clients.is-embedded-file .bb-clients-sheet { display: flex; animation: none; }
 .bb-clients.is-embedded-file .bb-clients-sheet-scroll { overflow: visible; }
-.bb-clients.is-embedded-file .bb-clients-modal-overlay { z-index: 110; }
 .bb-clients-modal { max-height: calc(100dvh - 32px); overflow: auto; }
 @media (max-width: 860px) {
   .bb-client-file-overlay { padding: 0; }
@@ -1007,7 +1036,7 @@ html body .native-ui .bb-clients-tools .bb-page-action:not(.bb-button) { min-hei
   .bb-clients-notes { padding: 20px 0 0; border-left: 0; border-top: 1px solid #edf0f2; }
 }
 @media (max-width: 860px) {
-  .bb-clients.is-mobile-detail .bb-clients-sheet-scroll { padding: 20px 16px calc(24px + env(safe-area-inset-bottom)); gap: 24px; }
+  .bb-clients.is-mobile-detail:not(.is-embedded-file) .bb-clients-sheet-scroll { padding: 20px 0 calc(24px + env(safe-area-inset-bottom)); gap: 24px; }
   .bb-clients-sheet-identity { grid-template-columns: 56px minmax(0, 1fr); gap: 12px; }
   .bb-clients-sheet-avatar { width: 56px; height: 56px; }
   .bb-clients-file-summary { gap: 12px; }
@@ -1018,4 +1047,66 @@ html body .native-ui .bb-clients-tools .bb-page-action:not(.bb-button) { min-hei
   .bb-clients-history-item > button { grid-column: 1 / -1; justify-self: start; }
   .bb-clients-sheet .bb-clients-delete-icon,
   .bb-clients-section-heading > button:not(.bb-button) { width: 44px; min-width: 44px; height: 44px; }
+}
+
+/* A client editor gets the whole phone; only the fields scroll between its
+   heading and the actions, so saving remains reachable with long notes. */
+@media (max-width: 599px) {
+  .bb-clients-modal-overlay {
+    padding: 0;
+    place-items: stretch;
+    overflow: hidden;
+    background: #fff;
+    backdrop-filter: none;
+  }
+
+  .bb-clients-modal {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+    overflow: hidden;
+  }
+
+  .bb-clients-modal-head {
+    padding: max(20px, env(safe-area-inset-top, 0px))
+      max(16px, env(safe-area-inset-right, 0px)) 20px
+      max(16px, env(safe-area-inset-left, 0px));
+    border-bottom: 1px solid var(--bb-clients-line);
+  }
+
+  .bb-clients-modal-title {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .bb-clients-modal-fields {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    align-content: start;
+    gap: 1rem;
+    padding: 24px max(16px, env(safe-area-inset-right, 0px))
+      24px max(16px, env(safe-area-inset-left, 0px));
+  }
+
+  .bb-clients-modal-actions {
+    margin: 0;
+    gap: 8px;
+    padding: 16px max(16px, env(safe-area-inset-right, 0px))
+      max(16px, env(safe-area-inset-bottom, 0px))
+      max(16px, env(safe-area-inset-left, 0px));
+    border-top: 1px solid var(--bb-clients-line);
+  }
+
+  .bb-clients-modal-actions > .bb-button:first-child { flex: 0 0 auto; }
+  .bb-clients-modal-actions > .bb-button:last-child { flex: 1 1 auto; }
 }

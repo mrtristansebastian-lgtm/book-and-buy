@@ -70,7 +70,7 @@ export function TransactionReceiptCard({
         </footer>
 
         {row.paymentStatus !== 'paid' && onMarkPaid ? (
-          <Button action="markPaid" variant="positive" type="button" className="bb-finance-receipt-pay" onClick={() => onMarkPaid(row)}>
+          <Button action="markPaid" variant="secondary" type="button" className="bb-finance-receipt-pay" onClick={() => onMarkPaid(row)}>
             Mark paid
           </Button>
         ) : null}

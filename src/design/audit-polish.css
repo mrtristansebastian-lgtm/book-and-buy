@@ -57,14 +57,17 @@ html body .bb-client-shell .bb-settings-main h2.bb-page-title {
 .bb-owner-menu-sheet-body .bb-owner-apps-nav-groups { flex: 1; min-height: 0; }
 .bb-owner-menu-sheet-body .bb-demo-panel--nav,
 .bb-owner-menu-sheet-body .bb-menu-pages { flex-shrink: 0; }
-.bb-owner-menu-sheet-body .bb-demo-panel-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.bb-owner-menu-sheet-body .bb-demo-panel-btn { white-space: normal; line-height: 1.25; }
+.bb-owner-menu-sheet-body .bb-demo-panel-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: stretch; }
+.bb-owner-menu-sheet-body .bb-demo-panel-btn { white-space: nowrap; line-height: 1.25; }
+.bb-owner-menu-sheet-body .bb-demo-panel-btn:last-child { grid-column: 1 / -1; }
+.bb-owner-menu-sheet-body .bb-demo-panel-btn .bb-button-text { white-space: nowrap !important; }
 .bb-owner-apps-nav { position: relative; }
 .bb-owner-menu-sheet .bb-owner-menu-sheet-body { overflow-y: auto; scrollbar-width: none; }
 .bb-owner-menu-sheet .bb-owner-menu-sheet-body::-webkit-scrollbar { display: none; }
 .bb-owner-menu-sheet-body .bb-owner-apps-nav { min-height: min-content; gap: 12px; }
 .bb-owner-menu-sheet-body .bb-owner-apps-nav-groups { flex: 0 0 auto; display: grid; grid-template-columns: 1fr; gap: 0; }
 .native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding: 10px 0; gap: 8px; background: #fff; border-radius: 0; box-shadow: none; border: 0; border-bottom: 1px solid #edf0f2; }
+.native-ui .bb-owner-menu-sheet-body .bb-appgroup:last-child { border-bottom: 0; }
 .bb-owner-menu-sheet-body .bb-appgroup-head { gap: 7px; }
 .native-ui .bb-owner-menu-sheet-body .bb-appgroup-title { font-size: 21px !important; line-height: 1.35 !important; letter-spacing: -.4px; overflow: visible !important; padding-bottom: 2px; }
 .bb-owner-menu-sheet-body .bb-appgroup-icon { width: 18px; height: 18px; }
@@ -72,7 +75,7 @@ html body .bb-client-shell .bb-settings-main h2.bb-page-title {
 .bb-owner-menu-sheet-body .bb-appgroup-row { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; }
 .native-ui .bb-owner-menu-sheet-body .bb-appicon { --size: 46px; min-height: 72px; gap: 6px; }
 .native-ui .bb-owner-menu-sheet-body .bb-appicon-label { font-size: 11px; line-height: 1.3; white-space: normal; }
-.bb-owner-menu-sheet-body .bb-demo-panel--nav { margin-top: 8px; padding-top: 10px; }
+.bb-owner-menu-sheet-body .bb-demo-panel--nav { margin: 0; padding-top: 12px; box-shadow: none; }
 @media (max-width: 600px) {
   .native-ui .bb-owner-menu-sheet-body .bb-appgroup { padding-block: 6px; gap: 5px; }
   .native-ui .bb-owner-menu-sheet-body .bb-appgroup-title { font-size: 19px !important; }
@@ -216,7 +219,7 @@ html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actio
   .bb-managed-catalog .bb-catalog-card-title { font-size: 14px; }
   .bb-managed-catalog .bb-catalog-card-price { grid-column: 1 / -1; display: flex; justify-content: space-between; }
   html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actions { grid-column: 1 / -1; justify-content: flex-end; }
-  .bb-managed-catalog .bb-catalog-toolbar { margin-inline: 16px; }
+  .bb-managed-catalog .bb-catalog-toolbar { margin-inline: 0; }
   .bb-shipping-preview { padding: 18px; }
 }
 .bb-schedule-desk .bb-schedule-resource-grid { grid-template-columns: 120px minmax(var(--schedule-track-min), 1fr); min-width: calc(120px + var(--schedule-track-min)); }
@@ -273,10 +276,10 @@ html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actio
 @media (max-width: 920px) and (orientation: portrait) {
   .bb-schedule-rotate-hint { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 0 0 10px; padding: 0 2px; color: #667085; font-size: 11px; line-height: 1.5; }
 }
-@media (max-width: 600px) {
-  .native-ui .bb-owner-main:has(> .bb-schedule-desk) { padding-inline: 6px; }
-  .bb-schedule-desk .bb-schedule-sidebar { padding-inline: 2px; }
-  .bb-schedule-desk .bb-schedule-main { padding-inline: 2px; }
+@media (max-width: 899px) {
+  html body .bb-schedule-desk .bb-schedule-workspace { width: 100%; margin-inline: 0; }
+  .bb-schedule-desk .bb-schedule-sidebar { padding-inline: 0; }
+  .bb-schedule-desk .bb-schedule-main { padding-inline: 0; }
 }
 .bb-availability-mobile-profile { display: none; }
 .bb-schedule-selected-appointment { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px; border: 1px solid #e4e7ec; border-radius: 12px; margin-top: 12px; background: #fff; font-size: 13px; }
@@ -329,8 +332,8 @@ html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actio
   .bb-schedule-shifts-below-calendar .bb-schedule-avail-sidebar-head { flex-wrap: wrap; }
 }
 @media (min-width: 600px) and (max-width: 920px) {
-  .bb-managed-catalog .bb-catalog-toolbar { margin-inline: 16px; }
-  html body .native-ui .bb-services-desk.bb-managed-catalog .bb-public-product-grid.bb-services-catalog-grid { margin-inline: 16px; }
+  .bb-managed-catalog .bb-catalog-toolbar { margin-inline: 0; }
+  html body .native-ui .bb-services-desk.bb-managed-catalog .bb-public-product-grid.bb-services-catalog-grid { margin-inline: 0; }
   .bb-schedule-mobile-day { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   .bb-schedule-mobile-day-heading { grid-column: 1 / -1; }
 }
@@ -357,7 +360,7 @@ html body .native-ui .bb-services-desk.bb-managed-catalog .bb-catalog-card-actio
 }
 .native-ui :is(.bb-ops-tab, .bb-support-filter-chip, .bb-clients-chip,
   .bb-services-chip, .bb-services-duration-chip, .bb-products-chip,
-  .bb-client-content-tab, .bb-client-dm-chip, .bb-schedule-staff-chip,
+  .bb-client-dm-chip, .bb-schedule-staff-chip,
   .bb-schedule-booking-filters button).is-active,
 .native-ui .bb-client-ig-chip.is-on {
   border-color: transparent;

@@ -1,8 +1,10 @@
 import { Button } from '../../../shared/ui/Button';
 import { FilterChip } from '../../../shared/ui/FilterChip';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FileText, Cake, CalendarDays, Package, Mail, Pencil, Phone, Search, Star, Trash2, User, Users } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { FileText, Cake, CalendarDays, Package, Mail, Pencil, Phone, Search, Star, Trash2, User, Users, X } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { formatDisplayDate } from '../../../utils/dates';
 import { navigate } from '../../../app/routing';
@@ -540,22 +542,15 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
             </div>
           ) : (
             <div className="bb-clients-sheet bb-clients-sheet--empty">
-              <div className="bb-clients-sheet-empty">
-                <strong>No contact selected</strong>
-                <p className="bb-clients-history-empty">
-                  {clients.length === 0
-                    ? 'Add a client to start your directory.'
-                    : 'Pick someone from the list, or clear your search.'}
-                </p>
-              </div>
+              <EmptyState icon={Users} title="Your client details" description={clients.length === 0 ? 'Add your first client to start your directory.' : 'Select someone from the list to see their contact details, notes, bookings and orders.'} />
             </div>
           )}
         </div>
       </section>
 
-      {draftOpen ? (
+      {draftOpen && typeof document !== 'undefined' ? createPortal(
         <div
-          className="bb-clients-modal-overlay"
+          className="native-ui bb-clients-modal-overlay"
           onClick={() => setDraftOpen(false)}
           role="presentation"
         >
@@ -568,7 +563,12 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
             aria-label={draft.id ? 'Edit client' : 'New client'}
             onClick={(event) => event.stopPropagation()}
           >
-            <h2 className="bb-clients-modal-title">{draft.id ? 'Edit client' : 'New client'}</h2>
+            <div className="bb-clients-modal-head">
+              <h2 className="bb-clients-modal-title">{draft.id ? 'Edit client' : 'New client'}</h2>
+              <button type="button" className="bb-clients-modal-close" aria-label="Close client editor" onClick={() => setDraftOpen(false)}>
+                <X size={20} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            </div>
             <div className="bb-clients-modal-fields">
               <label className="bb-clients-modal-field">
                 <span>Name</span>
@@ -636,7 +636,8 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </div>
   );

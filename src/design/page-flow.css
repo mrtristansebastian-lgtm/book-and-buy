@@ -47,5 +47,5 @@ html body .bb-owner-main > .grid > :is(header, .bb-page-title-wrap):first-child 
   }
 }
 @media (min-width: 900px) {
-  .bb-client-shell.has-flowing-header .bb-client-top { padding-left: 1.1rem; }
+  .bb-client-shell.has-flowing-header .bb-client-top { padding-inline: var(--bb-client-gutter); }
 }

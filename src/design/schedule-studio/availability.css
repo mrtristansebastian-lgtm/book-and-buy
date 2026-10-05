@@ -363,7 +363,7 @@
 .bb-schedule-lanes {
   display: grid;
   gap: 0.85rem;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
 }
 
 .bb-schedule-lane {
@@ -482,7 +482,7 @@
 .bb-schedule-spot-grid {
   display: grid;
   gap: 0.95rem;
-  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
 }
 
 .bb-schedule-spot-card {
@@ -1462,7 +1462,7 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  padding: 1rem 1.15rem 1.2rem;
+  padding: var(--bb-panel-padding);
   display: grid;
   gap: 0.9rem;
   align-content: start;
@@ -1497,6 +1497,7 @@
 @media (max-width: 720px) {
   .bb-schedule-avail-settings-layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .bb-schedule-avail-settings-rail {
@@ -1512,6 +1513,35 @@
 
   .bb-schedule-avail-settings-nav-item {
     width: auto;
+  }
+}
+
+@media (max-width: 599px) {
+  .bb-app-sheet:has(.bb-schedule-avail-settings-panel) {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .bb-app-sheet .bb-schedule-avail-settings-panel {
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .bb-schedule-avail-settings-panel .bb-services-sheet-head {
+    padding: max(var(--bb-panel-padding), env(safe-area-inset-top, 0px))
+      var(--bb-page-inset-end) var(--bb-panel-padding) var(--bb-page-inset-start);
+  }
+
+  .bb-schedule-avail-settings-rail {
+    padding-inline: var(--bb-page-inset-start) var(--bb-page-inset-end);
+  }
+
+  .bb-schedule-avail-settings-main {
+    padding: var(--bb-panel-padding) var(--bb-page-inset-end)
+      max(var(--bb-panel-padding), env(safe-area-inset-bottom, 0px)) var(--bb-page-inset-start);
+    overscroll-behavior: contain;
   }
 }
 
@@ -2236,7 +2266,9 @@
   padding: 0.42rem 0.85rem;
   border-radius: 999px;
   border: 1px solid rgba(15, 23, 42, 0.1);
-  background: linear-gradient(115deg, #eef6ff 0%, #f3eefe 100%);
+  background: var(--native-brand-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 40%) 50%;
   box-shadow: 0 2px 10px rgba(59, 130, 246, 0.12);
   cursor: pointer;
   color: #1e293b;

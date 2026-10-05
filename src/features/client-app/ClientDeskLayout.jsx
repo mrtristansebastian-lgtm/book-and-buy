@@ -1,22 +1,19 @@
-import { FilterChip } from '../../shared/ui/FilterChip';
-
 function ContentTabs({ value, onChange, tabs = [] }) {
   return (
     <div className="bb-client-content-tabs" role="tablist" aria-label="Find sections">
       {tabs.map(({ id, label }) => {
         const active = value === id;
         return (
-          <FilterChip
+          <button
             key={id}
             type="button"
             role="tab"
             aria-selected={active}
-            selected={active}
             className={`bb-client-content-tab${active ? ' is-active' : ''}`}
             onClick={() => onChange?.(id)}
           >
             <span>{label}</span>
-          </FilterChip>
+          </button>
         );
       })}
     </div>

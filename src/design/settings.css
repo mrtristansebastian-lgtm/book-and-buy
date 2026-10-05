@@ -4,7 +4,7 @@
   grid-template-columns: minmax(0, var(--bb-settings-rail)) minmax(0, 1fr);
   gap: 1.25rem;
   align-items: start;
-  min-height: min(70vh, 52rem);
+  min-height: 0;
 }
 
 .bb-settings-rail {
@@ -108,12 +108,15 @@
 
 .bb-settings-main {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   min-width: 0;
 }
 
 .bb-settings-main-head {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 0.35rem;
 }
 
@@ -278,8 +281,12 @@
 
 .bb-settings-plan-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
+}
+
+@media (min-width: 1800px) {
+  .bb-settings-plan-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 .bb-settings-plan-card {
@@ -339,14 +346,6 @@
     font-size: 0.95rem;
   }
 
-  /* Flush mobile index — full-bleed list, not a floating card */
-  .bb-owner-main:has(> .bb-settings.is-mobile-index) {
-    padding-inline: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    background: #fff;
-  }
-
   .bb-settings.is-mobile-index {
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
   }
@@ -363,7 +362,7 @@
   .bb-settings.is-mobile-index .bb-settings-mobile-index-head {
     display: grid;
     gap: 0.25rem;
-    padding: 0.55rem 1.1rem 0.75rem;
+    padding: 0 0 1rem;
   }
 
   .bb-settings.is-mobile-index .bb-settings-mobile-index-head .bb-page-title {
@@ -376,7 +375,7 @@
 
   /* width:auto so horizontal margin does not push past the viewport */
   html body .native-ui .bb-settings.is-mobile-index .bb-settings-search-wrap {
-    margin: 0 1.1rem 0.55rem;
+    margin: 0 0 1rem;
     width: auto !important;
     max-width: none;
     box-sizing: border-box;
@@ -388,20 +387,20 @@
     font-size: 1rem;
   }
 
-  .bb-settings.is-mobile-index .bb-settings-nav {
+  .bb-owner-main > .bb-settings.is-mobile-index .bb-settings-nav {
     gap: 0;
     padding: 0;
     border-top: 1px solid rgba(15, 23, 42, 0.1);
   }
 
-  .bb-settings.is-mobile-index .bb-settings-nav-item {
+  .bb-owner-main > .bb-settings.is-mobile-index .bb-settings-nav-item {
     gap: 0.95rem;
-    min-height: 3.85rem;
-    padding: 1.05rem 1.15rem;
+    min-height: 3.5rem;
+    padding: 1rem 0;
     border-radius: 0;
     border-bottom: 1px solid rgba(15, 23, 42, 0.1);
     font-family: var(--bb-font-display);
-    font-size: 1.12rem;
+    font-size: 1rem;
     font-weight: 680;
     letter-spacing: -0.02em;
     color: #101828;
@@ -420,7 +419,7 @@
     background: rgba(15, 23, 42, 0.05);
   }
 
-  .bb-settings.is-mobile-index .bb-settings-nav-icon {
+  .bb-owner-main > .bb-settings.is-mobile-index .bb-settings-nav-icon {
     width: 1.55rem;
     height: 1.55rem;
     opacity: 0.9;
@@ -429,7 +428,7 @@
 
   .bb-settings.is-mobile-index .bb-settings-rail-foot {
     margin-top: 0;
-    padding: 0.95rem 1.15rem 1.1rem;
+    padding: 1rem 0;
     border-top: 0;
     background: #f8fafc;
   }
@@ -462,8 +461,8 @@
 }
 
 /* Full-width settings workspace; scoped so client settings remain independent. */
-.bb-owner-main:has(> .bb-settings) { width: 100%; max-width: none; min-height: 100dvh; background: #fff; padding: clamp(1rem, 2.5vw, 2.25rem); }
-.bb-owner-main > .bb-settings { --bb-settings-rail: 14rem; min-height: calc(100dvh - 4.5rem); gap: clamp(1.25rem, 3vw, 3rem); }
+.bb-owner-main:has(> .bb-settings) { background: #fff; }
+.bb-owner-main > .bb-settings { --bb-settings-rail: 14rem; gap: var(--bb-page-gap, 1.5rem); }
 .bb-owner-main > .bb-settings .bb-settings-rail { background: #fff; border-radius: 0; border: 0; border-right: 1px solid #edf0f2; box-shadow: none; padding: .25rem 1rem .75rem 0; }
 .bb-owner-main > .bb-settings .bb-settings-nav { max-height: none; overflow: visible; gap: .2rem; }
 .bb-owner-main > .bb-settings .bb-settings-nav-item { min-height: 44px; font-size: .86rem; border-radius: .65rem; }
@@ -471,14 +470,14 @@
 .bb-owner-main > .bb-settings .bb-settings-main { align-content: start; gap: 1.75rem; }
 .bb-owner-main > .bb-settings .bb-settings-main-head { padding: .15rem 0 1.25rem; border-bottom: 1px solid #edf0f2; }
 .bb-settings-content { display: grid; gap: 1.25rem; width: 100%; min-width: 0; align-content: start; }
-.bb-settings-content > .bb-panel, .bb-settings-content.bb-panel, .bb-settings-gateways .bb-panel { padding: clamp(1.1rem, 2vw, 1.75rem); background: #fff; border: 1px solid #e9edf0; border-radius: .8rem; box-shadow: none; align-content: start; }
+.bb-settings-content > .bb-panel, .bb-settings-content.bb-panel, .bb-settings-gateways .bb-panel { padding: var(--bb-panel-padding, 1.5rem); background: #fff; border: 1px solid #e9edf0; border-radius: .8rem; box-shadow: none; align-content: start; }
 .bb-settings-content .bb-page-title { font-size: 1.15rem; line-height: 1.4; }
 .bb-settings-content input:not([type=checkbox]), .bb-settings-content select, .bb-settings-content textarea { width: 100%; min-width: 0; min-height: 44px; }
 .bb-settings-content label:has(> input[type=checkbox]) { min-height: 48px; padding-block: .65rem; border-bottom: 1px solid #f0f2f4; }
 .bb-settings-content label:has(> input[type=checkbox]):last-child { border-bottom: 0; }
 .bb-settings-content--general > .bb-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.35rem 1.5rem; }
 .bb-settings-content--general label { gap: .5rem; }
-.bb-settings-content--general > p { padding: .1rem .2rem; }
+.bb-settings-content--general > p { padding-block: .1rem; }
 .bb-settings-content--policies textarea { min-height: 12rem; resize: vertical; }
 .bb-settings-content--users article { min-width: 0; }
 .bb-settings-content .bb-muted, .bb-settings-stub { line-height: 1.6; overflow-wrap: anywhere; }
@@ -488,12 +487,11 @@
   .bb-settings-content--notifications > :last-child { grid-column: 1 / -1; }
 }
 @media (max-width: 960px) {
-  .bb-owner-main:has(> .bb-settings) { padding: 1.1rem; min-height: calc(100dvh - var(--bb-owner-dock-h, 4rem)); }
-  .bb-owner-main > .bb-settings { min-height: inherit; }
+  .bb-owner-main > .bb-settings { min-height: 0; }
   .bb-owner-main > .bb-settings .bb-settings-rail { padding: 0; border: 0; }
   .bb-owner-main > .bb-settings .bb-settings-nav-item { min-height: 54px; }
   .bb-settings-content--general > .bb-panel { grid-template-columns: 1fr; gap: 1.1rem; }
-  .bb-settings-content .bb-panel, .bb-settings-content.bb-panel { padding: 1.1rem; }
+  .bb-settings-content .bb-panel, .bb-settings-content.bb-panel { padding: var(--bb-panel-padding, 1rem); }
   .bb-owner-main > .bb-settings .bb-settings-main { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
 }
 

@@ -1,13 +1,13 @@
 import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
-import { Eye, ShoppingBag } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { navigate, publicItemPath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
 import { CatalogCategoryTabs } from '../../storefront/components/CatalogCategoryTabs';
-import { PublicServiceSlotSheet } from './PublicServiceSlotSheet';
-import { formatServiceCardMeta, formatServicePrice, getServiceOpenSpots, serviceHasVariants } from '../../../utils/services';
+import { PublicOfferCard } from '../../storefront/components/PublicOfferCard';
+import { formatServiceCardMeta, formatServicePrice, getServiceOpenSpots } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import {
   buildCatalogCategoryTabs,
@@ -15,7 +15,7 @@ import {
 } from '../../../utils/catalogCategories';
 
 /**
- * Public Book catalog — trading cards matching Buy, shared cart with slot checkout.
+ * Public Book catalog — browse services, open details, and review the shared cart.
  */
 export function PublicBookingFlow({
   catalogWorkspace,
@@ -28,11 +28,11 @@ export function PublicBookingFlow({
   const ctx = useWorkspace();
   const workspace = catalogWorkspace || ctx.workspace;
   const website = workspace.website || {};
+  const hasBookingRecords = Array.isArray(workspace.bookings);
   const bookings = workspace.bookings || [];
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
   const [categoryId, setCategoryId] = useState('all');
-  const [slotService, setSlotService] = useState(null);
   const cartOpen = panel === 'cart';
   const studioNav = typeof onOpenItem === 'function';
 
@@ -58,19 +58,8 @@ export function PublicBookingFlow({
     navigate(publicItemPath(workspace.slug, 'book', serviceId));
   };
 
-  const openCart = () => setPanel('cart');
   const closeCart = () => setPanel('shop');
   const toggleCart = () => setPanel(cartOpen ? 'shop' : 'cart');
-
-  const requestAddService = (item) => {
-    if (preview) return;
-    const isSpot = getServiceScheduleType(item) === 'class_session';
-    if (isSpot && !serviceHasVariants(item)) {
-      if (cart.addService(item)) openCart();
-      return;
-    }
-    setSlotService(item);
-  };
 
   const introBody =
     String(website.bookSubtext || '').trim() ||
@@ -102,66 +91,27 @@ export function PublicBookingFlow({
   const serviceGrid = (
     <div className="bb-public-product-grid">
       {visibleServices.map((item) => {
-        const imageSrc = item.imageUrls?.[0] || item.image || '';
         const price = formatServicePrice(item);
         const cardMeta = formatServiceCardMeta(item);
         const isSpot = getServiceScheduleType(item) === 'class_session';
-        const spotsLeft = isSpot ? getServiceOpenSpots(item, bookings) : null;
+        const spotCount = isSpot
+          ? hasBookingRecords ? getServiceOpenSpots(item, bookings) : Math.max(1, Number(item.capacity) || 1)
+          : null;
+        const availability = isSpot
+          ? `${spotCount} spot${spotCount === 1 ? '' : 's'} ${hasBookingRecords ? 'left' : 'per session'}`
+          : '';
         const inCart = cart.items.some((row) => row.serviceId === item.id);
         return (
-          <article
+          <PublicOfferCard
             key={item.id}
-            className={`bb-public-product-card${inCart ? ' is-in-cart' : ''}`}
-          >
-            <button
-              type="button"
-              className="bb-public-product-surface"
-              onClick={() => openDetail(item.id)}
-              aria-label={`View ${item.name}`}
-            >
-              <div className="bb-public-product-media">
-                {imageSrc ? <img src={imageSrc} alt="" /> : null}
-                {cardMeta || spotsLeft != null ? (
-                  <div className="bb-public-product-sticker-stack">
-                    {cardMeta ? (
-                      <span className="bb-public-product-sticker bb-public-product-sticker--ink">
-                        {cardMeta}
-                      </span>
-                    ) : null}
-                    {spotsLeft != null ? (
-                      <span className="bb-public-product-sticker bb-public-product-sticker--spots">
-                        <strong>{spotsLeft}</strong>
-                        <span>{spotsLeft === 1 ? 'spot left' : 'spots left'}</span>
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-              <div className="bb-public-product-price-row">
-                <h2 className="bb-public-product-name">{item.name}</h2>
-                <p className="bb-public-product-price">{price || '—'}</p>
-              </div>
-            </button>
-            <div className="bb-public-product-actions">
-              <Button action="addToCart" variant="primary"
-                type="button"
-                className="bb-public-product-cart-btn"
-                disabled={inCart}
-                onClick={() => requestAddService(item)}
-              >
-                <span>{inCart ? 'In cart' : 'Add'}</span>
-                <ShoppingBag size={13} strokeWidth={2.2} aria-hidden="true" />
-              </Button>
-              <Button action="view" variant="secondary"
-                type="button"
-                className="bb-public-product-more-btn"
-                onClick={() => openDetail(item.id)}
-              >
-                <span>View</span>
-                <Eye size={13} strokeWidth={2.2} aria-hidden="true" />
-              </Button>
-            </div>
-          </article>
+            item={item}
+            kind="book"
+            price={price}
+            meta={cardMeta}
+            availability={availability}
+            className={inCart ? 'is-in-cart' : ''}
+            onOpen={() => openDetail(item.id)}
+          />
         );
       })}
       {activeServices.length === 0 ? (
@@ -180,6 +130,7 @@ export function PublicBookingFlow({
       catalogWorkspace={workspace}
       workspaceName={workspaceName || workspace.brandName}
       publicMode={publicMode}
+      lockedPreview={preview}
       onBack={closeCart}
     />
   );
@@ -237,24 +188,6 @@ export function PublicBookingFlow({
         ) : null}
       </div>
 
-      <PublicServiceSlotSheet
-        open={Boolean(slotService)}
-        service={slotService}
-        workspace={workspace}
-        bookings={bookings}
-        confirmLabel="Add to cart"
-        onClose={() => setSlotService(null)}
-        onConfirm={(slot) => {
-          if (!slotService) return;
-          const added = cart.addService(
-            slotService,
-            slot,
-            slot?.variant || null
-          );
-          setSlotService(null);
-          if (added) openCart();
-        }}
-      />
     </section>
   );
 }

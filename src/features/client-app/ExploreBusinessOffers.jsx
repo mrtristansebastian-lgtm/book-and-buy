@@ -1,14 +1,11 @@
 import { Button } from '../../shared/ui/Button';
 import { useEffect, useRef, useState } from 'react';
-import { CalendarDays, ChevronRight, Navigation, ShoppingBag } from 'lucide-react';
+import { ChevronRight, Navigation } from 'lucide-react';
 import { navigate, publicItemPath, publicPagePath } from '../../app/routing';
 import { BlankMedia } from '../../shared/ui/BlankMedia';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { reportDiscoveryVisit } from '../../shared/analytics/beacon';
-
-function itemImage(item = {}) {
-  return item.imageUrls?.[0] || item.imageUrl || item.image || '';
-}
+import { PublicOfferCard } from '../storefront/components/PublicOfferCard';
 
 function ExploreBusinessOfferCard({ biz, kind, analyticsEnabled }) {
   const railRef = useRef(null);
@@ -98,37 +95,10 @@ function ExploreBusinessOfferCard({ biz, kind, analyticsEnabled }) {
           className="bb-marketplace-offers bb-public-product-grid"
         >
           {biz.items.map((item) => {
-            const imageSrc = itemImage(item);
             const page = kind === 'book' ? 'book' : 'buy';
             const openItem = () => openBusiness(publicItemPath(biz.slug, page, item.id));
-            const PrimaryIcon = kind === 'book' ? CalendarDays : ShoppingBag;
             return (
-              <article key={item.id} className="bb-public-product-card">
-                <button
-                  type="button"
-                  className="bb-public-product-surface"
-                  onClick={openItem}
-                  aria-label={`View ${item.name}`}
-                >
-                  <div className="bb-public-product-media">
-                    {imageSrc ? <img src={imageSrc} alt="" /> : <BlankMedia variant="square" />}
-                  </div>
-                  <div className="bb-public-product-price-row">
-                    <h2 className="bb-public-product-name">{item.name}</h2>
-                    <p className="bb-public-product-price">{item.priceLabel || '—'}</p>
-                  </div>
-                </button>
-                <div className="bb-public-product-actions">
-                  <Button action={kind === 'book' ? 'book' : 'cart'} variant="primary" type="button" className="bb-public-product-cart-btn" onClick={openItem}>
-                    <span>{kind === 'book' ? 'Book' : 'Buy'}</span>
-
-                  </Button>
-                  <Button action="view" variant="secondary" type="button" className="bb-public-product-more-btn" onClick={openItem}>
-                    <span>View</span>
-
-                  </Button>
-                </div>
-              </article>
+              <PublicOfferCard key={item.id} item={item} kind={kind} price={item.priceLabel} onOpen={openItem} />
             );
           })}
         </div>

@@ -85,6 +85,7 @@ export function EditableText({
       suppressContentEditableWarning
       role="textbox"
       aria-label={ariaLabel || placeholder}
+      aria-multiline={multiline}
       data-placeholder={placeholder}
       onFocus={() => setFocused(true)}
       onBlur={(event) => {

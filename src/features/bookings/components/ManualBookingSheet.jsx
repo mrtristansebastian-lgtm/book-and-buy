@@ -1,9 +1,12 @@
 import { Button } from '../../../shared/ui/Button';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { getDaySlots } from '../../../utils/availability';
 import { toDateKey } from '../../../utils/dates';
 import { DateField } from '../../../shared/ui/DateField';
+import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import {
   formatServiceSessionLabel,
   getServiceDurationMinutes
@@ -24,6 +27,9 @@ export function ManualBookingSheet({ onClose }) {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const panelRef = useRef(null);
+  const close = () => { if (!saving) onClose?.(); };
+  useDialogFocus(panelRef, true, close);
 
   const service = services.find((item) => item.id === form.serviceId);
   const isSpot = getServiceScheduleType(service) === 'class_session';
@@ -97,10 +103,14 @@ export function ManualBookingSheet({ onClose }) {
     onClose?.(); } catch (failure) { setError(failure.message || 'Could not save the booking.'); } finally { setSaving(false); }
   };
 
-  return (
-    <div className="fixed inset-0 z-40 bg-black/30 grid place-items-end md:place-items-center p-4">
-      <div role="dialog" aria-modal="true" aria-label="Manual booking" className="bb-panel bb-manual-booking w-full max-w-lg p-5 grid gap-3 max-h-[90vh] overflow-auto">
-        <h2 className="bb-page-title text-2xl m-0">Manual booking</h2>
+  return createPortal(
+    <div className="bb-manual-booking-overlay" onClick={(event) => { if (event.target === event.currentTarget) close(); }}>
+      <div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label="Manual booking" className="native-ui bb-panel bb-manual-booking">
+        <header className="bb-manual-booking-head">
+          <h2 className="bb-page-title text-2xl m-0">Manual booking</h2>
+          <button type="button" className="bb-manual-booking-close" disabled={saving} aria-label="Close manual booking" onClick={close}><X size={20} strokeWidth={1.8} aria-hidden="true" /></button>
+        </header>
+        <div className="bb-manual-booking-body">
         {error && <p role="alert" className="bb-pay-error">{error}</p>}
         <label className="bb-settings-field">Service<select
           value={form.serviceId}
@@ -136,7 +146,7 @@ export function ManualBookingSheet({ onClose }) {
               value={form.date}
               onChange={(date) => setForm((prev) => ({ ...prev, date, time: '' }))}
             />
-            <div className="flex flex-wrap gap-2">
+            <div className="bb-manual-booking-slots">
               {slots.length === 0 ? (
                 <p className="bb-muted m-0 text-sm" role="status">No open slots on this day. Choose another date or staff member.</p>
               ) : (
@@ -182,15 +192,16 @@ export function ManualBookingSheet({ onClose }) {
           <option value="pending">Pending</option>
         </select></label>
         {!canSubmit && <p className="bb-muted m-0 text-sm" id="manual-booking-requirements">Select an available time and enter the client's name to create a booking.</p>}
-        <div className="flex gap-2 justify-end">
-          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
+        </div>
+        <footer className="bb-manual-booking-footer">
+          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" disabled={saving} onClick={close}>
             Cancel
           </Button>
           <Button action="book" variant="primary" type="button" className="bb-primary-btn" disabled={!canSubmit} busy={saving} busyLabel="Creating…" aria-describedby={!canSubmit ? 'manual-booking-requirements' : undefined} onClick={submit}>
             Create booking
           </Button>
-        </div>
+        </footer>
       </div>
-    </div>
+    </div>, document.body
   );
 }

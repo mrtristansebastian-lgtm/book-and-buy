@@ -251,9 +251,9 @@ export function BookingRequestsDesk({ heading = null }) {
 
                 <div className="bb-ops-actions">
                   <OpsChatAction onClick={() => openChat(booking)} />
-                  <OpsAction action="markPaid" variant="positive" onClick={() => runBookingAction(() => markPaid(booking.id))}>
+                  <OpsAction action="markPaid" variant={booking.paymentStatus === 'paid' ? 'positive' : 'secondary'} disabled={booking.paymentStatus === 'paid'} onClick={() => runBookingAction(() => markPaid(booking.id))}>
                     <DollarSign size={13} strokeWidth={2.4} />
-                    Mark paid
+                    {booking.paymentStatus === 'paid' ? 'Paid' : 'Mark paid'}
                   </OpsAction>
                   {!closed && status !== 'waitlist' ? (
                     <OpsAction action="waitlist" onClick={() => runBookingAction(() => waitlistBooking(booking.id))}>

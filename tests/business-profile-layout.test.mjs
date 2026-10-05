@@ -86,7 +86,7 @@ test('profile adapts to its actual preview width and photo dialog handles focus 
   const css = source('src/design/business-profile.css');
   assert.doesNotThrow(() => postcss.parse(css));
   assert.match(css, /container-type: inline-size/);
-  assert.match(css, /@container bb-profile-width \(max-width: 600px\)/);
+  assert.match(css, /@container bb-profile-width \(max-width: 599px\)/);
   assert.match(css, /grid-template-columns: minmax\(0,1fr\)/);
   const gallery = source('src/features/website/components/home-sections/VenueSection.jsx');
   assert.match(gallery, /useDetailDialog\(viewerIndex != null, close\)/);

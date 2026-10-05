@@ -10,10 +10,12 @@ test('the tighter fitted world frame contains every committed coastline with bre
   const view = fitViewport(b.width, b.height, 1, undefined, b);
   assert.equal(view.x - view.width / 2, b.x);
   assert.equal(view.y - view.height / 2, b.y);
+  // The mobile frame fits the coastlines closely while retaining a safe inset.
+  const inset = 4;
   for (const area of map.countries) for (const match of area.path.matchAll(/(?:M|L)(-?[\d.]+),(-?[\d.]+)/g)) {
     const x = Number(match[1]); const y = Number(match[2]);
-    assert.ok(x >= b.x + 10 && x <= b.x + b.width - 10, area.name);
-    assert.ok(y >= b.y + 10 && y <= b.y + b.height - 10, area.name);
+    assert.ok(x >= b.x + inset && x <= b.x + b.width - inset, area.name);
+    assert.ok(y >= b.y + inset && y <= b.y + b.height - inset, area.name);
   }
 });
 test('pan respects a non-zero fitted frame origin', () => {

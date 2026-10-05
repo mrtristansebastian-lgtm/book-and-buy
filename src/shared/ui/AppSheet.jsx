@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { useDialogFocus } from './useDialogFocus';
 
 /**
  * Universal modal shell — portals to document.body so overlays never clip
@@ -20,18 +21,8 @@ export function AppSheet({
   ariaLabel,
   showClose = true
 }) {
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKey = (event) => {
-      if (event.key === 'Escape') onClose?.();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [onClose]);
+  const panelRef = useRef(null);
+  useDialogFocus(panelRef, true, onClose);
 
   if (typeof document === 'undefined') return null;
 
@@ -44,7 +35,7 @@ export function AppSheet({
       aria-labelledby={labelledBy}
     >
       <div className="bb-services-sheet-backdrop" onClick={onClose} />
-      <div className={`bb-services-sheet-panel${panelClassName ? ` ${panelClassName}` : ''}`}>
+      <div ref={panelRef} tabIndex={-1} className={`bb-services-sheet-panel${panelClassName ? ` ${panelClassName}` : ''}`}>
         <header className="bb-services-sheet-head">
           <div>
             {eyebrow ? <p className="bb-services-sheet-eyebrow">{eyebrow}</p> : null}

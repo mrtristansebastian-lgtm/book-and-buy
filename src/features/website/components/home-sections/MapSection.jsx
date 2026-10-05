@@ -1,7 +1,12 @@
 import { Button } from '../../../../shared/ui/Button';
 import { EditableText, EditSection } from '../editable';
 
-export function MapSection({ website, editMode, preview, hidden, patchWebsite }) {
+export function MapSection({ website, editMode, hidden, patchWebsite }) {
+  const hasLocation = [website.address, website.mapBody, website.mapLinkUrl, website.mapEmbedUrl]
+    .some((value) => String(value || '').trim());
+
+  if (!editMode && !hasLocation) return null;
+
   return (
     <EditSection
       editMode={editMode}
@@ -83,7 +88,7 @@ export function MapSection({ website, editMode, preview, hidden, patchWebsite })
                 target="_blank"
                 rel="noreferrer"
                 onClick={(event) => {
-                  if (editMode || preview) event.preventDefault();
+                  if (editMode) event.preventDefault();
                 }}
               >
                 Open in Maps

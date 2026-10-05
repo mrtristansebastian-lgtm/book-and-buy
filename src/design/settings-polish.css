@@ -6,6 +6,119 @@
   outline: 2px solid var(--native-accent-border);
   outline-offset: 3px;
 }
+
+/* A restrained brand trail gives settings a clear hierarchy while keeping
+   editable fields on quiet white surfaces. */
+.bb-owner-main > .bb-settings .bb-settings-save-state { margin-top: 0; }
+.bb-owner-main > .bb-settings :is(.bb-settings-nav-item, .bb-market-row) { position: relative; }
+.bb-owner-main > .bb-settings :is(.bb-settings-nav-item.is-active, .bb-market-row.is-selected) { background-color: #fff; }
+.bb-owner-main > .bb-settings :is(.bb-settings-nav-item.is-active, .bb-market-row.is-selected)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 3px;
+  background-image: var(--native-accent-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 0%) 50%;
+  pointer-events: none;
+}
+.bb-owner-main > .bb-settings :is(.bb-settings-section-heading,
+  .bb-commerce-intro > div, .bb-commerce-section-head > div,
+  .bb-shipping-preview > div:first-child, .bb-pay-overview > div:first-child) { display: grid; gap: 6px; }
+.bb-owner-main > .bb-settings :is(.bb-commerce-intro > div,
+  .bb-commerce-section-head > div, .bb-shipping-preview > div:first-child) > :is(h2, h3, p) { margin: 0; }
+.bb-owner-main > .bb-settings :is(
+  .bb-settings-section-heading > h2,
+  .bb-settings-content > .bb-panel > h2,
+  .bb-settings-content--users > form > h2,
+  .bb-settings-content--users > div > h2,
+  .bb-pay-overview > div > h2,
+  .bb-market-index > h2,
+  .bb-market-detail > .bb-commerce-section-head:first-child > div,
+  .bb-shipping-preview > div:first-child > h2
+)::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 3px;
+  margin-bottom: 10px;
+  border-radius: 3px;
+  background-image: var(--native-accent-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 0%) 50%;
+}
+.bb-owner-main > .bb-settings .bb-market-detail > .bb-commerce-section-head:first-child > div::before { margin-bottom: 4px; }
+.bb-owner-main > .bb-settings .bb-settings-content > .bb-commerce-intro.bb-panel {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.bb-owner-main > .bb-settings .bb-commerce-intro > svg {
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 12px;
+  color: #101828;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .18)), var(--native-accent-button-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 0%) 50%;
+}
+.bb-owner-main > .bb-settings .bb-settings-content .bb-market-index.bb-panel {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.bb-owner-main > .bb-settings .bb-market-detail > .bb-commerce-section-head:first-child {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf0f2;
+}
+.bb-owner-main > .bb-settings .bb-settings-main :is(.bb-settings-explainer,
+  .bb-settings-stub, .bb-commerce-empty, .bb-shipping-preview-result:not(.is-warning)) {
+  position: relative;
+  background: #fbfdff;
+  background: color-mix(in srgb, #b9e3ff 6%, #fff);
+  padding-left: 20px;
+}
+.bb-owner-main > .bb-settings .bb-settings-main :is(.bb-settings-explainer,
+  .bb-settings-stub, .bb-commerce-empty, .bb-shipping-preview-result:not(.is-warning))::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 3px;
+  background-image: var(--native-accent-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x, 0%) 50%;
+  pointer-events: none;
+}
+@media (max-width: 960px) {
+  .bb-owner-main > .bb-settings .bb-settings-main .bb-settings-content { gap: 20px; }
+  .bb-owner-main > .bb-settings .bb-settings-main .bb-settings-content .bb-panel { padding: var(--bb-panel-padding, 1rem); }
+  .bb-owner-main > .bb-settings .bb-settings-content > .bb-commerce-intro.bb-panel {
+    grid-template-columns: 40px minmax(0, 1fr);
+    padding-block: 0;
+    padding-inline: 0;
+    gap: 12px;
+  }
+  .bb-owner-main > .bb-settings .bb-commerce-intro > :is(.bb-btn, .bb-commerce-total) {
+    grid-column: 2;
+    width: auto;
+    justify-self: start;
+  }
+  .bb-owner-main > .bb-settings .bb-settings-content .bb-market-index.bb-panel { padding: 0; }
+}
 .bb-settings-content :is(p, small, strong) { overflow-wrap: anywhere; }
 
 /* Settings are forms, not marketing pages: clear section hierarchy, calm body
@@ -169,7 +282,7 @@ html body .native-ui .bb-settings-content--policies textarea { min-height: 192px
 .bb-settings-content--plan > .flex > .flex { flex-wrap: wrap; }
 .bb-settings-main .bb-settings-plan-price { font-size: 24px; font-weight: 700; line-height: 1.3; }
 .bb-settings-main .bb-settings-plan-card ul { font-size: 13px; font-weight: 400; line-height: 1.6; }
-.bb-settings-content--users > form { padding: clamp(1.1rem, 2vw, 1.75rem); }
+.bb-settings-content--users > form { padding: var(--bb-panel-padding, 1.5rem); }
 .bb-settings-remove-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .bb-settings-remove-confirm > span { flex-basis: 100%; font-size: .8rem; color: #667085; }
 .bb-settings-content--domains > .bb-domain-address { grid-template-columns: 44px minmax(0, 1fr); gap: 16px; }
@@ -193,24 +306,25 @@ html body .native-ui .bb-settings-content--policies textarea { min-height: 192px
 }
 @media (max-width: 960px) {
   .bb-owner-main > .bb-settings .bb-settings-main { gap: 12px; }
-  .bb-settings-save-state { padding-inline: 16px; }
+  .bb-owner-main > .bb-settings .bb-settings-main-head { padding-inline: 0; }
+  .bb-settings-save-state:not(.is-error) { padding-inline: 0; }
   .bb-settings-content { gap: 12px; }
   .bb-settings-content > .bb-panel, .bb-settings-content.bb-panel,
-  .bb-settings-content .bb-panel { padding: 14px; }
+  .bb-settings-content .bb-panel { padding: var(--bb-panel-padding, 1rem); }
   .bb-settings-content--general > .bb-panel { gap: 14px; }
-  .bb-settings-content--users > form { padding: 14px; }
+  .bb-settings-content--users > form { padding: var(--bb-panel-padding, 1rem); }
   .bb-settings-content--domains > .bb-domain-address { grid-template-columns: 44px minmax(0, 1fr); }
   .bb-settings-content--domains .bb-domain-address > :is(label, a, .bb-domain-public-address) { grid-column: 1 / -1; }
   .bb-settings .bb-domain-head, .bb-settings .bb-domain-guide header { flex-wrap: wrap; }
   .bb-settings .bb-domain-progress { gap: 12px; }
   .bb-settings .bb-domain-progress li { min-width: 0; flex: 1; flex-wrap: wrap; }
   .bb-settings-content--plan .bb-settings-plan-card > :first-child { min-height: 0; }
-  .bb-review-overview, .bb-review-privacy, .bb-pay-overview,
-  .bb-pay-method-section > .bb-settings-section-heading { padding-inline: 16px; }
+  .bb-review-overview, .bb-pay-overview,
+  .bb-pay-method-section > .bb-settings-section-heading { padding-inline: 0; }
   .bb-settings .bb-commerce-intro { gap: 12px; }
   .bb-settings .bb-market-add { gap: 12px; }
   .bb-settings .bb-commerce-grid { gap: 12px; }
-  .bb-settings-content--users > .grid > h2 { padding-inline: 16px; }
+  .bb-settings-content--users > .grid > h2 { padding-inline: 0; }
 }
 @media (max-width: 560px) {
   .bb-settings-main .bb-schedule-hours-row { padding: 10px; }
@@ -221,4 +335,73 @@ html body .native-ui .bb-settings-content--policies textarea { min-height: 192px
 @media (max-width: 400px) {
   .bb-settings-main .bb-schedule-hours-times .bb-time-field-control { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .bb-settings-main .bb-schedule-hours-times .bb-time-field-control > button { width: 100%; }
+}
+@media (max-width: 899px) {
+  .bb-owner-main > .bb-settings .bb-settings-content--plan > :is(.flex, p) { padding-inline: 0; }
+}
+
+/* Desktop settings use the workspace width, with a modest navigation rail.
+   Commerce subnavigation responds to its actual content width so a laptop
+   doesn't end up with two sidebars squeezing the same form. */
+@media (min-width: 961px) {
+  .bb-owner-main > .bb-settings {
+    --bb-settings-page-pad: var(--bb-page-gutter, 1.5rem);
+    --bb-settings-rail: clamp(180px, 17vw, 224px);
+    gap: var(--bb-page-gap, 1.5rem);
+  }
+  .bb-owner-main > .bb-settings .bb-settings-rail {
+    top: var(--bb-settings-page-pad);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    height: calc(100dvh - var(--bb-settings-page-pad) * 2);
+    box-sizing: border-box;
+    padding-right: 12px;
+  }
+  .bb-owner-main > .bb-settings .bb-settings-nav {
+    min-height: 0;
+    align-content: start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .bb-owner-main > .bb-settings .bb-settings-main {
+    container-type: inline-size;
+    container-name: bb-owner-settings-main;
+    gap: 20px;
+  }
+  .bb-owner-main > .bb-settings .bb-settings-main-head { padding-bottom: 16px; }
+  .bb-owner-main > .bb-settings .bb-settings-content { gap: 20px; }
+  .bb-owner-main > .bb-settings .bb-settings-content .bb-panel { padding: var(--bb-panel-padding, 1.5rem); }
+  .bb-owner-main > .bb-settings .bb-commerce-grid {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 16px;
+  }
+  .bb-owner-main > .bb-settings :is(.bb-market-index, .bb-market-detail) { gap: 16px; }
+  .bb-owner-main > .bb-settings .bb-market-index > .bb-market-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    gap: 8px;
+  }
+  .bb-owner-main > .bb-settings .bb-commerce-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  @container bb-owner-settings-main (max-width: 850px) {
+    .bb-owner-main > .bb-settings .bb-commerce-grid { grid-template-columns: minmax(0, 1fr); }
+    .bb-owner-main > .bb-settings .bb-market-index {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .bb-owner-main > .bb-settings .bb-market-index > h2 { flex-basis: 100%; margin-bottom: 4px; }
+    .bb-owner-main > .bb-settings .bb-market-index > .bb-market-row {
+      display: flex;
+      flex: 0 1 auto;
+      gap: 16px;
+      max-width: 100%;
+      border: 1px solid #e9edf0;
+    }
+    .bb-owner-main > .bb-settings .bb-market-index > .bb-market-row.is-selected { border-color: #dce3e9; }
+  }
 }

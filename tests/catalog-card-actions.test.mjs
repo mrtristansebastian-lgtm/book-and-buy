@@ -38,7 +38,7 @@ test('products, services and stock share the new card without bypassing deletion
   assert.match(files, /ProductCatalogCard/);
 });
 
-test('card copy is left aligned and readable, with compact corner controls scoped to business cards', () => {
+test('card copy is left aligned and readable, with mobile touch targets scoped to business cards', () => {
   const name = declarations(css.nodes.find(node => node.selector === 'html body .native-ui .bb-business-catalog-card .bb-public-product-name'));
   assert.match(name.font, /600 17px\/1\.35/);
   assert.equal(name['text-align'],'left');
@@ -51,7 +51,12 @@ test('card copy is left aligned and readable, with compact corner controls scope
   assert.equal(gear.top,'12px');
   assert.equal(gear.right,'12px');
   const mobile = css.nodes.find(node => node.type === 'atrule' && node.params === '(max-width: 899px)');
-  assert.equal(declarations(mobile.nodes.find(node => node.selector === '.bb-business-card-settings')).width,'32px');
+  const mobileGear = declarations(mobile.nodes.find(node => node.selector === '.bb-business-card-settings'));
+  assert.equal(mobileGear.width,'44px');
+  assert.equal(mobileGear.height,'44px');
+  const mobileClose = declarations(mobile.nodes.find(node => node.selector === '.bb-catalog-actions-close'));
+  assert.equal(mobileClose.width,'44px');
+  assert.equal(mobileClose.height,'44px');
 });
 
 test('Home grid tracks can shrink so 320px headings and period controls wrap instead of clipping', () => {

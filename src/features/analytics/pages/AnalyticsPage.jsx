@@ -45,7 +45,7 @@ export function AnalyticsPage() {
         customRange={customRange}
         onCustomRangeChange={setCustomRange}
         usingDemo={data.usingDemo}
-        title="Insights" headline="Reports" description="Your audience, traffic and Places discovery"
+        headline="Reports" description="Your audience, traffic and Places discovery"
       />
 
       {data.loading ? <p className="bb-reports-data-notice" role="status">Loading your traffic insights…</p> : null}

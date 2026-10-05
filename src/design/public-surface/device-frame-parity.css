@@ -16,6 +16,15 @@
   max-width: 390px;
 }
 
+/* On a real phone, use its available width rather than a simulated device. */
+@media (max-width: 899px) {
+  .bb-studio-canvas.is-mobile .bb-studio-surface--phone {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 /* Social — undo desktop split when the frame is phone/tablet-narrow          */
 /* -------------------------------------------------------------------------- */
@@ -49,7 +58,7 @@
     height: auto !important;
     min-height: 0 !important;
     margin-inline: 0 !important;
-    padding: 0.85rem var(--bb-public-gutter, 1.25rem) 1.25rem !important;
+    padding: 0 !important;
     overflow: visible !important;
   }
 
@@ -283,14 +292,12 @@
   }
 }
 
-/* Product / service grid columns track the frame, not the outer viewport.
-   Live desktop is 4-up from ~900px; studio desktop frame must match even when
-   slightly narrower than a full browser. Phone stays 2-up. */
-@container bb-device (max-width: 719px) {
+/* Product / service grid columns track the frame, not the outer viewport. */
+@container bb-device (max-width: 899px) {
   .bb-public-service-list,
   .bb-public-product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.4rem !important;
+    gap: 12px !important;
   }
 
   .bb-public-buy-header {
@@ -319,20 +326,9 @@
     align-content: center !important;
   }
 
-  .bb-public-product-grid .bb-public-product-body h2,
-  .bb-public-product-name {
-    font-size: 0.74rem !important;
+  .bb-public-product-grid .bb-public-product-body h2 {
+    font-size: 0.78rem !important;
     line-height: 1.2 !important;
-  }
-
-  .bb-public-product-price {
-    font-size: 0.64rem !important;
-  }
-
-  .bb-public-product-cart-btn,
-  .bb-public-product-more-btn {
-    padding: 0.4rem 0.3rem !important;
-    font-size: 0.62rem !important;
   }
 
   .bb-public-catalog-intro-title {
@@ -344,21 +340,41 @@
   }
 }
 
-@container bb-device (min-width: 720px) {
+@container bb-device (min-width: 900px) {
   .bb-public-service-list,
   .bb-public-product-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 0.55rem !important;
+    gap: 20px !important;
   }
 }
 
-/* Hard guarantee: desktop studio surface always 4-up like live PC */
-.bb-device-preview--desktop .bb-public-service-list,
-.bb-device-preview--desktop .bb-public-product-grid,
-.bb-studio-surface--desktop .bb-public-service-list,
-.bb-studio-surface--desktop .bb-public-product-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 0.55rem !important;
+@container bb-device (min-width: 900px) and (max-width: 1099px) {
+  .bb-public-product-grid:has(> .bb-offer-card) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+  }
+}
+
+/* Match live phone card spacing and type even inside a desktop browser. */
+@container bb-device (max-width: 599px) {
+  .bb-offer-card { border-radius: 12px; }
+  .bb-offer-card-content { padding: 12px; gap: 5px; }
+  .bb-offer-card-title-row { gap: 4px; }
+  .bb-offer-card-title-row > svg { width: 13px; }
+  html body .native-ui .bb-offer-card .bb-offer-card-title { font-size: 15px !important; }
+  html body .native-ui .bb-offer-card .bb-offer-card-price { font-size: 13px !important; }
+  html body .native-ui .bb-offer-card .bb-offer-card-meta { font-size: 12px !important; }
+  .bb-offer-card-availability { left: 8px; bottom: 8px; max-width: calc(100% - 16px); font-size: 11px; }
+
+  .bb-public-product-actions:not(.bb-business-card-actions) > .bb-button[data-variant] {
+    padding-inline: 4px !important;
+  }
+}
+
+@container bb-device (max-width: 359px) {
+  .bb-public-product-actions:not(.bb-business-card-actions) {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Phone preview: keep live mobile type scale (avoid over-shrinking titles) */

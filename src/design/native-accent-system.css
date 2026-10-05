@@ -5,9 +5,10 @@
         }
 
         :root {
-            --native-accent-gradient: linear-gradient(115deg, #39ff14 0%, #eaff32 12%, #39ff14 24%, #12f0cf 38%, #14a7ff 52%, #755cff 66%, #ff4fd8 80%, #755cff 88%, #14a7ff 94%, #12f0cf 98%, #39ff14 100%);
-            --native-accent-button-gradient: linear-gradient(115deg, #cbffb8 0%, #f1ff9a 12%, #c9ffbf 24%, #b7fff0 38%, #b9e3ff 52%, #d2cbff 66%, #ffd4f2 80%, #d8ccff 88%, #c1e7ff 94%, #c0fff1 98%, #cbffb8 100%);
-            --native-booking-accent-gradient: linear-gradient(115deg, #b9e3ff 0%, #d2cbff 16%, #ffd4f2 32%, #f4ff9d 48%, #c9ffbf 64%, #b7fff0 80%, #b9e3ff 100%);
+            --native-brand-gradient: linear-gradient(115deg, #cbffb8 0%, #f1ff9a 12%, #c9ffbf 24%, #b7fff0 38%, #b9e3ff 52%, #d2cbff 66%, #ffd4f2 80%, #d8ccff 88%, #c1e7ff 94%, #c0fff1 98%, #cbffb8 100%);
+            --native-accent-gradient: var(--native-brand-gradient);
+            --native-accent-button-gradient: var(--native-brand-gradient);
+            --native-booking-accent-gradient: var(--native-brand-gradient);
             --native-accent-glow: rgba(20, 167, 255, 0.28);
             --native-accent-button-glow: rgba(117, 92, 255, 0.16);
             --native-accent-border: #755cff;

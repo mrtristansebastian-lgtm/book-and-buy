@@ -3,14 +3,15 @@
 .bb-welcome {
   position: relative;
   isolation: isolate;
-  min-height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
   display: grid;
   place-items: center;
   padding:
-    max(1.5rem, env(safe-area-inset-top))
-    1.25rem
-    max(1.5rem, env(safe-area-inset-bottom));
+    max(1.5rem, env(safe-area-inset-top, 0px))
+    var(--bb-page-gutter, 1rem)
+    max(1.5rem, env(safe-area-inset-bottom, 0px));
   overflow: hidden;
   color: var(--bb-ink);
   background: var(--bb-bg, #fbfbfb);
@@ -42,6 +43,7 @@
   position: relative;
   z-index: 1;
   width: min(100%, 26rem);
+  min-width: 0;
 }
 
 .bb-welcome-panel {
@@ -81,6 +83,7 @@
   display: grid;
   gap: 0.28rem;
   width: 100%;
+  min-width: 0;
   margin: 0;
   padding: 1.05rem 1.15rem;
   border: 1px solid #e2e5e9;
@@ -125,6 +128,7 @@
   font-size: 0.92rem;
   line-height: 1.35;
   color: var(--bb-muted, #667085);
+  overflow-wrap: anywhere;
 }
 
 .bb-welcome-back {
@@ -154,6 +158,7 @@
   letter-spacing: -0.04em;
   line-height: 1.15;
   color: var(--bb-ink, #101828);
+  overflow-wrap: anywhere;
 }
 
 .bb-welcome-auth-copy {
@@ -250,6 +255,47 @@
 .bb-welcome-back:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* Entry forms share the same page and panel insets as the workspace. */
+.bb-shell.bb-onboarding {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  box-sizing: border-box;
+  padding: max(2rem, env(safe-area-inset-top, 0px)) var(--bb-page-gutter, 1rem)
+    max(2rem, env(safe-area-inset-bottom, 0px));
+}
+.bb-onboarding-content {
+  display: grid;
+  gap: var(--bb-page-gap, 1.5rem);
+  width: min(100%, 32rem);
+  min-width: 0;
+}
+.bb-onboarding-content > .bb-panel {
+  min-width: 0;
+  gap: 1rem;
+  padding: var(--bb-panel-padding, 1rem);
+}
+.bb-onboarding-content :is(header, label, input) { min-width: 0; }
+.bb-onboarding-content :is(h1, h2, p, li) { overflow-wrap: anywhere; }
+.bb-onboarding-content header > p { font-size: 14px; line-height: 1.6; }
+.bb-onboarding-content label { font-size: 13px; line-height: 1.5; }
+.bb-onboarding-content label > span { font-weight: 500; }
+.bb-onboarding-content label > input:not([type="checkbox"]) { width: 100%; }
+.bb-onboarding-content label:has(> input[type="checkbox"]) {
+  align-items: flex-start;
+  min-height: 44px;
+  padding-block: 10px;
+  font-weight: 500;
+}
+.bb-onboarding-content label > input[type="checkbox"] { flex-shrink: 0; margin-top: 3px; }
+@media (max-height: 700px) {
+  .bb-welcome:has(.is-auth), .bb-shell.bb-onboarding { align-items: start; }
 }
 
 @media (prefers-reduced-motion: reduce) {

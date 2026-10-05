@@ -57,8 +57,8 @@ test('provider, market and domain states reuse the shared non-interactive status
   }
 });
 
-test('mobile settings use compact panel spacing without a competing blanket button height', () => {
-  assert.ok(declaration('.bb-settings-content > .bb-panel', 'padding').some((decl) => decl.value === '14px'));
+test('mobile settings reuse shared panel spacing without a competing blanket button height', () => {
+  assert.ok(declaration('.bb-settings-content > .bb-panel', 'padding').some((decl) => decl.value === 'var(--bb-panel-padding, 1rem)'));
   assert.ok(declaration('.bb-settings-content', 'gap').some((decl) => decl.value === '12px'));
   css.walkRules((rule) => {
     if (rule.selector === '.bb-settings-content :is(button, a.bb-btn, summary)') {

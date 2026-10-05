@@ -1,5 +1,6 @@
 import { Button } from '../../../shared/ui/Button';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarDays, ChevronRight, ClipboardList, Lock, Bookmark, Settings2, UserRound } from 'lucide-react';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
@@ -350,7 +351,7 @@ export function ClientAccountPage({ section = '' }) {
     body = (
       <div className="bb-client-stack bb-client-activity">
         {myBookings.length === 0 ? (
-          <div className="bb-client-empty"><p>No bookings yet. Find a business and book your first service.</p><Button action="search" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find services</Button></div>
+          <EmptyState icon={CalendarDays} title="Your next booking starts here" description="Find a business and book your first service." action={<Button action="search" variant="primary" type="button" onClick={() => navigate('/app/find')}>Find services</Button>} />
         ) : (
           myBookings.map((booking) => (
             <article key={booking.id} className="bb-client-item">
@@ -378,7 +379,7 @@ export function ClientAccountPage({ section = '' }) {
     body = (
       <div className="bb-client-stack bb-client-activity">
         {myOrders.length === 0 ? (
-          <div className="bb-client-empty"><p>No orders yet. Discover products from businesses on Book and Buy.</p><Button action="search" variant="secondary" type="button" className="bb-ghost-btn" onClick={() => navigate('/app/find')}>Find products</Button></div>
+          <EmptyState icon={ClipboardList} title="Your orders, in one place" description="Discover products from businesses on Book and Buy. Your orders will appear here." action={<Button action="search" variant="primary" type="button" onClick={() => navigate('/app/find')}>Find products</Button>} />
         ) : (
           myOrders.map((order) => (
             <article key={order.id} className="bb-client-item">

@@ -4,6 +4,9 @@ import { EditableText, EditSection } from '../editable';
 
 export function FaqSection({ website, editMode, hidden, patchWebsite }) {
   const faq = website.bookFaq || [];
+  const visibleFaq = editMode ? faq : faq.filter((item) => String(item.q || '').trim());
+
+  if (!editMode && !visibleFaq.length) return null;
 
   return (
     <EditSection
@@ -46,7 +49,7 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
           </header>
 
           <div className="bb-public-faq-list">
-            {faq.map((item) =>
+            {visibleFaq.map((item) =>
               editMode ? (
                 <div key={item.id} className="bb-public-faq-item is-edit">
                   <div className="bb-public-edit-title-row">

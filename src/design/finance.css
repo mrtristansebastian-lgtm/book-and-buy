@@ -2,7 +2,8 @@
 
 .bb-finance {
   display: grid;
-  gap: 1.75rem;
+  min-width: 0;
+  gap: var(--bb-page-gap, 1.5rem);
   padding-bottom: 2rem;
 }
 
@@ -22,6 +23,7 @@
 .bb-finance-header-copy {
   display: grid;
   gap: 0.2rem;
+  min-width: 0;
 }
 
 .bb-finance-eyebrow {
@@ -353,7 +355,7 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 
 @media (max-width: 720px) {
   .bb-finance {
-    gap: 1.15rem;
+    gap: var(--bb-page-gap, 1.5rem);
   }
 
   .bb-finance-pulse {
@@ -361,9 +363,10 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
   }
 
   .bb-finance-chart {
-    margin-inline: -1rem;
-    width: calc(100% + 2rem);
-    max-width: none;
+    margin-inline: 0;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: 17rem;
     padding: 0.2rem 0 0.1rem;
     border-radius: 0;
@@ -516,7 +519,7 @@ html body .native-ui .bb-finance .bb-finance-metric-value {
 
 .bb-finance-receipts {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
   gap: 1.15rem;
   align-items: stretch;
 }

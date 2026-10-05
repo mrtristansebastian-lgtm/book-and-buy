@@ -159,3 +159,52 @@ emulator is running. This is not a claim that every screen/browser is perfect.
   local Firestore emulator, together with six related profile tests (12/12).
   This checked profile ownership protections, canonical order persistence,
   booking/reschedule concurrency, retries and rejection of unauthorized writes.
+
+## Consistent page spacing and mobile forms — 5 October 2026
+
+- Owner pages now share one shell-owned gutter: 16px on phones, 24px on tablets,
+  and 32px on larger desktops, with safe-area insets and a 1440px content cap.
+  Removed duplicated inner gutters and negative margins from Clients, Schedule,
+  Finance, Reports, Settings and studio toolbars. Narrow headings wrap inside
+  their grid tracks; decorative title glows no longer cause horizontal overflow.
+- Customer Find, Account and public profiles use consistent spacing at their
+  actual container width. Desktop discovery cards keep their proportions when
+  only one or two offers exist. Public pages scroll naturally through long
+  content instead of clipping at the desktop viewport height.
+- Mobile utility buttons use a 36px minimum, filters 32px, and period controls
+  36px overall. Inputs and main form/footer actions remain 44px. Finance icons,
+  profile actions, discovery actions and manual-booking time slots follow the
+  compact treatment. Labels can grow without being clipped.
+- Manual booking and client create/edit now fill phone screens, with fixed
+  headers, scrolling fields, safe-area spacing, close controls and reachable
+  footer actions. Client and booking overlays portal to the document body.
+  Product/service setup overlays and Availability settings also fill phones;
+  desktop dialogs retain their bounded layout.
+- The app menu traps keyboard focus, closes with Escape, restores the opener,
+  and scrolls to every action on a 320px by 740px phone.
+
+### Actual local browser coverage
+
+Reviewed owner Home, Services, Requests, Products, Orders, Stock, Finance,
+Reports, Live Stats, Clients, Schedule, Availability, Settings, Messages and
+Home/Book/Buy/Checkout studio pages. Reviewed customer Find/Book/Buy/Places,
+Account and Messages, public Home/Book/Buy/Cart, onboarding and auth entry.
+Settings' 15 sections were checked for narrow layout overflow. Long forms were
+opened and cancelled without saving; populated request filters and menu keyboard
+focus were checked. No real booking, customer message or payment was submitted.
+
+Viewport review covered 320px and 375px phones, 768px tablet, 1440px desktop and
+the 1440px content cap at 1920px. Final 320px owner-page checks showed no horizontal
+overflow. Final booking form filled exactly 320px by 740px; its time choices were
+36px and footer actions 44px. Final Find actions measured 36px and filters 32px.
+
+### Release checks
+
+Full existing suite: 230 passed, zero failed, six emulator-dependent checks
+skipped. Final shared control/profile/dialog/mobile-layout checks: 39 passed.
+Health check and TypeScript check passed. Previous root QA images were preserved
+outside the repository in the Desktop UI audit folder, alongside final captures.
+The production build continues to report existing bundle-size and ineffective
+dynamic-import warnings. Browser review covers the rendered demo/local flows;
+live authentication, uploads and financial transactions require their normal
+integration checks.

@@ -18,6 +18,14 @@
   --bb-type-title-sm: 1.125rem;
   --bb-type-title: 1.5rem;
 
+  /* The page frame owns the gutter; nested sections own only their interiors. */
+  --bb-page-gutter: 1rem;
+  --bb-page-gap: 1.5rem;
+  --bb-panel-padding: 1rem;
+  --bb-content-max: 90rem;
+  --bb-page-inset-start: max(var(--bb-page-gutter), env(safe-area-inset-left, 0px));
+  --bb-page-inset-end: max(var(--bb-page-gutter), env(safe-area-inset-right, 0px));
+
   --bb-bg: #ffffff;
   --bb-surface: #ffffff;
   --bb-surface-2: #f4f6f8;
@@ -34,4 +42,16 @@
   --bb-segment-bg: #ffffff;
   --bb-shell-glow-a: rgba(185, 227, 255, 0.35);
   --bb-shell-glow-b: rgba(255, 212, 242, 0.28);
+}
+
+@media (min-width: 600px) {
+  :root {
+    --bb-page-gutter: 1.5rem;
+    --bb-page-gap: 2rem;
+    --bb-panel-padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  :root { --bb-page-gutter: 2rem; }
 }

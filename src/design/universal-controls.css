@@ -91,6 +91,11 @@ html body .bb-button[data-variant].is-busy { cursor: progress; }
 html body .bb-button[data-variant] > .bb-button-label { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; color: inherit !important; font: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; text-transform: none !important; }
 html body .bb-button[data-variant] .bb-button-text { min-width: 0; color: inherit !important; font: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; text-transform: none !important; }
 html body .bb-button[data-variant] :is(.bb-button-label, .bb-button-busy-label) :is(span, strong, small) { color: inherit !important; font: inherit !important; line-height: inherit !important; letter-spacing: inherit !important; }
+html body .bb-button[data-variant] .bb-button-text .bb-public-catalog-cart-count { color: #fff !important; }
+html body .bb-public-product-actions > .bb-button[data-variant] .bb-button-text { white-space: nowrap !important; overflow-wrap: normal; }
+html body .bb-public-product-actions:not(.bb-business-card-actions) > .bb-button[data-variant] { padding-inline: 4px !important; }
+html body .bb-public-product-actions:not(.bb-business-card-actions) > .bb-button[data-variant] .bb-button-label { gap: 5px; }
+html body .bb-public-catalog-cart.bb-button[data-variant] .bb-button-text { display: inline-flex; align-items: center; gap: 6px; }
 html body .bb-button[data-variant] .bb-button-icon[data-bb-keep-icon] {
   display: block !important;
   flex: 0 0 16px !important;
@@ -421,15 +426,33 @@ html body :is(.bb-public-profile-chip, .bb-places-distance) {
 .bb-control-review-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 16px; }
 .bb-control-review-fields > label { display: grid; min-width: 0; gap: 8px; font-family: var(--bb-font-body); font-size: 12px; font-weight: 500; color: #475467; }
 @media (max-width: 899px) {
-  html body .bb-button.is-icon-only[data-variant] { width: 32px !important; min-width: 32px !important; min-height: 32px !important; flex-basis: 32px !important; }
-  :root { --bb-control-height: 44px; --bb-button-height: 32px; --bb-filter-height: 30px; }
-  html body .bb-button[data-variant] { padding: 5px 9px !important; }
+  html body .bb-button.is-icon-only[data-variant] { width: 36px !important; min-width: 36px !important; min-height: 36px !important; flex-basis: 36px !important; }
+  :root { --bb-control-height: 44px; --bb-button-height: 36px; --bb-filter-height: 32px; }
+  html body .bb-button[data-variant] { padding: 6px 10px !important; }
   html body .bb-button[data-variant] > .bb-button-label { gap: 5px; }
   html body .bb-button[data-variant] .bb-button-icon[data-bb-keep-icon] { flex-basis: 14px !important; width: 14px !important; height: 14px !important; }
   html body .bb-filter-chip { padding: 3px 10px !important; gap: 6px !important; }
-  html body .bb-button-busy-label { padding: 5px 9px; }
+  html body .bb-button-busy-label { padding: 6px 10px; }
   .native-ui .bb-segment-period { height: var(--bb-button-height) !important; min-height: var(--bb-button-height) !important; }
-  .native-ui .bb-segment-period > button { height: 26px !important; min-height: 26px !important; }
+  .native-ui .bb-segment-period > button { height: 30px !important; min-height: 30px !important; }
+  html body :is(.bb-manual-booking-footer, .bb-clients-modal-actions,
+    .bb-services-sheet-footer, .bb-onboarding, .bb-auth-screen, .bb-welcome)
+    .bb-button[data-variant],
+  html body .bb-button.bb-checkout-cta[data-variant] {
+    min-height: 44px !important;
+    padding-block: 8px !important;
+  }
+  /* Native iPhone form focus stays at the current page scale at 16px. Keep
+     bespoke large clock and social-composer typography independent. */
+  html body .native-ui :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not(.bb-time-clock-digit):not(.bb-social-compose-kicker-input):not(.bb-social-compose-tweet-input),
+    textarea:not(.bb-social-compose-tweet-input),
+    select:not(.bb-social-compose-kicker-input)
+  ),
+  html body :is(.bb-control-input, .bb-control-search input, .bb-client-search input,
+    .bb-client-ig-search input, .bb-client-dm-search input) {
+    font-size: 16px !important;
+  }
   .bb-control-review { padding: 16px; }
   .bb-control-review > header::before { inset-inline: -16px; }
   .bb-control-review-fields { grid-template-columns: minmax(0, 1fr); }

@@ -14,15 +14,31 @@
   overflow-x: hidden;
 }
 
-.bb-studio-surface .bb-public-surface {
+.bb-studio-surface .bb-public-surface,
+.bb-device-screen .bb-public-surface {
   min-width: 0;
-  --bb-public-gutter: 1rem;
+  --bb-page-gutter: 1rem;
+  --bb-page-gap: 1.5rem;
+  --bb-public-gutter: var(--bb-page-gutter);
   --bb-public-header-h: 3.25rem;
 }
 
 .bb-studio-surface--phone .bb-public-surface {
-  --bb-public-gutter: 0.95rem;
   --bb-public-header-h: auto;
+}
+
+/* Preview spacing follows the frame instead of the browser around it. */
+@container bb-device (min-width: 600px) {
+  .bb-public-surface {
+    --bb-page-gutter: 1.5rem;
+    --bb-page-gap: 2rem;
+  }
+}
+
+@container bb-device (min-width: 1200px) {
+  .bb-public-surface {
+    --bb-page-gutter: 2rem;
+  }
 }
 
 /*

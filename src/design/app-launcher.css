@@ -17,9 +17,9 @@
 .bb-launcher {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1.35rem;
+  gap: var(--bb-page-gap);
   width: 100%;
-  max-width: 1280px;
+  max-width: var(--bb-content-max);
   margin-inline: auto;
   min-width: 0;
 }
@@ -470,7 +470,9 @@
   border-radius: 28%;
   color: #050505;
   background:
-    linear-gradient(160deg, var(--tint-a) 0%, var(--tint-b) 100%);
+    var(--native-brand-gradient);
+  background-size: 420% 420%;
+  background-position: var(--native-accent-x) 50%;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     inset 0 -1px 0 rgba(0, 0, 0, 0.08),
@@ -721,7 +723,7 @@
 
 @media (max-width: 720px) {
   .bb-launcher {
-    gap: 1rem;
+    gap: var(--bb-page-gap);
   }
 
   .bb-launcher-header {
@@ -818,4 +820,3 @@
 .bb-miniapp-tabs-bar {
   display: none !important;
 }
-

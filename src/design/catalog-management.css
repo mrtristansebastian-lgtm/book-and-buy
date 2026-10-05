@@ -35,10 +35,10 @@ html body .native-ui .bb-managed-catalog .bb-catalog-card-action.is-danger { col
 
 /* Shared read-only detail sheets: one surface and legible definition rows. */
 .bb-catalog-detail .bb-services-sheet-panel { width: min(780px, 100%); }
-.bb-catalog-detail .bb-services-sheet-head { padding: 24px; background: #fff; }
+.bb-catalog-detail .bb-services-sheet-head { padding: var(--bb-panel-padding, 1.5rem); background: #fff; }
 .bb-catalog-detail .bb-services-sheet-title { font-size: 26px; line-height: 1.25; }
 .bb-catalog-detail .bb-services-sheet-lede { font-weight: 400; font-size: 13px; }
-.bb-catalog-detail .bb-services-sheet-body { padding: 24px; background: #fff; }
+.bb-catalog-detail .bb-services-sheet-body { padding: var(--bb-panel-padding, 1.5rem); background: #fff; }
 .bb-catalog-detail :is(.bb-product-info-hero, .bb-stock-info-hero) { grid-template-columns: 160px minmax(0, 1fr); padding: 0 0 24px; border: 0; border-radius: 0; background: transparent; border-bottom: 1px solid #e9edef; gap: 24px; }
 .bb-catalog-detail :is(.bb-product-info-media, .bb-stock-info-media) { width: 160px; height: 160px; border-radius: 12px; border: 0; }
 .bb-catalog-detail .bb-product-info-price { font-size: 28px; }
@@ -49,14 +49,14 @@ html body .native-ui .bb-managed-catalog .bb-catalog-card-action.is-danger { col
 .bb-catalog-detail .bb-stock-info-facts { gap: 0 28px; }
 .bb-catalog-detail .bb-stock-info-facts div { padding: 16px 0; border: 0; border-bottom: 1px solid #e9edef; border-radius: 0; background: none; gap: 7px; }
 .bb-catalog-detail .bb-stock-info-facts dt { font: 400 13px var(--bb-font-body); text-transform: none; letter-spacing: 0; color: #667085; }
-.bb-catalog-detail .bb-stock-info-facts dd { font: 500 15px/1.5 var(--bb-font-body); }
+.bb-catalog-detail .bb-stock-info-facts dd { min-width: 0; overflow-wrap: anywhere; font: 500 15px/1.5 var(--bb-font-body); }
 .bb-catalog-detail .bb-stock-section-label { font: 600 16px var(--bb-font-body); color: #101828; letter-spacing: 0; text-transform: none; }
 .bb-catalog-detail .bb-stock-info-variant-list { gap: 0; }
 .bb-catalog-detail .bb-stock-info-variant-list li { border: 0; border-bottom: 1px solid #e9edef; border-radius: 0; padding: 16px 0; }
 .bb-catalog-detail .bb-stock-info-variant-list strong { font: 500 14px var(--bb-font-body); }
 .bb-catalog-detail .bb-stock-info-variant-list span { font: 400 13px/1.5 var(--bb-font-body); }
 .bb-catalog-detail .bb-services-sheet-footer { background: #fff; }
-.bb-business-card-note { font: 400 12px var(--bb-font-body); color: #667085; text-transform: capitalize; }
+.bb-business-card-note { max-width: 100%; overflow-wrap: anywhere; font: 400 12px/1.5 var(--bb-font-body); color: #667085; text-transform: capitalize; }
 html body .native-ui .bb-business-catalog-card .bb-public-product-name { font: 600 17px/1.35 var(--bb-font-body) !important; letter-spacing: -.02em !important; margin: 0; text-align: left !important; overflow-wrap: anywhere; }
 html body .native-ui .bb-business-catalog-card .bb-public-product-price { font: 400 15px/1.4 var(--bb-font-body) !important; letter-spacing: normal !important; color: #475467; margin: 0; text-align: left !important; }
 .bb-public-product-grid > .bb-business-catalog-card { position: relative; display: block; }
@@ -68,7 +68,7 @@ html body .native-ui .bb-business-catalog-card .bb-public-product-price-row { di
 .bb-business-card-settings:focus-visible, .bb-catalog-actions-close:focus-visible { outline: 2px solid #101828; outline-offset: 3px; }
 .bb-catalog-actions-overlay { position: fixed; inset: 0; z-index: 1700; display: grid; place-items: center; padding: 16px; box-sizing: border-box; }
 .bb-catalog-actions-backdrop { position: absolute; inset: 0; background: rgba(16,24,40,.32); }
-.bb-catalog-actions-dialog { position: relative; width: min(380px,100%); max-height: calc(100dvh - 32px); overflow: auto; border: 1px solid #e2e5e9; border-radius: 16px; padding: 20px; box-sizing: border-box; background: #fff; box-shadow: 0 20px 60px rgba(16,24,40,.18); }
+.bb-catalog-actions-dialog { position: relative; width: min(380px,100%); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; border: 1px solid #e2e5e9; border-radius: 16px; padding: var(--bb-panel-padding, 1.5rem); box-sizing: border-box; background: #fff; box-shadow: 0 20px 60px rgba(16,24,40,.18); }
 .bb-catalog-actions-dialog header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
 .bb-catalog-actions-dialog header > img { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 9px; object-fit: cover; }
 .bb-catalog-actions-dialog header > div { flex: 1; min-width: 0; }
@@ -78,18 +78,19 @@ html body .native-ui .bb-business-catalog-card .bb-public-product-price-row { di
 .bb-catalog-actions-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .bb-catalog-actions-options > .bb-button { flex: 1 1 auto; }
 @media (max-width: 899px) {
-  .bb-business-card-settings { top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 9px; }
+  .bb-business-card-settings { top: 10px; right: 10px; width: 44px; height: 44px; border-radius: 10px; }
+  .bb-catalog-actions-close { flex-basis: 44px; width: 44px; height: 44px; }
   html body .native-ui .bb-business-catalog-card .bb-public-product-price-row { padding: 12px; }
   html body .native-ui .bb-business-catalog-card .bb-public-product-name { font-size: 16px !important; }
   html body .native-ui .bb-business-catalog-card .bb-public-product-price { font-size: 14px !important; }
-  .bb-catalog-actions-dialog { padding: 16px; }
+  .bb-catalog-actions-dialog { padding: var(--bb-panel-padding, 1rem); }
 }
 .bb-catalog-delete .bb-services-sheet-panel { width: min(420px, 100%); }
 .bb-catalog-delete .bb-services-sheet-footer { display: flex; justify-content: flex-end; gap: 8px; }
 @media (max-width: 700px) {
   .bb-catalog-detail:not(.is-page) { padding: 0; }
   .bb-catalog-detail:not(.is-page) .bb-services-sheet-panel { width: 100%; height: 100dvh; max-height: 100dvh; border: 0; border-radius: 0; }
-  .bb-catalog-detail .bb-services-sheet-footer { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .bb-catalog-detail .bb-services-sheet-footer { padding-bottom: max(var(--bb-panel-padding, 1rem), env(safe-area-inset-bottom, 0px)); }
   html body .native-ui .bb-managed-catalog .bb-catalog-card { grid-template-columns: 64px minmax(0, 1fr); gap: 12px 16px; padding: 20px 0; }
   html body .native-ui .bb-managed-catalog .bb-catalog-card-media { width: 64px; height: 64px; grid-row: 1 / 3; }
   html body .native-ui .bb-managed-catalog .bb-catalog-card-title { font-size: 16px; }
@@ -100,6 +101,124 @@ html body .native-ui .bb-business-catalog-card .bb-public-product-price-row { di
   .bb-stock-row .bb-stock-crate-stamp strong { font-size: 16px; }
   .bb-catalog-detail :is(.bb-product-info-hero, .bb-stock-info-hero) { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; }
   .bb-catalog-detail :is(.bb-product-info-media, .bb-stock-info-media) { width: 96px; height: 96px; }
-  .bb-catalog-detail :is(.bb-services-sheet-head, .bb-services-sheet-body) { padding: 20px; }
+  .bb-catalog-detail :is(.bb-services-sheet-head, .bb-services-sheet-body) { padding: var(--bb-panel-padding, 1rem); }
   .bb-catalog-detail .bb-stock-info-facts { grid-template-columns: minmax(0, 1fr); }
+}
+.bb-catalog-detail :is(.bb-product-info-copy, .bb-product-info-block, .bb-stock-info-copy, .bb-services-sheet-head > div) { min-width: 0; overflow-wrap: anywhere; }
+.bb-catalog-detail :is(.bb-product-info-price, .bb-stock-info-variant-list li) { flex-wrap: wrap; }
+
+/* Long creation forms keep their actions visible as the field body scrolls. */
+.bb-manual-booking-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  padding: var(--bb-page-gutter, 1.5rem);
+  background: rgba(16, 24, 40, .32);
+  box-sizing: border-box;
+}
+.bb-panel.bb-manual-booking {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0;
+  width: min(100%, 32rem);
+  max-height: min(90dvh, calc(100dvh - 2 * var(--bb-page-gutter, 1.5rem)));
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-sizing: border-box;
+}
+.bb-manual-booking-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: var(--bb-panel-padding, 1.5rem);
+  border-bottom: 1px solid #e9edf0;
+}
+.bb-manual-booking-head > h2 { min-width: 0; overflow-wrap: anywhere; }
+.bb-manual-booking-close {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #e4e7ec;
+  border-radius: 10px;
+  background: #fff;
+  color: #475467;
+  cursor: pointer;
+}
+.bb-manual-booking-close:focus-visible { outline: 2px solid #101828; outline-offset: 3px; }
+.bb-manual-booking-close:disabled { cursor: default; opacity: .5; }
+.bb-manual-booking-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--bb-panel-padding, 1.5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, .18) transparent;
+}
+.bb-manual-booking-body::-webkit-scrollbar { width: 6px; }
+.bb-manual-booking-body::-webkit-scrollbar-track { background: transparent; }
+.bb-manual-booking-body::-webkit-scrollbar-thumb { border-radius: 6px; background: rgba(15, 23, 42, .18); }
+.bb-manual-booking-body > * { min-width: 0; }
+.bb-manual-booking-body p { overflow-wrap: anywhere; }
+.bb-manual-booking-slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 8px; }
+.bb-manual-booking-slots > button {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.bb-manual-booking-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: var(--bb-panel-padding, 1.5rem);
+  border-top: 1px solid #e9edf0;
+  background: #fff;
+}
+@media (max-width: 599px) {
+  .bb-manual-booking-overlay { padding: 0; }
+  .bb-panel.bb-manual-booking {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+  .bb-manual-booking-head {
+    padding-top: max(var(--bb-panel-padding, 1rem), env(safe-area-inset-top, 0px));
+    padding-inline: max(var(--bb-panel-padding, 1rem), env(safe-area-inset-left, 0px)) max(var(--bb-panel-padding, 1rem), env(safe-area-inset-right, 0px));
+  }
+  .bb-manual-booking-body { padding-inline: max(var(--bb-panel-padding, 1rem), env(safe-area-inset-left, 0px)) max(var(--bb-panel-padding, 1rem), env(safe-area-inset-right, 0px)); }
+  .bb-manual-booking-footer {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    padding-bottom: max(var(--bb-panel-padding, 1rem), env(safe-area-inset-bottom, 0px));
+    padding-inline: max(var(--bb-panel-padding, 1rem), env(safe-area-inset-left, 0px)) max(var(--bb-panel-padding, 1rem), env(safe-area-inset-right, 0px));
+  }
+  .bb-manual-booking-footer > .bb-button { width: 100%; }
+  .native-ui.bb-services-sheet:not(.is-page):has(> .bb-services-sheet-panel--setup) { padding: 0; }
+  .native-ui.bb-services-sheet:not(.is-page) > .bb-services-sheet-panel--setup {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
 }

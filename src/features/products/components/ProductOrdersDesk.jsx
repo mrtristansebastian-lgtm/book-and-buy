@@ -254,14 +254,14 @@ export function ProductOrdersDesk({ heading = null }) {
                 <div className="bb-ops-actions">
                   <OpsChatAction onClick={() => openChat(order)} />
                   {order.paymentStatus !== 'paid' ? (
-                    <OpsAction action="markPaid" variant="positive" onClick={() => markOrderPaid(order.id)}>
+                    <OpsAction action="markPaid" onClick={() => markOrderPaid(order.id)}>
                       <DollarSign size={13} strokeWidth={2.4} />
                       Mark paid
                     </OpsAction>
                   ) : (
-                    <span className="bb-ops-action is-ghost-slot" aria-hidden="true">
-                      Mark paid
-                    </span>
+                    <OpsAction action="markPaid" variant="positive" disabled>
+                      Paid
+                    </OpsAction>
                   )}
                   {status === 'pending' ? (
                     <div className="bb-ops-action-cluster">

@@ -1,0 +1,49 @@
+/* Browsing leads with the item; each card ends in one clear next step. */
+.bb-public-product-grid:has(> .bb-offer-card) { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; align-items: stretch; }
+.bb-offer-card {
+  display: grid; min-width: 0;
+  border: 1px solid #e2e5e9; border-radius: 16px; overflow: hidden;
+  background: #fff; color: #101828; transition: border-color .18s, box-shadow .18s;
+}
+.bb-offer-card:hover { border-color: #ccd4dd; box-shadow: 0 8px 24px #10182808; }
+.bb-offer-card-surface {
+  appearance: none; display: grid; grid-template-rows: auto minmax(0,1fr); align-items: stretch;
+  width: 100%; min-width: 0; padding: 0; margin: 0; border: 0;
+  background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer;
+}
+.bb-offer-card-surface:focus-visible { outline: 2px solid #101828; outline-offset: -3px; }
+.bb-offer-card-media { position: relative; aspect-ratio: 1; min-width: 0; overflow: hidden; background: #f6f7f9; }
+.bb-offer-card-media > img, .bb-offer-card-media > .bb-blank-media { display: block; width: 100%; height: 100%; object-fit: contain; }
+.bb-offer-card.is-book .bb-offer-card-media > img { object-fit: cover; }
+.bb-offer-card-availability { position: absolute; bottom: 12px; left: 12px; max-width: calc(100% - 24px); padding: 5px 8px; border-radius: 6px; background: #fffffff2; color: #344054; font: 600 12px/1.4 var(--bb-font-body); }
+.bb-offer-card-content { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 16px; min-width: 0; }
+.bb-offer-card-title-row { display: flex; align-items: flex-start; gap: 8px; }
+.bb-offer-card-title-row > svg { flex-shrink: 0; margin-top: 3px; color: #98a2b3; }
+html body .native-ui .bb-offer-card .bb-offer-card-title { flex: 1; min-width: 0; margin: 0 !important; font: 650 16px/1.4 var(--bb-font-body) !important; letter-spacing: -.015em !important; text-align: left !important; overflow-wrap: anywhere; }
+html body .native-ui .bb-offer-card .bb-offer-card-category { margin: 0 !important; color: #667085; font: 500 11px/1.4 var(--bb-font-body) !important; letter-spacing: .05em !important; text-transform: uppercase; text-align: left !important; overflow-wrap: anywhere; }
+html body .native-ui .bb-offer-card .bb-offer-card-meta { margin: 0 !important; color: #667085; font: 400 13px/1.5 var(--bb-font-body) !important; letter-spacing: normal !important; text-align: left !important; overflow-wrap: anywhere; }
+html body .native-ui .bb-offer-card .bb-offer-card-price { min-width: 0; margin: 0 !important; color: #344054; font: 500 14px/1.4 var(--bb-font-body) !important; letter-spacing: normal !important; text-align: left !important; overflow-wrap: anywhere; }
+.bb-marketplace-offers.bb-public-product-grid:has(> .bb-offer-card) { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; }
+.bb-marketplace-scroll-cue { top: calc(50% - 66px); }
+@media (max-width: 1099px) and (min-width: 900px) {
+  .bb-public-product-grid:has(> .bb-offer-card) { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+  .bb-marketplace-offers.bb-public-product-grid:has(> .bb-offer-card) { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 899px) {
+  .bb-public-product-grid:has(> .bb-offer-card) { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+  .bb-marketplace-offers.bb-public-product-grid:has(> .bb-offer-card) { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(170px,46vw); gap: 12px; }
+}
+@media (max-width: 599px) {
+  .bb-offer-card { border-radius: 12px; }
+  .bb-offer-card-content { padding: 12px; gap: 5px; }
+  .bb-offer-card-title-row { gap: 4px; }
+  .bb-offer-card-title-row > svg { width: 13px; }
+  html body .native-ui .bb-offer-card .bb-offer-card-title { font-size: 15px !important; }
+  html body .native-ui .bb-offer-card .bb-offer-card-price { font-size: 13px !important; }
+  html body .native-ui .bb-offer-card .bb-offer-card-meta { font-size: 12px !important; }
+  .bb-offer-card-availability { left: 8px; bottom: 8px; max-width: calc(100% - 16px); font-size: 11px; }
+}
+@container bb-profile-width (max-width: 599px) {
+  html body .native-ui .bb-business-profile :is(.bb-public-profile-panel--book,.bb-public-profile-panel--buy) { padding-inline: 16px !important; }
+}
+@media (prefers-reduced-motion: reduce) { .bb-offer-card { transition: none; } }

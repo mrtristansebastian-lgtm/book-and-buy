@@ -10,7 +10,6 @@ export function AnalyticsHeader({
   customRange,
   onCustomRangeChange,
   usingDemo = false,
-  title = 'Reports',
   headline,
   description
 }) {
@@ -25,7 +24,6 @@ export function AnalyticsHeader({
     <header className="bb-analytics-header">
       <div className="bb-analytics-header-top">
         <div className="bb-analytics-header-copy">
-          <p className="bb-analytics-eyebrow">{title}</p>
           <div className="bb-page-title-wrap">
             <PageBackButton />
             <span className="bb-page-title-main">

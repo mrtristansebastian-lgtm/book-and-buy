@@ -1,6 +1,6 @@
 import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Image as ImageIcon, ShoppingBag } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { usePublicCart } from '../../storefront/PublicCartContext';
 import { PublicCartCheckout } from '../../storefront/components/PublicCartCheckout';
@@ -35,7 +35,7 @@ function collectImages(item = {}, variant = null) {
   const variantUrl = String(variant?.imageUrl || '').trim();
   if (variantUrl) list.unshift(variantUrl);
   if (list.length) return [...new Set(list)];
-  const single = String(item.image || '').trim();
+  const single = String(item.image || item.imageUrl || '').trim();
   return single ? [single] : [];
 }
 
@@ -58,6 +58,7 @@ export function PublicCatalogDetail({
   const [selections, setSelections] = useState({});
   const [slotSheetOpen, setSlotSheetOpen] = useState(false);
   const [serviceVariantId, setServiceVariantId] = useState('');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const studioBack = typeof onBack === 'function';
   const catalogPage = kind === 'service' ? 'book' : 'buy';
   const catalogLabel = kind === 'service' ? 'Book' : 'Buy';
@@ -121,10 +122,16 @@ export function PublicCatalogDetail({
   }, [item, kind, serviceVariantId]);
 
   const images = collectImages(item, selectedProductVariant);
+  const imageListKey = images.join('\n');
+  const activeImageIndex = Math.min(selectedImageIndex, Math.max(0, images.length - 1));
+
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [item?.id, selectedProductVariant?.id, imageListKey]);
 
   if (!item) {
     return (
-      <section className="bb-public-detail bb-public-gutter">
+      <section className="bb-public-detail bb-public-gutter bb-catalog-detail">
         <div className="bb-public-measure grid gap-4 py-10">
           <p className="bb-muted m-0">
             {workspace?.website?.catalogAvailability === 'country-required'
@@ -159,8 +166,11 @@ export function PublicCatalogDetail({
       : '';
   const isSpotService =
     kind === 'service' && getServiceScheduleType(item) === 'class_session';
-  const spotsLeft = isSpotService
-    ? getServiceOpenSpots(item, workspace?.bookings || [])
+  const hasBookingRecords = Array.isArray(workspace?.bookings);
+  const spotCount = isSpotService
+    ? hasBookingRecords
+      ? getServiceOpenSpots(item, workspace.bookings)
+      : Math.max(1, Number(item.capacity) || 1)
     : null;
   const stock =
     kind === 'product' ? formatStockNote(item, selectedProductVariant) : '';
@@ -188,8 +198,10 @@ export function PublicCatalogDetail({
   const cartButton = (
     <Button action="cart" variant="secondary"
       type="button"
-      className="bb-public-catalog-cart"
+      className="bb-public-catalog-cart bb-public-detail-cart-toggle"
       onClick={() => setPanel(panel === 'cart' ? 'detail' : 'cart')}
+      aria-pressed={panel === 'cart'}
+      aria-label={`Cart, ${cart.count} ${cart.count === 1 ? 'item' : 'items'}`}
     >
       <ShoppingBag size={15} />
       <span>Cart</span>
@@ -214,7 +226,7 @@ export function PublicCatalogDetail({
   if (panel === 'cart') {
     return (
       <section
-        className={`bb-public-detail bb-public-gutter ${
+        className={`bb-public-detail bb-public-gutter bb-catalog-detail ${
           preview && !studioBack ? 'pointer-events-none' : ''
         }`}
       >
@@ -224,6 +236,7 @@ export function PublicCatalogDetail({
             catalogWorkspace={workspace}
             workspaceName={workspaceName || workspace.brandName}
             publicMode={publicMode}
+            lockedPreview={preview}
             onBack={() => setPanel('detail')}
           />
         </div>
@@ -233,13 +246,13 @@ export function PublicCatalogDetail({
 
   return (
     <section
-      className={`bb-public-detail bb-public-gutter ${
+      className={`bb-public-detail bb-public-gutter bb-catalog-detail is-${kind} ${
         preview && !studioBack ? 'pointer-events-none' : ''
       }`}
     >
       <div className="bb-public-measure-wide bb-public-detail-shell">
         <header className="bb-public-detail-toolbar">
-          <Button action="back" variant="secondary" type="button" className="bb-ghost-btn" onClick={goBack}>
+          <Button action="back" variant="secondary" type="button" className="bb-ghost-btn bb-public-detail-back" onClick={goBack}>
             <ArrowLeft size={16} />
             Back to {catalogLabel}
           </Button>
@@ -247,65 +260,98 @@ export function PublicCatalogDetail({
         </header>
 
         <div className="bb-public-detail-layout">
-          <div className="bb-public-detail-gallery" aria-label={`${item.name} images`}>
+          <div className="bb-public-detail-gallery" role="group" aria-label={`${item.name} images`}>
             {images.length ? (
-              images.map((src, index) => (
-                <figure key={`${src}-${index}`} className="bb-public-detail-frame">
-                  <img src={src} alt={index === 0 ? item.name || '' : ''} />
+              <>
+                <figure className="bb-public-detail-frame">
+                  <img src={images[activeImageIndex]} alt={`${item.name}, image ${activeImageIndex + 1}`} />
+                  {images.length > 1 ? (
+                    <>
+                      <button
+                        type="button"
+                        className="bb-public-detail-gallery-arrow is-previous"
+                        aria-label="Previous image"
+                        onClick={() => setSelectedImageIndex((activeImageIndex - 1 + images.length) % images.length)}
+                      >
+                        <ChevronLeft size={20} aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        className="bb-public-detail-gallery-arrow is-next"
+                        aria-label="Next image"
+                        onClick={() => setSelectedImageIndex((activeImageIndex + 1) % images.length)}
+                      >
+                        <ChevronRight size={20} aria-hidden="true" />
+                      </button>
+                      <span className="bb-public-detail-image-count" aria-hidden="true">
+                        {activeImageIndex + 1} / {images.length}
+                      </span>
+                    </>
+                  ) : null}
                 </figure>
-              ))
+                {images.length > 1 ? (
+                  <div className="bb-public-detail-thumbnails" role="group" aria-label="Choose an image">
+                    {images.map((src, index) => (
+                      <button
+                        key={`${src}-${index}`}
+                        type="button"
+                        className={`bb-public-detail-thumbnail${activeImageIndex === index ? ' is-active' : ''}`}
+                        aria-label={`Show image ${index + 1} of ${images.length}`}
+                        aria-pressed={activeImageIndex === index}
+                        onClick={() => setSelectedImageIndex(index)}
+                      >
+                        <img src={src} alt="" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </>
             ) : (
-              <div className="bb-public-detail-frame is-empty" aria-hidden="true" />
+              <div className="bb-public-detail-frame is-empty">
+                <ImageIcon size={36} strokeWidth={1.4} aria-hidden="true" />
+                <span>No image available</span>
+              </div>
             )}
           </div>
 
           <aside className="bb-public-detail-copy">
-            <p className="bb-public-service-meta">{meta}</p>
-            <h1 className="bb-public-detail-title">{item.name}</h1>
+            <header className="bb-public-detail-identity">
+              <p className="bb-public-service-meta">{meta}</p>
+              <h1 className="bb-public-detail-title">{item.name}</h1>
+            </header>
 
-            <div className="bb-public-detail-facts">
-              <div className="bb-public-detail-fact">
-                <span className="bb-public-product-stat-label">Price</span>
-                <span className="bb-public-detail-price">
-                  {compareAt ? (
-                    <>
-                      <s className="bb-products-compare-at">{compareAt}</s>
-                      {price || '—'}
-                    </>
-                  ) : (
-                    price || '—'
-                  )}
-                </span>
-              </div>
-              {timingMeta ? (
-                <div className="bb-public-detail-fact">
+            <div className="bb-public-detail-price-group">
+              <p className="bb-public-detail-price" aria-label={`Price: ${price || 'Not listed'}`}>
+                {compareAt ? <s className="bb-products-compare-at">{compareAt}</s> : null}
+                <span>{price || '—'}</span>
+              </p>
+              {stock ? <p className="bb-public-detail-availability">{stock}</p> : null}
+            </div>
+
+            {timingMeta || spotCount != null ? (
+              <div className="bb-public-detail-facts">
+                {timingMeta ? <div className="bb-public-detail-fact">
                   <span className="bb-public-product-stat-label">
                     {isSpotService ? 'When' : 'Duration'}
                   </span>
-                  <span className="bb-public-detail-price">{timingMeta}</span>
-                  {spotsLeft != null ? (
-                    <span className="bb-public-detail-spots-left">
-                      <strong>{spotsLeft}</strong>{' '}
-                      {spotsLeft === 1 ? 'spot left' : 'spots left'}
-                    </span>
-                  ) : null}
-                </div>
-              ) : null}
-              {stock ? (
-                <div className="bb-public-detail-fact">
-                  <span className="bb-public-product-stat-label">Availability</span>
-                  <span className="bb-public-detail-price">{stock}</span>
-                </div>
-              ) : null}
-            </div>
+                  <span className="bb-public-detail-fact-value">{timingMeta}</span>
+                </div> : null}
+                {spotCount != null ? (
+                  <span className="bb-public-detail-spots-left">
+                    <strong>{spotCount}</strong>{' '}
+                    {spotCount === 1 ? 'spot' : 'spots'} {hasBookingRecords ? 'left' : 'per session'}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
 
             {kind === 'product' && options.length ? (
               <div className="bb-products-public-options">
                 {options.map((option) => (
-                  <div key={option.id || option.name} className="bb-products-public-option">
-                    <span className="bb-products-public-option-label">
+                  <fieldset key={option.id || option.name} className="bb-products-public-option">
+                    <legend className="bb-products-public-option-label">
                       {option.name}
-                    </span>
+                    </legend>
                     <div className="bb-products-public-values">
                       {option.values.map((value) => {
                         const active = selections[option.name] === value;
@@ -314,6 +360,7 @@ export function PublicCatalogDetail({
                             key={value}
                             type="button"
                             aria-pressed={active}
+                            aria-label={`${option.name}: ${value}`}
                             className={`bb-products-public-value${
                               active ? ' is-active' : ''
                             }`}
@@ -329,14 +376,14 @@ export function PublicCatalogDetail({
                         );
                       })}
                     </div>
-                  </div>
+                  </fieldset>
                 ))}
               </div>
             ) : null}
 
             {kind === 'service' && serviceVariants.length ? (
-              <div className="bb-public-service-variants">
-                <span className="bb-products-public-option-label">Options</span>
+              <fieldset className="bb-public-service-variants">
+                <legend className="bb-products-public-option-label">Options</legend>
                 <div className="bb-public-service-variant-list">
                   {serviceVariants.map((variant) => {
                     const active = serviceVariantId === variant.id;
@@ -344,6 +391,7 @@ export function PublicCatalogDetail({
                       <button
                         key={variant.id}
                         type="button"
+                        aria-pressed={active}
                         className={`bb-public-service-variant${
                           active ? ' is-active' : ''
                         }`}
@@ -371,14 +419,7 @@ export function PublicCatalogDetail({
                     );
                   })}
                 </div>
-              </div>
-            ) : null}
-
-            {item.description ? (
-              <div className="bb-public-detail-body">
-                <h2 className="bb-public-detail-section-label">About</h2>
-                <p>{item.description}</p>
-              </div>
+              </fieldset>
             ) : null}
 
             <Button action="addToCart" variant="primary"
@@ -404,6 +445,13 @@ export function PublicCatalogDetail({
                         : 'Add to cart'}
               </span>
             </Button>
+
+            {item.description ? (
+              <section className="bb-public-detail-body" aria-label={`About ${item.name}`}>
+                <h2 className="bb-public-detail-section-label">About</h2>
+                <p>{item.description}</p>
+              </section>
+            ) : null}
           </aside>
         </div>
       </div>

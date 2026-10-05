@@ -1,0 +1,17 @@
+/* Active discovery and chat accents follow the dock's palette and root phase. */
+.bb-explore-chip {
+  background-image: linear-gradient(#fff, #fff), var(--native-brand-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 0%) 50%;
+  background-repeat: no-repeat;
+}
+
+.bb-support-composer-send,
+.bb-support-rec-send {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18)),
+    var(--native-brand-gradient);
+  background-size: 100% 100%, 420% 420%;
+  background-position: 0 0, var(--native-accent-x, 0%) 50%;
+  background-repeat: no-repeat;
+}

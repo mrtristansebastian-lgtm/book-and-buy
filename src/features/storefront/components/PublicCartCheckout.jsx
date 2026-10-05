@@ -306,6 +306,7 @@ export function PublicCartCheckout({
   }, [step, publicMode, lockedPreview, workspace?.ownerId, workspace?.slug]);
 
   useEffect(() => {
+    if (lockedPreview) return undefined;
     const params = readCheckoutReturnParams();
     if (!params.paid && !params.cancelled) return undefined;
     let cancelled = false;
@@ -352,7 +353,7 @@ export function PublicCartCheckout({
     return () => {
       cancelled = true;
     };
-  }, [workspace.slug]);
+  }, [workspace.slug, lockedPreview]);
 
   const sameOwnerContext =
     !publicMode ||
