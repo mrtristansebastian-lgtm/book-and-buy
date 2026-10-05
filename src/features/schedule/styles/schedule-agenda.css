@@ -7,34 +7,16 @@
 .bb-schedule-agenda-page .bb-agenda-page-lede { margin: 8px 0 0 46px; color: #667085; font-size: 13px; line-height: 1.5; }
 .bb-schedule-agenda-page .bb-agenda-google-button { flex: 0 0 auto; }
 .bb-schedule-agenda-page .bb-agenda-google-button img { object-fit: contain; }
-.bb-schedule-agenda-page .bb-agenda-summary { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin: 8px 0 24px; }
-.bb-schedule-agenda-page .bb-agenda-summary-stat { --bb-stat-size: 30px; --bb-stat-label-size: 13px; --bb-stat-label-weight: 500; padding: 16px 20px; min-height: 112px; gap: 5px; cursor: pointer; border-radius: 12px; box-shadow: none; transition: border-color 150ms ease, background 150ms ease; }
-.bb-schedule-agenda-page .bb-agenda-summary-stat .bb-dashboard-stat-value { min-width: 0; max-width: 100%; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
-.bb-schedule-agenda-page .bb-agenda-summary-stat:is(:hover,:focus-visible,.is-selected) { border-color: #c9d3e0; background: #fbfcfe; }
-.bb-schedule-agenda-page .bb-agenda-summary-stat:focus-visible { outline: 2px solid #101828; outline-offset: 3px; }
-.bb-schedule-agenda-page .bb-agenda-summary-note { grid-column: 1 / -1; margin: 0; font-size: 12px; line-height: 1.5; color: #7b8492; }
-.bb-schedule-agenda-page .bb-agenda-workspace { display: grid; grid-template-columns: 238px minmax(0,1fr); gap: 30px; align-items: start; }
+.bb-schedule-agenda-page .bb-agenda-workspace { display: grid; grid-template-columns: 238px minmax(0,1fr); gap: 30px; align-items: start; margin-top: 16px; }
+.bb-schedule-agenda-page .bb-agenda-welcome { padding: 30px 0 20px; }
+.bb-schedule-agenda-page .bb-agenda-welcome h2 { max-width: 38ch; margin: 0; color: #344054; font: 500 clamp(22px,2.2vw,28px)/1.4 var(--bb-font-body); letter-spacing: -.035em; overflow-wrap: anywhere; }
+.bb-schedule-agenda-page .bb-agenda-welcome h2 > span { color: #101828; font-weight: 650; font-variant-numeric: tabular-nums; }
+.bb-schedule-agenda-page .bb-agenda-welcome p { margin: 9px 0 0; color: #667085; font-size: 12px; line-height: 1.7; }
 .bb-schedule-agenda-page .bb-agenda-rail { min-width: 0; position: sticky; top: 4px; padding-right: 24px; border-right: 1px solid #edf0f3; }
 .bb-schedule-agenda-page .bb-agenda-calendar { padding: 2px 0 16px; }
 .bb-schedule-agenda-page .bb-agenda-calendar-mobile-head { display: none; }
-.bb-schedule-agenda-page .bb-schedule-mini-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 12px; padding: 0; }
-.bb-schedule-agenda-page .bb-schedule-mini-head strong { font-size: 13px; font-weight: 600; letter-spacing: -.02em; }
-.bb-schedule-agenda-page .bb-schedule-mini-head > div { display: flex; gap: 2px; }
-.bb-schedule-agenda-page .bb-schedule-mini-head button { width: 30px; height: 30px; min-height: 30px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #667085; }
-.bb-schedule-agenda-page .bb-schedule-mini-weekdays, .bb-schedule-agenda-page .bb-schedule-mini-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 3px; }
-.bb-schedule-agenda-page .bb-schedule-mini-weekdays span { font-size: 11px; font-weight: 500; padding: 0 0 8px; color: #667085; text-align: center; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button { position: relative; display: grid; place-items: center; width: 100%; min-width: 0; min-height: 30px; padding: 0; border: 1px solid transparent; border-radius: 7px; color: #475467; background: #fff; background-image: none; font-size: 11px; font-weight: 500; box-shadow: none; transform: none; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button:is(.is-off,.is-leave,.is-business-closed) { color: #667085; background: #f4f5f7; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button.is-outside { opacity: .6; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button.is-today:not(.is-selected) { border-color: #d9e0e8; color: #101828; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button:is(:hover,:focus-visible):not(.is-selected) { background: #f4f6f8; border-color: #d9e0e8; transform: none; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button.is-selected { background: #101828; color: #fff; border-color: #101828; box-shadow: none; background-image: none; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button.has-booking::after { bottom: 3px; width: 3px; height: 3px; background: #667baf; }
-.bb-schedule-agenda-page .bb-schedule-mini-grid button.is-selected::after { background: #fff; }
-.bb-schedule-agenda-page .bb-agenda-calendar-key { display: flex; flex-wrap: wrap; gap: 7px 12px; margin-top: 14px; color: #7b8492; font-size: 11px; line-height: 1.5; }
-.bb-schedule-agenda-page .bb-agenda-calendar-key span { display: inline-flex; align-items: center; gap: 5px; }
-.bb-schedule-agenda-page .bb-agenda-calendar-key i { width: 6px; height: 6px; border-radius: 2px; background: #eceff3; }
-.bb-schedule-agenda-page .bb-agenda-calendar-key .is-booked { width: 4px; height: 4px; border-radius: 50%; background: #667baf; }
+.bb-schedule-agenda-page .bb-agenda-calendar-booked-key { display: flex; align-items: center; gap: 7px; margin: 0; color: #667085; font-size: 11px; line-height: 1.5; }
+.bb-schedule-agenda-page .bb-agenda-calendar-booked-key i { width: 4px; height: 4px; border-radius: 50%; background: #8b5cf6; }
 .bb-schedule-agenda-page .bb-agenda-staff-select { display: grid; gap: 7px; margin-top: 12px; }
 .bb-schedule-agenda-page .bb-agenda-staff-select > span, .bb-schedule-agenda-page .bb-agenda-mobile-staff > label { font-size: 11px; color: #667085; font-weight: 500; }
 .bb-schedule-agenda-page :is(.bb-agenda-staff-select,.bb-agenda-mobile-staff) select { width: 100%; min-width: 0; min-height: 38px; padding: 8px 28px 8px 10px; border: 1px solid #e5e9ef; border-radius: 8px; background: #fff; color: #344054; font: 500 12px/1.4 var(--bb-font-body); }
@@ -155,28 +137,22 @@
   .bb-schedule-agenda-page .bb-agenda-calendar-mobile-head button { min-height: 32px; padding: 0 10px; background: #fff; color: #475467; border: 1px solid #e5e9ef; border-radius: 7px; font: 500 11px/1.4 var(--bb-font-body); cursor: pointer; }
   .bb-schedule-agenda-page .bb-agenda-rail :is(.bb-agenda-staff-select,.bb-agenda-rail-note) { display: none; }
   .bb-schedule-agenda-page .bb-agenda-calendar { padding-bottom: 0; }
-  .bb-schedule-agenda-page .bb-schedule-mini-grid button { min-height: 44px; font-size: 12px; }
-  .bb-schedule-agenda-page .bb-schedule-mini-head button { width: 44px; height: 44px; min-height: 44px; }
   .bb-schedule-agenda-page :is(.bb-agenda-date-arrow,.bb-agenda-date-trigger,.bb-agenda-today) { min-height: 44px; height: auto; }
   .bb-schedule-agenda-page .bb-agenda-date-arrow { width: 44px; }
   .bb-schedule-agenda-page :is(.bb-agenda-staff-select,.bb-agenda-mobile-staff) select { min-height: 44px; }
   .bb-schedule-agenda-page .bb-agenda-calendar-mobile-head button { min-height: 44px; }
   html body .bb-schedule-agenda-page .bb-button[data-variant] { min-height: 44px !important; }
-  .bb-schedule-agenda-page .bb-schedule-mini-weekdays span { font-size: 11px; }
   .bb-schedule-agenda-page .bb-agenda-main { width: 100%; }
   .bb-schedule-agenda-page .bb-agenda-mobile-staff { display: flex; gap: 10px; align-items: center; margin-top: 16px; }
   .bb-schedule-agenda-page .bb-agenda-mobile-staff select { flex: 1; }
-  .bb-schedule-agenda-page .bb-agenda-summary { margin-bottom: 22px; }
 }
 @media (max-width: 600px) {
   .bb-schedule-agenda-page .bb-agenda-page-head { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
   .bb-schedule-agenda-page .bb-agenda-page-lede { margin: 8px 0 0; font-size: 12px; max-width: 26ch; }
   .bb-schedule-agenda-page .bb-agenda-google-button { margin-top: 4px; }
   .bb-schedule-agenda-page .bb-agenda-google-button .bb-button-text { font-size: 11px; }
-  .bb-schedule-agenda-page .bb-agenda-summary { gap: 8px; }
-  .bb-schedule-agenda-page .bb-agenda-summary-stat { --bb-stat-size: 26px; --bb-stat-label-size: 11px; min-height: 96px; padding: 13px 12px; gap: 5px; }
-  .bb-schedule-agenda-page .bb-agenda-summary-stat > .bb-dashboard-stat-note { font-size: 11px; margin-top: 0; }
-  .bb-schedule-agenda-page .bb-agenda-summary-note { font-size: 11px; }
+  .bb-schedule-agenda-page .bb-agenda-welcome { padding: 25px 0 18px; }
+  .bb-schedule-agenda-page .bb-agenda-welcome h2 { font-size: 24px; max-width: 26ch; }
   .bb-schedule-agenda-page .bb-agenda-controls { flex-direction: column; align-items: stretch; gap: 12px; }
   .bb-schedule-agenda-page .bb-agenda-controls .bb-segment { display: flex; width: 100%; }
   .bb-schedule-agenda-page .bb-agenda-controls .bb-segment > button { flex: 1; min-width: 0; }
@@ -198,7 +174,4 @@
   .bb-schedule-agenda-page .bb-agenda-empty { padding: 36px 16px; }
   .bb-schedule-agenda-page .bb-agenda-empty h2 { font-size: 14px; }
   .bb-schedule-booking-details .bb-schedule-booking-details-facts { gap: 16px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .bb-schedule-agenda-page .bb-agenda-summary-stat { transition: none; }
 }

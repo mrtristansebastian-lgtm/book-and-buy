@@ -3,7 +3,6 @@ import { AlertTriangle, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRi
 import { Button } from '../../../shared/ui/Button';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { AppSheet } from '../../../shared/ui/AppSheet';
-import { DashboardStat } from '../../../shared/ui/DashboardStat';
 import { FilterChip } from '../../../shared/ui/FilterChip';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
@@ -11,7 +10,7 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { navigate, workspacePagePath } from '../../../app/routing';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
 import { formatDisplayDate, parseDateKey } from '../../../utils/dates';
-import { formatPeriodLabel, shiftPeriod } from '../../../utils/periodFilters';
+import { formatPeriodLabel, getPeriodRange, shiftPeriod } from '../../../utils/periodFilters';
 import { getBookingAvailabilityConflict, isBusinessOpenOnDate, resolveCalendarDayStatus } from '../../../utils/staffAvailability';
 import { AvailabilityMonthGrid } from '../components/AvailabilityMonthGrid';
 import { ScheduleAgenda } from '../components/ScheduleAgenda';
@@ -55,6 +54,10 @@ export function SchedulePage() {
   const indicatorDays = useMemo(() => new Set(data.rows.filter(row => row.booking.status === 'confirmed' && row.dateValid).map(row => row.dateKey)), [data.rows]);
   const hasCurrentStaff = staff.some(member => member.id === staffId);
   const timeLabel = `${data.clock.timezone.split('/').pop().replace(/_/g, ' ')} time`;
+  const currentRange = getPeriodRange(data.todayKey, period);
+  const isCurrentPeriod = data.range.start === currentRange.start && data.range.end === currentRange.end;
+  const welcomePeriod = period === 'custom' ? 'in this date range' : isCurrentPeriod ? period === 'day' ? 'today' : period === 'week' ? 'this week' : 'this month' : period === 'day' ? `on ${periodLabel}` : period === 'month' ? `in ${periodLabel}` : `from ${periodLabel}`;
+  const selectedStaffName = data.staffFilterOptions.find(member => member.id === staffId)?.name || 'Selected staff';
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 30_000);
@@ -125,19 +128,15 @@ export function SchedulePage() {
       <Button action="sync" icon={<img src="/review-logos/google-calendar.webp" alt="" />} variant="secondary" className="bb-agenda-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">Google Calendar</Button>
     </header></div>
 
-    <section className="bb-agenda-summary" aria-label="Confirmed bookings still to come">
-      {[{ id: 'day', key: 'today', label: 'Today' }, { id: 'week', key: 'week', label: 'This week' }, { id: 'month', key: 'month', label: 'This month' }].map(item => <DashboardStat key={item.key} as="button" appearance="operational" value={data.summary[item.key].toLocaleString()} label={item.label} note="Still to come" aria-pressed={period === item.id && day === data.todayKey && filter === 'confirmed'} className={`bb-agenda-summary-stat${period === item.id && day === data.todayKey && filter === 'confirmed' ? ' is-selected' : ''}`} onClick={() => selectCurrentPeriod(item.id)} />)}
-      <p className="bb-agenda-summary-note">Confirmed bookings that haven’t started{staffId ? ' for the selected staff' : ''}.{data.summary.inProgress ? ` ${data.summary.inProgress} in progress now.` : ''}</p>
-    </section>
-
     <div className="bb-agenda-workspace">
       <aside ref={calendarRail} className={`bb-agenda-rail${calendarOpen ? ' is-open' : ''}`} id="schedule-date-picker" aria-label="Calendar and staff">
         <div className="bb-agenda-calendar-mobile-head"><span>Choose a date</span><button type="button" onClick={() => { setCalendarOpen(false); dateTrigger.current?.focus(); }}>Done</button></div>
-        <div className="bb-agenda-calendar"><AvailabilityMonthGrid monthAnchor={monthAnchor} selectedDay={day} todayKey={data.todayKey} onSelectDay={selectDay}
+        <div className="bb-agenda-calendar bb-schedule-avail"><AvailabilityMonthGrid monthAnchor={monthAnchor} selectedDay={day} todayKey={data.todayKey} onSelectDay={selectDay}
           onPreviousMonth={() => setMonthAnchor(value => new Date(value.getFullYear(), value.getMonth() - 1, 1))}
           onNextMonth={() => setMonthAnchor(value => new Date(value.getFullYear(), value.getMonth() + 1, 1))}
           resolveStatus={key => hasCurrentStaff ? resolveCalendarDayStatus(staffId, key, staffAvailability, availabilityRules) : isBusinessOpenOnDate(key, availabilityRules) ? 'open' : 'business-closed'} hasIndicator={key => indicatorDays.has(key)} />
-          <div className="bb-agenda-calendar-key"><span><i className="is-booked" />Confirmed booking</span><span><i className="is-closed" />{hasCurrentStaff ? 'Unavailable' : 'Business closed'}</span></div>
+          <div className="bb-schedule-avail-legend" aria-label="Day colors"><span className="bb-schedule-avail-legend-item is-open"><i />{hasCurrentStaff ? 'Working' : 'Available'}</span>{hasCurrentStaff ? <><span className="bb-schedule-avail-legend-item is-off"><i />Off day</span><span className="bb-schedule-avail-legend-item is-leave"><i />Leave</span></> : null}<span className="bb-schedule-avail-legend-item is-biz-closed"><i />{hasCurrentStaff ? 'Business closed' : 'Closed'}</span></div>
+          <p className="bb-agenda-calendar-booked-key"><i aria-hidden="true" />Confirmed booking</p>
         </div>
         <label className="bb-agenda-staff-select"><span>Staff</span><select value={staffId} onChange={event => setStaffId(event.target.value)}>{data.staffFilterOptions.map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
         <p className="bb-agenda-rail-note" title={data.clock.timezone}>Times shown in <strong>{timeLabel}</strong>.</p>
@@ -154,6 +153,7 @@ export function SchedulePage() {
           </div>
         </div>
         <div className="bb-agenda-mobile-staff"><label htmlFor="schedule-mobile-staff">Staff</label><select id="schedule-mobile-staff" value={staffId} onChange={event => setStaffId(event.target.value)}>{data.staffFilterOptions.map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select></div>
+        <section className="bb-agenda-welcome" aria-label="Upcoming bookings for the selected dates" aria-live="polite" aria-atomic="true"><h2>You have <span>{data.selectedSummary.upcoming.toLocaleString()}</span> upcoming booking{data.selectedSummary.upcoming === 1 ? '' : 's'} {welcomePeriod}.</h2><p>Confirmed bookings that haven’t started.{staffId ? ` ${selectedStaffName} only.` : ''}{data.selectedSummary.inProgress ? ` ${data.selectedSummary.inProgress} booking${data.selectedSummary.inProgress === 1 ? ' is' : 's are'} in progress.` : ''}</p></section>
         <div className="bb-agenda-filters" role="group" aria-label="Booking status">{FILTERS.map(item => <FilterChip key={item.id} selected={filter === item.id} count={data.filterCounts[item.id]} onClick={() => setFilter(item.id)}>{item.label}</FilterChip>)}</div>
 
         {reschedules.error || reschedules.incomplete ? <p className="bb-agenda-feed-notice" role="alert">{reschedules.error || 'Showing up to 200 reschedule requests. Open Communications to find other requests.'}</p> : null}

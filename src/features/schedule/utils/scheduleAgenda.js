@@ -168,6 +168,12 @@ export function buildScheduleAgenda({
   const overlapsSelected = row => row.startValid && row.endValid && row.startWall < rangeEnd && row.endWall > rangeStart;
   const withinSelected = rows.filter(row => !row.dateValid || inRange(row.dateKey, range) || overlapsSelected(row))
     .map(row => ({ ...row, carryover: row.dateValid && row.dateKey < range.start && overlapsSelected(row) }));
+  const selectedConfirmed = withinSelected.filter(row => row.booking.status === 'confirmed' && row.startValid);
+  const selectedSummary = {
+    upcoming: selectedConfirmed.filter(row => row.phase === 'upcoming').length,
+    inProgress: selectedConfirmed.filter(row => row.phase === 'in-progress').length,
+    confirmed: selectedConfirmed.length
+  };
   const matchesFilter = (row, value) => value === 'active' || (value === 'reschedule' ? row.rescheduleRequested : row.booking.status === value);
   const filterCounts = Object.fromEntries(FILTERS.map(value => [value, withinSelected.filter(row => matchesFilter(row, value)).length]));
   const selectedFilter = FILTERS.includes(filter) ? filter : 'confirmed';
@@ -183,7 +189,7 @@ export function buildScheduleAgenda({
   if (all.some(row => row.staff.unassigned)) staffFilterOptions.push({ id: '__unassigned__', name: 'Unassigned' });
   if (all.some(row => row.staff.former)) staffFilterOptions.push({ id: '__former__', name: 'Former staff' });
   return {
-    clock, todayKey, currentTime: clock.time, range, summary, groups: [...grouped.values()], needsAttention,
+    clock, todayKey, currentTime: clock.time, range, summary, selectedSummary, groups: [...grouped.values()], needsAttention,
     nextBooking: upcoming[0] || null, filteredCount: filtered.length, filterCounts, countsByStatus: filterCounts,
     rows, filteredRows: filtered, staffFilterOptions, filter: selectedFilter
   };

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Minus, Plus, RotateCcw } from 'lucide-react';
 import geography from '../assets/worldGlobe.json';
-import { clusterGlobeSessions, DEFAULT_GLOBE_ROTATION, globeCountryAt, globePointFromScreen, normalizeGlobeRotation, projectGlobePoint, resolveGlobeCountry } from '../utils/liveGlobeGeometry';
+import { DEFAULT_GLOBE_ROTATION, globeCountryAt, globePointFromScreen, normalizeGlobeRotation, resolveGlobeCountry } from '../utils/liveGlobeGeometry';
 import { createGlobeTexture, createLiveGlobeRenderer } from '../utils/liveGlobeRenderer';
 import './live-globe.css';
 
@@ -14,11 +14,10 @@ export function AnalyticsLiveGlobe({ sessions = [], marketCodes = [], worldwide 
   const [rotation, setRotation] = useState(home); const [zoom, setZoom] = useState(1);
   const [size, setSize] = useState({ width: 800, height: 490 });
   const [active, setActive] = useState(null); const [rendererError, setRendererError] = useState(false);
-  const [restoreVersion, setRestoreVersion] = useState(0); const [dragging, setDragging] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const stageRef = useRef(null); const canvasRef = useRef(null); const rendererRef = useRef(null);
   const dragRef = useRef(null); const hoverFrame = useRef(null);
   const normalizedSessions = useMemo(() => sessions.map(session => ({ ...session, country: resolveGlobeCountry(session.country, geography.countries)?.iso2 || '' })), [sessions]);
-  const clusters = useMemo(() => clusterGlobeSessions(normalizedSessions), [normalizedSessions]);
   const trafficCodes = useMemo(() => [...new Set(normalizedSessions.map(session => session.country).filter(Boolean))], [normalizedSessions]);
   const marketKey = [...marketCodes].sort().join(','); const trafficKey = trafficCodes.sort().join(',');
   const texture = useMemo(() => typeof document === 'undefined' ? null : createGlobeTexture(geography.countries, marketCodes, trafficCodes, worldwide), [marketKey, trafficKey, worldwide]);
@@ -35,16 +34,13 @@ export function AnalyticsLiveGlobe({ sessions = [], marketCodes = [], worldwide 
     const canvas = canvasRef.current;
     try { rendererRef.current = createLiveGlobeRenderer(canvas, texture); setRendererError(false); }
     catch { setRendererError(true); }
-    const lost = event => { event.preventDefault(); setRendererError(true); };
-    const restored = () => setRestoreVersion(value => value + 1);
-    canvas.addEventListener('webglcontextlost', lost); canvas.addEventListener('webglcontextrestored', restored);
-    return () => { rendererRef.current?.dispose(); rendererRef.current = null; canvas.removeEventListener('webglcontextlost', lost); canvas.removeEventListener('webglcontextrestored', restored); };
-  }, [restoreVersion]);
-  useEffect(() => { rendererRef.current?.updateTexture(texture); }, [texture, restoreVersion]);
+    return () => { rendererRef.current?.dispose(); rendererRef.current = null; };
+  }, []);
+  useEffect(() => { rendererRef.current?.updateTexture(texture); }, [texture]);
   useEffect(() => {
     const frame = requestAnimationFrame(() => rendererRef.current?.render(rotation, size.width, size.height, zoom));
     return () => cancelAnimationFrame(frame);
-  }, [rotation, zoom, size, texture, restoreVersion]);
+  }, [rotation, zoom, size, texture]);
 
   const pointAtEvent = event => {
     const bounds = stageRef.current.getBoundingClientRect();
@@ -98,7 +94,6 @@ export function AnalyticsLiveGlobe({ sessions = [], marketCodes = [], worldwide 
       if (/^[A-Z]{2}$/.test(country?.iso2 || '')) onSelectCountry?.(country.iso2);
     }
   };
-  const pins = clusters.map(cluster => ({ ...cluster, point: projectGlobePoint(cluster.longitude, cluster.latitude, rotation, size.width, size.height, zoom) })).filter(cluster => cluster.point);
   const activeCount = active?.code ? normalizedSessions.filter(session => session.country === active.code).length : active?.count || 0;
   return <div className={`bb-live-globe${dragging ? ' is-dragging' : ''}`}>
     <div ref={stageRef} className="bb-live-globe-stage" role="group" tabIndex={0}
@@ -111,21 +106,9 @@ export function AnalyticsLiveGlobe({ sessions = [], marketCodes = [], worldwide 
         <button type="button" disabled={zoom <= .75} onClick={() => setZoom(value => Math.max(.75, value - .1))} aria-label="Zoom out globe"><Minus size={16} /></button>
         <button type="button" onClick={reset} aria-label="Reset globe view"><RotateCcw size={15} /></button>
       </div>
-      {!rendererError && pins.map(cluster => {
-        const countryCode = String(cluster.sessions[0]?.country || '').toUpperCase();
-        const country = geography.countries.find(country => country.iso2 === countryCode) || globeCountryAt(geography.countries, cluster.longitude, cluster.latitude);
-        const selectedCode = /^[A-Z]{2}$/.test(country?.iso2 || '') ? country.iso2 : null;
-        return <button key={cluster.id} type="button" className="bb-live-globe-pin" style={{ left: cluster.point.x, top: cluster.point.y }}
-          aria-label={`${cluster.count} ${cluster.count === 1 ? 'visitor' : 'visitors'} near ${country?.name || cluster.sessions[0]?.city || 'this location'}. Open country map.`}
-          onClick={() => selectedCode && onSelectCountry?.(selectedCode)} disabled={!selectedCode}
-          onPointerEnter={() => setActive({ name: country?.name || 'Approximate location', code: selectedCode, count: cluster.count })}
-          onFocus={() => setActive({ name: country?.name || 'Approximate location', code: selectedCode, count: cluster.count })} onBlur={() => setActive(null)}>
-          <span aria-hidden="true">{cluster.count > 1 ? cluster.count : ''}</span>
-        </button>;
-      })}
       {active && !dragging && !rendererError ? <div className="bb-live-globe-callout" role="status"><strong>{active.name}</strong><span>{activeCount} live {activeCount === 1 ? 'visitor' : 'visitors'}</span><small>Open country map</small></div> : null}
       {rendererError ? <p className="bb-live-globe-unavailable" role="status">The globe is unavailable on this device. Choose a country above to explore its map.</p> : null}
     </div>
-    <div className="bb-live-globe-footer"><div className="bb-live-globe-legend">{(worldwide || marketCodes.length > 0) && <span><i className="is-market" />Your markets</span>}<span><i className="is-active" />Live visitors</span></div><span>Drag to rotate · Select a country</span></div>
+    <div className="bb-live-globe-footer"><div className="bb-live-globe-legend"><span><i className="is-active" />Countries with live visitors</span></div><span>Drag to rotate · Select a country</span></div>
   </div>;
 }

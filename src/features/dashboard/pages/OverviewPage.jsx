@@ -1,5 +1,5 @@
 import { Button } from '../../../shared/ui/Button';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Check, Copy, ExternalLink, Globe2, Sparkles } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { useAuth } from '../../auth/AuthContext';
@@ -8,8 +8,7 @@ import { formatDisplayDate, toDateKey } from '../../../utils/dates';
 import {
   FINANCE_PERIODS,
   buildFinanceLedger,
-  formatMoney,
-  getPeriodBounds
+  formatMoney
 } from '../../finance/utils/financeLedger';
 import { buildFinanceMetricView, formatFinanceMetricValue } from '../../finance/utils/financeMetrics';
 import { DashboardStat } from '../../../shared/ui/DashboardStat';
@@ -19,6 +18,7 @@ import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 import { useLivePresence } from '../../analytics/hooks/useLivePresence';
 import { AnalyticsLiveWorldMap } from '../../analytics/components/AnalyticsLiveWorldMap';
+import { buildScheduleAgenda } from '../../schedule/utils/scheduleAgenda';
 
 function greetingForHour(hour) {
   if (hour < 12) return 'Good morning';
@@ -62,15 +62,23 @@ export function OverviewPage() {
   const [periodId, setPeriodId] = useState('week');
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const refresh = () => setNow(Date.now());
+    const interval = window.setInterval(refresh, 30_000);
+    window.addEventListener('focus', refresh);
+    return () => { window.clearInterval(interval); window.removeEventListener('focus', refresh); };
+  }, []);
+  const schedule = useMemo(() => buildScheduleAgenda({ bookings, services, staff, timezone: workspace.timezone, now, period: periodId, customRange }), [bookings, services, staff, workspace.timezone, now, periodId, customRange]);
   const periodOptions = FINANCE_PERIODS.map((period) => ({
     id: period.id,
     label: period.label,
     shortLabel: period.shortLabel
   }));
-  const todayKey = toDateKey(new Date());
+  const todayKey = schedule.todayKey;
   const publicHomePath = publicPagePath(workspace.slug || 'your-business', 'home');
   const personName = resolvePersonName({ user, staff, workspace });
-  const greeting = `${greetingForHour(new Date().getHours())}, ${personName}`;
+  const greeting = `${greetingForHour(Number(schedule.clock.time.split(':')[0]))}, ${personName}`;
   const waiting = pendingRequests + pendingOrders + unreadSupport;
   const currency = workspace.currency || 'R';
   const isFresh =
@@ -80,23 +88,9 @@ export function OverviewPage() {
       !workspace.website?.logoUrl &&
       !workspace.website?.heroImageUrl);
 
-  const upcomingBookings = useMemo(() => {
-    const { start, end } = getPeriodBounds(periodId, customRange);
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const from = Math.max(todayStart.getTime(), start ?? 0);
-    return (bookings || []).filter((booking) => {
-      if (['cancelled', 'declined'].includes(booking.status)) return false;
-      const key = booking.dateKey || booking.date;
-      if (!key) return false;
-      const [y, m, d] = String(key).split('-').map(Number);
-      if (!y || !m || !d) return false;
-      const ts = new Date(y, m - 1, d, 12).getTime();
-      if (ts < from) return false;
-      if (end != null && ts > end) return false;
-      return true;
-    }).length;
-  }, [bookings, periodId, customRange]);
+  const upcomingBookings = periodId === 'all'
+    ? schedule.rows.filter(row => row.booking.status === 'confirmed' && row.phase === 'upcoming').length
+    : schedule.selectedSummary.upcoming;
 
   const revenue = useMemo(() => {
     const ledger = buildFinanceLedger({ bookings, orders, services, brandName: workspace.brandName, currency });
@@ -125,7 +119,7 @@ export function OverviewPage() {
       id: 'bookings',
       label: 'Upcoming bookings',
       value: upcomingBookings,
-      hint: upcomingBookings > 0 ? 'on the schedule' : 'nothing booked',
+      hint: upcomingBookings > 0 ? 'confirmed, still to come' : 'no upcoming confirmed bookings',
       to: 'staff'
     },
     {

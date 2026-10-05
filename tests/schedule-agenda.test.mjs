@@ -254,3 +254,46 @@ test('ambiguous times have a definite phase only when both possible timelines ag
   assert.equal(ongoing.rows[0].endTime, '', 'No precise end time is claimed');
   assert.equal(build({ ...data, now: Date.parse('2026-11-01T09:00:00Z') }).rows[0].phase, 'past');
 });
+
+test('selected summary changes with the chosen day, week or month while staying independent of status filters', () => {
+  const bookings = [booking('today'), booking('thisweek', { dateKey: '2026-10-07' }),
+    booking('nextweek', { dateKey: '2026-10-13' }), booking('nextmonth', { dateKey: '2026-11-02' }),
+    booking('pending-nextmonth', { dateKey: '2026-11-03', status: 'pending' }),
+    booking('cancelled', { dateKey: '2026-11-04', status: 'cancelled' })];
+  assert.equal(build({ bookings }).selectedSummary.upcoming, 1);
+  assert.equal(build({ bookings, period: 'week' }).selectedSummary.upcoming, 2);
+  assert.equal(build({ bookings, period: 'month' }).selectedSummary.upcoming, 3);
+  const future = build({ bookings, anchorDay: '2026-11-05', period: 'month', filter: 'pending' });
+  assert.deepEqual(future.selectedSummary, { upcoming: 1, inProgress: 0, confirmed: 1 });
+  assert.equal(future.filteredCount, 1, 'The pending list remains a separate status filter');
+  assert.equal(future.summary.month, 3, 'Existing actual-current-month summary is preserved');
+});
+
+test('selected past ranges show zero upcoming and retain their historically confirmed count', () => {
+  const bookings = [booking('past-one', { dateKey: '2026-09-15' }), booking('past-two', { dateKey: '2026-09-16' }), booking('today')];
+  const data = build({ bookings, anchorDay: '2026-09-15', period: 'week' });
+  assert.deepEqual(data.selectedSummary, { upcoming: 0, inProgress: 0, confirmed: 2 });
+  assert.equal(data.summary.today, 1);
+});
+
+test('selected custom range summary follows the chosen staff and excludes invalid or cancelled starts', () => {
+  const bookings = [booking('one', { staffId: 'one', dateKey: '2026-10-08' }), booking('two', { staffId: 'two', dateKey: '2026-10-09' }),
+    booking('invalid', { staffId: 'one', dateKey: '', time: '' }), booking('cancelled', { staffId: 'one', dateKey: '2026-10-08', status: 'cancelled' })];
+  const data = build({ bookings, staff: [{ id: 'one', name: 'One' }, { id: 'two', name: 'Two' }], staffId: 'one', period: 'custom',
+    customRange: { from: '2026-10-08', to: '2026-10-09' }, filter: 'waitlist' });
+  assert.deepEqual(data.selectedSummary, { upcoming: 1, inProgress: 0, confirmed: 1 });
+  assert.equal(data.filteredCount, 0);
+});
+
+test('selected summary includes future class overlap and ongoing carryover without claiming they start in the range', () => {
+  const future = build({ now: Date.parse('2026-10-01T08:00:00Z'), anchorDay: '2026-10-05', period: 'week', bookings: [
+    booking('future-long-class', { scheduleType: 'class_session', dateKey: '2026-10-04', time: '09:00',
+      durationMinutes: null, sessionEndDate: '2026-10-08', sessionEndTime: '17:00' })
+  ] });
+  assert.equal(future.groups[0].carryover, true);
+  assert.deepEqual(future.selectedSummary, { upcoming: 1, inProgress: 0, confirmed: 1 });
+  const ongoing = build({ now: Date.parse('2026-10-06T00:30:00Z'), bookings: [booking('night', {
+    dateKey: '2026-10-05', time: '23:30', durationMinutes: 120
+  })] });
+  assert.deepEqual(ongoing.selectedSummary, { upcoming: 0, inProgress: 1, confirmed: 1 });
+});

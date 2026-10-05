@@ -43,11 +43,15 @@ Source years differ; current completeness is not guaranteed by the suppliers.
 Regional totals match normalized source names and explicit aliases only.
 Unmatched or unavailable regions remain visible in statistics, never guessed.
 
-The interactive globe is a WebGL unit sphere with perspective projection,
-latitude/longitude visitor positions and geographic surface picking. Its local
+The interactive globe is a WebGL unit sphere with perspective projection
+and geographic surface picking. Its local
 Earth texture uses the same pinned public-domain Natural Earth country source.
 `scripts/generate-live-globe.mjs` writes simplified geographic rings and label
 coordinates into `worldGlobe.json`; Antarctica is retained for the whole sphere.
-Countries are coloured for configured markets and observed visitor activity.
-No outside texture image or map service is requested. Devices without WebGL use
-a Canvas ray-traced sphere, preserving rotation and country selection.
+The whole world remains available regardless of configured selling markets.
+Inactive land uses the flat map's neutral colour; countries with live visitors
+use its pastel brand gradient and white wash, with light-blue oceans. Activity
+appears as country fills, without visitor dots or pins.
+No outside texture image or map service is requested. WebGL renders on a separate
+canvas, allowing shader, texture, drawing or context failures to switch safely to
+a Canvas ray-traced sphere that preserves rotation and country selection.

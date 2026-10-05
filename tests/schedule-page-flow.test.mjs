@@ -15,6 +15,12 @@ function elements(tree, predicate, found = []) {
   return found;
 }
 
+function textContent(node) {
+  if (Array.isArray(node)) return node.map(textContent).join('');
+  if (React.isValidElement(node)) return textContent(node.props.children);
+  return typeof node === 'string' || typeof node === 'number' ? String(node) : '';
+}
+
 test('Schedule totals, period switches, filters and booking actions use the same live records', () => {
   const priorWindow = globalThis.window;
   const priorDocument = globalThis.document;
@@ -38,6 +44,8 @@ test('Schedule totals, period switches, filters and booking actions use the same
       status: 'confirmed', serviceName: 'Consultation', clientName: id, staffId: 'team', ...extra });
     let bookings = [booking('next'), booking('earlier', { time: '09:00' }), booking('class', { dateKey: '2026-10-06', scheduleType: 'class_session' }),
       booking('request', { status: 'pending', time: '14:00' }), booking('missing', { dateKey: '', time: '' })];
+    const workspace = { isDemo: true, timezone: 'Africa/Johannesburg', availabilityRules: {},
+      staffAvailability: { team: { staffId: 'team', days: { '2026-10-06': { status: 'off' } } } } };
     const hooks = { ...React,
       useState(initial) {
         const index = cursor++;
@@ -53,11 +61,10 @@ test('Schedule totals, period switches, filters and booking actions use the same
         }
       }
     };
-    const Stat = () => null, Chip = () => null, Period = () => null, Picker = () => null;
+    const Chip = () => null, Period = () => null, Picker = () => null;
     const Calendar = () => null, Agenda = () => null, Details = () => null;
     const modules = new Map();
     const mocks = {
-      '../../../shared/ui/DashboardStat': { DashboardStat: Stat },
       '../../../shared/ui/FilterChip': { FilterChip: Chip },
       '../../../shared/ui/PeriodSegmentedControl': { PeriodSegmentedControl: Period },
       '../../../shared/ui/PeriodCustomPicker': { PeriodCustomPicker: Picker },
@@ -67,7 +74,7 @@ test('Schedule totals, period switches, filters and booking actions use the same
       '../hooks/useScheduleReschedules': { useScheduleReschedules: () => ({ pendingIds: new Set(['next']), proposalsByBooking: new Map(), loading: false, error: '', incomplete: false }) },
       '../../support/utils/supportFormat': { setSupportFocusThread: id => { focusedThread = id; } },
       '../../workspace/WorkspaceContext': { useWorkspace: () => ({ bookings, services: [], staff: [{ id: 'team', name: 'Team member' }],
-        workspace: { isDemo: true, timezone: 'Africa/Johannesburg', availabilityRules: {} } }) }
+        workspace }) }
     };
     function load(path) {
       const file = new URL(path, import.meta.url);
@@ -91,8 +98,14 @@ test('Schedule totals, period switches, filters and booking actions use the same
     const render = () => { cursor = 0; effects = []; const tree = SchedulePage(); effects.forEach(effect => effect()); return tree; };
     const props = (tree, type) => elements(tree, node => node.type === type)[0]?.props;
     const agendaIds = tree => props(tree, Agenda).groups.flatMap(group => group.items.map(row => row.booking.id));
+    const welcome = tree => textContent(elements(tree, node => node.type === 'section' && node.props.className === 'bb-agenda-welcome')[0]);
     let tree = render();
-    assert.deepEqual(elements(tree, node => node.type === Stat).map(node => node.props.value), ['1', '2', '2']);
+    assert.match(welcome(tree), /^You have 1 upcoming booking today\./);
+    assert.equal(elements(tree, node => /bb-agenda-summary/.test(node.props.className || '')).length, 0, 'The welcome replaces dashboard stat cards');
+    const main = elements(tree, node => node.props.className === 'bb-agenda-main')[0];
+    const mainChildren = React.Children.toArray(main.props.children);
+    assert.ok(mainChildren.findIndex(node => node.props.className === 'bb-agenda-controls') < mainChildren.findIndex(node => node.props.className === 'bb-agenda-welcome'), 'Period controls appear above the welcome');
+    assert.match(elements(tree, node => node.props.className?.includes('bb-agenda-calendar ') )[0].props.className, /\bbb-schedule-avail\b/, 'The calendar inherits Availability Studio styling');
     assert.deepEqual(agendaIds(tree), ['earlier', 'next']);
     assert.equal(props(tree, Calendar).todayKey, '2026-10-05');
     let calendarFocused = 0, calendarRevealed = 0, triggerFocused = 0;
@@ -109,19 +122,28 @@ test('Schedule totals, period switches, filters and booking actions use the same
     tree = render();
     assert.equal(triggerFocused, 1, 'Escape returns focus to the date trigger');
     assert.doesNotMatch(elements(tree, node => node.type === 'aside')[0].props.className, /is-open/);
-    elements(tree, node => node.type === Stat && node.props.label === 'This week')[0].props.onClick();
+    props(tree, Period).onChange('week');
     tree = render();
     assert.equal(props(tree, Period).value, 'week');
+    assert.match(welcome(tree), /^You have 2 upcoming bookings this week\./);
     assert.deepEqual(agendaIds(tree), ['earlier', 'next', 'class']);
+    props(tree, Period).onChange('month');
+    tree = render();
+    assert.match(welcome(tree), /^You have 2 upcoming bookings this month\./);
+    props(tree, Period).onChange('week');
+    tree = render();
     elements(tree, node => node.type === Chip && node.props.children === 'Pending')[0].props.onClick();
     tree = render();
     assert.deepEqual(agendaIds(tree), ['request']);
-    assert.deepEqual(elements(tree, node => node.type === Stat).map(node => node.props.value), ['1', '2', '2'], 'Status filters do not change the confirmed upcoming summaries');
+    assert.match(welcome(tree), /^You have 2 upcoming bookings this week\./, 'Status filters do not change the confirmed upcoming welcome');
     props(tree, Picker).onApply({ from: '2026-10-06', to: '2026-10-06' });
+    tree = render();
+    assert.match(welcome(tree), /^You have 1 upcoming booking in this date range\./);
     props(render(), Period).onChange('day');
     elements(render(), node => node.type === Chip && node.props.children === 'Confirmed')[0].props.onClick();
     tree = render();
     assert.deepEqual(agendaIds(tree), ['class']);
+    assert.match(welcome(tree), /^You have 1 upcoming booking on /);
     props(tree, Agenda).onView(props(tree, Agenda).groups[0].items[0]);
     tree = render();
     assert.equal(props(tree, Details).booking.id, 'class');
@@ -141,6 +163,18 @@ test('Schedule totals, period switches, filters and booking actions use the same
     props(tree, Details).onOpenConversation('existing-thread');
     assert.equal(focusedThread, 'existing-thread');
     assert.equal(location.hash, '/demo/communications');
+    props(tree, Details).onClose();
+    elements(render(), node => node.type === 'select' && node.props.id === 'schedule-mobile-staff')[0].props.onChange({ target: { value: 'team' } });
+    tree = render();
+    assert.match(welcome(tree), /Team member only\./);
+    assert.equal(props(tree, Calendar).resolveStatus('2026-10-06'), 'off');
+    workspace.staffAvailability = { team: { staffId: 'team', days: { '2026-10-06': { status: 'leave' } } } };
+    tree = render();
+    assert.equal(props(tree, Calendar).resolveStatus('2026-10-06'), 'leave', 'Availability edits update Schedule without a separate calendar copy');
+    assert.equal(props(tree, Calendar).resolveStatus('2026-10-11'), 'business-closed');
+    props(tree, Picker).onApply({ from: '2026-10-01', to: '2026-10-04' });
+    tree = render();
+    assert.match(welcome(tree), /^You have 0 upcoming bookings in this date range\./);
   } finally {
     Date.now = priorNow;
     if (priorWindow === undefined) delete globalThis.window;
