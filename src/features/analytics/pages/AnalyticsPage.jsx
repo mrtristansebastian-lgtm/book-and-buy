@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CircleHelp, Users, ShoppingBag, CalendarDays, ShoppingCart, Compass, MapPin, Search } from 'lucide-react';
+import { CircleHelp } from 'lucide-react';
 import { useAnalyticsLive } from '../hooks/useAnalyticsLive';
 import { AnalyticsHeader } from '../components/AnalyticsHeader';
 import { AnalyticsSalesChart } from '../components/AnalyticsSalesChart';
@@ -13,7 +13,6 @@ import { ReportCategory } from '../components/ReportCategory';
 import { ReportHistory, intervalLabel } from '../components/ReportHistory';
 import { getLocationPath, navigate } from '../../../app/routing';
 
-const icons = { audience: Users, products: ShoppingBag, services: CalendarDays, checkout: ShoppingCart, discovery: Compass, places: MapPin, buy: Search, book: Search };
 const count = value => value == null ? '—' : Number(value).toLocaleString();
 const currentQuery = () => new URLSearchParams(getLocationPath().split('?')[1] || '');
 export function AnalyticsPage({ routeRest = [] }) {
@@ -80,7 +79,7 @@ export function AnalyticsPage({ routeRest = [] }) {
       {metric.surface || metric.discoveryKey ? <p className="bb-reports-note">These totals use visits we can link to discovery. Older visits may appear only under Discovery outcomes. Money and payment stats are in Financial reports.</p> : null}
     </> : <>
       <div className="bb-report-overview-guide"><span>Business insights</span><p>Select any total to explore its trend and history.</p><span className="bb-report-period-caption">Totals for the selected period</span></div>
-      <div className="bb-report-categories">{REPORT_GROUPS.map(group => <ReportCategory key={group.id} group={group} stats={report?.stats || {}} hrefFor={hrefFor} onExplain={setHelpId} icon={icons[group.id]} />)}</div>
+      <div className="bb-report-categories">{REPORT_GROUPS.map(group => <ReportCategory key={group.id} group={group} stats={report?.stats || {}} hrefFor={hrefFor} onExplain={setHelpId} />)}</div>
       <p className="bb-reports-note bb-report-overview-note">“—” means we don't have that stat for these dates yet. Older discovery activity may appear only under Discovery outcomes. Money and payment stats are in <a href={base.startsWith('/demo') ? '#/demo/finance-reports' : '#/dashboard/finance-reports'}>Financial reports</a>.</p>
     </>}
     {helpMetric ? <AnalyticsStatHelp metric={helpMetric} available={report?.stats[helpMetric.id]?.available} href={metric ? undefined : hrefFor(helpMetric.id)} onClose={() => setHelpId(null)} /> : null}

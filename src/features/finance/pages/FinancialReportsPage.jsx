@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Banknote, ChartNoAxesCombined, ShoppingBag, CalendarDays, Wallet, Calculator, Goal, Compass, MapPin, Search, CircleHelp } from 'lucide-react';
+import { CircleHelp } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { useAnalyticsLive } from '../../analytics/hooks/useAnalyticsLive';
 import { AnalyticsHeader } from '../../analytics/components/AnalyticsHeader';
@@ -11,7 +11,6 @@ import { buildFinanceLedger, FINANCE_PERIODS, formatMoney } from '../utils/finan
 import { FINANCIAL_REPORT_GROUPS, getFinancialStatistic, buildFinancialReport, buildFinancialHistory } from '../utils/financialReports';
 import { getLocationPath, navigate } from '../../../app/routing';
 
-const icons = { revenue: Banknote, profit: ChartNoAxesCombined, products: ShoppingBag, services: CalendarDays, payments: Wallet, averages: Calculator, conversion: Goal, discovery: Compass, places: MapPin, buy: ShoppingBag, book: Search };
 const currentQuery = () => new URLSearchParams(getLocationPath().split('?')[1] || '');
 const formatValue = (value, metric, currency) => value == null ? '—' : metric.format === 'money' ? formatMoney(value, currency) : metric.format === 'percent' ? `${Number(value).toLocaleString(undefined, { maximumFractionDigits: 1 })}%` : Number(value).toLocaleString();
 
@@ -74,7 +73,7 @@ export function FinancialReportsPage({ routeRest = [] }) {
       <p className="bb-reports-note bb-report-overview-note">Need an individual sale? Open <a href={`#${root}/finance?${receiptsQuery}`}>Receipts & invoices</a> to find its document and payment status.</p>
     </> : <>
       <div className="bb-report-overview-guide"><span>Financial insights</span><p>Select any stat to explore its trend and history.</p><span className="bb-report-period-caption">Values for the selected period · {currency}</span></div>
-      <div className="bb-report-categories">{FINANCIAL_REPORT_GROUPS.map(group => <ReportCategory key={group.id} group={group} stats={data.loading ? {} : report.stats} hrefFor={hrefFor} onExplain={setHelpId} formatValue={display} icon={icons[group.id]} />)}</div>
+      <div className="bb-report-categories">{FINANCIAL_REPORT_GROUPS.map(group => <ReportCategory key={group.id} group={group} stats={data.loading ? {} : report.stats} hrefFor={hrefFor} onExplain={setHelpId} formatValue={display} />)}</div>
       <p className="bb-reports-note bb-report-overview-note">“—” means there isn't enough saved data for these dates. Gross profit uses the product and service costs saved with each sale, before refunds and other expenses. See visitor activity in <a href={`#${root}/analytics?${periodQuery}`}>Traffic reports</a> or individual documents in <a href={`#${root}/finance?${periodQuery}`}>Receipts & invoices</a>.</p>
     </>}
     {!data.loading && report.notes.length ? <div className="bb-financial-report-notes">{report.notes.map(note => <p className="bb-reports-note" key={note}>{note}</p>)}</div> : null}
