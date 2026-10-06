@@ -1,749 +1,183 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { AlertTriangle, ArrowDownToLine, Boxes, Check, ChevronLeft, ChevronRight, Package, Pencil, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '../../../shared/ui/Button';
 import { FilterChip } from '../../../shared/ui/FilterChip';
-import { useEffect, useMemo, useState } from 'react';
-import { Eye, Info, Pencil, Search, X } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { useDetailDialog } from '../../../shared/ui/useDetailDialog';
-import { ProductCatalogCard } from '../components/ProductCatalogCard';
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import {
-  getProductTotalStockQty,
-  normalizeProduct,
-  normalizeProductStatus,
-  productHasVariants,
-  productMissingSku
-} from '../../../utils/products';
+import { StockEditSheet, StockInfoSheet } from '../components/InventoryEditor';
+import { ReportCategoryIcon } from '../../analytics/components/ReportCategoryIcon';
+import { buildInventoryRows, flattenInventoryRows, inventoryCsv, paginatedInventory, selectInventoryUnits, summarizeInventory } from '../inventoryModel';
+import { buildInventoryAdjustments } from '../inventoryAdjustments';
+import '../styles/inventory.css';
 
-const FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'low', label: 'Low stock' },
-  { id: 'in', label: 'In stock' },
-  { id: 'nosku', label: 'No SKU' }
-];
+const formatCount = value => new Intl.NumberFormat().format(typeof value === 'string' ? BigInt(value) : value);
+const stockLabels = { healthy: 'In stock', low: 'Low stock', out: 'Out of stock', unset: 'Not tracked' };
+const unitLabel = unit => [unit.name, unit.variantTitle].filter(Boolean).join(' · ');
+const decodeId = value => { try { return decodeURIComponent(value || ''); } catch { return ''; } };
 
-const LOW_STOCK_MAX = 3;
-
-function matchesFilter(product, filterId) {
-  const total = getProductTotalStockQty(product);
-  if (filterId === 'low') {
-    return total != null && total <= LOW_STOCK_MAX;
-  }
-  if (filterId === 'in') {
-    return total == null || total > LOW_STOCK_MAX;
-  }
-  if (filterId === 'nosku') {
-    return productMissingSku(product);
-  }
-  return true;
-}
-
-function stockBadge(product) {
-  const total = getProductTotalStockQty(product);
-  if (total == null) return { label: 'Qty unset', tone: 'muted' };
-  if (total <= 0) return { label: 'Out of stock', tone: 'warn' };
-  if (total <= LOW_STOCK_MAX) return { label: `${total} left`, tone: 'warn' };
-  return { label: `${total} in stock`, tone: 'ok' };
-}
-
-function InventoryFields({
-  values,
-  onChange,
-  showLabel = false,
-  showAvailable = false
-}) {
-  const dimUnit = values.dimensionUnit || 'cm';
-  const { workspace } = useWorkspace();
-
-  return (
-    <div className="bb-stock-editor">
-      <div className="bb-stock-section">
-        <p className="bb-stock-section-label">Inventory</p>
-        <div className="bb-stock-grid bb-stock-grid--2">
-          <label className="bb-products-field">
-            <span>SKU</span>
-            <input
-              className="native-control-input bb-services-control"
-              value={values.sku || ''}
-              placeholder="SKU-001"
-              onChange={(event) => onChange({ sku: event.target.value })}
-            />
-          </label>
-          <label className="bb-products-field">
-            <span>Quantity</span>
-            <input
-              className="native-control-input bb-services-control"
-              inputMode="numeric"
-              value={values.stockAvailable ?? ''}
-              placeholder="0"
-              onChange={(event) =>
-                onChange({
-                  stockAvailable: event.target.value.replace(/[^\d]/g, '')
-                })
-              }
-            />
-          </label>
-          <label className="bb-products-field bb-stock-span">
-            <span>Your cost ({workspace.currency || 'R'})</span>
-            <input
-              className="native-control-input bb-services-control"
-              inputMode="decimal"
-              value={values.cost ?? ''}
-              placeholder="0.00"
-              onChange={(event) =>
-                onChange({
-                  cost: event.target.value.replace(/[^\d.]/g, '')
-                })
-              }
-            />
-          </label>
-        </div>
-      </div>
-
-      <div className="bb-stock-section">
-        <p className="bb-stock-section-label">Shipping</p>
-        <div className="bb-stock-grid bb-stock-grid--shipping">
-          <label className="bb-products-field">
-            <span>Weight</span>
-            <div className="bb-stock-unit-field">
-              <input
-                className="native-control-input bb-services-control native-control-nest"
-                inputMode="decimal"
-                value={values.weight ?? ''}
-                placeholder="0"
-                onChange={(event) =>
-                  onChange({
-                    weight: event.target.value.replace(/[^\d.]/g, '')
-                  })
-                }
-              />
-              <select
-                className="native-control-input bb-services-control bb-stock-unit-select native-control-nest"
-                value={values.weightUnit || 'g'}
-                aria-label="Weight unit"
-                onChange={(event) =>
-                  onChange({ weightUnit: event.target.value })
-                }
-              >
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-              </select>
-            </div>
-          </label>
-          <label className="bb-products-field">
-            <span>Length</span>
-            <input
-              className="native-control-input bb-services-control"
-              inputMode="decimal"
-              value={values.length ?? ''}
-              placeholder="0"
-              onChange={(event) =>
-                onChange({
-                  length: event.target.value.replace(/[^\d.]/g, '')
-                })
-              }
-            />
-          </label>
-          <label className="bb-products-field">
-            <span>Width</span>
-            <input
-              className="native-control-input bb-services-control"
-              inputMode="decimal"
-              value={values.width ?? ''}
-              placeholder="0"
-              onChange={(event) =>
-                onChange({
-                  width: event.target.value.replace(/[^\d.]/g, '')
-                })
-              }
-            />
-          </label>
-          <label className="bb-products-field">
-            <span>Height</span>
-            <div className="bb-stock-unit-field">
-              <input
-                className="native-control-input bb-services-control native-control-nest"
-                inputMode="decimal"
-                value={values.height ?? ''}
-                placeholder="0"
-                onChange={(event) =>
-                  onChange({
-                    height: event.target.value.replace(/[^\d.]/g, '')
-                  })
-                }
-              />
-              <select
-                className="native-control-input bb-services-control bb-stock-unit-select native-control-nest"
-                value={dimUnit}
-                aria-label="Dimension unit"
-                onChange={(event) =>
-                  onChange({ dimensionUnit: event.target.value })
-                }
-              >
-                <option value="cm">cm</option>
-                <option value="mm">mm</option>
-                <option value="in">in</option>
-              </select>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      {showLabel || showAvailable ? (
-        <div className="bb-stock-section">
-          <p className="bb-stock-section-label">Display</p>
-          {showLabel ? (
-            <div className="bb-stock-grid">
-              <label className="bb-products-field bb-stock-span">
-                <span>Custom stock label</span>
-                <input
-                  className="native-control-input bb-services-control"
-                  value={values.stockLabel || ''}
-                  placeholder="e.g. By arrangement"
-                  onChange={(event) =>
-                    onChange({ stockLabel: event.target.value })
-                  }
-                />
-              </label>
-              <label className="bb-products-check bb-stock-span">
-                <input
-                  type="checkbox"
-                  checked={Boolean(values.hideStockOnCard)}
-                  onChange={(event) =>
-                    onChange({ hideStockOnCard: event.target.checked })
-                  }
-                />
-                <span>Hide stock on Buy card</span>
-              </label>
-            </div>
-          ) : null}
-          {showAvailable ? (
-            <label className="bb-products-check">
-              <input
-                type="checkbox"
-                checked={values.available !== false}
-                onChange={(event) =>
-                  onChange({ available: event.target.checked })
-                }
-              />
-              <span>Available to buy</span>
-            </label>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function StockProductCard({ product, onInfo, onEdit }) {
-  const badge = stockBadge(product);
-  const status = normalizeProductStatus(product);
-  const imageSrc = product.imageUrls?.[0] || '';
-  const hasVariants = productHasVariants(product);
-
-  return (
-    <article className={`bb-stock-row${badge.tone === 'warn' ? ' is-low' : ''}`}>
-      <div className="bb-stock-crate-scene">
-        <span className="bb-stock-crate-side" aria-hidden="true" />
-        <span className="bb-stock-crate-bottom" aria-hidden="true" />
-        <div className="bb-stock-crate-body">
-          <div className="bb-stock-crate-media">
-            {imageSrc ? <img src={imageSrc} alt="" /> : <span className="bb-stock-crate-media-empty" />}
-          </div>
-          <div className="bb-stock-crate-stamp">
-            <strong>{product.name}</strong>
-            <span>
-              {[product.category, status !== 'active' ? status : null]
-                .filter(Boolean)
-                .join(' · ') || 'Product'}
-              {hasVariants
-                ? ` · ${product.variants.length} variants`
-                : product.sku
-                  ? ` · ${product.sku}`
-                  : ''}
-            </span>
-          </div>
-          <span className="bb-stock-total-pill">{badge.label}</span>
-          <div className="bb-stock-crate-actions">
-            <button
-              type="button"
-              className="bb-stock-crate-action"
-              aria-label={`View ${product.name} stock information`}
-              onClick={() => onInfo?.(product)}
-            >
-              <Eye size={18} strokeWidth={2} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="bb-stock-crate-action is-edit"
-              aria-label={`Edit ${product.name} stock`}
-              onClick={() => onEdit?.(product)}
-            >
-              <Pencil size={18} strokeWidth={2} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function formatDims(item) {
-  const unit = item.dimensionUnit || 'cm';
-  const parts = [item.length, item.width, item.height]
-    .map((value) => String(value ?? '').trim())
-    .filter(Boolean);
-  if (!parts.length) return '—';
-  return `${parts.join(' × ')} ${unit}`;
-}
-
-function formatWeight(item) {
-  const value = String(item.weight ?? '').trim();
-  if (!value) return '—';
-  return `${value} ${item.weightUnit || 'g'}`;
-}
-
-function useIsMobileEditor() {
-  const [mobile, setMobile] = useState(() =>
-    typeof window !== 'undefined'
-      ? window.matchMedia('(max-width: 899px)').matches
-      : false
-  );
+function useMobileInventory() {
+  const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 720px)').matches);
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 899px)');
-    const onChange = () => setMobile(mq.matches);
-    onChange();
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
+    const media = window.matchMedia('(max-width: 720px)');
+    const change = () => setMobile(media.matches);
+    media.addEventListener('change', change);
+    return () => media.removeEventListener('change', change);
   }, []);
   return mobile;
 }
 
-function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) {
-  const dialogRef = useDetailDialog(Boolean(product), onClose, variant === 'page');
-  if (!product) return null;
-  const badge = stockBadge(product);
-  const status = normalizeProductStatus(product);
-  const hasVariants = productHasVariants(product);
-  const imageSrc = product.imageUrls?.[0] || '';
-  const isPage = variant === 'page';
-
-  return (
-    <div
-      className={`bb-services-sheet bb-catalog-detail${isPage ? ' is-page' : ''}`}
-      ref={dialogRef}
-      role={isPage ? 'region' : 'dialog'}
-      aria-modal={isPage ? undefined : true}
-      aria-labelledby="stock-info-title"
-    >
-      {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
-      <div className="bb-services-sheet-panel">
-        <header className="bb-services-sheet-head">
-          <div>
-            <p className="bb-services-sheet-eyebrow">Stock</p>
-            <h2 id="stock-info-title" className="bb-services-sheet-title">
-              {product.name}
-            </h2>
-            <p className="bb-services-sheet-lede">Inventory overview for this product.</p>
-          </div>
-          <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose} aria-label="Close">
-            <X size={18} />
-          </button>
-        </header>
-        <div className="bb-services-sheet-body">
-          <div className="bb-stock-info">
-            <div className="bb-stock-info-hero">
-              <div className="bb-stock-info-media">
-                {imageSrc ? <img src={imageSrc} alt="" /> : null}
-              </div>
-              <div className="bb-stock-info-copy">
-                <span className="bb-stock-total-pill">{badge.label}</span>
-                <p className="bb-muted m-0">
-                  {[product.category, status]
-                    .filter(Boolean)
-                    .join(' · ') || 'Product'}
-                  {product.sku ? ` · ${product.sku}` : ''}
-                </p>
-              </div>
-            </div>
-
-            <dl className="bb-stock-info-facts">
-              {!hasVariants && <div>
-                <dt>SKU</dt>
-                <dd>{product.sku || '—'}</dd>
-              </div>}
-              <div>
-                <dt>Quantity</dt>
-                <dd>
-                  {getProductTotalStockQty(product) == null
-                    ? 'Unset'
-                    : getProductTotalStockQty(product)}
-                </dd>
-              </div>
-              {!hasVariants && <div>
-                <dt>Weight</dt>
-                <dd>{formatWeight(product)}</dd>
-              </div>}
-              {!hasVariants && <div>
-                <dt>Dimensions</dt>
-                <dd>{formatDims(product)}</dd>
-              </div>}
-              <div>
-                <dt>Stock label</dt>
-                <dd>{product.stockLabel || '—'}</dd>
-              </div>
-              <div>
-                <dt>Buy card</dt>
-                <dd>{product.hideStockOnCard ? 'Stock hidden' : 'Stock visible'}</dd>
-              </div>
-            </dl>
-
-            {hasVariants ? (
-              <div className="bb-stock-info-variants">
-                <p className="bb-stock-section-label">Variants</p>
-                <ul className="bb-stock-info-variant-list">
-                  {(product.variants || []).map((variant) => (
-                    <li key={variant.id}>
-                      <strong>
-                        {variant.title ||
-                          Object.values(variant.optionValues || {}).join(' / ') ||
-                          'Variant'}
-                      </strong>
-                      <span>
-                        {[
-                          variant.sku ? `SKU ${variant.sku}` : null,
-                          variant.stockAvailable !== '' && variant.stockAvailable != null
-                            ? `Qty ${variant.stockAvailable}`
-                            : 'Qty unset',
-                          variant.available === false ? 'Unavailable' : null
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </span>
-                      <span>{[formatWeight(variant) !== '—' ? formatWeight(variant) : null, formatDims(variant) !== '—' ? formatDims(variant) : null].filter(Boolean).join(' · ')}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        </div>
-        <footer className="bb-services-sheet-footer">
-          <div className="bb-services-sheet-footer-actions">
-            <Button action="close" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
-              Close
-            </Button>
-            {onEdit ? (
-              <Button action="edit" variant="secondary" type="button" className="bb-primary-btn" onClick={() => onEdit(product)}>
-                Edit stock
-              </Button>
-            ) : null}
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
+function PageSelection({ items, selected, onToggle }) {
+  const ref = useRef(null);
+  const count = items.filter(item => selected.has(item.id)).length;
+  useEffect(() => { if (ref.current) ref.current.indeterminate = count > 0 && count < items.length; }, [count, items.length]);
+  return <input ref={ref} type="checkbox" aria-label="Select all items on this page" checked={items.length > 0 && count === items.length} onChange={onToggle} disabled={!items.length} />;
 }
 
-function StockEditSheet({ product, onClose, onSave, variant = 'sheet' }) {
-  const [draft, setDraft] = useState(product);
-  const [activeVariantId, setActiveVariantId] = useState('product');
-  const [savedFlash, setSavedFlash] = useState(false);
-  const isPage = variant === 'page';
-
-  useEffect(() => {
-    setDraft(product);
-    setActiveVariantId(product?.variants?.[0]?.id || 'product');
-  }, [product]);
-
-  if (!product) return null;
-
-  const hasVariants = productHasVariants(draft);
-  const activeVariant = draft.variants?.find((item) => item.id === activeVariantId);
-  const patch = (partial) => setDraft((prev) => ({ ...prev, ...partial }));
-  const patchVariant = (variantId, partial) => {
-    setDraft((prev) => ({
-      ...prev,
-      variants: (prev.variants || []).map((variant) =>
-        variant.id === variantId ? { ...variant, ...partial } : variant
-      )
-    }));
+function QuantityDialog({ units, onClose, onApply }) {
+  const dialogRef = useDetailDialog(true, onClose, false);
+  const [mode, setMode] = useState('set');
+  const [value, setValue] = useState(units.length === 1 && units[0].quantity != null ? String(units[0].quantity) : '');
+  const [error, setError] = useState('');
+  const preview = useMemo(() => buildInventoryAdjustments(units, { mode, value }), [units, mode, value]);
+  const apply = event => {
+    event.preventDefault();
+    if (!preview.ok) { setError(preview.error); return; }
+    const result = onApply(preview.updates);
+    if (result?.ok === false) { setError(result.error); return; }
+    onClose();
   };
-
-  const save = () => {
-    onSave?.(normalizeProduct(draft));
-    setSavedFlash(true);
-    window.setTimeout(() => {
-      setSavedFlash(false);
-      onClose?.();
-    }, 700);
-  };
-
-  return (
-    <div
-      className={`bb-services-sheet bb-stock-edit-sheet${isPage ? ' is-page' : ''}`}
-      role={isPage ? 'region' : 'dialog'}
-      aria-modal={isPage ? undefined : true}
-      aria-labelledby="stock-edit-title"
-    >
-      {isPage ? null : <div className="bb-services-sheet-backdrop" onClick={onClose} />}
-      <div className="bb-services-sheet-panel bb-services-sheet-panel--setup">
-        <header className="bb-services-sheet-head">
-          <div>
-            <p className="bb-services-sheet-eyebrow">Stock</p>
-            <h2 id="stock-edit-title" className="bb-services-sheet-title">
-              Edit stock
-            </h2>
-            <p className="bb-services-sheet-lede">{draft.name}</p>
-          </div>
-          <button type="button" className="bb-ghost-btn bb-services-sheet-close" onClick={onClose} aria-label="Close">
-            <X size={18} />
-          </button>
-        </header>
-        <div className="bb-services-sheet-body">
-          {hasVariants ? (
-            <div className="bb-stock-edit-layout">
-              <nav className="bb-stock-variant-nav" aria-label="Choose inventory to edit">
-                <p className="bb-stock-section-label">{draft.variants.length} variants</p>
-                {draft.variants.map((item) => (
-                  <button key={item.id} type="button" aria-pressed={activeVariantId === item.id} onClick={() => setActiveVariantId(item.id)}>
-                    <strong>{item.title || Object.values(item.optionValues || {}).join(' / ') || 'Variant'}</strong>
-                    <span>{item.sku || 'No SKU'}</span>
-                    <small>{item.available === false ? 'Unavailable' : item.stockAvailable === '' || item.stockAvailable == null ? 'Quantity unset' : `${item.stockAvailable} in stock`}</small>
-                  </button>
-                ))}
-                <button type="button" aria-pressed={activeVariantId === 'product'} onClick={() => setActiveVariantId('product')}><strong>Product defaults</strong><span>Stock display & shipping defaults</span></button>
-              </nav>
-              <section className="bb-stock-active-editor" aria-label="Inventory details">
-                <header><h3>{activeVariant ? activeVariant.title || Object.values(activeVariant.optionValues || {}).join(' / ') : 'Product defaults'}</h3><p>{activeVariant ? 'Manage inventory and shipping for this variant.' : 'Variant quantities are tracked separately. Product shipping values are used when a variant has no override.'}</p></header>
-                <InventoryFields values={activeVariant || draft} onChange={activeVariant ? (partial) => patchVariant(activeVariant.id, partial) : patch} showAvailable={!!activeVariant} showLabel={!activeVariant} />
-              </section>
-            </div>
-          ) : (
-            <InventoryFields values={draft} onChange={patch} showLabel />
-          )}
+  return createPortal(
+    <div className="native-ui bb-inventory-dialog" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="inventory-adjust-title">
+      <div className="bb-inventory-dialog-backdrop" onClick={onClose} />
+      <form className="bb-inventory-dialog-panel" onSubmit={apply}>
+        <header><span className="bb-inventory-dialog-icon"><SlidersHorizontal size={22} /></span><div><h2 id="inventory-adjust-title">Adjust quantity</h2><p>{units.length === 1 ? unitLabel(units[0]) : `${formatCount(units.length)} selected stock items`}</p></div><button type="button" className="bb-inventory-icon-button" onClick={onClose} aria-label="Close quantity adjustment"><X size={18} /></button></header>
+        <div className="bb-inventory-dialog-body">
+          <div className="bb-inventory-mode" aria-label="Quantity adjustment type">{[['set', 'Set quantity'], ['add', 'Add stock'], ['remove', 'Remove stock']].map(([id, label]) => <button key={id} type="button" aria-pressed={mode === id} onClick={() => { setMode(id); setValue(''); setError(''); }}>{label}</button>)}</div>
+          <label className="bb-inventory-adjust-field"><span>{mode === 'set' ? 'New quantity' : mode === 'add' ? 'Units to add' : 'Units to remove'}</span><input className="native-control-input" inputMode="numeric" autoFocus value={value} placeholder="Enter whole units" onChange={event => { setValue(event.target.value); setError(''); }} aria-describedby="inventory-adjust-help" /></label>
+          <p id="inventory-adjust-help" className="bb-inventory-helper">{units.length > 1 ? `This ${mode === 'set' ? 'sets the quantity of' : mode === 'add' ? 'adds the same number to' : 'removes the same number from'} each selected item.` : 'Check the new quantity below before applying.'}</p>
+          {preview.ok ? <div className="bb-inventory-preview"><div className="bb-inventory-preview-head"><span>Stock item</span><span>Before → After</span></div>{preview.previews.slice(0, 5).map(item => <div key={item.id}><span>{unitLabel(item)}</span><strong>{item.before == null ? 'Not tracked' : formatCount(item.before)} <span aria-hidden="true">→</span> {formatCount(item.after)}</strong></div>)}{units.length > 5 && <p>And {formatCount(units.length - 5)} more selected items.</p>}</div> : value && <p className="bb-inventory-error" role="alert">{preview.error}</p>}
+          {error && <p className="bb-inventory-error" role="alert">{error}</p>}
         </div>
-        <footer className="bb-services-sheet-footer">
-          <span className="bb-products-side-note">
-            {savedFlash ? 'Saved' : 'Save to update inventory, delivery details and storefront stock display.'}
-          </span>
-          <div className="bb-services-sheet-footer-actions">
-            <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button action="save" variant="primary" type="button" className="bb-primary-btn" onClick={save}>
-              Save stock
-            </Button>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
+        <footer><Button action="cancel" onClick={onClose}>Cancel</Button><Button action="apply" variant="primary" type="submit" disabled={!preview.ok}>Apply {units.length > 1 ? `to ${formatCount(units.length)} items` : 'quantity'}</Button></footer>
+      </form>
+    </div>, document.body);
 }
 
 export function StockPage({ routeRest = [] }) {
-  const { products, upsertProduct, removeProduct } = useWorkspace();
-  const isMobile = useIsMobileEditor();
+  const { products = [], workspace, updateInventory, saveStatus, saveError, retrySave } = useWorkspace();
+  const isMobile = useMobileInventory();
   const [query, setQuery] = useState('');
   const [filterId, setFilterId] = useState('all');
-  const [infoProduct, setInfoProduct] = useState(null);
-  const [editProduct, setEditProduct] = useState(null);
-
-  const mode = routeRest[0] || '';
-  const itemId = routeRest[1] || '';
-  const pageInfo = isMobile && mode === 'info' && Boolean(itemId);
-  const pageEdit = isMobile && mode === 'edit' && Boolean(itemId);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (products || []).filter((product) => {
-      if (!matchesFilter(product, filterId)) return false;
-      if (!q) return true;
-      const hay = [
-        product.name,
-        product.sku,
-        product.category,
-        ...(product.variants || []).flatMap((variant) => [
-          variant.sku,
-          variant.title
-        ])
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      return hay.includes(q);
-    });
-  }, [products, query, filterId]);
-
-  useEffect(() => {
-    if (!pageInfo && !pageEdit) return;
-    const found = (products || []).find((item) => item.id === itemId);
-    if (!found) {
-      navigate('/dashboard/stock');
-      return;
-    }
-    if (pageInfo) setInfoProduct(found);
-    if (pageEdit) setEditProduct(found);
-  }, [pageInfo, pageEdit, itemId, products]);
-
-  const openInfo = (product) => {
-    if (isMobile) {
-      navigate(`/dashboard/stock/info/${product.id}`);
-      return;
-    }
-    setInfoProduct(product);
+  const [sort, setSort] = useState('attention');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [selected, setSelected] = useState(new Set());
+  const [adjustUnits, setAdjustUnits] = useState(null);
+  const [notice, setNotice] = useState('');
+  const rows = useMemo(() => buildInventoryRows(products), [products]);
+  const units = useMemo(() => flattenInventoryRows(rows), [rows]);
+  const summary = useMemo(() => summarizeInventory(rows), [rows]);
+  const [productId, setProductId] = useState(() => rows.find(row => row.attentionCount)?.id || rows[0]?.id || '');
+  const chosenRow = rows.find(row => row.id === productId) || rows[0];
+  const scopeUnits = useMemo(() => chosenRow ? flattenInventoryRows([chosenRow]) : [], [chosenRow]);
+  const scopeSummary = useMemo(() => summarizeInventory(chosenRow ? [chosenRow] : []), [chosenRow]);
+  const productOptions = useMemo(() => [...rows].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })), [rows]);
+  const filtered = useMemo(() => selectInventoryUnits(scopeUnits, { query, filterId, sort }), [scopeUnits, query, filterId, sort]);
+  const showStockState = id => {
+    const first = selectInventoryUnits(units, { filterId: id })[0];
+    if (first) setProductId(first.productId);
+    setQuery(''); setFilterId(id);
   };
+  useEffect(() => { if (!rows.some(row => row.id === productId)) setProductId(rows.find(row => row.attentionCount)?.id || rows[0]?.id || ''); }, [rows, productId]);
+  const pagination = paginatedInventory(filtered, { page, pageSize });
+  const selectedUnits = units.filter(unit => selected.has(unit.id));
+  const mode = routeRest[0];
+  const itemId = decodeId(routeRest[1]);
+  const variantId = decodeId(routeRest[2]);
+  const detailProduct = ['edit', 'info'].includes(mode) ? products.find(product => product.id === itemId) : null;
+  const closeDetail = () => navigate(workspacePagePath('stock'));
+  const openDetail = (product, detailMode, variant = '') => navigate(`${workspacePagePath('stock')}/${detailMode}/${encodeURIComponent(product.id)}${variant ? `/${encodeURIComponent(variant)}` : ''}`);
 
-  const openEdit = (product) => {
-    if (isMobile) {
-      navigate(`/dashboard/stock/edit/${product.id}`);
-      return;
-    }
-    setEditProduct(product);
+  useEffect(() => { setPage(1); setSelected(new Set()); }, [query, filterId, productId]);
+  useEffect(() => { setSelected(prior => {
+    const valid = new Set(units.map(unit => unit.id));
+    const next = new Set([...prior].filter(id => valid.has(id)));
+    return next.size === prior.size ? prior : next;
+  }); }, [units]);
+  useEffect(() => { if (!notice) return; const timeout = setTimeout(() => setNotice(''), 4500); return () => clearTimeout(timeout); }, [notice]);
+
+  const applyUpdates = updates => {
+    const result = updateInventory(updates);
+    if (result.ok) setNotice('Inventory updated.');
+    return result;
   };
-
-  const closeInfo = () => {
-    setInfoProduct(null);
-    if (pageInfo) navigate('/dashboard/stock');
+  const toggleUnit = id => setSelected(prior => { const next = new Set(prior); if (next.has(id)) next.delete(id); else next.add(id); return next; });
+  const togglePage = () => setSelected(prior => {
+    const next = new Set(prior);
+    const all = pagination.items.every(item => next.has(item.id));
+    pagination.items.forEach(item => all ? next.delete(item.id) : next.add(item.id));
+    return next;
+  });
+  const exportView = () => {
+    const url = URL.createObjectURL(new Blob(['\uFEFF', inventoryCsv(filtered)], { type: 'text/csv;charset=utf-8;' }));
+    const link = document.createElement('a');
+    link.href = url; link.download = `inventory-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setNotice(`${formatCount(filtered.length)} stock items exported.`);
   };
+  const editor = detailProduct && mode === 'edit' ? <StockEditSheet product={detailProduct} initialVariantId={variantId} variant={isMobile ? 'page' : 'sheet'} onClose={closeDetail} onSave={applyUpdates} /> : null;
+  const info = detailProduct && mode === 'info' ? <StockInfoSheet product={detailProduct} variant={isMobile ? 'page' : 'sheet'} onClose={closeDetail} onEdit={product => openDetail(product, 'edit')} /> : null;
+  if (isMobile && detailProduct) return <div className="bb-inventory-detail-page">{editor || info}</div>;
+  if (['edit', 'info'].includes(mode) && !detailProduct) return <div className="bb-inventory-empty"><Package size={30} /><h1>Stock item unavailable</h1><p>It may have been removed. Return to your inventory to choose another item.</p><Button action="back" onClick={closeDetail}>Back to inventory</Button></div>;
 
-  const closeEdit = () => {
-    setEditProduct(null);
-    if (pageEdit) navigate('/dashboard/stock');
-  };
-
-  const liveEditProduct = editProduct
-    ? (products || []).find((item) => item.id === editProduct.id) || editProduct
-    : null;
-  const liveInfoProduct = infoProduct
-    ? (products || []).find((item) => item.id === infoProduct.id) || infoProduct
-    : null;
-
-  const openEditFromInfo = (product) => {
-    if (isMobile) {
-      navigate(`/dashboard/stock/edit/${product.id}`);
-      return;
-    }
-    setInfoProduct(null);
-    setEditProduct(product);
-  };
-
-  if (pageInfo && liveInfoProduct) {
-    return (
-      <StockInfoSheet
-        product={liveInfoProduct}
-        onClose={closeInfo}
-        onEdit={openEditFromInfo}
-        variant="page"
-      />
-    );
-  }
-
-  if (pageEdit && liveEditProduct) {
-    return (
-      <StockEditSheet
-        product={liveEditProduct}
-        onClose={closeEdit}
-        onSave={(next) => upsertProduct(next)}
-        variant="page"
-      />
-    );
-  }
-
+  const filters = [
+    { id: 'all', label: 'All items', count: scopeSummary.unitCount },
+    { id: 'attention', label: 'Needs attention', count: scopeSummary.attentionCount },
+    { id: 'healthy', label: 'In stock', count: scopeSummary.counts.healthy },
+    { id: 'low', label: 'Low stock', count: scopeSummary.counts.low },
+    { id: 'out', label: 'Out of stock', count: scopeSummary.counts.out },
+    { id: 'unset', label: 'Not tracked', count: scopeSummary.counts.unset },
+    { id: 'nosku', label: 'No SKU', count: scopeSummary.missingSkuCount }
+  ];
   return (
-    <div className="bb-services-desk bb-stock-desk">
-      <div className="bb-page-chrome">
-        <header className="bb-services-desk-header">
-          <div className="bb-services-desk-copy">
-            <div className="bb-page-title-wrap">
-              <PageBackButton />
-              <span className="bb-page-title-main">
-                <div className="bb-page-header-glow" aria-hidden="true" />
-                <h1 className="bb-page-title bb-services-desk-title">Stock</h1>
-              </span>
-            </div>
-          </div>
-        </header>
-
-        {products.length > 0 ? (
-          <div className="bb-stock-toolbar">
-            <label className="bb-stock-search bb-search-field">
-              <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
-              <input
-                type="search"
-                className="native-search-input"
-                value={query}
-                placeholder="Search products or SKUs"
-                aria-label="Search products or SKUs"
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </label>
-            <div className="bb-products-chips" role="tablist" aria-label="Stock filters">
-              {FILTERS.map((filter) => (
-                <FilterChip
-                  key={filter.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={filterId === filter.id}
-                  selected={filterId === filter.id}
-                  className={`bb-products-chip${
-                    filterId === filter.id ? ' is-active' : ''
-                  }`}
-                  onClick={() => setFilterId(filter.id)}
-                >
-                  {filter.label}
-                </FilterChip>
-              ))}
-            </div>
-          </div>
-        ) : null}
-      </div>
-
-      {products.length === 0 ? (
-        <div className="bb-services-catalog-empty">
-          No products yet.{' '}
-          <Button action="add" variant="primary"
-            type="button"
-            className="bb-stock-link"
-            onClick={() => navigate('/dashboard/products')}
-          >
-            Add products
-          </Button>{' '}
-          first, then set stock here.
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="bb-services-catalog-empty">
-          No products match this filter.
-        </div>
-      ) : (
-        <div className="bb-public-product-grid bb-business-catalog-grid">
-          {filtered.map((product) => (
-            <ProductCatalogCard
-              key={product.id}
-              product={product}
-              onView={openInfo}
-              stockLabel={stockBadge(product).label}
-              onRemove={(item) => removeProduct(item.id)}
-              onEdit={openEdit}
-            />
-          ))}
-        </div>
-      )}
-
-      {!isMobile && liveInfoProduct ? (
-        <StockInfoSheet
-          product={liveInfoProduct}
-          onClose={closeInfo}
-          onEdit={openEditFromInfo}
-        />
-      ) : null}
-      {!isMobile && liveEditProduct ? (
-        <StockEditSheet
-          product={liveEditProduct}
-          onClose={closeEdit}
-          onSave={(next) => upsertProduct(next)}
-        />
-      ) : null}
+    <div className="bb-services-desk bb-inventory">
+      <div className="bb-page-chrome"><header className="bb-services-desk-header"><div className="bb-services-desk-copy"><div className="bb-page-title-wrap"><PageBackButton /><span className="bb-page-title-main"><div className="bb-page-header-glow" aria-hidden="true" /><h1 className="bb-page-title bb-services-desk-title">Inventory</h1></span></div><p className="bb-inventory-lede">A clear view of your stock. Know what’s ready and what needs a top-up.</p></div><div className="bb-inventory-header-actions"><Button action="export" icon={ArrowDownToLine} onClick={exportView} disabled={!filtered.length}>Export view</Button><Button action="view" icon={Boxes} onClick={() => navigate(workspacePagePath('products'))}>Products</Button></div></header></div>
+      <section className="bb-inventory-overview" aria-label="Inventory summary">
+        <div className="bb-inventory-total"><span className="bb-inventory-overline"><ReportCategoryIcon category="inventory" /> Stock on your shelves</span><strong>{formatCount(summary.knownStockText)}</strong><span>{summary.quantityComplete ? 'units across your inventory' : `known units · ${formatCount(summary.counts.unset)} items not tracked`}</span><small>{formatCount(summary.productCount)} products · {formatCount(summary.unitCount)} stock items, including variants</small></div>
+        <div className="bb-inventory-summary-metrics">{[
+          { id: 'healthy', label: 'In stock', value: summary.counts.healthy, art: 'stock-healthy', tone: 'green', copy: 'Above your warning level' },
+          { id: 'low', label: 'Running low', value: summary.counts.low, art: 'stock-low', tone: 'amber', copy: 'Ready for a top-up' },
+          { id: 'out', label: 'Out of stock', value: summary.counts.out, art: 'stock-out', tone: 'rose', copy: 'Quantity is zero' }
+        ].map(metric => <button type="button" key={metric.id} className={`bb-inventory-metric is-${metric.tone}`} onClick={() => showStockState(metric.id)} aria-label={`Show ${metric.label.toLowerCase()} items`}><span className="bb-inventory-metric-label"><ReportCategoryIcon category={metric.art} />{metric.label}</span><strong>{formatCount(metric.value)}</strong><span>{metric.copy}</span></button>)}</div>
+      </section>
+      <div className={`bb-inventory-health${summary.attentionCount ? ' has-alerts' : ''}`}><span className="bb-inventory-health-icon">{summary.attentionCount ? <AlertTriangle size={19} /> : <Check size={19} />}</span><div><strong>{summary.attentionCount ? `${formatCount(summary.attentionCount)} stock ${summary.attentionCount === 1 ? 'item needs' : 'items need'} restocking` : 'Your tracked stock is looking good'}</strong><span>{summary.attentionCount ? 'Each variant has its own warning, so the small details stay visible.' : 'Set a warning level on each item and we’ll flag it here when stock runs low.'}</span></div>{summary.attentionCount > 0 && <button type="button" onClick={() => showStockState('attention')}>Review items <ChevronRight size={15} /></button>}</div>
+      {saveError ? <div className="bb-inventory-save-error" role="alert"><span>{saveError}</span><Button action="retry" onClick={retrySave}>Retry save</Button></div> : <p className="bb-inventory-persistence" aria-live="polite">{workspace.isDemo ? 'Demo changes stay on this device.' : saveStatus === 'saving' ? 'Saving changes…' : saveStatus === 'saved' ? 'Changes saved.' : 'Stock quantities are managed here.'}</p>}
+      <section className="bb-inventory-register" aria-labelledby="inventory-register-title">
+        <div className="bb-inventory-register-heading"><div><h2 id="inventory-register-title">Stock register</h2><p>Choose a product to manage its stock.</p></div><span>{formatCount(filtered.length)} {filtered.length === 1 ? 'item' : 'items'}{filtered.length !== scopeUnits.length ? ` of ${formatCount(scopeUnits.length)}` : ''}</span></div>
+        <div className="bb-inventory-toolbar"><label className="bb-inventory-product-picker"><span>Product</span><select aria-label="Choose a product for stock register" value={chosenRow?.id || ''} onChange={event => { setProductId(event.target.value); setQuery(''); setFilterId('all'); }}>{!productOptions.length && <option value="">No products yet</option>}{productOptions.map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label><label className="bb-inventory-search"><Search size={17} /><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Variant name or SKU" aria-label="Search inventory" /></label><select aria-label="Sort inventory" value={sort} onChange={event => { setSort(event.target.value); setPage(1); }}><option value="attention">Attention first</option><option value="name">Product name</option><option value="sku">SKU</option><option value="quantity-low">Quantity: low to high</option><option value="quantity-high">Quantity: high to low</option></select></div>
+        <div className="bb-inventory-filters" aria-label="Stock filters">{filters.map(filter => <FilterChip key={filter.id} selected={filterId === filter.id} count={formatCount(filter.count)} onClick={() => setFilterId(filter.id)}>{filter.label}</FilterChip>)}</div>
+        {selectedUnits.length > 0 && <div className="bb-inventory-selection" role="status"><span><Check size={16} />{formatCount(selectedUnits.length)} selected</span><div><Button action="edit" icon={SlidersHorizontal} variant="primary" onClick={() => setAdjustUnits(selectedUnits)}>Adjust selected</Button><button type="button" onClick={() => setSelected(new Set())}>Clear selection</button></div></div>}
+        {!units.length ? <div className="bb-inventory-empty"><Package size={32} /><h3>Your stock starts here</h3><p>Add products, then manage quantities, variants and warning levels here.</p><Button action="add" variant="primary" onClick={() => navigate(workspacePagePath('products'))}>Add products</Button></div> : !filtered.length ? <div className="bb-inventory-empty"><Search size={28} /><h3>No stock items found</h3><p>Try a different search or clear the filters.</p><Button action="clear" onClick={() => { setQuery(''); setFilterId('all'); }}>Clear filters</Button></div> : <>
+          <div className="bb-inventory-mobile-select"><PageSelection items={pagination.items} selected={selected} onToggle={togglePage} /><span>Select this page</span></div>
+          <table className="bb-inventory-table"><caption className="bb-control-sr-only">Inventory quantities and warning levels</caption><thead><tr><th className="bb-inventory-check"><PageSelection items={pagination.items} selected={selected} onToggle={togglePage} /></th><th>Product / variant</th><th>SKU</th><th className="bb-inventory-quantity">Quantity</th><th>Warn at</th><th>Stock status</th><th><span className="bb-control-sr-only">Actions</span></th></tr></thead><tbody>{pagination.items.map(unit => <tr key={unit.id} className={`${selected.has(unit.id) ? 'is-selected ' : ''}is-${unit.stockState}`}>
+            <td className="bb-inventory-check"><input type="checkbox" aria-label={`Select ${unitLabel(unit)}`} checked={selected.has(unit.id)} onChange={() => toggleUnit(unit.id)} /></td>
+            <td className="bb-inventory-product-cell"><div className="bb-inventory-product"><span className="bb-inventory-thumbnail">{(unit.source.imageUrl || unit.source.imageUrls?.[0] || unit.product.imageUrls?.[0]) ? <img src={unit.source.imageUrl || unit.source.imageUrls?.[0] || unit.product.imageUrls?.[0]} alt="" loading="lazy" /> : <Package size={21} />}</span><div><button type="button" className="bb-inventory-product-name" onClick={() => openDetail(unit.product, 'info')}>{unit.variantTitle || unit.name}</button><span className="bb-inventory-variant">{unit.category || 'Product'}</span>{(unit.status !== 'active' || unit.available === false) && <small className="bb-inventory-publication">{unit.status !== 'active' ? unit.status : 'Unavailable to buy'}</small>}</div></div></td>
+            <td className="bb-inventory-sku" data-label="SKU">{unit.sku || <span className="bb-inventory-muted">No SKU</span>}</td>
+            <td className="bb-inventory-quantity" data-label="Quantity"><strong>{unit.quantity == null ? '—' : formatCount(unit.quantity)}</strong><small>{unit.quantity == null ? 'Not tracked' : 'units'}</small></td>
+            <td className="bb-inventory-warning" data-label="Warn at">{formatCount(unit.lowStockThreshold)}<small> units</small></td>
+            <td className="bb-inventory-status"><span className={`bb-inventory-badge is-${unit.stockState}`}><i aria-hidden="true" />{stockLabels[unit.stockState]}</span></td>
+            <td className="bb-inventory-actions"><Button action="edit" icon={SlidersHorizontal} className="bb-inventory-adjust-button" onClick={() => setAdjustUnits([unit])} aria-label={`Adjust quantity for ${unitLabel(unit)}`}>Adjust</Button><button type="button" className="bb-inventory-icon-button" onClick={() => openDetail(unit.product, 'edit', unit.variantId)} aria-label={`Edit stock details for ${unitLabel(unit)}`} title="Edit stock details"><Pencil size={16} /></button></td>
+          </tr>)}</tbody></table>
+          <footer className="bb-inventory-pagination"><span>{formatCount(pagination.from)}–{formatCount(pagination.to)} of {formatCount(pagination.total)} items</span><label>Show <select aria-label="Stock items per page" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label><div><button type="button" className="bb-inventory-icon-button" aria-label="Previous inventory page" disabled={pagination.page === 1} onClick={() => setPage(pagination.page - 1)}><ChevronLeft size={18} /></button><span>{pagination.page} / {pagination.pageCount}</span><button type="button" className="bb-inventory-icon-button" aria-label="Next inventory page" disabled={pagination.page === pagination.pageCount} onClick={() => setPage(pagination.page + 1)}><ChevronRight size={18} /></button></div></footer>
+        </>}
+      </section>
+      <p className="bb-inventory-footnote">Quantities shown are the stock you’ve entered. Keep them up to date as items come in and go out.</p>
+      {notice && <div className="bb-inventory-toast" role="status"><Check size={17} />{notice}</div>}
+      {adjustUnits && <QuantityDialog units={adjustUnits} onClose={() => setAdjustUnits(null)} onApply={applyUpdates} />}
+      {editor}{info}
     </div>
   );
 }

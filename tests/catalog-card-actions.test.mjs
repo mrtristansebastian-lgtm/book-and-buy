@@ -27,15 +27,13 @@ test('item actions use a portaled named modal with shared focus/Escape and expli
   assert.match(card, /onClose\(\); action\?\.\(\)/);
 });
 
-test('products, services and stock share the new card without bypassing deletion confirmation', () => {
+test('products and services share the catalog card without bypassing deletion confirmation', () => {
   for (const path of ['src/features/products/components/ProductCatalogCard.jsx','src/features/services/components/ServiceCatalogCard.jsx']) {
     const source = read(path);
     assert.match(source, /<BusinessCatalogCard/);
     assert.match(source, /onDelete=\{onRemove \? \(\) => setDeleting\(true\) : undefined\}/);
     assert.match(source, /deleting && <CatalogDeleteDialog/);
   }
-  const files = read('src/features/products/pages/StockPage.jsx');
-  assert.match(files, /ProductCatalogCard/);
 });
 
 test('card copy is left aligned and readable, with mobile touch targets scoped to business cards', () => {

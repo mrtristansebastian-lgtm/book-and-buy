@@ -79,6 +79,8 @@ const toDraft = (product = {}) => {
     // Inventory fields travel with the draft so Stock edits survive catalog saves
     sku: normalized.sku || '',
     stockAvailable: String(normalized.stockAvailable ?? ''),
+    cost: normalized.cost ?? '',
+    lowStockThreshold: normalized.lowStockThreshold,
     stockLabel: normalized.stockLabel || '',
     hideStockOnCard: Boolean(normalized.hideStockOnCard),
     weight: String(normalized.weight ?? ''),
@@ -97,6 +99,8 @@ const mergeInventoryFromExisting = (draft, existing) => {
       ...draft,
       sku: draft.sku || '',
       stockAvailable: draft.stockAvailable ?? '',
+      cost: draft.cost ?? '',
+      lowStockThreshold: draft.lowStockThreshold ?? 3,
       stockLabel: draft.stockLabel || '',
       hideStockOnCard: Boolean(draft.hideStockOnCard),
       weight: draft.weight ?? '',
@@ -127,50 +131,36 @@ const mergeInventoryFromExisting = (draft, existing) => {
     if (!prior) return variant;
     return {
       ...variant,
-      sku: variant.sku || prior.sku || '',
-      stockAvailable:
-        variant.stockAvailable !== '' && variant.stockAvailable != null
-          ? variant.stockAvailable
-          : prior.stockAvailable ?? '',
-      weight:
-        variant.weight !== '' && variant.weight != null
-          ? variant.weight
-          : prior.weight ?? '',
-      weightUnit: variant.weightUnit || prior.weightUnit || 'g',
-      length:
-        variant.length !== '' && variant.length != null
-          ? variant.length
-          : prior.length ?? '',
-      width:
-        variant.width !== '' && variant.width != null
-          ? variant.width
-          : prior.width ?? '',
-      height:
-        variant.height !== '' && variant.height != null
-          ? variant.height
-          : prior.height ?? '',
-      dimensionUnit:
-        variant.dimensionUnit || prior.dimensionUnit || 'cm',
-      size: variant.size || prior.size || ''
+      // Stock owns these fields; a catalog draft may predate an inventory edit.
+      sku: prior.sku ?? '',
+      stockAvailable: prior.stockAvailable ?? '',
+      cost: prior.cost ?? '',
+      lowStockThreshold: prior.lowStockThreshold ?? '',
+      weight: prior.weight ?? '',
+      weightUnit: prior.weightUnit || 'g',
+      length: prior.length ?? '',
+      width: prior.width ?? '',
+      height: prior.height ?? '',
+      dimensionUnit: prior.dimensionUnit || 'cm',
+      size: prior.size || ''
     };
   });
 
   return {
     ...draft,
-    sku: existing.sku || draft.sku || '',
-    stockAvailable: existing.stockAvailable ?? draft.stockAvailable ?? '',
-    stockLabel: existing.stockLabel || draft.stockLabel || '',
-    hideStockOnCard:
-      typeof draft.hideStockOnCard === 'boolean'
-        ? draft.hideStockOnCard
-        : Boolean(existing.hideStockOnCard),
-    weight: existing.weight ?? draft.weight ?? '',
-    weightUnit: existing.weightUnit || draft.weightUnit || 'g',
-    length: existing.length ?? draft.length ?? '',
-    width: existing.width ?? draft.width ?? '',
-    height: existing.height ?? draft.height ?? '',
-    dimensionUnit: existing.dimensionUnit || draft.dimensionUnit || 'cm',
-    size: existing.size || draft.size || '',
+    sku: existing.sku ?? '',
+    stockAvailable: existing.stockAvailable ?? '',
+    cost: existing.cost ?? '',
+    lowStockThreshold: existing.lowStockThreshold ?? 3,
+    stockLabel: existing.stockLabel ?? '',
+    hideStockOnCard: Boolean(existing.hideStockOnCard),
+    weight: existing.weight ?? '',
+    weightUnit: existing.weightUnit || 'g',
+    length: existing.length ?? '',
+    width: existing.width ?? '',
+    height: existing.height ?? '',
+    dimensionUnit: existing.dimensionUnit || 'cm',
+    size: existing.size || '',
     variants: productHasVariants({ ...draft, variants })
       ? variants
       : []

@@ -8,6 +8,17 @@ export const createVariantId = () =>
 
 const PRODUCT_STATUSES = new Set(['draft', 'active', 'archived']);
 
+export const DEFAULT_LOW_STOCK_THRESHOLD = 3;
+
+/** Blank product thresholds use the default; blank variant thresholds inherit. */
+export const normalizeLowStockThreshold = (value, fallback = DEFAULT_LOW_STOCK_THRESHOLD) => {
+  if (typeof value !== 'number' && typeof value !== 'string') return fallback;
+  const text = String(value).trim();
+  if (!/^\d+$/.test(text)) return fallback;
+  const number = Number(text);
+  return Number.isSafeInteger(number) && number >= 0 ? number : fallback;
+};
+
 export const normalizeProductStatus = (product = {}) => {
   const raw = String(product.status || '').trim().toLowerCase();
   if (PRODUCT_STATUSES.has(raw)) return raw;
@@ -113,6 +124,7 @@ export const normalizeProductVariant = (variant = {}, index = 0) => {
     cost: variant.cost ?? '',
     sku: String(variant.sku || '').trim(),
     stockAvailable: variant.stockAvailable ?? '',
+    lowStockThreshold: normalizeLowStockThreshold(variant.lowStockThreshold, ''),
     weight: variant.weight ?? '',
     weightUnit: normalizeWeightUnit(variant.weightUnit),
     ...dims,
@@ -315,6 +327,7 @@ export const normalizeProduct = (product = {}, index = 0) => {
     collections: cleanStringList(product.collections),
     sku: String(product.sku || '').trim(),
     stockAvailable: product.stockAvailable ?? '',
+    lowStockThreshold: normalizeLowStockThreshold(product.lowStockThreshold),
     stockLabel: product.stockLabel || '',
     hideStockOnCard: Boolean(product.hideStockOnCard),
     weight: product.weight ?? '',
@@ -336,6 +349,140 @@ export const normalizeProductList = (products = []) =>
   (Array.isArray(products) ? products : [])
     .map(normalizeProduct)
     .filter((product) => product.name?.trim());
+
+const PRODUCT_INVENTORY_FIELDS = [
+  'sku', 'stockAvailable', 'lowStockThreshold', 'cost', 'weight', 'weightUnit',
+  'length', 'width', 'height', 'dimensionUnit', 'stockLabel', 'hideStockOnCard'
+];
+const VARIANT_INVENTORY_FIELDS = PRODUCT_INVENTORY_FIELDS
+  .filter((field) => !['stockLabel', 'hideStockOnCard'].includes(field))
+  .concat('available');
+const NUMERIC_INVENTORY_FIELDS = new Set(['stockAvailable', 'lowStockThreshold', 'cost', 'weight', 'length', 'width', 'height']);
+const blankInventoryValue = (value) => value == null || (typeof value === 'string' && value.trim() === '');
+const inventoryValuesEqual = (first, second, numeric = false) => {
+  if (blankInventoryValue(first) && blankInventoryValue(second)) return true;
+  if (typeof first === 'boolean' || typeof second === 'boolean') return first === second;
+  const firstText = String(first ?? '').trim();
+  const secondText = String(second ?? '').trim();
+  if (numeric && /^\d+(?:\.\d+)?$/.test(firstText) && /^\d+(?:\.\d+)?$/.test(secondText)) {
+    return Number(firstText) === Number(secondText);
+  }
+  return firstText === secondText;
+};
+
+/** Only edited inventory fields are sent, keeping catalog edits and other variants intact. */
+export function buildInventoryUpdates(draft = {}, original = {}) {
+  const updates = [];
+  const difference = (next, prior, fields, variantId = null) => {
+    const patch = Object.fromEntries(fields
+      .filter((field) => Object.hasOwn(next, field) && !inventoryValuesEqual(next[field], prior[field], NUMERIC_INVENTORY_FIELDS.has(field)))
+      .map((field) => [field, next[field]]));
+    if (!Object.keys(patch).length) return;
+    updates.push({ productId: original.id || draft.id, variantId, patch,
+      ...(Object.hasOwn(patch, 'stockAvailable') ? { expectedStockAvailable: prior.stockAvailable ?? '' } : {}) });
+  };
+  difference(draft, original, PRODUCT_INVENTORY_FIELDS);
+  const originalVariants = new Map((Array.isArray(original.variants) ? original.variants : [])
+    .map((variant) => [variant.id, variant]));
+  for (const variant of Array.isArray(draft.variants) ? draft.variants : []) {
+    const prior = originalVariants.get(variant.id);
+    if (prior) difference(variant, prior, VARIANT_INVENTORY_FIELDS, variant.id);
+  }
+  return updates;
+}
+
+const inventoryNumber = (value, integer = false) => {
+  if (blankInventoryValue(value)) return '';
+  if (typeof value !== 'number' && typeof value !== 'string') return null;
+  const text = String(value).trim();
+  if (!(integer ? /^\d+$/ : /^(?:\d+(?:\.\d*)?|\.\d+)$/).test(text)) return null;
+  const number = Number(text);
+  if (!Number.isFinite(number) || number < 0 || (integer && !Number.isSafeInteger(number))) return null;
+  return number;
+};
+
+/** Validate a complete batch before changing anything; quantities remain available-to-sell values. */
+export function applyProductInventoryUpdates(products = [], updates = []) {
+  const fail = (error) => ({ ok: false, products, error });
+  if (!Array.isArray(products) || !Array.isArray(updates)) return fail('Choose the inventory items to update.');
+  const prepared = [];
+  const seen = new Set();
+  const productById = new Map(products.filter((item) => item && typeof item === 'object').map((item) => [item.id, item]));
+  const variantsByProduct = new Map();
+  for (const update of updates) {
+    if (!update || typeof update !== 'object' || !update.patch || typeof update.patch !== 'object' || Array.isArray(update.patch)) {
+      return fail('Enter the inventory changes to save.');
+    }
+    const product = productById.get(update.productId);
+    if (!product) return fail('This product is no longer available. Refresh your inventory and try again.');
+    const variantId = update.variantId || null;
+    if (variantId && !variantsByProduct.has(product.id)) {
+      variantsByProduct.set(product.id, new Map((Array.isArray(product.variants) ? product.variants : [])
+        .filter((item) => item && typeof item === 'object').map((item) => [item.id, item])));
+    }
+    const source = variantId ? variantsByProduct.get(product.id).get(variantId) : product;
+    if (!source) return fail('This variant is no longer available. Refresh your inventory and try again.');
+    const key = JSON.stringify([product.id, variantId]);
+    if (seen.has(key)) return fail('Each inventory item can only be updated once per batch.');
+    seen.add(key);
+    const allowed = variantId ? VARIANT_INVENTORY_FIELDS : PRODUCT_INVENTORY_FIELDS;
+    const patch = {};
+    for (const [field, value] of Object.entries(update.patch)) {
+      if (!allowed.includes(field)) continue;
+      if (['stockAvailable', 'lowStockThreshold', 'cost', 'weight', 'length', 'width', 'height'].includes(field)) {
+        const parsed = inventoryNumber(value, ['stockAvailable', 'lowStockThreshold'].includes(field));
+        if (parsed == null) {
+          return fail(['stockAvailable', 'lowStockThreshold'].includes(field)
+            ? 'Quantities and low-stock alerts must be whole numbers of zero or more.'
+            : 'Costs, weight and dimensions must be numbers of zero or more.');
+        }
+        patch[field] = field === 'lowStockThreshold' && parsed === '' && !variantId
+          ? DEFAULT_LOW_STOCK_THRESHOLD : parsed;
+      } else if (['available', 'hideStockOnCard'].includes(field)) {
+        if (typeof value !== 'boolean') return fail('Choose whether this item is available to buy.');
+        patch[field] = value;
+      } else if (field === 'weightUnit' || field === 'dimensionUnit') {
+        const permitted = field === 'weightUnit' ? ['g', 'kg'] : ['cm', 'mm', 'in'];
+        if (!permitted.includes(value)) return fail('Choose a supported shipping unit.');
+        patch[field] = value;
+      } else {
+        if (typeof value !== 'string') return fail('Enter a valid SKU or stock label.');
+        patch[field] = value.trim();
+      }
+    }
+    if (!Object.keys(patch).length) continue;
+    if (Object.hasOwn(patch, 'stockAvailable') && Object.hasOwn(update, 'expectedStockAvailable') &&
+      !inventoryValuesEqual(source.stockAvailable, update.expectedStockAvailable, true)) {
+      return fail('This quantity changed while you were editing. Reopen the item to use the latest stock.');
+    }
+    prepared.push({ productId: product.id, variantId, patch,
+      ...(Object.hasOwn(update, 'expectedStockAvailable') ? { expectedStockAvailable: update.expectedStockAvailable } : {}) });
+  }
+  if (!prepared.length) return { ok: true, products, updates: [] };
+  const byProduct = new Map();
+  for (const update of prepared) {
+    if (!byProduct.has(update.productId)) byProduct.set(update.productId, []);
+    byProduct.get(update.productId).push(update);
+  }
+  const merge = (source, patch) => {
+    const next = { ...source, ...patch };
+    if (['length', 'width', 'height', 'dimensionUnit'].some((field) => Object.hasOwn(patch, field))) {
+      // Expand legacy dimensions first, then honour explicitly cleared fields.
+      Object.assign(next, normalizeDimensions({ ...normalizeDimensions(source), ...patch, size: '' }));
+    }
+    return next;
+  };
+  return { ok: true, updates: prepared, products: products.map((product) => {
+    const changes = byProduct.get(product?.id);
+    if (!changes) return product;
+    const mainChange = changes.find((change) => !change.variantId);
+    let next = mainChange ? merge(product, mainChange.patch) : product;
+    const variantChanges = new Map(changes.filter((change) => change.variantId).map((change) => [change.variantId, change.patch]));
+    if (variantChanges.size) next = { ...next, variants: (next.variants || []).map((variant) =>
+      variantChanges.has(variant?.id) ? merge(variant, variantChanges.get(variant.id)) : variant) };
+    return next;
+  }) };
+}
 
 const formatMoney = (amount, currency = 'R') => {
   const priceText = String(amount ?? '').trim();

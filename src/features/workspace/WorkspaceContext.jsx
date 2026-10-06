@@ -56,6 +56,7 @@ export function WorkspaceProvider({ children }) {
   const [saveStatus, setSaveStatus] = useState('ready');
   const [saveError, setSaveError] = useState('');
   const [orderActionError, setOrderActionError] = useState('');
+  const [inventoryActionError, setInventoryActionError] = useState('');
   const [saveRetry, setSaveRetry] = useState(0);
   const cloudHydratedRef = useRef(false);
   const skipNextCloudSaveRef = useRef(false);
@@ -184,12 +185,12 @@ export function WorkspaceProvider({ children }) {
   }, [configured, user?.uid, workspace, saveRetry]);
 
   const api = useMemo(
-    () => createWorkspaceApi({ workspace, setWorkspace, user, onOrderError: setOrderActionError }),
+    () => createWorkspaceApi({ workspace, setWorkspace, user, onOrderError: setOrderActionError, onInventoryError: setInventoryActionError }),
     [workspace, user]
   );
 
   const value = useMemo(() => ({ ...api, saveStatus, saveError, retrySave: () => setSaveRetry((prior) => prior + 1) }), [api, saveStatus, saveError]);
-  return <WorkspaceContext.Provider value={value}>{children}{orderActionError && <div role="alert" className="bb-order-action-error"><span>{orderActionError}</span><button type="button" onClick={() => setOrderActionError('')} aria-label="Dismiss order error">×</button></div>}</WorkspaceContext.Provider>;
+  return <WorkspaceContext.Provider value={value}>{children}{orderActionError && <div role="alert" className="bb-order-action-error"><span>{orderActionError}</span><button type="button" onClick={() => setOrderActionError('')} aria-label="Dismiss order error">×</button></div>}{inventoryActionError && <div role="alert" className="bb-order-action-error"><span>{inventoryActionError}</span><button type="button" onClick={() => setInventoryActionError('')} aria-label="Dismiss inventory error">×</button></div>}</WorkspaceContext.Provider>;
 }
 
 export function useWorkspace() {

@@ -127,6 +127,8 @@ export interface WorkspaceProductVariant {
   compareAtPrice?: string | number;
   sku?: string;
   stockAvailable?: string | number;
+  /** Private warning threshold. Blank inherits the product threshold. */
+  lowStockThreshold?: string | number;
   weight?: string | number;
   weightUnit?: "g" | "kg" | string;
   length?: string | number;
@@ -155,6 +157,8 @@ export interface WorkspaceProduct {
   collections?: string[];
   sku?: string;
   stockAvailable?: string | number;
+  /** Private warning threshold. Defaults to three available units. */
+  lowStockThreshold?: string | number;
   stockLabel?: string;
   hideStockOnCard?: boolean;
   weight?: string | number;

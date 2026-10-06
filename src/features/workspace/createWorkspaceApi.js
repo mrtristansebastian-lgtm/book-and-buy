@@ -1,7 +1,7 @@
 import { createDemoWorkspace, hydrateDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList, collectServiceCategories } from '../../utils/services';
-import { collectProductCategories, normalizeProduct } from '../../utils/products';
+import { applyProductInventoryUpdates, collectProductCategories, normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
 import { saveOwnerWorkspaceToFirestore } from '../../shared/firebase/ownerWorkspace';
 import { firebaseCallables } from '../../shared/firebase/callables';
@@ -13,7 +13,7 @@ import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 import { MODE_KEY, OWNER_KEY, DEMO_KEY, safeParse } from './workspacePersistence';
 import { demoBookingSnapshot, demoOrderCostSnapshot, demoPaymentSnapshot } from './demoFinancialSnapshots';
 
-export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError = () => {} }) {
+export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError = () => {}, onInventoryError = () => {} }) {
     const updateBooking = async (id, patch) => {
       if (!workspace.isDemo) {
         const current = workspace.bookings.find((booking) => booking.id === id);
@@ -109,6 +109,22 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
             )
           };
         });
+      },
+      updateInventory: (updates) => {
+        const validation = applyProductInventoryUpdates(workspace.products || [], updates);
+        if (!validation.ok) return { ok: false, error: validation.error };
+        onInventoryError('');
+        setWorkspace((prev) => {
+          const result = applyProductInventoryUpdates(prev.products || [], validation.updates);
+          if (!result.ok) {
+            // A queued update can race another local edit; preserve newer quantities.
+            queueMicrotask(() => onInventoryError(result.error));
+            return prev;
+          }
+          return result.products === prev.products ? prev : { ...prev, products: result.products };
+        });
+        // This acknowledges a local update request; saveStatus tracks cloud persistence.
+        return { ok: true };
       },
       removeProduct: (id) =>
         setWorkspace((prev) => ({

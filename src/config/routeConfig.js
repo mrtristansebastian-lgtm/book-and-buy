@@ -102,7 +102,7 @@ export const workspaceTabLabels = {
   availability: 'Availability',
   products: 'Products',
   orders: 'Orders',
-  stock: 'Stock',
+  stock: 'Inventory',
   website: 'Business profile',
   'website-book': 'Book page',
   'website-buy': 'Buy page',
