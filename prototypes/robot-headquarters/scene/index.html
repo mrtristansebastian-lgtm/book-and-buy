@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f4f3ef" />
+  <title>Book & Buy — HQ</title>
+  <link rel="preload" href="assets/ask_agent.glb" as="fetch" crossorigin fetchpriority="high">
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <main class="hq-shell" aria-label="Book & Buy HQ">
+    <div id="threeScene" class="three-scene" aria-label="Interactive 3D Book & Buy headquarters"></div>
+    <div class="scene-sheen" aria-hidden="true"></div>
+
+    <div class="scene-loader" id="sceneLoader">
+      <div class="loader-mark">B</div>
+      <strong>Opening Book & Buy HQ</strong>
+      <span>Preparing your business space…</span>
+    </div>
+    <div class="scene-error hidden" id="sceneError">
+      <strong>3D office couldn't start.</strong>
+      <span>You can still open every page using the department buttons.</span>
+    </div>
+    <div class="scene-labels" id="sceneLabels" aria-hidden="true"></div>
+
+    <div class="brand-chip" aria-label="Book and Buy">
+      <span class="brand-symbol">B</span>
+      <span><b>Book & Buy</b><small>HQ</small></span>
+    </div>
+
+    <div class="home-hint" id="homeHint">
+      <span class="hint-pointer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l12 9-5.5 1.3L10 19 6 3Z"/></svg>
+      </span>
+      <div><strong>Choose a Buddy</strong><span>Click a department to get started</span></div>
+    </div>
+
+    <div class="dialog-backdrop hidden" id="dialogBackdrop" aria-hidden="true"></div>
+
+    <section class="agent-dialog hidden" id="agentDialog" role="dialog" aria-modal="true" aria-labelledby="dialogCategory" aria-describedby="dialogRole" tabindex="-1">
+      <button class="dialog-close" id="dialogClose" aria-label="Back to office">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="dialog-agent-row">
+        <span class="dialog-agent-icon" id="dialogIcon"></span>
+        <div>
+          <div class="dialog-category" id="dialogCategory">Book</div>
+          <div class="dialog-role" id="dialogRole">Bookings & services</div>
+        </div>
+      </div>
+      <h2 id="dialogQuestion">What would you like to work on?</h2>
+      <div class="dialog-options" id="dialogOptions"></div>
+      <div class="dialog-footer"><span class="live-dot"></span> Your Buddy is ready</div>
+    </section>
+
+    <div class="toast hidden" id="toast"></div>
+  </main>
+  <script>
+    // This also reports a module/download failure before the scene code can run.
+    window.addEventListener('error', function () {
+      if (window.parent !== window) window.parent.postMessage({ type: 'bookbuy:hq-status', status: 'error' }, location.origin);
+    });
+    window.addEventListener('unhandledrejection', function () {
+      if (window.parent !== window) window.parent.postMessage({ type: 'bookbuy:hq-status', status: 'error' }, location.origin);
+    });
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

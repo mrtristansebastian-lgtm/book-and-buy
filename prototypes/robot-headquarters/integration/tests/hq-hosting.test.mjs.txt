@@ -1,0 +1,109 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const { hosting } = JSON.parse(readFileSync(new URL('../firebase.json', import.meta.url), 'utf8'));
+
+// Hosting matches the original request path before its SPA rewrite. Keep all
+// matching values so duplicate CSP/XFO headers cannot pass as an override.
+function effectiveHeaders(path) {
+  const headers = new Map();
+  for (const rule of hosting.headers) {
+    const matches = rule.regex ? new RegExp(rule.regex).test(path) : rule.source === '**';
+    assert.ok(rule.regex || rule.source === '**', 'Update the matcher if a new Hosting glob is introduced');
+    if (!matches) continue;
+    for (const { key, value } of rule.headers) {
+      const name = key.toLowerCase();
+      headers.set(name, [...(headers.get(name) || []), value]);
+    }
+  }
+  return headers;
+}
+
+function singleHeader(headers, name) {
+  const values = headers.get(name.toLowerCase());
+  assert.equal(values?.length, 1, `${name} must have exactly one effective value`);
+  return values[0];
+}
+
+function directives(headers) {
+  const policy = singleHeader(headers, 'Content-Security-Policy');
+  return new Map(policy.split(';').map(value => value.trim()).filter(Boolean).map(value => {
+    const [name, ...sources] = value.split(/\s+/);
+    return [name, sources];
+  }));
+}
+
+const applicationPaths = [
+  '/', '/index.html', '/dashboard', '/dashboard/overview', '/demo/overview',
+  '/w/flameandflour', '/app/find', '/assets/index.js', '/assets/index.css',
+  '/h', '/hq', '/home', '/hello', '/hr/a', '/hq-other/index.html',
+  '/hqq/index.html', '/hqx', '/hqx/a', '/HQ/index.html', '/other/hq/index.html'
+];
+const headquartersPaths = [
+  '/hq/', '/hq/index.html', '/hq/app.js', '/hq/styles.css',
+  '/hq/assets/ask_agent.glb', '/hq/vendor/three.module.js',
+  '/hq/vendor/addons/loaders/GLTFLoader.js'
+];
+
+test('the app can embed its own HQ, while app documents still reject framing', () => {
+  for (const path of applicationPaths) {
+    const headers = effectiveHeaders(path);
+    const policy = directives(headers);
+    assert.deepEqual(policy.get('frame-ancestors'), ["'none'"], path);
+    assert.equal(singleHeader(headers, 'X-Frame-Options'), 'DENY', path);
+    assert.ok(policy.get('frame-src').includes("'self'"), `${path} must allow the HQ child frame`);
+    assert.ok(!policy.get('frame-src').some(value => value === '*' || value === 'https:'), `${path} must not allow arbitrary frames`);
+  }
+});
+
+test('only the reserved HQ namespace permits same-origin embedding', () => {
+  for (const path of headquartersPaths) {
+    const headers = effectiveHeaders(path);
+    assert.deepEqual(directives(headers).get('frame-ancestors'), ["'self'"], path);
+    assert.equal(singleHeader(headers, 'X-Frame-Options'), 'SAMEORIGIN', path);
+  }
+});
+
+test('security policy rules partition root paths without duplicate effective CSP or XFO', () => {
+  // Similar root names must not accidentally inherit the HQ exception.
+  const names = ['', 'h', 'hq', 'hqx', 'hq-other', 'home', 'other', 'HQ', '🔎'];
+  const paths = new Set([...applicationPaths, ...headquartersPaths]);
+  for (const name of names) for (const suffix of ['', '/', '/index.html', '/nested/hq/index.html']) {
+    paths.add(`/${name}${suffix}`);
+  }
+  for (const path of paths) {
+    const headers = effectiveHeaders(path);
+    singleHeader(headers, 'Content-Security-Policy');
+    assert.equal(singleHeader(headers, 'X-Frame-Options'), path.startsWith('/hq/') ? 'SAMEORIGIN' : 'DENY', path);
+  }
+  for (const rule of hosting.headers.filter(rule => rule.regex)) {
+    assert.ok(rule.regex.startsWith('^') && rule.regex.endsWith('$'), 'Path policies must be anchored');
+    assert.ok(!/\(\?[=!]|\\[1-9]/.test(rule.regex), 'Hosting RE2 does not support lookaround or backreferences');
+  }
+});
+
+test('all routes retain the common browser protections and existing resource policy', () => {
+  const expectedResourcePolicy = {
+    'default-src': ["'self'"],
+    'script-src': ["'self'", "'unsafe-inline'", 'https://www.gstatic.com', 'https://maps.gstatic.com', 'https://www.google.com', 'https://maps.googleapis.com', 'https://www.recaptcha.net', 'https://apis.google.com', 'https://accounts.google.com'],
+    'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+    'img-src': ["'self'", 'data:', 'blob:', 'https:'],
+    'media-src': ["'self'", 'blob:', 'https://firebasestorage.googleapis.com'],
+    'font-src': ["'self'", 'data:', 'https://fonts.gstatic.com'],
+    'connect-src': ["'self'", 'https://ipwho.is', 'https://*.googleapis.com', 'https://*.firebaseio.com', 'https://*.firebasedatabase.app', 'https://*.cloudfunctions.net', 'https://*.firebaseapp.com', 'https://*.google.com', 'https://*.gstatic.com', 'https://accounts.google.com'],
+    'object-src': ["'none'"],
+    'base-uri': ["'self'"],
+    'form-action': ["'self'", 'https://accounts.google.com'],
+    'upgrade-insecure-requests': []
+  };
+  for (const path of [...applicationPaths, ...headquartersPaths]) {
+    const headers = effectiveHeaders(path);
+    assert.equal(singleHeader(headers, 'X-Content-Type-Options'), 'nosniff', path);
+    assert.equal(singleHeader(headers, 'Referrer-Policy'), 'strict-origin-when-cross-origin', path);
+    assert.equal(singleHeader(headers, 'Permissions-Policy'), 'camera=(), microphone=(self), geolocation=(self), payment=(self)', path);
+    const policy = directives(headers);
+    for (const [name, sources] of Object.entries(expectedResourcePolicy)) assert.deepEqual(policy.get(name), sources, `${path}: ${name}`);
+    assert.deepEqual(policy.get('frame-src'), ["'self'", 'https://www.google.com', 'https://www.recaptcha.net', 'https://accounts.google.com', 'https://apis.google.com', 'https://*.firebaseapp.com'], path);
+  }
+});

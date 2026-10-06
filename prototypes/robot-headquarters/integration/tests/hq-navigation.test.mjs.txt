@@ -1,0 +1,373 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import React from 'react';
+import ts from 'typescript';
+
+// The application uses extensionless imports. Load its real modules with the
+// same JSX/module transform used by the other routing integration tests.
+const require = createRequire(import.meta.url);
+const modules = new Map();
+function load(path) {
+  const file = new URL(path, import.meta.url);
+  if (modules.has(file.href)) return modules.get(file.href);
+  const { outputText } = ts.transpileModule(readFileSync(file, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
+  });
+  const module = { exports: {} };
+  modules.set(file.href, module.exports);
+  new Function('module', 'exports', 'require', outputText)(module, module.exports, id => {
+    if (!id.startsWith('.')) return require(id);
+    const base = new URL(id, file);
+    const target = [base, ...['.js', '.jsx', '.ts'].map(extension => new URL(base.href + extension))].find(existsSync);
+    if (!target) throw new Error(`Cannot resolve ${id} from ${file.pathname}`);
+    return load(target.href);
+  });
+  return module.exports;
+}
+
+function mockLoader(mocks) {
+  const cache = new Map();
+  return function mockedLoad(path) {
+    const file = new URL(path, import.meta.url);
+    if (cache.has(file.href)) return cache.get(file.href);
+    const { outputText } = ts.transpileModule(readFileSync(file, 'utf8'), {
+      compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
+    });
+    const module = { exports: {} };
+    cache.set(file.href, module.exports);
+    new Function('module', 'exports', 'require', outputText)(module, module.exports, id => {
+      if (Object.hasOwn(mocks, id)) return mocks[id];
+      if (id.endsWith('.css')) return {};
+      if (!id.startsWith('.')) return require(id);
+      const base = new URL(id, file);
+      const target = [base, ...['.js', '.jsx', '.ts'].map(extension => new URL(base.href + extension))].find(existsSync);
+      return mockedLoad(target.href);
+    });
+    return module.exports;
+  };
+}
+function elements(tree, found = []) {
+  if (Array.isArray(tree)) tree.forEach(child => elements(child, found));
+  else if (React.isValidElement(tree)) { found.push(tree); elements(tree.props.children, found); }
+  return found;
+}
+
+const { HQ_DEPARTMENTS, HQ_FEATURE_IDS, hqConfiguration, hqDepartmentForTab, readHqMessage } = load('../src/config/hqNavigation.js');
+const { workspaceTabIds, workspaceTabLabels } = load('../src/config/routeConfig.js');
+const { parseAppRoute, workspacePagePath } = load('../src/app/routing.js');
+const { appForTab } = load('../src/config/appLauncher.js');
+const frameWindow = {};
+const origin = 'https://build-a-booking-ai.web.app';
+const eventFor = data => ({ source: frameWindow, origin, data });
+const readMessage = data => readHqMessage(eventFor(data), frameWindow, origin);
+
+test('every existing workspace page has exactly one robot department, including the preserved business overview', () => {
+  const features = HQ_DEPARTMENTS.flatMap(group => group.features);
+  assert.equal(new Set(HQ_DEPARTMENTS.map(group => group.id)).size, HQ_DEPARTMENTS.length);
+  assert.equal(new Set(features.map(feature => feature.id)).size, features.length, 'A page cannot be duplicated across departments');
+  assert.deepEqual([...HQ_FEATURE_IDS].sort(), workspaceTabIds.filter(id => id !== 'overview').sort(), 'Replacing Home must not strand any existing workspace page');
+  assert.ok(HQ_FEATURE_IDS.has('business-overview'), 'The previous business dashboard remains available');
+  assert.equal(HQ_FEATURE_IDS.has('overview'), false, 'The robot home itself is not recursively listed as a department page');
+  for (const feature of features) {
+    assert.equal(feature.label, workspaceTabLabels[feature.id]);
+    assert.ok(feature.label.trim());
+    assert.ok(hqDepartmentForTab(feature.id)?.features.includes(feature));
+  }
+  assert.equal(hqDepartmentForTab('not-a-page'), undefined);
+});
+
+test('robots group the current booking, shop, reporting and business tools under the right departments', () => {
+  const tabs = id => HQ_DEPARTMENTS.find(group => group.id === id).features.map(feature => feature.id);
+  assert.deepEqual(tabs('plan'), ['services', 'requests', 'staff', 'availability']);
+  assert.deepEqual(tabs('ask'), ['products', 'orders', 'stock']);
+  assert.deepEqual(tabs('research'), ['communications']);
+  assert.deepEqual(tabs('manage'), ['business-overview', 'live-stats', 'analytics', 'finance-reports']);
+  assert.deepEqual(tabs('execute'), ['finance', 'clients', 'settings']);
+  assert.deepEqual(tabs('ebusiness'), ['website', 'website-book', 'website-buy', 'website-checkout']);
+});
+
+test('robot configuration shares navigation metadata and live badge counts without private workspace records', () => {
+  const counts = new Map([['requests', 3], ['orders', 2], ['communications', 11], ['services', -4], ['staff', NaN]]);
+  const snapshot = JSON.stringify(HQ_DEPARTMENTS);
+  const calls = [];
+  const configuration = hqConfiguration(id => { calls.push(id); return counts.get(id); });
+  assert.deepEqual(calls.sort(), [...HQ_FEATURE_IDS].sort());
+  assert.equal(configuration.find(group => group.id === 'plan').badge, 3);
+  assert.equal(configuration.find(group => group.id === 'ask').badge, 2);
+  assert.equal(configuration.find(group => group.id === 'research').badge, 11);
+  for (const group of configuration) {
+    assert.deepEqual(Object.keys(group).sort(), ['badge', 'colour', 'features', 'id', 'name', 'role']);
+    for (const feature of group.features) {
+      assert.deepEqual(Object.keys(feature).sort(), ['badge', 'id', 'label']);
+      assert.ok(Number.isFinite(feature.badge) && feature.badge >= 0);
+    }
+    assert.equal(group.badge, group.features.reduce((sum, feature) => sum + feature.badge, 0));
+  }
+  assert.equal(JSON.stringify(HQ_DEPARTMENTS), snapshot, 'Live counts cannot mutate the shared base navigation');
+  assert.ok(hqConfiguration().every(group => group.badge === 0));
+});
+
+test('all robot destinations retain owner and demo routes and nested report, catalog and settings pages', () => {
+  for (const prefix of ['/dashboard', '/demo', '/demo/dashboard']) {
+    for (const tab of workspaceTabIds) {
+      const route = parseAppRoute(`${prefix}/${tab}?period=week`);
+      assert.equal(route.kind, 'owner');
+      assert.equal(route.tab, tab);
+      assert.equal(Boolean(route.demo), prefix !== '/dashboard');
+      assert.deepEqual(route.rest, []);
+    }
+    for (const [tab, rest] of [['services', 'service-123'], ['products', 'product-123'], ['finance-reports', 'revenue'], ['analytics', 'product_views'], ['settings', 'general']]) {
+      const route = parseAppRoute(`${prefix}/${tab}/${rest}?period=custom&from=2026-10-01&to=2026-10-05`);
+      assert.equal(route.tab, tab);
+      assert.deepEqual(route.rest, [rest]);
+    }
+    for (const [alias, tab] of [['schedule', 'staff'], ['booking-requests', 'requests'], ['receipts', 'finance'], ['invoices', 'finance'], ['financial-reports', 'finance-reports'], ['traffic-reports', 'analytics']]) {
+      assert.equal(parseAppRoute(`${prefix}/${alias}`).tab, tab, `Saved ${alias} links retain their destination`);
+    }
+  }
+});
+
+test('a robot navigation keeps guests in demo and owners in dashboard', () => {
+  const previousWindow = globalThis.window;
+  try {
+    for (const [hash, prefix] of [['#/demo/overview', '/demo'], ['#/demo/dashboard/overview', '/demo'], ['#/dashboard/overview', '/dashboard']]) {
+      globalThis.window = { location: { hash, pathname: '/' } };
+      for (const tab of HQ_FEATURE_IDS) assert.equal(workspacePagePath(tab), `${prefix}/${tab}`);
+      assert.equal(workspacePagePath(), `${prefix}/overview`, 'Back to HQ stays in the same workspace');
+    }
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  }
+});
+
+test('only the mounted headquarters frame from this exact origin can request an action', () => {
+  const event = eventFor({ type: 'bookbuy:hq-navigate', tab: 'products' });
+  assert.deepEqual(readHqMessage(event, frameWindow, origin), { type: 'navigate', tab: 'products' });
+  for (const source of [null, undefined, {}, { location: origin }]) {
+    assert.equal(readHqMessage({ ...event, source }, frameWindow, origin), null);
+  }
+  for (const otherOrigin of [undefined, '', 'null', 'http://build-a-booking-ai.web.app', 'https://build-a-booking-ai.web.app.evil.test', 'https://build-a-booking-ai.web.app:443', 'http://127.0.0.1:5174']) {
+    assert.equal(readHqMessage({ ...event, origin: otherOrigin }, frameWindow, origin), null);
+  }
+  assert.equal(readHqMessage(event, null, origin), null, 'A detached frame cannot navigate');
+});
+
+test('headquarters accepts canonical known page identifiers and strips all other payload fields', () => {
+  for (const tab of HQ_FEATURE_IDS) {
+    assert.deepEqual(readMessage({ type: 'bookbuy:hq-navigate', tab, url: 'https://evil.test', token: 'private', workspace: { clients: [] } }), { type: 'navigate', tab });
+  }
+  for (const tab of ['overview', 'schedule', 'unknown', '../settings', '/dashboard/settings', '#/demo/products', 'https://evil.test', 'javascript:alert(1)', 'settings/general', 'products?anything=1', 'constructor', '__proto__', '', null, undefined, 1, ['products'], { id: 'products' }]) {
+    assert.equal(readMessage({ type: 'bookbuy:hq-navigate', tab }), null);
+  }
+});
+
+test('headquarters handshake and department events are narrowly allowed', () => {
+  assert.deepEqual(readMessage({ type: 'bookbuy:hq-ready' }), { type: 'configure' });
+  assert.deepEqual(readMessage({ type: 'bookbuy:hq-closed' }), { type: 'closed' });
+  for (const status of ['ready', 'error']) assert.deepEqual(readMessage({ type: 'bookbuy:hq-status', status }), { type: 'status', status });
+  for (const group of HQ_DEPARTMENTS) assert.deepEqual(readMessage({ type: 'bookbuy:hq-opened', id: group.id }), { type: 'opened', id: group.id });
+  for (const data of [null, undefined, false, 4, 'bookbuy:hq-ready', [], {}, { type: 'navigate', tab: 'products' }, { type: 'bookbuy:hq-opened', id: 'not-a-department' }, { type: 'bookbuy:hq-status', status: 'loading' }, { type: 'bookbuy:hq-error' }]) {
+    assert.equal(readMessage(data), null);
+  }
+});
+
+test('the real HQ component updates badges, protects navigation, opens departments and falls back to every page', () => {
+  const previousWindow = globalThis.window;
+  const listeners = new Map(), sent = [], navigation = [];
+  let cursor = 0, pending = 3, unread = 2;
+  const state = [], refs = [], effects = [];
+  const hooks = { ...React,
+    useState(initial) {
+      const index = cursor++;
+      if (!(index in state)) state[index] = typeof initial === 'function' ? initial() : initial;
+      return [state[index], next => { state[index] = typeof next === 'function' ? next(state[index]) : next; }];
+    },
+    useRef(initial) { const index = cursor++; return refs[index] ||= { current: initial }; },
+    useMemo: factory => factory(),
+    useEffect: callback => effects.push(callback)
+  };
+  const frame = { postMessage: (payload, destination) => sent.push({ payload, destination }) };
+  const badges = () => ({ pendingRequests: pending, pendingOrders: 0, unreadSupport: unread,
+    badgeFor: id => id === 'requests' ? pending : id === 'communications' ? unread : 0 });
+  globalThis.window = {
+    location: { hash: '#/demo/overview', pathname: '/', origin },
+    addEventListener: (name, listener) => listeners.set(name, listener),
+    removeEventListener: (name, listener) => { if (listeners.get(name) === listener) listeners.delete(name); },
+    setTimeout: () => 1, clearTimeout() {},
+    matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} })
+  };
+  let cleanups = [];
+  try {
+    const loadComponent = mockLoader({
+      react: hooks,
+      '../../../app/routing': { workspacePagePath, navigate: path => navigation.push(path) },
+      '../../workspace/WorkspaceContext': { useWorkspace: () => ({ workspace: { brandName: 'Demo shop', isDemo: true, ownerUid: 'private-owner', clients: [{ email: 'private@example.test' }] } }) },
+      '../hooks/useWorkspaceBadges': { useWorkspaceBadges: badges },
+      '../../../shared/ui/DemoModePanel': { DemoModePanel: () => null },
+      '../../../shared/ui/useDialogFocus': { useDialogFocus() {} }
+    });
+    const { HeadquartersPage } = loadComponent('../src/features/dashboard/pages/HeadquartersPage.jsx');
+    const render = () => {
+      cleanups.forEach(cleanup => cleanup?.());
+      cursor = 0; effects.length = 0;
+      const nodes = elements(HeadquartersPage());
+      const iframe = nodes.find(node => node.type === 'iframe');
+      if (iframe) iframe.ref.current = { contentWindow: frame };
+      cleanups = effects.map(effect => effect());
+      return nodes;
+    };
+    let nodes = render();
+    assert.equal(nodes.find(node => node.type === 'iframe').props.src, '/hq/index.html');
+    const config = sent.at(-1);
+    assert.equal(config.destination, origin);
+    assert.equal(config.payload.type, 'bookbuy:hq-config');
+    assert.equal(config.payload.departments.find(group => group.id === 'plan').badge, 3);
+    assert.doesNotMatch(JSON.stringify(config.payload), /private-owner|private@example|ownerUid|"clients":/);
+    const receive = data => listeners.get('message')({ source: frame, origin, data });
+    listeners.get('message')({ source: {}, origin, data: { type: 'bookbuy:hq-navigate', tab: 'products' } });
+    listeners.get('message')({ source: frame, origin: 'https://evil.test', data: { type: 'bookbuy:hq-navigate', tab: 'products' } });
+    receive({ type: 'bookbuy:hq-navigate', tab: '/dashboard/products' });
+    assert.deepEqual(navigation, []);
+    receive({ type: 'bookbuy:hq-navigate', tab: 'products' });
+    assert.deepEqual(navigation, ['/demo/products']);
+    receive({ type: 'bookbuy:hq-status', status: 'ready' });
+    nodes = render();
+    let focused = 0;
+    nodes.find(node => node.type === 'button' && node.props['aria-label'].startsWith('Open Book')).props.onClick({ currentTarget: { focus: () => focused++ } });
+    assert.deepEqual(sent.at(-1), { payload: { type: 'bookbuy:hq-open', id: 'plan' }, destination: origin });
+    receive({ type: 'bookbuy:hq-opened', id: 'plan' });
+    nodes = render();
+    assert.match(nodes[0].props.className, /is-interacting/);
+    assert.equal(nodes.find(node => node.props.className === 'bb-hq-workspace').props.inert, '');
+    receive({ type: 'bookbuy:hq-closed' });
+    assert.equal(focused, 1, 'Closing a department restores focus to its launcher');
+    nodes = render();
+    assert.doesNotMatch(nodes[0].props.className, /is-interacting/);
+    pending = 1; unread = 7;
+    render();
+    assert.equal(sent.at(-1).payload.departments.find(group => group.id === 'plan').badge, 1);
+    assert.equal(sent.at(-1).payload.departments.find(group => group.id === 'research').badge, 7);
+    receive({ type: 'bookbuy:hq-opened', id: 'plan' });
+    nodes = render();
+    const firstFrameKey = nodes.find(node => node.type === 'iframe').key;
+    assert.match(nodes[0].props.className, /is-interacting/);
+    receive({ type: 'bookbuy:hq-status', status: 'error' });
+    nodes = render();
+    assert.equal(nodes.some(node => node.type === 'iframe'), false);
+    assert.doesNotMatch(nodes[0].props.className, /is-interacting/, 'Losing the 3D context while a department is open releases the interaction lock');
+    assert.equal(nodes.find(node => node.props.className === 'bb-hq-workspace').props.inert, undefined, 'Fallback controls remain usable after an open department fails');
+    assert.deepEqual(nodes.filter(node => node.type === 'a').map(node => node.props.href).sort(), [...HQ_FEATURE_IDS].map(tab => `#/demo/${tab}`).sort(), 'A device without 3D can still reach every page');
+    globalThis.window.location.hash = '#/dashboard/overview';
+    nodes = render();
+    assert.ok(nodes.filter(node => node.type === 'a').every(node => node.props.href.startsWith('#/dashboard/')));
+    nodes.find(node => node.type === 'button' && node.props['aria-label'] === 'Headquarters options').props.onClick();
+    nodes = render();
+    assert.ok(nodes.some(node => node.props.role === 'dialog'));
+    nodes.find(node => node.type === 'button' && Array.isArray(node.props.children) && node.props.children.includes('Open 3D office')).props.onClick();
+    nodes = render();
+    assert.notEqual(nodes.find(node => node.type === 'iframe').key, firstFrameKey, 'Retry creates a fresh 3D office');
+    assert.doesNotMatch(nodes[0].props.className, /is-interacting|is-list/);
+    assert.equal(nodes.some(node => node.props.role === 'dialog'), false, 'Retry closes any headquarters options overlay');
+    assert.equal(nodes.find(node => node.props.className === 'bb-hq-workspace').props.inert, undefined);
+    assert.equal(nodes.find(node => node.props['aria-label'] === 'Choose a Buddy').props.inert, undefined, 'Retry restores all department launchers');
+    receive({ type: 'bookbuy:hq-status', status: 'ready' });
+    nodes = render();
+    nodes.find(node => node.type === 'button' && node.props['aria-label'].startsWith('Open Book')).props.onClick({ currentTarget: { focus() {} } });
+    assert.deepEqual(sent.at(-1), { payload: { type: 'bookbuy:hq-open', id: 'plan' }, destination: origin }, 'A recovered office can open its departments again');
+  } finally {
+    cleanups.forEach(cleanup => cleanup?.());
+    assert.equal(listeners.has('message'), false, 'Unmounting HQ removes its navigation listener');
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  }
+});
+
+test('only Home uses the robot shell; existing tool layouts, app tabs, sidebar and inbox dock remain unchanged', () => {
+  const previousWindow = globalThis.window;
+  const navigation = [], TabBar = () => null, AppsNav = () => null, Brand = () => null;
+  let menuOpen = false;
+  const hooks = { ...React, useState: () => [menuOpen, value => { menuOpen = typeof value === 'function' ? value(menuOpen) : value; }], useRef: () => ({ current: null }), useEffect() {} };
+  globalThis.window = { location: { hash: '#/demo/overview', pathname: '/' } };
+  try {
+    const { OwnerWorkspaceShell } = mockLoader({
+      react: hooks,
+      '../../../app/routing': { workspacePagePath, navigate: path => navigation.push(path) },
+      './MiniAppBar': { MiniAppBar: TabBar },
+      './OwnerAppsNav': { OwnerAppsNav: AppsNav },
+      '../../../shared/ui/BrandMark': { BrandMark: Brand },
+      '../hooks/useWorkspaceBadges': { useWorkspaceBadges: () => ({ unreadSupport: 7 }) },
+      '../../../shared/ui/useDialogFocus': { useDialogFocus() {} }
+    })('../src/features/dashboard/components/OwnerWorkspaceShell.jsx');
+    const home = elements(OwnerWorkspaceShell({ tab: 'overview', children: 'Home' }));
+    assert.match(home[0].props.className, /bb-hq-shell/);
+    assert.equal(home.some(node => node.type === TabBar || node.type === AppsNav || node.type === 'aside' || node.props.className === 'bb-owner-dock'), false);
+    assert.equal(home.find(node => node.type === 'main').props.children, 'Home');
+    for (const tab of HQ_FEATURE_IDS) {
+      menuOpen = false;
+      const nodes = elements(OwnerWorkspaceShell({ tab, children: 'Page' }));
+      const tabs = nodes.find(node => node.type === TabBar);
+      assert.equal(tabs.props.tab, tab);
+      assert.deepEqual(tabs.props.app, appForTab(tab), 'Existing tools retain their original launcher groups and tabs');
+      assert.equal(nodes.find(node => node.type === 'aside').props.className, 'bb-owner-side');
+      assert.equal(nodes.find(node => node.type === 'aside').props['aria-label'], 'Apps');
+      assert.ok(nodes.some(node => node.type === AppsNav));
+      assert.doesNotMatch(nodes[0].props.className, /bb-hq-shell|is-headquarters/);
+      assert.equal(nodes.some(node => node.props.className === 'bb-hq-tool-nav' || node.props.className === 'bb-hq-home'), false, 'No new Home toolbar is inserted into existing pages');
+      const main = nodes.find(node => node.type === 'main');
+      assert.equal(main.props.children, 'Page');
+      assert.equal(main.key, tab);
+      assert.equal(main.props.className, `bb-owner-main ${tab === 'communications' ? 'is-flush' : ''} bb-miniapp-enter`);
+      const dock = nodes.find(node => node.props.className === 'bb-owner-dock');
+      if (tab === 'communications') {
+        assert.ok(dock, 'The original Inbox Home/Messages/Menu dock remains available');
+        assert.match(nodes[0].props.className, /is-support-flush/);
+        assert.equal(nodes.find(node => node.props.className === 'bb-owner-dock-badge').props.children, 7);
+        nodes.find(node => node.type === 'button' && node.props['aria-label'] === 'Home').props.onClick();
+        assert.equal(navigation.at(-1), '/demo/overview', 'The original dock Home action now returns to robot HQ');
+        nodes.find(node => node.type === 'button' && node.props['aria-label'] === 'Menu').props.onClick();
+        const expanded = elements(OwnerWorkspaceShell({ tab, children: 'Page' }));
+        const menu = expanded.find(node => node.props.id === 'bb-owner-menu');
+        assert.equal(menu.props['aria-hidden'], false);
+        assert.equal(menu.props.inert, undefined);
+        expanded.find(node => node.type === Brand).props.onClick();
+        assert.equal(navigation.at(-1), '/demo/overview');
+        assert.equal(menuOpen, false, 'Original menu Home closes the menu');
+      } else {
+        assert.equal(dock, undefined, 'Existing tools keep their original collapsed dock');
+        assert.match(nodes[0].props.className, /is-dock-hidden/);
+      }
+    }
+    globalThis.window.location.hash = '#/dashboard/communications';
+    elements(OwnerWorkspaceShell({ tab: 'communications', children: 'Inbox' })).find(node => node.type === 'button' && node.props['aria-label'] === 'Home').props.onClick();
+    assert.equal(navigation.at(-1), '/dashboard/overview', 'Owner Home returns to the same authenticated workspace HQ');
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  }
+});
+
+test('HQ is the home route while every existing tool, nested detail and business overview still renders', () => {
+  const appSource = readFileSync(new URL('../src/features/dashboard/OwnerWorkspaceApp.jsx', import.meta.url), 'utf8');
+  const mocks = {}, components = {};
+  for (const [, name, path] of appSource.matchAll(/import\s*\{\s*(\w+)\s*\}\s*from\s*['"]([^'"]+)['"]/g)) {
+    components[name] = () => null;
+    mocks[path] = { [name]: components[name] };
+  }
+  const { OwnerWorkspaceApp } = mockLoader(mocks)('../src/features/dashboard/OwnerWorkspaceApp.jsx');
+  const render = (tab, rest = []) => OwnerWorkspaceApp({ tab, rest });
+  assert.equal(render('overview').props.children.type, components.HeadquartersPage);
+  assert.equal(render('business-overview').props.children.type, components.OverviewPage);
+  for (const tab of workspaceTabIds) {
+    const page = render(tab);
+    assert.equal(page.type, components.OwnerWorkspaceShell);
+    assert.equal(page.props.tab, tab);
+    assert.ok(React.isValidElement(page.props.children), `The ${tab} page must still render`);
+  }
+  for (const tab of ['services', 'products', 'stock', 'analytics', 'finance-reports']) {
+    assert.deepEqual(render(tab, ['detail-id']).props.children.props.routeRest, ['detail-id']);
+  }
+  assert.equal(render('settings', ['account']).props.children.props.section, 'account');
+});
