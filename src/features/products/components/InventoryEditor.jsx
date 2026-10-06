@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '../../../shared/ui/Button';
 import { useDetailDialog } from '../../../shared/ui/useDetailDialog';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -339,8 +339,8 @@ export function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) 
               Close
             </Button>
             {onEdit ? (
-              <Button action="edit" variant="secondary" type="button" className="bb-primary-btn" onClick={() => onEdit(product)}>
-                Edit stock
+              <Button action="adjust" icon={SlidersHorizontal} variant="secondary" type="button" className="bb-primary-btn" onClick={() => onEdit(product)}>
+                Adjust stock
               </Button>
             ) : null}
           </div>
@@ -353,7 +353,7 @@ export function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) 
 
 export function StockEditSheet({ product, initialVariantId, onClose, onSave, variant = 'sheet' }) {
   const [draft, setDraft] = useState(product);
-  const [activeVariantId, setActiveVariantId] = useState('product');
+  const [activeVariantId, setActiveVariantId] = useState(() => initialVariantId === 'product' || product?.variants?.some(item => item.id === initialVariantId) ? initialVariantId : product?.variants?.[0]?.id || 'product');
   const [error, setError] = useState('');
   const originalRef = useRef(product);
   const dialogRef = useDetailDialog(Boolean(product), onClose, false);
@@ -401,7 +401,7 @@ export function StockEditSheet({ product, initialVariantId, onClose, onSave, var
           <div>
             <p className="bb-services-sheet-eyebrow">Inventory</p>
             <h2 id="stock-edit-title" className="bb-services-sheet-title">
-              Edit stock
+              Adjust stock
             </h2>
             <p className="bb-services-sheet-lede">{draft.name}</p>
           </div>
@@ -412,7 +412,7 @@ export function StockEditSheet({ product, initialVariantId, onClose, onSave, var
         <div className="bb-services-sheet-body">
           {hasVariants ? (
             <div className="bb-stock-edit-layout">
-              <nav className="bb-stock-variant-nav" aria-label="Choose inventory to edit">
+              <nav className="bb-stock-variant-nav" aria-label="Choose stock to adjust">
                 <p className="bb-stock-section-label">{draft.variants.length} variants</p>
                 <label className="bb-stock-variant-picker"><span>Choose a variant</span><select className="native-control-input" value={activeVariantId} onChange={event => setActiveVariantId(event.target.value)}>{draft.variants.map(item => <option key={item.id} value={item.id}>{item.title || Object.values(item.optionValues || {}).join(' / ') || 'Variant'}{item.sku ? ` · ${item.sku}` : ''}</option>)}<option value="product">Product defaults</option></select></label>
               </nav>
@@ -427,14 +427,14 @@ export function StockEditSheet({ product, initialVariantId, onClose, onSave, var
         </div>
         <footer className="bb-services-sheet-footer">
           <span className={`bb-products-side-note${error ? ' is-error' : ''}`} role={error ? 'alert' : undefined}>
-            {error || 'Update only the inventory details you change.'}
+            {error || 'Save your stock updates when you’re ready.'}
           </span>
           <div className="bb-services-sheet-footer-actions">
             <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Cancel
             </Button>
             <Button action="save" variant="primary" type="button" className="bb-primary-btn" onClick={save}>
-              Apply changes
+              Save changes
             </Button>
           </div>
         </footer>
