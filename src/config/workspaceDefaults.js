@@ -1,6 +1,6 @@
 export const DEFAULT_HOME_SECTION_ORDER = [
-  'offerIntro',
   'about',
+  'offerIntro',
   'gallery',
   'reviews',
   'faq',
@@ -72,62 +72,21 @@ export const createDefaultSettings = () => ({
     buySubtext: 'Order products from this business.',
     aboutTitle: 'About us',
     aboutEyebrow: 'About',
-    aboutBody: 'Tell clients who you are and what makes your business special.',
+    aboutBody: '',
     aboutImageUrl: '',
     visionTitle: 'Our vision',
-    visionBody: 'Share where you are headed and what you want to build.',
+    visionBody: '',
     visionImageUrl: '',
     missionTitle: 'Our mission',
-    missionBody: 'Explain how you serve people every day.',
+    missionBody: '',
     missionImageUrl: '',
-    aboutPages: [
-      {
-        id: 'about',
-        title: 'About us',
-        body: 'Tell clients who you are and what makes your business special.',
-        imageUrl: '',
-        icon: 'info'
-      },
-      {
-        id: 'mission',
-        title: 'Our mission',
-        body: 'Explain how you serve people every day.',
-        imageUrl: '',
-        icon: 'target'
-      },
-      {
-        id: 'vision',
-        title: 'Our vision',
-        body: 'Share where you are headed and what you want to build.',
-        imageUrl: '',
-        icon: 'eye'
-      }
-    ],
+    aboutPages: [],
     styleTokens: {},
     reasonsTitle: 'What we offer',
     reasonsEyebrow: 'The craft',
-    reasonsBody: 'A focused set of services shaped around what your clients need most.',
+    reasonsBody: '',
     reasonsMarkerStyle: 'icon',
-    reasons: [
-      {
-        id: 'r1',
-        icon: 'award',
-        title: 'Expert team',
-        body: 'Skilled people who care about the result.'
-      },
-      {
-        id: 'r2',
-        icon: 'calendar',
-        title: 'Easy booking',
-        body: 'Reserve online in a few taps.'
-      },
-      {
-        id: 'r3',
-        icon: 'package',
-        title: 'Quality products',
-        body: 'Take home what you love.'
-      }
-    ],
+    reasons: [],
     venueTitle: 'Photos',
     venueEyebrow: 'Photos',
     venueBody: '',
@@ -158,10 +117,7 @@ export const createDefaultSettings = () => ({
     bookFaqEyebrow: 'FAQ',
     bookFaqBody: '',
     bookFaqIcon: 'question',
-    bookFaq: [
-      { id: 'f1', q: 'How do requests work?', a: 'Send a request and we confirm by email.' },
-      { id: 'f2', q: 'Can I reschedule?', a: 'Yes. Message us from Support or reply to your confirmation.' }
-    ]
+    bookFaq: []
   },
   services: [],
   serviceCategories: [],

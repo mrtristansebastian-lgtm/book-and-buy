@@ -13,7 +13,7 @@ export function ProductEditorMediaStep({
     <section className="bb-services-section">
       <h3 className="bb-services-section-title">Media</h3>
       <p className="bb-services-section-lede">
-        First image is the catalog cover.
+        The first image is the catalog cover. Photos keep their original shape. Cropping is optional in the image editor.
       </p>
       <div className="bb-products-gallery-grid">
         {imageUrls.map((src, index) => (

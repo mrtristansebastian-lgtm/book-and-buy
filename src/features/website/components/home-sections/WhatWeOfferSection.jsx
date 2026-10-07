@@ -175,8 +175,7 @@ export function WhatWeOfferSection({
               editMode={editMode}
               multiline
               value={
-                website.reasonsBody ||
-                'Thoughtful services, practical expertise, and details designed around the people we serve.'
+                website.reasonsBody || ''
               }
               placeholder="A short introduction to what makes your business different."
               onChange={(value) => patchWebsite({ reasonsBody: value })}

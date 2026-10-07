@@ -1,3 +1,4 @@
+import { ProfileSetup } from './ProfileSetup';
 import { Button } from '../../../shared/ui/Button';
 import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
@@ -38,6 +39,7 @@ function useIsMobileStudio() {
 export function WebsiteSurfaceStudio({
   surface: fixedSurface,
   title,
+  compact = false,
   lede = 'View to scroll. Edit to change copy and images on the page.',
   stepOptions = null,
   openLivePage = null,
@@ -45,6 +47,7 @@ export function WebsiteSurfaceStudio({
 }) {
   const {
     workspace,
+    saveStatus, saveError, retrySave,
     updateWebsite,
     updateProfile,
     publishWebsite,
@@ -74,9 +77,9 @@ export function WebsiteSurfaceStudio({
   const productCount = countActiveOffers(workspace.products);
   const emptyCatalogHint =
     pageVisible && surface === 'book' && serviceCount === 0
-      ? 'No services yet — page will look empty to customers.'
+      ? 'Add a service to make Book available to customers.'
       : pageVisible && surface === 'buy' && productCount === 0
-        ? 'No products yet — page will look empty to customers.'
+        ? 'Add a product to make Buy available to customers.'
         : '';
 
   useEffect(() => {
@@ -88,6 +91,11 @@ export function WebsiteSurfaceStudio({
     setPublishing(true);
     try {
       const result = await publishWebsite();
+      if (result?.ok !== true) {
+        setPublishNote(result?.reason || 'Could not publish. Your draft is unchanged. Please try again.');
+        setSavedFlash(false);
+        return;
+      }
       setSavedLocally(Boolean(result?.localOnly));
       setSavedFlash(true);
       setPublishNote(
@@ -136,19 +144,19 @@ export function WebsiteSurfaceStudio({
         : 'Publish live';
 
   return (
-    <div className={`bb-studio-canvas${isMobile ? ' is-mobile' : ''}`}>
+    <div className={`bb-studio-canvas${compact ? ' bb-studio-canvas--profile' : ''}${isMobile ? ' is-mobile' : ''}`}>
       <header className="bb-studio-toolbar">
         <div className="bb-studio-toolbar-top">
-          <div className="bb-studio-toolbar-copy min-w-0">
+          {<div className="bb-studio-toolbar-copy min-w-0">
             <div className="bb-page-title-wrap">
               <PageBackButton />
               <span className="bb-page-title-main">
                 <div className="bb-page-header-glow" aria-hidden="true" />
-                <h1 className="bb-page-title m-0">{title}</h1>
+                <h1 className="bb-page-title m-0">{compact ? 'Business profile' : title}</h1>
               </span>
             </div>
-            <p className="bb-muted m-0 text-sm bb-studio-toolbar-lede">{lede}</p>
-          </div>
+            {!compact ? <p className="bb-muted m-0 text-sm bb-studio-toolbar-lede">{lede}</p> : null}
+          </div>}
           <div className="bb-studio-actions">
             <Button action="open" variant="secondary"
               type="button"
@@ -185,8 +193,8 @@ export function WebsiteSurfaceStudio({
             value={mode}
             onChange={setMode}
             options={[
-              { id: 'view', label: 'View' },
-              { id: 'edit', label: 'Edit' }
+              { id: 'view', label: 'Preview' },
+              { id: 'edit', label: 'Set up profile' }
             ]}
           />
           {!isMobile ? (
@@ -226,19 +234,21 @@ export function WebsiteSurfaceStudio({
         </div>
       </header>
 
-      {publishNote ? <p className="bb-muted m-0 text-xs px-1">{publishNote}</p> : null}
+      <div className="bb-profile-draft-status" role="status">
+        {saveStatus === 'error' ? <><span>{saveError}</span><Button action="refresh" variant="secondary" onClick={retrySave}>Retry save</Button></> :
+          <span>{saveStatus === 'saving' ? 'Saving draft…' : workspace.isDemo ? 'Demo draft · saved on this device' : saveStatus === 'saved' ? 'Draft saved' : 'Draft kept on this device'} · Publish makes these changes public.</span>}
+        {website.published && workspace.publishedAt ? <span>Last published {new Date(workspace.publishedAt).toLocaleString()}</span> : <span>Not published yet</span>}
+      </div>
+      {publishNote ? <p role="status" className="bb-profile-publish-note">{publishNote}</p> : null}
 
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>
-        {editMode ? (
-          <p className="bb-studio-edit-hint">
-            Edit mode — click text or images on the page to change them.
-          </p>
-        ) : null}
+        {editMode && surface === 'home' ? <ProfileSetup workspace={workspace} updateWebsite={updateWebsite} updateProfile={updateProfile} /> : null}
         <DevicePreviewFrame
+          bezel={compact && !isMobile}
           workspace={workspace}
           page={surface}
           device={previewDevice}
-          editMode={editMode}
+          editMode={editMode && surface !== 'home'}
           onUpdateWebsite={updateWebsite}
           onUpdateProfile={updateProfile}
           onUpdateSocialPost={updateSocialPost}

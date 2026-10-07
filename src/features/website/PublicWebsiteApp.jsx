@@ -4,10 +4,11 @@ import { loadPublicWorkspaceFromFirestore } from '../../shared/firebase/publicWo
 import { isFirebaseConfigured } from '../../shared/firebase/client';
 import { PublicSurfaceRenderer } from './components/PublicSurfaceRenderer';
 import { useAuth } from '../auth/AuthContext';
-import { filterWorkspaceForMarket, resolveMarket } from '../../utils/markets';
-import { MarketCountryPicker } from '../settings/components/MarketCountryPicker';
+
+
 import { Button } from '../../shared/ui/Button';
 import { navigate } from '../../app/routing';
+import { profileCatalog } from './profileModel';
 import { resolvePublicProfile } from './publicProfileState';
 
 export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = true }) {
@@ -15,7 +16,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
   const { workspace: local } = useWorkspace();
   const configured = isFirebaseConfigured();
   const [lookup, setLookup] = useState({ slug: '', status: 'loading', workspace: null });
-  const [buyerCountry, setBuyerCountry] = useState('');
+
   const localMatch = slug === local.slug ||
     ((slug === 'flour-and-flame' || slug === 'flameandflour') &&
       (local.isDemo || local.slug === 'flour-and-flame' || local.slug === 'flameandflour'));
@@ -23,7 +24,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
 
   useEffect(() => {
     let cancelled = false;
-    setBuyerCountry('');
+
     if (useLocalDemo || !configured) {
       setLookup({ slug, status: 'ready', workspace: null });
       return undefined;
@@ -62,10 +63,8 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
   }
   const workspace = resolved.workspace;
   const ownerViewingOwnSite = Boolean(user?.uid && workspace.ownerId === user.uid);
-  const marketConfigured = Array.isArray(workspace.website?.markets);
-  const showCountryPicker = marketConfigured && ['book', 'buy', 'cart', 'checkout'].includes(page);
-  const market = resolveMarket(workspace.website || {}, buyerCountry);
-  const buyerWorkspace = filterWorkspaceForMarket(workspace, buyerCountry);
+  const capabilities = profileCatalog(workspace);
+  const buyerWorkspace = { ...workspace, profileCapabilities: { book: capabilities.book, buy: capabilities.buy } };
 
   return (
     <div className="bb-shell bb-public-page-shell native-ui min-h-screen bg-white">
@@ -74,13 +73,9 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
         workspace={buyerWorkspace}
         page={page || 'home'}
         itemId={itemId || ''}
+        preview={!useLocalDemo && !resolved.publicMode}
         publicMode={resolved.publicMode}
         trackAnalytics={resolved.publicMode && !ownerViewingOwnSite}
-        marketPicker={showCountryPicker ? <div className="bb-public-market-picker">
-          <MarketCountryPicker label="Your shopping country" value={buyerCountry} onChange={setBuyerCountry} allowRestOfWorld={false} resetOnSearch={false} />
-          {!buyerCountry && <span role="status">Choose your country to see available products and services.</span>}
-          {buyerCountry && !market?.enabled && <span role="status">This business does not currently sell to this country.</span>}
-        </div> : null}
       />
     </div>
   );

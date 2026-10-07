@@ -1,3 +1,4 @@
+import { profileCatalog } from '../profileModel';
 import { PublicCartProvider } from '../../storefront/PublicCartContext';
 import { PublicCatalogDetail } from '../../storefront/components/PublicCatalogDetail';
 import {
@@ -53,7 +54,7 @@ function CheckoutFlowPreview({ workspace, page, preview = false }) {
  * Shared tree for live public site and Pages studio device mockups.
  * All surfaces use the profile rail (Home / Content / Book / Buy).
  */
-export function PublicSurfaceRenderer({
+function PublicSurfaceContent({
   workspace,
   page = 'home',
   itemId = '',
@@ -64,6 +65,7 @@ export function PublicSurfaceRenderer({
   trackAnalytics = false,
   marketPicker = null,
   onOpenItem,
+  onOpenPage,
   onCloseItem,
   onUpdateWebsite,
   onUpdateProfile,
@@ -90,11 +92,12 @@ export function PublicSurfaceRenderer({
 
   if (detailId && (pageId === 'book' || pageId === 'buy')) {
     const kind = pageId === 'book' ? 'service' : 'product';
-    const items = pageId === 'book' ? workspace.services || [] : workspace.products || [];
+    const catalog = profileCatalog(workspace);
+    const items = pageId === 'book' ? catalog.services : catalog.products;
     const item = items.find((row) => row.id === detailId && row.active !== false) || null;
 
     return (
-      <PublicCartProvider>
+      <>
         <PublicAnalyticsLayer
           workspace={workspace}
           page={pageId}
@@ -119,12 +122,12 @@ export function PublicSurfaceRenderer({
             onBack={onCloseItem}
           />
         </div>
-      </PublicCartProvider>
+      </>
     );
   }
 
   return (
-    <PublicCartProvider>
+    <>
       <PublicAnalyticsLayer
         workspace={workspace}
         page={pageId}
@@ -146,6 +149,7 @@ export function PublicSurfaceRenderer({
           publicMode={publicMode}
           marketPicker={marketPicker}
           onOpenItem={onOpenItem}
+          onOpenPage={onOpenPage}
           onUpdateWebsite={onUpdateWebsite}
           onUpdateProfile={onUpdateProfile}
           onUpdateSocialPost={onUpdateSocialPost}
@@ -153,6 +157,13 @@ export function PublicSurfaceRenderer({
           showDrafts={showDrafts || (editMode && railTab === 'content')}
         />
       </div>
-    </PublicCartProvider>
+    </>
   );
+}
+
+/** A stable provider survives all catalog/detail route changes; previews have isolated carts. */
+export function PublicSurfaceRenderer(props) {
+  return <PublicCartProvider key={props.workspace.slug + (props.preview || props.editMode ? ':preview' : ':public')}>
+    <PublicSurfaceContent {...props} />
+  </PublicCartProvider>;
 }

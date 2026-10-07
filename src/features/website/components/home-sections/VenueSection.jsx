@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Trash2 } from 'lucide-react';
 import { EditableText, EditableImage, EditSection } from '../editable';
@@ -8,7 +8,26 @@ import { useDetailDialog } from '../../../../shared/ui/useDetailDialog';
 /** Photos stay in the same merchant data, presented as an accessible profile grid. */
 export function VenueSection({ website, venueImages = [], editMode, hidden, patchVenue, patchWebsite }) {
   const [viewerIndex, setViewerIndex] = useState(null);
+  const stripRef = useRef(null);
+  const [photoIndex, setPhotoIndex] = useState(() => !editMode && venueImages.filter(image => image.url).length > 1 ? 1 : 0);
   const visible = editMode ? venueImages : venueImages.filter((image) => image.url);
+  const looping = !editMode && visible.length > 1;
+  const cards = looping ? [visible[visible.length - 1], ...visible, visible[0]] : visible;
+  const centerPhoto = (index, behavior = 'smooth') => {
+    const node = stripRef.current;
+    const target = node?.children[index];
+    if (target) node.scrollTo({ left: target.offsetLeft - (node.clientWidth - target.clientWidth) / 2, behavior });
+  };
+  const photoKeys = visible.map(image => image.id + image.url).join('|');
+  useLayoutEffect(() => {
+    if (editMode) return;
+    const initial = looping ? 1 : 0;
+    setPhotoIndex(initial);
+    centerPhoto(initial, 'instant');
+    const observer = new ResizeObserver(() => centerPhoto(initial, 'instant'));
+    if (stripRef.current) observer.observe(stripRef.current);
+    return () => observer.disconnect();
+  }, [editMode, looping, photoKeys]);
   const close = useCallback(() => setViewerIndex(null), []);
   const dialogRef = useDetailDialog(viewerIndex != null, close);
   const active = viewerIndex == null ? null : visible[viewerIndex];
@@ -24,9 +43,24 @@ export function VenueSection({ website, venueImages = [], editMode, hidden, patc
           value={website.venueBody || ''} placeholder="A short introduction to your photos" website={website} patchWebsite={patchWebsite}
           colorTokenId="gallery.body" onChange={(value) => patchWebsite({ venueBody: value })} />
       </header>
-      <div className="bb-business-profile-photo-grid">
-        {visible.map((image, index) => (
-          <figure key={image.id}>
+      <div ref={stripRef} className={editMode ? 'bb-business-profile-photo-grid' : 'bb-profile-photo-strip'} onScroll={(event) => {
+        if (editMode) return;
+        const node = event.currentTarget;
+        const center = node.scrollLeft + node.clientWidth / 2;
+        const elements = [...node.children];
+        const nearest = elements.reduce((best, card, index) => Math.abs(card.offsetLeft + card.clientWidth / 2 - center) < Math.abs(elements[best].offsetLeft + elements[best].clientWidth / 2 - center) ? index : best, 0);
+        setPhotoIndex(nearest);
+        if (looping && Math.abs(elements[nearest].offsetLeft + elements[nearest].clientWidth / 2 - center) < 1) {
+          if (nearest === 0) centerPhoto(visible.length, 'instant');
+          else if (nearest === cards.length - 1) centerPhoto(1, 'instant');
+        }
+      }} onKeyDown={event => {
+        if (editMode || !looping || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+        event.preventDefault();
+        centerPhoto(photoIndex + (event.key === 'ArrowRight' ? 1 : -1));
+      }}>
+        {cards.map((image, index) => (
+          <figure key={`${image.id}-${index}`} data-current={index === photoIndex}>
             {editMode ? <>
               <EditableImage editMode src={image.url || ''} alt={image.caption || `Business photo ${index + 1}`}
                 className="bb-business-profile-gallery-media" preset="venue" storageFolder="venue"
@@ -38,10 +72,9 @@ export function VenueSection({ website, venueImages = [], editMode, hidden, patc
                   onClick={() => patchWebsite({ venueImages: venueImages.filter((row) => row.id !== image.id) })}><Trash2 size={16} aria-hidden="true" /></button>
               </div>
             </> : <>
-              <button type="button" className="bb-business-profile-gallery-hit" onClick={() => setViewerIndex(index)} aria-label={`View ${image.caption || `photo ${index + 1}`}`}>
+              <button type="button" className="bb-business-profile-gallery-hit" onClick={() => index === photoIndex ? setViewerIndex(looping ? (index - 1 + visible.length) % visible.length : index) : centerPhoto(index)} aria-label={`${index === photoIndex ? 'View' : 'Show'} ${image.caption || `photo ${index + 1}`}`} aria-current={index === photoIndex ? 'true' : undefined}>
                 <img src={image.url} alt={image.caption || `Business photo ${index + 1}`} loading="lazy" />
               </button>
-              {image.caption ? <figcaption className="bb-business-profile-caption">{image.caption}</figcaption> : null}
             </>}
           </figure>
         ))}
@@ -58,7 +91,6 @@ export function VenueSection({ website, venueImages = [], editMode, hidden, patc
             }}>
             <header><span>Photos</span><Button action="close" variant="secondary" onClick={close}>Close</Button></header>
             <img src={active.url} alt={active.caption || 'Business photo'} />
-            {active.caption ? <p>{active.caption}</p> : null}
             {visible.length > 1 ? <footer>
               <Button action="back" variant="secondary" onClick={() => setViewerIndex((viewerIndex - 1 + visible.length) % visible.length)}>Previous</Button>
               <span aria-live="polite">{viewerIndex + 1} / {visible.length}</span>

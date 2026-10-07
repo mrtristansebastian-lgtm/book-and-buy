@@ -1,3 +1,4 @@
+import { publishProfileDraft } from '../website/publishProfileDraft';
 import { createDemoWorkspace, hydrateDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList, collectServiceCategories } from '../../utils/services';
@@ -220,26 +221,12 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
         }));
       },
       publishWebsite: async () => {
-        let snapshot = null;
-        setWorkspace((prev) => {
-          snapshot = {
-            ...prev,
-            ownerId: user?.uid || prev.ownerId,
-            publishedAt: Date.now(),
-            website: { ...prev.website, published: true }
-          };
-          return snapshot;
-        });
         const { publishWorkspaceToFirestore } = await import('../../shared/firebase/integrations');
-        try {
-          return await publishWorkspaceToFirestore(snapshot || {});
-        } catch (error) {
-          return {
-            ok: false,
-            localOnly: true,
-            reason: error?.message || 'Cloud publish failed. Kept local publish.'
-          };
-        }
+        return publishProfileDraft(workspace, { ownerId: user?.uid,
+          publish: publishWorkspaceToFirestore,
+          markPublished: (publishedAt) => setWorkspace((prev) => ({ ...prev, publishedAt,
+            website: { ...prev.website, published: true } }))
+        });
       },
       updateProfile: (patch) => {
         setWorkspace((prev) => ({ ...prev, ...patch }));

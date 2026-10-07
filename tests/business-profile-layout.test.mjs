@@ -29,13 +29,16 @@ const Gallery = load('src/features/website/components/home-sections/VenueSection
 });
 const html = (component, props) => renderToStaticMarkup(React.createElement(component, props));
 
-test('profile presents all existing story pages without a hidden page-turn interface', () => {
+test('profile combines existing story pages into one text section', () => {
   const rendered = html(About, { website: { aboutPages: [
     { id: 'a', title: 'Our story', body: 'Existing copy', imageUrl: '/story.jpg', icon: 'info' },
     { id: 'b', title: 'Our mission', body: 'Existing mission' }
   ] } });
   assert.match(rendered, /Existing copy/);
   assert.match(rendered, /Existing mission/);
+  assert.match(rendered, /Our story/);
+  assert.equal((rendered.match(/<h2/g) || []).length, 1);
+  assert.doesNotMatch(rendered, /Our mission/);
   assert.match(rendered, /story.jpg/);
   assert.doesNotMatch(rendered, /carousel|Previous page|Next page/);
 });
@@ -47,13 +50,14 @@ test('legacy merchant story fields remain readable and empty profiles do not sho
   assert.equal(html(About, { website: { aboutBody: 'hidden' }, hidden: true }), '');
 });
 
-test('profile photo gallery keeps captions and hides empty live slots, not merchant photos', () => {
+test('profile photo gallery keeps accessible descriptions but hides visible captions and empty live slots', () => {
   const props = { website: { venueTitle: 'Our photos' }, venueImages: [
     { id: 'a', url: '/photo.jpg', caption: 'The studio' }, { id: 'b', url: '', caption: '' }
   ] };
   const rendered = html(Gallery, props);
   assert.match(rendered, /View The studio/);
   assert.match(rendered, /alt="The studio"/);
+  assert.doesNotMatch(rendered, /<figcaption/);
   assert.equal((rendered.match(/<figure/g) || []).length, 1);
   assert.equal((html(Gallery, { ...props, editMode: true }).match(/<figure/g) || []).length, 2);
   assert.equal(html(Gallery, { website: {}, venueImages: [] }), '');
@@ -102,4 +106,13 @@ test('photo cropping escapes preview stacking contexts and retains modal keyboar
   assert.match(crop, /busyLabel="Saving…"/);
   const image = source('src/features/website/components/editable/EditableImage.jsx');
   assert.match(image, /compact \? <button type="button" className="bb-editable-image-hit bb-editable-image-icon"/);
+});
+
+const resolveStory = load('src/features/website/components/home-sections/AboutSection.jsx', 'resolveStory');
+test('story edits override legacy copy without modifying the stored originals', () => {
+  const website = { aboutPages: [{ id: 'about', body: 'Original story', imageUrl: '/original.jpg' }, { id: 'mission', body: 'Original mission' }], storyBody: 'New combined story' };
+  assert.equal(resolveStory(website), 'New combined story');
+  assert.equal(website.aboutPages[0].imageUrl, '/original.jpg');
+  assert.equal(resolveStory({ ...website, storyBody: '' }), '');
+  assert.equal(resolveStory({ aboutBody: 'Same', missionBody: 'Same', visionBody: 'Different' }), 'Same\n\nDifferent');
 });

@@ -1,43 +1,33 @@
-import { Plus, Trash2 } from 'lucide-react';
-import { Button } from '../../../../shared/ui/Button';
-import { EditableText, EditableImage, EditSection } from '../editable';
+import { EditableImage, EditableText, EditSection } from '../editable';
 
-/** Retain every existing story page; a profile makes it readable without page flips. */
+/** Existing copy becomes paragraphs in one story. Original fields and images stay stored. */
+export function resolveStory(website = {}) {
+  if (typeof website.storyBody === 'string') return website.storyBody;
+  const pages = Array.isArray(website.aboutPages) ? website.aboutPages : [];
+  const bodies = pages.length ? pages.map((page) => page.body) :
+    [website.aboutBody, website.missionBody, website.visionBody];
+  return [...new Set(bodies.map((body) => String(body || '').trim()).filter(Boolean))].join('\n\n');
+}
+
 export function AboutSection({ website, editMode, hidden, patchWebsite }) {
-  const stored = Array.isArray(website.aboutPages) ? website.aboutPages : [];
-  const pages = stored.length ? stored : [
-    { id: 'about', title: website.aboutTitle || 'About us', body: website.aboutBody || '', imageUrl: website.aboutImageUrl || '' },
-    { id: 'mission', title: website.missionTitle || 'Our mission', body: website.missionBody || '', imageUrl: website.missionImageUrl || '' },
-    { id: 'vision', title: website.visionTitle || 'Our vision', body: website.visionBody || '', imageUrl: website.visionImageUrl || '' }
-  ];
-  const update = (id, field, value) => patchWebsite({ aboutPages: pages.map((page) => page.id === id ? { ...page, [field]: value } : page) });
-  const visiblePages = editMode ? pages : pages.filter((page) => page.body || page.imageUrl);
-  if (!editMode && !visiblePages.length) return null;
-  return (
-    <EditSection editMode={editMode} hidden={hidden} title="About your business" sectionId="about"
-      className="bb-business-profile-section bb-business-profile-about">
-      <div className="bb-business-profile-stories">
-        {visiblePages.map((page, index) => (
-          <article key={page.id || index} className={`bb-business-profile-story${page.imageUrl || editMode ? ' has-photo' : ''}`}>
-            <div className="bb-business-profile-story-copy">
-              <EditableText as={index === 0 ? 'h2' : 'h3'} className={index === 0 ? 'bb-business-profile-heading' : 'bb-business-profile-subheading'}
-                editMode={editMode} value={page.title || ''} placeholder="Section title" website={website} patchWebsite={patchWebsite}
-                colorTokenId={`about.page.${page.id}.title`} onChange={(value) => update(page.id, 'title', value)} />
-              <EditableText as="p" className="bb-business-profile-body" editMode={editMode} multiline
-                value={page.body || ''} placeholder="Tell customers about your business" website={website} patchWebsite={patchWebsite}
-                colorTokenId={`about.page.${page.id}.body`} onChange={(value) => update(page.id, 'body', value)} />
-              {editMode && pages.length > 1 ? <button type="button" className="bb-public-inline-delete" aria-label={`Delete ${page.title || 'section'}`}
-                onClick={() => patchWebsite({ aboutPages: pages.filter((row) => row.id !== page.id) })}><Trash2 size={16} aria-hidden="true" /></button> : null}
-            </div>
-            {page.imageUrl || editMode ? <EditableImage editMode={editMode} src={page.imageUrl || ''} alt={page.title || 'Our business'}
-              className="bb-business-profile-story-photo" preset="about" placeholderLabel="Add photo"
-              onChange={(url) => update(page.id, 'imageUrl', url)} /> : null}
-          </article>
-        ))}
-      </div>
-      {editMode && pages.length < 8 ? <Button action="add" variant="primary" onClick={() => patchWebsite({ aboutPages: [...pages, { id: `p-${Date.now()}`, title: '', body: '', imageUrl: '' }] })}>
-        <Plus size={16} aria-hidden="true" />Add section
-      </Button> : null}
-    </EditSection>
-  );
+  const story = resolveStory(website);
+  const image = website.storyImageUrl ?? (website.aboutImageUrl || website.aboutPages?.find((page) => page.imageUrl)?.imageUrl || '');
+  if (!editMode && !story.trim()) return null;
+  return <EditSection editMode={editMode} hidden={hidden} title="Our story" sectionId="about"
+    className={`bb-business-profile-section bb-profile-story${image || editMode ? ' bb-profile-story--with-photo' : ''}`}>
+    <div className="bb-profile-story-content">
+    <h2 className="bb-business-profile-heading">Our story</h2>
+    {editMode ? <>
+      <p className="bb-profile-story-help">One story in your own words. Existing about, mission and vision copy is combined below; the original content stays saved.</p>
+      <EditableText as="p" className="bb-business-profile-body bb-profile-story-text" editMode multiline
+        value={story} placeholder="Tell customers the story behind your business."
+        onChange={(value) => patchWebsite({ storyBody: value })} />
+    </> : <div className="bb-profile-story-text">
+      {story.split(/\n\s*\n/).filter(Boolean).map((paragraph, index) => <p key={index} className="bb-business-profile-body">{paragraph}</p>)}
+    </div>}</div>
+    {image || editMode ? <EditableImage editMode={editMode} src={image}
+      className="bb-profile-story-photo" alt="Our story" preset="logo" storageFolder="website"
+      placeholderLabel="Add story photo" editLabel="Edit story photo"
+      onChange={(url) => patchWebsite({ storyImageUrl: url })} /> : null}
+  </EditSection>;
 }

@@ -466,7 +466,7 @@ export function ProductEditorSheet({
       <ImageCropModal
         open={cropOpen}
         source={cropSource}
-        preset="catalogCard"
+        preset="productPhoto"
         fileNameHint={fileNameHint}
         onCancel={() => {
           if (busy) return;

@@ -1,7 +1,8 @@
+import { profileTabs } from '../profileModel';
 import { BusinessProfileHeader } from './BusinessProfileHeader';
+import { ProfileFooter } from './ProfileFooter';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
-import { isPublicPageEnabled } from '../../../config/eBusinessPlatform';
 import { PublicBookingFlow } from '../../booking/components/PublicBookingFlow';
 import { PublicStorefront } from '../../storefront/components/PublicStorefront';
 import {
@@ -12,12 +13,6 @@ import {
   VenueSection,
   WhatWeOfferSection
 } from './home-sections';
-
-const PROFILE_RAIL_TABS = [
-  { id: 'home', label: 'Home' },
-  { id: 'book', label: 'Book' },
-  { id: 'buy', label: 'Buy' }
-];
 
 function sectionOn(website, key) {
   if (key === 'gallery') {
@@ -35,10 +30,6 @@ function resolveSectionOrder() {
   return createDefaultHomeSectionOrder();
 }
 
-function pageEnabled(website, pageId) {
-  return isPublicPageEnabled(website?.pages, pageId);
-}
-
 function normalizeRailTab(value) {
   const id = String(value || 'home').trim().toLowerCase();
   if (id === 'social' || id === 'content') return 'home';
@@ -54,6 +45,7 @@ export function PublicHomeView({
   publicMode = false,
   marketPicker = null,
   onOpenItem,
+  onOpenPage,
   onUpdateWebsite,
   onUpdateProfile
 }) {
@@ -84,20 +76,21 @@ export function PublicHomeView({
   };
 
   const order = resolveSectionOrder().filter((id) => sectionOn(website, id) || editMode);
-  const tabs = PROFILE_RAIL_TABS.filter(
-    (tab) => pageEnabled(website, tab.id) || editMode || preview
-  );
+  const tabs = profileTabs(workspace);
   // The URL is the selected tab: deep links, browser Back and analytics agree.
   const visibleTab = tabs.some((tab) => tab.id === requestedTab) ? requestedTab : 'home';
   const openRailTab = (id) => {
     if (editMode) return;
-    navigate(preview ? `/dashboard/${id === 'home' ? 'website' : `website-${id}`}` : publicPagePath(workspace.slug, id));
+    if (onOpenPage) { onOpenPage(id); return; }
+    if (!preview) navigate(publicPagePath(workspace.slug, id));
   };
 
   const homeSections = (
     <div className="bb-public-profile-home-stack">
+      {marketPicker}
       {order.map((id) => {
         if (id === 'offerIntro') {
+          if (!editMode && !reasons.some((reason) => reason.title || reason.body) && !website.reasonsBody) return null;
           return (
             <WhatWeOfferSection
               key="offerIntro"
@@ -251,6 +244,7 @@ export function PublicHomeView({
         ) : null}
 
         <div className="bb-public-profile-modules">{panel}</div>
+        <ProfileFooter workspace={workspace} preview={preview} editMode={editMode} />
       </div>
     </div>
   );

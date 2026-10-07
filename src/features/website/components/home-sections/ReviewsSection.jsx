@@ -19,8 +19,8 @@ function StarGlyph({ variant }) {
     <svg
       className={`bb-public-star bb-public-star--${variant}`}
       viewBox="0 0 24 24"
-      width="18"
-      height="18"
+      width="16"
+      height="16"
       aria-hidden="true"
       focusable="false"
     >
@@ -49,7 +49,7 @@ function StarGlyph({ variant }) {
 }
 
 function Stars({
-  rating = 5,
+  rating,
   editMode = false,
   website,
   patchWebsite,
@@ -75,8 +75,8 @@ function Stars({
         ref={ref}
         className={`bb-public-stars${editMode ? ' bb-editable-style-target' : ''}`}
         aria-label={label}
-        data-star-solid={isSolid ? 'true' : undefined}
-        style={isSolid ? { '--bb-star-fill': solid } : undefined}
+        data-star-solid="true"
+        style={{ '--bb-star-fill': isSolid ? solid : '#f5b700' }}
         onClick={
           editMode
             ? (event) => {
@@ -196,12 +196,12 @@ export function ReviewsSection({
                 >
                   <div className="bb-public-review-top">
                     {provider && !isDemo && <span className="bb-review-source">Google Maps</span>}
-                    <Stars
+                    {Number.isFinite(Number(review.rating)) && review.rating != null ? <Stars
                       rating={review.rating}
                       editMode={editMode}
                       website={website}
                       patchWebsite={patchWebsite}
-                    />
+                    /> : null}
                   </div>
                   {provider && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.reviewUrl || '') && <a className="bb-review-original" href={review.reviewUrl} target="_blank" rel="noopener noreferrer">View original review</a>}
                   {provider === 'google' && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.authorUrl || '') && <a className="bb-review-original" href={review.authorUrl} target="_blank" rel="noopener noreferrer">Reviewer profile</a>}

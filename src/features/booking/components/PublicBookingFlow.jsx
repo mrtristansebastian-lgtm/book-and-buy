@@ -1,3 +1,4 @@
+import { searchPublicCatalog, sortPublicCatalog } from '../../website/profileModel';
 import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
@@ -32,7 +33,11 @@ export function PublicBookingFlow({
   const bookings = workspace.bookings || [];
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
-  const [categoryId, setCategoryId] = useState('all');
+  const categoryId = cart.browse?.book?.categoryId || 'all';
+  const query = cart.browse?.book?.query || '';
+  const sortOrder = cart.browse?.book?.sortOrder || 'featured';
+  const setCategoryId = (value) => cart.updateBrowse('book', { categoryId: value });
+  const setQuery = (value) => cart.updateBrowse('book', { query: value });
   const cartOpen = panel === 'cart';
   const studioNav = typeof onOpenItem === 'function';
 
@@ -45,8 +50,8 @@ export function PublicBookingFlow({
     [activeServices]
   );
   const visibleServices = useMemo(
-    () => filterCatalogByCategory(activeServices, categoryId),
-    [activeServices, categoryId]
+    () => sortPublicCatalog(searchPublicCatalog(filterCatalogByCategory(activeServices, categoryId), query), sortOrder),
+    [activeServices, categoryId, query, sortOrder]
   );
 
   const openDetail = (serviceId) => {
@@ -120,7 +125,7 @@ export function PublicBookingFlow({
           : website.catalogAvailability === 'country-disabled' ? 'Services are not available in your selected country.'
           : website.buyerCountryCode ? 'No services are currently available in this country.' : 'No bookable services published yet.'}</p>
       ) : visibleServices.length === 0 ? (
-        <p className="bb-muted m-0">No services in this category.</p>
+        <p className="bb-muted m-0">No services match your search and category.</p>
       ) : null}
     </div>
   );
@@ -151,12 +156,16 @@ export function PublicBookingFlow({
                 <h2 className="bb-public-catalog-intro-title">Our Services</h2>
                 <p className="bb-public-catalog-intro-body">{introBody}</p>
               </div>
-              <div className="bb-public-catalog-intro-actions">{cartButton}</div>
+
             </header>
 
-            <div className="bb-public-catalog-mobile-tools">
-              {categoryTabsEl}
-              {cartButton}
+            <div className="bb-profile-catalog-toolbar">
+              <label className="bb-profile-catalog-search">Search services<input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search by name or category" /></label>
+              <div className="bb-profile-catalog-category">{categoryTabsEl}</div>
+              <label className="bb-profile-catalog-sort">Sort by<select value={sortOrder} onChange={e => cart.updateBrowse('book', { sortOrder: e.target.value })}>
+                <option value="featured">Featured</option><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option>
+              </select></label>
+              <div className="bb-profile-catalog-cart">{cartButton}</div>
             </div>
 
             <div className="bb-public-catalog-mobile-panel">

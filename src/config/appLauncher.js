@@ -96,7 +96,7 @@ export const launcherApps = [
     label: 'E-Business',
     blurb: 'Your business profile, Book and Buy.',
     icon: Globe2,
-    tabs: ['website', 'website-book', 'website-buy', 'website-checkout'],
+    tabs: ['website'],
     size: 'lg',
     hue: 'violet',
     tint: ['#d2cbff', '#d8ccff']

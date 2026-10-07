@@ -1,3 +1,4 @@
+import { searchPublicCatalog, sortPublicCatalog } from '../../website/profileModel';
 import { Button } from '../../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
@@ -26,7 +27,11 @@ export function PublicStorefront({
   const products = workspace.products || [];
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
-  const [categoryId, setCategoryId] = useState('all');
+  const categoryId = cart.browse?.buy?.categoryId || 'all';
+  const query = cart.browse?.buy?.query || '';
+  const sortOrder = cart.browse?.buy?.sortOrder || 'featured';
+  const setCategoryId = (value) => cart.updateBrowse('buy', { categoryId: value });
+  const setQuery = (value) => cart.updateBrowse('buy', { query: value });
   const cartOpen = panel === 'cart';
   const studioNav = typeof onOpenItem === 'function';
 
@@ -36,8 +41,8 @@ export function PublicStorefront({
   );
   const categoryTabs = useMemo(() => buildCatalogCategoryTabs(catalog), [catalog]);
   const filteredCatalog = useMemo(
-    () => filterCatalogByCategory(catalog, categoryId),
-    [catalog, categoryId]
+    () => sortPublicCatalog(searchPublicCatalog(filterCatalogByCategory(catalog, categoryId), query), sortOrder),
+    [catalog, categoryId, query, sortOrder]
   );
 
   const openDetail = (productId) => {
@@ -98,7 +103,7 @@ export function PublicStorefront({
           : website.catalogAvailability === 'country-disabled' ? 'Products are not available in your selected country.'
           : website.buyerCountryCode ? 'No products are currently available in this country.' : 'No products published yet.'}</p>
       ) : filteredCatalog.length === 0 ? (
-        <p className="bb-muted m-0">No products in this category.</p>
+        <p className="bb-muted m-0">No products match your search and category.</p>
       ) : null}
     </div>
   );
@@ -129,12 +134,16 @@ export function PublicStorefront({
                 <h2 className="bb-public-catalog-intro-title">Our Products</h2>
                 <p className="bb-public-catalog-intro-body">{introBody}</p>
               </div>
-              <div className="bb-public-catalog-intro-actions">{cartButton}</div>
+
             </header>
 
-            <div className="bb-public-catalog-mobile-tools">
-              {categoryTabsEl}
-              {cartButton}
+            <div className="bb-profile-catalog-toolbar">
+              <label className="bb-profile-catalog-search">Search products<input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search by name or category" /></label>
+              <div className="bb-profile-catalog-category">{categoryTabsEl}</div>
+              <label className="bb-profile-catalog-sort">Sort by<select value={sortOrder} onChange={e => cart.updateBrowse('buy', { sortOrder: e.target.value })}>
+                <option value="featured">Featured</option><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option>
+              </select></label>
+              <div className="bb-profile-catalog-cart">{cartButton}</div>
             </div>
 
             <div className="bb-public-catalog-mobile-panel">

@@ -1,11 +1,13 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { useCart } from './hooks/useCart';
 
 const PublicCartContext = createContext(null);
 
 export function PublicCartProvider({ children, initialItems = [] }) {
   const cart = useCart(initialItems);
-  return <PublicCartContext.Provider value={cart}>{children}</PublicCartContext.Provider>;
+  const [browse, setBrowse] = useState({});
+  const updateBrowse = (key, patch) => setBrowse((previous) => ({ ...previous, [key]: { ...previous[key], ...patch } }));
+  return <PublicCartContext.Provider value={{ ...cart, browse, updateBrowse }}>{children}</PublicCartContext.Provider>;
 }
 
 export function usePublicCart() {

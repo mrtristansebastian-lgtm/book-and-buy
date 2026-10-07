@@ -48,6 +48,7 @@
 @import './offer-cards.css';
 @import './catalog-navigation-polish.css';
 @import './product-detail-polish.css';
+@import './profile-experience.css';
 
 @tailwind base;
 @tailwind components;

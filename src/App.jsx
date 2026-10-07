@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { parseAppRoute, useHashRoute, navigate, scrollAppToTop } from './app/routing';
 import { AppLoginScreen } from './features/auth/AppLoginScreen';
 import { useAuth } from './features/auth/AuthContext';
@@ -13,6 +13,8 @@ import { BrandMark } from './shared/ui/BrandMark';
 import { useViewportZoomGate } from './shared/ui/useViewportZoomGate';
 import { useCustomDomain } from './features/website/useCustomDomain';
 import { ControlReview } from './shared/ui/ControlReview';
+
+const ProfileReview = import.meta.env.DEV ? lazy(() => import('./features/website/dev/ProfileReview')) : null;
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAppRoute());
@@ -43,6 +45,8 @@ export default function App() {
       navigate('/app/account', { replace: true });
     }
   }, [route.kind, profileReady, isClient]);
+
+  if (import.meta.env.DEV && window.location.hash === '#/profile-review') return <Suspense fallback={<p>Loading profile review…</p>}><ProfileReview /></Suspense>;
 
   if (import.meta.env.DEV && window.location.hash === '#/control-review') return <ControlReview />;
 

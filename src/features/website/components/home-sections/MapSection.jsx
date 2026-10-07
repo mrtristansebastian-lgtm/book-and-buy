@@ -1,7 +1,7 @@
 import { Button } from '../../../../shared/ui/Button';
 import { EditableText, EditSection } from '../editable';
 
-export function MapSection({ website, editMode, hidden, patchWebsite }) {
+export function MapSection({ website, editMode, preview = false, hidden, patchWebsite }) {
   const hasLocation = [website.address, website.mapBody, website.mapLinkUrl, website.mapEmbedUrl]
     .some((value) => String(value || '').trim());
 
@@ -88,14 +88,14 @@ export function MapSection({ website, editMode, hidden, patchWebsite }) {
                 target="_blank"
                 rel="noreferrer"
                 onClick={(event) => {
-                  if (editMode) event.preventDefault();
+                  if (editMode || preview) event.preventDefault();
                 }}
               >
                 Open in Maps
               </Button>
             ) : null}
           </div>
-          <div className="bb-public-map-wrap">
+          {website.mapEmbedUrl || editMode ? <div className="bb-public-map-wrap">
             <div className="bb-public-map-frame">
               {website.mapEmbedUrl ? (
                 <iframe
@@ -110,7 +110,7 @@ export function MapSection({ website, editMode, hidden, patchWebsite }) {
                 </div>
               )}
             </div>
-          </div>
+          </div> : null}
         </div>
       </div>
     </EditSection>

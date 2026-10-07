@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { MapPin } from 'lucide-react';
+import { Bookmark, MapPin, Phone } from 'lucide-react';
 import { EditableImage, EditableText, EditSection } from './editable';
 import { Button } from '../../../shared/ui/Button';
-import { isPublicPageEnabled } from '../../../config/eBusinessPlatform';
 import { navigate } from '../../../app/routing';
 import { useClientProfile } from '../../client-app/ClientProfileContext';
 import { startClientMessage } from '../../client-app/startClientMessage';
@@ -25,8 +24,6 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
   const location = website.profileLocation || [website.city, website.region].filter(Boolean).join(', ');
   const category = website.profileCategory || '';
   const logo = website.logoUrl || workspace.logoUrl || '';
-  const showBook = isPublicPageEnabled(website.pages, 'book');
-  const showBuy = isPublicPageEnabled(website.pages, 'buy');
   const interactive = !preview && !editMode;
 
   const message = async () => {
@@ -62,16 +59,16 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
 
   return (
     <EditSection editMode={editMode} title="Business profile" sectionId="profile" className="bb-business-profile-identity">
-      {interactive ? <nav className="bb-business-profile-public-nav" aria-label="Business profile navigation">
-        <Button action="back" variant="secondary" onClick={() => navigate('/app/find')}>Back to Places</Button>
-        <Button action="copy" variant="secondary" onClick={share} aria-live="polite">{copied ? 'Link copied' : 'Share profile'}</Button>
-      </nav> : null}
-      <div className="bb-business-profile-banner">
+      {<nav className="bb-business-profile-public-nav" aria-label="Business profile navigation">
+        <Button action="back" variant="secondary" disabled={!interactive} onClick={() => navigate('/app/find')}>Back to Places</Button>
+        <Button action="copy" variant="secondary" disabled={!interactive} onClick={share} aria-live="polite">{copied ? 'Link copied' : 'Share profile'}</Button>
+      </nav>}
+      {website.heroImageUrl || website.heroImage || editMode ? <div className="bb-business-profile-banner">
         <EditableImage editMode={editMode} src={website.heroImageUrl || website.heroImage || ''}
           alt={`${name} cover photo`} className="bb-business-profile-banner-media"
           preset="socialBanner" storageFolder="brand" placeholderLabel="Add cover photo" editLabel="Edit cover photo"
-          onChange={(url) => patchWebsite({ heroImageUrl: url })} />
-      </div>
+          onChange={(url) => patchWebsite({ heroImageUrl: url, heroImage: '' })} />
+      </div> : null}
       <div className="bb-business-profile-details">
         <div className="bb-business-profile-photo">
           <EditableImage editMode={editMode} src={logo} alt={`${name} profile photo`}
@@ -89,9 +86,8 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
               onUpdateProfile?.({ brandName: next });
             }} />
           {(category || location) ? <p className="bb-business-profile-meta">
-            {category ? <span>{category}</span> : null}
-            {category && location ? <span aria-hidden="true">·</span> : null}
-            {location ? <span><MapPin size={14} aria-hidden="true" />{location}</span> : null}
+            {category ? <span className="bb-profile-metadata-pill">{category}</span> : null}
+            {location ? <span className="bb-profile-metadata-pill"><MapPin size={14} aria-hidden="true" />{location}</span> : null}
           </p> : null}
           <EditableText as="p" className="bb-business-profile-bio" editMode={editMode} multiline
             value={bio} placeholder="A short introduction to your business" website={website}
@@ -100,12 +96,18 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
           {editMode ? <p className="bb-business-profile-edit-note">Edit your name, introduction and photos here. Location and business category are managed in Business settings.</p> : null}
         </div>
         <div className="bb-business-profile-actions">
-          {showBook ? <Button action="book" variant="primary" disabled={editMode} onClick={() => onOpenTab?.('book')}>{website.ctaLabel || 'Book'}</Button> : null}
-          {showBuy ? <Button action="buy" variant="secondary" disabled={editMode} onClick={() => onOpenTab?.('buy')}>{website.buyCtaLabel || 'Buy'}</Button> : null}
-          {interactive ? <>
-            <Button action="chat" variant="secondary" busy={messaging} onClick={message}>Message</Button>
-            <Button action="save" variant="secondary" busy={saving} selected={isPlaceSaved(workspace.slug)} aria-pressed={isPlaceSaved(workspace.slug)} onClick={save}>{isPlaceSaved(workspace.slug) ? 'Saved' : 'Save'}</Button>
-          </> : null}
+          {<>
+            <Button action="chat" variant="secondary" disabled={!interactive} busy={messaging} onClick={message}>Message</Button>
+            {workspace.email ? <Button as="a" action="email" variant="secondary" disabled={!interactive} href={`mailto:${workspace.email}`}>Email</Button> : null}
+            {workspace.phone ? <Button as="a" icon={Phone} variant="secondary" disabled={!interactive} href={`tel:${workspace.phone}`}>Call</Button> : null}
+            <Button action="save" icon={Bookmark} variant="secondary" className="bb-profile-bookmark" disabled={!interactive} busy={saving}
+              selected={isPlaceSaved(workspace.slug)}
+              aria-label={isPlaceSaved(workspace.slug) ? 'Unsave business' : 'Save business'}
+              title={isPlaceSaved(workspace.slug) ? 'Unsave business' : 'Save business'}
+              aria-pressed={isPlaceSaved(workspace.slug)} onClick={save}>
+              {isPlaceSaved(workspace.slug) ? 'Saved' : 'Save'}
+            </Button>
+          </>}
         </div>
       </div>
       {error ? <p className="bb-business-profile-error" role="alert">{error}</p> : null}

@@ -65,6 +65,12 @@ export const IMAGE_PRESETS = {
     mime: 'image/jpeg',
     quality: 0.9
   },
+  productPhoto: {
+    id: 'productPhoto', label: 'Product photo', aspect: 1,
+    width: 1600, height: 1600, mime: 'image/jpeg', quality: 0.92,
+    flexible: true, minAspect: 0.001, maxAspect: 1000,
+    ratioOptions: POST_RATIO_OPTIONS
+  },
   catalogCard: {
     id: 'catalogCard',
     label: 'Catalog',
