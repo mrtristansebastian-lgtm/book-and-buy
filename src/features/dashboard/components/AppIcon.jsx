@@ -2,8 +2,8 @@ import { TAB_HINTS, TAB_ICONS } from '../../../config/appLauncher';
 import { workspaceTabLabels } from '../../../config/routeConfig';
 import { navigate, workspacePagePath } from '../../../app/routing';
 
-/** App icon with its saved agent's category colours, count badge and label. */
-export function AppIcon({ tabId, fallbackIcon, tint, iconInk = '#101828', badge = 0, index = 0, onSelect = null }) {
+/** App icon with category colours from the brand gradient, count badge and label. */
+export function AppIcon({ tabId, fallbackIcon, tint, badge = 0, index = 0, onSelect = null }) {
   const Icon = TAB_ICONS[tabId] || fallbackIcon;
   const [tintA, tintB] = tint || ['#cbd5e1', '#94a3b8'];
   const label = workspaceTabLabels[tabId] || tabId;
@@ -12,7 +12,7 @@ export function AppIcon({ tabId, fallbackIcon, tint, iconInk = '#101828', badge 
     <button
       type="button"
       className="bb-appicon bb-launcher-enter"
-      style={{ '--tint-a': tintA, '--tint-b': tintB, '--app-icon-ink': iconInk, '--i': index }}
+      style={{ '--tint-a': tintA, '--tint-b': tintB, '--i': index }}
       title={TAB_HINTS[tabId]}
       aria-label={badge > 0 ? `${label}, ${badge} waiting` : label}
       onClick={() => {

@@ -66,7 +66,6 @@ export function AppTile({ app, badgeFor, index = 0, view = 'icons', onSelect = n
               tabId={tabId}
               fallbackIcon={Icon}
               tint={app.tint}
-              iconInk={app.iconInk}
               badge={badgeFor(tabId)}
               index={index + i * 0.25}
               onSelect={onSelect}

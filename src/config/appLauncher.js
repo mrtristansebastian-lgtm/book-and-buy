@@ -79,7 +79,7 @@ export const launcherApps = [
     tabs: ['services', 'requests', 'staff', 'availability'],
     size: 'lg',
     hue: 'mint',
-    tint: ['#12D97A', '#6EE8AD']
+    tint: ['#cbffb8', '#c9ffbf']
   },
   {
     id: 'buy',
@@ -89,7 +89,7 @@ export const launcherApps = [
     tabs: ['products', 'orders', 'stock'],
     size: 'lg',
     hue: 'sky',
-    tint: ['#1E6BFF', '#70A3FF']
+    tint: ['#b9e3ff', '#c1e7ff']
   },
   {
     id: 'presence',
@@ -99,8 +99,7 @@ export const launcherApps = [
     tabs: ['website', 'website-book', 'website-buy', 'website-checkout'],
     size: 'lg',
     hue: 'violet',
-    tint: ['#15181D', '#313740'],
-    iconInk: '#F4F7FA'
+    tint: ['#d2cbff', '#d8ccff']
   },
   {
     id: 'analytics',
@@ -110,7 +109,7 @@ export const launcherApps = [
     tabs: ['live-stats', 'analytics', 'finance-reports', 'finance'],
     size: 'md',
     hue: 'sky',
-    tint: ['#FFC400', '#FFE16A']
+    tint: ['#f1ff9a', '#f1ff9a']
   },
   {
     id: 'business',
@@ -120,7 +119,7 @@ export const launcherApps = [
     tabs: ['communications', 'clients', 'settings'],
     size: 'lg',
     hue: 'mint',
-    tint: ['#FF6A1A', '#FFA16B']
+    tint: ['#ffd4f2', '#ffd4f2']
   }
 ];
 
