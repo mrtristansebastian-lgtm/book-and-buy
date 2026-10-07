@@ -269,10 +269,11 @@ export function WhatWeOfferSection({
                 ) : null}
               </article>
             ))}
-            {editMode && reasons.length < 8 ? (
+            {editMode ? (
               <Button action="add" variant="primary"
                 type="button"
                 className="bb-public-about-add-point"
+                disabled={reasons.length >= 12}
                 onClick={() =>
                   patchWebsite({
                     reasons: [
@@ -289,7 +290,7 @@ export function WhatWeOfferSection({
                 }
               >
                 <Plus size={17} aria-hidden="true" />
-                Add point
+                {reasons.length >= 12 ? 'Maximum 12 points' : 'Add point'}
               </Button>
             ) : null}
           </div>

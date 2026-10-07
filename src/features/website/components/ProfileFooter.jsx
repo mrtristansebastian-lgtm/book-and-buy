@@ -21,7 +21,7 @@ export function ProfileFooter({ workspace, preview, editMode, patchWebsite }) {
       </section>
       <section><h2>Client policies</h2>{policies.map(([key, label]) => <a key={key} href={`#policy-${key}`} onClick={event => { event.preventDefault(); setPolicy([key, label]); }}>{label}</a>)}</section>
       <section><h2>Follow us</h2>{editMode ? PROFILE_SOCIALS.map(label => <div className="bb-profile-social-edit" key={label}>
-        <span>{label}</span><EditableText as="p" editMode value={workspace.website?.socialLinks?.[label.toLowerCase()] || ''}
+        <span>{label}</span><EditableText as="p" editMode maxLength={2048} value={workspace.website?.socialLinks?.[label.toLowerCase()] || ''}
           placeholder="Add link" ariaLabel={`${label} link`} onChange={value => patchWebsite?.({ socialLinks: { ...workspace.website?.socialLinks, [label.toLowerCase()]: value } })} />
       </div>) : socials.length ? socials.map(([label, url]) => <a key={label} href={url} target="_blank" rel="noopener noreferrer">{label}</a>) : <p>Social links coming soon.</p>}</section>
     </footer>

@@ -1,6 +1,7 @@
 import { EditableImage, EditableText, EditSection } from '../editable';
 import { useId, useRef, useState } from 'react';
 import { Button } from '../../../../shared/ui/Button';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 /** Existing copy becomes paragraphs in one story. Original fields and images stay stored. */
 export function resolveStory(website = {}) {
@@ -41,6 +42,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
   if (!editMode && !pages.some(item => String(item.body || '').trim())) return null;
   return <EditSection editMode={editMode} hidden={hidden} title="Our story" sectionId="about"
     className="bb-business-profile-section bb-profile-story bb-profile-story--book">
+    <div className="bb-profile-story-stage">
     <div key={page.id} id={`${tabId}-panel`} role="tabpanel" aria-labelledby={pages.length > 1 ? `${tabId}-${activeIndex}` : undefined}
       className={`bb-profile-story-card${image || editMode ? ' has-photo' : ''} bb-profile-story-page--${direction}`}
       onTouchStart={event => {
@@ -67,6 +69,11 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
     </> : <div className="bb-profile-story-text">
       {story.split(/\n\s*\n/).filter(Boolean).map((paragraph, index) => <p key={index} className="bb-business-profile-body">{paragraph}</p>)}
     </div>}</div></div>
+    {pages.length > 1 ? <div className="bb-profile-story-arrows">
+      <button type="button" aria-label="Previous story chapter" onClick={() => selectPage((activeIndex - 1 + pages.length) % pages.length)}><ArrowLeft size={32} strokeWidth={1.6} aria-hidden="true" /></button>
+      <button type="button" aria-label="Next story chapter" onClick={() => selectPage((activeIndex + 1) % pages.length)}><ArrowRight size={32} strokeWidth={1.6} aria-hidden="true" /></button>
+    </div> : null}
+    </div>
     {pages.length > 1 ? <nav className="bb-profile-story-timeline" role="tablist" aria-label="Story timeline">
       {pages.map((item, index) => <button key={item.id} id={`${tabId}-${index}`} type="button" role="tab"
         aria-selected={index === activeIndex} aria-controls={`${tabId}-panel`} tabIndex={index === activeIndex ? 0 : -1}

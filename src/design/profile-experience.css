@@ -140,7 +140,7 @@ html body .native-ui .bb-business-profile .bb-public-review-avatar { box-shadow:
 .bb-business-profile-actions { grid-column:1/-1; grid-row:3; align-self:start; justify-content:flex-start; padding-top:0; }
 .bb-business-profile-identity:not(:has(.bb-business-profile-banner)) .bb-business-profile-photo { margin-top:16px; }
 .bb-business-profile-identity:not(:has(.bb-business-profile-banner)) .bb-business-profile-details { max-width:none; }
-.bb-business-profile .bb-business-profile-bio { max-width:70ch; }
+.bb-business-profile .bb-business-profile-bio { max-width:70ch; width:100%; text-align:center !important; }
 .bb-business-profile-meta { flex-wrap:wrap; gap:8px; }
 html body .bb-business-profile .bb-profile-metadata-pill {
   display:inline-flex; align-items:center; gap:6px; padding:5px 12px;
@@ -437,3 +437,19 @@ html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .
   html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar-copy { gap:8px; }
   html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar-title:not(.bb-offer-card):not(.bb-offer-card *) { font-size:18px !important; }
 }
+.bb-business-profile .bb-profile-text-editor { display:block; width:100%; position:relative; text-align:center; }
+.bb-business-profile .bb-profile-text-count { display:block; font-size:11px; line-height:1.5; color:#667085; margin-top:4px; text-align:center; }
+.bb-profile-story-stage { position:relative; padding-inline:64px; }
+.bb-profile-story-arrows { position:absolute; left:4px; right:4px; top:148px; z-index:5; display:flex; justify-content:space-between; pointer-events:none; }
+.bb-profile-story-arrows button { pointer-events:auto; width:44px; height:44px; min-height:44px; padding:0; border-radius:50%; color:#101828; background:linear-gradient(145deg,#fff,#f3f4f6); border:1px solid #e4e7ec; box-shadow:0 3px 10px #1018280a,inset 0 1px 0 #fff; transition:transform .18s,box-shadow .18s; }
+.bb-profile-story-arrows button:hover { transform:translateY(-2px); box-shadow:0 5px 14px #10182814; }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button { border-radius:50% !important; background:linear-gradient(145deg,#fff,#f3f4f6) !important; box-shadow:0 3px 10px #1018280a,inset 0 1px 0 #fff; }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows .bb-button-icon { color:#101828 !important; width:20px; height:20px; }
+.bb-profile-story-stage:not(:has(.has-photo)) .bb-profile-story-arrows { top:12px; }
+@container bb-profile-width (max-width:599px) { .bb-profile-story-arrows { display:none; } .bb-profile-story-stage { padding-inline:0; } }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button { display:grid; place-items:center; width:48px; height:48px; min-height:48px; padding:0 !important; border:0 !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; color:#101828; cursor:pointer; }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button svg { display:block; width:32px !important; height:32px !important; flex:none; }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button:hover { transform:translateX(3px); }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button:first-child:hover { transform:translateX(-3px); }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar-copy { justify-items:stretch; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar-copy :is(.bb-public-about-pillar-title,.bb-public-about-pillar-body) { width:100%; max-width:none; margin-inline:0 !important; text-align:center !important; box-sizing:border-box; }

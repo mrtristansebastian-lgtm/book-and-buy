@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Palette, PaintBucket, Underline } from 'lucide-react';
 import { EditableColor } from './EditableColor';
+import { profileTextLimit, limitProfileText } from './textLimits';
 import {
   isSolidColorToken,
   readStyleToken,
@@ -27,11 +28,13 @@ export function EditableText({
   fillTokenId,
   fillAllowGradient = false,
   fillTitle = 'Fill',
-  style
+  style,
+  maxLength = profileTextLimit({ className, multiline, placeholder })
 }) {
   const ref = useRef(null);
   const wrapRef = useRef(null);
   const [focused, setFocused] = useState(false);
+  const [characterCount, setCharacterCount] = useState(Array.from(value).length);
   const [colorOpen, setColorOpen] = useState(false);
   const [accentOpen, setAccentOpen] = useState(false);
   const [fillOpen, setFillOpen] = useState(false);
@@ -87,10 +90,23 @@ export function EditableText({
       aria-label={ariaLabel || placeholder}
       aria-multiline={multiline}
       data-placeholder={placeholder}
-      onFocus={() => setFocused(true)}
+      data-max-length={maxLength}
+      onFocus={() => { setFocused(true); setCharacterCount(Array.from(ref.current?.innerText || '').length); }}
+      onInput={() => {
+        const text = ref.current?.innerText || '';
+        const limited = limitProfileText(text, maxLength);
+        if (limited !== text) {
+          ref.current.textContent = limited;
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(ref.current); range.collapse(false);
+          selection?.removeAllRanges(); selection?.addRange(range);
+        }
+        setCharacterCount(Array.from(limited).length);
+      }}
       onBlur={(event) => {
         const nextTarget = event.relatedTarget;
-        const next = (ref.current?.innerText || '').replace(/\u00a0/g, ' ').trim();
+        const next = limitProfileText((ref.current?.innerText || '').replace(/\u00a0/g, ' ').trim(), maxLength);
         if (next !== (value || '').trim()) onChange?.(next);
         if (wrapRef.current?.contains(nextTarget)) return;
         setFocused(false);
@@ -104,7 +120,7 @@ export function EditableText({
     />
   );
 
-  if (!hasStyleTools || !patchWebsite) return textNode;
+  if (!hasStyleTools || !patchWebsite) return <span className="bb-profile-text-editor">{textNode}{focused ? <span className="bb-profile-text-count" role="status">{characterCount}/{maxLength}</span> : null}</span>;
 
   const closePanels = (except) => {
     if (except !== 'color') setColorOpen(false);

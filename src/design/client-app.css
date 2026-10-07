@@ -5847,3 +5847,13 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
   .bb-explore-content-play { left: 2.8rem; }
   .bb-explore-content-image-preview { min-height: 5.8rem; }
 }
+/* Keep mobile header text crisp: glass compositing can blur its upper edge on iOS. */
+@media (max-width: 899px) {
+  .bb-client-shell .bb-client-top { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; isolation:isolate; }
+  .bb-client-shell .bb-client-top .bb-page-header-glow { z-index:-1; }
+  .bb-client-shell .bb-client-top :is(.bb-page-title,.bb-brand-lockup-mark) { position:relative; z-index:1; filter:none; }
+}
+@media (max-width: 899px) {
+  .bb-client-ig-explore.is-find .bb-places-list { width:calc(100% + 12px); margin-inline:-6px; padding-top:14px; box-sizing:border-box; }
+  .bb-client-ig-explore.is-find .bb-places-open { padding-right:12px; grid-template-columns:5.4rem minmax(0,1fr) 1.6rem; gap:10px; box-sizing:border-box; }
+}

@@ -80,6 +80,7 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
         </div>
         <div className="bb-business-profile-copy">
           <EditableText as="h1" className="bb-business-profile-name" editMode={editMode}
+            maxLength={60}
             value={name} placeholder="Business name" website={website} patchWebsite={patchWebsite}
             onChange={(value) => {
               const next = value.trim() || 'Your business';
@@ -90,6 +91,7 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
             {location ? <span className="bb-profile-metadata-pill"><MapPin size={14} aria-hidden="true" />{location}</span> : null}
           </p> : null}
           <EditableText as="p" className="bb-business-profile-bio" editMode={editMode} multiline
+            maxLength={200}
             value={bio} placeholder="A short introduction to your business" website={website}
             patchWebsite={patchWebsite}
             onChange={(value) => patchWebsite({ homeSubtext: value, subcopy: value })} />
