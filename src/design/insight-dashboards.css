@@ -186,12 +186,14 @@ html body .bb-launcher .bb-home-utility-action .bb-button-icon[data-bb-keep-icon
 .bb-report-overview-guide p { margin: 0; font-size: 12px; color: #667085; }
 .bb-report-period-caption { margin-left: auto; color: #98a2b3; font-size: 11px; }
 .bb-report-categories { display: grid; gap: 0; min-width: 0; }
-.bb-report-category { display: grid; grid-template-columns: 244px minmax(0,1fr); border: 0; border-radius: 0; background: #fff; box-shadow: none; overflow: hidden; }
+.bb-report-category { display: grid; grid-template-columns: 260px minmax(0,1fr); border: 0; border-radius: 0; background: #fff; box-shadow: none; overflow: hidden; }
 .bb-report-category + .bb-report-category { border-top: 1px solid #e9edf1; }
-.bb-report-category-head { display: flex; gap: 13px; padding: 24px 18px; align-items: flex-start; min-width: 0; background: #fff; }
+.bb-report-category-head { display: flex; gap: 13px; padding: 24px 18px; align-items: center; min-width: 0; background: #fff; }
 .bb-report-category-copy { min-width: 0; }
 .bb-report-category-icon { position: relative; display: grid; place-items: center; width: 56px; height: 56px; flex: 0 0 56px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .bb-report-category-icon img { display:block; width:56px; height:56px; max-width:none; object-fit:contain; border:0; border-radius:0; background:transparent; box-shadow:none; animation:none; }
+.bb-report-category-head .bb-report-category-icon { width: 72px; height: 72px; flex-basis: 72px; }
+.bb-report-category-head .bb-report-category-icon img { width: 72px; height: 72px; }
 html body .native-ui .bb-report-category-head h2 { margin: 2px 0 0; color: #101828; font: 600 16px/1.35 var(--bb-font-body) !important; letter-spacing: -.02em !important; }
 .bb-report-category-head p { margin: 6px 0 0; color: #667085; font: 400 12px/1.55 var(--bb-font-body); }
 .bb-report-metric-row { display: grid; grid-template-columns: repeat(var(--report-columns),minmax(0,1fr)); min-width: 0; }

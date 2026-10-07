@@ -12,19 +12,19 @@ export function RequestsPage() {
     <div className="grid gap-5">
       <BookingRequestsDesk
         heading={
-          <header className="bb-ops-page-head">
-            <div className="bb-page-title-wrap">
-              <PageBackButton />
-              <span className="bb-page-title-main">
-                <div className="bb-page-header-glow" aria-hidden="true" />
-                <h1 className="bb-page-title">Requests</h1>
-              </span>
-            </div>
-            <Button action="book" variant="primary" type="button" className="bb-page-action" onClick={() => setManualOpen(true)}>
-              <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
-              Manual booking
-            </Button>
-          </header>
+          <div className="bb-page-title-wrap">
+            <PageBackButton />
+            <span className="bb-page-title-main">
+              <div className="bb-page-header-glow" aria-hidden="true" />
+              <h1 className="bb-page-title">Requests</h1>
+            </span>
+          </div>
+        }
+        headingActions={
+          <Button action="book" variant="primary" type="button" className="bb-page-action" onClick={() => setManualOpen(true)}>
+            <Plus size={14} strokeWidth={2.35} aria-hidden="true" />
+            Manual booking
+          </Button>
         }
       />
       {manualOpen ? <ManualBookingSheet onClose={() => setManualOpen(false)} /> : null}

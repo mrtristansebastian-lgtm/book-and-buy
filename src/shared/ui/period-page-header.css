@@ -1,0 +1,129 @@
+/* Desktop placement follows the page's heading or filter toolbar; mobile follows the title. */
+html body .bb-period-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px 24px;
+  min-width: 0;
+  width: 100%;
+}
+
+html body .bb-period-page-header > .bb-period-page-header-title {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  align-self: start;
+}
+
+html body .bb-period-page-header > .bb-period-page-header-period {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  justify-self: end;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html body .bb-period-page-header > .bb-period-page-header-period > .bb-segment {
+  max-width: 100%;
+}
+
+html body .bb-period-page-header > .bb-period-page-header-meta {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  min-width: 0;
+}
+
+html body .bb-period-page-header > .bb-period-page-header-meta > * {
+  margin-block: 0;
+}
+
+/* Header notices belong to the subtitle stack, without floating auto margins. */
+html body .bb-period-page-header .bb-period-page-header-meta > .bb-analytics-demo-note {
+  margin: 0 !important;
+  justify-self: start;
+}
+
+html body .bb-period-page-header > .bb-period-page-header-actions {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (min-width: 900px) {
+  html body .bb-period-page-header > .bb-period-page-header-period {
+    align-self: center;
+    margin-right: 12px;
+  }
+
+  html body .bb-period-page-header[data-desktop-layout="toolbar"] {
+    row-gap: 16px;
+  }
+
+  html body .bb-period-page-header[data-desktop-layout="toolbar"] > .bb-period-page-header-period {
+    grid-row: 2;
+    margin-right: 0;
+  }
+
+  html body .bb-period-page-header[data-desktop-layout="toolbar"] > .bb-period-page-header-actions {
+    grid-row: 1;
+    align-self: center;
+  }
+
+  html body .bb-period-page-header[data-desktop-layout="toolbar"] > .bb-period-page-header-filters {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: center;
+    min-width: 0;
+  }
+}
+
+html body .bb-period-page-header-filters > .bb-ops-tabs {
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 899px) {
+  html body .bb-period-page-header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  html body .bb-period-page-header > :is(.bb-period-page-header-title, .bb-period-page-header-period, .bb-period-page-header-meta, .bb-period-page-header-actions, .bb-period-page-header-filters) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  html body .bb-period-page-header > .bb-period-page-header-period {
+    justify-content: flex-start;
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  html body .bb-period-page-header > .bb-period-page-header-period > .bb-segment {
+    display: flex;
+    width: 100%;
+  }
+
+  html body .bb-period-page-header > .bb-period-page-header-period > .bb-segment > button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  html body .bb-period-page-header > .bb-period-page-header-actions {
+    justify-content: flex-start;
+    justify-self: start;
+  }
+}

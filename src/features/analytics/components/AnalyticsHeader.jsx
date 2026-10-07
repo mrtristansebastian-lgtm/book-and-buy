@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { ANALYTICS_PERIODS, periodTitle } from '../utils/analyticsMetrics';
 
@@ -24,8 +25,9 @@ export function AnalyticsHeader({
 
   return (
     <header className="bb-analytics-header">
-      <div className="bb-analytics-header-top">
-        <div className="bb-analytics-header-copy">
+      <PeriodPageHeader
+        className="bb-analytics-header-top"
+        title={
           <div className="bb-page-title-wrap">
             <PageBackButton onClick={onBack} ariaLabel={backLabel || 'Back to Home'} />
             <span className="bb-page-title-main">
@@ -35,21 +37,18 @@ export function AnalyticsHeader({
               </h1>
             </span>
           </div>
-          {description ? <p className="bb-reports-intro">{periodTitle(periodId, customRange)} · {description}</p> : null}
-          {usingDemo ? (
-            <p className="bb-analytics-demo-note">Demo data · Sample activity, not your live business statistics.</p>
-          ) : null}
-        </div>
-
-        <PeriodSegmentedControl
+        }
+        period={<PeriodSegmentedControl
           variant="period"
           ariaLabel="Time period"
           value={periodId}
           options={periodOptions}
           onChange={onPeriodChange}
           onCustomSelect={() => setCustomPickerOpen(true)}
-        />
-      </div>
+        />}
+        description={description ? <p className="bb-reports-intro">{periodTitle(periodId, customRange)} · {description}</p> : null}
+        notice={usingDemo ? <p className="bb-analytics-demo-note">Demo data · Sample activity, not your live business statistics.</p> : null}
+      />
 
       <PeriodCustomPicker
         open={customPickerOpen}

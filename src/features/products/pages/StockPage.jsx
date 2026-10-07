@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AlertTriangle, ArrowDownToLine, Boxes, Check, ChevronLeft, ChevronRight, Package, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowDownToLine, Boxes, Check, ChevronLeft, ChevronRight, Package, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '../../../shared/ui/Button';
 import { FilterChip } from '../../../shared/ui/FilterChip';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
@@ -67,7 +67,7 @@ function QuantityDialog({ units, onClose, onApply }) {
 }
 
 export function StockPage({ routeRest = [] }) {
-  const { products = [], workspace, updateInventory, saveStatus, saveError, retrySave } = useWorkspace();
+  const { products = [], updateInventory, saveError, retrySave } = useWorkspace();
   const isMobile = useMobileInventory();
   const [query, setQuery] = useState('');
   const [filterId, setFilterId] = useState('all');
@@ -153,8 +153,7 @@ export function StockPage({ routeRest = [] }) {
           { id: 'out', label: 'Out of stock', value: summary.counts.out, art: 'stock-out', tone: 'rose', copy: 'Quantity is zero' }
         ].map(metric => <button type="button" key={metric.id} className={`bb-inventory-metric is-${metric.tone}`} onClick={() => showStockState(metric.id)} aria-label={`Show ${metric.label.toLowerCase()} items`}><span className="bb-inventory-metric-label"><ReportCategoryIcon category={metric.art} />{metric.label}</span><strong>{formatCount(metric.value)}</strong><span>{metric.copy}</span></button>)}</div>
       </section>
-      <div className={`bb-inventory-health${summary.attentionCount ? ' has-alerts' : ''}`}><span className="bb-inventory-health-icon">{summary.attentionCount ? <AlertTriangle size={19} /> : <Check size={19} />}</span><div><strong>{summary.attentionCount ? `${formatCount(summary.attentionCount)} stock ${summary.attentionCount === 1 ? 'item needs' : 'items need'} restocking` : 'Your tracked stock is looking good'}</strong><span>{summary.attentionCount ? 'Each variant has its own warning, so the small details stay visible.' : 'Set a warning level on each item and we’ll flag it here when stock runs low.'}</span></div>{summary.attentionCount > 0 && <button type="button" onClick={() => showStockState('attention')}>Review items <ChevronRight size={15} /></button>}</div>
-      {saveError ? <div className="bb-inventory-save-error" role="alert"><span>{saveError}</span><Button action="retry" onClick={retrySave}>Retry save</Button></div> : <p className="bb-inventory-persistence" aria-live="polite">{workspace.isDemo ? 'Demo changes stay on this device.' : saveStatus === 'saving' ? 'Saving changes…' : saveStatus === 'saved' ? 'Changes saved.' : 'Stock quantities are managed here.'}</p>}
+      {saveError && <div className="bb-inventory-save-error" role="alert"><span>{saveError}</span><Button action="retry" onClick={retrySave}>Retry save</Button></div>}
       <section className="bb-inventory-register" aria-labelledby="inventory-register-title">
         <div className="bb-inventory-register-heading"><div><h2 id="inventory-register-title">Stock register</h2><p>Choose a product to manage its stock.</p></div><span>{formatCount(filtered.length)} {filtered.length === 1 ? 'item' : 'items'}{filtered.length !== scopeUnits.length ? ` of ${formatCount(scopeUnits.length)}` : ''}</span></div>
         <div className="bb-inventory-toolbar"><label className="bb-inventory-product-picker"><span>Product</span><select aria-label="Choose a product for stock register" value={chosenRow?.id || ''} onChange={event => { setProductId(event.target.value); setQuery(''); setFilterId('all'); }}>{!productOptions.length && <option value="">No products yet</option>}{productOptions.map(row => <option key={row.id} value={row.id}>{row.name}</option>)}</select></label><label className="bb-inventory-search"><Search size={17} /><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search variants or SKU" aria-label="Search inventory" /></label><label className="bb-inventory-sort"><span>Sort by</span><select aria-label="Sort inventory" value={sort} onChange={event => { setSort(event.target.value); setPage(1); }}><option value="attention">Attention first</option><option value="name">Name</option><option value="sku">SKU</option><option value="quantity-low">Quantity: low to high</option><option value="quantity-high">Quantity: high to low</option></select></label></div>

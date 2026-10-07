@@ -6,6 +6,7 @@ import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { AppSheet } from '../../../shared/ui/AppSheet';
 import { FilterChip } from '../../../shared/ui/FilterChip';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { navigate, workspacePagePath } from '../../../app/routing';
@@ -125,8 +126,12 @@ export function SchedulePage() {
 
   return <div className="bb-schedule-agenda-page">
     <div className="bb-page-chrome"><header className="bb-agenda-page-head">
-      <div><div className="bb-page-title-wrap"><PageBackButton /><span className="bb-page-title-main"><div className="bb-page-header-glow" aria-hidden="true" /><h1 className="bb-page-title">Schedule</h1></span></div><p className="bb-agenda-page-lede">Your bookings, one clear day at a time.</p></div>
-      <Button action="sync" icon={<img src="/review-logos/google-calendar.webp" alt="" />} variant="secondary" className="bb-agenda-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">Google Calendar</Button>
+      <PeriodPageHeader
+        title={<div className="bb-page-title-wrap"><PageBackButton /><span className="bb-page-title-main"><div className="bb-page-header-glow" aria-hidden="true" /><h1 className="bb-page-title">Schedule</h1></span></div>}
+        period={<PeriodSegmentedControl value={period} onChange={setPeriod} onCustomSelect={() => setCustomOpen(true)} options={PERIODS} variant="period" ariaLabel="Schedule period" />}
+        description={<p className="bb-agenda-page-lede">Your bookings, one clear day at a time.</p>}
+        actions={<Button action="sync" icon={<img src="/review-logos/google-calendar.webp" alt="" />} variant="secondary" className="bb-agenda-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">Google Calendar</Button>}
+      />
     </header></div>
 
     <div className="bb-agenda-workspace">
@@ -145,7 +150,6 @@ export function SchedulePage() {
 
       <section className="bb-agenda-main" aria-label="Schedule bookings">
         <div className="bb-agenda-controls">
-          <PeriodSegmentedControl value={period} onChange={setPeriod} onCustomSelect={() => setCustomOpen(true)} options={PERIODS} variant="period" ariaLabel="Schedule period" />
           <div className="bb-agenda-date-navigation">
             <button type="button" className="bb-agenda-date-arrow" aria-label={`Previous ${period === 'custom' ? 'period' : period}`} disabled={period === 'custom'} onClick={() => setAnchorDay(shiftPeriod(day, period, -1))}><ChevronLeft size={17} /></button>
             <button type="button" ref={dateTrigger} className="bb-agenda-date-trigger" onClick={openCalendar} aria-controls="schedule-date-picker" aria-expanded={typeof window !== 'undefined' && window.innerWidth > 850 ? undefined : calendarOpen}><CalendarDays size={15} aria-hidden="true" /><span>{periodLabel}</span><ChevronDown size={14} aria-hidden="true" /></button>

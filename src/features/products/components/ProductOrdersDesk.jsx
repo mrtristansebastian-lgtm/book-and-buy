@@ -10,6 +10,7 @@ import {
 import { formatCents } from '../../../utils/products';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { SortField } from '../../../shared/ui/SortField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
@@ -95,7 +96,7 @@ function compareOrders(a, b, sortBy) {
   return -chronoCompare;
 }
 
-export function ProductOrdersDesk({ heading = null }) {
+export function ProductOrdersDesk({ heading = null, headingActions = null }) {
   const {
     orders,
     acceptOrder,
@@ -155,20 +156,20 @@ export function ProductOrdersDesk({ heading = null }) {
   return (
     <section className="bb-ops-desk">
       <div className="bb-page-chrome">
-        {heading}
-        <div className="bb-ops-toolbar" aria-label="Product order period">
-          <PeriodSegmentedControl
+        <PeriodPageHeader
+          className="bb-ops-page-head"
+          desktopLayout="toolbar"
+          title={heading}
+          period={<PeriodSegmentedControl
             variant="period"
             ariaLabel="Product order period"
             value={period}
             onChange={setPeriod}
             options={PERIOD_OPTIONS}
             onCustomSelect={() => setCustomPickerOpen(true)}
-          />
-
-        </div>
-
-        <OpsDeskTabs
+          />}
+          actions={headingActions}
+          filters={<OpsDeskTabs
           ariaLabel="Product order filters"
           value={filter}
           onChange={setFilter}
@@ -180,6 +181,7 @@ export function ProductOrdersDesk({ heading = null }) {
             { id: 'cancelled', label: 'Cancelled', count: counts.cancelled },
             { id: 'all', label: 'All', count: counts.all }
           ]}
+          />}
         />
 
         <div className="bb-ops-list-sort">

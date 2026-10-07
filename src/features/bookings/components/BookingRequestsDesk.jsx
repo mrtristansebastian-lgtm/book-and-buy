@@ -11,6 +11,7 @@ import {
 import { formatServiceDuration, formatServicePrice } from '../../../utils/services';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { SortField } from '../../../shared/ui/SortField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
@@ -97,7 +98,7 @@ function compareBookings(a, b, sortBy) {
   return chronoCompare;
 }
 
-export function BookingRequestsDesk({ heading = null }) {
+export function BookingRequestsDesk({ heading = null, headingActions = null }) {
   const {
     bookings,
     services,
@@ -197,20 +198,20 @@ export function BookingRequestsDesk({ heading = null }) {
     <section className="bb-ops-desk">
       {actionError && <p role="alert" className="bb-reschedule-error">{actionError}</p>}
       <div className="bb-page-chrome">
-        {heading}
-        <div className="bb-ops-toolbar" aria-label="Booking request period">
-          <PeriodSegmentedControl
+        <PeriodPageHeader
+          className="bb-ops-page-head"
+          desktopLayout="toolbar"
+          title={heading}
+          period={<PeriodSegmentedControl
             variant="period"
             ariaLabel="Booking request period"
             value={period}
             onChange={setPeriod}
             options={PERIOD_OPTIONS}
             onCustomSelect={() => setCustomPickerOpen(true)}
-          />
-
-        </div>
-
-        <OpsDeskTabs
+          />}
+          actions={headingActions}
+          filters={<OpsDeskTabs
           ariaLabel="Booking request filters"
           value={filter}
           onChange={setFilter}
@@ -222,6 +223,7 @@ export function BookingRequestsDesk({ heading = null }) {
             { id: 'history', label: 'History', count: counts.history },
             { id: 'all', label: 'All', count: counts.all }
           ]}
+          />}
         />
 
         <div className="bb-ops-list-sort">

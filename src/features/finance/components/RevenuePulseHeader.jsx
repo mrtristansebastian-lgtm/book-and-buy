@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { FINANCE_PERIODS, periodTitle } from '../utils/financeLedger';
 
@@ -19,8 +20,9 @@ export function RevenuePulseHeader({
 
   return (
     <header className="bb-finance-header">
-      <div className="bb-finance-header-top">
-        <div className="bb-finance-header-copy">
+      <PeriodPageHeader
+        className="bb-finance-header-top"
+        title={
           <div className="bb-page-title-wrap">
             <PageBackButton />
             <span className="bb-page-title-main">
@@ -28,20 +30,17 @@ export function RevenuePulseHeader({
               <h1 className="bb-page-title bb-finance-title">Receipts &amp; invoices</h1>
             </span>
           </div>
-          <p className="bb-muted m-0 text-sm">{periodTitle(periodId, customRange)} · Paid receipts and invoices waiting for payment</p>
-        </div>
-
-        <div className="bb-finance-header-controls">
-          <PeriodSegmentedControl
-            variant="period"
-            ariaLabel="Time period"
-            value={periodId}
-            options={periodOptions}
-            onChange={onPeriodChange}
-            onCustomSelect={() => setCustomPickerOpen(true)}
-          />
-        </div>
-      </div>
+        }
+        period={<PeriodSegmentedControl
+          variant="period"
+          ariaLabel="Time period"
+          value={periodId}
+          options={periodOptions}
+          onChange={onPeriodChange}
+          onCustomSelect={() => setCustomPickerOpen(true)}
+        />}
+        description={<p className="bb-muted m-0 text-sm">{periodTitle(periodId, customRange)} · Paid receipts and invoices waiting for payment</p>}
+      />
 
       <PeriodCustomPicker
         open={customPickerOpen}

@@ -14,6 +14,7 @@ import { buildFinanceMetricView, formatFinanceMetricValue } from '../../finance/
 import { DashboardStat } from '../../../shared/ui/DashboardStat';
 import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
+import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useWorkspaceBadges } from '../hooks/useWorkspaceBadges';
 import { useLivePresence } from '../../analytics/hooks/useLivePresence';
@@ -162,19 +163,18 @@ export function OverviewPage() {
   return (
     <div className="bb-launcher is-home-only">
       <header className="bb-launcher-header bb-launcher-enter" style={{ '--i': 0 }}>
-        <div className="bb-launcher-header-copy">
+        <PeriodPageHeader title={
           <div className="bb-page-title-wrap">
             <div className="bb-page-header-glow" aria-hidden="true" />
             <h1 className="bb-page-title m-0">{greeting}</h1>
           </div>
+        } description={
           <p className="bb-muted m-0 bb-launcher-lede">
             {formatDisplayDate(todayKey)}
             <span className="bb-launcher-dot" aria-hidden="true" />
             {waiting > 0 ? `${plural(waiting, 'thing', 'things')} need you` : 'You’re all clear'}
           </p>
-        </div>
-
-        <div className="bb-launcher-tools">
+        } period={
           <PeriodSegmentedControl
             variant="period"
             ariaLabel="Stats time period"
@@ -183,7 +183,7 @@ export function OverviewPage() {
             onChange={setPeriodId}
             onCustomSelect={() => setCustomPickerOpen(true)}
           />
-
+        } actions={
           <div className="bb-launcher-live" role="group" aria-label="Public profile actions">
             <span className="bb-launcher-live-status">
             <span className="bb-launcher-live-dot" aria-hidden="true" />
@@ -207,7 +207,7 @@ export function OverviewPage() {
               Open
             </Button>
           </div>
-        </div>
+        } />
       </header>
 
       <PeriodCustomPicker
