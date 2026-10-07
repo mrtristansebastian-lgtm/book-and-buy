@@ -365,10 +365,10 @@ html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .
 html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-add-point { grid-column:1/-1; justify-self:center; width:auto; }
 .bb-profile-story-content { perspective:1200px; }
 .bb-profile-story-page { width:100%; display:flex; flex-direction:column; align-items:center; gap:16px; transform-style:preserve-3d; }
-.bb-profile-story-page--next { transform-origin:left center; animation:bb-story-turn-next .6s cubic-bezier(.2,.7,.2,1) both; }
-.bb-profile-story-page--previous { transform-origin:right center; animation:bb-story-turn-previous .6s cubic-bezier(.2,.7,.2,1) both; }
-@keyframes bb-story-turn-next { from { transform:perspective(1200px) rotateY(-72deg); opacity:.2; } to { transform:perspective(1200px) rotateY(0); opacity:1; } }
-@keyframes bb-story-turn-previous { from { transform:perspective(1200px) rotateY(72deg); opacity:.2; } to { transform:perspective(1200px) rotateY(0); opacity:1; } }
+.bb-profile-story-page--next { animation:bb-story-slide-next .4s cubic-bezier(.22,1,.36,1) both; }
+.bb-profile-story-page--previous { animation:bb-story-slide-previous .4s cubic-bezier(.22,1,.36,1) both; }
+@keyframes bb-story-slide-next { from { transform:translateX(12%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+@keyframes bb-story-slide-previous { from { transform:translateX(-12%); opacity:0; } to { transform:translateX(0); opacity:1; } }
 .bb-profile-story-timeline { display:flex; justify-content:center; width:100%; gap:8px; flex-wrap:wrap; margin-top:8px; }
 .bb-profile-story-timeline button { display:flex; align-items:center; gap:8px; min-height:44px; padding:8px 12px; border:1px solid #e4e7ec; border-radius:999px; background:#fff; font:500 13px/1.4 var(--bb-font-body); color:#667085; cursor:pointer; }
 .bb-profile-story-step { display:grid; place-items:center; width:22px; height:22px; border-radius:50%; background:#f2f4f7; font-size:11px; }
@@ -448,8 +448,66 @@ html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-a
 .bb-profile-story-stage:not(:has(.has-photo)) .bb-profile-story-arrows { top:12px; }
 @container bb-profile-width (max-width:599px) { .bb-profile-story-arrows { display:none; } .bb-profile-story-stage { padding-inline:0; } }
 html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button { display:grid; place-items:center; width:48px; height:48px; min-height:48px; padding:0 !important; border:0 !important; border-radius:0 !important; background:transparent !important; box-shadow:none !important; color:#101828; cursor:pointer; }
-html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button svg { display:block; width:32px !important; height:32px !important; flex:none; }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button svg { display:block; width:44px !important; height:44px !important; flex:none; }
 html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button:hover { transform:translateX(3px); }
 html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button:first-child:hover { transform:translateX(-3px); }
 html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar-copy { justify-items:stretch; }
 html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar-copy :is(.bb-public-about-pillar-title,.bb-public-about-pillar-body) { width:100%; max-width:none; margin-inline:0 !important; text-align:center !important; box-sizing:border-box; }
+/* Balance the icon rail with equal space on the right so offer copy shares the section heading's centre. */
+@container bb-profile-width (min-width:600px) {
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar,
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-journey.is-editing .bb-public-about-pillar { grid-template-columns:100px minmax(0,1fr) 100px !important; }
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-public-about-pillar-copy { padding-inline:24px; border-right:1px solid transparent; }
+}
+.bb-profile-welcome { display:flex; align-items:center; gap:12px; margin:12px 32px 20px; padding:10px 14px; border-block:1px solid #eaecf0; background:linear-gradient(100deg,#f8fafc,#fff,#faf8fc); color:#344054; font:400 13px/1.6 var(--bb-font-body); }
+.bb-profile-welcome-mark { flex:none; color:#667085; }
+.bb-profile-welcome-window { overflow:hidden; min-width:0; flex:1; mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent); }
+.bb-profile-welcome-track { display:flex; width:max-content; animation:bb-welcome-scroll 35s linear infinite; }
+.bb-profile-welcome-copy { display:flex; align-items:center; gap:36px; padding-right:36px; white-space:nowrap; }
+.bb-profile-welcome-dot { color:#98a2b3; }
+.bb-profile-welcome:hover .bb-profile-welcome-track,.bb-profile-welcome-window.is-paused .bb-profile-welcome-track { animation-play-state:paused; }
+.bb-profile-welcome-pause { display:grid; place-items:center; flex:none; width:32px; height:32px; padding:0; border:0; background:transparent; color:#475467; cursor:pointer; }
+.bb-profile-welcome-accessible { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.bb-profile-welcome.is-editing { flex-direction:column; align-items:stretch; }
+.bb-profile-welcome-toggle { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; }
+.bb-profile-welcome-hidden { margin:0; font-size:12px; }
+@keyframes bb-welcome-scroll { to { transform:translateX(-50%); } }
+@container bb-profile-width (max-width:599px) { .bb-profile-welcome { margin-inline:16px; gap:8px; padding-inline:8px; } }
+@media (prefers-reduced-motion:reduce) { .bb-profile-welcome-track { animation:none; width:auto; } .bb-profile-welcome-copy { white-space:normal; padding:0; } .bb-profile-welcome-copy + .bb-profile-welcome-copy,.bb-profile-welcome-dot,.bb-profile-welcome-pause { display:none; } .bb-profile-welcome-window { mask-image:none; } }
+
+/* The repeated scrolling text must never participate in the profile's intrinsic width. */
+.bb-public-profile-rail > .bb-profile-welcome { width:calc(100% - 64px); max-width:calc(100% - 64px); min-width:0; overflow:hidden; box-sizing:border-box; }
+.bb-profile-welcome-window { width:0; contain:inline-size; }
+@container bb-profile-width (max-width:599px) { .bb-public-profile-rail > .bb-profile-welcome { width:calc(100% - 32px); max-width:calc(100% - 32px); } }
+/* Welcome strip spans the full profile canvas on every device. */
+html body .bb-public-profile-rail > .bb-profile-welcome { width:100%; max-width:100%; margin-inline:0; border-radius:0; }
+html body .bb-profile-welcome-static { display:block; background:#fff; overflow:visible; padding:18px 24px; }
+.bb-profile-welcome-content { display:grid; grid-template-columns:48px minmax(0,1fr) 48px; align-items:center; gap:20px; width:100%; }
+.bb-profile-welcome-content > p { margin:0; text-align:center; line-height:1.7; }
+.bb-profile-welcome-side { display:flex; justify-content:center; }
+html body .bb-profile-welcome-static .bb-public-about-pillar-marker { display:grid; place-items:center; width:40px; height:40px; border:0 !important; background:transparent !important; box-shadow:none !important; color:#101828; padding:0; }
+html body .bb-profile-welcome-static .bb-public-about-pillar-marker svg { width:32px; height:32px; }
+.bb-profile-welcome-options { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; font-size:12px; }
+.bb-profile-welcome-options label { display:flex; align-items:center; gap:6px; }
+@container bb-profile-width (max-width:599px) { html body .bb-profile-welcome-static { padding:16px 12px; } .bb-profile-welcome-content { grid-template-columns:28px minmax(0,1fr) 28px; gap:8px; } html body .bb-profile-welcome-static .bb-public-about-pillar-marker { width:28px; } html body .bb-profile-welcome-static .bb-public-about-pillar-marker svg { width:24px; height:24px; } }
+/* Welcome and offer icons share identical vector size and stroke at each breakpoint. */
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-welcome-static .bb-public-about-pillar-marker svg { width:32px; height:32px; stroke-width:1.8; color:#101828; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-welcome-static .bb-public-about-pillar-marker { width:40px; height:40px; }
+@container bb-profile-width (min-width:900px) { html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-welcome-static .bb-public-about-pillar-marker svg { width:24px; height:24px; } }
+@container bb-profile-width (max-width:599px) { .bb-profile-welcome-content { grid-template-columns:40px minmax(0,1fr) 40px; } }
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button,
+html body .native-ui .bb-public-surface .bb-business-profile .bb-profile-story-arrows button svg { color:#98a2b3 !important; }
+/* A calm welcome panel with a readable centre and balanced icon rails. */
+html body .bb-public-profile-rail > .bb-profile-welcome-static { margin-block:0; padding:24px 28px; border-top:0; border-bottom:0; background:#fff; }
+.bb-profile-welcome-static .bb-profile-welcome-content { max-width:840px; margin-inline:auto; grid-template-columns:40px minmax(0,1fr) 40px; gap:24px; }
+html body .bb-profile-welcome-static .bb-profile-welcome-content > p,
+html body .bb-profile-welcome-static .bb-profile-welcome-content .bb-editable-text { font-size:14px !important; line-height:1.8 !important; color:#344054; text-wrap:pretty; }
+.bb-profile-welcome-static .bb-profile-welcome-side { align-self:center; }
+html body .bb-profile-welcome-static .bb-profile-welcome-options { max-width:840px; margin:0 auto 16px; padding-bottom:12px; border-bottom:1px solid #f0f1f3; }
+@container bb-profile-width (max-width:599px) {
+  html body .bb-public-profile-rail > .bb-profile-welcome-static { padding:20px 16px; }
+  .bb-profile-welcome-static .bb-profile-welcome-content { grid-template-columns:24px minmax(0,1fr) 24px; gap:12px; }
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-welcome-static .bb-public-about-pillar-marker { width:24px; height:32px; }
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-welcome-static .bb-public-about-pillar-marker svg { width:24px; height:24px; }
+  html body .bb-profile-welcome-static .bb-profile-welcome-content > p { font-size:13px !important; line-height:1.75 !important; }
+}

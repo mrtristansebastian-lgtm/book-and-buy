@@ -235,7 +235,7 @@ export function WebsiteSurfaceStudio({
 
       <div className="bb-profile-draft-status" role="status">
         {saveStatus === 'error' ? <><span>{saveError}</span><Button action="refresh" variant="secondary" onClick={retrySave}>Retry save</Button></> :
-          <span>{saveStatus === 'saving' ? 'Saving draft…' : workspace.isDemo ? 'Demo draft · saved on this device' : saveStatus === 'saved' ? 'Draft saved' : 'Draft kept on this device'} · Publish makes these changes public.</span>}
+          <span>{saveStatus === 'saving' ? 'Saving draft…' : workspace.isDemo ? 'Demo · changes saved on this device only.' : saveStatus === 'saved' ? 'Draft saved · publish to make it live.' : 'Draft on this device · publish to make it live.'}</span>}
         {website.published && workspace.publishedAt ? <span>Last published {new Date(workspace.publishedAt).toLocaleString()}</span> : <span>Not published yet</span>}
       </div>
       {publishNote ? <p role="status" className="bb-profile-publish-note">{publishNote}</p> : null}

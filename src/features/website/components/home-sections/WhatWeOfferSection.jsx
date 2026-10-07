@@ -300,7 +300,7 @@ export function WhatWeOfferSection({
   );
 }
 
-function OfferMarker({
+export function OfferMarker({
   reason,
   index,
   editMode,

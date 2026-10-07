@@ -1,7 +1,7 @@
 import { EditableImage, EditableText, EditSection } from '../editable';
 import { useId, useRef, useState } from 'react';
 import { Button } from '../../../../shared/ui/Button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /** Existing copy becomes paragraphs in one story. Original fields and images stay stored. */
 export function resolveStory(website = {}) {
@@ -38,7 +38,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
   const story = page.body || '';
   const image = page.imageUrl || '';
   const patchPage = (patch) => patchWebsite({ storyPages: pages.map((item, index) => index === activeIndex ? { ...item, ...patch } : item) });
-  const selectPage = (index) => { setDirection(index < activeIndex ? 'previous' : 'next'); setSelected(pages[index].id); };
+  const selectPage = (index, movement) => { setDirection(movement || (index < activeIndex ? 'previous' : 'next')); setSelected(pages[index].id); };
   if (!editMode && !pages.some(item => String(item.body || '').trim())) return null;
   return <EditSection editMode={editMode} hidden={hidden} title="Our story" sectionId="about"
     className="bb-business-profile-section bb-profile-story bb-profile-story--book">
@@ -52,7 +52,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
         const start = swipeStart.current; swipeStart.current = null;
         if (!start || editMode) return;
         const touch = event.changedTouches[0]; const dx = touch.clientX - start.x; const dy = touch.clientY - start.y;
-        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) selectPage((activeIndex + (dx < 0 ? 1 : -1) + pages.length) % pages.length);
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.3) selectPage((activeIndex + (dx < 0 ? 1 : -1) + pages.length) % pages.length, dx < 0 ? 'next' : 'previous');
       }}>
     {image || editMode ? <EditableImage editMode={editMode} src={image}
       className="bb-profile-story-card-image" alt={page.title || 'Our story'} preset="about" storageFolder="website"
@@ -70,8 +70,8 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
       {story.split(/\n\s*\n/).filter(Boolean).map((paragraph, index) => <p key={index} className="bb-business-profile-body">{paragraph}</p>)}
     </div>}</div></div>
     {pages.length > 1 ? <div className="bb-profile-story-arrows">
-      <button type="button" aria-label="Previous story chapter" onClick={() => selectPage((activeIndex - 1 + pages.length) % pages.length)}><ArrowLeft size={32} strokeWidth={1.6} aria-hidden="true" /></button>
-      <button type="button" aria-label="Next story chapter" onClick={() => selectPage((activeIndex + 1) % pages.length)}><ArrowRight size={32} strokeWidth={1.6} aria-hidden="true" /></button>
+      <button type="button" aria-label="Previous story chapter" onClick={() => selectPage((activeIndex - 1 + pages.length) % pages.length, 'previous')}><ChevronLeft size={44} strokeWidth={1.5} strokeLinecap="butt" strokeLinejoin="miter" aria-hidden="true" /></button>
+      <button type="button" aria-label="Next story chapter" onClick={() => selectPage((activeIndex + 1) % pages.length, 'next')}><ChevronRight size={44} strokeWidth={1.5} strokeLinecap="butt" strokeLinejoin="miter" aria-hidden="true" /></button>
     </div> : null}
     </div>
     {pages.length > 1 ? <nav className="bb-profile-story-timeline" role="tablist" aria-label="Story timeline">
@@ -81,7 +81,7 @@ export function AboutSection({ website, editMode, hidden, patchWebsite }) {
           if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
           event.preventDefault();
           const next = event.key === 'Home' ? 0 : event.key === 'End' ? pages.length - 1 : (activeIndex + (event.key === 'ArrowRight' ? 1 : -1) + pages.length) % pages.length;
-          selectPage(next); event.currentTarget.parentElement.children[next]?.focus();
+          selectPage(next, event.key === 'ArrowRight' ? 'next' : event.key === 'ArrowLeft' ? 'previous' : undefined); event.currentTarget.parentElement.children[next]?.focus();
         }} aria-label={item.title || `Page ${index + 1}`} title={item.title || `Page ${index + 1}`}><span className="bb-profile-story-step" aria-hidden="true" /></button>)}
     </nav> : null}
     {editMode ? <Button action="add" variant="secondary" onClick={() => {
