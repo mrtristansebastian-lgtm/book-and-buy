@@ -57,6 +57,18 @@ html body .bb-owner-main > .grid > :is(header, .bb-page-title-wrap):first-child 
   html body :is(.bb-page-title,.bb-page-back,.bb-client-top-mark) { position:relative; z-index:1; filter:none !important; }
 }
 /* Shared compact helper banners across demo and draft surfaces. */
+html body .native-ui .bb-segment.bb-segment-period.bb-segment-period.bb-segment-period {
+  border-radius:0 !important;
+}
+html body .native-ui .bb-segment.bb-segment-period.bb-segment-period.bb-segment-period > button {
+  border-radius:0 !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+}
+html body .native-ui .bb-segment.bb-segment-period.bb-segment-period.bb-segment-period > button :is(span,strong) {
+  font-size:inherit !important;
+  font-weight:600 !important;
+}
 html body .native-ui .bb-segment button,
 html body .native-ui .bb-segment button :is(span,strong) {
   font-family:var(--bb-font-body) !important;

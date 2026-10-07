@@ -185,22 +185,24 @@ html body .bb-launcher .bb-home-utility-action .bb-button-icon[data-bb-keep-icon
 .bb-report-overview-guide > span:first-child { color: #101828; font-size: 13px; font-weight: 600; }
 .bb-report-overview-guide p { margin: 0; font-size: 12px; color: #667085; }
 .bb-report-period-caption { margin-left: auto; color: #98a2b3; font-size: 11px; }
-.bb-report-categories { display: grid; gap: 16px; min-width: 0; }
-.bb-report-category { display: grid; grid-template-columns: 244px minmax(0,1fr); border: 1px solid #e9edf1; border-radius: 16px; background: #fff; overflow: hidden; }
-.bb-report-category-head { display: flex; gap: 13px; padding: 24px 18px; align-items: flex-start; min-width: 0; background: linear-gradient(120deg,#fafbfe,#fff); }
+.bb-report-categories { display: grid; gap: 0; min-width: 0; }
+.bb-report-category { display: grid; grid-template-columns: 244px minmax(0,1fr); border: 0; border-radius: 0; background: #fff; box-shadow: none; overflow: hidden; }
+.bb-report-category + .bb-report-category { border-top: 1px solid #e9edf1; }
+.bb-report-category-head { display: flex; gap: 13px; padding: 24px 18px; align-items: flex-start; min-width: 0; background: #fff; }
 .bb-report-category-copy { min-width: 0; }
-.bb-report-category-icon { position: relative; display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 14px; background: linear-gradient(145deg,#fff,var(--report-icon-wash)); color: var(--report-icon-ink); border: 1px solid var(--report-icon-wash); box-shadow: inset 0 1px 0 #fff,0 3px 8px #10182804; }
-.bb-report-category-icon svg { display: block; width: 30px; height: 30px; overflow: visible; }
+.bb-report-category-icon { position: relative; display: grid; place-items: center; width: 56px; height: 56px; flex: 0 0 56px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.bb-report-category-icon img { display:block; width:56px; height:56px; max-width:none; object-fit:contain; border:0; border-radius:0; background:transparent; box-shadow:none; animation:none; }
 html body .native-ui .bb-report-category-head h2 { margin: 2px 0 0; color: #101828; font: 600 16px/1.35 var(--bb-font-body) !important; letter-spacing: -.02em !important; }
 .bb-report-category-head p { margin: 6px 0 0; color: #667085; font: 400 12px/1.55 var(--bb-font-body); }
 .bb-report-metric-row { display: grid; grid-template-columns: repeat(var(--report-columns),minmax(0,1fr)); min-width: 0; }
 .bb-report-metric-cell { position: relative; display: flex; min-width: 0; border-left: 1px solid #edf0f3; }
-html body .native-ui a.bb-report-metric-link { position: relative; display: flex; flex-direction: column; justify-content: center; min-width: 0; width: 100%; box-sizing: border-box; gap: 10px; padding: 22px 18px; color: #101828; text-decoration: none; transition: background .15s ease; }
+html body .native-ui a.bb-report-metric-link { position: relative; display: flex; flex-direction: column; justify-content: center; min-width: 0; width: 100%; box-sizing: border-box; gap: 8px; padding: 22px 18px; color: #101828; text-decoration: none; transition: background .15s ease; }
 .bb-report-metric-link:hover { background: #f8f9fc; }
 .bb-report-metric-link:focus-visible { outline: 2px solid #6941c6; outline-offset: -3px; border-radius: 7px; }
-.bb-report-metric-label { min-height: 2.8em; padding-right: 22px; color: #667085; font: 450 12px/1.4 var(--bb-font-body); }
+.bb-report-metric-label { padding-right: 22px; color: #667085; font: 500 13px/1.4 var(--bb-font-body); }
+.bb-report-metric-value-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
 .bb-report-metric-value { color: #101828; font: 650 28px/1.1 var(--bb-font-body); letter-spacing: -.045em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.bb-report-metric-arrow { position: absolute; bottom: 22px; right: 12px; color: #b5bdc9; }
+.bb-report-metric-arrow { position: static; flex: 0 0 14px; color: #b5bdc9; }
 .bb-report-metric-link:hover .bb-report-metric-arrow { color: #6941c6; }
 html body .native-ui button.bb-report-help-trigger { position: absolute; top: 14px; right: 7px; display: inline-grid; place-items: center; width: 32px; min-width: 32px; height: 32px; min-height: 32px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: #98a2b3; cursor: pointer; box-shadow: none; }
 html body .native-ui button.bb-report-help-trigger:hover { color: #6941c6; background: #f4f1fa; }
@@ -246,7 +248,7 @@ html body .native-ui .bb-report-workspace .bb-analytics-panel-title { font-size:
 .bb-report-history-table td > span:last-child { position: relative; display: inline-block; min-width: 3ch; }
 .bb-report-history-bar { position: absolute; height: 20px; width: var(--activity-width); max-width: calc(100% - 70px); left: 0; top: 50%; transform: translateY(-50%); background: #f0edf8; border-radius: 3px; }
 .bb-report-history-bar.is-negative { background: #fceeee; }
-.bb-financial-reports .bb-report-metric-value { font-size: 23px; line-height: 1.25; letter-spacing: -.035em; padding-right: 12px; }
+.bb-financial-reports .bb-report-metric-value { font-size: 23px; line-height: 1.25; letter-spacing: -.035em; }
 .bb-financial-reports .bb-report-metric-value.is-long { font-size: 18px; }
 .bb-financial-reports .bb-report-detail-total strong { font-size: clamp(32px,3.3vw,48px); overflow-wrap: anywhere; }
 .bb-financial-report-notes { display: grid; gap: 8px; }
@@ -260,7 +262,7 @@ html body .native-ui .bb-report-workspace .bb-analytics-panel-title { font-size:
 .bb-report-unavailable p { font-size: 12px; line-height: 1.6; max-width: 44ch; color: #98a2b3; }
 @media (max-width: 1199px) {
   .bb-report-category { grid-template-columns: minmax(0,1fr); }
-  .bb-report-category-head { align-items: center; padding: 16px 18px; border-bottom: 1px solid #edf0f3; }
+  .bb-report-category-head { align-items: center; padding: 16px 18px; }
   .bb-report-category-head p { max-width: none; margin-top: 3px; }
   .bb-report-metric-cell:first-child { border-left: 0; }
 }
@@ -268,8 +270,6 @@ html body .native-ui .bb-report-workspace .bb-analytics-panel-title { font-size:
   .bb-report-workspace { gap: 18px; }
   .bb-report-period-caption { display: none; }
   .bb-report-overview-guide { gap: 5px; flex-direction: column; align-items: flex-start; }
-  .bb-report-categories { gap: 14px; }
-  .bb-report-category { border-radius: 12px; }
   .bb-report-category-head { padding: 17px 16px; gap: 12px; }
   html body .native-ui .bb-report-category-head h2 { font-size: 15px !important; margin: 0; }
   .bb-report-category-head p { font-size: 12px; }
@@ -283,10 +283,9 @@ html body .native-ui .bb-report-workspace .bb-analytics-panel-title { font-size:
   .bb-report-help-overlay { padding: 16px; }
   .bb-report-help-dialog { padding: 22px; border-radius: 18px; }
   .bb-report-metric-value { font-size: 26px; }
-  .bb-financial-reports .bb-report-metric-value { font-size: 20px; padding-right: 8px; }
+  .bb-financial-reports .bb-report-metric-value { font-size: 20px; }
   .bb-financial-reports .bb-report-metric-value.is-long { font-size: 17px; }
   .bb-financial-reports .bb-report-detail-total strong { font-size: clamp(30px,8vw,40px); }
-  .bb-report-metric-arrow { right: 16px; bottom: 18px; }
   .bb-report-detail-total { grid-template-columns: minmax(0,1fr); gap: 16px; padding-block: 2px 6px; }
   .bb-report-detail-total > div { gap: 10px; }
   .bb-report-detail-total strong { font-size: 44px; }

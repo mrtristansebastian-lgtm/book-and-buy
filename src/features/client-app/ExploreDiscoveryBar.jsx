@@ -1,5 +1,6 @@
 import { Button } from '../../shared/ui/Button';
 import { FilterChip } from '../../shared/ui/FilterChip';
+import { CompassIcon } from '../../shared/ui/CompassIcon';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Bike, BookOpen, Car, ChevronRight, Clock3, Cookie, Download, Dumbbell, Flower, Gem, GraduationCap, Hand, Home, Image, Lamp, Layers, MapPin, PartyPopper, PawPrint, Search, Shirt, ShoppingBag, Smartphone, Sparkles, Ticket, UtensilsCrossed, X } from 'lucide-react';
 import {
@@ -21,6 +22,7 @@ import { DistanceRingControl } from './DistanceRingControl';
 const HISTORY_MAX = 5;
 
 const GROUP_ICONS = {
+  Compass: CompassIcon,
   Sparkles,
   Dumbbell,
   GraduationCap,

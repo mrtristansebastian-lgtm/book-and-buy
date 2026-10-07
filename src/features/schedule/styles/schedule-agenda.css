@@ -1,5 +1,41 @@
 /* Schedule has one chronological agenda. These rules stay within its page. */
 .bb-owner-main:has(> .bb-schedule-agenda-page) { background: #fff; }
+html body .native-ui .bb-schedule-agenda-page .bb-agenda-booking-title h3 { font:600 18px/1.4 var(--bb-font-body) !important; color:#101828 !important; letter-spacing:-.02em; }
+html body .native-ui .bb-schedule-agenda-page :is(.bb-agenda-client,.bb-agenda-booking-meta,.bb-agenda-payment) { color:#101828; font:400 14px/1.6 var(--bb-font-body); }
+.bb-schedule-agenda-page .bb-agenda-client { margin-block:8px !important; gap:8px !important; }
+.bb-schedule-agenda-page .bb-agenda-booking-meta { gap:10px 16px !important; }
+.bb-schedule-agenda-page .bb-agenda-booking-meta > span { gap:8px !important; }
+.bb-schedule-agenda-page .bb-agenda-avatar { width:24px !important; height:24px !important; font-size:10px !important; }
+html body .native-ui .bb-schedule-agenda-page .bb-agenda-time time { color:#101828 !important; font:600 15px/1.6 var(--bb-font-body); }
+.bb-schedule-agenda-page .bb-agenda-time > span { font-size:12px !important; }
+.bb-schedule-agenda-page .bb-agenda-desktop-staff { margin-top:20px; }
+@media(min-width:900px) {
+  .bb-schedule-agenda-page .bb-agenda-workspace { grid-template-columns:270px minmax(0,1fr); }
+}
+html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-avatar {
+  grid-template-columns:40px minmax(0,1fr);
+  gap:12px;
+  min-height:60px;
+  padding:8px 10px;
+}
+html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-filter {
+  max-height:none;
+  overflow:visible;
+}
+html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-avatar-face {
+  width:40px;
+  height:40px;
+}
+html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-avatar .bb-schedule-staff-avatar-name {
+  font-family:var(--bb-font-body);
+  font-size:14px;
+  font-weight:500;
+  line-height:1.4;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  text-align:left;
+}
+@media(max-width:899px) { .bb-schedule-agenda-page .bb-agenda-desktop-staff { display:none; } }
 .bb-schedule-agenda-page { color: #101828; min-width: 0; width: 100%; }
 .bb-schedule-agenda-page *, .bb-schedule-booking-details * { box-sizing: border-box; }
 .bb-schedule-agenda-page .bb-agenda-page-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; }

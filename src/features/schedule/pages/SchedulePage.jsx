@@ -1,3 +1,4 @@
+import { staffInitials, staffPhoto } from './schedulePageUtils';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Info } from 'lucide-react';
 import { Button } from '../../../shared/ui/Button';
@@ -129,7 +130,7 @@ export function SchedulePage() {
     </header></div>
 
     <div className="bb-agenda-workspace">
-      <aside ref={calendarRail} className={`bb-agenda-rail${calendarOpen ? ' is-open' : ''}`} id="schedule-date-picker" aria-label="Calendar and staff">
+      <aside ref={calendarRail} className={`bb-agenda-rail bb-schedule-sidebar bb-schedule-availability-sidebar${calendarOpen ? ' is-open' : ''}`} id="schedule-date-picker" aria-label="Calendar and staff">
         <div className="bb-agenda-calendar-mobile-head"><span>Choose a date</span><button type="button" onClick={() => { setCalendarOpen(false); dateTrigger.current?.focus(); }}>Done</button></div>
         <div className="bb-agenda-calendar bb-schedule-avail"><AvailabilityMonthGrid monthAnchor={monthAnchor} selectedDay={day} todayKey={data.todayKey} onSelectDay={selectDay}
           onPreviousMonth={() => setMonthAnchor(value => new Date(value.getFullYear(), value.getMonth() - 1, 1))}
@@ -138,7 +139,7 @@ export function SchedulePage() {
           <div className="bb-schedule-avail-legend" aria-label="Day colors"><span className="bb-schedule-avail-legend-item is-open"><i />{hasCurrentStaff ? 'Working' : 'Available'}</span>{hasCurrentStaff ? <><span className="bb-schedule-avail-legend-item is-off"><i />Off day</span><span className="bb-schedule-avail-legend-item is-leave"><i />Leave</span></> : null}<span className="bb-schedule-avail-legend-item is-biz-closed"><i />{hasCurrentStaff ? 'Business closed' : 'Closed'}</span></div>
           <p className="bb-agenda-calendar-booked-key"><i aria-hidden="true" />Confirmed booking</p>
         </div>
-        <label className="bb-agenda-staff-select"><span>Staff</span><select value={staffId} onChange={event => setStaffId(event.target.value)}>{data.staffFilterOptions.map(member => <option key={member.id} value={member.id}>{member.name}</option>)}</select></label>
+        <section className="bb-agenda-desktop-staff bb-schedule-side-section"><span className="bb-schedule-side-label">Staff</span><div className="bb-schedule-staff-filter" role="group" aria-label="Schedule staff">{data.staffFilterOptions.map(member => <button key={member.id} type="button" aria-pressed={staffId === member.id} className={`bb-schedule-staff-avatar${staffId === member.id ? ' is-active' : ''}`} onClick={() => setStaffId(member.id)}><span className="bb-schedule-staff-avatar-face" aria-hidden="true">{member.id ? staffPhoto(member) ? <img src={staffPhoto(member)} alt="" /> : staffInitials(member.name) : 'All'}</span><span className="bb-schedule-staff-avatar-name">{member.name}</span></button>)}</div></section>
         <p className="bb-agenda-rail-note" title={data.clock.timezone}>Times shown in <strong>{timeLabel}</strong>.</p>
       </aside>
 
