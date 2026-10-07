@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bookmark, MapPin, Phone } from 'lucide-react';
+import { Bookmark, MapPin, Phone, Share2 } from 'lucide-react';
 import { EditableImage, EditableText, EditSection } from './editable';
 import { Button } from '../../../shared/ui/Button';
 import { navigate } from '../../../app/routing';
@@ -61,12 +61,12 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
     <EditSection editMode={editMode} title="Business profile" sectionId="profile" className="bb-business-profile-identity">
       {<nav className="bb-business-profile-public-nav" aria-label="Business profile navigation">
         <Button action="back" variant="secondary" disabled={!interactive} onClick={() => navigate('/app/find')}>Back to Places</Button>
-        <Button action="copy" variant="secondary" disabled={!interactive} onClick={share} aria-live="polite">{copied ? 'Link copied' : 'Share profile'}</Button>
+        <Button action="share" icon={Share2} variant="secondary" disabled={!interactive} onClick={share} aria-live="polite">{copied ? 'Link copied' : 'Share profile'}</Button>
       </nav>}
       {website.heroImageUrl || website.heroImage || editMode ? <div className="bb-business-profile-banner">
         <EditableImage editMode={editMode} src={website.heroImageUrl || website.heroImage || ''}
           alt={`${name} cover photo`} className="bb-business-profile-banner-media"
-          preset="socialBanner" storageFolder="brand" placeholderLabel="Add cover photo" editLabel="Edit cover photo"
+          preset="profileBanner" storageFolder="brand" placeholderLabel="Add cover photo" editLabel="Edit cover photo"
           onChange={(url) => patchWebsite({ heroImageUrl: url, heroImage: '' })} />
       </div> : null}
       <div className="bb-business-profile-details">
@@ -81,7 +81,7 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
         <div className="bb-business-profile-copy">
           <EditableText as="h1" className="bb-business-profile-name" editMode={editMode}
             value={name} placeholder="Business name" website={website} patchWebsite={patchWebsite}
-            colorTokenId="profile.name" onChange={(value) => {
+            onChange={(value) => {
               const next = value.trim() || 'Your business';
               onUpdateProfile?.({ brandName: next });
             }} />
@@ -91,7 +91,7 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
           </p> : null}
           <EditableText as="p" className="bb-business-profile-bio" editMode={editMode} multiline
             value={bio} placeholder="A short introduction to your business" website={website}
-            patchWebsite={patchWebsite} colorTokenId="profile.bio"
+            patchWebsite={patchWebsite}
             onChange={(value) => patchWebsite({ homeSubtext: value, subcopy: value })} />
           {editMode ? <p className="bb-business-profile-edit-note">Edit your name, introduction and photos here. Location and business category are managed in Business settings.</p> : null}
         </div>

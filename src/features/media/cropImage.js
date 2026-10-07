@@ -103,6 +103,31 @@ export function clampImagePan(pan, displayW, displayH, viewportW, viewportH) {
   };
 }
 
+export function moveCropSelection(selection, dx, dy, bounds) {
+  return { ...selection, x: Math.max(0, Math.min(bounds.width - selection.width, selection.x + dx)),
+    y: Math.max(0, Math.min(bounds.height - selection.height, selection.y + dy)) };
+}
+
+export function fitCropSelection(bounds, aspect) {
+  const width = Math.min(bounds.width, bounds.height * aspect);
+  const height = width / aspect;
+  return { x: (bounds.width - width) / 2, y: (bounds.height - height) / 2, width, height };
+}
+
+export function resizeCropSelection(selection, corner, dx, dy, bounds) {
+  const aspect = selection.width / selection.height;
+  const left = corner.includes('left'), top = corner.includes('top');
+  const anchorX = left ? selection.x + selection.width : selection.x;
+  const anchorY = top ? selection.y + selection.height : selection.y;
+  // Project the pointer onto the aspect-locked diagonal for smooth corner motion.
+  const change = ((left ? -dx : dx) + (top ? -dy : dy) / aspect) / (1 + 1 / (aspect * aspect));
+  const maxWidth = Math.min(left ? anchorX : bounds.width - anchorX,
+    (top ? anchorY : bounds.height - anchorY) * aspect);
+  const width = Math.min(maxWidth, Math.max(Math.min(48, maxWidth), selection.width + change));
+  const height = width / aspect;
+  return { x: left ? anchorX - width : anchorX, y: top ? anchorY - height : anchorY, width, height };
+}
+
 function canvasToFile(canvas, preset) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -156,12 +181,13 @@ export async function exportFramedImage(source, view, presetOrId = 'socialPost')
 
   const scaleX = naturalW / display.width;
   const scaleY = naturalH / display.height;
-  const sx = Math.max(0, -pan.x * scaleX);
-  const sy = Math.max(0, -pan.y * scaleY);
-  const sw = Math.max(1, Math.min(viewportW * scaleX, naturalW - sx));
-  const sh = Math.max(1, Math.min(viewportH * scaleY, naturalH - sy));
+  const selection = view.selection || { x: 0, y: 0, width: viewportW, height: viewportH };
+  const sx = Math.max(0, (selection.x - pan.x) * scaleX);
+  const sy = Math.max(0, (selection.y - pan.y) * scaleY);
+  const sw = Math.max(1, Math.min(selection.width * scaleX, naturalW - sx));
+  const sh = Math.max(1, Math.min(selection.height * scaleY, naturalH - sy));
 
-  const frameAspect = viewportW / viewportH;
+  const frameAspect = view.frameAspect > 0 ? view.frameAspect : viewportW / viewportH;
   const maxEdge = Math.max(preset.width, preset.height);
   let outW;
   let outH;
@@ -178,6 +204,10 @@ export async function exportFramedImage(source, view, presetOrId = 'socialPost')
   if (!ctx) throw new Error('Canvas not available');
   canvas.width = outW;
   canvas.height = outH;
+  if ((preset.mime || 'image/jpeg') === 'image/jpeg') {
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, outW, outH);
+  }
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(image, sx, sy, sw, sh, 0, 0, outW, outH);
 

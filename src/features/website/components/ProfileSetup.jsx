@@ -33,7 +33,7 @@ export function ProfileSetup({ workspace, updateWebsite, updateProfile }) {
       <p>Profile photo · square. Cover · 3:1. You’ll see the exact crop before saving.</p>
       <EditableImage editMode compact preset="logo" storageFolder="brand" className="bb-setup-avatar" src={website.logoUrl || workspace.logoUrl || ''} alt="Profile photo" placeholderLabel="Add profile photo"
         onChange={(url) => { updateWebsite({ logoUrl: url }); updateProfile({ logoUrl: url }); }} />
-      <EditableImage editMode preset="socialBanner" storageFolder="brand" className="bb-setup-cover" src={website.heroImageUrl || website.heroImage || ''} alt="Cover photo" placeholderLabel="Add cover photo" onChange={(url) => updateWebsite({ heroImageUrl: url, heroImage: '' })} />
+      <EditableImage editMode preset="profileBanner" storageFolder="brand" className="bb-setup-cover" src={website.heroImageUrl || website.heroImage || ''} alt="Cover photo" placeholderLabel="Add cover photo" onChange={(url) => updateWebsite({ heroImageUrl: url, heroImage: '' })} />
       <p>Gallery photos use a consistent 3:2 frame and open at full size.</p>
       <VenueSection {...common} venueImages={website.venueImages || []} patchVenue={(id, field, value) => listPatch('venueImages', id, field, value)} />
     </div></details>

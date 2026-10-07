@@ -1,6 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Trash2 } from 'lucide-react';
 import { EditableText, EditableImage, EditSection } from '../editable';
 import { Button } from '../../../../shared/ui/Button';
 import { useDetailDialog } from '../../../../shared/ui/useDetailDialog';
@@ -37,11 +36,9 @@ export function VenueSection({ website, venueImages = [], editMode, hidden, patc
       className="bb-business-profile-section bb-business-profile-gallery">
       <header className="bb-business-profile-section-head">
         <EditableText as="h2" className="bb-business-profile-heading" editMode={editMode}
-          value={website.venueTitle || 'Photos'} placeholder="Photos" website={website} patchWebsite={patchWebsite}
-          colorTokenId="gallery.title" onChange={(value) => patchWebsite({ venueTitle: value })} />
+          value={website.venueTitle || 'Photos'} placeholder="Photos" website={website} patchWebsite={patchWebsite} onChange={(value) => patchWebsite({ venueTitle: value })} />
         <EditableText as="p" className="bb-business-profile-body" editMode={editMode} multiline
-          value={website.venueBody || ''} placeholder="A short introduction to your photos" website={website} patchWebsite={patchWebsite}
-          colorTokenId="gallery.body" onChange={(value) => patchWebsite({ venueBody: value })} />
+          value={website.venueBody || ''} placeholder="A short introduction to your photos" website={website} patchWebsite={patchWebsite} onChange={(value) => patchWebsite({ venueBody: value })} />
       </header>
       <div ref={stripRef} className={editMode ? 'bb-business-profile-photo-grid' : 'bb-profile-photo-strip'} onScroll={(event) => {
         if (editMode) return;
@@ -64,13 +61,8 @@ export function VenueSection({ website, venueImages = [], editMode, hidden, patc
             {editMode ? <>
               <EditableImage editMode src={image.url || ''} alt={image.caption || `Business photo ${index + 1}`}
                 className="bb-business-profile-gallery-media" preset="venue" storageFolder="venue"
-                placeholderLabel="Add photo" onChange={(url) => patchVenue(image.id, 'url', url)} />
-              <div className="bb-business-profile-caption-edit">
-                <EditableText as="figcaption" className="bb-business-profile-caption" editMode multiline
-                  value={image.caption || ''} placeholder="Photo caption" onChange={(value) => patchVenue(image.id, 'caption', value)} />
-                <button type="button" className="bb-public-inline-delete" aria-label={`Delete photo ${index + 1}`}
-                  onClick={() => patchWebsite({ venueImages: venueImages.filter((row) => row.id !== image.id) })}><Trash2 size={16} aria-hidden="true" /></button>
-              </div>
+                placeholderLabel="Add photo" onChange={(url) => patchVenue(image.id, 'url', url)}
+                onRemove={() => patchWebsite({ venueImages: venueImages.filter((row) => row.id !== image.id) })} />
             </> : <>
               <button type="button" className="bb-business-profile-gallery-hit" onClick={() => index === photoIndex ? setViewerIndex(looping ? (index - 1 + visible.length) % visible.length : index) : centerPhoto(index)} aria-label={`${index === photoIndex ? 'View' : 'Show'} ${image.caption || `photo ${index + 1}`}`} aria-current={index === photoIndex ? 'true' : undefined}>
                 <img src={image.url} alt={image.caption || `Business photo ${index + 1}`} loading="lazy" />
@@ -79,7 +71,9 @@ export function VenueSection({ website, venueImages = [], editMode, hidden, patc
           </figure>
         ))}
       </div>
-      {editMode && venueImages.length < 8 ? <Button action="add" variant="primary" onClick={() => patchWebsite({ venueImages: [...venueImages, { id: `v-${Date.now()}`, url: '', caption: '' }] })}>Add photo</Button> : null}
+      {editMode && venueImages.length < 8 ? <div className="bb-profile-gallery-actions">
+        <Button action="add" variant="primary" onClick={() => patchWebsite({ venueImages: [...venueImages, { id: `v-${Date.now()}`, url: '', caption: '' }] })}>Add photo</Button>
+      </div> : null}
       {active && typeof document !== 'undefined' ? createPortal(
         <div className="bb-business-photo-overlay">
           <div className="bb-business-photo-backdrop" onClick={close} />

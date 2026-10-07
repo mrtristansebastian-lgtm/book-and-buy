@@ -29,23 +29,27 @@ const Gallery = load('src/features/website/components/home-sections/VenueSection
 });
 const html = (component, props) => renderToStaticMarkup(React.createElement(component, props));
 
-test('profile combines existing story pages into one text section', () => {
+test('story timeline shows one chapter with titles for the other chapters', () => {
   const rendered = html(About, { website: { aboutPages: [
     { id: 'a', title: 'Our story', body: 'Existing copy', imageUrl: '/story.jpg', icon: 'info' },
     { id: 'b', title: 'Our mission', body: 'Existing mission' }
   ] } });
   assert.match(rendered, /Existing copy/);
-  assert.match(rendered, /Existing mission/);
+  assert.doesNotMatch(rendered, /Existing mission/);
   assert.match(rendered, /Our story/);
   assert.equal((rendered.match(/<h2/g) || []).length, 1);
-  assert.doesNotMatch(rendered, /Our mission/);
+  assert.match(rendered, /Our mission/);
+  assert.match(rendered, /aria-label="Story timeline"/);
+  assert.equal((rendered.match(/role="tab"/g) || []).length, 2);
   assert.match(rendered, /story.jpg/);
   assert.doesNotMatch(rendered, /carousel|Previous page|Next page/);
 });
 
 test('legacy merchant story fields remain readable and empty profiles do not show ghost sections', () => {
   const rendered = html(About, { website: { aboutBody: 'About text', missionBody: 'Mission text', visionBody: 'Vision text' } });
-  for (const text of ['About text', 'Mission text', 'Vision text']) assert.ok(rendered.includes(text));
+  assert.match(rendered, /About text/);
+  const pages = load('src/features/website/components/home-sections/AboutSection.jsx', 'resolveStoryPages')({ aboutBody: 'About text', missionBody: 'Mission text', visionBody: 'Vision text' });
+  assert.deepEqual(pages.map(page => page.body), ['About text', 'Mission text', 'Vision text']);
   assert.equal(html(About, { website: {} }), '');
   assert.equal(html(About, { website: { aboutBody: 'hidden' }, hidden: true }), '');
 });
@@ -77,7 +81,7 @@ test('profile edit reuses published banner/logo/copy and provides real customer 
   const header = source('src/features/website/components/BusinessProfileHeader.jsx');
   assert.match(header, /website\.heroImageUrl \|\| website\.heroImage/);
   assert.match(header, /website\.logoUrl \|\| workspace\.logoUrl/);
-  assert.match(header, /preset="socialBanner"/);
+  assert.match(header, /preset="profileBanner"/);
   assert.match(header, /preset="logo"/);
   assert.match(header, /patchWebsite\(\{ homeSubtext: value, subcopy: value \}\)/);
   assert.match(header, /await startClientMessage/);

@@ -1,13 +1,10 @@
 import { Button } from '../../../../shared/ui/Button';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { firebaseCallables } from '../../../../shared/firebase/callables';
 import {
   EditableText,
   EditSection,
-  EditableColor,
-  readStyleToken,
-  styleTokenColor,
-  isSolidColorToken
+
 } from '../editable';
 
 const STAR_PATH =
@@ -55,11 +52,6 @@ function Stars({
   patchWebsite,
   tokenId = 'reviews.stars'
 }) {
-  const ref = useRef(null);
-  const [open, setOpen] = useState(false);
-  const token = readStyleToken(website, tokenId);
-  const solid = styleTokenColor(token, '#e8b923');
-  const isSolid = isSolidColorToken(token);
   const value = Math.max(0, Math.min(5, Number(rating) || 0));
   const variants = Array.from({ length: 5 }, (_, index) => {
     const remainder = value - index;
@@ -72,36 +64,16 @@ function Stars({
   return (
     <>
       <span
-        ref={ref}
-        className={`bb-public-stars${editMode ? ' bb-editable-style-target' : ''}`}
+        className="bb-public-stars"
         aria-label={label}
         data-star-solid="true"
-        style={{ '--bb-star-fill': isSolid ? solid : '#f5b700' }}
-        onClick={
-          editMode
-            ? (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                setOpen(true);
-              }
-            : undefined
-        }
+        style={{ '--bb-star-fill': '#f5b700' }}
       >
         {variants.map((variant, index) => (
           <StarGlyph key={index} variant={variant} />
         ))}
       </span>
-      {editMode ? (
-        <EditableColor
-          open={open}
-          anchorRef={ref}
-          website={website}
-          patchWebsite={patchWebsite}
-          tokenId={tokenId}
-          title="Star color"
-          onClose={() => setOpen(false)}
-        />
-      ) : null}
+
     </>
   );
 }
@@ -148,7 +120,7 @@ export function ReviewsSection({
       hidden={hidden}
       coach={
         syncEnabled
-          ? 'Reviews sync from Settings → Reviews. Edit title and colors here.'
+          ? 'Reviews sync from Settings → Reviews. Edit the title here.'
           : 'Turn on Google reviews sync in Settings, or curate reviews here.'
       }
       className="bb-public-home-block bb-public-reviews-block"
@@ -164,8 +136,6 @@ export function ReviewsSection({
               placeholder="Reviews"
               website={website}
               patchWebsite={patchWebsite}
-              colorTokenId="reviews.title"
-              accentTokenId="reviews.titleUnderline"
               onChange={(value) => patchWebsite({ reviewsTitle: value })}
             />
             {editMode || String(website.reviewsBody || '').trim() ? (
@@ -178,7 +148,6 @@ export function ReviewsSection({
                 placeholder="Short reviews intro"
                 website={website}
                 patchWebsite={patchWebsite}
-                colorTokenId="reviews.body"
                 onChange={(value) => patchWebsite({ reviewsBody: value })}
               />
             ) : null}
@@ -214,7 +183,6 @@ export function ReviewsSection({
                     placeholder="Review quote"
                     website={website}
                     patchWebsite={patchWebsite}
-                    colorTokenId={`reviews.item.${review.id}.quote`}
                     onChange={(value) => patchReview(review.id, 'quote', value)}
                   />
                   <div className="bb-public-review-author">
@@ -229,7 +197,6 @@ export function ReviewsSection({
                       placeholder="Client name"
                       website={website}
                       patchWebsite={patchWebsite}
-                      colorTokenId={`reviews.item.${review.id}.name`}
                       onChange={(value) => patchReview(review.id, 'name', value)}
                     />
                   </div>

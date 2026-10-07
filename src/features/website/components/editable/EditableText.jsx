@@ -90,10 +90,10 @@ export function EditableText({
       onFocus={() => setFocused(true)}
       onBlur={(event) => {
         const nextTarget = event.relatedTarget;
-        if (wrapRef.current?.contains(nextTarget)) return;
-        setFocused(false);
         const next = (ref.current?.innerText || '').replace(/\u00a0/g, ' ').trim();
         if (next !== (value || '').trim()) onChange?.(next);
+        if (wrapRef.current?.contains(nextTarget)) return;
+        setFocused(false);
       }}
       onKeyDown={(event) => {
         if (!multiline && event.key === 'Enter') {

@@ -124,12 +124,13 @@ function runResumableUpload(
 
 /**
  * Upload a public site image to Firebase Storage when configured + signed in.
- * Local data-URL fallback only when Firebase is not configured (demo mode).
+ * Demo drafts stay on this device; real accounts require authenticated Storage.
+ * Unconfigured local builds also use the data-URL fallback.
  */
 export async function uploadPublicImage(
   file: File,
   pathHint = 'website',
-  options: UploadOptions = {}
+  options: UploadOptions & { demo?: boolean } = {}
 ) {
   if (!(file instanceof File)) {
     throw new Error('Choose an image file.');
@@ -143,7 +144,7 @@ export async function uploadPublicImage(
     );
   }
 
-  const firebase = getFirebase();
+  const firebase = options.demo ? null : getFirebase();
   if (!firebase) {
     const url = await fileToDataUrl(file);
     return {

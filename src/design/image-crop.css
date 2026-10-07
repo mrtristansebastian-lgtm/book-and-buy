@@ -12,7 +12,7 @@
 }
 
 .bb-image-crop-shell {
-  width: min(26rem, 100%);
+  width: min(52rem, 100%);
   max-height: min(94vh, 44rem);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
@@ -94,6 +94,7 @@
   align-content: center;
   gap: 0.55rem;
   min-height: 16rem;
+  height: min(64dvh, max(224px, calc(640px / var(--bb-crop-aspect, 1) + 64px)));
   padding: 0.9rem 1rem;
   background: #f2f4f7;
 }
@@ -110,7 +111,6 @@
 .bb-image-crop-viewport {
   position: relative;
   width: min(100%, 20rem);
-  max-height: min(52vh, 25rem);
   overflow: hidden;
   border-radius: 0.35rem;
   background: #e4e7ec;
@@ -135,6 +135,26 @@
   pointer-events: none;
   will-change: transform;
 }
+
+.bb-image-crop-grid { position:absolute; pointer-events:auto; cursor:move; touch-action:none; border:1px solid rgba(255,255,255,.8); box-shadow:0 0 0 1000px rgba(0,0,0,.4); }
+.bb-image-crop-grid > span { position:absolute; background:rgba(255,255,255,.45); box-shadow:0 0 1px rgba(0,0,0,.3); }
+.bb-image-crop-grid > span:nth-child(1) { top:0; bottom:0; width:1px; left:33.333%; }
+.bb-image-crop-grid > span:nth-child(2) { top:0; bottom:0; width:1px; left:66.667%; }
+.bb-image-crop-grid > span:nth-child(3) { left:0; right:0; height:1px; top:33.333%; }
+.bb-image-crop-grid > span:nth-child(4) { left:0; right:0; height:1px; top:66.667%; }
+.bb-image-crop-grid > .bb-image-crop-handle { position:absolute; width:22px; height:22px; padding:0; border-radius:0; background:transparent; border:3px solid #fff; touch-action:none; filter:drop-shadow(0 1px 2px rgba(0,0,0,.4)); }
+.bb-image-crop-grid .is-top-left { top:0; left:0; border-right:0; border-bottom:0; }
+.bb-image-crop-grid .is-top-right { top:0; right:0; border-left:0; border-bottom:0; }
+.bb-image-crop-grid .is-bottom-left { bottom:0; left:0; border-right:0; border-top:0; }
+.bb-image-crop-grid .is-bottom-right { bottom:0; right:0; border-left:0; border-top:0; }
+.bb-image-crop-tools { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+.bb-image-crop-tools [aria-pressed="true"] { background:#f2f4f7; border-color:#98a2b3; }
+.bb-image-crop-workspace { display:grid; grid-template-columns:minmax(0,1fr) 44px; gap:16px; align-items:center; justify-items:center; width:100%; min-height:0; }
+.bb-image-crop-zoom-side { display:flex; flex-direction:column; align-items:center; gap:4px; width:44px; }
+.bb-image-crop-zoom-side input { writing-mode:vertical-lr; direction:rtl; width:24px; min-height:60px; padding:0; accent-color:#12f0cf; touch-action:none; cursor:ns-resize; }
+.bb-image-crop-zoom-value { font-size:11px; font-weight:650; color:#344054; font-variant-numeric:tabular-nums; }
+.bb-image-crop-zoom-step { width:32px; height:32px; display:grid; place-items:center; border:0; background:transparent; color:#344054; cursor:pointer; padding:0; }
+.bb-image-crop-zoom-step:disabled { opacity:.35; cursor:default; }
 
 .bb-image-crop-loading {
   position: absolute;
@@ -206,7 +226,12 @@
   align-items: center;
   gap: 0.5rem;
   color: #98a2b3;
-  width: min(20rem, 100%);
+  width: min(40rem, 100%);
+}
+
+@media (max-width: 640px) {
+  .bb-image-crop-shell { width: min(26rem, 100%); }
+  .bb-image-crop-stage { height: min(52dvh, max(224px, calc(320px / var(--bb-crop-aspect, 1) + 64px))); }
 }
 
 .bb-image-crop-zoom input[type='range'] {
@@ -222,3 +247,18 @@
   color: #b42318;
   background: #fff;
 }
+
+.bb-image-crop-handle.is-top-left, .bb-image-crop-handle.is-bottom-right { cursor:nwse-resize; }
+.bb-image-crop-handle.is-top-right, .bb-image-crop-handle.is-bottom-left { cursor:nesw-resize; }
+
+/* Large invisible grab targets keep the visible corner tips clean. */
+.bb-image-crop-grid > .bb-image-crop-handle { width:44px; height:44px; border:0; filter:none; z-index:2; }
+.bb-image-crop-grid > .bb-image-crop-handle::after { content:""; position:absolute; width:18px; height:18px; border:3px solid #fff; filter:drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+.bb-image-crop-grid .is-top-left { top:-22px; left:-22px; }
+.bb-image-crop-grid .is-top-right { top:-22px; right:-22px; }
+.bb-image-crop-grid .is-bottom-left { bottom:-22px; left:-22px; }
+.bb-image-crop-grid .is-bottom-right { bottom:-22px; right:-22px; }
+.bb-image-crop-grid .is-top-left::after { top:22px; left:22px; border-right:0; border-bottom:0; }
+.bb-image-crop-grid .is-top-right::after { top:22px; right:22px; border-left:0; border-bottom:0; }
+.bb-image-crop-grid .is-bottom-left::after { bottom:22px; left:22px; border-right:0; border-top:0; }
+.bb-image-crop-grid .is-bottom-right::after { bottom:22px; right:22px; border-left:0; border-top:0; }

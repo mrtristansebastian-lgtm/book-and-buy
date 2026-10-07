@@ -22,12 +22,6 @@ import {
   Zap
 } from 'lucide-react';
 import { EditableText, EditSection, StylePopover } from '../editable';
-import {
-  readStyleToken,
-  styleTokenColor,
-  STYLE_TOKEN_GRADIENT
-} from '../editable/styleTokens';
-import { EditableColor } from '../editable/EditableColor';
 
 const OFFER_NUMBER_OPTIONS = Array.from({ length: 9 }, (_, index) => {
   const value = String(index + 1);
@@ -166,8 +160,6 @@ export function WhatWeOfferSection({
               onChange={(value) => patchWebsite({ reasonsTitle: value })}
               website={website}
               patchWebsite={patchWebsite}
-              colorTokenId="offer.title"
-              accentTokenId="offer.titleUnderline"
             />
             <EditableText
               as="p"
@@ -181,7 +173,6 @@ export function WhatWeOfferSection({
               onChange={(value) => patchWebsite({ reasonsBody: value })}
               website={website}
               patchWebsite={patchWebsite}
-              colorTokenId="offer.body"
             />
           </header>
 
@@ -221,7 +212,6 @@ export function WhatWeOfferSection({
                     onChange={(value) => patchReason(reason.id, 'title', value)}
                     website={website}
                     patchWebsite={patchWebsite}
-                    colorTokenId={`offer.point.${reason.id}.title`}
                   />
                   <EditableText
                     as="p"
@@ -233,7 +223,6 @@ export function WhatWeOfferSection({
                     onChange={(value) => patchReason(reason.id, 'body', value)}
                     website={website}
                     patchWebsite={patchWebsite}
-                    colorTokenId={`offer.point.${reason.id}.body`}
                   />
                 </div>
                 {editMode ? (
@@ -322,19 +311,7 @@ function OfferMarker({
   onClosePicker
 }) {
   const markerRef = useRef(null);
-  const [colorOpen, setColorOpen] = useState(false);
   const option = resolveOfferMarker(reason, index);
-  const ringToken = readStyleToken(website, `offer.point.${reason.id}.marker`);
-  const ringSolid = styleTokenColor(ringToken);
-  const ringStyle =
-    ringSolid && ringToken !== STYLE_TOKEN_GRADIENT
-      ? {
-          borderColor: ringSolid,
-          background: '#fff',
-          backgroundImage: 'none',
-          color: '#101828'
-        }
-      : undefined;
 
   return (
     <div className="bb-public-about-pillar-marker-wrap">
@@ -345,11 +322,9 @@ function OfferMarker({
           className={`bb-public-about-pillar-marker is-icon is-editable${
             option.kind === 'number' ? ' is-digit' : ''
           }`}
-          style={ringStyle}
           aria-label={`Choose icon for ${reason.title || 'point'}`}
-          aria-expanded={pickerOpen || colorOpen}
+          aria-expanded={pickerOpen}
           onClick={() => {
-            setColorOpen(false);
             onTogglePicker();
           }}
         >
@@ -360,7 +335,6 @@ function OfferMarker({
           className={`bb-public-about-pillar-marker is-icon${
             option.kind === 'number' ? ' is-digit' : ''
           }`}
-          style={ringStyle}
           aria-hidden="true"
         >
           <OfferMarkerGlyph option={option} />
@@ -405,28 +379,9 @@ function OfferMarker({
             )
           )}
         </div>
-        <Button action="color" variant="primary"
-          type="button"
-          className="bb-style-reset"
-          onClick={() => {
-            onClosePicker();
-            setColorOpen(true);
-          }}
-        >
-          Marker color
-        </Button>
+
       </StylePopover>
-      <EditableColor
-        open={colorOpen}
-        anchorRef={markerRef}
-        website={website}
-        patchWebsite={patchWebsite}
-        tokenId={`offer.point.${reason.id}.marker`}
-        title="Marker style"
-        allowGradient
-        placement="left-of-bezel"
-        onClose={() => setColorOpen(false)}
-      />
+
     </div>
   );
 }

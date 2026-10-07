@@ -244,7 +244,7 @@ export function PublicHomeView({
         ) : null}
 
         <div className="bb-public-profile-modules">{panel}</div>
-        <ProfileFooter workspace={workspace} preview={preview} editMode={editMode} />
+        <ProfileFooter workspace={workspace} preview={preview} editMode={editMode} patchWebsite={patchWebsite} />
       </div>
     </div>
   );

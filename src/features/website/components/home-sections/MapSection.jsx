@@ -28,8 +28,6 @@ export function MapSection({ website, editMode, preview = false, hidden, patchWe
                 placeholder="Visit"
                 website={website}
                 patchWebsite={patchWebsite}
-                colorTokenId="visit.title"
-                accentTokenId="visit.titleUnderline"
                 onChange={(value) => patchWebsite({ mapTitle: value })}
               />
               {editMode || String(website.mapBody || '').trim() ? (
@@ -42,7 +40,6 @@ export function MapSection({ website, editMode, preview = false, hidden, patchWe
                   placeholder="Short venue intro"
                   website={website}
                   patchWebsite={patchWebsite}
-                  colorTokenId="visit.body"
                   onChange={(value) => patchWebsite({ mapBody: value })}
                 />
               ) : null}
@@ -56,7 +53,6 @@ export function MapSection({ website, editMode, preview = false, hidden, patchWe
               placeholder="Street address"
               website={website}
               patchWebsite={patchWebsite}
-              colorTokenId="visit.address"
               onChange={(value) => patchWebsite({ address: value })}
             />
             {editMode ? (

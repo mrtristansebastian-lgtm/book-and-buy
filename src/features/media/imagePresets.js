@@ -15,6 +15,10 @@ export const POST_RATIO_OPTIONS = [
 ];
 
 export const IMAGE_PRESETS = {
+  profileBanner: {
+    id: 'profileBanner', label: 'Cover photo', aspect: 3,
+    width: 1500, height: 500, mime: 'image/jpeg', quality: .92
+  },
   socialPost: {
     id: 'socialPost',
     label: 'Post',
@@ -119,14 +123,14 @@ export const IMAGE_PRESETS = {
     aspect: 1,
     width: 512,
     height: 512,
-    mime: 'image/jpeg',
+    mime: 'image/png',
     quality: 0.92
   }
 };
 
 export function resolveImagePreset(presetOrId = 'socialPost') {
   if (presetOrId && typeof presetOrId === 'object' && presetOrId.aspect) {
-    return { ...IMAGE_PRESETS.socialPost, ...presetOrId };
+    return { ...IMAGE_PRESETS.socialPost, flexible: false, ratioOptions: null, ...presetOrId };
   }
   return IMAGE_PRESETS[presetOrId] || IMAGE_PRESETS.socialPost;
 }

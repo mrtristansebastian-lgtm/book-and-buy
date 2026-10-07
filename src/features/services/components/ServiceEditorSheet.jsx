@@ -102,7 +102,7 @@ export function ServiceEditorSheet({
     setBusy(true);
     setError('');
     try {
-      const result = await uploadPublicImage(file, 'services');
+      const result = await uploadPublicImage(file, 'services', { demo: workspace?.isDemo === true });
       patch({ image: result.url || '' });
       setCropOpen(false);
       setCropSource(null);

@@ -4,6 +4,7 @@ import { Check, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
+import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ImageCropModal } from '../../media/ImageCropModal';
 import {
   buildVariantMatrix,
@@ -55,6 +56,7 @@ export function ProductEditorSheet({
   categories = [],
   variant = 'sheet'
 }) {
+  const { workspace } = useWorkspace();
   const fileRef = useRef(null);
   const [step, setStep] = useState('details');
   const [error, setError] = useState('');
@@ -131,7 +133,7 @@ export function ProductEditorSheet({
     setBusy(true);
     setError('');
     try {
-      const result = await uploadPublicImage(file, 'products');
+      const result = await uploadPublicImage(file, 'products', { demo: workspace?.isDemo === true });
       const url = result.url || '';
       if (!url) throw new Error('Upload failed');
       patch({ imageUrls: [...imageUrls, url] });

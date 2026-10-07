@@ -1,4 +1,3 @@
-import { ProfileSetup } from './ProfileSetup';
 import { Button } from '../../../shared/ui/Button';
 import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
@@ -194,7 +193,7 @@ export function WebsiteSurfaceStudio({
             onChange={setMode}
             options={[
               { id: 'view', label: 'Preview' },
-              { id: 'edit', label: 'Set up profile' }
+              { id: 'edit', label: 'Edit profile' }
             ]}
           />
           {!isMobile ? (
@@ -240,15 +239,15 @@ export function WebsiteSurfaceStudio({
         {website.published && workspace.publishedAt ? <span>Last published {new Date(workspace.publishedAt).toLocaleString()}</span> : <span>Not published yet</span>}
       </div>
       {publishNote ? <p role="status" className="bb-profile-publish-note">{publishNote}</p> : null}
+      {compact && editMode ? <p className="bb-profile-inline-hint">Click any text or image below to edit. Changes save to your draft automatically.</p> : null}
 
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>
-        {editMode && surface === 'home' ? <ProfileSetup workspace={workspace} updateWebsite={updateWebsite} updateProfile={updateProfile} /> : null}
         <DevicePreviewFrame
           bezel={compact && !isMobile}
           workspace={workspace}
           page={surface}
           device={previewDevice}
-          editMode={editMode && surface !== 'home'}
+          editMode={editMode}
           onUpdateWebsite={updateWebsite}
           onUpdateProfile={updateProfile}
           onUpdateSocialPost={updateSocialPost}

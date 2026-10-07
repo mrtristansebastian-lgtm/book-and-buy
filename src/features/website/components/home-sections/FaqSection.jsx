@@ -28,8 +28,6 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
               placeholder="FAQ"
               website={website}
               patchWebsite={patchWebsite}
-              colorTokenId="faq.title"
-              accentTokenId="faq.titleUnderline"
               onChange={(value) => patchWebsite({ bookFaqTitle: value })}
             />
             {editMode || String(website.bookFaqBody || '').trim() ? (
@@ -42,7 +40,6 @@ export function FaqSection({ website, editMode, hidden, patchWebsite }) {
                 placeholder="Short FAQ intro"
                 website={website}
                 patchWebsite={patchWebsite}
-                colorTokenId="faq.body"
                 onChange={(value) => patchWebsite({ bookFaqBody: value })}
               />
             ) : null}
