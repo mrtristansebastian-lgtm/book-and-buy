@@ -5,6 +5,7 @@ import { paymentConfirmationSnapshot, clientTransactionSnapshot } from '../finan
 import { commitInventory,releaseInventory } from '../inventoryDomain.js';
 import { reservationRef, inventoryWrite, inventorySettingsPatch } from '../inventoryService.js';
 import { paymentAppId, verifiedPaymentEvidence } from './paymentPolicy.js';
+import { toIsoCurrency } from './publicOptions.js';
 export async function settleVerifiedPayment(data, db = getFirestore()) {
   const appId = paymentAppId(data.appId);
   if (!/^[a-zA-Z0-9_-]{1,128}$/.test(data.ownerId || '') || !/^[a-zA-Z0-9_-]{1,128}$/.test(data.attemptId || '')) throw new Error('Invalid payment attempt.');
@@ -13,14 +14,16 @@ export async function settleVerifiedPayment(data, db = getFirestore()) {
     const attemptRef = db.doc(`${root}/payment_attempts/${data.attemptId}`);
     const eventId = createHash('sha256').update(`${data.gatewayType}:${data.eventId || data.providerPaymentId}`).digest('hex');
     const eventRef = db.doc(`${root}/payment_events/${eventId}`);
-    const [attemptSnap,event,{workspace,exists}] = await Promise.all([tx.get(attemptRef),tx.get(eventRef),readWorkspace(db,data.ownerId,tx)]);
+    const providerReceiptRef = db.doc(`${root}/processed_transactions/${createHash('sha256').update(`${data.gatewayType}:${data.providerPaymentId}`).digest('hex')}`);
+    const [attemptSnap,event,providerReceipt,{workspace,exists}] = await Promise.all([tx.get(attemptRef),tx.get(eventRef),tx.get(providerReceiptRef),readWorkspace(db,data.ownerId,tx)]);
     if (!attemptSnap.exists || !exists) throw new Error('Payment attempt not found.');
     const attempt = attemptSnap.data(); verifiedPaymentEvidence(attempt,data);
+    if (providerReceipt.exists && providerReceipt.data().attemptId !== data.attemptId) throw new Error('This provider payment already belongs to another transaction.');
     if (event.exists) { if (event.data().attemptId !== data.attemptId) throw new Error('Payment event already mapped to a different attempt.'); return event.data().result; }
     if (attempt.status === 'paid') return { ok: true, paid: true, attemptId: data.attemptId, inventoryException: attempt.inventoryException === true };
     const field = attempt.sourceType === 'order' ? 'orders' : 'bookings';
     const source = (workspace[field] || []).find((item) => item.id === attempt.sourceId);
-    if (!source || source.amountInCents !== attempt.amountInCents || source.paymentMethod !== attempt.gatewayType || source.paymentAttemptId && source.paymentAttemptId !== data.attemptId) throw new Error('The saved payment source changed.');
+    if (!source || source.amountInCents !== attempt.amountInCents || toIsoCurrency(source.currency || workspace.currency || 'R') !== attempt.currency || source.paymentMethod !== attempt.gatewayType || source.paymentAttemptId && source.paymentAttemptId !== data.attemptId) throw new Error('The saved payment source changed.');
     const reservation = field === 'orders' ? await tx.get(reservationRef(db,data.ownerId,source.id)) : null;
     const cancelled = ['cancelled','declined'].includes(source.status);
     const commit = field === 'orders' ? cancelled ? { ...releaseInventory(workspace,reservation?.exists ? reservation.data() : null,'cancelled'),exception:true } : commitInventory(workspace,reservation?.exists ? reservation.data() : null) : null;
@@ -36,6 +39,7 @@ export async function settleVerifiedPayment(data, db = getFirestore()) {
     const result = { ok: true, paid: true, attemptId: data.attemptId,providerPaymentId: data.providerPaymentId,inventoryException: exception };
     tx.update(attemptRef,{ status:'paid',paidAt: Date.now(),providerPaymentId: data.providerPaymentId,inventoryException:exception });
     tx.create(eventRef,{ attemptId:data.attemptId,gatewayType:data.gatewayType,providerPaymentId:data.providerPaymentId,amountInCents:data.amountInCents,currency:data.currency,atMs:Date.now(),result });
+    if (!providerReceipt.exists) tx.create(providerReceiptRef,{attemptId:data.attemptId,sourceType:attempt.sourceType,sourceId:attempt.sourceId,gatewayType:data.gatewayType,providerPaymentId:data.providerPaymentId,amountInCents:data.amountInCents,currency:data.currency,atMs:Date.now()});
     if (exception) tx.set(db.doc(`${root}/notifications/payment-${data.attemptId}`),{ type:'payment_exception',audience:'owner',ownerId:data.ownerId,orderId:record.id,read:false,createdAt:Date.now(),body:record.paymentException || 'Late payment needs review.' });
     return result;
   });

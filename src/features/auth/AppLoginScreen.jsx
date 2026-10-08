@@ -1,6 +1,6 @@
 import { Button } from '../../shared/ui/Button';
 import { FilterChip } from '../../shared/ui/FilterChip';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../../app/routing';
 import { BrandMark } from '../../shared/ui/BrandMark';
 import { useWorkspace } from '../workspace/WorkspaceContext';
@@ -9,11 +9,11 @@ import { useClientProfile } from '../client-app/ClientProfileContext';
 
 export function AppLoginScreen() {
   const { loadDemoWorkspace, startOwnerOnboarding, exitDemoMode, workspace } = useWorkspace();
-  const { configured, signInEmail, signUpEmail, signInGoogle } = useAuth();
+  const { configured, signInEmail, signUpEmail, signInGoogle, authError, redirectResult, redirectIntent, clearRedirectResult } = useAuth();
   const { bootstrapClientAfterAuth, enterDemoClient } = useClientProfile();
 
-  const [step, setStep] = useState('role');
-  const [audience, setAudience] = useState(null);
+  const [step, setStep] = useState(redirectIntent ? 'auth' : 'role');
+  const [audience, setAudience] = useState(redirectIntent?.audience || null);
   const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +22,20 @@ export function AppLoginScreen() {
   const [notice, setNotice] = useState('');
   const [busyAction, setBusyAction] = useState('');
   const busy = Boolean(busyAction);
+  const redirectHandled = useRef(false);
+  useEffect(() => { if (authError) setError(authError); }, [authError]);
+  useEffect(() => {
+    if (!redirectResult || !redirectIntent || redirectHandled.current) return;
+    redirectHandled.current = true; setBusyAction('google');
+    (async () => {
+      try {
+        if (redirectIntent.audience === 'individual') { await bootstrapClientAfterAuth(redirectResult); navigate(redirectIntent.returnPath || '/app/home', { replace: true }); }
+        else finishBusiness();
+        clearRedirectResult();
+      } catch (e) { setError(e.message || 'We could not finish signing in. Try again.'); }
+      finally { setBusyAction(''); }
+    })();
+  }, [redirectResult, redirectIntent]);
 
   const isIndividual = audience === 'individual';
   const isBusiness = audience === 'business';
@@ -256,7 +270,7 @@ export function AppLoginScreen() {
                   type="button"
                   className="bb-ghost-btn"
                   disabled={busy}
-                  onClick={() => runAuth(() => signInGoogle(), { source: 'google' })}
+                  onClick={() => runAuth(() => signInGoogle({ audience }), { source: 'google' })}
                 >
                   Continue with Google
                 </Button>

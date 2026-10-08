@@ -1,7 +1,7 @@
 import { getFirestore } from 'firebase-admin/firestore';
 import { decryptSecret } from './encrypt.js';
 import { pathJoin } from './publicOptions.js';
-import { paymentConfirmationSnapshot } from '../financialSnapshots.js';
+import { settleVerifiedPayment } from './settlement.js';
 import { readWorkspace,writeWorkspace } from '../workspaceStore.js';
 import { paymentAppId } from './paymentPolicy.js';
 
@@ -88,32 +88,9 @@ export async function patchWorkspaceGatewaySummary(appId, ownerId, gatewayType, 
   });
 }
 
-export async function markSourcePaid({
-  appId,
-  ownerId,
-  sourceType,
-  sourceId,
-  providerPaymentId,
-  gatewayType
-}, db = getFirestore()) {
-  if (!sourceId) return { ok: false, reason: 'missing sourceId' };
-  const ref = db.doc(pathJoin('artifacts', appId, 'users', ownerId, 'config', 'settings'));
-  const field = sourceType === 'order' ? 'orders' : 'bookings';
-  await db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    const data = snap.exists ? snap.data() || {} : {};
-    const list = Array.isArray(data[field]) ? [...data[field]] : [];
-    const idx = list.findIndex((item) => item.id === sourceId);
-    if (idx < 0) return;
-    list[idx] = {
-      ...list[idx],
-      ...paymentConfirmationSnapshot(list[idx]),
-      providerPaymentId: providerPaymentId || list[idx].providerPaymentId || '',
-      paymentGateway: gatewayType || list[idx].paymentGateway || list[idx].paymentMethod
-    };
-    tx.set(ref, { ...data, [field]: list }, { merge: true });
-  });
-  return { ok: true };
+/** Compatibility entry point: every receipt requires a verified saved attempt. */
+export async function markSourcePaid(evidence, db = getFirestore()) {
+  return settleVerifiedPayment(evidence, db);
 }
 
 export function resolveSourceFromPayload(payload = {}) {

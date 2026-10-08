@@ -84,3 +84,8 @@ html body .bb-profile-draft-status > span:last-child:not(:first-child) { font-si
   html body :is(.bb-profile-draft-status,.bb-settings-save-state,.bb-inventory-persistence,.bb-analytics-demo-note,.bb-profile-inline-hint) { margin-block:12px !important; padding:10px 14px !important; gap:6px 8px; border-radius:16px; }
   html body .bb-profile-draft-status > span:last-child:not(:first-child) { padding-left:0; border:0; }
 }
+
+/* Routine demo/save information sits quietly beside content; errors keep their review controls. */
+html body :is(.bb-profile-draft-status,.bb-settings-save-state:not(.is-error),.bb-inventory-persistence,.bb-analytics-demo-note,.bb-profile-inline-hint) { margin:4px 0 8px!important;padding:0!important;border:0;border-radius:0;background:transparent;box-shadow:none;font-size:11px;gap:4px 8px; }
+html body .bb-settings-inline-status { margin-left:auto;flex-shrink:0;font:400 11px/1.5 var(--bb-font-body);color:var(--bb-text-muted,#667085);white-space:nowrap; }
+@media(max-width:599px){html body .bb-settings-inline-status{font-size:10px}.bb-settings-main-head .bb-page-title-wrap{flex-wrap:wrap;gap:8px}}

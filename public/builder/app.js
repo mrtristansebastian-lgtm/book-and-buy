@@ -501,7 +501,7 @@ function setBusy(value, status = "thinking", detail = "") {
   if (state.selectedId) syncSelectionContext();
   if (value) setBuilderStatus(status, detail);
   const help = $("#builderAiHelp");
-  if (help) help.textContent = value ? "Working on your request · Esc or Stop to cancel" : "Uses your ChatGPT allowance · drafts saved here";
+  if (help) help.textContent = value ? "Working on your request · Esc or Stop to cancel" : "Drafts save automatically · review before publishing";
   els.composerHint.title = "Enter to send · Shift + Enter for a new line · ↑ for history";
 }
 
@@ -789,6 +789,7 @@ function snapshotProject() {
     name: state.current.name,
     prompt: state.current.prompt || "",
     publishedUrl: state.current.publishedUrl || null,
+    _validationIssues: state.current._validationIssues || [],
     address: els.address.textContent,
   };
 }
@@ -819,7 +820,7 @@ function updateHistoryControls() {
 
 function restoreSnapshot(snapshot, { clearFuture = false } = {}) {
   if (!snapshot) return;
-  try { if (snapshot.html && window.BookBuyCommerce?.context) snapshot = { ...snapshot, html: window.BookBuyCommerce.wireHtml(snapshot.html, { allowRetired: true }).html }; }
+  try { if (snapshot.html && window.BookBuyCommerce?.context) snapshot = { ...snapshot, html: window.BookBuyCommerce.wireHtml(snapshot.html, { allowRetired: true, draft: Boolean(snapshot._validationIssues?.length) }).html }; }
   catch (error) { showToast(error.message, { tone: 'error' }); return; }
   state.current = {
     id: snapshot.id || state.current?.id || null,
@@ -830,6 +831,7 @@ function restoreSnapshot(snapshot, { clearFuture = false } = {}) {
     name: snapshot.name,
     prompt: snapshot.prompt || "",
     publishedUrl: snapshot.publishedUrl || null,
+    _validationIssues: snapshot._validationIssues || [],
   };
   els.address.textContent = snapshot.address || "preview.bookandbuy.app";
   if (clearFuture) state.future = [];
@@ -858,8 +860,8 @@ function renderCurrent() {
   }
 
   els.projectName.textContent = state.current.name || "Untitled project";
-  els.slugInput.value = slugify(state.current.name || "untitled-project");
-  if (els.frame.srcdoc !== state.current.html) els.frame.srcdoc = state.current.html;
+  els.slugInput.value = state.current.publishedUrl || "Assigned after your first publication";
+  if (els.frame.srcdoc !== state.current.html) { resetRuntimeBridge(); els.frame.srcdoc = state.current.html; }
   renderProjectFileList();
   renderActiveCodeFile();
   updateHistoryControls();
@@ -900,7 +902,7 @@ function setCanvasMode(mode = "edit", { announce = true } = {}) {
   state.canvasMode = next;
   // Editing needs DOM access, while viewing needs scripts. Never grant both.
   els.frame.setAttribute("sandbox", next === "view" ? "allow-scripts" : "allow-same-origin");
-  if (changed && state.current?.html) els.frame.srcdoc = state.current.html;
+  if (changed && state.current?.html) { resetRuntimeBridge(); els.frame.srcdoc = state.current.html; }
   $$(".canvas-mode-btn").forEach(btn => {
     const active = btn.dataset.canvasMode === next;
     btn.classList.toggle("active", active);
@@ -1083,9 +1085,10 @@ function queueProjectDraftSave() {
   switcher?.classList.add("is-saving");
   queueProjectDraftSave.timer = setTimeout(async () => {
     try {
-      await services?.projects?.saveDraft?.({ project });
+      const saved = await services?.projects?.saveDraft?.({ project });
+      if (saved?.cloudSaved && state.current?.id === project.id && state.current.html === project.html) state.current._validationIssues = saved.issues || [];
       switcher?.classList.remove("is-saving");
-      switcher?.classList.add("is-saved");
+      switcher?.classList.toggle("is-saved", saved?.cloudSaved !== false);
       window.dispatchEvent(new CustomEvent("BOOKBUY_BUILDER_SAVED", { detail: { projectId: project?.id } }));
       setTimeout(() => switcher?.classList.remove("is-saved"), 700);
     } catch (error) {
@@ -1095,6 +1098,9 @@ function queueProjectDraftSave() {
     }
   }, 260);
 }
+window.addEventListener('bookbuy-cloud-draft-restore', event => { pushUndo(snapshotProject(), 'Before restoring cloud draft'); restoreSnapshot(event.detail.project); });
+window.addEventListener('bookbuy-website-draft-issues', event => { showToast(`Draft connection needs attention before publishing: ${event.detail.message}`, { tone: 'error' }); });
+window.addEventListener('pagehide', () => { clearTimeout(queueProjectDraftSave.timer); if (state.current) void services?.projects?.saveDraft?.({ project: cloneData(state.current) }).catch(() => {}); });
 
 function getCanvasElement(id) {
   if (!id) return null;
@@ -1606,6 +1612,39 @@ function createAssistantStreamingMessage() {
     bubble: $(".message-bubble", wrap),
   };
 }
+let recoveredConversationGeneration = 0;
+window.addEventListener('bookbuy-ai-new-conversation', () => { recoveredConversationGeneration++; });
+window.addEventListener('bookbuy-ai-connection-scope', () => { recoveredConversationGeneration++; els.messages.replaceChildren(); syncChatEmpty(); });
+function recoveredResponseText(raw) { try { const value = JSON.parse(raw); return String(value.summary || value.question || raw).slice(0, 3000); } catch { return String(raw || '').slice(0, 3000); } }
+function recoveredPromptText(raw) { try { return String(JSON.parse(raw).request || raw).slice(0, 2000); } catch { return String(raw || '').slice(0, 2000); } }
+function addRecoveredDesignAction(bubble, raw) {
+  let parsed; try { parsed = JSON.parse(raw); } catch { return; }
+  if (parsed.kind !== 'edit' || typeof parsed.html !== 'string' || !parsed.html.trim()) return;
+  appendMessageActions(bubble, [{ label: 'Review recovered design', onClick: async () => {
+    if (state.busy) return;
+    const accepted = await openActionDialog({ eyebrow: 'Recovered response', title: 'Apply this recovered design?', copy: 'This response completed while your chat was disconnected. It replaces the current design after its app connections are checked. Your current design will remain in Undo.', confirmLabel: 'Apply design' });
+    if (!accepted) return;
+    try { await window.BookBuyCommerce.ready(); const html = window.BookBuyCommerce.wireHtml(parsed.html).html; const action = { type: 'updateWebsiteSource', html, newSite: false }; const refusal = designEngine.validateAction(action); if (refusal) throw new Error(refusal.reason); setCanvasMode('edit', { announce: false }); await waitForFrameReady(); const run = { baseSnapshot: snapshotProject(), mutationStarted: false }; await applyAgentAction(action, null, undefined, run); showToast('Recovered design applied', { tone: 'success' }); }
+    catch (error) { showToast(error.message, { tone: 'error' }); }
+  } }]);
+}
+window.addEventListener('bookbuy-ai-history', async event => {
+  if (state.busy || els.messages.childElementCount) return;
+  const history = event.detail, generation = recoveredConversationGeneration;
+  for (const turn of (history.turns || []).slice(-12)) {
+    if (turn.user) addMessage('user', escapeHtml(recoveredPromptText(turn.user)));
+    if (turn.assistant) { const message = addMessage('ai', escapeHtml(recoveredResponseText(turn.assistant)).replace(/\n/g, '<br/>')); if (turn.status === 'completed') addRecoveredDesignAction($('.message-bubble', message), turn.assistant); }
+  }
+  if (!history.activeRun) return;
+  const message = addMessage('ai', 'Your earlier request is still running. I’ll recover its response here.');
+  const bubble = $('.message-bubble', message);
+  appendMessageActions(bubble, [{ label: 'Cancel earlier request', onClick: () => window.BookBuyCommerce.hostRequest('ai.run.cancel', { runId: history.activeRun }).catch(error => showToast(error.message, { tone: 'error' })) }]);
+  for (let attempt = 0; attempt < 100 && generation === recoveredConversationGeneration && message.isConnected; attempt++) {
+    try { const run = await window.BookBuyCommerce.hostRequest('ai.run.status', { runId: history.activeRun }); if (run.status !== 'running') { bubble.textContent = run.status === 'completed' ? recoveredResponseText(run.content) : run.error?.message || (run.status === 'cancelled' ? 'Earlier request cancelled.' : 'The earlier request could not complete.'); if (run.status === 'completed') addRecoveredDesignAction(bubble, run.content); return; } }
+    catch (error) { bubble.textContent = 'The earlier response is saved on the server. Reconnect to recover it.'; return; }
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+});
 
 function createPlanCard(plan, container) {
   const card = document.createElement("div");
@@ -2590,22 +2629,33 @@ function postCommerceState(targetWindow, commerceState) {
   } catch (_) {}
 }
 
+let previewRuntimePort = null;
+function resetRuntimeBridge() { previewRuntimePort?.close(); previewRuntimePort = null; }
 async function handleCommerceBridgeMessage(event) {
   const data = event.data || {};
   if (event.source !== els.frame.contentWindow || data.source !== "bookbuy-preview" || state.canvasMode !== "view") return;
   try {
     if (data.type === 'runtime-ready') {
+      if (previewRuntimePort) return;
       const channel = new MessageChannel();
+      previewRuntimePort = channel.port1;
+      let inflight = 0, count = 0, windowStart = Date.now();
       channel.port1.onmessage = async message => {
         const request = message.data || {};
+        let admitted = false;
         try {
+          if (Date.now() - windowStart > 60000) { windowStart = Date.now(); count = 0; }
+          if (inflight >= 4 || ++count > 120 || typeof request.id !== 'string' || request.id.length > 100) throw new Error('Too many preview requests. Try again shortly.');
+          inflight++;
+          admitted = true;
           window.BookBuyWebsiteContract.validateWebsiteRequest(request.action, request.payload || {});
           const result = await window.BookBuyCommerce.hostRequest('runtime.' + request.action, request.payload || {});
           channel.port1.postMessage({ id: request.id, result });
-        } catch (error) { channel.port1.postMessage({ id: request.id, error: error.message }); }
+        } catch (error) { channel.port1.postMessage({ id: request.id, error: error.message }); } finally { if (admitted) inflight--; }
       };
       channel.port1.start();
       event.source.postMessage({ type: 'bookbuy-runtime-connect', version: 1 }, '*', [channel.port2]);
+      channel.port1.postMessage({ type: 'catalog-update', catalog: window.BookBuyCommerce.context });
       return;
     }
     if (data.type === "commerce-ready") {
@@ -2634,7 +2684,7 @@ let pendingCatalogRefresh = false;
 function refreshConnectedCatalog() {
   if (!state.current?.html) return;
   try {
-    state.current.html = window.BookBuyCommerce.wireHtml(state.current.html, { allowRetired: true }).html;
+    state.current.html = window.BookBuyCommerce.wireHtml(state.current.html, { allowRetired: true, draft: Boolean(state.current._validationIssues?.length) }).html;
     if (state.current.files) state.current.files[state.current.entryFile || 'index.html'] = state.current.html;
     renderCurrent(); queueProjectDraftSave();
   } catch (error) { showToast(error.message, { tone: 'error' }); }
@@ -3129,6 +3179,7 @@ function renderAttachments() {
 }
 
 function addAttachments(files) {
+  if (services.ai.supportsAttachments !== true) { showToast('AI attachments aren’t supported yet; import website files through Chat tools.', { tone: 'info' }); return; }
   let skipped = 0;
   [...files].forEach(file => {
     if (state.attachments.length >= 8) { skipped += 1; return; }
@@ -3915,7 +3966,12 @@ $$(".suggestion").forEach(btn => btn.addEventListener("click", () => {
   els.prompt.focus();
 }));
 
-$("#attachBtn").addEventListener("click", () => els.attachmentInput.click());
+const aiAttachmentsSupported = services.ai.supportsAttachments === true;
+$("#attachBtn").disabled = !aiAttachmentsSupported;
+els.attachmentInput.disabled = !aiAttachmentsSupported;
+$("#attachBtn").title = aiAttachmentsSupported ? 'Attach files' : 'AI attachments aren’t supported yet; import website files through Chat tools.';
+$("#attachBtn").dataset.tooltip = $("#attachBtn").title;
+$("#attachBtn").addEventListener("click", () => { if (aiAttachmentsSupported) els.attachmentInput.click(); });
 els.attachmentInput.addEventListener("change", () => {
   addAttachments(els.attachmentInput.files || []);
   els.attachmentInput.value = "";
@@ -4007,7 +4063,7 @@ $("#refreshBtn").addEventListener("click", () => {
   if (!state.current?.html) return showToast("Nothing to refresh yet");
   state.current.html = captureFrameHtml();
   if (state.current.files) state.current.files = captureFrameSourceFiles();
-  els.frame.srcdoc = state.current.html;
+  resetRuntimeBridge(); els.frame.srcdoc = state.current.html;
   showToast("Preview refreshed", { tone: "success" });
 });
 $("#openPreviewBtn").addEventListener("click", () => {
@@ -4033,6 +4089,7 @@ function openSiteFilePicker(kind = "folder") {
 }
 
 els.importSiteBtn?.addEventListener("click", () => openSiteFilePicker("folder"));
+$("#builderImportWebsiteFiles")?.addEventListener("click", () => { closeAllPopovers(); setView("code"); openSiteFilePicker("files"); });
 els.importFolderBtn?.addEventListener("click", event => { event.stopPropagation(); openSiteFilePicker("folder"); });
 els.importFilesBtn?.addEventListener("click", event => { event.stopPropagation(); openSiteFilePicker("files"); });
 els.uploadSiteCard?.addEventListener("keydown", event => {
@@ -4352,7 +4409,7 @@ async function initializeBuilder() {
     state.activeFile = state.current.entryFile || "index.html";
   }
   await window.BookBuyCommerce.ready();
-  if (state.current.html) state.current.html = window.BookBuyCommerce.wireHtml(state.current.html, { allowRetired: true }).html;
+  if (state.current.html) state.current.html = window.BookBuyCommerce.wireHtml(state.current.html, { allowRetired: true, draft: Boolean(state.current._validationIssues?.length) }).html;
   els.address.textContent = "Local preview";
   els.appShell.dataset.serviceMode = Object.values(services).every(adapter => String(adapter?.kind || "").startsWith("mock-")) ? "mock" : "connected";
   setCanvasMode("edit", { announce: false });
@@ -4364,9 +4421,14 @@ async function initializeBuilder() {
   setBuilderStatus("ready");
   updateHistoryControls();
   window.dispatchEvent(new CustomEvent("BOOKBUY_BUILDER_READY", { detail: { restored: Boolean(restored), projectId: state.current.id } }));
+  window.BookBuyBuilderReady = true;
+  if (parent !== window) parent.postMessage({ source: 'bookbuy-builder-host', type: 'builder-ready', url: location.pathname + location.search }, location.origin);
 }
 
 initializeBuilder().catch(error => {
+  if (parent !== window) parent.postMessage({ source: 'bookbuy-builder-host', type: 'builder-error', url: location.pathname + location.search }, location.origin);
   setBuilderStatus("error");
   showToast(error?.message || "The builder could not start. Reload to retry.", { tone: "error" });
 });
+
+window.addEventListener('bookbuy-ai-conversation-deleted', event => { state.promptHistory = []; state.promptHistoryIndex = -1; renderPromptHistory(); if (event.detail.current) { recoveredConversationGeneration++; els.messages.replaceChildren(); syncChatEmpty(); } });

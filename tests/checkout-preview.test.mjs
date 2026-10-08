@@ -64,16 +64,59 @@ test('booking card clicks open preview details without changing the cart', () =>
   assert.equal(navigations, 0, 'Studio cards must stay within the preview');
 });
 
-test('preview checkout does not process payment return parameters', () => {
+test('preview and test checkout refuse payment returns while a live checkout verifies through the server', async () => {
   const source = parse('src/features/storefront/components/PublicCartCheckout.jsx');
+  const live = find(source, (node) => ts.isVariableDeclaration(node) && node.name.getText(source) === 'liveCommerce')[0];
   const effect = find(source, (node) => ts.isCallExpression(node) && node.expression.getText(source) === 'useEffect' &&
-    node.arguments[0]?.getText(source).includes('readCheckoutReturnParams'))[0];
-  assert.ok(effect);
-  let returnReads = 0;
-  const run = new Function('lockedPreview', 'readCheckoutReturnParams',
-    `return (${effect.arguments[0].getText(source)});`)(true, () => { returnReads += 1; return {}; });
-  assert.equal(run(), undefined);
-  assert.equal(returnReads, 0, 'Studio previews must not confirm real payments');
+    node.arguments[0]?.getText(source).includes('firebaseCallables.confirmPaymentReturn'))[0];
+  const recoveryEffect = find(source, (node) => ts.isCallExpression(node) && node.expression.getText(source) === 'useEffect' &&
+    node.arguments[0]?.getText(source).includes('readCheckoutRecovery'))[0];
+  assert.ok(effect && recoveryEffect && live);
+  const canUseLiveCommerce = new Function('publicMode', 'lockedPreview', 'testMode', `return (${live.initializer.getText(source)});`);
+  assert.equal(canUseLiveCommerce(false, false, false), false, 'Owner preview mode is not live commerce');
+  for (const [publicMode, lockedPreview, testMode] of [[false, false, false], [true, true, false], [true, false, true], [true, false, false]]) {
+    let recoveryReads = 0;
+    const liveCommerce = canUseLiveCommerce(publicMode, lockedPreview, testMode);
+    const restore = new Function('liveCommerce', 'workspace', 'readCheckoutRecovery', 'window',
+      `return (${recoveryEffect.arguments[0].getText(source)});`)(liveCommerce, { slug: 'test-shop' },
+      () => { recoveryReads += 1; return null; }, { sessionStorage: {} });
+    restore();
+    assert.equal(recoveryReads, Number(publicMode && !lockedPreview && !testMode), 'Only live customer checkout may load a real payment recovery');
+  }
+  const execute = async ({ publicMode = true, lockedPreview = false, testMode = false } = {}) => {
+    const returnReads = [], confirmations = [], states = [], recoveries = [];
+    const liveCommerce = canUseLiveCommerce(publicMode, lockedPreview, testMode);
+    const workspace = { slug: 'test-shop' };
+    const sessionStorage = {};
+    const run = new Function('liveCommerce', 'lockedPreview', 'testMode', 'readCheckoutReturnParams', 'isFirebaseConfigured',
+      'setReturnState', 'firebaseCallables', 'APP_ID', 'workspace', 'clearCheckoutRecovery', 'window', 'setPaymentRecovery',
+      `return (${effect.arguments[0].getText(source)});`)(liveCommerce, lockedPreview, testMode,
+      () => { returnReads.push(true); return { paid: true, attemptId: 'attempt-1', gateway: 'stripe', session_id: 'session-1' }; },
+      () => true, state => states.push(state), { confirmPaymentReturn: async input => { confirmations.push(input); return { paid: true }; } },
+      'book-and-buy-v1', workspace, (storage, slug) => recoveries.push([storage, slug]), { sessionStorage }, value => recoveries.push(value));
+    const cleanup = run();
+    await Promise.resolve();
+    return { liveCommerce, returnReads, confirmations, states, recoveries, sessionStorage, cleanup };
+  };
+  for (const mode of [{ lockedPreview: true }, { testMode: true }]) {
+    const result = await execute(mode);
+    assert.equal(result.liveCommerce, false);
+    assert.equal(result.cleanup, undefined);
+    assert.deepEqual(result.returnReads, [], 'Studio and test previews must not read payment returns');
+    assert.deepEqual(result.confirmations, [], 'Studio and test previews must not confirm real payments');
+    assert.deepEqual(result.states, []);
+  }
+  const result = await execute();
+  assert.equal(result.liveCommerce, true);
+  assert.equal(result.returnReads.length, 1);
+  assert.equal(result.confirmations.length, 1);
+  assert.equal(result.confirmations[0].slug, 'test-shop');
+  assert.equal(result.confirmations[0].attemptId, 'attempt-1');
+  assert.equal(result.confirmations[0].providerRef, 'session-1');
+  assert.deepEqual(result.states, [{ kind: 'confirming' }, { kind: 'paid', note: '' }]);
+  assert.deepEqual(result.recoveries, [[result.sessionStorage, 'test-shop'], null]);
+  assert.equal(typeof result.cleanup, 'function');
+  result.cleanup();
 });
 
 test('checkout analytics excludes owner visits and previews while customer checkout still records activity', () => {

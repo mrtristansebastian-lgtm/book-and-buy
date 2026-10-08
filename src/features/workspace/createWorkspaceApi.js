@@ -4,7 +4,6 @@ import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList, collectServiceCategories } from '../../utils/services';
 import { applyProductInventoryUpdates, collectProductCategories, normalizeProduct } from '../../utils/products';
 import { createPublicProductOrder } from '../../utils/orders';
-import { saveOwnerWorkspaceToFirestore } from '../../shared/firebase/ownerWorkspace';
 import { firebaseCallables } from '../../shared/firebase/callables';
 import {
   canEditAvailabilityRules,
@@ -14,14 +13,20 @@ import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 import { MODE_KEY, OWNER_KEY, DEMO_KEY, safeParse } from './workspacePersistence';
 import { demoBookingSnapshot, demoOrderCostSnapshot, demoPaymentSnapshot } from './demoFinancialSnapshots';
 
-export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError = () => {}, onInventoryError = () => {} }) {
+export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError = () => {}, onInventoryError = () => {}, onBookingError = () => {} }) {
     const updateBooking = async (id, patch) => {
       if (!workspace.isDemo) {
+        onBookingError('');
+        try {
         const current = workspace.bookings.find((booking) => booking.id === id);
         if (!current) throw new Error('Booking not found.');
-        const record = await firebaseCallables.createOwnerBookingRequest({ ownerId: workspace.ownerId || user?.uid, booking: { id, ...patch }, expectedRevision: current.revision || 0 });
+        const record = await firebaseCallables.createOwnerBookingRequest({ ownerId: workspace.ownerId || user?.uid, booking: { id, ...patch }, expectedRevision: current.revision || 0, requestId: crypto.randomUUID() });
         setWorkspace((prev) => ({ ...prev, bookings: prev.bookings.map((booking) => booking.id === id ? record : booking) }));
         return record;
+        } catch (error) {
+          onBookingError(error.message || 'The booking could not be updated. Please refresh and try again.');
+          return null;
+        }
       }
       setWorkspace((prev) => ({
         ...prev,
@@ -37,7 +42,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
         try {
         const current = workspace.orders.find((order) => order.id === id);
         if (!current) throw new Error('Order not found.');
-        const record = await firebaseCallables.updateOwnerProductOrder({ ownerId: workspace.ownerId || user?.uid, id, patch, expectedRevision: current.revision || 0 });
+        const record = await firebaseCallables.updateOwnerProductOrder({ ownerId: workspace.ownerId || user?.uid, id, patch, expectedRevision: current.revision || 0, requestId: crypto.randomUUID() });
         setWorkspace((prev) => ({ ...prev, orders: prev.orders.map((order) => order.id === id ? record : order) }));
         return record;
         } catch (error) {
@@ -154,7 +159,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           ...booking
         };
         if (!workspace.isDemo) {
-          const remote = await firebaseCallables.createOwnerBookingRequest({ ownerId: workspace.ownerId || user?.uid, booking: record });
+          const remote = await firebaseCallables.createOwnerBookingRequest({ ownerId: workspace.ownerId || user?.uid, booking: record, requestId: crypto.randomUUID() });
           setWorkspace((prev) => ({ ...prev, bookings: [remote, ...prev.bookings.filter((b) => b.id !== remote.id)] }));
           return remote;
         }
@@ -731,9 +736,6 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           };
           localStorage.setItem(MODE_KEY, 'owner');
           localStorage.setItem(OWNER_KEY, JSON.stringify(next));
-          if (user?.uid) {
-            saveOwnerWorkspaceToFirestore(user.uid, { ...next, ownerId: user.uid }).catch(() => {});
-          }
           return next;
         });
       },

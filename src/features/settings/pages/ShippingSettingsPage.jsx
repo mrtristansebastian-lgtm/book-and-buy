@@ -1,49 +1,95 @@
+import { useState } from 'react';
+import { Truck, Search, Package, Globe2, ChevronDown, ChevronRight, ArrowUpRight, CircleAlert, Check } from 'lucide-react';
 import { Button } from '../../../shared/ui/Button';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { FilterChip } from '../../../shared/ui/FilterChip';
-import { useState } from 'react';
-import { Truck, Plus } from 'lucide-react';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { getMarkets } from '../../../utils/markets';
+import { getMarkets, marketPatch } from '../../../utils/markets';
+import { marketCountryName } from '../../../config/marketCountries';
 import { CatalogAssignments } from './CatalogAssignments';
 import { ShippingRatePreview } from '../components/ShippingRatePreview';
 import { MarketFlag } from '../components/MarketCountryPicker';
 import { ShippingAmountField } from '../components/ShippingAmountField';
+import './markets-settings.css';
+import './shipping-settings.css';
+const STEPS = [{ id: 'details', label: 'Details' }, { id: 'rates', label: 'Rates' }, { id: 'products', label: 'Products' }, { id: 'markets', label: 'Markets' }];
 
-export function ShippingSettingsPage() {
+export function ShippingSettingsPage({ detail = '' }) {
   const { workspace, updateWebsite } = useWorkspace();
   const website = workspace.website || {};
   const profiles = website.shippingProfiles || [];
-  const [selected, setSelected] = useState(profiles[0]?.id || '');
-  const profile = profiles.find((item) => item.id === selected) || profiles[0];
-  const connectedMarkets = profile ? getMarkets(website).filter((market) => (market.shippingProfileIds || []).includes(profile.id)) : [];
-  const patch = (changes) => updateWebsite({ shippingProfiles: profiles.map((item) => item.id === profile.id ? { ...item, ...changes } : item) });
-  const add = () => {
-    const id = crypto.randomUUID();
-    let number = 1;
-    while (profiles.some((item) => item.name === `Shipping profile ${number}`)) number += 1;
-    updateWebsite({ shippingProfiles: [...profiles, { id, name: `Shipping profile ${number}`, customerFacingName: 'Standard delivery', enabled: false, productMode: 'all', productIds: [], variantKeys: [], rateCents: 0, freeAboveCents: null, deliveryEstimate: '' }] });
-    setSelected(id);
+  const [search, setSearch] = useState('');
+  const [step, setStep] = useState('details');
+  const [draft, setDraft] = useState(() => ({ id: crypto.randomUUID(), name: '', customerFacingName: 'Standard delivery', enabled: false, productMode: 'all', productIds: [], variantKeys: [], rateCents: 0, freeAboveCents: null, deliveryEstimate: '' }));
+  const [selectedMarkets, setSelectedMarkets] = useState([]);
+  const [amountErrors, setAmountErrors] = useState({});
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState('');
+  const isNew = detail === 'new';
+  const profile = isNew ? draft : profiles.find(item => encodeURIComponent(item.id) === detail);
+  const profilePath = id => workspacePagePath(`settings/shipping/${encodeURIComponent(id)}`);
+  const connectedMarkets = profile ? getMarkets(website).filter(market => (market.shippingProfileIds || []).includes(profile.id)) : [];
+  const patch = changes => isNew ? setDraft(previous => ({ ...previous, ...changes })) : updateWebsite({ shippingProfiles: profiles.map(item => item.id === profile.id ? { ...item, ...changes } : item) });
+  const add = async () => {
+    if (!draft.name.trim() || Object.values(amountErrors).some(Boolean) || creating) return;
+    setCreating(true); setError('');
+    try {
+      await updateWebsite({ shippingProfiles: [...profiles, { ...draft, name: draft.name.trim(), customerFacingName: draft.customerFacingName.trim() }], ...(selectedMarkets.length ? marketPatch(getMarkets(website).map(market => selectedMarkets.includes(market.id) ? { ...market, shippingProfileIds: [...new Set([...(market.shippingProfileIds || []), draft.id])] } : market)) : {}) });
+      navigate(profilePath(draft.id));
+    } catch (failure) { setError(failure.message || 'The profile could not be added. Please retry.'); setCreating(false); }
   };
-  return <div className="bb-settings-content bb-commerce-settings">
-    <section className="bb-panel bb-commerce-intro"><Truck size={24} /><div><h2>Delivery, thoughtfully configured</h2><p className="bb-muted">Create reusable flat-rate or free shipping profiles. Assign your products, then connect each profile in Markets.</p></div><Button action="add" variant="primary" className="bb-btn" type="button" onClick={add}><Plus size={16} /> Add profile</Button></section>
-    <div className="bb-commerce-grid"><section className="bb-panel bb-market-index"><h2>Shipping profiles</h2>{profiles.map((item) => <button className={`bb-market-row${item.id === profile?.id ? ' is-selected' : ''}`} type="button" key={item.id} aria-pressed={item.id === profile?.id} onClick={() => setSelected(item.id)}><span>{item.name}</span><StatusBadge status={item.enabled ? 'active' : 'inactive'}>{item.enabled ? 'Active' : 'Disabled'}</StatusBadge></button>)}{!profiles.length && <p className="bb-muted">No profiles yet. Start with your standard delivery option.</p>}</section>
-    {profile && <section className="bb-panel bb-market-detail"><div className="bb-commerce-section-head"><div><small className="bb-commerce-eyebrow">SHIPPING PROFILE</small><h2>{profile.name}</h2></div><label className="bb-market-toggle"><input type="checkbox" checked={profile.enabled !== false} onChange={(event) => patch({ enabled: event.target.checked })} /> Enabled</label></div>
-      <div className="bb-commerce-field-grid">
-        <label className="bb-market-field">Profile name<input className="native-control-input" maxLength={80} value={profile.name} onChange={(event) => patch({ name: event.target.value })} /><small className="bb-muted">Internal name. Only your team sees this in Shipping and Markets.</small></label>
-        <label className="bb-market-field">Customer-facing name<input className="native-control-input" maxLength={80} placeholder="e.g. Standard delivery" value={profile.customerFacingName || ''} onChange={(event) => patch({ customerFacingName: event.target.value })} /><small className="bb-muted">Shown at checkout. Leave blank to use “Delivery”.</small></label>
+  const fee = item => item.rateCents === 0 ? 'Free delivery' : `${workspace.currency || 'R'} ${(Number(item.rateCents || 0) / 100).toFixed(2)} per order`;
+  const stepIndex = STEPS.findIndex(item => item.id === step);
+  const goStep = target => {
+    const targetIndex = STEPS.findIndex(item => item.id === target);
+    if (targetIndex < 0) return;
+    if (isNew && targetIndex > stepIndex && !draft.name.trim()) { setError('Add a profile name before continuing.'); setStep('details'); return; }
+    if (step === 'rates' && Object.values(amountErrors).some(Boolean)) { setError('Enter valid delivery amounts before changing steps.'); return; }
+    setError(''); setStep(target);
+  };
+
+  if (detail && !profile) return <div className="bb-settings-content bb-commerce-settings bb-markets-page"><section className="bb-panel bb-markets-empty"><Truck size={24} aria-hidden="true" /><h2>This profile is no longer available</h2><p>Return to Shipping to choose another profile.</p><Button action="back" onClick={() => navigate(workspacePagePath('settings/shipping'))}>Shipping profiles</Button></section></div>;
+
+  if (profile) return <div className="bb-settings-content bb-commerce-settings bb-markets-page bb-shipping-page">
+    <div className="bb-shipping-step-layout">
+      <nav className="bb-services-setup-rail" aria-label="Shipping setup steps">
+        <ol className="bb-services-setup-rail-list">
+          {STEPS.map((item, index) => <li className={`bb-services-setup-rail-item is-${index === stepIndex ? 'current' : index < stepIndex ? 'done' : 'upcoming'}`} key={item.id}>
+            <button className="bb-services-setup-rail-btn" type="button" disabled={creating || (isNew && index > stepIndex)} aria-current={index === stepIndex ? 'step' : undefined} onClick={() => goStep(item.id)}>
+              <span className="bb-services-setup-rail-dot" aria-hidden="true">{index < stepIndex ? <Check size={12} strokeWidth={2.6} /> : index + 1}</span>
+              <span className="bb-services-setup-rail-label">{item.label}</span>
+            </button>
+          </li>)}
+        </ol>
+      </nav>
+      <div className="bb-shipping-step-stage">
+    <section className="bb-panel bb-shipping-step-panel" hidden={step !== 'details'}><div className="bb-markets-card-head"><span className="bb-markets-icon"><Truck size={22} aria-hidden="true" /></span><div><h2>Profile details</h2><p>{profile.enabled !== false ? 'Available to the markets it’s connected to.' : 'Disabled while you set up your delivery option.'}</p></div><label className="bb-market-switch"><input type="checkbox" role="switch" aria-label="Enable shipping profile" checked={profile.enabled !== false} onChange={event => patch({ enabled: event.target.checked })} /><span aria-hidden="true" /></label></div>
+      <div className="bb-commerce-field-grid bb-shipping-name-fields"><label className="bb-market-field">Profile name<input className="native-control-input" maxLength={80} placeholder="e.g. Local delivery" aria-required={isNew || undefined} value={profile.name} onChange={event => patch({ name: event.target.value })} /><small>Only you see this name.</small></label><label className="bb-market-field">Customer-facing name<input className="native-control-input" maxLength={80} placeholder="Standard delivery" value={profile.customerFacingName || ''} onChange={event => patch({ customerFacingName: event.target.value })} /><small>Shown at checkout. Leave blank to use “Delivery”.</small></label></div>
+    </section>
+    <section className="bb-panel bb-shipping-rates-card bb-shipping-step-panel" hidden={step !== 'rates'}><div className="bb-markets-card-head"><span className="bb-markets-icon"><Package size={21} aria-hidden="true" /></span><div><h2>Rates & delivery</h2><p>A clear, simple fee for each order using this profile.</p></div></div>
+      <div className="bb-shipping-fee-summary"><span>{fee(profile)}</span><FilterChip selected={profile.rateCents === 0} onClick={() => patch({ rateCents: 0, freeAboveCents: null })}>Make delivery free</FilterChip></div>
+      <div className="bb-commerce-field-grid"><ShippingAmountField key={`${profile.id}-rate`} label={`Shipping rate (${workspace.currency || 'R'})`} cents={profile.rateCents} hint={isNew ? 'Use 0 for free delivery. Added with your profile.' : 'Use 0 for free delivery. Saves when you leave the field.'} onValidityChange={valid => setAmountErrors(previous => ({ ...previous, rate: !valid }))} onChange={rateCents => patch({ rateCents })} /><ShippingAmountField key={`${profile.id}-threshold`} label="Free shipping above (optional)" cents={profile.freeAboveCents} optional hint="Based on the product subtotal, before delivery." onValidityChange={valid => setAmountErrors(previous => ({ ...previous, threshold: !valid }))} onChange={freeAboveCents => patch({ freeAboveCents })} /></div>
+      <label className="bb-market-field bb-shipping-estimate">Delivery estimate<input className="native-control-input" maxLength={100} placeholder="e.g. 3–5 business days" value={profile.deliveryEstimate || ''} onChange={event => patch({ deliveryEstimate: event.target.value })} /></label>
+    </section>
+    <section className="bb-panel bb-market-catalog-card bb-shipping-step-panel" hidden={step !== 'products'}><div className="bb-markets-card-head"><span className="bb-markets-icon"><Package size={21} aria-hidden="true" /></span><div><h2>Products</h2><p>Choose which products use this delivery option.</p></div></div><CatalogAssignments key={profile.id} value={profile} products={workspace.products} onChange={patch} /></section>
+    <section className="bb-panel bb-shipping-markets-card bb-shipping-step-panel" hidden={step !== 'markets'}><div className="bb-markets-card-head"><span className="bb-markets-icon"><Globe2 size={21} aria-hidden="true" /></span><div><h2>Connected markets</h2><p>Link this profile to the countries you deliver to.</p></div><a className="bb-market-text-link" href={`#${workspacePagePath('settings/markets')}`}>Manage markets <ArrowUpRight size={14} aria-hidden="true" /></a></div>
+      {isNew && getMarkets(website).length ? <div className="bb-market-delivery-options">{getMarkets(website).map(market => <label className="bb-market-profile" key={market.id}><input type="checkbox" checked={selectedMarkets.includes(market.id)} onChange={event => setSelectedMarkets(previous => event.target.checked ? [...previous, market.id] : previous.filter(id => id !== market.id))} /><MarketFlag code={market.countryCode} /><span>{marketCountryName(market.countryCode)}</span></label>)}</div> : connectedMarkets.length ? <div className="bb-shipping-market-list">{connectedMarkets.map(market => <a key={market.id} href={`#${workspacePagePath(`settings/markets/${encodeURIComponent(market.id)}`)}`}><MarketFlag code={market.countryCode} /><span>{marketCountryName(market.countryCode)}</span><StatusBadge status={market.enabled && profile.enabled !== false ? 'connected' : 'inactive'}>{market.enabled && profile.enabled !== false ? 'Connected' : 'Inactive'}</StatusBadge><ChevronRight size={15} aria-hidden="true" /></a>)}</div> : <div className="bb-market-health needs-attention"><CircleAlert size={17} aria-hidden="true" /><div><strong>No markets connected yet</strong><p>Open a market, choose this profile in Delivery, then enable both when you’re ready.</p></div></div>}
+    </section>
+    {!isNew && step === 'rates' && <details className="bb-panel bb-shipping-check"><summary><div><strong>Check a delivery fee</strong><p>Try a sample basket using the same rules as checkout.</p></div><ChevronDown size={17} aria-hidden="true" /></summary><ShippingRatePreview workspace={workspace} /></details>}
+    {error && <p className="bb-market-error" role="alert">{error}</p>}
       </div>
-      <div className="bb-shipping-rate-mode"><strong>Delivery charge</strong><FilterChip selected={profile.rateCents === 0} onClick={() => patch({ rateCents: 0, freeAboveCents: null })}>Free delivery</FilterChip><span>{profile.rateCents === 0 ? 'Free for every order using this profile. Enter a rate below for flat-rate delivery.' : 'Flat rate, charged once per order using this profile.'}</span></div>
-      <div className="bb-commerce-field-grid">
-        <ShippingAmountField key={`${profile.id}-rate`} label={`Shipping rate (${workspace.currency || 'R'})`} cents={profile.rateCents} hint="Set to 0 for free shipping. Amounts save when you leave the field." onChange={(rateCents) => patch({ rateCents })} />
-        <ShippingAmountField key={`${profile.id}-threshold`} label="Free shipping above (optional)" cents={profile.freeAboveCents} optional hint="Applies to the merchandise subtotal. Amounts save when you leave the field." onChange={(freeAboveCents) => patch({ freeAboveCents })} />
-      </div>
-      <label className="bb-market-field">Delivery estimate<input className="native-control-input" maxLength={100} placeholder="e.g. 3–5 business days" value={profile.deliveryEstimate || ''} onChange={(event) => patch({ deliveryEstimate: event.target.value })} /></label>
-      <CatalogAssignments value={profile} products={workspace.products} onChange={patch} />
-      <div className="bb-commerce-section-head"><h3>Connected markets</h3><a href="#/dashboard/settings/markets">Manage markets ↗</a></div>
-      <div className="bb-shipping-connected-markets">{connectedMarkets.length ? connectedMarkets.map((market) => <a key={market.id} href="#/dashboard/settings/markets"><MarketFlag code={market.countryCode} /><span>{market.countryCode === '*' ? 'Rest of world' : new Intl.DisplayNames(['en'], { type: 'region' }).of(market.countryCode)}</span><StatusBadge status={market.enabled && profile.enabled !== false ? 'connected' : 'inactive'}>{market.enabled && profile.enabled !== false ? 'Connected' : 'Inactive'}</StatusBadge></a>) : <div className="bb-settings-explainer"><strong>Not connected to a market</strong><p>Enable this profile and connect it in Markets before clients can use it for delivery.</p><a href="#/dashboard/settings/markets">Connect in Markets →</a></div>}</div>
-      <p className="bb-commerce-empty">Specific-product profiles override an all-product default. If an order uses several profiles, each profile’s rate is charged once. Avoid assigning the same product to multiple specific profiles.</p>
-    </section>}</div>
-    <ShippingRatePreview workspace={workspace} />
+    </div>
+    <footer className="bb-shipping-wizard-footer"><Button action="back" disabled={stepIndex === 0 || creating} onClick={() => goStep(STEPS[stepIndex - 1].id)}>Back</Button><span className="bb-shipping-step-count" aria-live="polite">Step {stepIndex + 1} of {STEPS.length}</span>{stepIndex < STEPS.length - 1 ? <Button action="next" variant="primary" onClick={() => goStep(STEPS[stepIndex + 1].id)}>Next</Button> : isNew ? <Button action="add" variant="primary" disabled={!draft.name.trim() || Object.values(amountErrors).some(Boolean)} busy={creating} busyLabel="Adding profile…" onClick={add}>Add profile</Button> : <Button action="done" variant="primary" onClick={() => navigate(workspacePagePath('settings/shipping'))}>Done</Button>}</footer>
+    <p className="bb-markets-footnote">A specific product profile takes priority over your default. Each applied profile is charged once per order.</p>
+  </div>;
+
+  const filtered = profiles.filter(item => `${item.name} ${item.customerFacingName || ''}`.toLowerCase().includes(search.trim().toLowerCase()));
+  return <div className="bb-settings-content bb-commerce-settings bb-markets-page bb-shipping-page">
+    <section className="bb-panel bb-markets-list-card"><div className="bb-markets-list-heading"><div><h2>Delivery profiles</h2><p>Simple rates, reusable across your markets.</p></div><Truck size={22} aria-hidden="true" /></div>
+      <div className="bb-markets-toolbar"><div className="bb-search-field bb-markets-search"><Search size={17} className="bb-search-field-icon" aria-hidden="true" /><input className="native-search-input" type="search" aria-label="Search shipping profiles" placeholder="Search profiles…" value={search} onChange={event => setSearch(event.target.value)} /></div><Button action="add" variant="primary" onClick={() => navigate(workspacePagePath('settings/shipping/new'))}>Add profile</Button></div>
+      <div className="bb-markets-list">{filtered.map(item => <article className="bb-market-list-row" key={item.id}><span className="bb-market-country-mark"><Truck size={20} aria-hidden="true" /></span><div className="bb-market-list-copy"><h3>{item.name}</h3><p>{item.customerFacingName || 'Delivery'} · {fee(item)}</p></div><StatusBadge status={item.enabled !== false ? 'active' : 'inactive'}>{item.enabled !== false ? 'Active' : 'Disabled'}</StatusBadge><Button as="a" action="edit" className="bb-market-edit" href={`#${profilePath(item.id)}`} aria-label={`Edit ${item.name} profile`}>Edit profile</Button></article>)}</div>
+      {!filtered.length && <div className="bb-markets-empty"><Truck size={27} aria-hidden="true" /><h3>{search ? 'No matching profiles' : 'A thoughtful delivery experience starts here'}</h3><p>{search ? 'Try another profile or checkout name.' : 'Add a delivery profile, choose its products and connect it to your markets.'}</p>{search && <button type="button" className="bb-market-text-link" onClick={() => setSearch('')}>Clear search</button>}</div>}
+    </section><p className="bb-markets-footnote">New profiles start disabled. Your customers see only the delivery options available for their order.</p>
   </div>;
 }

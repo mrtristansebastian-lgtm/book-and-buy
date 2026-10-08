@@ -1,0 +1,982 @@
+[
+  {
+    "route": "overview",
+    "width": 1440,
+    "valid": true,
+    "layout": "heading",
+    "title": "Good morning, Jordan",
+    "header": {
+      "top": 49.11964416503906,
+      "bottom": 133.82965087890625,
+      "left": 111.3167724609375,
+      "right": 1388.2769775390625,
+      "width": 1276.960205078125,
+      "height": 84.71000671386719
+    },
+    "titleBox": {
+      "top": 49.11964416503906,
+      "bottom": 94.42964935302734,
+      "left": 111.3167724609375,
+      "right": 1001.4027709960938,
+      "width": 890.0859985351562,
+      "height": 45.31000518798828
+    },
+    "period": {
+      "top": 52.07464599609375,
+      "bottom": 91.47464752197266,
+      "left": 1025.042724609375,
+      "right": 1376.4569091796875,
+      "width": 351.4141845703125,
+      "height": 39.400001525878906
+    },
+    "meta": {
+      "top": 102.30964660644531,
+      "bottom": 124.05659484863281,
+      "left": 111.3167724609375,
+      "right": 1001.4027709960938,
+      "width": 890.0859985351562,
+      "height": 21.7469482421875
+    },
+    "actions": {
+      "top": 102.30964660644531,
+      "bottom": 133.82965087890625,
+      "left": 1146.951904296875,
+      "right": 1388.2769775390625,
+      "width": 241.3250732421875,
+      "height": 31.520004272460938
+    },
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta",
+      "bb-period-page-header-actions"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Stats time period",
+    "icons": []
+  },
+  {
+    "route": "finance-reports",
+    "width": 1440,
+    "valid": true,
+    "layout": "heading",
+    "title": "Financial reports",
+    "header": {
+      "top": 53.19062423706055,
+      "bottom": 174.70624923706055,
+      "left": 32,
+      "right": 1398,
+      "width": 1366,
+      "height": 121.515625
+    },
+    "titleBox": {
+      "top": 53.19062423706055,
+      "bottom": 97.70625305175781,
+      "left": 32,
+      "right": 1005.234375,
+      "width": 973.234375,
+      "height": 44.515628814697266
+    },
+    "period": {
+      "top": 55.44062423706055,
+      "bottom": 95.44062805175781,
+      "left": 1029.234375,
+      "right": 1386,
+      "width": 356.765625,
+      "height": 40.000003814697266
+    },
+    "meta": {
+      "top": 105.70625305175781,
+      "bottom": 174.7062530517578,
+      "left": 32,
+      "right": 1005.234375,
+      "width": 973.234375,
+      "height": 69
+    },
+    "actions": null,
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Time period",
+    "icons": [
+      {
+        "title": "Revenue",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Profit & costs",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Payments due",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Average values",
+        "width": 72,
+        "height": 72.00006103515625,
+        "alignment": 0
+      },
+      {
+        "title": "Conversion",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Discovery",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Places",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Find products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Find services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      }
+    ]
+  },
+  {
+    "route": "analytics",
+    "width": 1440,
+    "valid": true,
+    "layout": "heading",
+    "title": "Traffic reports",
+    "header": {
+      "top": 36.19136047363281,
+      "bottom": 157.7069854736328,
+      "left": 32,
+      "right": 1398,
+      "width": 1366,
+      "height": 121.515625
+    },
+    "titleBox": {
+      "top": 36.19136047363281,
+      "bottom": 80.70697784423828,
+      "left": 32,
+      "right": 1005.234375,
+      "width": 973.234375,
+      "height": 44.51561737060547
+    },
+    "period": {
+      "top": 38.44136047363281,
+      "bottom": 78.44135284423828,
+      "left": 1029.234375,
+      "right": 1386,
+      "width": 356.765625,
+      "height": 39.99999237060547
+    },
+    "meta": {
+      "top": 88.70697784423828,
+      "bottom": 157.7069854736328,
+      "left": 32,
+      "right": 1005.234375,
+      "width": 973.234375,
+      "height": 69.00000762939453
+    },
+    "actions": null,
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Time period",
+    "icons": [
+      {
+        "title": "Audience",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Carts & checkout",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Discovery outcomes",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Places",
+        "width": 72,
+        "height": 72.0001220703125,
+        "alignment": 0
+      },
+      {
+        "title": "Find products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Find services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      }
+    ]
+  },
+  {
+    "route": "finance",
+    "width": 1440,
+    "valid": true,
+    "layout": "heading",
+    "title": "Receipts & invoices",
+    "header": {
+      "top": 34.390625,
+      "bottom": 107.90625,
+      "left": 32,
+      "right": 1398,
+      "width": 1366,
+      "height": 73.515625
+    },
+    "titleBox": {
+      "top": 34.390625,
+      "bottom": 78.90625,
+      "left": 32,
+      "right": 1005.234375,
+      "width": 973.234375,
+      "height": 44.515625
+    },
+    "period": {
+      "top": 36.640625,
+      "bottom": 76.640625,
+      "left": 1029.234375,
+      "right": 1386,
+      "width": 356.765625,
+      "height": 40
+    },
+    "meta": {
+      "top": 86.90625,
+      "bottom": 107.90625,
+      "left": 32,
+      "right": 1005.234375,
+      "width": 973.234375,
+      "height": 21
+    },
+    "actions": null,
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Time period",
+    "icons": []
+  },
+  {
+    "route": "orders",
+    "width": 1440,
+    "valid": true,
+    "layout": "toolbar",
+    "title": "Orders",
+    "header": {
+      "top": 33.59375,
+      "bottom": 134.109375,
+      "left": 32,
+      "right": 1398,
+      "width": 1366,
+      "height": 100.515625
+    },
+    "titleBox": {
+      "top": 33.59375,
+      "bottom": 78.109375,
+      "left": 32,
+      "right": 1017.234375,
+      "width": 985.234375,
+      "height": 44.515625
+    },
+    "period": {
+      "top": 94.109375,
+      "bottom": 134.109375,
+      "left": 1041.234375,
+      "right": 1398,
+      "width": 356.765625,
+      "height": 40
+    },
+    "meta": null,
+    "actions": null,
+    "filters": {
+      "top": 96.109375,
+      "bottom": 132.109375,
+      "left": 32,
+      "right": 1017.234375,
+      "width": 985.234375,
+      "height": 36
+    },
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-filters"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Product order period",
+    "icons": []
+  },
+  {
+    "route": "requests",
+    "width": 1440,
+    "valid": true,
+    "layout": "toolbar",
+    "title": "Requests",
+    "header": {
+      "top": 33.60187911987305,
+      "bottom": 134.11750411987305,
+      "left": 32,
+      "right": 1398,
+      "width": 1366,
+      "height": 100.515625
+    },
+    "titleBox": {
+      "top": 33.60187911987305,
+      "bottom": 78.11750793457031,
+      "left": 32,
+      "right": 1017.234375,
+      "width": 985.234375,
+      "height": 44.515628814697266
+    },
+    "period": {
+      "top": 94.11750793457031,
+      "bottom": 134.1175079345703,
+      "left": 1041.234375,
+      "right": 1398,
+      "width": 356.765625,
+      "height": 40
+    },
+    "meta": null,
+    "actions": {
+      "top": 35.85187911987305,
+      "bottom": 75.85188293457031,
+      "left": 1248.03125,
+      "right": 1398,
+      "width": 149.96875,
+      "height": 40.000003814697266
+    },
+    "filters": {
+      "top": 96.11750793457031,
+      "bottom": 132.1175079345703,
+      "left": 32,
+      "right": 1017.234375,
+      "width": 985.234375,
+      "height": 36
+    },
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-actions",
+      "bb-period-page-header-filters"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Booking request period",
+    "icons": []
+  },
+  {
+    "route": "staff",
+    "width": 1440,
+    "valid": true,
+    "layout": "heading",
+    "title": "Schedule",
+    "header": {
+      "top": 33.593780517578125,
+      "bottom": 126.10940551757812,
+      "left": 32,
+      "right": 1398,
+      "width": 1366,
+      "height": 92.515625
+    },
+    "titleBox": {
+      "top": 33.593780517578125,
+      "bottom": 78.10940551757812,
+      "left": 32,
+      "right": 1083.046875,
+      "width": 1051.046875,
+      "height": 44.515625
+    },
+    "period": {
+      "top": 35.843780517578125,
+      "bottom": 75.84378051757812,
+      "left": 1107.046875,
+      "right": 1386,
+      "width": 278.953125,
+      "height": 40
+    },
+    "meta": {
+      "top": 86.10940551757812,
+      "bottom": 105.60940551757812,
+      "left": 32,
+      "right": 1083.046875,
+      "width": 1051.046875,
+      "height": 19.5
+    },
+    "actions": {
+      "top": 86.10940551757812,
+      "bottom": 126.10940551757812,
+      "left": 1242.390625,
+      "right": 1398,
+      "width": 155.609375,
+      "height": 40
+    },
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta",
+      "bb-period-page-header-actions"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Schedule period",
+    "icons": []
+  },
+  {
+    "route": "overview",
+    "width": 390,
+    "valid": true,
+    "layout": "heading",
+    "title": "Good morning, Jordan",
+    "header": {
+      "top": 26.403093338012695,
+      "bottom": 191.47920417785645,
+      "left": 16.002182006835938,
+      "right": 373.99778747558594,
+      "width": 357.99560546875,
+      "height": 165.07611083984375
+    },
+    "titleBox": {
+      "top": 26.403093338012695,
+      "bottom": 61.402666091918945,
+      "left": 16.002182006835938,
+      "right": 373.99778747558594,
+      "width": 357.99560546875,
+      "height": 34.99957275390625
+    },
+    "period": {
+      "top": 73.40251922607422,
+      "bottom": 109.4020767211914,
+      "left": 16.002182006835938,
+      "right": 373.99778747558594,
+      "width": 357.99560546875,
+      "height": 35.99955749511719
+    },
+    "meta": {
+      "top": 121.40193176269531,
+      "bottom": 143.47979736328125,
+      "left": 16.002182006835938,
+      "right": 373.99778747558594,
+      "width": 357.99560546875,
+      "height": 22.077865600585938
+    },
+    "actions": {
+      "top": 155.47964477539062,
+      "bottom": 191.4792022705078,
+      "left": 16.002182006835938,
+      "right": 254.999267578125,
+      "width": 238.99708557128906,
+      "height": 35.99955749511719
+    },
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta",
+      "bb-period-page-header-actions"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Stats time period",
+    "icons": []
+  },
+  {
+    "route": "finance-reports",
+    "width": 390,
+    "valid": true,
+    "layout": "heading",
+    "title": "Financial reports",
+    "header": {
+      "top": 26.390625,
+      "bottom": 214.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 188.390625
+    },
+    "titleBox": {
+      "top": 26.390625,
+      "bottom": 64.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 38.390625
+    },
+    "period": {
+      "top": 76.78125,
+      "bottom": 112.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 36
+    },
+    "meta": {
+      "top": 124.78125,
+      "bottom": 214.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 90
+    },
+    "actions": null,
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Time period",
+    "icons": [
+      {
+        "title": "Revenue",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Profit & costs",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Payments due",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Average values",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Conversion",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Discovery",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Places",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Find products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Find services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      }
+    ]
+  },
+  {
+    "route": "analytics",
+    "width": 390,
+    "valid": true,
+    "layout": "heading",
+    "title": "Traffic reports",
+    "header": {
+      "top": 26.390625,
+      "bottom": 193.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 167.390625
+    },
+    "titleBox": {
+      "top": 26.390625,
+      "bottom": 64.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 38.390625
+    },
+    "period": {
+      "top": 76.78125,
+      "bottom": 112.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 36
+    },
+    "meta": {
+      "top": 124.78125,
+      "bottom": 193.78125,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 69
+    },
+    "actions": null,
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Time period",
+    "icons": [
+      {
+        "title": "Audience",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Carts & checkout",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Discovery outcomes",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Places",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Find products",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      },
+      {
+        "title": "Find services",
+        "width": 72,
+        "height": 72,
+        "alignment": 0
+      }
+    ]
+  },
+  {
+    "route": "finance",
+    "width": 390,
+    "valid": true,
+    "layout": "heading",
+    "title": "Receipts & invoices",
+    "header": {
+      "top": 26.425670623779297,
+      "bottom": 145.8162956237793,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 119.390625
+    },
+    "titleBox": {
+      "top": 26.425670623779297,
+      "bottom": 64.81629943847656,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 38.390628814697266
+    },
+    "period": {
+      "top": 76.81629943847656,
+      "bottom": 112.81629943847656,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 36
+    },
+    "meta": {
+      "top": 124.81629943847656,
+      "bottom": 145.81629943847656,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 21
+    },
+    "actions": null,
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Time period",
+    "icons": []
+  },
+  {
+    "route": "orders",
+    "width": 390,
+    "valid": true,
+    "layout": "toolbar",
+    "title": "Orders",
+    "header": {
+      "top": 25.59375,
+      "bottom": 193.984375,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 168.390625
+    },
+    "titleBox": {
+      "top": 25.59375,
+      "bottom": 63.984375,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 38.390625
+    },
+    "period": {
+      "top": 75.984375,
+      "bottom": 111.984375,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 36
+    },
+    "meta": null,
+    "actions": null,
+    "filters": {
+      "top": 123.984375,
+      "bottom": 193.984375,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 70
+    },
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-filters"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Product order period",
+    "icons": []
+  },
+  {
+    "route": "requests",
+    "width": 390,
+    "valid": true,
+    "layout": "toolbar",
+    "title": "Requests",
+    "header": {
+      "top": 25.60188102722168,
+      "bottom": 241.99250602722168,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 216.390625
+    },
+    "titleBox": {
+      "top": 25.60188102722168,
+      "bottom": 63.99250602722168,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 38.390625
+    },
+    "period": {
+      "top": 75.99250793457031,
+      "bottom": 111.99250793457031,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 36
+    },
+    "meta": null,
+    "actions": {
+      "top": 123.99250793457031,
+      "bottom": 159.9925079345703,
+      "left": 16,
+      "right": 149.96875,
+      "width": 133.96875,
+      "height": 36
+    },
+    "filters": {
+      "top": 171.9925079345703,
+      "bottom": 241.9925079345703,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 70
+    },
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-actions",
+      "bb-period-page-header-filters"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Booking request period",
+    "icons": []
+  },
+  {
+    "route": "staff",
+    "width": 390,
+    "valid": true,
+    "layout": "heading",
+    "title": "Schedule",
+    "header": {
+      "top": 25.594379425048828,
+      "bottom": 219.98500442504883,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 194.390625
+    },
+    "titleBox": {
+      "top": 25.594379425048828,
+      "bottom": 63.98500442504883,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 38.390625
+    },
+    "period": {
+      "top": 75.98500061035156,
+      "bottom": 111.98500061035156,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 36
+    },
+    "meta": {
+      "top": 123.98500061035156,
+      "bottom": 159.98500061035156,
+      "left": 16,
+      "right": 374,
+      "width": 358,
+      "height": 36
+    },
+    "actions": {
+      "top": 171.98500061035156,
+      "bottom": 219.98500061035156,
+      "left": 16,
+      "right": 155.609375,
+      "width": 139.609375,
+      "height": 48
+    },
+    "filters": null,
+    "order": [
+      "bb-period-page-header-title",
+      "bb-period-page-header-period",
+      "bb-period-page-header-meta",
+      "bb-period-page-header-actions"
+    ],
+    "overflow": false,
+    "controls": 1,
+    "group": "Schedule period",
+    "icons": []
+  }
+]

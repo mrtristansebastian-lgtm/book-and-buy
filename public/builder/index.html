@@ -50,7 +50,7 @@
 <button aria-label="Redo" class="icon-btn quiet" data-tooltip="Redo" disabled="" id="redoBtn"><span aria-hidden="true" class="icon-slot" data-icon="redo"></span></button>
 </div>
 <button class="secondary-btn" id="shareBtn"><span aria-hidden="true" class="icon-slot" data-icon="share"></span><span class="button-label">Share</span></button>
-<button class="primary-btn" id="publishBtn" title="Publishing is not connected during local testing"><span aria-hidden="true" class="icon-slot" data-icon="publish"></span><span class="button-label">Publish</span></button>
+<button class="primary-btn" id="publishBtn" title="Publish a verified website version"><span aria-hidden="true" class="icon-slot" data-icon="publish"></span><span class="button-label">Publish</span></button>
 <div class="menu-anchor">
 <button aria-controls="accountMenu" aria-expanded="false" aria-haspopup="menu" aria-label="Account menu" class="avatar" id="avatarBtn">J</button>
 <div class="popover account-popover hidden" id="accountMenu" role="menu">
@@ -125,10 +125,13 @@
 <button type="button" id="builderToolsTrigger" class="composer-icon" aria-label="Chat tools" data-tooltip="Chat tools" aria-controls="builderToolsMenu" aria-haspopup="menu" aria-expanded="false"><span class="icon-slot" data-icon="sliders" aria-hidden="true"></span></button>
 <div id="builderToolsMenu" class="builder-chat-menu builder-tools-menu hidden" role="menu" aria-label="Chat tools">
 <div class="builder-menu-heading">Chat tools</div>
+<p class="builder-menu-note">AI attachments aren’t supported yet; import website files here.</p>
+<button aria-label="Import website files" id="builderImportWebsiteFiles" type="button" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="upload"></span><span><strong>Import website files</strong><small>HTML, styles, scripts and assets</small></span></button>
 <button aria-label="Dictate message" class="composer-icon" id="builderVoiceInput" data-tooltip="Dictate message"><span class="icon-slot" data-icon="mic" aria-hidden="true"></span><span>Dictate message</span></button>
 <button aria-label="Read replies aloud" aria-pressed="false" class="composer-icon" id="builderVoiceOutput" data-tooltip="Read replies aloud"><span class="icon-slot" data-icon="volume" aria-hidden="true"></span><span>Read replies aloud</span></button>
 <button aria-label="Refine prompt" id="magicBtn" type="button" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="pencil"></span><span><strong>Refine prompt</strong><small>Make your request clearer</small></span></button>
 <div class="menu-anchor composer-menu-anchor">
+<button id="builderSavedChatsButton" type="button" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="message-square"></span><span><strong>Saved conversations</strong><small>Continue or delete a chat</small></span></button>
 <button aria-controls="historyPopover" aria-expanded="false" aria-haspopup="menu" aria-label="Prompt history" id="historyBtn" type="button" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="history"></span><span><strong>Recent prompts</strong><small>Pick up an earlier request</small></span></button>
 </div>
 </div>
@@ -138,7 +141,9 @@
 
 </div>
 </div>
-<div class="composer-hint" id="composerHint"><span id="builderAiHelp">Uses your ChatGPT allowance · drafts saved here</span></div>
+<div class="composer-hint" id="composerHint"><span id="builderAiHelp">Drafts save automatically · review before publishing</span></div>
+<div class="builder-saved-chats hidden" id="builderSavedChats"><header><strong>Saved conversations</strong><button type="button" id="builderSavedChatsClose" aria-label="Close saved conversations">×</button></header><div id="builderSavedChatsList"></div></div>
+<p id="builderPlanUsage" class="composer-hint hidden">Using ChatGPT plan · <a href="https://chatgpt.com/settings/usage" target="_blank" rel="noreferrer">Manage usage ↗</a></p>
 <div class="popover history-popover hidden" id="historyPopover" role="menu"><div class="popover-label">Recent prompts</div><div class="history-list" id="historyList"></div></div>
 </div>
 </aside>
@@ -267,16 +272,15 @@
 <div class="modal">
 <div class="modal-head">
 <div>
-<span class="modal-eyebrow"><span class="publish-status-dot"></span>Local testing</span>
+<span class="modal-eyebrow"><span class="publish-status-dot"></span>Website release</span>
 <h2 id="publishTitle">Publish your website</h2>
 </div>
 <button aria-label="Close publish dialog" class="icon-btn quiet" data-tooltip="Close" id="closePublish"><span aria-hidden="true" class="icon-slot" data-icon="x"></span></button>
 </div>
 <p class="modal-copy">Publishing checks your live catalog and market settings, then creates a version you can restore. Sign in to a configured business account to publish.</p>
-<label class="field-label" for="slugInput">Site address</label>
+<label class="field-label" for="slugInput">Website address</label>
 <div class="slug-field">
-<span>bookandbuy.site/</span>
-<input autocomplete="off" id="slugInput" spellcheck="false" value="untitled-project"/>
+<input autocomplete="off" id="slugInput" readonly="" spellcheck="false" value="Assigned after your first publication"/>
 </div>
 <div aria-live="polite" class="modal-inline-status hidden" id="publishInlineStatus" role="status">
 <span aria-hidden="true" class="status-mini-dot"></span><span id="publishInlineStatusText"></span>

@@ -4,8 +4,8 @@ import { createRequire } from 'node:module';
 import { randomUUID } from 'node:crypto';
 import { applyWorkspaceChanges, assertOwner, safeValue, SETTINGS_COVERAGE } from '../functions/workspaceDomain.js';
 import { patchOwnerWorkspace, getOwnerWorkspace, migrateWorkspaceCollections, abortWorkspaceMigration, publishBusinessProfile, syncPublicBusinessProfile } from '../functions/workspaceCommands.js';
-import { buildButlerCommand, authorizeStandingPolicy, validateButlerArguments } from '../functions/butlerDomain.js';
-import { executeButlerTool, applyButlerPreview, dismissButlerPreview, saveButlerAutomation, runButlerAutomations } from '../functions/butler.js';
+import { buildButlerCommand, authorizeStandingPolicy, validateButlerArguments, mergeStaffSchedule } from '../functions/butlerDomain.js';
+import { executeButlerTool, applyButlerPreview, dismissButlerPreview, saveButlerAutomation, runButlerAutomations, limitedButlerRecords } from '../functions/butler.js';
 import { SETTINGS_SECTIONS } from '../src/features/settings/settingsNav.js';
 const require = createRequire(new URL('../functions/package.json', import.meta.url));
 const { initializeApp, getApps } = require('firebase-admin/app'), { getFirestore } = require('firebase-admin/firestore');
@@ -34,6 +34,24 @@ test('Butler tool contracts reject unsupported input and website operations reta
   assert.equal(authorizeStandingPolicy(policy,'catalog.preview',{section:'products',id:'tea',patch:{tags:['Featured']}}),true);
   assert.equal(authorizeStandingPolicy(policy,'catalog.preview',{section:'products',id:'tea',record:{price:0},patch:{tags:['Featured']}}),false);
   assert.equal(authorizeStandingPolicy(policy,'inventory.preview',{id:'tea',patch:{stockAvailable:99}}),false);
+});
+test('staff proposals preserve other dates and reject invalid operational schedules', () => {
+  const old = { staffId:'person',weekTemplate:{mon:{open:true,ranges:[{start:'09:00',end:'17:00'}]},tue:{open:true,ranges:[{start:'09:00',end:'17:00'}]}},days:{'2030-01-01':{status:'off',open:false},'2030-01-02':{status:'off',open:false}} };
+  const next = mergeStaffSchedule(old,{weekTemplate:{mon:{open:false}},days:{'2030-01-01':{status:'open',ranges:[{start:'10:00',end:'14:00'}]}}},'person');
+  assert.deepEqual(next.weekTemplate.tue,old.weekTemplate.tue);
+  assert.deepEqual(next.days['2030-01-02'],old.days['2030-01-02']);
+  assert.equal(next.days['2030-01-01'].open,true);
+  for (const patch of [{staffId:'other'},{days:{'2030-02-30':{status:'open'}}},{weekTemplate:{mon:{ranges:[{start:'25:00',end:'14:00'}]}}},{days:{'2030-01-01':{status:'open',open:false}}},{workingHours:[]}]) assert.throws(() => mergeStaffSchedule(old,patch,'person'));
+  assert.throws(() => buildButlerCommand(original(),'schedules.preview',{staffId:'unknown',patch:{days:{}}}),/current staff/);
+  assert.throws(() => buildButlerCommand(original(),'website.design.preview',{project:{id:'site',html:'<html></html>'}}),/draft revision/);
+  assert.equal(buildButlerCommand(original(),'website.design.preview',{project:{id:'site',html:'<html></html>'},expectedRevision:0}).operation,'website.draft.save');
+});
+test('large Butler read pages remain bounded and explicitly paginate omitted records', () => {
+  const rows = Array.from({length:100},(_,i) => ({id:String(i),name:'Long'.repeat(2500),notes:'x'.repeat(10000)}));
+  let offset=0,seen=0;
+  do {const page=limitedButlerRecords(rows,{limit:100,offset});assert.ok(Buffer.byteLength(JSON.stringify(page))<12000);assert.ok(page.records.every(row => row.omitted));seen+=page.records.length;offset=page.nextOffset;} while (offset!==null);
+  assert.equal(seen,100);
+  assert.deepEqual(limitedButlerRecords([{id:'a',name:'Tea'},{id:'b',name:'Coffee'}],{query:'tea'}).records.map(row=>row.id),['a']);
 });
 async function fixture() {
   const db=getFirestore(),ownerId=`harness-${randomUUID()}`,root=`artifacts/book-and-buy-v1/users/${ownerId}`,auth={uid:ownerId,token:{email_verified:true,firebase:{sign_in_provider:'password'}}},workspace={...original(),ownerId};
@@ -103,7 +121,48 @@ test('emulator routines enforce conditions, preserve newer tags, deduplicate and
   await runRef.set({status:'running',ownerId:f.ownerId,policyId:policy.id,revision:policy.revision,previewId:'routine-recovery',at:Date.now(),leaseUntil:0});
   await runButlerAutomations({},f.db); assert.equal((await runRef.get()).data().status,'complete');
   assert.equal((await f.db.collection(`${f.root}/butlerPreviews`).get()).size,2);
-  await policyRef.update({conditions:[{field:'status',equals:'archived'}],nextRunAt:0,runsToday:0});
+  await saveButlerAutomation({ workspaceId:f.ownerId, id:policy.id, expectedRevision:policy.revision, policy:{...policy,conditions:[{field:'status',equals:'archived'}]} },f.auth,f.db);
+  await policyRef.update({nextRunAt:0,runsToday:0});
   await runButlerAutomations({},f.db);
   assert.equal((await f.db.collection(`${f.root}/butlerAutomationRuns`).where('status','==','failed').get()).size,1);
+});
+
+test('emulator routine edits cannot reset daily limits and expired permissions can be paused',{skip:!enabled},async () => {
+  const f=await fixture();
+  const input={name:'Tag tea',enabled:true,tool:'catalog.preview',recordIds:['tea'],allowedFields:['tags'],args:{section:'products',id:'tea',patch:{tags:['Featured']}},trigger:'schedule',intervalMinutes:60,maxRunsPerDay:1};
+  const policy=await saveButlerAutomation({workspaceId:f.ownerId,policy:input},f.auth,f.db);
+  const ref=f.db.doc(`${f.root}/butlerAutomations/${policy.id}`),day=new Date().toISOString().slice(0,10);
+  await ref.update({runsToday:1,runDay:day});
+  const edited=await saveButlerAutomation({workspaceId:f.ownerId,id:policy.id,expectedRevision:policy.revision,policy:{...input,runsToday:0}},f.auth,f.db);
+  assert.equal(edited.runsToday,1);
+  const paused=await saveButlerAutomation({workspaceId:f.ownerId,id:policy.id,expectedRevision:edited.revision,policy:{...input,enabled:false,expiresAt:1}},f.auth,f.db);
+  assert.equal(paused.enabled,false);
+  await assert.rejects(saveButlerAutomation({workspaceId:f.ownerId,policy:{...input,args:{...input.args,approve:true}}},f.auth,f.db),/unsupported/);
+});
+test('emulator exhausted and expired routines leave the due queue and event bursts obey frequency',{skip:!enabled},async () => {
+  const f=await fixture(),policyInput={name:'Tag tea',enabled:true,tool:'catalog.preview',recordIds:['tea'],allowedFields:['tags'],args:{section:'products',id:'tea',patch:{tags:['Featured']}},trigger:'schedule',intervalMinutes:15,maxRunsPerDay:1};
+  const exhausted=await saveButlerAutomation({workspaceId:f.ownerId,policy:policyInput},f.auth,f.db),exhaustedRef=f.db.doc(`${f.root}/butlerAutomations/${exhausted.id}`);
+  await exhaustedRef.update({nextRunAt:0,runDay:new Date().toISOString().slice(0,10),runsToday:1});
+  const expired=await saveButlerAutomation({workspaceId:f.ownerId,policy:policyInput},f.auth,f.db),expiredRef=f.db.doc(`${f.root}/butlerAutomations/${expired.id}`);
+  await expiredRef.update({nextRunAt:0,expiresAt:1});
+  await runButlerAutomations({},f.db);
+  assert.ok((await exhaustedRef.get()).data().nextRunAt>Date.now());
+  assert.equal((await expiredRef.get()).data().enabled,false);
+  const event=await saveButlerAutomation({workspaceId:f.ownerId,policy:{...policyInput,trigger:'workspace_updated',maxRunsPerDay:2}},f.auth,f.db),eventRef=f.db.doc(`${f.root}/butlerAutomations/${event.id}`);
+  await eventRef.update({nextRunAt:0});
+  await runButlerAutomations({eventOwnerId:f.ownerId,eventId:'first-event'},f.db);
+  await runButlerAutomations({eventOwnerId:f.ownerId,eventId:'second-event'},f.db);
+  await runButlerAutomations({eventOwnerId:f.ownerId,eventId:'first-event'},f.db);
+  assert.equal((await eventRef.get()).data().runsToday,1);
+  assert.equal((await f.db.collection(`${f.root}/butlerAutomationRuns`).get()).size,1);
+});
+
+
+test('emulator deleted conversations cannot create or execute outstanding Butler previews',{skip:!enabled},async () => {
+  const f=await fixture(), chat=f.db.doc(`${f.root}/aiConversations/chat`); await chat.set({status:'active'});
+  const proposal=await executeButlerTool({uid:f.ownerId,workspaceId:f.ownerId,name:'catalog.preview',arguments:{section:'products',id:'tea',patch:{name:'Deleted chat edit'}},conversationId:'chat',runId:'run'},f.db);
+  await chat.update({status:'deleting'});
+  await assert.rejects(applyButlerPreview({workspaceId:f.ownerId,previewId:proposal.previewId,approve:true},f.auth,f.db),/conversation was deleted/);
+  await assert.rejects(executeButlerTool({uid:f.ownerId,workspaceId:f.ownerId,name:'catalog.preview',arguments:{section:'products',id:'tea',patch:{name:'Late edit'}},conversationId:'chat',requestId:'late'},f.db),/Conversation deleted/);
+  assert.equal((await f.ref.get()).data().products[0].name,'Tea');
 });

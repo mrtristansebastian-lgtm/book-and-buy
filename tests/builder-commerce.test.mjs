@@ -10,7 +10,7 @@ const { buildBuilderCommerceContext, resolveBuilderCommerceAction } = new Functi
   () => 'R 100', row => row.active !== false && row.status !== 'draft', () => 'R 200', () => 60,
   ws => ({ options: (ws.paymentGateways || []).filter(row => row.enabled) })
 );
-const workspace = { brandName: 'Test', products: [{ id: 'p1', name: 'Bread', cost: 999, internalNotes: 'secret' }, { id: 'draft', status: 'draft' }], services: [{ id: 's1', name: 'Class', cost: 555 }], clients: [{ email: 'private@example.com' }], bookings: [{ clientPhone: 'private' }], paymentGateways: [{ id: 'cash', name: 'Cash', enabled: true, secretKey: 'do-not-share' }] };
+const workspace = { brandName: 'Test', products: [{ id: 'p1', name: 'Bread', cost: 999, internalNotes: 'secret' }, { id: 'draft', status: 'draft' }], services: [{ id: 's1', name: 'Class', cost: 555 }, { id: 'draft-service', status: 'draft' }, { id: 'unavailable-service', available: false }], clients: [{ email: 'private@example.com' }], bookings: [{ clientPhone: 'private' }], paymentGateways: [{ id: 'cash', name: 'Cash', enabled: true, secretKey: 'do-not-share' }] };
 
 test('AI catalog context excludes private records, costs and payment credentials', () => {
   const context = buildBuilderCommerceContext(workspace);
@@ -25,6 +25,8 @@ test('generated-site actions resolve real items and reject missing or hidden IDs
   assert.deepEqual(resolveBuilderCommerceAction(workspace, 'booking.create', { serviceId: 's1', time: 'invented' }), { kind: 'service', id: 's1' });
   assert.throws(() => resolveBuilderCommerceAction(workspace, 'cart.add', { productId: 'draft' }));
   assert.throws(() => resolveBuilderCommerceAction(workspace, 'cart.add', { productId: 'fake' }));
+  assert.throws(() => resolveBuilderCommerceAction(workspace, 'service.open', { serviceId: 'draft-service' }));
+  assert.throws(() => resolveBuilderCommerceAction(workspace, 'service.open', { serviceId: 'unavailable-service' }));
   assert.throws(() => resolveBuilderCommerceAction(workspace, 'payment.charge', { amount: 1 }));
 });
 

@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { runInNewContext } from 'node:vm';
-import { randomUUID } from 'node:crypto';
-import { publishWebsite, rollbackWebsite, getPublicWebsite, publicWebsiteGateway } from '../functions/websiteRuntime.js';
+import { randomUUID, createHash } from 'node:crypto';
+import { publishWebsite, rollbackWebsite, getPublicWebsite, publicWebsiteGateway, saveWebsiteDraft, getWebsiteDraft, listWebsiteDraftVersions, getWebsiteDraftVersion, createWebsitePreview, executePublicWebsiteAction, enforceWebsiteRequestLimit } from '../functions/websiteRuntime.js';
 
 const APP = process.env.APP_ID || 'book-and-buy-v1';
 const base = `artifacts/${APP}`;
@@ -41,7 +41,7 @@ function fixture({ onSave } = {}) {
   const bucket = fakeBucket(path => onSave?.({ docs, path }));
   return { docs, db, bucket };
 }
-function configured(t) { const old = process.env.WEBSITE_PUBLIC_BASE_URL; process.env.WEBSITE_PUBLIC_BASE_URL = 'https://storefront.example.test'; t.after(() => { if (old === undefined) delete process.env.WEBSITE_PUBLIC_BASE_URL; else process.env.WEBSITE_PUBLIC_BASE_URL = old; }); }
+function configured(t) { const old = process.env.WEBSITE_PUBLIC_BASE_URL, oldApp = process.env.APP_PUBLIC_BASE_URL; process.env.WEBSITE_PUBLIC_BASE_URL = 'https://storefront.example.test'; process.env.APP_PUBLIC_BASE_URL = 'https://owner.example.test'; t.after(() => { if (old === undefined) delete process.env.WEBSITE_PUBLIC_BASE_URL; else process.env.WEBSITE_PUBLIC_BASE_URL = old; if (oldApp === undefined) delete process.env.APP_PUBLIC_BASE_URL; else process.env.APP_PUBLIC_BASE_URL = oldApp; }); }
 const input = extra => ({ workspaceId: auth.uid, requestId: randomUUID(), expectedRevision: null, project: { html, name: 'Tea shop' }, ...extra });
 
 test('publication replay returns one immutable revision and conflicting reuse cannot change it', async t => {
@@ -54,6 +54,22 @@ test('publication replay returns one immutable revision and conflicting reuse ca
   assert.deepEqual(await publishWebsite(request, auth, f), first);
   await assert.rejects(publishWebsite({ ...request, project: { ...request.project, name: 'Changed' } }, auth, f), /already used/);
   assert.equal(f.docs.get(`${base}/users/${auth.uid}/private/website`).revision, first.revision);
+});
+
+test('publication replay wins when another retry commits after the initial receipt read', async t => {
+  configured(t); const f = fixture(), request = input();
+  const doc = f.db.doc.bind(f.db); let intercepted = false, committed;
+  f.db.doc = path => {
+    const ref = doc(path);
+    if (!path.endsWith('/websitePublicationReceipts/' + request.requestId)) return ref;
+    return { ...ref, async get() {
+      const snapshot = await ref.get();
+      if (!intercepted) { intercepted = true; committed = await publishWebsite(request, auth, f); }
+      return snapshot;
+    } };
+  };
+  assert.deepEqual(await publishWebsite(request, auth, f), committed);
+  assert.equal(f.bucket.saveCalls, 1);
 });
 
 test('publication revalidates catalog and readiness transactionally after the asset upload', async t => {
@@ -154,6 +170,107 @@ test('dedicated hosting permits generated inline scripts while retaining an opaq
 });
 
 const emulatorEnabled = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
+
+const draftInput = extra => ({ workspaceId: auth.uid, requestId: randomUUID(), expectedRevision: 0, project: { id: 'tea-design', html, name: 'Tea shop', files: { 'index.html': html }, assets: { 'logo.png': { previewUrl: 'data:image/png;base64,aGVsbG8=', mime: 'image/png', size: 5 } } }, ...extra });
+test('cloud drafts preserve source files/assets, replay interrupted saves and reject competing device revisions', async () => {
+  const f = fixture(), request = draftInput();
+  const [saved, duplicate] = await Promise.all([saveWebsiteDraft(request, auth, f), saveWebsiteDraft(request, auth, f)]);
+  assert.deepEqual(saved, duplicate); assert.equal(saved.revision, 1); assert.equal(f.bucket.files.size, 1);
+  const loaded = await getWebsiteDraft({ workspaceId: auth.uid }, auth, f);
+  assert.equal(loaded.project.files['index.html'], html); assert.equal(loaded.project.assets['logo.png'].url, 'data:image/png;base64,aGVsbG8=');
+  assert.deepEqual(f.docs.get(`${base}/users/${auth.uid}/websiteDraftReceipts/${request.requestId}`).result, saved);
+  await assert.rejects(saveWebsiteDraft(draftInput(), auth, f), /cloud draft changed/);
+  await assert.rejects(saveWebsiteDraft({ ...request, project: { ...request.project, name: 'Different' } }, auth, f), /already used/);
+  const next = await saveWebsiteDraft(draftInput({ expectedRevision: 1, project: { ...request.project, html: html.replace('Tea shop</title>', 'Better tea</title>') } }), auth, f);
+  assert.equal(next.revision, 2); assert.equal((await listWebsiteDraftVersions({ projectId: request.project.id }, auth, f)).length, 2);
+  const previous = await getWebsiteDraftVersion({ projectId: request.project.id, versionId: saved.versionId }, auth, f);
+  assert.equal(previous.project.html, html); assert.equal((await getWebsiteDraft({}, auth, f)).revision, 2);
+  await assert.rejects(getWebsiteDraftVersion({ projectId: 'other-project', versionId: saved.versionId }, auth, f), /unavailable/);
+  await assert.rejects(getWebsiteDraft({ workspaceId: 'foreign' }, auth, f), /does not belong/);
+  await assert.rejects(saveWebsiteDraft(request, null, f), /Sign in/);
+});
+
+test('incomplete draft connections remain editable while invalid paths/local asset references cannot sync', async () => {
+  const f = fixture(); const invalidHtml = html.replace('data-bb-product-id="tea"', 'data-bb-product-id="missing"');
+  const request = draftInput({ project: { id: 'incomplete', html: invalidHtml } });
+  const saved = await saveWebsiteDraft(request, auth, f); assert.match(saved.issues[0].message, /active Book/);
+  assert.equal((await getWebsiteDraft({ projectId: 'incomplete' }, auth, f)).project.html, invalidHtml);
+  await assert.rejects(saveWebsiteDraft(draftInput({ project: { id: 'bad-path', html, files: { '../private.txt': 'sensitive' } } }), auth, f), /invalid source/);
+  await assert.rejects(saveWebsiteDraft(draftInput({ project: { id: 'local-image', html, assets: { 'picture.png': { url: 'blob:https://app.test/image' } } } }), auth, f), /durable/);
+});
+
+test('shared previews never replace live publication and cannot mutate commerce even through the public API', async t => {
+  configured(t); const f = fixture();
+  const live = await publishWebsite(input(), auth, f);
+  const request = input({ project: { html: html.replace('Tea shop</title>', 'Preview tea</title>'), name: 'Preview' } });
+  const preview = await createWebsitePreview(request, auth, f); assert.deepEqual(await createWebsitePreview(request, auth, f), preview);
+  const previewToken = new URL(preview.url).searchParams.get('preview');
+  const read = await getPublicWebsite({ previewToken }, f); assert.equal(read.preview, true); assert.match(read.html, /Preview tea/);
+  assert.equal((await getPublicWebsite({ siteId: live.siteId }, f)).revision, live.revision);
+  for (const action of ['checkout.create', 'booking.create', 'payment.start', 'payment.confirm', 'checkout.status']) await assert.rejects(executePublicWebsiteAction({ previewToken, action, payload: {} }, f), /read-only/);
+  const pointer = [...f.docs.entries()].find(([path]) => path.includes('/publicWebsitePreviews/'))[1]; pointer.expiresAt = Date.now() - 1;
+  await assert.rejects(getPublicWebsite({ previewToken }, f), /expired/);
+});
+
+test('public checkout status requires the original checkout capability and exposes no customer/private fields', async t => {
+  configured(t); const f = fixture(); const live = await publishWebsite(input(), auth, f);
+  const order = { id: 'order-confirmation', status: 'accepted', paymentStatus: 'paid', amountInCents: 1000, currency: 'R', clientEmail: 'private@example.com', costBasisInCents: 400 };
+  f.docs.get(`${base}/users/${auth.uid}/config/settings`).orders = [order];
+  f.docs.set(`${base}/users/${auth.uid}/websiteCheckoutCapabilities/order-${order.id}`, { sourceType: 'order', sourceId: order.id, token: 'private-receipt' });
+  const payload = { sourceType: 'order', sourceId: order.id, statusToken: 'private-receipt' };
+  const response = await executePublicWebsiteAction({ siteId: live.siteId, action: 'checkout.status', payload }, f);
+  assert.equal(response.paymentStatus, 'paid'); assert.equal(response.clientEmail, undefined); assert.equal(response.costBasisInCents, undefined);
+  await assert.rejects(executePublicWebsiteAction({ siteId: live.siteId, action: 'checkout.status', payload: { ...payload, statusToken: 'guessed' } }, f), /does not match/);
+});
+
+test('rollback retries recover completed state while competing later publication is protected', async t => {
+  configured(t); const f = fixture(); const first = await publishWebsite(input(), auth, f); const second = await publishWebsite(input({ expectedRevision: first.revision }), auth, f);
+  const request = { revision: first.revision, expectedRevision: second.revision, requestId: randomUUID() };
+  const restored = await rollbackWebsite(request, auth, f); assert.deepEqual(await rollbackWebsite(request, auth, f), restored);
+  const third = await publishWebsite(input({ expectedRevision: first.revision }), auth, f);
+  assert.deepEqual(await rollbackWebsite(request, auth, f), restored); assert.equal((await getPublicWebsite({ siteId: third.siteId }, f)).revision, third.revision);
+  await assert.rejects(rollbackWebsite({ revision: first.revision }, auth, f), /current website revision/);
+});
+
+test('website rate bounds reject overload and reset without persisting raw IP addresses', async () => {
+  const f = fixture(), now = 120000;
+  for (let count = 0; count < 120; count++) await enforceWebsiteRequestLimit('203.0.113.1', f.db, now);
+  await assert.rejects(enforceWebsiteRequestLimit('203.0.113.1', f.db, now), /Too many/);
+  await enforceWebsiteRequestLimit('203.0.113.1', f.db, now + 60000);
+  assert.equal([...f.docs.keys()].some(path => path.includes('203.0.113.1')), false);
+});
+test('publishing fails closed when dedicated host isolation is missing or points to the owner app', async t => {
+  configured(t); const f = fixture(); delete process.env.APP_PUBLIC_BASE_URL;
+  await assert.rejects(publishWebsite(input(), auth, f), /owner app HTTPS origin/);
+  process.env.APP_PUBLIC_BASE_URL = process.env.WEBSITE_PUBLIC_BASE_URL;
+  await assert.rejects(publishWebsite(input(), auth, f), /separate origin/);
+  assert.equal(f.bucket.files.size, 0);
+});
+test('verified custom domains resolve the owner live pointer and cannot select a foreign site or stale route', async t => {
+  configured(t); const f = fixture(), live = await publishWebsite(input(), auth, f), domain = 'shop.publicbrand.co.za';
+  const key = createHash('sha256').update(domain).digest('hex');
+  f.docs.set(`customDomainRoutes/${key}`, { appId: APP, domain, ownerId: auth.uid, slug: 'website-test-shop', active: true });
+  f.docs.set(`${base}/users/${auth.uid}/private/customDomain`, { domain, status: 'connected' });
+  assert.equal((await getPublicWebsite({ domain }, f)).siteId, live.siteId);
+  await assert.rejects(getPublicWebsite({ domain, siteId: 'foreign-site' }, f), /different website/);
+  f.docs.get(`${base}/users/${auth.uid}/private/customDomain`).status = 'provisioning';
+  await assert.rejects(getPublicWebsite({ domain }, f), /not connected/);
+});
+
+test('emulator: drafts and preview transactions preserve recovery and owner isolation', { skip: !emulatorEnabled }, async t => {
+  configured(t); const require = createRequire(new URL('../functions/package.json', import.meta.url));
+  const { getApps, initializeApp } = require('firebase-admin/app'); const { getFirestore } = require('firebase-admin/firestore');
+  if (!getApps().length) initializeApp({ projectId: process.env.GCLOUD_PROJECT || 'demo-book-buy' });
+  const db = getFirestore(), uid = 'draft-' + randomUUID(), owner = { ...auth, uid }, deps = { db, bucket: fakeBucket() };
+  await db.doc(`${base}/users/${uid}/config/settings`).set({ ...workspace(), ownerId: uid, slug: uid });
+  await db.doc(`${base}/public/data/workspaces/${uid}`).set({ ownerId: uid, published: true });
+  const request = draftInput({ workspaceId: uid }); const [first, retry] = await Promise.all([saveWebsiteDraft(request, owner, deps), saveWebsiteDraft(request, owner, deps)]); assert.deepEqual(first, retry);
+  await assert.rejects(saveWebsiteDraft({ ...request, requestId: randomUUID() }, owner, deps), /cloud draft changed/);
+  assert.equal((await getWebsiteDraft({ workspaceId: uid }, owner, deps)).revision, 1);
+  await assert.rejects(getWebsiteDraft({ workspaceId: uid }, { ...owner, uid: uid + '-intruder' }, deps), /does not belong/);
+  const preview = await createWebsitePreview(input({ workspaceId: uid }), owner, deps); const previewToken = new URL(preview.url).searchParams.get('preview');
+  await assert.rejects(executePublicWebsiteAction({ previewToken, action: 'booking.create', payload: {} }, deps), /read-only/);
+});
 test('emulator: concurrent publication, immutable revisions and rollback use real Firestore transactions', { skip: !emulatorEnabled }, async t => {
   configured(t); const require = createRequire(new URL('../functions/package.json',import.meta.url));
   const { getApps,initializeApp } = require('firebase-admin/app'); const { getFirestore } = require('firebase-admin/firestore');

@@ -12,7 +12,19 @@ function ordered(value) { return Array.isArray(value) ? value.map(ordered) : val
 const hash = value => createHash('sha256').update(JSON.stringify(ordered(value))).digest('hex');
 const signature = workspace => hash({ sections: workspace.sectionRevisions || {}, bookings: workspace.bookingRevision || 0, orders: (workspace.orders || []).map(row => [row.id, row.revision || 0]), storageEpoch: workspace.storageEpoch || 0 });
 const ownerAuth = uid => ({ uid, token: { email_verified: true } });
-const limited = (rows, args) => (rows || []).filter(row => !args.id || row.id === args.id).filter(row => !args.query || JSON.stringify(row).toLowerCase().includes(String(args.query).toLowerCase())).slice(0, Math.max(1, Math.min(100, args.limit || 30)));
+export const limitedButlerRecords = (rows, args = {}) => {
+  const matches = (rows || []).filter(row => !args.id || row.id === args.id).filter(row => !args.query || JSON.stringify(row).toLowerCase().includes(String(args.query).toLowerCase()));
+  const offset = args.offset || 0, records = [];
+  for (const row of matches.slice(offset, offset + Math.max(1, Math.min(100, args.limit || 20)))) {
+    const value = Buffer.byteLength(JSON.stringify(row)) > 8000
+      ? { id: row.id, name: String(row.name || row.clientName || '').slice(0, 120), status: String(row.status || '').slice(0, 80), omitted: true, message: 'This record is too large for chat. Open it in the app to review its full details.' }
+      : row;
+    if (Buffer.byteLength(JSON.stringify([...records, value])) > 9000) break;
+    records.push(value);
+  }
+  return { records, total: matches.length, nextOffset: offset + records.length < matches.length ? offset + records.length : null };
+};
+const limited = limitedButlerRecords;
 export async function getButlerContext({ uid, workspaceId, mode }, db = getFirestore()) {
   assertOwner(workspaceId, ownerAuth(uid)); const { workspace } = await readWorkspace(db, uid);
   return {
@@ -29,7 +41,7 @@ export async function getButlerState(data, auth, db = getFirestore()) {
   const runs = await db.collection(`${base(ownerId)}/butlerAutomationRuns`).orderBy('at', 'desc').limit(30).get();
   return { tools: BUTLER_TOOLS, unavailable: UNAVAILABLE_CAPABILITIES, coverage: SETTINGS_COVERAGE, previews: previews.docs.map(row => ({ ...row.data(), id: row.id })).filter(row => row.executionAttempted || row.expiresAt > Date.now()), automations: automations.docs.map(row => ({ ...row.data(), id: row.id })), activity: audit.docs.map(row => ({ ...row.data(), id: row.id })), runs: runs.docs.map(row => ({ ...row.data(), id: row.id })) };
 }
-export async function executeButlerTool({ uid, workspaceId, name, arguments: rawArgs = {}, mode = 'butler', requestId }, db = getFirestore()) {
+export async function executeButlerTool({ uid, workspaceId, name, arguments: rawArgs = {}, mode = 'butler', requestId, conversationId, runId }, db = getFirestore()) {
   assertOwner(workspaceId, ownerAuth(uid)); name = name.replaceAll('_', '.');
   const tool = BUTLER_TOOLS.find(row => row.name === name); if (!tool) domainError('This Butler tool is unavailable.', 'failed-precondition');
   const args = validateButlerArguments(name, safeValue(rawArgs)); const { workspace, exists } = await readWorkspace(db, uid);
@@ -40,40 +52,53 @@ export async function executeButlerTool({ uid, workspaceId, name, arguments: raw
     if (command.operation === 'inbox.send') { const thread = await db.doc(`artifacts/${APP}/clientThreads/${command.threadId}`).get(); if (!thread.exists || thread.data().ownerId !== uid) domainError('Conversation not found in this workspace.', 'permission-denied'); }
     const record = workspace[args.section]?.find?.(row => row.id === (args.id || args.booking?.id)) || workspace[name.split('.')[0]]?.find?.(row => row.id === (args.id || args.booking?.id));
     const before = record || workspace[args.section] || {};
-    const id = requestId ? assertId(requestId) : randomUUID(); const preview = { tool: name, args, command, before: Object.fromEntries(Object.keys(args.patch || args.record || args.booking || {}).map(key => [key, before[key] ?? null])), recordName: record?.name || record?.clientName || '', workspaceSignature: signature(workspace), ownerId: uid, status: 'pending', at: Date.now(), expiresAt: Date.now() + 15 * 60 * 1000 };
+    const id = requestId ? assertId(requestId) : randomUUID();
+    if (id.length > 90) domainError('Use a preview identifier of up to 90 characters.');
+    const preview = { tool: name, args, command, before: Object.fromEntries(Object.keys(args.patch || args.record || args.booking || {}).map(key => [key, before[key] ?? null])), recordName: record?.name || record?.clientName || '', workspaceSignature: signature(workspace), ownerId: uid, status: 'pending', at: Date.now(), expiresAt: Date.now() + 15 * 60 * 1000, ...(conversationId ? { conversationId: assertId(conversationId), ...(runId ? { runId: assertId(runId) } : {}) } : {}) };
     const ref = db.doc(`${base(uid)}/butlerPreviews/${id}`);
     await db.runTransaction(async tx => {
       const prior = await tx.get(ref);
+      if (conversationId) { const chat = (await tx.get(db.doc(`${base(uid)}/aiConversations/${conversationId}`))).data(); if (!chat || ['deleting', 'deleted'].includes(chat.status)) domainError('Conversation deleted.', 'failed-precondition'); }
       if (prior.exists) { if (prior.data().tool !== name || hash(prior.data().args) !== hash(args)) domainError('Preview identifier already used.', 'already-exists'); return; }
       if (Buffer.byteLength(JSON.stringify(preview)) > 700000) domainError('This proposed change is too large for an inline review. Use the website editor.');
       tx.create(ref, preview);
     });
-    return { status: 'approval_required', previewId: id, expiresAt: preview.expiresAt, summary: { operation: command.operation, changes: command.changes || args } };
+    return { status: 'approval_required', previewId: id, expiresAt: preview.expiresAt, summary: { operation: command.operation, recordId: args.id || args.staffId || args.project?.id || args.booking?.id || null, changedFields: Object.keys(args.patch || args.record || args.booking || {}), message: 'The complete proposed change is waiting in the owner’s inline review card. It has not been applied.' } };
   }
   if (name === 'workspace.read') return { brandName: workspace.brandName, slug: workspace.slug, timezone: workspace.timezone, currency: workspace.currency, capabilities: BUTLER_TOOLS, unavailable: UNAVAILABLE_CAPABILITIES };
-  if (name === 'schedules.read') return { timezone: workspace.timezone || 'UTC', availabilityRules: workspace.availabilityRules || {}, staff: (workspace.staff || []).filter(row => !args.staffId || row.id === args.staffId).map(row => ({ id: row.id, name: row.name })), staffAvailability: args.staffId ? { [args.staffId]: workspace.staffAvailability?.[args.staffId] || {} } : workspace.staffAvailability || {} };
+  if (name === 'schedules.read') return { timezone: workspace.timezone || 'UTC', ...limited((workspace.staff || []).filter(row => !args.staffId || row.id === args.staffId).map(row => ({ id: row.id, name: row.name, schedule: workspace.staffAvailability?.[row.id] || {} })), args) };
   if (name === 'availability.read') {
     const service = workspace.services?.find(row => row.id === args.serviceId && row.active !== false);
     if (!service || !/^\d{4}-\d{2}-\d{2}$/.test(args.dateKey || '')) domainError('Choose a current service and a valid date.');
     const quote = serviceCommerceQuote(workspace, { ...args, countryCode: args.countryCode || workspace.website?.markets?.find(row => row.enabled)?.countryCode || workspace.website?.countryCode });
     const staff = args.staffId ? [args.staffId] : service.staffIds?.length ? service.staffIds : [''];
     if (args.staffId && !service.staffIds?.includes(args.staffId)) domainError('Choose a staff member assigned to this service.');
-    return staff.flatMap(staffId => availableRescheduleSlots(workspace, { id: '__butler_availability__', serviceId: service.id, variantId: args.variantId || '', staffId, durationMinutes: quote.durationMinutes }, args.dateKey, workspace.bookings || []).map(slot => ({ ...slot, staffId })));
+    return { dateKey: args.dateKey, ...limited(staff.flatMap(staffId => availableRescheduleSlots(workspace, { id: '__butler_availability__', serviceId: service.id, variantId: args.variantId || '', staffId, durationMinutes: quote.durationMinutes }, args.dateKey, workspace.bookings || []).map(slot => ({ ...slot, staffId }))), args) };
   }
-  if (name === 'website.read') { const published = (await db.doc(`${base(uid)}/private/website`).get()).data(); return { design: workspace.website || {}, publication: published ? { siteId: published.siteId, revision: published.revision, publishedAt: published.publishedAtMs } : { status: 'draft' } }; }
+  if (name === 'website.read') { const published = (await db.doc(`${base(uid)}/private/website`).get()).data(); return { publication: published ? { siteId: published.siteId, revision: published.revision, publishedAt: published.publishedAtMs } : { status: 'draft' }, message: 'Use settings.read with section website for saved profile settings, or website.draft.read for custom source.' }; }
+  if (name === 'website.draft.read') {
+    const { getWebsiteDraft } = await import('./websiteRuntime.js');
+    const draft = await getWebsiteDraft({ workspaceId: uid, ...(args.projectId ? { projectId: args.projectId } : {}) }, ownerAuth(uid), { db });
+    if (!draft.project) return { draft: null };
+    const project = draft.project, offset = args.offset || 0, length = args.length || 6000;
+    const files = project.files || {};
+    if (args.filePath && !Object.hasOwn(files, args.filePath)) domainError('That source file is not in this draft.', 'not-found');
+    const source = String(args.filePath ? files[args.filePath] : project.html || '');
+    return { projectId: draft.projectId || project.id, name: project.name, revision: draft.revision, versionId: draft.versionId, files: Object.keys(files), source: source.slice(offset, offset + length), offset, totalLength: source.length, issues: draft.issues || [] };
+  }
   if (name === 'catalog.read') return limited(workspace[args.section === 'services' ? 'services' : 'products'], args);
   if (name === 'bookings.read' || name === 'orders.read' || name === 'clients.read') return limited(workspace[name.split('.')[0]], args);
-  if (name === 'settings.read') { if (!WORKSPACE_SECTIONS[args.section]) domainError('Choose a settings section.'); return Object.fromEntries(WORKSPACE_SECTIONS[args.section].map(key => [key, workspace[key] ?? null])); }
+  if (name === 'settings.read') { if (!WORKSPACE_SECTIONS[args.section]) domainError('Choose a settings section.'); const fields = Object.fromEntries(WORKSPACE_SECTIONS[args.section].map(key => [key, workspace[key] ?? null])); return Buffer.byteLength(JSON.stringify(fields)) <= 9000 ? fields : { section: args.section, ...limited(Object.entries(fields).map(([id, value]) => ({ id, value })), args) }; }
   if (name === 'analytics.read') return { bookingCount: workspace.bookings?.length || 0, orderCount: workspace.orders?.length || 0, paidOrderCents: (workspace.orders || []).filter(row => row.paymentStatus === 'paid').reduce((sum, row) => sum + (row.amountInCents || 0), 0) };
-  if (name === 'payments.read') return limited([...(workspace.orders || []), ...(workspace.bookings || [])], args).map(row => ({ id: row.id, paymentStatus: row.paymentStatus, paymentMethod: row.paymentMethod, amountInCents: row.amountInCents, currency: row.currency }));
-  if (name === 'automations.read') return (await db.collection(`${base(uid)}/butlerAutomations`).limit(50).get()).docs.map(row => ({ id: row.id, ...row.data() }));
+  if (name === 'payments.read') return limited([...(workspace.orders || []), ...(workspace.bookings || [])].map(row => ({ id: row.id, paymentStatus: row.paymentStatus || '', paymentMethod: row.paymentMethod || '', amountInCents: row.amountInCents ?? null, currency: row.currency || workspace.currency || '' })), args);
+  if (name === 'automations.read') return limited((await db.collection(`${base(uid)}/butlerAutomations`).limit(100).get()).docs.map(row => ({ id: row.id, ...row.data() })), args);
   if (name === 'inbox.read') {
     if (args.threadId) {
       const ref = db.doc(`artifacts/${APP}/clientThreads/${assertId(args.threadId)}`); const thread = await ref.get();
       if (!thread.exists || thread.data().ownerId !== uid) domainError('Conversation is not in this workspace.', 'permission-denied');
-      return { thread: thread.data(), messages: (await ref.collection('messages').orderBy('at', 'desc').limit(30).get()).docs.map(row => row.data()) };
+      return { threadId: thread.id, ...limited((await ref.collection('messages').orderBy('at', 'desc').limit(100).get()).docs.map(row => ({ ...row.data(), id: row.id })), args) };
     }
-    return (await db.collection(`artifacts/${APP}/clientThreads`).where('ownerId', '==', uid).limit(30).get()).docs.map(row => ({ id: row.id, ...row.data() }));
+    return limited((await db.collection(`artifacts/${APP}/clientThreads`).where('ownerId', '==', uid).limit(100).get()).docs.map(row => ({ id: row.id, ...row.data() })), args);
   }
   domainError('This capability is unavailable.', 'failed-precondition');
 }
@@ -97,6 +122,7 @@ async function committedResult(tx, db, uid, preview, workspace, requestId) {
   else if (operation === 'booking.write') ref = db.doc(`${base(uid)}/idempotencyKeys/booking-${requestId}`);
   else if (operation === 'order.update') ref = db.doc(`${base(uid)}/idempotencyKeys/order-update-${requestId}`);
   else if (operation === 'inbox.send') ref = db.doc(`artifacts/${APP}/clientThreads/${preview.command.threadId}/messages/${requestId}`);
+  else if (operation === 'website.draft.save') ref = db.doc(`${base(uid)}/websiteDraftReceipts/${requestId}`);
   else if (operation.startsWith('website.')) ref = db.doc(`${base(uid)}/websitePublicationReceipts/${requestId}`);
   if (!ref) return null;
   const receipt = await tx.get(ref); if (!receipt.exists) return null;
@@ -123,6 +149,7 @@ export async function applyButlerPreview(data, auth, db = getFirestore(), intern
     if (preview.ownerId !== uid) domainError('Preview belongs to another workspace.', 'permission-denied');
     if (preview.status === 'applied') return { complete: preview.result };
     if (preview.status === 'dismissed') domainError('This proposal was dismissed.', 'failed-precondition');
+    if (preview.conversationId && !preview.executionAttempted) { const chat = (await tx.get(db.doc(`${base(uid)}/aiConversations/${preview.conversationId}`))).data(); if (!chat || ['deleting', 'deleted'].includes(chat.status)) domainError('This proposal’s conversation was deleted.', 'failed-precondition'); }
     if (preview.executionAttempted) {
       const recovered = await committedResult(tx, db, uid, preview, workspace, requestId);
       if (recovered) return { recovered, preview };
@@ -146,7 +173,10 @@ export async function applyButlerPreview(data, auth, db = getFirestore(), intern
     else if (command.operation === 'booking.write') result = await (await import('./rescheduling.js')).writeGuardedBooking({ ownerId: uid, booking: command.booking, expectedRevision: command.expectedRevision, requestId }, auth, db);
     else if (command.operation === 'order.update') result = await (await import('./marketOrders.js')).updateMarketOrder({ ownerId: uid, ...command, requestId }, auth, db);
     else if (command.operation === 'inbox.send') result = await sendMessage(command, uid, requestId, db);
-    else if (command.operation === 'website.publish' || command.operation === 'website.rollback') {
+    else if (command.operation === 'website.draft.save') {
+      const { saveWebsiteDraft } = await import('./websiteRuntime.js');
+      result = await saveWebsiteDraft({ ...command, workspaceId: uid, requestId }, auth, { db });
+    } else if (command.operation === 'website.publish' || command.operation === 'website.rollback') {
       const runtime = await import('./websiteRuntime.js'); result = await (command.operation === 'website.rollback' ? runtime.rollbackWebsite : runtime.publishWebsite)({ ...command, workspaceId: uid, requestId }, auth, { db });
     } else domainError('This action is unavailable.', 'failed-precondition');
     await finishPreview(previewRef, uid, claim.preview, result, internal ? 'automation' : uid, db);
@@ -162,16 +192,19 @@ export async function dismissButlerPreview(data, auth, db = getFirestore()) {
 export async function saveButlerAutomation(data, auth, db = getFirestore()) {
   const uid = data.workspaceId || auth?.uid; assertOwner(uid, auth); const id = data.id || randomUUID(); assertId(id);
   const policy = safeValue(data.policy || {});
-  if (!['schedule', 'workspace_updated'].includes(policy.trigger) || policy.expiresAt != null && (!Number.isSafeInteger(policy.expiresAt) || policy.expiresAt <= Date.now())) domainError('Choose a supported trigger and a future permission expiry.');
+  if (!['schedule', 'workspace_updated'].includes(policy.trigger) || policy.expiresAt != null && (!Number.isSafeInteger(policy.expiresAt) || policy.enabled === true && policy.expiresAt <= Date.now())) domainError('Choose a supported trigger and a future permission expiry.');
   if (policy.conditions && (!Array.isArray(policy.conditions) || policy.conditions.length > 10 || policy.conditions.some(condition => !['active', 'status', 'category', 'tags'].includes(condition.field) || !Object.hasOwn(condition, 'equals')))) domainError('Choose supported record conditions.');
   if (!['catalog.preview', 'clients.preview', 'settings.preview'].includes(policy.tool) || !Array.isArray(policy.recordIds) || !policy.recordIds.length || policy.recordIds.length > 100 || !Array.isArray(policy.allowedFields) || !policy.allowedFields.length) domainError('Choose specific routine actions, records and allowed fields.');
   if (!Number.isInteger(policy.intervalMinutes) || policy.intervalMinutes < 15 || policy.intervalMinutes > 43200 || !Number.isInteger(policy.maxRunsPerDay) || policy.maxRunsPerDay < 1 || policy.maxRunsPerDay > 96) domainError('Choose valid frequency and daily run limits.');
-  if (!authorizeStandingPolicy({ ...policy, enabled: true, maxRecords: 1 }, policy.tool, policy.args || {})) domainError('This action exceeds the allowed routine automation permissions.');
+  const args = validateButlerArguments(policy.tool, policy.args || {});
+  if (!authorizeStandingPolicy({ ...policy, enabled: true, expiresAt: undefined, maxRecords: 1 }, policy.tool, args)) domainError('This action exceeds the allowed routine automation permissions.');
   const ref = db.doc(`${base(uid)}/butlerAutomations/${id}`);
   return db.runTransaction(async tx => {
     const snap = await tx.get(ref); const old = snap.data() || {};
+    const { workspace } = await readWorkspace(db, uid, tx);
+    buildButlerCommand(workspace, policy.tool, args);
     if ((old.revision || 0) !== (data.expectedRevision || 0)) domainError('Automation changed. Reload before saving.', 'aborted');
-    const next = { ...policy, ownerId: uid, id, maxRecords: 1, maxSpendCents: 0, revision: (old.revision || 0) + 1, enabled: policy.enabled === true, nextRunAt: Date.now() + policy.intervalMinutes * 60000, updatedAt: Date.now() };
+    const next = { ...policy, ownerId: uid, id, maxRecords: 1, maxSpendCents: 0, revision: (old.revision || 0) + 1, enabled: policy.enabled === true, runsToday: old.runsToday || 0, runDay: old.runDay || '', nextRunAt: Date.now() + policy.intervalMinutes * 60000, updatedAt: Date.now() };
     tx.set(ref, next); return next;
   });
 }
@@ -221,8 +254,10 @@ export async function runButlerAutomations({ eventOwnerId, eventId } = {}, db = 
     const claimed = await db.runTransaction(async tx => {
       const [current, priorRun] = await Promise.all([tx.get(snap.ref), tx.get(runRef)]); const policy = current.data();
       if (!policy?.enabled || policy.revision !== candidate.revision || priorRun.exists || !eventId && policy.nextRunAt !== candidate.nextRunAt) return false;
+      if (policy.expiresAt && policy.expiresAt <= Date.now()) { tx.update(snap.ref, { enabled: false, pausedReason: 'Permission expired', updatedAt: Date.now() }); return false; }
+      if (eventId && policy.nextRunAt > Date.now()) return false;
       const count = policy.runDay === day ? policy.runsToday || 0 : 0;
-      if (count >= policy.maxRunsPerDay) return false;
+      if (count >= policy.maxRunsPerDay) { tx.update(snap.ref, { nextRunAt: Date.parse(`${day}T00:00:00Z`) + 86400000 }); return false; }
       tx.update(snap.ref, { runsToday: count + 1, runDay: day, nextRunAt: Date.now() + policy.intervalMinutes * 60000 });
       tx.create(runRef, { status: 'running', ownerId: policy.ownerId, policyId: policy.id, revision: policy.revision, previewId: `routine-${runId}`, at: Date.now(), leaseUntil: Date.now() + 120000 }); return true;
     });

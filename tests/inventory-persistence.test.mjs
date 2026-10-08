@@ -302,16 +302,36 @@ test('catalog drafts retain private costs and thresholds, while catalog saves pr
 
 test('warning thresholds and private costs persist in owner saves but never appear in published catalogs', async () => {
   const records = [];
+  let confirmedWorkspace = null;
   const ownerLoader = loader({ 'firebase/firestore': {
     doc: (_db, ...path) => path
-  }, 'firebase/functions': { httpsCallable: (_functions, name) => async (input) => { if (name === 'getOwnerWorkspace') return {data: null}; records.push({payload: input.changes[0].patch}); return {data: {ok: true, workspace: input.changes[0].patch}}; } }, './client': { getFirebase: () => ({ db: {}, functions: {} }) }, '../../config/appConfig': { APP_ID: 'test' },
+  }, 'firebase/functions': { httpsCallable: (_functions, name) => async (input) => {
+    if (name === 'getOwnerWorkspace') return {data: confirmedWorkspace};
+    assert.equal(name, 'patchOwnerWorkspace');
+    const sectionRevisions = { ...(confirmedWorkspace?.sectionRevisions || {}) };
+    const patch = {};
+    for (const change of input.changes) {
+      assert.equal(change.expectedRevision, sectionRevisions[change.section] || 0, 'The client must use the confirmed section revision');
+      records.push({ payload: change.patch, section: change.section, expectedRevision: change.expectedRevision });
+      Object.assign(patch, change.patch);
+      sectionRevisions[change.section] = change.expectedRevision + 1;
+    }
+    confirmedWorkspace = { ...confirmedWorkspace, ...patch, ownerId: input.ownerId, sectionRevisions,
+      schemaVersion: 2, mutationEpoch: (confirmedWorkspace?.mutationEpoch || 0) + 1 };
+    return {data: {ok: true, workspace: confirmedWorkspace}};
+  } }, './client': { getFirebase: () => ({ db: {}, functions: {} }) }, '../../config/appConfig': { APP_ID: 'test' },
   './paths': { ownerConfigPath: (_appId, ownerId, id) => ['owner', ownerId, id] } });
   const { saveOwnerWorkspaceToFirestore } = ownerLoader('../src/shared/firebase/ownerWorkspace.ts');
   const saved = applyProductInventoryUpdates(products(), [
     { productId: 'shirt', patch: { lowStockThreshold: 15 } },
     { productId: 'shirt', variantId: 'small', patch: { lowStockThreshold: 0, cost: 125 } }
   ]).products;
-  assert.equal((await saveOwnerWorkspaceToFirestore('owner', { products: saved, orders: [{ id: 'server' }], bookings: [], bookingRevision: 3 })).ok, true);
+  const result = await saveOwnerWorkspaceToFirestore('owner', { products: saved, orders: [{ id: 'server' }], bookings: [], bookingRevision: 3 });
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.workspace.sectionRevisions, { products: 1 });
+  assert.equal(result.workspace.mutationEpoch, 1);
+  assert.equal(records[0].section, 'products');
+  assert.equal(records[0].expectedRevision, 0);
   const payload = JSON.parse(JSON.stringify(records[0].payload));
   assert.equal(payload.products[0].lowStockThreshold, 15);
   assert.equal(payload.products[0].variants[0].lowStockThreshold, 0);

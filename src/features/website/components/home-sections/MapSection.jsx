@@ -1,9 +1,18 @@
 import { Button } from '../../../../shared/ui/Button';
 import { EditableText, EditSection } from '../editable';
+import { MapPin, Phone, Mail, ArrowUpRight } from 'lucide-react';
+import { publicBranches } from '../../../../../functions/branchesDomain.js';
+import './public-branches.css';
+
+function directionsLink(branch) {
+  if (branch.mapLinkUrl) { try { const url = new URL(branch.mapLinkUrl); if (url.protocol === 'https:' && !url.username && !url.password) return url.href; } catch { /* Use the address link below. */ } }
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch.address || branch.name || '')}${branch.googlePlaceId ? `&query_place_id=${encodeURIComponent(branch.googlePlaceId)}` : ''}`;
+}
 
 export function MapSection({ website, editMode, preview = false, hidden, patchWebsite }) {
+  const branches = publicBranches(website.branches);
   const hasLocation = [website.address, website.mapBody, website.mapLinkUrl, website.mapEmbedUrl]
-    .some((value) => String(value || '').trim());
+    .some((value) => String(value || '').trim()) || branches.length > 0;
 
   if (!editMode && !hasLocation) return null;
 
@@ -44,7 +53,7 @@ export function MapSection({ website, editMode, preview = false, hidden, patchWe
                 />
               ) : null}
             </header>
-            <EditableText
+            {editMode || website.address ? <EditableText
               as="p"
               className="bb-public-visit-body"
               editMode={editMode}
@@ -54,7 +63,7 @@ export function MapSection({ website, editMode, preview = false, hidden, patchWe
               website={website}
               patchWebsite={patchWebsite}
               onChange={(value) => patchWebsite({ address: value })}
-            />
+            /> : null}
             {editMode ? (
               <div className="bb-public-visit-fields">
                 <label className="bb-public-visit-field">
@@ -108,6 +117,7 @@ export function MapSection({ website, editMode, preview = false, hidden, patchWe
             </div>
           </div> : null}
         </div>
+        {branches.length > 0 && <div className="bb-public-measure-wide bb-public-branches"><h3>Our branches</h3><div className="bb-public-branch-grid">{branches.map(branch => <article className="bb-public-branch-card" key={branch.id}><MapPin size={18} aria-hidden="true" /><div><h4>{branch.name}</h4><p>{branch.address}</p><div className="bb-public-branch-contact">{branch.phone && <a href={`tel:${branch.phone.replace(/[^+\d]/g, '')}`} onClick={event => { if (editMode || preview) event.preventDefault(); }}><Phone size={13} aria-hidden="true" />{branch.phone}</a>}{branch.email && <a href={`mailto:${encodeURIComponent(branch.email)}`} onClick={event => { if (editMode || preview) event.preventDefault(); }}><Mail size={13} aria-hidden="true" />{branch.email}</a>}</div><a className="bb-public-branch-directions" href={directionsLink(branch)} target="_blank" rel="noopener noreferrer" onClick={event => { if (editMode || preview) event.preventDefault(); }}>Directions <ArrowUpRight size={13} aria-hidden="true" /></a></div></article>)}</div></div>}
       </div>
     </EditSection>
   );

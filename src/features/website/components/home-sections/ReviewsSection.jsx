@@ -92,6 +92,10 @@ export function ReviewsSection({
   const syncEnabled =
     website.googleReviewsEnabled == null ? Boolean(placeId) : Boolean(website.googleReviewsEnabled);
   const provider = syncEnabled ? 'google' : '';
+  const platformEnabled = Boolean(website.platformReviewsEnabled);
+  const [platformReviews, setPlatformReviews] = useState([]);
+  const [platformError, setPlatformError] = useState('');
+  useEffect(() => { let cancelled = false; setPlatformReviews([]); setPlatformError(''); if (!platformEnabled || hidden || isDemo || !workspaceSlug) return; firebaseCallables.getPublicPlatformReviews({ slug: workspaceSlug }).then(result => { if (!cancelled) setPlatformReviews(result.reviews || []); }).catch(() => { if (!cancelled) setPlatformError('Book & Buy reviews are temporarily unavailable.'); }); return () => { cancelled = true; }; }, [platformEnabled, workspaceSlug, hidden, isDemo]);
   const [liveReviews, setLiveReviews] = useState([]);
   const [reviewError, setReviewError] = useState('');
   const [loadingReviews, setLoadingReviews] = useState(false);
@@ -107,9 +111,9 @@ export function ReviewsSection({
     request.then((result) => { if (!cancelled) { setLiveReviews(result.reviews || []); setAttributions(result.attributions || []); } }).catch(() => { if (!cancelled) setReviewError('Reviews are temporarily unavailable. Please try again later.'); }).finally(() => { if (!cancelled) setLoadingReviews(false); });
     return () => { cancelled = true; };
   }, [provider, placeId, workspaceSlug, editMode, hidden, isDemo]);
-  const reviews = provider && !isDemo ? liveReviews : (storedReviews || []).filter((review) => !String(review.id).startsWith('gplace-') && !String(review.id).startsWith('trustpilot-'));
-  const reviewsFromSettings = Boolean(provider);
-  const canCurate = !provider;
+  const reviews = (provider || platformEnabled) && !isDemo ? [...liveReviews, ...platformReviews] : (storedReviews || []).filter((review) => !String(review.id).startsWith('gplace-') && !String(review.id).startsWith('trustpilot-'));
+  const reviewsFromSettings = Boolean(provider || platformEnabled);
+  const canCurate = !provider && !platformEnabled;
   const contentEditMode = editMode && canCurate;
 
   return (
@@ -121,7 +125,7 @@ export function ReviewsSection({
       coach={
         syncEnabled
           ? 'Reviews sync from Settings → Reviews. Edit the title here.'
-          : 'Turn on Google reviews sync in Settings, or curate reviews here.'
+          : platformEnabled ? 'Verified-purchase reviews come from Settings → Reviews.' : 'Enable a review source in Settings, or curate testimonials here.'
       }
       className="bb-public-home-block bb-public-reviews-block"
     >
@@ -164,7 +168,7 @@ export function ReviewsSection({
                   style={{ '--bb-review-i': index }}
                 >
                   <div className="bb-public-review-top">
-                    {provider && !isDemo && <span className="bb-review-source">Google Maps</span>}
+                    {provider && review.source === 'google' && !isDemo && <span className="bb-review-source">Google Maps</span>}
                     {Number.isFinite(Number(review.rating)) && review.rating != null ? <Stars
                       rating={review.rating}
                       editMode={editMode}
@@ -172,8 +176,8 @@ export function ReviewsSection({
                       patchWebsite={patchWebsite}
                     /> : null}
                   </div>
-                  {provider && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.reviewUrl || '') && <a className="bb-review-original" href={review.reviewUrl} target="_blank" rel="noopener noreferrer">View original review</a>}
-                  {provider === 'google' && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.authorUrl || '') && <a className="bb-review-original" href={review.authorUrl} target="_blank" rel="noopener noreferrer">Reviewer profile</a>}
+                  {provider && review.source === 'google' && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.reviewUrl || '') && <a className="bb-review-original" href={review.reviewUrl} target="_blank" rel="noopener noreferrer">View original review</a>}
+                  {provider && review.source === 'google' && !isDemo && /^https:\/\/(?:www\.)?(?:google\.com|maps\.google\.com)\//i.test(review.authorUrl || '') && <a className="bb-review-original" href={review.authorUrl} target="_blank" rel="noopener noreferrer">Reviewer profile</a>}
                   <EditableText
                     as="p"
                     className="bb-public-review-quote"
@@ -185,6 +189,7 @@ export function ReviewsSection({
                     patchWebsite={patchWebsite}
                     onChange={(value) => patchReview(review.id, 'quote', value)}
                   />
+                  {platformEnabled && !isDemo && review.source === 'bookbuy' && review.verifiedPurchase === true && <small className="bb-review-source">Book &amp; Buy · Verified purchase{review.itemName ? ` · ${review.itemName}` : ''}</small>}
                   <div className="bb-public-review-author">
                     <span className="bb-public-review-avatar" aria-hidden="true">
                       {initial}
@@ -205,6 +210,7 @@ export function ReviewsSection({
             })}
           </div>
           {provider && !isDemo && <p className="bb-review-provider-attribution">Reviews from Google Maps. Original ratings and wording.</p>}
+          {platformError && <p className="bb-domain-hint" role="status">{platformError}</p>}
           {reviewError && <p className="bb-domain-hint" role="status">{reviewError}</p>}
           {provider && !isDemo && !reviewError && <p className="bb-domain-hint" role="status">{loadingReviews ? 'Loading customer reviews…' : reviews.length === 0 ? 'No reviews are available from this provider yet.' : ''}</p>}
           {provider === 'google' && !isDemo && attributions.map((entry, index) => <p className="bb-review-provider-attribution" key={index}>{entry.provider || entry.providerName || ''}{/^https:\/\//i.test(entry.providerUri || '') && <a href={entry.providerUri} target="_blank" rel="noopener noreferrer"> · Attribution source</a>}</p>)}

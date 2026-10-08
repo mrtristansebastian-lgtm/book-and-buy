@@ -49,15 +49,15 @@ export function PlaceLocationField({ value = null, onChange, disabled = false, p
     return () => { cancelled = true; };
   }, []);
 
-  const emitManual = (text) => onChange?.({ label: text.trim(), placeId: '', lat: 0, lng: 0, countryCode: '', countryName: '', region: '', city: '' });
+  const emitManual = (text) => onChange?.({ label: text, placeId: '', lat: 0, lng: 0, countryCode: '', countryName: '', region: '', city: '' });
   return (
     <div className={`bb-place-field${value ? ' has-value' : ''}`}>
       <div className="bb-social-field">
         <label htmlFor={inputId} className="bb-place-field-label"><MapPin size={14} aria-hidden="true" />{label}{status === 'loading' ? <Loader2 size={13} className="bb-spin" aria-label="Loading address suggestions" /> : null}</label>
         <div className="bb-place-field-control">
           <input ref={inputRef} id={inputId} className="native-control-input bb-place-field-input" value={query} disabled={disabled} placeholder={placeholder} autoComplete="off"
-            onChange={(event) => { const next = event.target.value; setQuery(next); if (!next.trim()) onChange?.(null); else if (status === 'manual') emitManual(next); }}
-            onBlur={() => { if (status === 'manual' && query.trim()) emitManual(query); }} />
+            onChange={(event) => { const next = event.target.value; setQuery(next); if (!next.trim()) onChange?.(null); else emitManual(next); }}
+            onBlur={() => { if (query.trim() && (!value?.placeId || query !== value.label)) emitManual(query.trim()); }} />
           {query ? <button type="button" disabled={disabled} className="bb-place-field-clear" aria-label="Clear location" onClick={() => { setQuery(''); onChange?.(null); inputRef.current?.focus(); }}><X size={14} /></button> : null}
         </div>
       </div>

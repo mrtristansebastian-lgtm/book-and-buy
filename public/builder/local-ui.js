@@ -81,6 +81,7 @@
     if (!status || !connect || !model) return;
     connect.disabled = true;
     status.textContent = 'Connecting…';
+    document.getElementById('builderPlanUsage').classList.add('hidden');
     try {
       let data;
       if (connection.provider === 'codex') {
@@ -91,8 +92,10 @@
         const [account, discovery] = await Promise.all([window.BookBuyCommerce.hostRequest('ai.connections'), window.BookBuyCommerce.hostRequest('ai.models')]);
         const selected = discovery.providers.find(row => row.provider === connection.provider);
         const current = account.connections.find(row => row.provider === connection.provider);
-        data = { connected: Boolean(selected?.available), models: (selected?.models || []).map(row => ({ ...row, defaultEffort: 'medium', efforts: [] })), plan: current?.billing || 'provider', reason: selected?.reason || current?.reason };
-        document.getElementById('builderProviderBilling').textContent = current?.billing === 'byok' ? 'API usage · your provider bill' : current?.billing === 'included' ? 'Book & Buy allowance' : 'Account connection';
+        window.BookBuyServices.ai.selectConnectionRevision?.(current?.revision);
+        data = { connected: Boolean(selected?.available), models: selected?.models || [], plan: current?.billing || 'provider', reason: selected?.reason || current?.reason };
+        document.getElementById('builderProviderBilling').textContent = current?.billing === 'byok' ? 'API usage · your provider bill' : current?.billing === 'included' ? 'Book & Buy allowance' : current?.billing === 'chatgpt' ? 'Using ChatGPT plan' : 'Account connection';
+        document.getElementById('builderPlanUsage').classList.toggle('hidden', current?.billing !== 'chatgpt' && selected?.error?.details?.recoveryUrl !== 'https://chatgpt.com/settings/usage');
       }
       if (!data.connected) {
         models = []; renderModels(); renderEfforts();
@@ -111,10 +114,11 @@
       connection.model = model.value;
       connection.connected = true;
       localStorage.setItem(settingsKey, connection.model);
-      status.textContent = connection.provider === 'codex' ? `Connected · ChatGPT ${data.plan || 'account'}` : `Connected · ${connection.provider === 'anthropic' ? 'Claude' : 'OpenAI'} · ${data.plan}`;
+      status.textContent = connection.provider === 'codex' ? `Connected · ChatGPT ${data.plan || 'account'}` : `Connected · ${({ anthropic: 'Claude', chatgpt: 'ChatGPT', openai: 'OpenAI' })[connection.provider] || 'AI'} · ${data.plan}`;
       status.dataset.state = 'connected';
       connect.textContent = connection.provider === 'codex' ? 'Reconnect' : 'Manage';
       renderModels(); renderEfforts();
+      window.BookBuyServices.ai.restoreConversation?.();
     } catch (error) {
       connection.connected = false;
       model.replaceChildren(new Option('Codex offline', connection.model));
@@ -125,11 +129,31 @@
       models = []; renderModels(); renderEfforts();
     } finally { connect.disabled = false; }
   }
+  const savedChats = document.getElementById('builderSavedChats'), savedList = document.getElementById('builderSavedChatsList');
+  document.getElementById('builderSavedChatsClose').addEventListener('click', () => savedChats.classList.add('hidden'));
+  async function renderSavedChats() {
+    savedList.replaceChildren(); const message = document.createElement('p'); message.textContent = 'Loading your conversations…'; savedList.append(message);
+    try {
+      const result = await window.BookBuyCommerce.hostRequest('ai.conversations'); savedList.replaceChildren();
+      const rows = result.conversations.filter(row => row.provider === connection.provider && row.connectionRevision === connection.revision && row.mode === (connection.mode === 'build' ? 'builder' : connection.mode));
+      if (!rows.length) { message.textContent = connection.provider === 'codex' ? 'Saved hosted conversations appear when you use a business AI connection.' : 'No saved conversations for this connection and mode yet.'; savedList.append(message); }
+      for (const row of rows) {
+        const line = document.createElement('div'); line.className = 'builder-saved-chat-row';
+        const select = document.createElement('button'); select.type = 'button'; select.textContent = row.title;
+        select.addEventListener('click', async () => { if (document.getElementById('sendBtn').classList.contains('is-stop')) return; try { await window.BookBuyServices.ai.selectConversation(row); model.value = connection.model; renderModels(); renderEfforts(); savedChats.classList.add('hidden'); } catch (e) { status.textContent = e.message; } });
+        const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Delete'; remove.setAttribute('aria-label', 'Delete ' + row.title);
+        remove.addEventListener('click', async () => { remove.disabled = true; try { await window.BookBuyCommerce.hostRequest('ai.conversation.delete', { conversationId: row.conversationId }); window.BookBuyServices.ai.conversationDeleted(row.conversationId); await renderSavedChats(); } catch (e) { if (!String(e.code).includes('cancel') && e.message !== 'Action cancelled.') status.textContent = e.message; } finally { remove.disabled = false; } });
+        line.append(select, remove); savedList.append(line);
+      }
+    } catch (e) { message.textContent = e.message; savedList.replaceChildren(message); }
+  }
+  document.getElementById('builderSavedChatsButton').addEventListener('click', () => { closePickers(); savedChats.classList.remove('hidden'); renderSavedChats(); });
+  window.addEventListener('bookbuy-ai-recovery', () => document.getElementById('builderPlanUsage').classList.remove('hidden'));
   provider.addEventListener('change', () => { connection.provider = provider.value; localStorage.setItem('bookbuy-builder-provider', provider.value); window.BookBuyServices.ai.newConversation(); checkConnection(); });
   window.addEventListener('bookbuy-ai-connections-changed', checkConnection);
   model?.addEventListener('change', () => { connection.model = model.value; localStorage.setItem(settingsKey, model.value); window.BookBuyServices.ai.newConversation(); renderModels(); renderEfforts(); });
   mode?.addEventListener('change', () => { renderMode(); window.BookBuyServices.ai.newConversation(); });
-  effort.addEventListener('change', () => { connection.effort = effort.value; localStorage.setItem('bookbuy-builder-thinking-level', effort.value); renderEfforts(); });
+  effort.addEventListener('change', () => { connection.effort = effort.value; localStorage.setItem('bookbuy-builder-thinking-level', effort.value); window.BookBuyServices.ai.newConversation(); renderEfforts(); });
   renderMode();
   window.addEventListener('bookbuy-builder-busy', event => { closePickers(); for (const [id] of pickers) document.getElementById(id).disabled = event.detail.busy || (id === 'builderEffortTrigger' && !effort.options.length); document.getElementById('builderNewChat').disabled = event.detail.busy; });
   document.getElementById('builderNewChat')?.addEventListener('click', () => {
@@ -173,7 +197,9 @@
   });
   window.addEventListener('bookbuy-local-save', event => {
     const help = document.getElementById('builderAiHelp');
-    if (help) help.textContent = event.detail.state === 'error' ? event.detail.message : event.detail.state === 'saving' ? 'Saving your draft…' : 'Draft saved here · uses your ChatGPT allowance';
+    if (!help) return;
+    help.textContent = ['error', 'local'].includes(event.detail.state) ? event.detail.message : event.detail.state === 'saving' ? 'Saving your draft…' : 'Draft saved securely · synced across devices';
+    if (event.detail.conflict) { const restore = document.createElement('button'); restore.type = 'button'; restore.className = 'builder-cloud-restore'; restore.textContent = 'Review cloud draft'; restore.addEventListener('click', async () => { if (!confirm('Load the cloud version? Download your current files first if you want to keep this local draft.')) return; restore.disabled = true; try { const project = await window.BookBuyServices.projects.useCloudDraft(); window.dispatchEvent(new CustomEvent('bookbuy-cloud-draft-restore', { detail: { project } })); help.textContent = 'Cloud draft restored · synced across devices'; } catch (error) { help.textContent = error.message; } }); help.append(restore); }
   });
   checkConnection();
   document.getElementById('publishBtn')?.addEventListener('click', async () => {
@@ -182,6 +208,7 @@
     panel.replaceChildren();
     try {
       const status = await window.BookBuyServices.publishing.getStatus();
+      document.getElementById('slugInput').value = status.url || 'Assigned after your first publication';
       if (status.url) { const link = document.createElement('a'); link.href = status.url; link.target = '_blank'; link.rel = 'noopener'; link.textContent = 'Open published website'; panel.append(link); }
       const history = (status.revisions || []).filter(row => row.revision !== status.revision);
       if (history.length) {

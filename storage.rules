@@ -2,6 +2,8 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+    // Immutable generated-site source is available only through verified server handlers.
+    match /websiteDrafts/{allPaths=**} { allow read, write: if false; }
     match /websiteBundles/{allPaths=**} { allow read, write: if false; }
     function signedIn() {
       return request.auth != null;

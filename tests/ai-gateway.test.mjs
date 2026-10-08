@@ -2,14 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createAIGateway } from '../functions/ai/index.js';
 import { decryptSecret } from '../functions/payments/encrypt.js';
+import { encryptSecret } from '../functions/payments/encrypt.js';
 
 function memoryDB() {
   const documents = new Map();
-  const snapshot = (path) => ({ exists: documents.has(path), id: path.split('/').at(-1), data: () => structuredClone(documents.get(path)) });
+  const snapshot = (path) => ({ exists: documents.has(path), id: path.split('/').at(-1), ref: doc(path), data: () => structuredClone(documents.get(path)) });
   const doc = path => ({ path, id: path.split('/').at(-1), get: async () => snapshot(path), set: async (value) => documents.set(path, structuredClone(value)), update: async value => documents.set(path, { ...documents.get(path), ...structuredClone(value) }), delete: async () => documents.delete(path), collection: name => collection(`${path}/${name}`) });
-  const collection = path => ({ doc: id => doc(`${path}/${id}`), orderBy: () => collection(path), limit: () => collection(path), get: async () => ({ docs: [...documents.keys()].filter(key => key.startsWith(`${path}/`) && key.slice(path.length + 1).split('/').length === 1).sort().map(snapshot) }) });
+  const collection = (path, { filters = [], order, limit = Infinity, group = false } = {}) => ({ doc: id => doc(`${path}/${id}`), where: (field, op, value) => collection(path, { filters: [...filters, [field, op, value]], order, limit, group }), orderBy: (field, direction = 'asc') => collection(path, { filters, order: [field, direction], limit, group }), limit: value => collection(path, { filters, order, limit: value, group }), get: async () => ({ docs: [...documents.keys()].filter(key => (group ? key.split('/').at(-2) === path : key.startsWith(`${path}/`) && key.slice(path.length + 1).split('/').length === 1) && filters.every(([field, op, value]) => op === '==' ? documents.get(key)[field] === value : documents.get(key)[field] <= value)).sort((a, b) => order ? (documents.get(a)[order[0]] > documents.get(b)[order[0]] ? 1 : -1) * (order[1] === 'desc' ? -1 : 1) : a.localeCompare(b)).slice(0, limit).map(snapshot) }) });
   let lock = Promise.resolve();
-  return { documents, doc, collection, runTransaction: async callback => {
+  return { documents, doc, collection, collectionGroup: path => collection(path, { group: true }), runTransaction: async callback => {
     const prior = lock; let release; lock = new Promise(resolve => { release = resolve; }); await prior;
     try { const pending = []; const tx = { get: ref => ref.get(), set: (ref, data) => pending.push(() => ref.set(data)), update: (ref, data) => pending.push(() => ref.update(data)), delete: ref => pending.push(() => ref.delete()) }; const result = await callback(tx); for (const operation of pending) await operation(); return result; } finally { release(); }
   } };
@@ -68,9 +69,9 @@ test('tool loop permits only server definitions and never executes in builder mo
   assert.equal((await builder.run(request(input()))).status, 'failed');
 });
 test('cancellation stops provider work, preserves partial output and settles reservation', async () => {
-  const controller = new AbortController();
-  const { gateway, db } = await setup({ providerCall: async (_provider, _input, { signal, onText }) => { await onText('Partial'); controller.abort(); signal.throwIfAborted(); } });
-  const result = await gateway.run(request(input()), { signal: controller.signal, sendChunk: async () => true });
+  let gateway;
+  const fixture = await setup({ providerCall: async (_provider, _input, { onText }) => { await onText('Partial'); await gateway.cancelRun(request({ runId: 'request' })); return { content: 'Final', calls: [], native: [], usage: { inputTokens: 12, outputTokens: 8 } }; } }); gateway = fixture.gateway; const { db } = fixture;
+  const result = await gateway.run(request(input()), { sendChunk: async () => true });
   assert.equal(result.status, 'cancelled'); assert.equal(result.content, 'Partial');
   const usage = [...db.documents.entries()].find(([path]) => path.includes('/aiUsage/'))[1]; assert.equal(usage.reservedTokens, 0); assert.ok(usage.usedTokens > 0);
 });
@@ -96,8 +97,9 @@ test('explicit billing choice uses the selected secret and does not lose the per
   const keys = []; const { gateway, db } = await setup({ providerCall: async (_provider, _input, options) => { keys.push(options.apiKey); return { content: 'Hello', calls: [], native: [], usage: { inputTokens: 1, outputTokens: 1 } }; } });
   const personal = 'sk-personal-api-key-12345678'; await gateway.saveConnection(request({ provider: 'openai', apiKey: personal }));
   await gateway.run(request(input())); await gateway.selectBilling(request({ provider: 'openai', billing: 'included' }));
-  await gateway.run(request(input({ requestId: 'second' }))); await gateway.selectBilling(request({ provider: 'openai', billing: 'personal' }));
-  await gateway.run(request(input({ requestId: 'third' }))); assert.deepEqual(keys, [personal, env.OPENAI_API_KEY, personal]);
+  await assert.rejects(gateway.run(request(input({ requestId: 'stale-conversation' }))), { code: 'failed-precondition' });
+  await gateway.run(request(input({ requestId: 'second', conversationId: 'second-conversation' }))); await gateway.selectBilling(request({ provider: 'openai', billing: 'personal' }));
+  await gateway.run(request(input({ requestId: 'third', conversationId: 'third-conversation' }))); assert.deepEqual(keys, [personal, env.OPENAI_API_KEY, personal]);
   assert.ok(db.documents.get('artifacts/app/users/owner/aiConnections/openai').encrypted);
 });
 test('connection changes during inference stop subsequent tool actions and source switching', async () => {
@@ -137,4 +139,124 @@ test('Butler Ask and Plan can read truth but cannot call preview tools, while bu
     const { gateway: builder } = await setup({ resolveContext: async () => ({ tools }), executeTool: async () => { throw new Error('Forbidden'); }, providerCall: async (_provider, options) => { assert.equal(options.tools.length, 0); return { content: '{"answer":"Plan"}', calls: [], native: [], usage: { inputTokens: 1, outputTokens: 1 } }; } });
     assert.equal((await builder.run(request(input({ mode, format: { type: 'object', properties: { answer: { type: 'string' } }, required: ['answer'], additionalProperties: false } })))).status, 'completed');
   }
+});
+
+test('durable runs survive a lost transport and restored conversations remain owner private', async () => {
+  let calls = 0;
+  const { gateway } = await setup({ providerCall: async (_provider, _input, { onText }) => { calls++; await onText('Saved response'); return { content: 'Saved response', calls: [], native: [], usage: { inputTokens: 3, outputTokens: 4 } }; } });
+  const result = await gateway.run(request(input()), { signal: AbortSignal.abort(), sendChunk: async () => { throw new Error('Transport closed'); } });
+  assert.equal(result.status, 'completed'); assert.equal(calls, 1);
+  const restored = await gateway.getConversation(request({ conversationId: 'conversation' }));
+  assert.equal(restored.activeRun, null); assert.deepEqual(restored.turns.map(turn => [turn.user, turn.assistant, turn.status]), [['Create a homepage.', 'Saved response', 'completed']]);
+  assert.equal((await gateway.listConversations(request())).conversations[0].conversationId, 'conversation');
+  await assert.rejects(gateway.getConversation(request({ conversationId: 'conversation' }, 'other')), { code: 'not-found' });
+});
+
+test('thinking choices are validated, forwarded and part of idempotent request identity', async () => {
+  const configured = { ...env, AI_OPENAI_MODELS: 'gpt-6.1-sol', AI_OPENAI_DEFAULT_MODEL: 'gpt-6.1-sol' }; let received;
+  const { gateway } = await setup({ env: configured, providerCall: async (_provider, input) => { received = input; return { content: 'Done', calls: [], native: [], usage: { inputTokens: 1, outputTokens: 2 } }; } });
+  const models = (await gateway.listModels(request())).providers.find(row => row.provider === 'openai');
+  assert.ok(models.models[0].efforts.some(row => row.reasoningEffort === 'high')); assert.equal(models.models[0].defaultEffort, 'medium');
+  await assert.rejects(gateway.run(request(input({ model: 'gpt-6.1-sol', reasoningEffort: 'ultra' }))), { code: 'invalid-argument' });
+  assert.equal((await gateway.run(request(input({ model: 'gpt-6.1-sol', reasoningEffort: 'high' })))).status, 'completed'); assert.equal(received.reasoningEffort, 'high');
+  await assert.rejects(gateway.run(request(input({ model: 'gpt-6.1-sol', reasoningEffort: 'low' }))), { code: 'already-exists' });
+});
+
+test('ChatGPT catalog reflects account order and hidden/unentitled models fail before inference', async () => {
+  const configured = { ...env, AI_CHATGPT_MODELS: 'gpt-6.1-sol,gpt-6-luna', AI_CHATGPT_DEFAULT_MODEL: 'gpt-6.1-sol', AI_CHATGPT_OAUTH_ENABLED: 'true', AI_CHATGPT_INFERENCE_APPROVED: 'true', OPENAI_CLIENT_ID: 'oaiapp_test', CHATGPT_REDIRECT_URI: 'https://example.com/api/ai/chatgpt', CHATGPT_RETURN_URL: 'https://example.com/#/dashboard/settings/ai', CHATGPT_TOKEN_AUTH_METHOD: 'none' };
+  let inference = 0;
+  const { gateway, db } = await setup({ env: configured, fetchImpl: async url => { assert.equal(url, 'https://api.openai.com/v1/models'); return new Response(JSON.stringify({ models: [{ slug: 'gpt-6-luna', display_name: 'GPT-6 Luna', visibility: 'list' }, { slug: 'gpt-6.1-sol', visibility: 'hide' }] }), { headers: { 'Content-Type': 'application/json' } }); }, providerCall: async () => { inference++; throw new Error('Must not infer'); } });
+  await db.doc('artifacts/app/users/owner/aiConnections/chatgpt').set({ connected: true, type: 'oauth', clientId: 'oaiapp_test', issuer: 'https://auth.openai.com', generation: 'one', subject: 'subject', planUsageAcknowledgedVersion: '2026-10-08', expiresAt: Date.now() + 3600000, encrypted: encryptSecret(JSON.stringify({ accessToken: 'server-token', refreshToken: 'refresh-token' }), env.AI_SETTINGS_ENCRYPTION_KEY) });
+  const models = (await gateway.listModels(request())).providers.find(row => row.provider === 'chatgpt');
+  assert.deepEqual(models.models.map(row => row.name), ['gpt-6-luna']); assert.equal(models.defaultModel, 'gpt-6-luna');
+  await assert.rejects(gateway.run(request(input({ provider: 'chatgpt', model: 'gpt-6.1-sol' }))), { code: 'permission-denied' }); assert.equal(inference, 0);
+});
+
+test('scheduled recovery settles abandoned runs once and removes expired authorization state', async () => {
+  const { gateway, db } = await setup(); const usagePath = 'artifacts/app/users/owner/aiUsage/expired';
+  await db.doc(usagePath).set({ reservedTokens: 1000, usedTokens: 12 });
+  await db.doc('artifacts/app/users/owner/aiRuns/expired').set({ uid: 'owner', conversationId: 'conversation', provider: 'openai', status: 'running', reservation: 1000, reservationSettled: false, usagePath, leaseUntil: Date.now() - 1, startedAt: Date.now() - 400000 });
+  await db.doc('artifacts/app/aiOAuthStates/expired').set({ expiresAt: Date.now() - 1 }); await db.doc('artifacts/app/aiOAuthStates/live').set({ expiresAt: Date.now() + 600000 });
+  assert.equal((await gateway.reconcileInterruptedRuns()).recovered, 1); assert.equal(db.documents.get(usagePath).usedTokens, 1012); assert.equal((await gateway.reconcileInterruptedRuns()).recovered, 0);
+  assert.equal((await gateway.cleanupOAuthStates()).removed, 1); assert.ok(db.documents.has('artifacts/app/aiOAuthStates/live'));
+});
+
+test('a rejected request before inference releases its reservation without charging unknown usage', async () => {
+  const { gateway, db } = await setup({ providerCall: async () => { throw Object.assign(new Error('Provider account unavailable'), { code: 'failed-precondition', noInferenceStarted: true, details: { httpStatus: 401, rawSecret: 'private-token' } }); } });
+  const result = await gateway.run(request(input())); assert.equal(result.status, 'failed'); assert.equal(result.error.details.httpStatus, 401); assert.ok(!JSON.stringify(result).includes('private-token'));
+  const usage = [...db.documents.entries()].find(([path]) => path.includes('/aiUsage/'))[1]; assert.equal(usage.usedTokens, 0); assert.equal(usage.reservedTokens, 0);
+});
+
+test('cancellation arriving before run admission still prevents paid inference', async () => {
+  let called = false; const { gateway, db } = await setup({ providerCall: async () => { called = true; throw new Error('Must not infer'); } });
+  await gateway.cancelRun(request({ runId: 'request' })); const result = await gateway.run(request(input()));
+  assert.equal(result.status, 'cancelled'); assert.equal(called, false); assert.ok(![...db.documents.keys()].some(path => path.includes('/aiUsage/')));
+  assert.equal((await gateway.run(request(input()))).status, 'cancelled'); assert.equal(db.documents.get('artifacts/app/users/owner/aiCancellationRequests/request'), undefined);
+});
+
+
+test('connection revisions pin history and reject stale requests before inference', async () => {
+  let calls = 0; const { gateway } = await setup({ providerCall: async () => { calls++; return { content: 'Done', calls: [], native: [], usage: { inputTokens: 1, outputTokens: 1 } }; } });
+  const original = (await gateway.listConnections(request())).connections.find(row => row.provider === 'openai');
+  const admitted = await gateway.run(request(input({ connectionRevision: original.revision })));
+  assert.equal(admitted.connectionRevision, original.revision);
+  assert.equal((await gateway.getConversation(request({ conversationId: 'conversation' }))).connectionRevision, original.revision);
+  assert.equal((await gateway.listConversations(request())).conversations[0].connectionRevision, original.revision);
+  const changed = await gateway.saveConnection(request({ provider: 'openai', apiKey: 'sk-personal-api-key-12345678' }));
+  assert.notEqual(changed.revision, original.revision);
+  await assert.rejects(gateway.run(request(input({ requestId: 'stale', conversationId: 'new-chat', connectionRevision: original.revision }))), { code: 'aborted' });
+  await assert.rejects(gateway.run(request(input({ requestId: 'old-chat', connectionRevision: changed.revision }))), { code: 'failed-precondition' });
+  assert.equal(calls, 1);
+  assert.equal((await gateway.run(request(input({ requestId: 'new-request', conversationId: 'new-chat', connectionRevision: changed.revision })))).status, 'completed');
+  assert.equal((await gateway.run(request(input({ connectionRevision: original.revision })))).runId, admitted.runId);
+  assert.equal(calls, 2);
+});
+test('unsupported AI attachments fail before inference or allowance reservation', async () => {
+  let calls=0;
+  const {gateway,db}=await setup({providerCall:async () => {calls++;throw new Error('This provider must not be called.');}});
+  await assert.rejects(gateway.run(request(input({attachments:[{name:'reference.png',url:'data:image/png;base64,abc'}]}))),{code:'invalid-argument'});
+  assert.equal(calls,0);
+  assert.equal([...db.documents.keys()].some(path => path.includes('/aiUsage/') || path.includes('/aiRuns/')),false);
+});
+
+
+test('approval gates reject discovery, authorization and inference without contacting OpenAI', async () => {
+  let network = 0; const { gateway } = await setup({ env: { ...env, AI_CHATGPT_MODELS: 'test-model', AI_CHATGPT_DEFAULT_MODEL: 'test-model', AI_CHATGPT_OAUTH_ENABLED: 'false', AI_CHATGPT_INFERENCE_APPROVED: 'false' }, fetchImpl: async () => { network++; throw new Error('Forbidden'); }, providerCall: async () => { network++; throw new Error('Forbidden'); } });
+  const connection = (await gateway.listConnections(request())).connections.find(row => row.provider === 'chatgpt'); assert.equal(connection.status, 'approval-pending'); assert.equal(connection.capabilities.planInference, false);
+  assert.equal((await gateway.listModels(request())).providers.find(row => row.provider === 'chatgpt').available, false);
+  await assert.rejects(gateway.startChatGPT(request()), { code: 'unavailable' });
+  await assert.rejects(gateway.run(request(input({ provider: 'chatgpt' }))), { code: 'unavailable' });
+  await assert.rejects(gateway.acknowledgePlanUsage(request({ noticeVersion: '2026-10-08' })), { code: 'failed-precondition' }); assert.equal(network, 0);
+});
+
+test('ChatGPT requires versioned plan acknowledgement, rejects scheduler intents and reserves no API budget', async () => {
+  const configured = { ...env, AI_CHATGPT_MODELS: 'test-model', AI_CHATGPT_DEFAULT_MODEL: 'test-model', AI_CHATGPT_OAUTH_ENABLED: 'true', AI_CHATGPT_INFERENCE_APPROVED: 'true', OPENAI_CLIENT_ID: 'oaiapp_test', CHATGPT_REDIRECT_URI: 'https://example.com/api/ai/chatgpt', CHATGPT_RETURN_URL: 'https://example.com/#/dashboard/settings/ai', CHATGPT_TOKEN_AUTH_METHOD: 'none', AI_BYOK_DAILY_TOKENS: '1' };
+  let calls = 0; const { gateway, db } = await setup({ env: configured, fetchImpl: async () => new Response(JSON.stringify({ models: [{ slug: 'test-model', visibility: 'list' }] }), { headers: { 'Content-Type': 'application/json' } }), providerCall: async () => { calls++; return { content: 'Plan answer', calls: [], native: [], usage: { inputTokens: 10, outputTokens: 5 } }; } });
+  await db.doc('artifacts/app/users/owner/aiConnections/chatgpt').set({ connected: true, type: 'oauth', clientId: 'oaiapp_test', issuer: 'https://auth.openai.com', generation: 'one', subject: 'subject', expiresAt: Date.now() + 3600000, encrypted: encryptSecret(JSON.stringify({ accessToken: 'mock-token', refreshToken: 'mock-refresh' }), env.AI_SETTINGS_ENCRYPTION_KEY) });
+  const row = (await gateway.listConnections(request())).connections.find(row => row.provider === 'chatgpt');
+  await assert.rejects(gateway.run(request(input({ provider: 'chatgpt' }))), { code: 'failed-precondition' }); assert.equal(calls, 0);
+  await assert.rejects(gateway.acknowledgePlanUsage(request({ expectedRevision: 'stale', noticeVersion: row.noticeVersion })), { code: 'aborted' });
+  await gateway.acknowledgePlanUsage(request({ expectedRevision: row.revision, noticeVersion: row.noticeVersion }));
+  assert.equal((await gateway.listConnections(request())).connections.find(row => row.provider === 'chatgpt').revision, row.revision);
+  await assert.rejects(gateway.run(request(input({ provider: 'chatgpt', executionKind: 'scheduled' }))), { code: 'permission-denied' });
+  assert.equal((await gateway.run(request(input({ provider: 'chatgpt' })))).status, 'completed'); assert.equal(calls, 1);
+  const run = db.documents.get('artifacts/app/users/owner/aiRuns/request'); assert.equal(run.billing, 'chatgpt'); assert.equal(run.reservation, 0);
+});
+
+test('conversation deletion removes content, keeps business records and blocks replay and new writes', async () => {
+  const { gateway, db } = await setup(); await gateway.run(request(input()));
+  await db.doc('artifacts/app/users/owner/orders/order').set({ total: 500 });
+  await db.doc('artifacts/app/users/owner/butlerPreviews/review').set({ conversationId: 'conversation', status: 'pending', args: { private: 'content' }, command: { operation: 'write' } });
+  const row = (await gateway.listConversations(request())).conversations[0];
+  await assert.rejects(gateway.deleteConversation(request({ conversationId: 'conversation', requestId: 'delete', expectedUpdatedAt: row.updatedAt - 1 })), { code: 'aborted' });
+  assert.equal((await gateway.deleteConversation(request({ conversationId: 'conversation', requestId: 'delete', expectedUpdatedAt: row.updatedAt }))).status, 'deleted');
+  assert.equal((await gateway.deleteConversation(request({ conversationId: 'conversation', requestId: 'repeat' }))).status, 'deleted');
+  assert.equal(db.documents.get('artifacts/app/users/owner/aiConversations/conversation').status, 'deleted');
+  assert.equal(db.documents.get('artifacts/app/users/owner/orders/order').total, 500);
+  assert.equal(db.documents.get('artifacts/app/users/owner/butlerPreviews/review').status, 'dismissed'); assert.equal(db.documents.get('artifacts/app/users/owner/butlerPreviews/review').args, null);
+  assert.equal((await gateway.listConversations(request())).conversations.length, 0);
+  assert.ok(![...db.documents.keys()].some(path => path.includes('/aiRuns/') || path.includes('/turns/')));
+  await assert.rejects(gateway.getRun(request({ runId: 'request' })), { code: 'not-found' });
+  await assert.rejects(gateway.run(request(input())), { code: 'not-found' });
+  await assert.rejects(gateway.run(request(input({ requestId: 'late' }))), { code: 'not-found' });
 });

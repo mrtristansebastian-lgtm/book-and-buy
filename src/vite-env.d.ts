@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_ID?: string;
   readonly VITE_INITIAL_AUTH_TOKEN?: string;
   readonly VITE_FIREBASE_APPCHECK_SITE_KEY?: string;
+  readonly VITE_FIREBASE_APPCHECK_PROVIDER?: 'v3' | 'enterprise';
   readonly VITE_FIREBASE_APPCHECK_DEBUG_TOKEN?: string;
   readonly VITE_GOOGLE_MAPS_API_KEY?: string;
   readonly VITE_GOOGLE_OAUTH_CLIENT_ID?: string;

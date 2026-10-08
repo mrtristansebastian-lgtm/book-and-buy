@@ -12,9 +12,6 @@ import { chatAttachmentMetadata } from '../../features/support/utils/voiceMedia'
 import { getFirebase, isFirebaseConfigured } from './client';
 import { firebaseCallables } from './callables';
 import { saveOwnerWorkspaceToFirestore } from './ownerWorkspace';
-import { publicWorkspacePath } from './paths';
-import { buildPublicWorkspaceSnapshot } from './publicSnapshot';
-import { ProfileAddressUnavailableError, writeOwnedPublicProfile } from './publicProfileOwnership';
 
 export const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 
@@ -434,7 +431,7 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
     return {
       ok: false as const,
       localOnly: true,
-      reason: 'Published locally. Connect Firebase to sync the public slug.'
+      reason: 'Connect Firebase and save your business address before publishing.'
     };
   }
   if (!uid || !ownerId) {
@@ -452,9 +449,14 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
     };
   }
 
-  const saved = await saveOwnerWorkspaceToFirestore(ownerId, { ...workspace, ownerId });
-  if (!saved?.ok) return { ok: false as const, localOnly: true, reason: 'Save your business before publishing.' };
-  const response = await httpsCallable(firebase.functions, 'publishBusinessProfile')({ ownerId });
-  const result = response.data as { ok: boolean; slug: string };
-  return { ok: result.ok, localOnly: false, reason: 'Published to your live business address.' };
+  try {
+    const saved = await saveOwnerWorkspaceToFirestore(ownerId, { ...workspace, ownerId });
+    if (!saved?.ok) return { ok: false as const, localOnly: true, reason: 'Save your business before publishing.' };
+    const response = await httpsCallable(firebase.functions, 'publishBusinessProfile')({ ownerId });
+    const result = response.data as { ok: boolean; slug: string };
+    if (result.ok !== true) throw new Error('The server did not confirm publication.');
+    return { ok: true as const, localOnly: false, reason: 'Published to your live business address.' };
+  } catch (error) {
+    return { ok: false as const, localOnly: true, reason: error instanceof Error ? error.message : 'Publication failed. Your draft is saved; please retry.' };
+  }
 }

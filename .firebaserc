@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "build-a-booking-ai"
-  }
+  },
+  "targets": {
+    "build-a-booking-ai": {
+      "hosting": {
+        "storefront": [
+          "build-a-booking-ai-sites"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

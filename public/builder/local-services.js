@@ -5,7 +5,8 @@
   const draftKey = `draft:${scope}`;
   const modelKey = 'bookbuy-builder-local-model';
   const localHost = ['127.0.0.1', 'localhost'].includes(location.hostname);
-  const connection = { provider: localStorage.getItem('bookbuy-builder-provider') || (localHost ? 'codex' : 'openai'), model: localStorage.getItem(modelKey) || 'gpt-6.1-sol', connected: false, mode: 'build', effort: localStorage.getItem('bookbuy-builder-thinking-level') || 'medium' };
+  const rememberedProvider = localStorage.getItem('bookbuy-builder-provider');
+  const connection = { provider: !localHost && rememberedProvider === 'codex' ? 'openai' : rememberedProvider || (localHost ? 'codex' : 'openai'), model: localStorage.getItem(modelKey) || 'gpt-6.1-sol', connected: false, revision: '', mode: 'build', effort: localStorage.getItem('bookbuy-builder-thinking-level') || 'medium' };
   window.BookBuyLocalAI = connection;
   const abortCheck = signal => { if (signal?.aborted) throw new DOMException('Canceled', 'AbortError'); };
   const emit = (name, detail) => window.dispatchEvent(new CustomEvent(name, { detail }));
@@ -48,22 +49,65 @@
     return project;
   }
   let saveQueue = Promise.resolve();
+  const revisions = new Map();
+  const cloudKey = projectId => `cloud:${scope}:${projectId}`;
+  const pendingKey = `pending:${scope}`;
+  function cloudProject(project) {
+    const assets = {};
+    for (const [path, asset] of Object.entries(project.assets || {})) { const url = asset.previewUrl || asset.url; assets[path] = { url, previewUrl: url, mime: String(asset.mime || '').slice(0, 120), size: Number(asset.size) || 0, name: String(asset.name || path).slice(0, 240) }; }
+    return { id: project.id, name: String(project.name || 'Untitled project').slice(0, 120), html: project.html, files: Object.keys(project.files || {}).length ? project.files : null, assets: Object.keys(assets).length ? assets : null, entryFile: String(project.entryFile || 'index.html').slice(0, 240), prompt: String(project.prompt || '').slice(0, 4000) };
+  }
+  async function rememberCloud(project, result) { const { project: ignored, ...receipt } = result; const metadata = { revision: result.revision, signature: JSON.stringify(cloudProject(project)), result: receipt }; revisions.set(project.id, metadata); await storage('projects', 'put', cloudKey(project.id), metadata); return metadata; }
+  async function syncCloud(project, label = 'Saved draft') {
+    const durable = cloudProject(project), signature = JSON.stringify(durable);
+    let pending = await storage('projects', 'get', pendingKey);
+    // Complete an interrupted save before preparing the next revision.
+    if (pending) {
+      const previous = await window.BookBuyCommerce.hostRequest('website.draft.save', pending);
+      await rememberCloud(pending.project, previous);
+      await storage('projects', 'put', pendingKey, null);
+    }
+    const metadata = revisions.get(project.id) ?? await storage('projects', 'get', cloudKey(project.id)) ?? 0;
+    if (metadata?.signature === signature) return metadata.result;
+    pending = { requestId: crypto.randomUUID(), expectedRevision: typeof metadata === 'number' ? metadata : metadata.revision, project: durable, label };
+    await storage('projects', 'put', pendingKey, pending);
+    const result = await window.BookBuyCommerce.hostRequest('website.draft.save', pending);
+    await rememberCloud(project, result);
+    await storage('projects', 'put', pendingKey, null);
+    return result;
+  }
   function saveDraft({ project }) {
     const snapshot = JSON.parse(JSON.stringify(project));
     const save = saveQueue.catch(() => {}).then(async () => {
       emit('bookbuy-local-save', { state: 'saving' });
       try {
+        snapshot._cloudDirty = true;
         await storage('projects', 'put', draftKey, await packProject(snapshot));
-        emit('bookbuy-local-save', { state: 'saved' });
-        return { savedAt: Date.now() };
+        let cloud;
+        try { cloud = await syncCloud(snapshot); snapshot._cloudDirty = false; await storage('projects', 'put', draftKey, await packProject(snapshot)); emit('bookbuy-local-save', { state: 'saved', revision: cloud.revision, issues: cloud.issues }); }
+        catch (error) { if (/invalid-argument|resource-exhausted|already-exists/.test(error.code || '')) await storage('projects', 'put', pendingKey, null); emit('bookbuy-local-save', { state: 'local', conflict: /cloud draft changed/i.test(error.message), message: /cloud draft changed|smaller than|supports at most|invalid source|durable/i.test(error.message) ? error.message : 'Saved on this device · cloud sync unavailable. Sign in or reconnect to sync.' }); }
+        return { savedAt: Date.now(), cloudSaved: Boolean(cloud), revision: cloud?.revision, issues: cloud?.issues };
       } catch (error) { emit('bookbuy-local-save', { state: 'error', message: error.message }); throw error; }
     });
     saveQueue = save;
     return save;
   }
   const projects = {
-    kind: 'local-indexeddb-projects', saveDraft,
-    async loadDraft() { return unpackProject(await storage('projects', 'get', draftKey)); },
+    kind: 'bookbuy-cloud-projects', saveDraft,
+    async flush({ project }) { const saved = await saveDraft({ project }); if (!saved.cloudSaved) throw new Error('Your draft is saved on this device but has not synced. Reconnect before publishing or sharing.'); },
+    async loadDraft() {
+      const local = await unpackProject(await storage('projects', 'get', draftKey));
+      try {
+        if (local?._cloudDirty) { await syncCloud(local); local._cloudDirty = false; await storage('projects', 'put', draftKey, await packProject(local)); }
+        const saved = await window.BookBuyCommerce.hostRequest('website.draft.load');
+        if (saved.project) { await rememberCloud(saved.project, saved); saved.project._validationIssues = saved.issues || []; await storage('projects', 'put', draftKey, await packProject(saved.project)); emit('bookbuy-local-save', { state: 'saved', revision: saved.revision }); return saved.project; }
+      } catch (error) { emit('bookbuy-local-save', { state: 'local', conflict: /cloud draft changed/i.test(error.message), message: /cloud draft changed/i.test(error.message) ? error.message : 'Saved on this device · sign in to sync across devices.' }); }
+      return local;
+    },
+    async useCloudDraft() {
+      const saved = await window.BookBuyCommerce.hostRequest('website.draft.load'); if (!saved.project) throw new Error('No cloud draft exists yet.');
+      await rememberCloud(saved.project, saved); saved.project._validationIssues = saved.issues || []; await storage('projects', 'put', pendingKey, null); await storage('projects', 'put', draftKey, await packProject(saved.project)); return saved.project;
+    },
     async createProject({ name = 'Untitled project', html = '', prompt = '' } = {}) {
       return { id: crypto.randomUUID(), name, html, prompt, files: null, assets: null, entryFile: 'index.html', updatedAt: Date.now(), publishedUrl: null };
     },
@@ -80,8 +124,12 @@
       await storage('versions', 'put', key, [version, ...previous].slice(0, 20));
       return { ...version, snapshot: undefined };
     },
-    async listVersions({ projectId }) { return (await storage('versions', 'get', `${scope}:${projectId}`) || []).map(({ snapshot, ...metadata }) => metadata); },
+    async listVersions({ projectId }) {
+      const local = (await storage('versions', 'get', `${scope}:${projectId}`) || []).map(({ snapshot, ...metadata }) => metadata);
+      try { const cloud = await window.BookBuyCommerce.hostRequest('website.versions.list', { projectId }); return [...cloud.map(row => ({ ...row, id: 'cloud:' + row.id, label: row.label + ' · cloud' })), ...local].slice(0, 40); } catch { return local; }
+    },
     async restoreVersion({ projectId, versionId }) {
+      if (versionId.startsWith('cloud:')) { const saved = await window.BookBuyCommerce.hostRequest('website.versions.load', { projectId, versionId: versionId.slice(6) }); return { ...saved.project, _validationIssues: saved.issues || [] }; }
       const version = (await storage('versions', 'get', `${scope}:${projectId}`) || []).find(item => item.id === versionId);
       if (!version) throw new Error('That saved version is unavailable.');
       return unpackProject(version.snapshot);
@@ -98,12 +146,21 @@
   };
   const valueFields = { updateCopy: 'text', updateColorToken: 'token', updateLayout: 'preset', updateTypography: 'preset', rebuildFromApprovedTemplate: 'prompt', insertApprovedSection: 'sectionKey' };
   let controller, lastPayload;
-  let conversationId = crypto.randomUUID();
+  const scopedConversationKey = () => `bookbuy-builder-conversation:${[scope, connection.provider, connection.revision || 'development', connection.mode || 'build', connection.model || '', connection.effort || ''].map(encodeURIComponent).join(':')}`;
+  let conversationKey = scopedConversationKey();
+  let conversationId = localStorage.getItem(conversationKey) || crypto.randomUUID();
+  localStorage.setItem(conversationKey, conversationId);
+  function synchronizeConversationScope(notify = true) {
+    const nextKey = scopedConversationKey(); if (nextKey === conversationKey) return;
+    conversationKey = nextKey; conversationId = localStorage.getItem(conversationKey) || crypto.randomUUID(); localStorage.setItem(conversationKey, conversationId);
+    if (notify) emit('bookbuy-ai-connection-scope', { conversationId });
+  }
   async function codexRequest(body, signal, onProgress) {
+    synchronizeConversationScope(false);
     if (connection.provider !== 'codex') {
       onProgress?.({ type: 'activity', text: 'Using your connected AI provider…' });
-      const result = await window.BookBuyCommerce.hostRequest('ai.run', { provider: connection.provider, model: body.model, messages: body.messages, format: body.format, conversationId, mode: connection.mode === 'build' ? 'builder' : connection.mode, maxOutputTokens: 16000 }, signal);
-      if (result.status !== 'completed' || result.error) throw new Error(typeof result.error === 'string' ? result.error : result.error?.message || 'The AI request did not complete.');
+      const result = await window.BookBuyCommerce.hostRequest('ai.run', { provider: connection.provider, model: body.model, connectionRevision: connection.revision, reasoningEffort: connection.effort || undefined, messages: body.messages, format: body.format, conversationId, mode: connection.mode === 'build' ? 'builder' : connection.mode, maxOutputTokens: 16000 }, signal, event => { if (event.type === 'tool-start') onProgress?.({ type: 'activity', text: 'Checking your website connections…' }); else if (event.type === 'status' || event.type === 'summary') onProgress?.({ type: 'activity', text: event.text || 'Building your response…' }); });
+      if (result.status !== 'completed' || result.error) { if (result.error?.details?.recoveryUrl === 'https://chatgpt.com/settings/usage') emit('bookbuy-ai-recovery'); throw Object.assign(new Error(typeof result.error === 'string' ? result.error : result.error?.message || 'The AI request did not complete.'), { code: result.error?.code, details: result.error?.details }); }
       return result;
     }
     const response = await fetch('/api/builder/codex/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal, body: JSON.stringify({ ...body, effort: connection.effort, stream: true, conversationId }) });
@@ -117,6 +174,7 @@
   }
   const ai = {
     kind: 'local-codex-chatgpt',
+    supportsAttachments: false,
     async createPlan(prompt, context, signal, onProgress) {
       onProgress?.({ type: 'check', text: 'Checking your products, services and payment setup…' });
       const catalog = await window.BookBuyCommerce.ready();
@@ -159,6 +217,7 @@
       return { title: 'Codex design plan', intro: focusedSteps.length !== steps.length ? `I’ll update ${focusedTargets.join(', ')} as requested.` : data.summary.slice(0, 180), final: 'Your draft is updated on this device.', steps: focusedSteps };
     },
     async sendPrompt(payload, hooks = {}) {
+      if (payload.attachments?.length) throw new Error('AI attachments aren’t supported yet; import website files through Chat tools.');
       lastPayload = payload;
       controller = new AbortController();
       const signal = controller.signal;
@@ -182,33 +241,57 @@
     async streamResponse(text, onToken, signal) { abortCheck(signal); onToken?.(text); },
     async executeAction(step, hooks, signal) { abortCheck(signal); hooks.onActionStart?.(step.action, step); const result = await hooks.applyAction?.(step.action, step, signal); hooks.onActionEnd?.(step.action, step, result); return result; },
     cancel() { controller?.abort(); },
-    newConversation() { conversationId = crypto.randomUUID(); },
+    newConversation() { conversationKey = scopedConversationKey(); conversationId = crypto.randomUUID(); localStorage.setItem(conversationKey, conversationId); emit('bookbuy-ai-new-conversation', { conversationId }); },
+    async selectConversation(row) {
+      if (row.provider !== connection.provider || row.connectionRevision !== connection.revision || row.mode !== (connection.mode === 'build' ? 'builder' : connection.mode)) throw new Error('Choose the matching AI connection and mode to continue this chat.');
+      connection.model = row.model; connection.effort = row.reasoningEffort || '';
+      conversationKey = scopedConversationKey(); conversationId = row.conversationId; localStorage.setItem(conversationKey, conversationId);
+      emit('bookbuy-ai-connection-scope', { conversationId });
+      await this.restoreConversation();
+    },
+    conversationDeleted(id) { const current = conversationId === id; emit('bookbuy-ai-conversation-deleted', { conversationId: id, current }); if (current) { controller?.abort(); this.newConversation(); } },
+    selectConnectionRevision(revision) { connection.revision = revision || ''; synchronizeConversationScope(); },
+    async restoreConversation() {
+      if (connection.provider === 'codex') return;
+      synchronizeConversationScope();
+      const requestedId = conversationId;
+      try { const history = await window.BookBuyCommerce.hostRequest('ai.conversation', { conversationId: requestedId }); if (requestedId !== conversationId || conversationKey !== scopedConversationKey()) return; if (history.provider !== connection.provider || history.model !== connection.model || history.connectionRevision !== connection.revision || history.mode !== (connection.mode === 'build' ? 'builder' : connection.mode) || (history.reasoningEffort || '') !== (connection.effort || '')) { this.newConversation(); return; } emit('bookbuy-ai-history', history); } catch { /* New conversations have no server history yet. */ }
+    },
     retry(hooks) { if (!lastPayload) throw new Error('No request to retry.'); return this.sendPrompt(lastPayload, hooks); }
   };
   let pendingPublication = null, pendingRollback = null;
   const publishing = {
     kind: 'bookbuy-hosted-publishing',
     async publish({ project }) {
+      await projects.flush({ project });
       await window.BookBuyCommerce.ready();
       const html = window.BookBuyCommerce.wireHtml(project.html).html;
       const draft = { id: project.id, name: project.name, html };
       const signature = JSON.stringify(draft);
+      pendingPublication ||= await storage('projects', 'get', `publish:${scope}`);
       if (!pendingPublication || pendingPublication.signature !== signature) {
         const status = await this.getStatus();
         pendingPublication = { signature, request: { requestId: crypto.randomUUID(), project: draft, expectedRevision: status.revision || null } };
+        await storage('projects', 'put', `publish:${scope}`, pendingPublication);
       }
       try {
         const result = await window.BookBuyCommerce.hostRequest('website.publish', pendingPublication.request);
-        pendingPublication = null; return result;
-      } catch (error) { if (/newer|changed|completed first/i.test(error.message)) pendingPublication = null; throw error; }
+        pendingPublication = null; await storage('projects', 'put', `publish:${scope}`, null); return result;
+      } catch (error) { if (/newer|changed|completed first/i.test(error.message)) { pendingPublication = null; await storage('projects', 'put', `publish:${scope}`, null); } throw error; }
     },
     async getStatus() { return window.BookBuyCommerce.hostRequest('website.status'); },
     async rollback({ revision, expectedRevision }) {
       const signature = JSON.stringify({ revision, expectedRevision });
+      pendingRollback ||= await storage('projects', 'get', `rollback:${scope}`);
       if (pendingRollback?.signature !== signature) pendingRollback = { signature, request: { revision, expectedRevision, requestId: crypto.randomUUID() } };
-      const result = await window.BookBuyCommerce.hostRequest('website.rollback', pendingRollback.request); pendingRollback = null; return result;
+      await storage('projects', 'put', `rollback:${scope}`, pendingRollback);
+      const result = await window.BookBuyCommerce.hostRequest('website.rollback', pendingRollback.request); pendingRollback = null; await storage('projects', 'put', `rollback:${scope}`, null); return result;
     },
-    async createShareLink() { const status = await this.getStatus(); if (!status.url) throw new Error('Publish your website before creating its public link.'); return { url: status.url, kind: 'published' }; }
+    async createShareLink({ project }) {
+      await projects.flush({ project }); await window.BookBuyCommerce.ready();
+      const html = window.BookBuyCommerce.wireHtml(project.html).html;
+      return window.BookBuyCommerce.hostRequest('website.preview', { requestId: crypto.randomUUID(), project: { id: project.id, name: project.name, html } });
+    }
   };
   window.BOOKBUY_SERVICES = { ai, projects, versions, publishing, commerce: window.BookBuyCommerce.commerce };
 })();

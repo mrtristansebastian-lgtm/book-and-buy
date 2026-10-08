@@ -13,13 +13,14 @@ import { BrandMark } from './shared/ui/BrandMark';
 import { useViewportZoomGate } from './shared/ui/useViewportZoomGate';
 import { useCustomDomain } from './features/website/useCustomDomain';
 import { ControlReview } from './shared/ui/ControlReview';
+import { Button } from './shared/ui/Button';
 
 const ProfileReview = import.meta.env.DEV ? lazy(() => import('./features/website/dev/ProfileReview')) : null;
 
 export default function App() {
   const [route, setRoute] = useState(() => parseAppRoute());
   const customDomain = useCustomDomain();
-  const { workspace, loadDemoWorkspace } = useWorkspace();
+  const { workspace, loadDemoWorkspace, ownerWorkspaceReady, ownerWorkspaceError, retrySave } = useWorkspace();
   const { ready, configured, user, isLocalMode } = useAuth();
   const { isClient, profileReady } = useClientProfile();
 
@@ -67,7 +68,10 @@ export default function App() {
   if (route.kind === 'public') {
     return <PublicWebsiteApp slug={route.slug} page={route.page} itemId={route.itemId || ''} />;
   }
-  if (route.kind === 'onboarding') return <BusinessOnboardingPage />;
+  if (['owner','onboarding'].includes(route.kind) && !route.demo && configured && user && ownerWorkspaceReady === false) {
+    return <div className="bb-shell native-ui min-h-screen grid place-items-center"><div className="grid gap-4 justify-items-center text-center p-5"><BrandMark size="lg" className="bb-welcome-brand-slot" />{ownerWorkspaceError ? <><p role="alert" className="bb-muted">{ownerWorkspaceError}</p><Button action="retry" onClick={retrySave}>Try again</Button></> : <p className="bb-muted" role="status">Opening your business…</p>}</div></div>;
+  }
+  if (route.kind === 'onboarding') return configured && !user && !isLocalMode ? <AppLoginScreen /> : <BusinessOnboardingPage />;
   if (route.kind === 'client') {
     return <ClientApp section={route.section || 'find'} rest={route.rest || []} />;
   }

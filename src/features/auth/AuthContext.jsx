@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import {
   GoogleAuthProvider,
   getRedirectResult,
-  onAuthStateChanged,
+  onIdTokenChanged,
   sendEmailVerification,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -12,8 +12,11 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { getFirebase, isFirebaseConfigured } from '../../shared/firebase/client';
+import { saveGoogleRedirectIntent, readGoogleRedirectIntent, clearGoogleRedirectIntent } from './googleRedirectIntent';
 
 const AuthContext = createContext(null);
+const redirectChecks = new WeakMap();
+const currentRedirectIntent = () => { try { return readGoogleRedirectIntent(window.sessionStorage); } catch { return null; } };
 
 const FRIENDLY_AUTH_ERRORS = {
   'auth/popup-closed-by-user': 'Google sign-in was closed before finishing.',
@@ -29,7 +32,9 @@ const FRIENDLY_AUTH_ERRORS = {
   'auth/weak-password': 'Use a password with at least 6 characters.',
   'auth/too-many-requests': 'Too many attempts. Wait a moment and try again.',
   'auth/network-request-failed': 'Network error. Check your connection and try again.',
-  'auth/operation-not-allowed': 'This sign-in method is not enabled in Firebase Console.'
+  'auth/operation-not-allowed': 'This sign-in method is not enabled in Firebase Console.',
+  'auth/unauthorized-domain': 'Google sign-in is not enabled for this app address yet.',
+  'auth/web-storage-unsupported': 'This browser cannot save the sign-in session. Allow site storage and try again.'
 };
 
 export function mapAuthError(error) {
@@ -45,7 +50,7 @@ function shouldFallbackToRedirect(error) {
   return code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-this-environment';
 }
 
-async function signInWithGoogleFlow(auth) {
+async function signInWithGoogleFlow(auth, intent) {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
   try {
@@ -53,7 +58,8 @@ async function signInWithGoogleFlow(auth) {
     return cred.user;
   } catch (error) {
     if (!shouldFallbackToRedirect(error)) throw error;
-    await signInWithRedirect(auth, provider);
+    try { saveGoogleRedirectIntent(window.sessionStorage, intent); } catch { throw new Error('Allow site storage to continue with Google in this browser.'); }
+    try { await signInWithRedirect(auth, provider); } catch (redirectError) { clearGoogleRedirectIntent(window.sessionStorage); throw redirectError; }
     return null;
   }
 }
@@ -63,6 +69,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [claims, setClaims] = useState({});
   const [ready, setReady] = useState(!configured);
+  const [authError, setAuthError] = useState('');
+  const [redirectResult, setRedirectResult] = useState(null);
+  const [redirectIntent] = useState(currentRedirectIntent);
 
   useEffect(() => {
     const firebase = getFirebase();
@@ -71,30 +80,34 @@ export function AuthProvider({ children }) {
       return undefined;
     }
 
-    let cancelled = false;
-    (async () => {
-      try {
-        await getRedirectResult(firebase.auth);
-      } catch {
-        /* surface on next sign-in attempt */
-      }
-    })();
-
-    return onAuthStateChanged(firebase.auth, async (next) => {
+    let cancelled = false, version = 0;
+    if (!redirectChecks.has(firebase.auth)) redirectChecks.set(firebase.auth, getRedirectResult(firebase.auth).then(result => ({ result }), error => ({ error })));
+    const checkedRedirect = redirectChecks.get(firebase.auth).then(({ result, error }) => {
       if (cancelled) return;
-      setUser(next);
+      if (error) setAuthError(mapAuthError(error));
+      if (result?.user) setRedirectResult(result.user);
+      try { clearGoogleRedirectIntent(window.sessionStorage); } catch { /* no credentials stored */ }
+    });
+
+    const unsubscribe = onIdTokenChanged(firebase.auth, async (next) => {
+      const ticket = ++version;
+      await checkedRedirect;
+      if (cancelled) return;
+      if (ticket !== version) return;
+      setUser(next); setClaims({});
       if (next) {
         try {
           const token = await next.getIdTokenResult();
-          if (!cancelled) setClaims(token.claims || {});
+          if (!cancelled && ticket === version) setClaims(token.claims || {});
         } catch {
-          if (!cancelled) setClaims({});
+          if (!cancelled && ticket === version) setClaims({});
         }
       } else {
         setClaims({});
       }
-      setReady(true);
+      if (!cancelled && ticket === version) setReady(true);
     });
+    return () => { cancelled = true; version++; unsubscribe(); };
   }, []);
 
   const api = useMemo(
@@ -103,6 +116,10 @@ export function AuthProvider({ children }) {
       configured,
       user,
       claims,
+      authError,
+      redirectResult,
+      redirectIntent,
+      clearRedirectResult: () => { setRedirectResult(null); setAuthError(''); },
       isPlatformAdmin: claims.platformAdmin === true || claims.role === 'platform_admin',
       /** Local/demo mode when Firebase env is absent. */
       isLocalMode: !configured,
@@ -139,11 +156,12 @@ export function AuthProvider({ children }) {
           throw new Error(mapAuthError(error));
         }
       },
-      signInGoogle: async () => {
+      signInGoogle: async (intent = {}) => {
         const firebase = getFirebase();
         if (!firebase) throw new Error('Firebase Auth is not configured.');
         try {
-          return await signInWithGoogleFlow(firebase.auth);
+          setAuthError('');
+          return await signInWithGoogleFlow(firebase.auth, intent);
         } catch (error) {
           throw new Error(mapAuthError(error));
         }
@@ -155,7 +173,7 @@ export function AuthProvider({ children }) {
       },
       mapAuthError
     }),
-    [ready, configured, user, claims]
+    [ready, configured, user, claims, authError, redirectResult, redirectIntent]
   );
 
   return <AuthContext.Provider value={api}>{children}</AuthContext.Provider>;

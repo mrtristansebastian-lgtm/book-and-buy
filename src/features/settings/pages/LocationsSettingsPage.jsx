@@ -2,6 +2,9 @@ import { Button } from '../../../shared/ui/Button';
 import { useMemo } from 'react';
 import { PlaceLocationField } from '../../../shared/ui/PlaceLocationField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { workspacePagePath } from '../../../app/routing';
+import { Building2 } from 'lucide-react';
+import './branches-settings.css';
 
 const VENUE_MODES = [
   { id: 'physical', label: 'Physical store', hint: 'Clients find you Nearby by distance' },
@@ -98,7 +101,7 @@ export function LocationsSettingsPage() {
       {venueMode !== 'online' ? (
         <section className="bb-panel p-5 grid gap-3">
           <h2 className="bb-page-title text-xl m-0">Primary venue</h2>
-          <p className="bb-muted m-0 text-sm">Your main business address, shown on your public page and used for nearby discovery. One venue is supported per business.</p>
+          <p className="bb-muted m-0 text-sm">Your main business address, shown on your public page and used for nearby discovery. Add other locations in Branches.</p>
           <PlaceLocationField
             label="Venue address"
             placeholder="Search your store or studio"
@@ -138,10 +141,15 @@ export function LocationsSettingsPage() {
         </section>
       ) : null}
 
+      <section className="bb-panel p-5 bb-locations-branches-summary">
+        <div><Building2 size={21} aria-hidden="true" /><h2 className="bb-page-title text-xl m-0">Branches</h2><p>Keep your studios, shops and offices together. Choose which addresses customers can see.</p><p>{(website.branches || []).length} {(website.branches || []).length === 1 ? 'branch' : 'branches'} added</p></div>
+        <Button as="a" action="settings" href={`#${workspacePagePath('settings/locations/branches')}`}>Manage branches</Button>
+      </section>
+
       <section className="bb-panel p-5 grid gap-3">
         <h2 className="bb-page-title text-xl m-0">Selling internationally</h2>
         <p className="bb-muted m-0 text-sm">Countries you serve, catalog availability and delivery connections now live in Markets.</p>
-        <Button as="a" action="settings" href="#/dashboard/settings/markets" className="bb-btn">Manage markets</Button>
+        <Button as="a" action="settings" href={`#${workspacePagePath('settings/markets')}`} className="bb-btn">Manage markets</Button>
       </section>
     </div>
   );

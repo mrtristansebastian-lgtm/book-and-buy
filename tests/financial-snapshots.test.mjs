@@ -27,20 +27,24 @@ test('manual and provider payment confirmation keep their first recorded date an
   assert.deepEqual(paymentConfirmationSnapshot({ paymentStatus: 'paid', paidAt: 900, amountInCents: 4200 }, 1000), { paymentStatus: 'paid', paidAt: 900 });
   assert.deepEqual(paymentConfirmationSnapshot({ paymentStatus: 'paid', amountInCents: 4200 }, 1000), { paymentStatus: 'paid' }, 'A legacy missing date must remain unknown');
   assert.deepEqual(paymentConfirmationSnapshot({ paymentStatus: 'refunded', paidAt: 900 }, 1000), { paymentStatus: 'refunded', paidAt: 900 }, 'Duplicate provider confirmations cannot undo a refund');
-  let settings = { orders: [{ id: 'order', paymentStatus: 'unpaid', amountInCents: 4200, discoverySurface: 'buy', costBasisInCents: 1000 }] };
-  const db = { doc: path => ({ path }), runTransaction: async action => action({ get: async () => ({ exists: true, data: () => settings }),
-    set: (_ref, data) => { settings = data; } }) };
-  const input = { appId: 'test', ownerId: 'owner', sourceType: 'order', sourceId: 'order', providerPaymentId: 'confirmed', gatewayType: 'stripe' };
+  const root = 'artifacts/book-and-buy-v1/users/owner'; const settingsPath = `${root}/config/settings`;
+  const records = new Map([[settingsPath,{bookings:[{id:'booking',paymentMethod:'stripe',currency:'R',paymentStatus:'unpaid',amountInCents:4200,discoverySurface:'buy',costBasisInCents:1000}]}],
+    [`${root}/payment_attempts/attempt`,{id:'attempt',sourceType:'booking',sourceId:'booking',gatewayType:'stripe',providerRef:'session',amountInCents:4200,currency:'zar',status:'redirected'}]]);
+  const db = { doc: path => ({path}), runTransaction: async action => action({get:async ref => ({exists:records.has(ref.path),data:() => records.get(ref.path)}),
+    set:(ref,data) => records.set(ref.path,data),create:(ref,data) => {assert.equal(records.has(ref.path),false);records.set(ref.path,data);},update:(ref,data) => records.set(ref.path,{...records.get(ref.path),...data})}) };
+  const input = { ownerId:'owner',attemptId:'attempt',sourceType:'booking',sourceId:'booking',providerPaymentId:'confirmed',providerRef:'session',gatewayType:'stripe',amountInCents:4200,currency:'zar' };
   await markSourcePaid(input, db);
-  const first = settings.orders[0];
+  const first = records.get(settingsPath).bookings[0];
   assert.ok(first.paidAt > 0);
   assert.equal(first.amountPaidInCents, 4200);
-  settings.orders[0].amountInCents = 9000;
+  records.get(settingsPath).bookings[0].amountInCents = 9000;
   await markSourcePaid(input, db);
-  assert.equal(settings.orders[0].paidAt, first.paidAt);
-  assert.equal(settings.orders[0].amountPaidInCents, 4200);
-  assert.equal(settings.orders[0].discoverySurface, 'buy');
-  assert.equal(settings.orders[0].costBasisInCents, 1000);
+  const repeated = records.get(settingsPath).bookings[0];
+  assert.equal(repeated.paidAt, first.paidAt);
+  assert.equal(repeated.amountPaidInCents, 4200);
+  assert.equal(repeated.discoverySurface, 'buy');
+  assert.equal(repeated.costBasisInCents, 1000);
+  await assert.rejects(markSourcePaid({...input,amountInCents:1},db),/amount/);
 });
 
 const require = createRequire(import.meta.url);

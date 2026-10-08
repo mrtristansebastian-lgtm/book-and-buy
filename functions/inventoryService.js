@@ -31,7 +31,12 @@ export async function expireInventoryReservations({ ownerId }, db = getFirestore
     const { workspace,exists } = await readWorkspace(db,ownerId,tx);
     if (!exists) throw new Error('Business unavailable.');
     const { products, expired } = await readExpiredInventory(tx, db, ownerId, workspace);
-    if (expired.length) { writeWorkspace(tx,db,ownerId,workspace,{ ...workspace,...inventorySettingsPatch(workspace,products) }); writeExpiredInventory(tx, db, ownerId, expired); }
+    if (expired.length) {
+      const ids = new Set(expired.map(item => item.reservation.orderId));
+      const orders = (workspace.orders || []).map(order => ids.has(order.id) ? { ...order,inventoryStatus:'expired',revision:(order.revision || 0)+1,updatedAt:Date.now() } : order);
+      writeWorkspace(tx,db,ownerId,workspace,{ ...workspace,...inventorySettingsPatch(workspace,products),orders }); writeExpiredInventory(tx, db, ownerId, expired);
+      for (const item of expired) tx.set(db.doc(`${ownerRoot(ownerId)}/notifications/inventory-expired-${item.reservation.id}`), { type:'inventory_expired',audience:'owner',ownerId,orderId:item.reservation.orderId,read:false,createdAt:Date.now(),body:'The unpaid order stock hold expired. Available stock has been restored.' });
+    }
     return { ok: true, expiredCount: expired.length };
   });
 }

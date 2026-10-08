@@ -55,15 +55,44 @@ test('concurrent last-item orders reserve once and provider settlement commits o
   assert.deepEqual(paid,replay); assert.equal(paid.inventoryException,false);
   assert.equal((await f.db.doc(`${f.root}/inventoryReservations/${order.id}`).get()).data().status,'committed');
   assert.equal((await f.settings.get()).data().products[0].stockAvailable,'0');
+  const duplicateAttempt = {...evidence,attemptId:`duplicate-${randomUUID()}`,eventId:`other-${randomUUID()}`};
+  await f.db.doc(`${f.root}/payment_attempts/${duplicateAttempt.attemptId}`).set({sourceType:'order',sourceId:order.id,gatewayType:'stripe',providerRef:evidence.providerRef,amountInCents:2000,currency:'zar',status:'redirected'});
+  await assert.rejects(settleVerifiedPayment(duplicateAttempt,f.db),/already belongs to another transaction/);
 });
 test('expiry restores stock and late payment stays paid but blocks fulfillment',{skip:!enabled},async () => {
   const f = await fixture(); const order = await placeMarketOrder(f.request,null,f.db);
   await f.db.doc(`${f.root}/inventoryReservations/${order.id}`).update({expiresAtMs:Date.now()-1});
   assert.equal((await expireInventoryReservations({ownerId:f.ownerId},f.db)).expiredCount,1);
   assert.equal((await expireInventoryReservations({ownerId:f.ownerId},f.db)).expiredCount,0);
+  assert.equal((await f.settings.get()).data().orders[0].inventoryStatus,'expired');
+  assert.equal((await f.db.doc(`${f.root}/notifications/inventory-expired-${order.id}`).get()).data().type,'inventory_expired');
+  await placeMarketOrder({...f.request,requestId:randomUUID()},null,f.db);
   const result = await settleVerifiedPayment(await paymentFixture(f,order),f.db); assert.equal(result.inventoryException,true);
-  const saved = (await f.settings.get()).data(); assert.equal(saved.products[0].stockAvailable,'1'); assert.equal(saved.orders[0].paymentStatus,'paid'); assert.equal(saved.orders[0].inventoryStatus,'payment_exception');
-  await assert.rejects(updateMarketOrder({ownerId:f.ownerId,id:order.id,expectedRevision:saved.orders[0].revision,patch:{status:'accepted'}},f.auth,f.db),/expired/);
+  const saved = (await f.settings.get()).data(); const late = saved.orders.find(item => item.id === order.id);
+  assert.equal(saved.products[0].stockAvailable,'0'); assert.equal(late.paymentStatus,'paid'); assert.equal(late.inventoryStatus,'payment_exception');
+  await assert.rejects(updateMarketOrder({ownerId:f.ownerId,id:order.id,expectedRevision:late.revision,patch:{status:'accepted'}},f.auth,f.db),/expired/);
+});
+
+test('verified late payment rechecks still-available stock and commits exactly once',{skip:!enabled},async () => {
+  const f = await fixture(); const order = await placeMarketOrder(f.request,null,f.db);
+  await f.db.doc(`${f.root}/inventoryReservations/${order.id}`).update({expiresAtMs:Date.now()-1});
+  await expireInventoryReservations({ownerId:f.ownerId},f.db);
+  const evidence = await paymentFixture(f,order);
+  assert.equal((await settleVerifiedPayment(evidence,f.db)).inventoryException,false);
+  await settleVerifiedPayment(evidence,f.db);
+  assert.equal((await f.settings.get()).data().products[0].stockAvailable,'0');
+  const hold = (await f.db.doc(`${f.root}/inventoryReservations/${order.id}`).get()).data();
+  assert.equal(hold.status,'committed'); assert.ok(hold.reacquiredAtMs);
+});
+
+test('public commerce rejects renamed or unpublished addresses before creating records',{skip:!enabled},async () => {
+  const f = await fixture('cash');
+  await f.settings.update({slug:`renamed-${randomUUID()}`});
+  await assert.rejects(placeMarketOrder(f.request,null,f.db),/no longer published/);
+  await assert.rejects(getPublicCommerceContext({slug:f.slug},f.db),/no longer published/);
+  await f.settings.update({slug:f.slug,'website.published':false});
+  await assert.rejects(writeGuardedBooking({slug:f.slug,requestId:randomUUID(),serviceId:'s',dateKey:f.day,time:'09:00',clientName:'Client',clientEmail:'client@example.test'},null,f.db,true),/no longer published/);
+  assert.equal((await f.settings.get()).data().orders.length,0); assert.equal((await f.settings.get()).data().bookings.length,0);
 });
 test('manual acceptance reserves, retry returns one mutation and manual receipt commits',{skip:!enabled},async () => {
   const f = await fixture('cash'); const order = await placeMarketOrder(f.request,null,f.db); assert.equal((await f.settings.get()).data().products[0].stockAvailable,'1');

@@ -75,3 +75,7 @@
 @media(prefers-reduced-motion:reduce) { .bb-butler-panel,.bb-butler-working-dot { animation:none; } }
 
 .bb-butler-header-logo { width:35px; height:35px; object-fit:contain; flex-shrink:0; }
+
+.bb-butler-code-review{white-space:pre-wrap;overflow-wrap:anywhere;max-height:240px;overflow:auto;font-size:11px;padding:12px;background:var(--bb-subtle,#f4f6f8);border-radius:8px}.bb-butler-history-item{display:block;width:100%;text-align:left;padding:10px;border:0;border-bottom:1px solid #10182810;background:transparent;color:inherit;font:inherit;font-size:12px}.bb-butler-history-item:hover{background:#f4f6f8}
+
+.bb-butler-history-row{display:flex;align-items:center;gap:8px}.bb-butler-history-row .bb-butler-history-item{flex:1;min-width:0}.bb-butler-assurance a{color:inherit;text-decoration:underline;text-underline-offset:3px}

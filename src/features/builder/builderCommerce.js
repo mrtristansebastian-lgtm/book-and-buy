@@ -10,14 +10,16 @@ export function buildBuilderCommerceContext(workspace = {}) {
     description: String(row.description || '').slice(0, 800),
     image: String(row.imageUrls?.[0] || row.image || row.imageUrl || ''),
     price: kind === 'product' ? formatProductPrice(row) : formatServicePrice(row),
+    quoteBased: row.quoteBased === true || row.priceType === 'quote', stockAvailable: row.stockAvailable ?? null,
     options: kind === 'product' ? (row.options || []).map(option => ({ name: option.name, values: option.values })) : [],
-    variants: (row.variants || []).filter(variant => variant.active !== false).map(variant => ({ id: variant.id, name: variant.name || variant.title || '', optionValues: variant.optionValues || {}, available: variant.available !== false })),
+    variants: (row.variants || []).filter(variant => variant.active !== false).map(variant => ({ id: variant.id, name: variant.name || variant.title || '', optionValues: variant.optionValues || {}, available: variant.available !== false, price: variant.price ?? row.price, stockAvailable: variant.stockAvailable ?? null })),
     ...(kind === 'service' ? { durationMinutes: getServiceDurationMinutes(row), scheduleType: row.scheduleType || 'appointment' } : {})
   });
   return {
     business: String(workspace.brandName || 'Your business'), slug: String(workspace.slug || ''),
+    currency: workspace.currency || 'R',
     products: (workspace.products || []).filter(isProductPubliclyVisible).map(row => item(row, 'product')),
-    services: (workspace.services || []).filter(row => row.active !== false).map(row => item(row, 'service')),
+    services: (workspace.services || []).filter(row => row.active !== false && row.available !== false && !['draft', 'archived'].includes(row.status)).map(row => item(row, 'service')),
     payments: getPublicPaymentOptions(workspace).options.map(option => ({ id: option.id, name: option.name, mode: option.mode })),
     booking: { timezone: workspace.timezone || 'Africa/Johannesburg', openTime: workspace.availabilityRules?.businessOpenTime || '', closeTime: workspace.availabilityRules?.businessCloseTime || '', selection: 'Book & Buy checks staff availability, service duration, existing bookings and variants when the customer chooses a time.' },
     checkout: { required: ['customer name', 'valid email', 'product variant when applicable', 'service variant when applicable', 'available date/time for appointments', 'delivery address when shipping applies'], optional: ['phone', 'notes'], preview: true },

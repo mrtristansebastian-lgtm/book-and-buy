@@ -48,7 +48,20 @@ export function commitInventory(workspace, reservation, now = Date.now()) {
   if (reservation?.status === 'committed') return { products: workspace.products, reservation, changed: false, exception: false };
   if (!reservation || reservation.status !== 'reserved' || reservation.expiresAtMs <= now) {
     const release = releaseInventory(workspace, reservation, 'expired', now);
-    return { ...release, exception: true };
+    // A verified late payment may still be fulfilled, but only against stock
+    // available now. A cancelled hold must never be resurrected.
+    if (!release.reservation || release.reservation.status !== 'expired') return { ...release, exception: true };
+    try {
+      for (const unit of release.reservation.items || []) {
+        const product = release.products.find(item => item.id === unit.productId);
+        const target = unit.variantId ? product?.variants?.find(item => item.id === unit.variantId) : product;
+        if (!product || product.active === false || ['draft','archived'].includes(product.status) || !target || target.available === false || String(target.stockAvailable ?? '').trim() === '') throw new Error('Unavailable inventory.');
+      }
+      const current = changeStock(release.products, release.reservation.items || [], -1);
+      return { products: current.products, reservation: { ...release.reservation, status: 'committed', committedAtMs: now, reacquiredAtMs: now, revision: release.reservation.revision + 1 }, changed: true, exception: false };
+    } catch {
+      return { ...release, exception: true };
+    }
   }
   return { products: workspace.products, reservation: { ...reservation, status: 'committed', committedAtMs: now, revision: reservation.revision + 1 }, changed: true, exception: false };
 }

@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "health": "node scripts/health-check.mjs",
     "smoke": "node scripts/smoke-check.mjs",
+    "test:backend": "node scripts/backend-emulator-check.mjs",
+    "release:readiness": "node scripts/deployment-readiness.mjs",
     "generate:world-map": "node scripts/generate-world-map.mjs",
     "generate:regional-maps": "node --expose-gc scripts/generate-regional-maps.mjs",
     "check": "npm run health && npm run typecheck && npm run build"

@@ -1,3 +1,4 @@
+import { PurchaseReviewForm } from '../PurchaseReviewForm';
 import { Button } from '../../../shared/ui/Button';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { EmptyState } from '../../../shared/ui/EmptyState';
@@ -370,6 +371,7 @@ export function ClientAccountPage({ section = '' }) {
               >
                  Message business
               </Button>
+              {booking.paymentStatus === 'paid' && booking.status === 'completed' && <PurchaseReviewForm slug={booking.workspaceSlug || booking.businessSlug || workspace.slug} purchaseId={booking.id} itemId={booking.serviceId} kind="booking" demo={Boolean(workspace.isDemo)}/>}
             </article>
           ))
         )}
@@ -396,6 +398,7 @@ export function ClientAccountPage({ section = '' }) {
               >
                  Message business
               </Button>
+              {order.paymentStatus === 'paid' && (order.items || []).filter((row, index, rows) => rows.findIndex(other => other.productId === row.productId) === index).map(item => <PurchaseReviewForm key={item.productId} slug={order.workspaceSlug || order.businessSlug || workspace.slug} purchaseId={order.id} itemId={item.productId} kind="order" demo={Boolean(workspace.isDemo)}/>)}
             </article>
           ))
         )}

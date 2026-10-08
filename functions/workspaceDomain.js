@@ -1,3 +1,4 @@
+import { validateBranches } from './branchesDomain.js';
 // Shared policy metadata: safe to import in the browser. Enforcement lives on the server.
 export const SETTINGS_COVERAGE = [
   { id: 'butler', status: 'ready', rule: 'Owner tools, previews and bounded policies', public: 'No private business capabilities', tool: 'automations.read', test: 'butler-emulator' },
@@ -6,13 +7,14 @@ export const SETTINGS_COVERAGE = [
   { id: 'billing', status: 'unavailable', rule: null, public: 'Subscription billing is not implemented', tool: null, test: 'butler' },
   { id: 'users', status: 'ready', rule: 'workspace.patch.staff', public: 'Roster only; does not grant account access', tool: 'settings.preview', test: 'workspace-commands' },
   { id: 'payments', status: 'ready', rule: 'gatewayService + inventoryService', public: 'Enabled methods and verified payment status', tool: 'payments.read', test: 'payment-authority' },
+  { id: 'ai', status: 'read_only', rule: 'Owner-only secure AI connection flow; approved account integration is deployment gated', public: 'No provider credentials or private AI capabilities', tool: null, test: 'ai-oauth, ai-gateway' },
   { id: 'bookings', status: 'ready', rule: 'bookingDomain + rescheduling', public: 'Live slots, notice, capacity and change policies', tool: 'bookings.preview', test: 'commerce-authority' },
   { id: 'checkout', status: 'ready', rule: 'marketOrders + inventoryDomain', public: 'Customer fields, stock holds and canonical totals', tool: 'settings.preview', test: 'inventory-authority' },
   { id: 'notifications', status: 'read_only', rule: 'workspace.patch.notifications', public: 'Activity visibility only; no email/SMS reminders', tool: 'settings.preview', test: 'workspace-commands' },
-  { id: 'locations', status: 'ready', rule: 'workspace.patch.website', public: 'Public location information', tool: 'settings.preview', test: 'workspace-commands' },
+  { id: 'locations', status: 'ready', rule: 'workspace.patch.website + branchesDomain', public: 'Primary venue and explicitly public branch locations; shared booking schedule', tool: 'settings.preview', test: 'branches, workspace-commands' },
   { id: 'markets', status: 'ready', rule: 'marketPolicy', public: 'Country and catalog eligibility', tool: 'settings.preview', test: 'markets' },
   { id: 'shipping', status: 'ready', rule: 'marketPolicy', public: 'Flat/free rates; carrier labels are unavailable', tool: 'settings.preview', test: 'markets' },
-  { id: 'reviews', status: 'ready', rule: 'places + workspace.patch.website', public: 'Verified Google review connection', tool: 'settings.preview', test: 'workspace-commands' },
+  { id: 'reviews', status: 'ready', rule: 'places + reviews + workspace.patch.website', public: 'Google and verified-purchase platform reviews', tool: 'settings.preview', test: 'workspace-commands' },
   { id: 'domains', status: 'read_only', rule: 'domains (deployment gated)', public: 'Verified domain ownership and routing', tool: 'settings.read', test: 'domains' },
   { id: 'policies', status: 'ready', rule: 'workspace.patch.policies', public: 'Policy copy; enforced booking rules are separate', tool: 'settings.preview', test: 'workspace-commands' },
   { id: 'account', status: 'read_only', rule: null, public: 'Account deletion/export is unavailable', tool: 'workspace.read', test: 'butler' }
@@ -83,6 +85,8 @@ export function applyWorkspaceChanges(previous = {}, changes = [], { initial = f
     const patch = safeValue(change.patch);
     if (!patch || Array.isArray(patch) || !Object.keys(patch).length || Object.keys(patch).some(key => !fields.includes(key))) domainError('Change contains fields outside this section.');
     for (const [key, value] of Object.entries(patch)) {
+      if (key === 'website' && value?.platformReviewsEnabled !== undefined && typeof value.platformReviewsEnabled !== 'boolean') domainError('Book & Buy reviews must be enabled or disabled.');
+      if (key === 'website' && value?.branches !== undefined) value.branches = validateBranches(value.branches);
       if (key === 'products' || key === 'services' || key === 'staff' || key === 'clients') {
         if (!Array.isArray(value)) domainError(`${key} must be a list.`);
         const ids = new Set(); for (const row of value) { assertId(row.id, key); if (ids.has(row.id)) domainError('Record identifiers must be unique.'); ids.add(row.id);

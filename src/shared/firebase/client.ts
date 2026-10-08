@@ -2,7 +2,7 @@ import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getFunctions, type Functions } from 'firebase/functions';
-import { initializeAppCheck, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
 
 export type FirebaseBundle = {
   app: FirebaseApp;
@@ -42,7 +42,9 @@ export function getFirebase(): FirebaseBundle | null {
     if (debugToken) (window as Window & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string | boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
     try {
       appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(appCheckSiteKey),
+        provider: import.meta.env.VITE_FIREBASE_APPCHECK_PROVIDER === 'enterprise'
+          ? new ReCaptchaEnterpriseProvider(appCheckSiteKey)
+          : new ReCaptchaV3Provider(appCheckSiteKey),
         isTokenAutoRefreshEnabled: true
       });
     } catch {

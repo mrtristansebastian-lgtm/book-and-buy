@@ -7,7 +7,7 @@ import { catalogUnitCostCents, paymentConfirmationSnapshot, clientTransactionSna
 import { serviceCommerceQuote } from './commerceRuntime.js';
 import { getPublicPaymentOptions } from './payments/publicOptions.js';
 import { readWorkspace, writeWorkspace } from './workspaceStore.js';
-import { assertCommerceQuoteRevision } from './commercePolicy.js';
+import { assertCommerceQuoteRevision, assertPublishedWorkspace } from './commercePolicy.js';
 
 const APP_ID = 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
@@ -93,6 +93,10 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
   return db.runTransaction(async (tx) => {
     const { ref: settingsRef, workspace, exists } = await readWorkspace(db,ownerId,tx);
     if (!exists) bookingError('Business unavailable.');
+    if (publicRequest) {
+      const liveProfile = await tx.get(db.doc(`artifacts/${APP_ID}/public/data/workspaces/${data.slug}`));
+      assertPublishedWorkspace(workspace,liveProfile.exists ? liveProfile.data() : null,data.slug,ownerId);
+    }
     if (data.requestId && !safeId(data.requestId)) bookingError('Invalid booking request identifier.');
     const receiptRef = publicRequest || data.requestId ? db.doc(`artifacts/${APP_ID}/users/${ownerId}/idempotencyKeys/booking-${data.requestId}`) : null;
     const fingerprint = receiptRef ? requestHash(data) : null;
@@ -130,7 +134,7 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
     if (!publicRequest && booking.paymentStatus === 'paid') Object.assign(booking, paymentConfirmationSnapshot({ ...booking, paymentStatus: old?.paymentStatus || 'unpaid' }));
     if (publicRequest) {
       if (Array.isArray(workspace.website?.markets) && (!/^[A-Z]{2}$/.test(booking.clientCountry || '') || !catalogAllowed(resolveMarket(workspace.website, booking.clientCountry), 'service', service.id))) bookingError('This service is not available in the selected country.');
-      if (service.active === false || service.available === false) bookingError('Service unavailable.');
+      if (service.active === false || service.available === false || ['draft','archived'].includes(service.status)) bookingError('Service unavailable.');
       if (!['cash','stripe','paypal','paystack'].includes(booking.paymentMethod || 'cash')) bookingError('Choose a supported payment method.');
       booking.paymentMethod = booking.paymentMethod || 'cash';
       if (Array.isArray(workspace.paymentGateways) && !getPublicPaymentOptions(workspace).options.some((option) => option.gatewayType === booking.paymentMethod)) bookingError('This payment method is not enabled by the business.');

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHmac} from 'node:crypto';
-import {canonicalPayment,verifiedPaymentEvidence,validatePaymentReturnUrls,paymentReturnUrl,paymentAppId,paymentAttemptKey} from '../functions/payments/paymentPolicy.js';
+import {canonicalPayment,verifiedPaymentEvidence,validatePaymentReturnUrls,paymentReturnUrl,paymentAppId,paymentAttemptKey,configuredPaymentOrigins} from '../functions/payments/paymentPolicy.js';
 import {verifyStripeSignature} from '../functions/payments/webhooks.js';
 const workspace = {currency:'R',paymentGateways:[{gatewayType:'stripe',enabled:true,configured:true}]};
 const source = {id:'order',paymentMethod:'stripe',paymentStatus:'unpaid',status:'pending',amountInCents:4200,currency:'R'};
@@ -33,4 +33,13 @@ test('Stripe signatures reject tampering and stale delivery and accept rotated s
   assert.equal(verifyStripeSignature(body,`t=${time},v1=wrong,v1=${signature}`,'secret',now),true);
   assert.throws(() => verifyStripeSignature(body+'x',`t=${time},v1=${signature}`,'secret',now),/Invalid/);
   assert.throws(() => verifyStripeSignature(body,`t=${time},v1=${signature}`,'secret',now+301000),/Expired/);
+});
+
+test('payment return allowlist includes separate configured app and public storefront origins',() => {
+  const origins = configuredPaymentOrigins({APP_PUBLIC_BASE_URL:'https://app.example/',WEBSITE_PUBLIC_BASE_URL:'https://sites.example/',PAYMENT_RETURN_ORIGINS:'https://another.example'},'demo-project');
+  assert.ok(origins.includes('https://app.example')); assert.ok(origins.includes('https://sites.example'));
+  assert.ok(origins.includes('https://demo-project.web.app'));
+  assert.equal(validatePaymentReturnUrls('https://sites.example/shop','https://sites.example/shop',origins).successUrl,'https://sites.example/shop');
+  assert.throws(() => validatePaymentReturnUrls('https://unapproved.example/','https://unapproved.example/',origins),/approved/);
+  assert.throws(() => configuredPaymentOrigins({WEBSITE_PUBLIC_BASE_URL:'https://user:secret@sites.example/'}),/Configure/);
 });

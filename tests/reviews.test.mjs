@@ -7,6 +7,7 @@ test('Google reviews preserve original wording, ratings, authors and attribution
   const result = await fetchPlaceReviews({ placeId: 'ChIJ-test', apiKey: 'test-only', fetchImpl: async () => ({ ok: true, json: async () => ({ reviews: [review, { ...review, text: { text: '' } }], attributions: [{ displayName: 'Source' }] }) }) });
   assert.equal(result.reviews.length, 1);
   assert.equal(result.reviews[0].quote, 'An honest review');
+  assert.equal(result.reviews[0].source, 'google');
   assert.equal(result.reviews[0].rating, 2);
   assert.equal(result.reviews[0].name, 'Alex');
   assert.equal(result.reviews[0].reviewUrl, review.googleMapsUri);

@@ -1,16 +1,16 @@
 (() => {
   let context, cart = { count: 0, total: 0 };
   const requests = new Map();
-  function hostRequest(operation, payload = {}, signal) {
+  function hostRequest(operation, payload = {}, signal, onEvent) {
     const requestId = crypto.randomUUID();
     return new Promise((resolve, reject) => {
       const finish = (error, result) => { clearTimeout(timer); requests.delete(requestId); signal?.removeEventListener('abort', abort); error ? reject(error) : resolve(result); };
       const abort = () => { send('host-cancel', { requestId }); finish(new DOMException('Canceled', 'AbortError')); };
       const timer = setTimeout(() => finish(new Error('The Book & Buy connection timed out.')), 300000);
-      requests.set(requestId, { finish });
+      requests.set(requestId, { finish, onEvent });
       signal?.addEventListener('abort', abort, { once: true });
       if (signal?.aborted) return abort();
-      try { send('host-request', { requestId, operation, payload }); } catch (error) { finish(error); }
+      ready().then(() => { if (requests.has(requestId)) send('host-request', { requestId, operation, payload }); }).catch(error => finish(error));
     });
   }
   const waiters = new Set();
@@ -20,21 +20,27 @@
   };
   window.addEventListener('message', event => {
     if (event.source !== parent || event.origin !== location.origin || event.data?.source !== 'bookbuy-workspace') return;
-    if (event.data.type === 'host-response') { requests.get(event.data.requestId)?.finish(event.data.error ? new Error(event.data.error) : null, event.data.result); return; }
+    if (event.data.type === 'host-check-ready') { if (window.BookBuyBuilderReady) send('builder-ready', { url: location.pathname + location.search }); return; }
+    if (event.data.type === 'host-progress') { requests.get(event.data.requestId)?.onEvent?.(event.data.event); return; }
+    if (event.data.type === 'host-response') { const error = event.data.error ? Object.assign(new Error(event.data.error), { code: event.data.errorCode || '', details: event.data.errorDetails || {} }) : null; requests.get(event.data.requestId)?.finish(error, event.data.result); return; }
     if (event.data.type === 'ai-connections-changed') { window.dispatchEvent(new Event('bookbuy-ai-connections-changed')); return; }
     if (event.data.type !== 'catalog-context') return;
     context = event.data.context; cart = event.data.cart || cart;
     for (const resolve of waiters) resolve(context); waiters.clear();
     window.dispatchEvent(new CustomEvent('bookbuy-catalog-ready', { detail: context }));
   });
+  let readiness;
   async function ready() {
     if (context) return context;
+    if (readiness) return readiness;
     send('catalog-request');
-    return new Promise((resolve, reject) => {
-      const done = value => { clearTimeout(timer); resolve(value); };
-      const timer = setTimeout(() => { waiters.delete(done); reject(new Error('Book & Buy catalog is not ready. Reload the builder.')); }, 10000);
+    readiness = new Promise((resolve, reject) => {
+      const done = value => { clearTimeout(timer); clearInterval(retry); resolve(value); };
+      const retry = setInterval(() => send('catalog-request'), 300);
+      const timer = setTimeout(() => { clearInterval(retry); waiters.delete(done); reject(new Error('Book & Buy catalog is not ready. Reload the builder.')); }, 10000);
       waiters.add(done);
-    });
+    }).finally(() => { readiness = null; });
+    return readiness;
   }
   function previewRuntime() {
     const send = (action, payload) => parent.postMessage({ source: 'bookbuy-preview', type: 'commerce-action', action, payload }, '*');
@@ -50,11 +56,11 @@
     }, true);
     parent.postMessage({ source: 'bookbuy-preview', type: 'commerce-ready' }, '*');
   }
-  function renderCards(doc, section, list, kind) {
+  function renderCards(doc, section, list, kind, preserveMissing = false) {
     if (section.querySelector(`[data-bb-${kind}-id]`)) {
       // Existing custom card markup is owned by the designer; refresh bindings only.
       for (const card of section.querySelectorAll(`[data-bb-${kind}-id]`)) {
-        if (!list.some(item => item.id === card.getAttribute(`data-bb-${kind}-id`))) card.remove();
+        if (!preserveMissing && !list.some(item => item.id === card.getAttribute(`data-bb-${kind}-id`))) card.remove();
       }
       return;
     }
@@ -74,13 +80,15 @@
     }
     section.append(grid);
   }
-  function wireHtml(html, { newSite = false, allowRetired = false } = {}) {
+  function wireHtml(html, { newSite = false, allowRetired = false, draft = false } = {}) {
     if (!context) throw new Error('The catalog connection is not ready yet.');
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    if (allowRetired) for (const kind of ['product', 'service']) {
+    doc.querySelectorAll('base,meta[http-equiv]').forEach(node => node.remove());
+    if (allowRetired && !draft) for (const kind of ['product', 'service']) {
       for (const element of doc.querySelectorAll(`[data-bb-${kind}-id]`)) if (!(context[`${kind}s`] || []).some(item => item.id === element.getAttribute(`data-bb-${kind}-id`))) element.remove();
     }
-    window.BookBuyWebsiteContract.validateWebsiteBindings(doc.documentElement.outerHTML, context);
+    try { window.BookBuyWebsiteContract.validateWebsiteBindings(doc.documentElement.outerHTML, context); }
+    catch (error) { if (!draft) throw error; window.dispatchEvent(new CustomEvent('bookbuy-website-draft-issues', { detail: { message: error.message } })); }
     let links = 0;
     for (const kind of ['product', 'service']) {
       const list = context[`${kind}s`] || [];
@@ -89,11 +97,11 @@
         const section = doc.createElement('section'); section.dataset.bbCatalog = `${kind}s`; section.className = 'bb-connected-section';
         (doc.querySelector('main') || doc.body).append(section); sections = [section];
       }
-      for (const section of sections) renderCards(doc, section, list, kind);
+      for (const section of sections) renderCards(doc, section, list, kind, draft);
       for (const element of doc.querySelectorAll(`[data-bb-${kind}-id]`)) {
         const id = element.getAttribute(`data-bb-${kind}-id`);
         const item = list.find(row => row.id === id);
-        if (!item) throw new Error(`The generated ${kind} “${id}” does not exist in Book & Buy. Choose an active item.`);
+        if (!item) { if (draft) { element.dataset.bbUnavailable = 'true'; continue; } throw new Error(`The generated ${kind} “${id}” does not exist in Book & Buy. Choose an active item.`); }
         links++;
         element.dataset.bbLayer = 'commerce';
         for (const node of element.querySelectorAll(`[data-bb-bind="${kind}.price"], [data-bb-field="price"]`)) node.textContent = item.price;

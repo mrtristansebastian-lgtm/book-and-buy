@@ -55,7 +55,7 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
       ) : tab === 'clients' ? (
         <ClientsPage />
       ) : tab === 'settings' ? (
-        <SettingsShell section={rest?.[0]} />
+        <SettingsShell section={rest?.[0]} detail={rest?.[1]} nestedDetail={rest?.[2]} />
       ) : null}
       <ButlerPanel />
     </OwnerWorkspaceShell>

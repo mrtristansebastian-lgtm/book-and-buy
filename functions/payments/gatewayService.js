@@ -25,7 +25,8 @@ import { createHash } from 'node:crypto';
 import { readWorkspace,writeWorkspace } from '../workspaceStore.js';
 import { reservationRef } from '../inventoryService.js';
 import { settleVerifiedPayment } from './settlement.js';
-import { paymentAppId, canonicalPayment, validatePaymentReturnUrls, paymentAttemptKey, paymentReturnUrl } from './paymentPolicy.js';
+import { paymentAppId, canonicalPayment, validatePaymentReturnUrls, paymentAttemptKey, paymentReturnUrl, configuredPaymentOrigins } from './paymentPolicy.js';
+import { assertPublishedWorkspace } from '../commercePolicy.js';
 
 const ONLINE = new Set(['stripe', 'paypal', 'paystack']);
 const NAMES = {
@@ -184,9 +185,8 @@ export { getPublicPaymentOptions };
 
 /** Resolve trusted return origins from deployment config and verified domain records. */
 async function paymentOrigins(db,appId,ownerId) {
-  const origins = String(process.env.PAYMENT_RETURN_ORIGINS || '').split(',').map((item) => item.trim()).filter(Boolean);
   const projectId = getApp().options.projectId || process.env.GCLOUD_PROJECT;
-  if (projectId) origins.push(`https://${projectId}.web.app`,`https://${projectId}.firebaseapp.com`);
+  const origins = configuredPaymentOrigins(process.env,projectId);
   const domain = await db.doc(`artifacts/${appId}/users/${ownerId}/private/customDomain`).get();
   if (domain.exists && domain.data().status === 'connected') origins.push(`https://${domain.data().domain}`);
   return origins;
@@ -210,16 +210,18 @@ export async function initiatePayment(payload = {}) {
   const preparation = await db.runTransaction(async (tx) => {
     const [{workspace,exists},previous] = await Promise.all([readWorkspace(db,ownerId,tx),tx.get(attemptRef)]);
     if (!exists) throw new Error('Business unavailable.');
+    const profile = await tx.get(db.doc(`artifacts/${appId}/public/data/workspaces/${slug}`));
+    assertPublishedWorkspace(workspace,profile.exists ? profile.data() : null,slug,ownerId);
     if (previous.exists) {
       const prior = previous.data(); if (prior.fingerprint !== fingerprint) throw new Error('Payment request identifier already used.');
       if (prior.status === 'paid') throw new Error('This payment has already completed.');
-      if (prior.redirectUrl) return { replay:prior };
       if (prior.status === 'creating' && Date.now() - prior.updatedAt < 30000) throw new Error('This payment is being prepared. Retry shortly.');
     }
     const source = (workspace[sourceType === 'order' ? 'orders' : 'bookings'] || []).find((item) => item.id === sourceId);
     const amount = canonicalPayment(source,workspace,{ ...payload,sourceType });
     if (source.paymentAttemptId && source.paymentAttemptId !== attemptId) throw new Error('A payment has already started for this transaction. Use its original checkout.');
     if (sourceType === 'order') { const hold = await tx.get(reservationRef(db,ownerId,sourceId)); if (!hold.exists || hold.data().status !== 'reserved' || hold.data().expiresAtMs <= Date.now()) throw new Error('The inventory hold has expired. Create a new order.'); }
+    if (previous.data()?.redirectUrl) return { replay:previous.data() };
     const attempt = { id:attemptId,ownerId,slug,sourceType,sourceId,gatewayType:payload.gatewayType,...amount,fingerprint,status:'creating',createdAt:previous.data()?.createdAt || Date.now(),updatedAt:Date.now() };
     const field = sourceType === 'order' ? 'orders' : 'bookings';
     writeWorkspace(tx,db,ownerId,workspace,{...workspace,[field]:workspace[field].map((item) => item.id === sourceId ? {...item,paymentAttemptId:attemptId,revision:(item.revision || 0)+1} : item)});

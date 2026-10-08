@@ -1,6 +1,15 @@
 import { createHash } from 'node:crypto';
 import { toIsoCurrency } from './publicOptions.js';
 export const PAYMENT_APP_ID = process.env.APP_ID || 'book-and-buy-v1';
+export function configuredPaymentOrigins(env = process.env, projectId = '') {
+  const values = [...String(env.PAYMENT_RETURN_ORIGINS || '').split(','),env.APP_PUBLIC_BASE_URL,env.WEBSITE_PUBLIC_BASE_URL,
+    ...(projectId ? [`https://${projectId}.web.app`,`https://${projectId}.firebaseapp.com`] : [])].map(value => String(value || '').trim()).filter(Boolean);
+  return [...new Set(values.map(value => {
+    let url; try { url = new URL(value); } catch { throw new Error('Configure valid HTTPS payment return origins.'); }
+    if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Configure valid HTTPS payment return origins.');
+    return url.origin;
+  }))];
+}
 export function paymentAppId(input) { if (input && input !== PAYMENT_APP_ID) throw new Error('Invalid application.'); return PAYMENT_APP_ID; }
 export function canonicalPayment(source, workspace, payload) {
   if (!source || !['order','booking'].includes(payload.sourceType)) throw new Error('Choose a valid payment source.');

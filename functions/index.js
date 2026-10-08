@@ -1,3 +1,4 @@
+import * as customerReviews from './reviews.js';
 /**
  * Cloud Functions — payment gateways + existing scaffolds.
  * Deploy with Firebase when the project is attached.
@@ -26,6 +27,7 @@ import { assertOwner } from './workspaceDomain.js';
 import * as butler from './butler.js';
 import * as websites from './websiteRuntime.js';
 import { createAIGateway } from './ai/index.js';
+import { safeProviderDetails } from './ai/connection.js';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { fetchPlaceReviews } from './places.js';
@@ -53,7 +55,7 @@ function wrapError(error) {
   const message = error?.message || 'Request failed';
   if (error instanceof HttpsError) throw error;
   const codes = ['invalid-argument', 'aborted', 'already-exists', 'permission-denied', 'unauthenticated', 'not-found', 'resource-exhausted', 'unavailable', 'data-loss', 'cancelled'];
-  throw new HttpsError(codes.includes(error?.code) ? error.code : 'failed-precondition', message);
+  throw new HttpsError(codes.includes(error?.code) ? error.code : 'failed-precondition', message, error.details ? safeProviderDetails(error.details) : undefined);
 }
 
 export const health = onCall(async () => ({ ok: true, app: 'book-and-buy' }));
@@ -241,7 +243,7 @@ export const quotePublicCommerce = ownerCall(commerceQuote);
 export const getButlerState = ownerCall(butler.getButlerState);
 export const executeButlerTool = ownerCall(async (data, auth) => {
   const uid = data.workspaceId || auth?.uid; assertOwner(uid, auth);
-  return butler.executeButlerTool({ uid, workspaceId: uid, name: data.name, arguments: data.arguments || {}, mode: data.mode || 'butler' });
+  return butler.executeButlerTool({ uid, workspaceId: uid, name: data.name, arguments: data.arguments || {}, mode: data.mode || 'butler', requestId: data.requestId });
 });
 export const applyButlerPreview = ownerCall(butler.applyButlerPreview);
 export const dismissButlerPreview = ownerCall(butler.dismissButlerPreview);
@@ -250,6 +252,11 @@ export const publishWebsite = ownerCall(websites.publishWebsite);
 export const getWebsitePublishStatus = ownerCall(websites.getWebsitePublishStatus);
 export const rollbackWebsite = ownerCall(websites.rollbackWebsite);
 export const getPublicWebsite = ownerCall(websites.getPublicWebsite);
+export const saveWebsiteDraft = ownerCall(websites.saveWebsiteDraft);
+export const getWebsiteDraft = ownerCall(websites.getWebsiteDraft);
+export const listWebsiteDraftVersions = ownerCall(websites.listWebsiteDraftVersions);
+export const getWebsiteDraftVersion = ownerCall(websites.getWebsiteDraftVersion);
+export const createWebsitePreview = ownerCall(websites.createWebsitePreview);
 export const websiteGateway = onRequest({ secrets: paymentSecrets, cors: false, timeoutSeconds: 60, maxInstances: 20 }, websites.publicWebsiteGateway);
 
 const includedProviders = String(process.env.AI_INCLUDED_PROVIDERS || '').split(',').map(value => value.trim());
@@ -275,10 +282,19 @@ export const disconnectAIConnection = aiCall(ai.disconnectConnection);
 export const selectAIBillingSource = aiCall(ai.selectBilling);
 export const listAIModels = aiCall(ai.listModels);
 export const startChatGPTConnection = aiCall(ai.startChatGPT);
+export const getPendingChatGPTConnection = aiCall(ai.getPendingChatGPT);
+export const confirmChatGPTConnection = aiCall(ai.confirmChatGPT);
+export const acknowledgeChatGPTPlanUsage = aiCall(ai.acknowledgePlanUsage);
 export const runAI = aiCall(ai.run);
 export const getAIRun = aiCall(ai.getRun);
 export const cancelAIRun = aiCall(ai.cancelRun);
+export const listAIConversations = aiCall(ai.listConversations);
+export const getAIConversation = aiCall(ai.getConversation);
+export const deleteAIConversation = aiCall(ai.deleteConversation);
 export const chatGPTConnectionCallback = onRequest({ secrets: aiSecrets, cors: false, maxInstances: 10 }, ai.chatGPTCallback);
+export const recoverInterruptedAIRuns = onSchedule({ schedule: 'every 5 minutes', secrets: aiSecrets, timeoutSeconds: 300, maxInstances: 1 }, () => ai.reconcileInterruptedRuns());
+export const cleanupAIConnectionRequests = onSchedule({ schedule: 'every 60 minutes', timeoutSeconds: 120, maxInstances: 1 }, () => ai.cleanupOAuthStates());
+export const cleanupDeletedAIConversations = onSchedule({ schedule: 'every 5 minutes', timeoutSeconds: 300, maxInstances: 1 }, () => ai.cleanupDeletedConversations());
 
 export const expireStockHolds = onSchedule('every 1 minutes', async () => {
   const db = getFirestore();
@@ -294,3 +310,8 @@ export const butlerWorkspaceEvent = onDocumentWritten(`artifacts/${APP_ID}/users
   return butler.runButlerAutomations({ eventOwnerId: event.params.ownerId, eventId: event.id });
 });
 
+
+const reviewCall = handler => onCall({ enforceAppCheck: true, maxInstances: 5 }, async request => { try { return await handler(request.data || {}, request.auth); } catch (error) { throw wrapError(error); } });
+export const getPurchaseReview = reviewCall(customerReviews.getPurchaseReview);
+export const submitPurchaseReview = reviewCall(customerReviews.submitPurchaseReview);
+export const getPublicPlatformReviews = reviewCall(customerReviews.getPublicPlatformReviews);

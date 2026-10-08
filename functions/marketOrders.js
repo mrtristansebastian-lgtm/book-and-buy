@@ -7,15 +7,15 @@ import { catalogUnitCostCents, paymentConfirmationSnapshot, clientTransactionSna
 import { reserveInventory, releaseInventory, commitInventory, ONLINE_PAYMENT_METHODS } from './inventoryDomain.js';
 import { reservationRef, readExpiredInventory, writeExpiredInventory, inventoryWrite, inventorySettingsPatch } from './inventoryService.js';
 import { readWorkspace, writeWorkspace } from './workspaceStore.js';
-import { assertCommerceQuoteRevision } from './commercePolicy.js';
+import { assertCommerceQuoteRevision, assertPublishedWorkspace } from './commercePolicy.js';
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
 const fail = (message) => { throw new Error(message); };
 
-export function priceMarketOrder(workspace, data, auth = null) {
+export function priceMarketOrder(workspace, data, auth = null, { requireCustomer = true } = {}) {
   const client = data.client || {};
-  if (!String(client.clientName || '').trim() || !/^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(client.clientEmail || '')) fail('Enter your name and a valid email address.');
+  if (requireCustomer && (!String(client.clientName || '').trim() || !/^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(client.clientEmail || ''))) fail('Enter your name and a valid email address.');
   if (!Array.isArray(data.items) || !data.items.length || data.items.length > 100) fail('Choose between 1 and 100 order items.');
   if (!['cash', 'stripe', 'paypal', 'paystack'].includes(data.paymentMethod)) fail('Choose a supported payment method.');
   if (Array.isArray(workspace.paymentGateways) && !getPublicPaymentOptions(workspace).options.some((option) => option.gatewayType === data.paymentMethod)) fail('This payment method is not enabled by the business.');
@@ -43,7 +43,7 @@ export function priceMarketOrder(workspace, data, auth = null) {
   const subtotalCents = items.reduce((sum, item) => sum + item.lineTotalCents, 0);
   const configured = Array.isArray(workspace.website?.markets);
   const shipping = configured ? shippingQuote(workspace.website, client.country, items, subtotalCents) : { amountInCents: 0, profileIds: [] };
-  if (configured && !String(client.shippingAddress || '').trim()) fail('Enter your delivery address.');
+  if (requireCustomer && configured && !String(client.shippingAddress || '').trim()) fail('Enter your delivery address.');
   const amountInCents = subtotalCents + shipping.amountInCents;
   if (!Number.isSafeInteger(amountInCents)) fail('The order total is invalid.');
   const costBasisInCents = items.every((item) => Number.isSafeInteger(item.lineCostInCents)) ? items.reduce((sum, item) => sum + item.lineCostInCents, 0) : null;
@@ -51,7 +51,7 @@ export function priceMarketOrder(workspace, data, auth = null) {
     ...(Number.isSafeInteger(costBasisInCents) ? { costBasisInCents } : {}),
     shippingAmountInCents: shipping.amountInCents, shippingProfileIds: shipping.profileIds,
     shippingAddress: String(client.shippingAddress || '').trim().slice(0, 1500), clientCountry: String(client.country || '').trim(),
-    clientName: String(client.clientName).trim().slice(0, 120), clientEmail: String(client.clientEmail).trim().toLowerCase(),
+    clientName: String(client.clientName || '').trim().slice(0, 120), clientEmail: String(client.clientEmail || '').trim().toLowerCase(),
     clientPhone: String(client.clientPhone || '').trim().slice(0, 80), clientNote: String(client.clientNote || '').trim().slice(0, 2000),
     clientUid: auth?.token?.email?.toLowerCase() === String(client.clientEmail).trim().toLowerCase() ? auth.uid : '',
     paymentMethod: data.paymentMethod, paymentStatus: data.paymentMethod === 'cash' ? 'manual_pending' : 'unpaid', status: 'pending',
@@ -70,6 +70,8 @@ export async function placeMarketOrder(data, auth, db = getFirestore()) {
     const [{ workspace,exists }, prior] = await Promise.all([readWorkspace(db,ownerId,tx), tx.get(receipt)]);
     if (prior.exists) { if (prior.data().fingerprint !== fingerprint) fail('This request identifier was already used for a different order.'); return clientTransactionSnapshot(prior.data().order); }
     if (!exists) fail('Business unavailable.');
+    const liveProfile = await tx.get(published.ref || db.doc(`artifacts/${APP_ID}/public/data/workspaces/${data.slug}`));
+    assertPublishedWorkspace(workspace,liveProfile.exists ? liveProfile.data() : null,data.slug,ownerId);
     if (data.expectedCatalogRevision !== undefined && data.expectedCatalogRevision !== (workspace.sectionRevisions?.products || 0)) fail('The product catalog changed. Refresh the quote before ordering.');
     assertCommerceQuoteRevision(workspace,'product',data.expectedQuoteRevision);
     const inventory = await readExpiredInventory(tx,db,ownerId,workspace);

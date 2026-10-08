@@ -26,3 +26,10 @@ test('a disabled payment gateway cannot be submitted directly', () => {
   assert.throws(() => priceMarketOrder({ ...workspace, paymentGateways: [{ gatewayType: 'cash', enabled: false }] }, data), /not enabled/);
   assert.equal(priceMarketOrder({ ...workspace, paymentGateways: [{ gatewayType: 'cash', enabled: true }] }, data).paymentMethod, 'cash');
 });
+
+test('quotes calculate canonical totals before customer entry while order creation still requires identity and delivery address', () => {
+  const preview = {...data,client:{country:'ZA'}};
+  assert.equal(priceMarketOrder(workspace,preview,null,{requireCustomer:false}).amountInCents,4500);
+  assert.throws(() => priceMarketOrder(workspace,preview),/name and a valid email/);
+  assert.throws(() => priceMarketOrder(workspace,{...preview,client:{country:'US'}},null,{requireCustomer:false}),/does not sell/);
+});

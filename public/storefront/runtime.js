@@ -1,12 +1,13 @@
 (() => {
   const siteId = new URLSearchParams(location.search).get('site') || '';
+  const previewToken = new URLSearchParams(location.search).get('preview') || '';
   const frame = document.getElementById('website'), status = document.getElementById('status'), dialog = document.getElementById('commerce'), body = document.getElementById('commerceBody'), note = document.getElementById('commerceNote');
   let catalog, site, countryCode = sessionStorage.getItem('bookbuy-country:' + siteId) || '', cart = [];
   let runtimePort, catalogSignature = '', catalogLoading, lastCatalogRead = 0;
   const money = value => `${catalog?.currency || 'R'} ${(Number(value) / 100).toFixed(2)}`;
   const snapshot = () => ({ items: cart.map(row => ({ ...row })), count: cart.reduce((sum, row) => sum + row.quantity, 0), subtotalCents: cart.reduce((sum, row) => sum + row.quantity * row.unitPriceCents, 0), currency: catalog?.currency });
   async function server(action, payload = {}) {
-    const response = await fetch('/api/website', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ siteId, action, payload: { ...payload, countryCode: payload.countryCode || countryCode } }) });
+    const response = await fetch('/api/website', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ siteId, previewToken, action, payload: { ...payload, countryCode: payload.countryCode || countryCode } }) });
     const result = await response.json(); if (!response.ok || result.error) throw new Error(result.error || 'The business could not complete this request.'); return result;
   }
   function reconcileCart() {
@@ -113,11 +114,15 @@
     body.append(element('p', 'Subtotal ' + money(snapshot().subtotalCents), { className: 'amount' })); const checkout = element('button', 'Continue to checkout', { className: 'primary' }); checkout.addEventListener('click', openCheckout); body.append(checkout); return { opened: true };
   }
   function openCheckout() {
+    if (site?.preview) { open('Shared preview'); body.append(element('p', 'Browsing only. Orders, bookings and payments open after publication.')); return { opened: true }; }
     if (!cart.length) return openCart();
     open('Checkout'); const form = element('form');
     field(form, 'Your name', 'clientName'); const email = field(form, 'Email', 'clientEmail'); email.type = 'email';
     const country = field(form, 'Country code', 'country'); country.value = countryCode;
     const address = field(form, 'Delivery address', 'shippingAddress'); address.required = cart.some(row => row.kind === 'product');
+    if (catalog.checkout?.collectClientPhone) field(form, 'Phone', 'clientPhone').type = 'tel';
+    if (catalog.checkout?.collectClientNotes) { const notes = field(form, 'Notes', 'clientNote'); notes.required = false; }
+    if (catalog.checkout?.birthday) field(form, 'Birthday', 'clientBirthday').type = 'date';
     const payment = field(form, 'Payment method', 'paymentMethod', catalog.paymentOptions.map(row => ({ label: row.name, value: row.gatewayType || row.id })));
     const submit = element('button', 'Review total', { type: 'submit' }); form.append(submit); body.append(form);
     const requestId = crypto.randomUUID(); let reviewed = false, reviewedSignature;
@@ -143,7 +148,7 @@
         } else {
           const records = [];
           if (products.length) records.push({ kind: 'order', data: await server('checkout.create', { requestId: requestId + '-order', items: products, client, paymentMethod: payment.value, expectedQuoteRevision: productQuote.quoteRevision, expectedCatalogRevision: productQuote.revision }) });
-          for (const [index, service] of services.entries()) records.push({ kind: 'booking', data: await server('booking.create', { ...service, requestId: requestId + '-booking-' + index, clientName: client.clientName, clientEmail: client.clientEmail, clientCountry: client.country, paymentMethod: payment.value, expectedQuoteRevision: serviceQuotes[index].quoteRevision, expectedCatalogRevision: serviceQuotes[index].revision }) });
+          for (const [index, service] of services.entries()) records.push({ kind: 'booking', data: await server('booking.create', { ...service, requestId: requestId + '-booking-' + index, clientName: client.clientName, clientEmail: client.clientEmail, clientPhone: client.clientPhone || '', clientNote: client.clientNote || '', clientBirthday: client.clientBirthday || '', clientCountry: client.country, paymentMethod: payment.value, expectedQuoteRevision: serviceQuotes[index].quoteRevision, expectedCatalogRevision: serviceQuotes[index].revision }) });
           open('Request received');
           for (const row of records) {
             const reference = row.data.id || row.data.order?.id || row.data.booking?.id;
@@ -158,6 +163,7 @@
   }
   async function execute(action, payload = {}) {
     window.BookBuyWebsiteContract.validateWebsiteRequest(action, payload);
+    if (site?.preview && ['checkout.create', 'booking.create', 'payment.start', 'payment.confirm', 'checkout.status'].includes(action)) throw new Error('Shared preview · browsing only. Orders, bookings and payments open after publication.');
     if (action === 'catalog.get') {
       if (payload.countryCode && payload.countryCode !== countryCode) { countryCode = String(payload.countryCode).toUpperCase(); cart = []; sessionStorage.setItem('bookbuy-country:' + siteId, countryCode); }
       return refreshCatalog({ force: true, payload });
@@ -172,22 +178,23 @@
     if (action === 'cart.close') { dialog.close(); return { closed: true }; }
     if (action === 'checkout.create' && !payload.client) return openCheckout();
     if (['checkout.create', 'booking.create'].includes(action)) payload = { ...payload, requestId: payload.requestId || crypto.randomUUID() };
-    if (action === 'checkout.status') throw new Error('Use your order confirmation to check its status.');
     return server(action, payload);
   }
   window.addEventListener('message', event => {
     if (event.source !== frame.contentWindow || event.data?.source !== 'bookbuy-preview' || event.data.type !== 'runtime-ready' || runtimePort) return;
-    const channel = new MessageChannel(); runtimePort = channel.port1; channel.port1.onmessage = async message => { const request = message.data || {}; try { channel.port1.postMessage({ id: request.id, result: await execute(request.action, request.payload || {}) }); } catch (error) { channel.port1.postMessage({ id: request.id, error: error.message }); } }; channel.port1.start();
+    const channel = new MessageChannel(); runtimePort = channel.port1; let inflight = 0, count = 0, windowStart = Date.now();
+    channel.port1.onmessage = async message => { const request = message.data || {}; let admitted = false; try { if (Date.now() - windowStart > 60000) { windowStart = Date.now(); count = 0; } if (inflight >= 4 || ++count > 120 || typeof request.id !== 'string' || request.id.length > 100) throw new Error('Too many website requests. Try again shortly.'); inflight++; admitted = true; channel.port1.postMessage({ id: request.id, result: await execute(request.action, request.payload || {}) }); } catch (error) { channel.port1.postMessage({ id: request.id, error: error.message }); } finally { if (admitted) inflight--; } }; channel.port1.start();
     frame.contentWindow.postMessage({ type: 'bookbuy-runtime-connect', version: 1 }, '*', [channel.port2]);
     announceCatalog();
   });
   document.getElementById('closeDialog').addEventListener('click', () => dialog.close());
   async function start() {
-    const response = await fetch('/api/website?siteId=' + encodeURIComponent(siteId)); site = await response.json(); if (!response.ok || site.error) throw new Error(site.error || 'Website unavailable.');
+    const response = await fetch('/api/website?siteId=' + encodeURIComponent(siteId) + '&previewToken=' + encodeURIComponent(previewToken) + '&domain=' + encodeURIComponent(location.hostname)); site = await response.json(); if (!response.ok || site.error) throw new Error(site.error || 'Website unavailable.');
     catalog = await refreshCatalog({ force: true }); if (catalog.catalogAvailability !== 'available') await chooseCountry();
-    const doc = new DOMParser().parseFromString(site.html, 'text/html'); doc.querySelectorAll('[data-bb-connected-runtime]').forEach(node => node.remove());
+    const doc = new DOMParser().parseFromString(site.html, 'text/html'); doc.querySelectorAll('[data-bb-connected-runtime],base,meta[http-equiv]').forEach(node => node.remove());
     const runtime = doc.createElement('script'); runtime.dataset.bbConnectedRuntime = 'true'; runtime.textContent = `(${window.BookBuyRuntimeInstaller.toString()})();`; doc.head.prepend(runtime);
     document.title = doc.title || catalog.brandName || 'Book & Buy'; frame.srcdoc = '<!doctype html>\n' + doc.documentElement.outerHTML; frame.hidden = false; status.hidden = true;
+    if (site.preview) { const banner = element('div', 'Shared preview · browsing only', { className: 'preview-banner' }); document.body.append(banner); }
     const params = new URLSearchParams(location.search); if (params.get('attemptId')) { const result = await server('payment.confirm', Object.fromEntries([...params].filter(([key]) => key !== 'site'))); open('Payment status'); body.append(element('p', result.paid ? 'Payment confirmed. Thank you.' : 'Your payment is awaiting confirmation.')); }
     setInterval(() => { if (!document.hidden) refreshCatalog({ force: true }).catch(() => {}); }, 30000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshCatalog({ force: true }).catch(() => {}); });

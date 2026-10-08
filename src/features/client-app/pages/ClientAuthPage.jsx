@@ -1,6 +1,6 @@
 import { Button } from '../../../shared/ui/Button';
 import { FilterChip } from '../../../shared/ui/FilterChip';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getLocationPath, navigate } from '../../../app/routing';
 import { profileAuthReturn } from '../profileAuthReturn';
 import { BrandMark } from '../../../shared/ui/BrandMark';
@@ -10,7 +10,7 @@ import { useClientProfile } from '../ClientProfileContext';
 
 /** Individual auth — same welcome chrome as business “Continue as a …” screen. */
 export function ClientAuthPage() {
-  const { configured, signInEmail, signUpEmail, signInGoogle } = useAuth();
+  const { configured, signInEmail, signUpEmail, signInGoogle, authError, redirectResult, redirectIntent, clearRedirectResult } = useAuth();
   const { workspace, loadDemoWorkspace } = useWorkspace();
   const { bootstrapClientAfterAuth, enterDemoClient } = useClientProfile();
   const [mode, setMode] = useState('signin');
@@ -22,6 +22,13 @@ export function ClientAuthPage() {
   const [busyAction, setBusyAction] = useState('');
   const busy = Boolean(busyAction);
   const returnPath = profileAuthReturn(getLocationPath());
+  const redirectHandled = useRef(false);
+  useEffect(() => { if (authError) setError(authError); }, [authError]);
+  useEffect(() => {
+    if (!redirectResult || redirectIntent?.audience !== 'individual' || redirectHandled.current) return;
+    redirectHandled.current = true; setBusyAction('google');
+    (async () => { try { await bootstrapClientAfterAuth(redirectResult); clearRedirectResult(); navigate(redirectIntent.returnPath || returnPath, { replace: true }); } catch (e) { setError(e.message || 'We could not finish signing in. Try again.'); } finally { setBusyAction(''); } })();
+  }, [redirectResult, redirectIntent]);
 
   const finish = async (user) => {
     if (user) await bootstrapClientAfterAuth(user, { displayName });
@@ -168,7 +175,7 @@ export function ClientAuthPage() {
                 type="button"
                 className="bb-ghost-btn"
                 disabled={busy}
-                onClick={() => run(() => signInGoogle(), { source: 'google' })}
+                onClick={() => run(() => signInGoogle({ audience: 'individual', returnPath }), { source: 'google' })}
               >
                 Continue with Google
               </Button>

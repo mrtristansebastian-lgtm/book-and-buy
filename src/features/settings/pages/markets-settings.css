@@ -1,0 +1,73 @@
+.bb-markets-page { max-width: 880px; width: 100%; gap: 20px; }
+.bb-markets-page .bb-panel { padding: 28px; border-radius: 18px; border-color: var(--border, #e8ebef); background: var(--surface, #fff); }
+.bb-markets-page h2 { font-size: 18px; font-weight: 650; letter-spacing: -.025em; line-height: 1.35; }
+.bb-markets-page h3 { font-size: 15px; font-weight: 600; letter-spacing: -.015em; }
+.bb-markets-page p { color: var(--muted, #65748c); font-size: 13px; line-height: 1.65; }
+.bb-markets-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.bb-markets-list-heading p { margin-top: 5px; font-size: 12px; }
+.bb-markets-list-heading > svg { color: var(--muted, #758197); }
+.bb-markets-toolbar { display: flex; align-items: center; gap: 12px; margin: 24px 0 12px; }
+.bb-markets-search { min-width: 0; flex: 1; }
+.bb-markets-search input { width: 100%; min-height: 44px; font-size: 13px; }
+.bb-markets-toolbar .bb-button { flex-shrink: 0; min-height: 44px; }
+.bb-market-list-row { display: flex; align-items: center; gap: 16px; padding: 22px 0; border-top: 1px solid var(--border, #edf0f2); }
+.bb-market-country-mark { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; flex: 0 0 42px; background: var(--surface-soft, #f7f8fa); border-radius: 12px; }
+.bb-market-country-mark .bb-live-country-flag { width: 26px; height: 19px; flex: 0 0 26px; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.bb-market-country-mark > svg { color: var(--text, #101827); }
+.bb-market-list-copy { flex: 1; min-width: 0; }
+.bb-market-list-copy p { font-size: 12px; margin-top: 5px; }
+.bb-market-list-row .bb-market-edit { margin-left: 8px; font-size: 12px; min-height: 38px; }
+.bb-markets-card-head { display: flex; align-items: center; gap: 14px; }
+.bb-markets-card-head > div { flex: 1; min-width: 0; }
+.bb-markets-card-head p { margin-top: 5px; }
+.bb-markets-icon { display: flex; align-items: center; justify-content: center; color: var(--muted, #65748c); flex: 0 0 28px; }
+.bb-market-health { display: flex; align-items: flex-start; gap: 10px; padding: 16px; margin-top: 22px; border-radius: 12px; background: var(--surface-soft, #f7f8fa); }
+.bb-market-health > svg { flex-shrink: 0; margin-top: 2px; color: var(--text, #101827); }
+.bb-market-health strong { font-size: 13px; font-weight: 550; }
+.bb-market-health p { font-size: 12px; margin-top: 3px; }
+.bb-market-health.needs-attention { background: #fcfaf5; }
+.bb-market-world-note { margin-top: 18px !important; }
+.bb-market-catalog-card .bb-market-catalog { border-bottom: 0; margin-top: 20px; padding: 20px 0 0; }
+.bb-market-switch { display: inline-flex; align-items: center; flex: 0 0 40px; position: relative; cursor: pointer; }
+.bb-markets-page .bb-market-switch input { appearance: none; position: absolute; opacity: 0; margin: 0; width: 40px; height: 28px; }
+.bb-market-switch > span { width: 40px; height: 24px; border-radius: 14px; background: #dce1e7; display: block; transition: background .16s; pointer-events: none; }
+.bb-market-switch > span::after { content: ''; display: block; width: 18px; height: 18px; margin: 3px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #10182720; transition: transform .16s; }
+.bb-market-switch input:checked + span { background: #111827; }
+.bb-market-switch input:checked + span::after { transform: translateX(16px); }
+.bb-market-switch input:focus-visible + span { outline: 2px solid #65748c; outline-offset: 4px; }
+.bb-market-text-link { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text, #101827); background: transparent; border: 0; padding: 0; text-decoration: none; }
+.bb-market-delivery-options { display: grid; gap: 10px; margin-top: 22px; }
+.bb-market-delivery-options .bb-market-profile { padding: 14px; border-color: var(--border, #e8ebef); border-radius: 11px; }
+.bb-market-profile strong { font-weight: 500; }
+.bb-market-delivery-empty { padding-top: 20px; margin-top: 20px; border-top: 1px solid var(--border, #edf0f2); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bb-markets-empty { display: grid; justify-items: center; text-align: center; gap: 10px; padding: 40px 16px; }
+.bb-markets-empty > svg { color: var(--muted, #65748c); margin-bottom: 4px; }
+.bb-markets-footnote { margin: 0 4px !important; font-size: 12px !important; }
+.bb-market-setup-card { display: grid; gap: 24px; }
+.bb-market-setup .bb-market-country-picker { flex: initial; }
+.bb-market-selected-country { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 12px; background: var(--surface-soft, #f7f8fa); }
+.bb-market-selected-country > div { flex: 1; display: grid; gap: 4px; }
+.bb-market-selected-country strong { font-size: 14px; font-weight: 550; }
+.bb-market-selected-country span { color: var(--muted, #65748c); font-size: 12px; }
+.bb-market-selected-country .bb-live-country-flag { width: 27px; height: 20px; flex: 0 0 27px; border: 0; background: none; border-radius: 0; }
+.bb-market-setup-note { font-size: 12px !important; }
+.bb-market-setup-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 20px; border-top: 1px solid var(--border, #edf0f2); }
+.bb-market-error { color: #a53636 !important; }
+@media (max-width: 760px) {
+  .bb-markets-page .bb-panel { padding: 20px; border-radius: 15px; }
+  .bb-markets-toolbar { flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .bb-markets-search { flex-basis: 100%; }
+  .bb-markets-toolbar .bb-button { width: 100%; }
+  .bb-market-list-row { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px 12px; padding: 18px 0; }
+  .bb-market-country-mark { width: 38px; height: 38px; flex-basis: 38px; }
+  .bb-market-list-row .bb-market-edit { grid-column: 2 / -1; justify-self: start; margin: 0; min-height: 36px; }
+  .bb-markets-card-head { gap: 12px; flex-wrap: wrap; }
+  .bb-markets-card-head > div { flex-basis: calc(100% - 88px); }
+  .bb-markets-card-head > .bb-market-text-link { margin-left: 40px; min-height: 32px; }
+  .bb-market-state-card .bb-markets-card-head { flex-wrap: nowrap; }
+  .bb-market-state-card .bb-markets-card-head > div { flex-basis: auto; }
+  .bb-market-health { padding: 14px; }
+  .bb-market-delivery-empty { display: grid; gap: 8px; }
+  .bb-market-setup-actions .bb-button { flex: 1; min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .bb-market-switch > span, .bb-market-switch > span::after { transition: none; } }

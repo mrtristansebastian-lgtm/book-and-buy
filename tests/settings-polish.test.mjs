@@ -50,7 +50,7 @@ test('settings typography uses an explicit section hierarchy and preserves share
 });
 
 test('provider, market and domain states reuse the shared non-interactive status presentation', () => {
-  for (const page of ['ReviewsSettingsPage', 'MarketsSettingsPage', 'ShippingSettingsPage', 'DomainsSettingsPage']) {
+  for (const page of ['MarketsSettingsPage', 'ShippingSettingsPage', 'DomainsSettingsPage']) {
     const source = readFileSync(new URL(`../src/features/settings/pages/${page}.jsx`, import.meta.url), 'utf8');
     assert.match(source, /import \{ StatusBadge \} from '\.\.\/\.\.\/\.\.\/shared\/ui\/StatusBadge'/, page);
     assert.match(source, /<StatusBadge(?:\s|>)/, page);

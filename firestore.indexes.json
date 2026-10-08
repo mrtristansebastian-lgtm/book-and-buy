@@ -1,6 +1,30 @@
 {
   "indexes": [
     {
+      "collectionGroup": "butlerPreviews",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "conversationId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "aiRuns",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "reservationSettled", "order": "ASCENDING" },
+        { "fieldPath": "leaseUntil", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "websiteDraftVersions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "projectId", "order": "ASCENDING" },
+        { "fieldPath": "savedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "analyticsSessions",
       "queryScope": "COLLECTION",
       "fields": [
@@ -252,6 +276,29 @@
     }
   ],
   "fieldOverrides": [
+    {
+      "collectionGroup": "aiConversations",
+      "fieldPath": "status",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" },
+        { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
+      ]
+    },
+    {
+      "collectionGroup": "aiCancellationRequests",
+      "fieldPath": "createdAt",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION" },
+        { "order": "DESCENDING", "queryScope": "COLLECTION" },
+        { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
+      ]
+    },
+    {
+      "collectionGroup": "websiteRequestLimits",
+      "fieldPath": "expiresAt",
+      "ttl": true,
+      "indexes": []
+    },
     {
       "collectionGroup": "messages",
       "fieldPath": "text",

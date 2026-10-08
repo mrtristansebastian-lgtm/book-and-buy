@@ -22,6 +22,7 @@ import {
 import { navigate, workspacePagePath } from '../../app/routing';
 import { PageBackButton } from '../../shared/ui/PageBackButton';
 import { useWorkspace } from '../workspace/WorkspaceContext';
+import { WorkspaceSaveReview } from './WorkspaceSaveReview';
 import {
   DEFAULT_SETTINGS_SECTION,
   SETTINGS_SECTIONS,
@@ -45,6 +46,9 @@ import { PoliciesSettingsPage } from './pages/PoliciesSettingsPage';
 import { AccountSettingsPage } from './pages/AccountSettingsPage';
 import { AISettingsPage } from './pages/AISettingsPage';
 import { ButlerSettingsPage } from './pages/ButlerSettingsPage';
+import { getMarkets } from '../../utils/markets';
+import { marketCountryName } from '../../config/marketCountries';
+import { BranchesSettingsPage } from './pages/BranchesSettingsPage';
 
 const ICONS = {
   ai: Shield,
@@ -105,11 +109,11 @@ const COPY = {
   },
   locations: {
     title: 'Locations',
-    lede: 'Your primary venue address and map.'
+    lede: 'Your primary venue, map and business branches.'
   },
   reviews: {
     title: 'Reviews',
-    lede: 'Connect Google Reviews to your business Home.'
+    lede: 'Real experiences, shared by your customers.'
   },
   domains: {
     title: 'Domains',
@@ -139,15 +143,28 @@ function initials(name = '') {
     .join('');
 }
 
-export function SettingsShell({ section: sectionProp }) {
-  const { workspace, saveStatus, saveError, retrySave } = useWorkspace();
+export function SettingsShell({ section: sectionProp, detail = '', nestedDetail = '' }) {
+  const { workspace, saveStatus, saveError, saveConflict, reviewSaveConflict, resolveSaveConflict, retrySave } = useWorkspace();
+  const [saveReview,setSaveReview] = useState(null), [reviewError,setReviewError] = useState(''), [reviewBusy,setReviewBusy] = useState(false);
+  const reviewChanges = async () => {setReviewBusy(true);setReviewError('');try {setSaveReview(await reviewSaveConflict());} catch (error) {setReviewError(error.message || 'The latest version could not be loaded. Please retry.');} finally {setReviewBusy(false);} };
   const hasExplicitSection = isSettingsSection(sectionProp);
   const section = resolveSettingsSection(sectionProp || DEFAULT_SETTINGS_SECTION);
   const [query, setQuery] = useState('');
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia(MOBILE_MQ).matches : false
   );
-  const copy = COPY[section] || COPY.general;
+  const marketDetail = section === 'markets' && detail;
+  const currentMarket = marketDetail && getMarkets(workspace.website || {}).find(market => encodeURIComponent(market.id) === detail);
+  const shippingDetail = section === 'shipping' && detail;
+  const currentProfile = shippingDetail && (workspace.website?.shippingProfiles || []).find(profile => encodeURIComponent(profile.id) === detail);
+  const branchesView = section === 'locations' && detail === 'branches';
+  const currentBranch = branchesView && (workspace.website?.branches || []).find(branch => encodeURIComponent(branch.id) === nestedDetail);
+  const copy = marketDetail ? detail === 'new'
+    ? { title: 'Add a market', lede: 'Choose a country, then make it yours.' }
+    : { title: currentMarket ? marketCountryName(currentMarket.countryCode) : 'Market unavailable', lede: 'Catalog and delivery, tailored to this market.' }
+    : shippingDetail ? { title: detail === 'new' ? 'Add a shipping profile' : currentProfile ? currentProfile.name || 'Shipping profile' : 'Profile unavailable', lede: 'Delivery rates, products and connected markets.' }
+    : branchesView ? { title: nestedDetail === 'new' ? 'Add a branch' : nestedDetail ? currentBranch?.name || 'Branch unavailable' : 'Branches', lede: 'Your business, in more than one place.' }
+    : COPY[section] || COPY.general;
 
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MQ);
@@ -170,7 +187,7 @@ export function SettingsShell({ section: sectionProp }) {
   }, [query]);
 
   const go = (id) => navigate(workspacePagePath(`settings/${id}`));
-  const goList = () => navigate(workspacePagePath('settings'));
+  const goList = () => navigate(workspacePagePath(marketDetail ? 'settings/markets' : shippingDetail ? 'settings/shipping' : branchesView ? nestedDetail ? 'settings/locations/branches' : 'settings/locations' : 'settings'));
 
   const activeId = hasExplicitSection ? section : isMobile ? null : DEFAULT_SETTINGS_SECTION;
   const mobileView = hasExplicitSection ? 'detail' : 'index';
@@ -186,9 +203,9 @@ export function SettingsShell({ section: sectionProp }) {
   else if (section === 'bookings') body = <BookingsSettingsPage />;
   else if (section === 'checkout') body = <CheckoutSettingsPage />;
   else if (section === 'notifications') body = <NotificationsSettingsPage />;
-  else if (section === 'locations') body = <LocationsSettingsPage />;
-  else if (section === 'markets') body = <MarketsSettingsPage />;
-  else if (section === 'shipping') body = <ShippingSettingsPage />;
+  else if (section === 'locations') body = branchesView ? <BranchesSettingsPage key={nestedDetail || 'branches-index'} detail={nestedDetail} /> : <LocationsSettingsPage />;
+  else if (section === 'markets') body = <MarketsSettingsPage key={detail || 'index'} detail={detail} />;
+  else if (section === 'shipping') body = <ShippingSettingsPage key={detail || 'shipping-index'} detail={detail} />;
   else if (section === 'reviews') body = <ReviewsSettingsPage />;
   else if (section === 'domains') body = <DomainsSettingsPage />;
   else if (section === 'policies') body = <PoliciesSettingsPage />;
@@ -256,20 +273,23 @@ export function SettingsShell({ section: sectionProp }) {
       <div className="bb-settings-main">
         <header className="bb-settings-main-head">
           <div className="bb-page-title-wrap">
-            <PageBackButton ariaLabel="Back to Settings" onClick={goList} />
+            <PageBackButton ariaLabel={marketDetail ? 'Back to Markets' : shippingDetail ? 'Back to Shipping' : branchesView ? nestedDetail ? 'Back to Branches' : 'Back to Locations' : 'Back to Settings'} onClick={goList} />
             <span className="bb-page-title-main">
               <div className="bb-page-header-glow" aria-hidden="true" />
               <h1 className="bb-page-title">{copy.title}</h1>
             </span>
+            {!saveError && <span className="bb-settings-inline-status" role="status" title={workspace.isDemo ? 'Demo changes save on this device' : 'Changes save automatically'}>{workspace.isDemo ? 'Demo · saved locally' : saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : 'Auto-save on'}</span>}
           </div>
           <p className="bb-muted">{copy.lede}</p>
         </header>
-        <div className={`bb-settings-save-state is-${saveStatus}`} role={saveError ? 'alert' : 'status'}>
+        {saveError && <div className={`bb-settings-save-state is-${saveStatus}`} role={saveError ? 'alert' : 'status'}>
           <span>{saveError || (workspace.isDemo ? 'Demo changes save on this device' : saveStatus === 'saving' ? 'Saving changes…' : saveStatus === 'saved' ? 'All changes saved' : 'Changes save automatically')}</span>
-          {saveError && <Button action="retry" variant="primary" type="button" className="bb-ghost-btn" onClick={retrySave}>Retry save</Button>}
-        </div>
+          {saveError && <Button action={saveConflict ? 'view' : 'retry'} variant="primary" type="button" className="bb-ghost-btn" busy={reviewBusy} onClick={saveConflict ? reviewChanges : retrySave}>{saveConflict ? 'Review changes' : 'Retry save'}</Button>}
+        </div>}
+        {reviewError && <p role="alert" className="bb-muted">{reviewError}</p>}
         {body}
       </div>
+      {saveReview && <WorkspaceSaveReview review={saveReview} onResolve={resolveSaveConflict} onClose={() => setSaveReview(null)} />}
     </div>
   );
 }
