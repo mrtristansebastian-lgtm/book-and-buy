@@ -11,7 +11,7 @@
   const mode = document.getElementById('builderAiMode');
   const titleCase = value => ({ xhigh: 'Extra high', none: 'None', minimal: 'Minimal' })[value] || value.charAt(0).toUpperCase() + value.slice(1);
   let models = [];
-  const pickers = [ ['builderModelTrigger', 'builderModelMenu'], ['builderModeTrigger', 'builderModeMenu'], ['builderToolsTrigger', 'builderToolsMenu'] ];
+  const pickers = [ ['builderModelTrigger', 'builderModelMenu'], ['builderToolsTrigger', 'builderToolsMenu'] ];
   function closePickers(focus = false) {
     for (const [triggerId, menuId] of pickers) {
       const trigger = document.getElementById(triggerId), menu = document.getElementById(menuId);
@@ -66,12 +66,17 @@
   }
   document.getElementById('builderModelSearch').addEventListener('input', renderModels);
   document.getElementById('historyPopover').addEventListener('keydown', event => { if (event.key === 'Escape') document.getElementById('builderToolsTrigger').focus(); });
-  document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => { mode.value = button.dataset.mode; mode.dispatchEvent(new Event('change', { bubbles: true })); closePickers(); document.getElementById('builderModeTrigger').focus(); }));
+  document.getElementById('builderModeTrigger').addEventListener('click', () => {
+    if (state.busy) return;
+    closePickers(); mode.value = mode.value === 'plan' ? 'build' : 'plan';
+    mode.dispatchEvent(new Event('change', { bubbles: true }));
+  });
   function renderMode() {
-    document.getElementById('builderModeTrigger').title = titleCase(mode.value) + ' mode'; connection.mode = mode.value; document.getElementById('builderModeLabel').textContent = titleCase(mode.value);
-    const icon = document.getElementById('builderModeIcon'); icon.dataset.icon = ({ build: 'mouse-pointer', plan: 'list-checks', ask: 'message-square' })[mode.value]; hydrateIcons(icon.parentElement);
-    document.querySelectorAll('[data-mode]').forEach(button => button.setAttribute('aria-checked', String(button.dataset.mode === mode.value)));
-    document.getElementById('promptInput').placeholder = ({ build: 'Ask for a change, or describe your next idea…', plan: 'What should we plan together?', ask: 'Ask about your site or app connections…' })[mode.value];
+    const planning = mode.value === 'plan'; connection.mode = planning ? 'plan' : 'build';
+    const trigger = document.getElementById('builderModeTrigger');
+    trigger.setAttribute('aria-pressed', String(planning));
+    trigger.title = planning ? 'Plan mode on · think it through without changes' : 'Plan mode · think it through first';
+    document.getElementById('promptInput').placeholder = planning ? 'What should we plan together?' : 'Ask for a change, or describe your next idea…';
   }
   document.getElementById('builderShowCanvas')?.addEventListener('click', () => document.getElementById('toggleChatBtn')?.click());
   document.querySelectorAll('.view-tab').forEach(button => button.addEventListener('click', () => {

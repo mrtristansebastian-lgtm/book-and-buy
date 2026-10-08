@@ -236,3 +236,5 @@
 
 .builder-theme .annotation-control .annotation-brush { display:block; width:18px; height:18px; }
 .builder-theme .annotation-control .annotation-brush .ui-icon { width:18px; height:18px; stroke-width:1.7; }
+.builder-theme .composer-bottom #builderModeTrigger[aria-pressed="true"] { border:1px solid transparent; color:#101828; background:linear-gradient(#fff,#fff) padding-box,linear-gradient(120deg,#d9f99d,#bae6fd,#e9d5ff) border-box; border-radius:7px; }
+.builder-theme .composer-bottom #builderModeTrigger #builderModeIcon { display:block; }

@@ -7,7 +7,8 @@ const APP_LOGO_SRC = "/brand/book-and-buy-mark.png";
 // Lucide 24px grid and 1.6px strokes, matching the shared app icon family. The chrome
 // stays consistent even when backend adapters are replaced later.
 const UI_ICONS = Object.freeze({
-  "paintbrush": '<path d="m14.06 9.94 6.92-6.92a2.12 2.12 0 0 0-3-3l-6.92 6.92"></path><path d="m7 7 10 10"></path><path d="M5 17c-1.5 0-3 1.5-3 3 0 1.5-1 2-1 2s6 0 6-5c0-1.5-1.5-3-3-3"></path><path d="m8 8-3 3a4.24 4.24 0 0 0 6 6l3-3"></path>',
+  "lightbulb": '<path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14a6 6 0 1 0-6.18 0c.65.5 1.09 1.12 1.09 2h4c0-.88.44-1.5 1.09-2Z"></path>',
+  "paintbrush": '<path d="m14.622 17.897-10.68-2.913"></path><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"></path><path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15"></path>',
   "chevron-down": "<path d=\"m6 9 6 6 6-6\"></path>",
   "chevron-right": "<path d=\"m9 18 6-6-6-6\"></path>",
   "arrow-right": "<path d=\"M5 12h14\"></path><path d=\"m12 5 7 7-7 7\"></path>",
@@ -3216,6 +3217,8 @@ function addAttachments(files) {
 }
 
 function syncComposerActionState() {
+  const planToggle = document.getElementById("builderModeTrigger");
+  if (planToggle) planToggle.disabled = state.busy;
   if (state.busy) {
     els.send.disabled = false;
     return;
@@ -3820,7 +3823,7 @@ async function importWebsiteFiles(fileList) {
 
 
 function closeAllPopovers(exceptId = null) {
-  ["projectMenu","accountMenu","historyPopover","builderModelMenu","builderModeMenu","builderToolsMenu"].forEach(id => {
+  ["projectMenu","accountMenu","historyPopover","builderModelMenu","builderToolsMenu"].forEach(id => {
     if (id === exceptId) return;
     const el = $(`#${id}`);
     el?.classList.add("hidden");
@@ -3828,7 +3831,7 @@ function closeAllPopovers(exceptId = null) {
   $("#projectSwitcher").setAttribute("aria-expanded", "false");
   $("#avatarBtn").setAttribute("aria-expanded", "false");
   $("#historyBtn").setAttribute("aria-expanded", "false");
-  ['builderModelTrigger','builderModeTrigger','builderEffortTrigger','builderToolsTrigger'].forEach(id => $(`#${id}`)?.setAttribute('aria-expanded', 'false'));
+  ['builderModelTrigger','builderEffortTrigger','builderToolsTrigger'].forEach(id => $(`#${id}`)?.setAttribute('aria-expanded', 'false'));
 }
 
 function togglePopover(id, force) {

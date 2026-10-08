@@ -227,7 +227,7 @@
       const plan = await this.createPlan(payload.prompt, payload.context || {}, signal, hooks.onProgress);
       abortCheck(signal);
       if (plan.clarification) return { type: 'clarification', question: plan.question, choices: plan.choices.map(value => ({ label: value.slice(0, 120), prompt: value })) };
-      if (plan.reply) { if (plan.plan.length) hooks.onProgress?.({ type: 'plan', plan: plan.plan.map(step => ({ step, status: 'pending' })) }); await this.streamResponse(plan.intro, hooks.onToken, signal); return { type: 'complete', final: connection.mode === 'plan' ? 'Plan ready. Switch to Build when you want to apply it.' : 'No website changes made.' }; }
+      if (plan.reply) { if (plan.plan.length) hooks.onProgress?.({ type: 'plan', plan: plan.plan.map(step => ({ step, status: 'pending' })) }); await this.streamResponse(plan.intro, hooks.onToken, signal); return { type: 'complete', final: connection.mode === 'plan' ? 'Plan ready. Turn off Plan mode when you want to apply it.' : 'No website changes made.' }; }
       hooks.onPlan?.(plan);
       await this.streamResponse(plan.intro, hooks.onToken, signal);
       for (const step of plan.steps) {

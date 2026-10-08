@@ -79,3 +79,43 @@
 .bb-butler-code-review{white-space:pre-wrap;overflow-wrap:anywhere;max-height:240px;overflow:auto;font-size:11px;padding:12px;background:var(--bb-subtle,#f4f6f8);border-radius:8px}.bb-butler-history-item{display:block;width:100%;text-align:left;padding:10px;border:0;border-bottom:1px solid #10182810;background:transparent;color:inherit;font:inherit;font-size:12px}.bb-butler-history-item:hover{background:#f4f6f8}
 
 .bb-butler-history-row{display:flex;align-items:center;gap:8px}.bb-butler-history-row .bb-butler-history-item{flex:1;min-width:0}.bb-butler-assurance a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+/* Builder-style controls, kept above the keyboard and inside the Butler panel. */
+.bb-butler-overlay .bb-butler-panel { height:100%; min-height:0; }
+.bb-butler-composer-area { position:relative; z-index:3; flex:0 0 auto; }
+.bb-butler-composer-bottom { position:relative; gap:6px; }
+.bb-butler-composer-tools { display:flex; align-items:center; gap:3px; }
+.native-ui .bb-butler-panel .bb-butler-tool-button { display:inline-flex; align-items:center; justify-content:center; width:32px!important; height:32px!important; min-width:32px!important; min-height:32px!important; padding:0!important; border:1px solid transparent!important; border-radius:7px!important; background:transparent!important; color:var(--bb-text-secondary); box-shadow:none!important; cursor:pointer; }
+.bb-butler-tool-button svg { width:18px; height:18px; stroke-width:1.7; }
+.native-ui .bb-butler-panel .bb-butler-tool-button[aria-expanded="true"] { background:linear-gradient(var(--bb-surface),var(--bb-surface)) padding-box,var(--native-brand-gradient) border-box!important; }
+.native-ui .bb-butler-panel .bb-butler-tool-button:disabled { color:var(--bb-faint); opacity:.55; cursor:default; }
+.bb-butler-composer-popover { position:absolute; bottom:calc(100% + 16px); left:0; width:100%; max-height:min(440px,calc(var(--butler-viewport-height,100dvh) - 170px)); overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--bb-border-strong); border-radius:12px; background:var(--bb-surface); box-shadow:0 12px 40px #10182819; padding:6px; box-sizing:border-box; scrollbar-width:thin; }
+.bb-butler-composer-popover>header { padding:10px 10px 8px; color:var(--bb-text-secondary); font-size:12px; font-weight:500; }
+.bb-butler-composer-popover>header small { display:block; margin-top:5px; font-size:11px; font-weight:400; color:var(--bb-text-tertiary); }
+.native-ui .bb-butler-panel .bb-butler-menu-option { display:flex; align-items:center; width:100%; gap:10px; border:1px solid transparent; border-radius:8px; padding:10px; background:transparent; color:var(--bb-text-secondary); text-align:left; font-family:var(--bb-font-body); cursor:pointer; box-shadow:none; }
+.bb-butler-menu-option>svg { flex:0 0 auto; stroke-width:1.7; }
+.bb-butler-menu-option>svg:last-child:not(:first-child) { margin-left:auto; }
+.bb-butler-menu-option span { display:grid; gap:4px; min-width:0; }
+.bb-butler-menu-option strong { font-size:12px; font-weight:500; color:var(--bb-ink); }
+.bb-butler-menu-option small { font-size:11px; line-height:1.4; color:var(--bb-text-tertiary); }
+.native-ui .bb-butler-panel .bb-butler-menu-option[aria-pressed="true"] { background:linear-gradient(var(--bb-surface),var(--bb-surface)) padding-box,var(--native-brand-gradient) border-box; }
+.bb-butler-menu-option:hover { background:var(--bb-surface-2)!important; }
+.bb-butler-composer-popover .bb-butler-connection-settings { margin:0; border:0; padding:10px; }
+@media(max-width:600px) {
+ .bb-butler-overlay .bb-butler-panel { width:100%; box-shadow:none; }
+ .bb-butler-header { padding:14px 18px; padding-top:max(14px,env(safe-area-inset-top)); flex:0 0 auto; }
+ .bb-butler-content { padding:8px 20px 16px; }
+ .bb-butler-welcome { padding:12px 2px 22px; }
+ .native-ui .bb-butler-panel .bb-butler-welcome h1 { font-size:clamp(25px,7.6vw,30px)!important; }
+ .bb-butler-intro { margin:14px 0 22px; }
+ .bb-butler-intro br { display:none; }
+ .bb-butler-suggestions button { padding:13px 0; }
+ .bb-butler-composer-area { padding:10px 14px max(12px,env(safe-area-inset-bottom)); }
+ .native-ui .bb-butler-panel .bb-butler-composer textarea { font-size:16px!important; line-height:1.5; }
+ .bb-butler-assurance { margin-top:9px; font-size:10px!important; }
+ .bb-butler-note { margin-inline:14px; }
+}
+.bb-butler-composer { position:relative; }
+.bb-butler-composer-bottom { position:static; }
+.bb-butler-composer-popover { bottom:calc(100% + 8px); }
+.native-ui .bb-butler-panel .bb-butler-plan-toggle[aria-pressed="true"] { color:var(--bb-ink); background:linear-gradient(var(--bb-surface),var(--bb-surface)) padding-box,var(--native-brand-gradient) border-box!important; }
+.bb-butler-composer-popover { max-height:min(640px,calc(var(--butler-viewport-height,100dvh) - 160px)); }

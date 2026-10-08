@@ -103,14 +103,8 @@
 <div class="composer-bottom">
 <div class="composer-tools">
 <div class="menu-anchor builder-picker-anchor">
-<button type="button" id="builderModeTrigger" aria-label="Assistant mode" class="builder-picker-trigger" aria-controls="builderModeMenu" aria-haspopup="menu" aria-expanded="false"><span class="icon-slot" data-icon="mouse-pointer" id="builderModeIcon" aria-hidden="true"></span><span id="builderModeLabel">Build</span><span class="icon-slot" data-icon="chevron-down" aria-hidden="true"></span></button>
-<div id="builderModeMenu" class="builder-chat-menu hidden" role="menu" aria-label="Assistant mode">
-<div class="builder-menu-heading">Work with AI</div>
-<button type="button" role="menuitemradio" aria-checked="true" data-mode="build"><span class="icon-slot" data-icon="mouse-pointer" aria-hidden="true"></span><span><strong>Build</strong><small>Design and make changes</small></span><span class="builder-menu-check icon-slot" data-icon="check" aria-hidden="true"></span></button>
-<button type="button" role="menuitemradio" aria-checked="false" data-mode="plan"><span class="icon-slot" data-icon="list-checks" aria-hidden="true"></span><span><strong>Plan</strong><small>Work through the approach first</small></span><span class="builder-menu-check icon-slot" data-icon="check" aria-hidden="true"></span></button>
-<button type="button" role="menuitemradio" aria-checked="false" data-mode="ask"><span class="icon-slot" data-icon="message-square" aria-hidden="true"></span><span><strong>Ask</strong><small>Get answers without editing</small></span><span class="builder-menu-check icon-slot" data-icon="check" aria-hidden="true"></span></button>
-</div>
-<select id="builderAiMode" aria-label="Assistant mode" class="hidden"><option value="build">Build</option><option value="plan">Plan</option><option value="ask">Ask</option></select>
+<button type="button" id="builderModeTrigger" aria-label="Plan mode" aria-pressed="false" title="Plan mode · think it through first" class="builder-picker-trigger"><span class="icon-slot" data-icon="lightbulb" id="builderModeIcon" aria-hidden="true"></span></button>
+<select id="builderAiMode" aria-label="Assistant mode" class="hidden"><option value="build">Build</option><option value="plan">Plan</option></select>
 </div>
 <div class="menu-anchor builder-picker-anchor builder-model-anchor">
 <button type="button" id="builderModelTrigger" aria-label="AI model and thinking level" class="builder-picker-trigger" aria-controls="builderModelMenu" aria-haspopup="menu" aria-expanded="false"><span class="icon-slot" data-icon="brain" aria-hidden="true"></span><span id="builderModelLabel" class="hidden">Choose model</span></button>
