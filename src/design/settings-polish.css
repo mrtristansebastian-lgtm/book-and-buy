@@ -405,3 +405,4 @@ html body .native-ui .bb-settings-content--policies textarea { min-height: 192px
     .bb-owner-main > .bb-settings .bb-market-index > .bb-market-row.is-selected { border-color: #dce3e9; }
   }
 }
+.bb-owner-main > .bb-settings > .bb-settings-main-head { grid-column:1 / -1; margin:0; width:100%; }

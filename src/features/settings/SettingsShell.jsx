@@ -2,6 +2,8 @@ import { Button } from '../../shared/ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Bell,
+  Bot,
+  CalendarDays,
   CreditCard,
   Globe2,
   PanelTop,
@@ -11,7 +13,6 @@ import {
   NotebookTabs,
   Receipt,
   Search,
-  Settings2,
   Shield,
   ShoppingCart,
   Star,
@@ -50,15 +51,19 @@ import { getMarkets } from '../../utils/markets';
 import { marketCountryName } from '../../config/marketCountries';
 import { BranchesSettingsPage } from './pages/BranchesSettingsPage';
 
+function ButlerNavIcon({ size = 24, strokeWidth, ...props }) {
+  return <img {...props} src="/brand/butler-bow-tie.png" alt="" aria-hidden="true" width={size} height={size} style={{ objectFit: 'contain' }} />;
+}
+
 const ICONS = {
-  ai: Shield,
-  butler: Settings2,
+  ai: Bot,
+  butler: ButlerNavIcon,
   general: Store,
   plan: NotebookTabs,
   billing: Receipt,
   users: Users,
   payments: WalletCards,
-  bookings: Settings2,
+  bookings: CalendarDays,
   checkout: ShoppingCart,
   notifications: Bell,
   locations: MapPin,
@@ -187,7 +192,7 @@ export function SettingsShell({ section: sectionProp, detail = '', nestedDetail 
   }, [query]);
 
   const go = (id) => navigate(workspacePagePath(`settings/${id}`));
-  const goList = () => navigate(workspacePagePath(marketDetail ? 'settings/markets' : shippingDetail ? 'settings/shipping' : branchesView ? nestedDetail ? 'settings/locations/branches' : 'settings/locations' : 'settings'));
+  const goList = () => navigate(workspacePagePath(marketDetail ? 'settings/markets' : shippingDetail ? 'settings/shipping' : branchesView ? nestedDetail ? 'settings/locations/branches' : 'settings/locations' : 'overview'));
 
   const activeId = hasExplicitSection ? section : isMobile ? null : DEFAULT_SETTINGS_SECTION;
   const mobileView = hasExplicitSection ? 'detail' : 'index';
@@ -213,17 +218,19 @@ export function SettingsShell({ section: sectionProp, detail = '', nestedDetail 
 
   return (
     <div className={`bb-settings is-mobile-${mobileView}`} data-settings-section={section}>
-      <aside className="bb-settings-rail" aria-label="Settings categories">
-        <header className="bb-settings-mobile-index-head">
+        <header className="bb-settings-main-head">
           <div className="bb-page-title-wrap">
-            <PageBackButton />
+            <PageBackButton ariaLabel={marketDetail ? 'Back to Markets' : shippingDetail ? 'Back to Shipping' : branchesView ? nestedDetail ? 'Back to Branches' : 'Back to Locations' : 'Back to Home'} onClick={goList} />
             <span className="bb-page-title-main">
               <div className="bb-page-header-glow" aria-hidden="true" />
-              <h1 className="bb-page-title">Settings</h1>
+              <h1 className="bb-page-title">{marketDetail || shippingDetail || branchesView ? copy.title : 'Settings'}</h1>
             </span>
+            {!saveError && <span className="bb-settings-inline-status" role="status" title={workspace.isDemo ? 'Demo changes save on this device' : 'Changes save automatically'}>{workspace.isDemo ? 'Demo · saved locally' : saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : 'Auto-save on'}</span>}
           </div>
-          <p className="bb-muted">Business, billing, and account.</p>
+          <p className="bb-muted">{copy.lede}</p>
         </header>
+      <aside className="bb-settings-rail" aria-label="Settings categories">
+
 
         <div className="bb-settings-search-wrap bb-search-field">
           <Search size={14} className="bb-settings-search-icon bb-search-field-icon" aria-hidden />
@@ -271,17 +278,7 @@ export function SettingsShell({ section: sectionProp, detail = '', nestedDetail 
       </aside>
 
       <div className="bb-settings-main">
-        <header className="bb-settings-main-head">
-          <div className="bb-page-title-wrap">
-            <PageBackButton ariaLabel={marketDetail ? 'Back to Markets' : shippingDetail ? 'Back to Shipping' : branchesView ? nestedDetail ? 'Back to Branches' : 'Back to Locations' : 'Back to Settings'} onClick={goList} />
-            <span className="bb-page-title-main">
-              <div className="bb-page-header-glow" aria-hidden="true" />
-              <h1 className="bb-page-title">{copy.title}</h1>
-            </span>
-            {!saveError && <span className="bb-settings-inline-status" role="status" title={workspace.isDemo ? 'Demo changes save on this device' : 'Changes save automatically'}>{workspace.isDemo ? 'Demo · saved locally' : saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : 'Auto-save on'}</span>}
-          </div>
-          <p className="bb-muted">{copy.lede}</p>
-        </header>
+
         {saveError && <div className={`bb-settings-save-state is-${saveStatus}`} role={saveError ? 'alert' : 'status'}>
           <span>{saveError || (workspace.isDemo ? 'Demo changes save on this device' : saveStatus === 'saving' ? 'Saving changes…' : saveStatus === 'saved' ? 'All changes saved' : 'Changes save automatically')}</span>
           {saveError && <Button action={saveConflict ? 'view' : 'retry'} variant="primary" type="button" className="bb-ghost-btn" busy={reviewBusy} onClick={saveConflict ? reviewChanges : retrySave}>{saveConflict ? 'Review changes' : 'Retry save'}</Button>}

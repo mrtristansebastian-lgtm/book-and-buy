@@ -198,7 +198,7 @@ const APPROVED_SECTION_KEYS = deepFreeze(["story", "trust-strip", "faq", "newsle
 const state = {
   view: "preview",
   device: "desktop",
-  canvasMode: "edit",
+  canvasMode: "view",
   busy: false,
   chatCollapsed: false,
   current: null,
@@ -894,7 +894,7 @@ function setDevice(device) {
   requestAnimationFrame(() => requestAnimationFrame(updateCanvasOverlays));
 }
 
-function setCanvasMode(mode = "edit", { announce = true } = {}) {
+function setCanvasMode(mode = "view", { announce = true } = {}) {
   const next = mode === "view" ? "view" : "edit";
   if (state.busy && next !== state.canvasMode) return;
   const changed = next !== state.canvasMode;
@@ -918,7 +918,7 @@ function setCanvasMode(mode = "edit", { announce = true } = {}) {
     els.canvasModeSwitcher?.setAttribute("data-mode", "edit");
     requestAnimationFrame(updateCanvasOverlays);
   }
-  if (announce) showToast(next === "view" ? "View mode · website interactions are live" : "Edit mode · click elements to select them", { tone: "info" });
+  if (announce) showToast(next === "view" ? "Annotations off · website interactions are live" : "Annotations on · select an element to refine it", { tone: "info" });
 }
 
 function getFrameDocument() {
@@ -2893,6 +2893,7 @@ async function applyAgentAction(action, step, signal, run) {
 async function runAgentPrompt(prompt, { silentUser = false, retrying = false, regenerating = false } = {}) {
   const cleanPrompt = prompt.trim();
   if (!cleanPrompt || state.busy) return;
+  const restoreInteractivePreview = state.canvasMode === "view";
 
   if (state.canvasMode !== "edit") {
     setCanvasMode("edit", { announce: false });
@@ -3095,6 +3096,11 @@ async function runAgentPrompt(prompt, { silentUser = false, retrying = false, re
     state.activeRun = null;
     updateHistoryControls();
     scrollChat();
+  } finally {
+    if (restoreInteractivePreview) {
+      setBusy(false);
+      setCanvasMode("view", { announce: false });
+    }
   }
 }
 
@@ -4053,7 +4059,7 @@ window.addEventListener("resize", updateCanvasOverlays);
 // View / stage controls
 $$("#mainViewTabs .view-tab").forEach(btn => btn.addEventListener("click", () => setView(btn.dataset.view)));
 $$(".device-btn").forEach(btn => btn.addEventListener("click", () => setDevice(btn.dataset.device)));
-$$(".canvas-mode-btn").forEach(btn => btn.addEventListener("click", () => setCanvasMode(btn.dataset.canvasMode)));
+$$(".canvas-mode-btn").forEach(btn => btn.addEventListener("click", () => setCanvasMode(state.canvasMode === "edit" ? "view" : "edit")));
 $("#toggleChatBtn").addEventListener("click", () => {
   state.chatCollapsed = !state.chatCollapsed;
   els.appShell.classList.toggle("chat-collapsed", state.chatCollapsed);
@@ -4412,7 +4418,7 @@ async function initializeBuilder() {
   if (state.current.html) state.current.html = window.BookBuyCommerce.wireHtml(state.current.html, { allowRetired: true, draft: Boolean(state.current._validationIssues?.length) }).html;
   els.address.textContent = "Local preview";
   els.appShell.dataset.serviceMode = Object.values(services).every(adapter => String(adapter?.kind || "").startsWith("mock-")) ? "mock" : "connected";
-  setCanvasMode("edit", { announce: false });
+  setCanvasMode("view", { announce: false });
   renderPromptHistory();
   renderCurrent();
   syncChatEmpty();

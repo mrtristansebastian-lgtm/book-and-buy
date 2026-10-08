@@ -37,14 +37,23 @@
 <button class="menu-item" id="menuNewProjectBtn" role="menuitem"><span class="menu-item-main"><span aria-hidden="true" class="icon-slot" data-icon="plus-square"></span><span class="menu-item-label">New project</span></span><kbd>N</kbd></button>
 </div>
 </div>
-<div class="chat-head-actions"><button aria-label="New chat" class="icon-btn quiet" data-tooltip="New chat" id="builderNewChat" type="button"><span aria-hidden="true" class="icon-slot" data-icon="message-plus"></span></button><button aria-label="New project" class="icon-btn quiet" data-tooltip="New project" id="newProjectBtn"><span aria-hidden="true" class="icon-slot" data-icon="plus-square"></span></button><button aria-label="Show website" class="icon-btn quiet builder-show-canvas" data-tooltip="Show website" id="builderShowCanvas" type="button"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span></button></div>
+<div class="chat-head-actions"><button aria-label="Toggle AI panel" class="icon-btn quiet collapse-chat" data-tooltip="Toggle AI panel" id="toggleChatBtn"><span aria-hidden="true" class="icon-slot" data-icon="panel-left"></span></button><button aria-label="New chat" class="icon-btn quiet" data-tooltip="New chat" id="builderNewChat" type="button"><span aria-hidden="true" class="icon-slot" data-icon="message-plus"></span></button><button aria-label="New project" class="icon-btn quiet" data-tooltip="New project" id="newProjectBtn"><span aria-hidden="true" class="icon-slot" data-icon="plus-square"></span></button><button aria-label="Show website" class="icon-btn quiet builder-show-canvas" data-tooltip="Show website" id="builderShowCanvas" type="button"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span></button></div>
 
 </div>
-<nav aria-label="Editor view" class="view-tabs" id="mainViewTabs">
+<div class="builder-preview-controls"><nav aria-label="Editor view" class="view-tabs" id="mainViewTabs">
 <button aria-pressed="true" class="view-tab active" data-view="preview"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span><span class="button-label">Preview</span></button>
 <button aria-pressed="false" class="view-tab" data-view="code"><span aria-hidden="true" class="icon-slot" data-icon="code"></span><span class="button-label">Code</span></button>
-</nav>
-<div class="topbar-right">
+</nav><div aria-label="Preview device" class="device-switcher" id="deviceSwitcher">
+<button aria-label="Desktop" aria-pressed="true" class="device-btn active" data-device="desktop" data-tooltip="Desktop"><span aria-hidden="true" class="icon-slot" data-icon="monitor"></span></button>
+<button aria-label="Tablet" aria-pressed="false" class="device-btn" data-device="tablet" data-tooltip="Tablet"><span aria-hidden="true" class="icon-slot" data-icon="tablet"></span></button>
+<button aria-label="Mobile" aria-pressed="false" class="device-btn" data-device="mobile" data-tooltip="Mobile"><span aria-hidden="true" class="icon-slot" data-icon="smartphone"></span></button>
+</div>
+<div id="canvasModeSwitcher" class="annotation-control" data-mode="view"><button aria-label="Annotate website" aria-pressed="false" class="icon-btn quiet canvas-mode-btn" data-canvas-mode="edit" data-tooltip="Annotate website"><span class="annotation-mark" aria-hidden="true"><img src="/brand/book-and-buy-mark.png" alt=""/><span class="icon-slot" data-icon="pencil"></span></span></button></div><span class="hidden" id="previewAddress" aria-live="polite"></span></div>
+<div class="topbar-right"><div class="stage-actions">
+<button aria-label="Refresh preview" class="icon-btn quiet" data-tooltip="Refresh preview" id="refreshBtn"><span aria-hidden="true" class="icon-slot" data-icon="refresh"></span></button>
+<button aria-label="Open preview" class="icon-btn quiet" data-tooltip="Open preview" id="openPreviewBtn"><span aria-hidden="true" class="icon-slot" data-icon="external-link"></span></button>
+</div>
+
 <div aria-label="History controls" class="history-controls">
 <button aria-label="Undo" class="icon-btn quiet" data-tooltip="Undo" disabled="" id="undoBtn"><span aria-hidden="true" class="icon-slot" data-icon="undo"></span></button>
 <button aria-label="Redo" class="icon-btn quiet" data-tooltip="Redo" disabled="" id="redoBtn"><span aria-hidden="true" class="icon-slot" data-icon="redo"></span></button>
@@ -148,28 +157,6 @@
 </div>
 </aside>
 <section class="stage" id="stage">
-<div class="stage-toolbar">
-<div class="stage-toolbar-left">
-<button aria-label="Toggle AI panel" class="icon-btn quiet collapse-chat" data-tooltip="Toggle AI panel" id="toggleChatBtn"><span aria-hidden="true" class="icon-slot" data-icon="panel-left"></span></button>
-<div aria-label="Preview device" class="device-switcher" id="deviceSwitcher">
-<button aria-label="Desktop" aria-pressed="true" class="device-btn active" data-device="desktop" data-tooltip="Desktop"><span aria-hidden="true" class="icon-slot" data-icon="monitor"></span></button>
-<button aria-label="Tablet" aria-pressed="false" class="device-btn" data-device="tablet" data-tooltip="Tablet"><span aria-hidden="true" class="icon-slot" data-icon="tablet"></span></button>
-<button aria-label="Mobile" aria-pressed="false" class="device-btn" data-device="mobile" data-tooltip="Mobile"><span aria-hidden="true" class="icon-slot" data-icon="smartphone"></span></button>
-</div>
-<div aria-label="Canvas mode" class="canvas-mode-switcher" id="canvasModeSwitcher">
-<button aria-label="Edit canvas" aria-pressed="true" class="canvas-mode-btn active" data-canvas-mode="edit" data-tooltip="Edit canvas"><span aria-hidden="true" class="icon-slot" data-icon="mouse-pointer"></span><span class="button-label">Edit</span></button>
-<button aria-label="View and use website" aria-pressed="false" class="canvas-mode-btn" data-canvas-mode="view" data-tooltip="Use website"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span><span class="button-label">View</span></button>
-</div>
-</div>
-<div class="preview-location" title="Preview URL">
-<span class="location-dot"></span>
-<span id="previewAddress">preview.bookandbuy.app</span>
-</div>
-<div class="stage-actions">
-<button aria-label="Refresh preview" class="icon-btn quiet" data-tooltip="Refresh preview" id="refreshBtn"><span aria-hidden="true" class="icon-slot" data-icon="refresh"></span></button>
-<button aria-label="Open preview" class="icon-btn quiet" data-tooltip="Open preview" id="openPreviewBtn"><span aria-hidden="true" class="icon-slot" data-icon="external-link"></span></button>
-</div>
-</div>
 <div class="preview-area" id="previewArea">
 <div aria-hidden="true" class="canvas-grid"></div>
 <div class="preview-shell desktop" id="previewShell">

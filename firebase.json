@@ -1,6 +1,7 @@
 {
   "hosting": [
     {
+      "site": "build-a-booking-ai",
       "public": "dist",
       "ignore": [
         "firebase.json",
