@@ -43,9 +43,11 @@ import { ReviewsSettingsPage } from './pages/ReviewsSettingsPage';
 import { DomainsSettingsPage } from './pages/DomainsSettingsPage';
 import { PoliciesSettingsPage } from './pages/PoliciesSettingsPage';
 import { AccountSettingsPage } from './pages/AccountSettingsPage';
+import { AISettingsPage } from './pages/AISettingsPage';
 import { ButlerSettingsPage } from './pages/ButlerSettingsPage';
 
 const ICONS = {
+  ai: Shield,
   butler: Settings2,
   general: Store,
   plan: NotebookTabs,
@@ -65,6 +67,7 @@ const ICONS = {
 };
 
 const COPY = {
+  ai: { title: 'AI connections', lede: 'Your AI, connected to your business.' },
   butler: { title: 'Book and Buy Butler', lede: 'Your assistant, routine permissions and activity.' },
   markets: { title: 'Markets', lede: 'Where you sell, what you offer and how it arrives.' },
   shipping: { title: 'Shipping', lede: 'Reusable delivery profiles for your products and markets.' },
@@ -173,7 +176,8 @@ export function SettingsShell({ section: sectionProp }) {
   const mobileView = hasExplicitSection ? 'detail' : 'index';
 
   let body = null;
-  if (section === 'general') body = <GeneralSettingsPage />;
+  if (section === 'ai') body = <AISettingsPage />;
+  else if (section === 'general') body = <GeneralSettingsPage />;
   else if (section === 'plan') body = <PlanSettingsPage />;
   else if (section === 'billing') body = <BillingSettingsPage />;
   else if (section === 'users') body = <UsersSettingsPage />;

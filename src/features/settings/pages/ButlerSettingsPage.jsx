@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link2, Pause, Play, RefreshCw, Clock3, CheckCheck } from 'lucide-react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { Button } from '../../../shared/ui/Button';
-import { AIConnectionsDialog } from '../../ai/AIConnectionsDialog';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { butlerCall } from '../../../shared/firebase/butler';
 import './butler-settings.css';
 
@@ -22,8 +22,8 @@ export function ButlerSettingsPage() {
   return <div className="bb-butler-settings-page">
     <section className="bb-panel bb-butler-settings-section"><header><h2>Your assistant, your way.</h2><p>Choose how Butler helps you, and what it can take care of on its own.</p></header>
       <div className="bb-butler-preference-row"><div><strong>Start conversations in</strong><p>Assist prepares actions for your review. Ask answers questions. Plan helps you think ahead.</p></div><select aria-label="Default Butler conversation mode" value={workspace.butler?.defaultMode || 'butler'} onChange={e => preference({ defaultMode: e.target.value })}><option value="butler">Assist</option><option value="ask">Ask</option><option value="plan">Plan</option></select></div>
-      <div className="bb-butler-preference-row"><div><strong>Your preferred AI</strong><p>Personal provider connections stay in the chat's connection menu.</p></div><select aria-label="Default Butler AI provider" value={workspace.butler?.preferredProvider || (workspace.isDemo ? 'local' : 'openai')} onChange={e => preference({ preferredProvider: e.target.value })}>{import.meta.env.DEV && workspace.isDemo && <option value="local">ChatGPT · local</option>}<option value="openai">Book and Buy / OpenAI</option><option value="anthropic">Claude</option><option value="chatgpt">ChatGPT account</option></select></div>
-      <div className="bb-butler-preference-row"><div><strong>Connections</strong><p>Choose included AI or your own supported account or API allowance.</p></div><Button icon={Link2} onClick={() => setDialog(true)}>Manage</Button></div>
+      <div className="bb-butler-preference-row"><div><strong>Your preferred AI</strong><p>Manage your account in AI connections.</p></div><select aria-label="Default Butler AI provider" value={workspace.butler?.preferredProvider || (workspace.isDemo ? 'local' : 'openai')} onChange={e => preference({ preferredProvider: e.target.value })}>{import.meta.env.DEV && workspace.isDemo && <option value="local">ChatGPT · local</option>}<option value="openai">Book and Buy / OpenAI</option><option value="chatgpt">ChatGPT account</option></select></div>
+      <div className="bb-butler-preference-row"><div><strong>Connections</strong><p>Choose included AI or your own supported account or API allowance.</p></div><Button icon={Link2} onClick={() => navigate(workspacePagePath('settings/ai'))}>Manage</Button></div>
       <div className="bb-butler-permission-note"><CheckCheck size={18} strokeWidth={1.5}/><p>You're always in the loop. Changes appear in the conversation for approval. Specific routines below can run within the limits you choose.</p></div>
     </section>
     <section className="bb-panel bb-butler-settings-section"><header className="bb-butler-settings-heading"><div><h2>Routines</h2><p>A little help on repeat, with clear boundaries.</p></div><Button action="create" disabled={workspace.isDemo || busy} onClick={() => setShowNew(!showNew)}>New routine</Button></header>
@@ -37,6 +37,6 @@ export function ButlerSettingsPage() {
     </section>
     <details className="bb-butler-settings-capabilities"><summary>Available capabilities</summary><p>Catalog, bookings, schedules, availability, stock, orders, clients, inbox messages, website publishing, settings and reports use your business rules. Refunds, payouts, email/SMS reminders, tax, currency conversion and carrier labels are unavailable until their backends are connected.</p></details>
     {note && <p role="status" className="bb-butler-settings-note">{note}</p>}
-    {dialog && <AIConnectionsDialog workspaceId={ownerId} provider={workspace.butler?.preferredProvider === 'anthropic' ? 'anthropic' : 'openai'} onClose={() => setDialog(false)} />}
+
   </div>;
 }
