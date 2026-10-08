@@ -57,7 +57,7 @@ export function PublicWebsiteApp({ slug, page, itemId = '', allowLocalDemo = tru
       <section className="bb-public-profile-unavailable">
         <h1>Business profile unavailable</h1>
         <p>{resolved.status === 'error' ? 'We could not load this profile. Please try again shortly.' : 'This profile has not been published, or the link is no longer available.'}</p>
-        <Button action="back" variant="secondary" onClick={() => navigate('/app/find')}>Back to Places</Button>
+        <Button action="back" variant="secondary" onClick={() => navigate('/app/discovery')}>Back to Places</Button>
       </section>
     </div>;
   }

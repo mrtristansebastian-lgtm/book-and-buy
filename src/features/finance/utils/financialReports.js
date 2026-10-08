@@ -5,10 +5,10 @@ const metric = (id, label, description, format = 'money', extra = {}) => ({ id, 
 const profitDescription = 'Money left from paid sales after their saved product or service costs. This is before refunds, delivery, payment fees, tax and running your business. Every included sale needs a saved cost, even when that cost is zero.';
 const marginDescription = 'The share of your paid product or service sales left after their saved costs. For example, a 25% margin means 25c is left from each R1 of sales. This is before refunds and your other business expenses.';
 const discoveryGroups = [
-  ['discovery', 'Discovery', 'Revenue and profit gained through Places, Find Buy and Find Book.', 'Places, Find Buy or Find Book'],
+  ['discovery', 'Discovery', 'Revenue and profit gained through Places, Discovery Buy and Discovery Book.', 'Places, Discovery Buy or Discovery Book'],
   ['places', 'Places', 'The paid business your Places listing brings you.', 'Places'],
-  ['buy', 'Find products', 'Revenue and profit from customers who found you on Find Buy.', 'Find Buy'],
-  ['book', 'Find services', 'Revenue and profit from customers who found you on Find Book.', 'Find Book']
+  ['buy', 'Discovery products', 'Revenue and profit from customers who found you on Discovery Buy.', 'Discovery Buy'],
+  ['book', 'Discovery services', 'Revenue and profit from customers who found you on Discovery Book.', 'Discovery Book']
 ];
 
 export const FINANCIAL_REPORT_GROUPS = [
@@ -244,7 +244,7 @@ function buildMetrics(options, context) {
     const channelMoney = money(selected, amount, channelDateMissing);
     const channelProfit = profitability(selected, channelDateMissing).profit;
     const legacy = paid.filter(row => (row.analyticsSource || row.attribution?.source) === 'places' && !context.surfaceRows.get(row)).length;
-    const coverageNote = `${paid.length - identified.length ? `${paid.length - identified.length} paid ${paid.length - identified.length === 1 ? 'receipt has' : 'receipts have'} no saved discovery source and ${paid.length - identified.length === 1 ? 'is' : 'are'} left out here. ` : ''}${id !== 'discovery' && legacy ? `${legacy} older discovery ${legacy === 1 ? 'receipt does' : 'receipts do'} not name Places, Find Buy or Find Book. ${legacy === 1 ? 'It is' : 'They are'} included in Discovery totals only.` : ''}`.trim();
+    const coverageNote = `${paid.length - identified.length ? `${paid.length - identified.length} paid ${paid.length - identified.length === 1 ? 'receipt has' : 'receipts have'} no saved discovery source and ${paid.length - identified.length === 1 ? 'is' : 'are'} left out here. ` : ''}${id !== 'discovery' && legacy ? `${legacy} older discovery ${legacy === 1 ? 'receipt does' : 'receipts do'} not name Places, Discovery Buy or Discovery Book. ${legacy === 1 ? 'It is' : 'They are'} included in Discovery totals only.` : ''}`.trim();
     const reason = !attributionKnown ? 'These receipts do not have discovery tracking yet. New visits and sales will save where the customer found you.' : '';
     const attach = value => ({ ...value, value: attributionKnown ? value.value : null, available: attributionKnown && value.available, unavailableReason: reason || value.unavailableReason, coverageNote });
     stats[`${id}_revenue`] = attach(channelMoney);

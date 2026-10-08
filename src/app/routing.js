@@ -54,15 +54,15 @@ export function parseAppRoute(path = getLocationPath()) {
   }
 
   if (parts[0] === 'app') {
-    const requestedSection = parts[1] || 'find';
-    const section = ['home', 'explore', 'notifications'].includes(requestedSection)
-      ? 'find'
+    const requestedSection = parts[1] || 'discovery';
+    const section = ['find', 'home', 'explore', 'notifications'].includes(requestedSection)
+      ? 'discovery'
       : requestedSection;
     if (section === 'auth') {
       return { kind: 'client', section: 'auth', rest: [] };
     }
-    const allowed = new Set(['find', 'messages', 'account']);
-    const tab = allowed.has(section) ? section : 'find';
+    const allowed = new Set(['discovery', 'messages', 'account']);
+    const tab = allowed.has(section) ? section : 'discovery';
     return {
       kind: 'client',
       section: tab,
@@ -146,9 +146,9 @@ export function publicItemPath(slug, page, itemId) {
   return `/w/${slug}/${normalized}/${encodeURIComponent(id)}`;
 }
 
-export function clientAppPath(section = 'find', ...rest) {
-  const normalized = ['home', 'explore', 'notifications'].includes(section) ? 'find' : section;
-  const base = !normalized ? '/app/find' : `/app/${normalized}`;
+export function clientAppPath(section = 'discovery', ...rest) {
+  const normalized = ['find', 'home', 'explore', 'notifications'].includes(section) ? 'discovery' : section;
+  const base = !normalized ? '/app/discovery' : `/app/${normalized}`;
   if (!rest.length) return base;
   return `${base}/${rest.map((part) => encodeURIComponent(String(part))).join('/')}`;
 }

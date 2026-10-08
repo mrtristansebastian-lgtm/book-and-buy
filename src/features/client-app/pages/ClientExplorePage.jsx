@@ -110,7 +110,7 @@ export function ClientExplorePage() {
   };
 
   return (
-    <ClientAppShell section="find" title="Find">
+    <ClientAppShell section="discovery" title="Discovery">
       <ClientDeskLayout className="bb-client-ig-explore is-find" showContentTabs contentTab={filter} contentTabs={TABS} onContentTabChange={setFilter}>
         <div className="bb-client-ig-top">
           <ExploreDiscoveryBar mode={exploreMode} maxKm={exploreMaxKm} categoryIds={exploreCategoryIds} queryText={queryText}

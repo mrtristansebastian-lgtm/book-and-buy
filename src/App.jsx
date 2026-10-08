@@ -73,7 +73,7 @@ export default function App() {
   }
   if (route.kind === 'onboarding') return configured && !user && !isLocalMode ? <AppLoginScreen /> : <BusinessOnboardingPage />;
   if (route.kind === 'client') {
-    return <ClientApp section={route.section || 'find'} rest={route.rest || []} />;
+    return <ClientApp section={route.section || 'discovery'} rest={route.rest || []} />;
   }
   if (route.kind === 'portal') {
     if (isClient) {
@@ -85,7 +85,7 @@ export default function App() {
     const allowed = workspace.isDemo || isLocalMode || Boolean(user) || !configured;
     if (!allowed) return <AppLoginScreen />;
     if (isClient && !workspace.isDemo) {
-      navigate('/app/find', { replace: true });
+      navigate('/app/discovery', { replace: true });
       return <div className="bb-shell native-ui min-h-screen grid place-items-center bb-muted">Opening client app…</div>;
     }
     if (!workspace.onboardingComplete && !workspace.isDemo) return <BusinessOnboardingPage />;

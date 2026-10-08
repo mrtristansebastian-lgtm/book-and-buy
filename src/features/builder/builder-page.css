@@ -109,3 +109,13 @@ html body .bb-shell.is-miniapp .bb-owner-main:has(> .bb-builder-page) {
 .bb-builder-commerce-error{position:fixed;left:20px;right:20px;bottom:24px;z-index:1101;display:flex;justify-content:space-between;gap:16px;background:#fff5f3;color:#9c3027;padding:16px;border:1px solid #f0cbc7;border-radius:12px;font-size:14px}
 @media(max-width:599px){.bb-builder-commerce-panel>header,.bb-builder-commerce-panel>footer{padding:16px}.bb-builder-commerce-body{padding:8px}}
 .bb-ai-connections label{display:grid;gap:8px;font-weight:600;margin-bottom:16px}.bb-ai-connections input,.bb-ai-connections select{width:100%;padding:12px;border:1px solid var(--bb-line,#dce2ea);border-radius:10px;font:inherit;background:white}.bb-ai-connections p{font-size:14px;line-height:1.6}.bb-ai-connections .bb-builder-commerce-body{display:grid;gap:12px}.bb-ai-connections button{max-width:100%}
+@media(max-width:760px) {
+ .bb-owner-main:has(.bb-builder-page) .bb-butler-launch { display:none; }
+}
+@media(max-width:760px) {
+ html body .bb-builder-page .bb-builder-header .bb-page-title { font-size:clamp(22px,6vw,28px) !important; white-space:nowrap; }
+}
+@media(max-width:380px) {
+ .bb-builder-profile-label-mobile { display:none; }
+ .bb-builder-profile-link { padding-inline:10px; }
+}

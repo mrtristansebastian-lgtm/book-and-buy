@@ -8,7 +8,7 @@ import { clientAuthRedirect } from './profileAuthReturn';
 import { useEffect } from 'react';
 
 /** Top-level client app router for `#/app/...`. */
-export function ClientApp({ section = 'find', rest = [] }) {
+export function ClientApp({ section = 'discovery', rest = [] }) {
   const { isClient, profileReady } = useClientProfile();
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function ClientApp({ section = 'find', rest = [] }) {
     return <ClientAuthPage />;
   }
 
-  if (section === 'find') return <ClientExplorePage />;
+  if (section === 'discovery') return <ClientExplorePage />;
   if (section === 'messages') return <ClientMessagesPage threadId={rest[0] || ''} />;
   if (section === 'account') {
     return <ClientAccountPage section={rest[0] || ''} />;

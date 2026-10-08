@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { FileText, Paperclip, Send } from 'lucide-react';
+import { FileText, Paperclip, ArrowUp } from 'lucide-react';
 import { uploadChatAttachment } from '../../../shared/firebase/integrations';
 import { formatFileSize } from '../utils/supportFormat';
 import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
@@ -238,7 +238,7 @@ export function ChatComposer({
             onClick={send}
             aria-label="Send message"
           >
-            <Send size={14} strokeWidth={2.25} />
+            <ArrowUp size={18} strokeWidth={1.8} />
           </button>
         </div>
       )}

@@ -513,7 +513,7 @@ export function buildDemoAnalytics({ now = Date.now(), orders = [], bookings = [
     });
     events.push({ id: `demo_page_${i}`, analyticsVersion: 2, source: i % 3 === 0 ? 'places' : 'direct', type: 'page_view', sessionId: sid, at, path: paths[i % paths.length] });
     if (i % 3 === 0) {
-      events.push({ id: `demo_discovery_${i}`, analyticsVersion: 2, source: 'places', type: 'discovery_visit', discoveryAction: 'business_open', discoveryTarget: 'business', sessionId: sid, at: at + 1000, path: `/app/find/${discoverySurface}` });
+      events.push({ id: `demo_discovery_${i}`, analyticsVersion: 2, source: 'places', type: 'discovery_visit', discoveryAction: 'business_open', discoveryTarget: 'business', sessionId: sid, at: at + 1000, path: `/app/discovery/${discoverySurface}` });
       events.push({ id: `demo_impression_${i}`, analyticsVersion: 2, source: 'direct', type: 'discovery_visit', discoveryAction: 'impression', discoveryTarget: discoverySurface === 'places' ? 'business' : offer.kind, ...offerData, sessionId: sid, at: at + 500 });
       if (i < 24 && i % 6 === 0) events.push({ id: `demo_lead_${i}`, analyticsVersion: 2, source: 'places', type: 'message_lead', threadId: `demo_thread_${i}`, sessionId: sid, at: at + 2000 });
     }

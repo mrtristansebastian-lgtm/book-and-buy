@@ -308,7 +308,7 @@ export function reportDiscoveryVisit(
   { surface = 'places', target = 'business' }: { surface?: 'places' | 'book' | 'buy'; target?: 'business' | 'offer' } = {}
 ) {
   if (!canWritePresence() || !ctx.slug || !ctx.ownerId) return;
-  const entry: SessionContext = { ...ctx, source: 'places', discoverySurface: surface, path: `/app/find/${surface}` };
+  const entry: SessionContext = { ...ctx, source: 'places', discoverySurface: surface, path: `/app/discovery/${surface}` };
   const session = getAnalyticsSession(entry);
   writeStoredJson(`${DISCOVERY_KEY}:${storageScope(ctx)}`, { sessionId: session.id, surface });
   void upsertSession(entry, entry.path!, true);
@@ -329,7 +329,7 @@ export function reportDiscoveryImpression(
   if (observedDiscoveryImpressions.has(eventId)) return;
   observedDiscoveryImpressions.add(eventId);
   // Impressions do not create presence documents or change the visit's acquisition source.
-  void trackAnalyticsEvent('discovery_visit', { ...ctx, discoverySurface: surface, path: `/app/find/${surface}` }, {
+  void trackAnalyticsEvent('discovery_visit', { ...ctx, discoverySurface: surface, path: `/app/discovery/${surface}` }, {
     discoveryAction: 'impression', discoveryTarget: kind,
     ...(item ? { itemKind: kind, itemName: String(item.name || '').slice(0, 160),
       ...(kind === 'service' ? { serviceId: item.id || '' } : { productId: item.id || '' }) } : {})

@@ -35,7 +35,7 @@ test('published profiles remain public and lookup errors remain distinguishable 
 test('sign-in returns to the requested profile without accepting external or privileged redirects', () => {
   assert.equal(profileAuthReturn(profileSignInPath('flameandflour')), '/w/flameandflour');
   for (const target of ['https://evil.test', '//evil.test', '/dashboard/settings', '/w/a/../../dashboard', '/w/a?evil=yes', '/w/a\\b']) {
-    assert.equal(profileAuthReturn(`/app/auth?returnTo=${encodeURIComponent(target)}`), '/app/find');
+    assert.equal(profileAuthReturn(`/app/auth?returnTo=${encodeURIComponent(target)}`), '/app/discovery');
   }
 });
 test('a stale authentication effect cannot overwrite a completed profile return', () => {

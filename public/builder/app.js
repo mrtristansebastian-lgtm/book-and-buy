@@ -7,6 +7,7 @@ const APP_LOGO_SRC = "/brand/book-and-buy-mark.png";
 // Lucide 24px grid and 1.6px strokes, matching the shared app icon family. The chrome
 // stays consistent even when backend adapters are replaced later.
 const UI_ICONS = Object.freeze({
+  "paintbrush": '<path d="m14.06 9.94 6.92-6.92a2.12 2.12 0 0 0-3-3l-6.92 6.92"></path><path d="m7 7 10 10"></path><path d="M5 17c-1.5 0-3 1.5-3 3 0 1.5-1 2-1 2s6 0 6-5c0-1.5-1.5-3-3-3"></path><path d="m8 8-3 3a4.24 4.24 0 0 0 6 6l3-3"></path>',
   "chevron-down": "<path d=\"m6 9 6 6 6-6\"></path>",
   "chevron-right": "<path d=\"m9 18 6-6-6-6\"></path>",
   "arrow-right": "<path d=\"M5 12h14\"></path><path d=\"m12 5 7 7-7 7\"></path>",
@@ -871,6 +872,10 @@ function renderCurrent() {
 function setView(view) {
   if (state.view === "code" && view !== "code" && state.codeDirty) applyCodeEdits({ silent: true });
   state.view = view;
+  if (window.matchMedia("(max-width: 760px)").matches) {
+    state.chatCollapsed = true;
+    els.appShell.classList.add("chat-collapsed");
+  }
   $$("#mainViewTabs .view-tab").forEach(btn => {
     const active = btn.dataset.view === view;
     btn.classList.toggle("active", active);
@@ -880,6 +885,19 @@ function setView(view) {
   els.codeArea.classList.toggle("hidden", view !== "code");
   if (view === "code") renderActiveCodeFile();
   else requestAnimationFrame(updateCanvasOverlays);
+  syncMobileViewTabs();
+}
+
+function syncMobileViewTabs() {
+  const mobile = window.matchMedia("(max-width: 760px)").matches;
+  const chatVisible = mobile && !state.chatCollapsed;
+  els.appShell.dataset.editorView = state.view;
+  $("#mobileChatTab")?.setAttribute("aria-pressed", String(chatVisible));
+  $$("#mainViewTabs .view-tab").forEach(button => {
+    const active = !chatVisible && button.dataset.view === state.view;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
 }
 
 function setDevice(device) {
@@ -4063,7 +4081,17 @@ $$(".canvas-mode-btn").forEach(btn => btn.addEventListener("click", () => setCan
 $("#toggleChatBtn").addEventListener("click", () => {
   state.chatCollapsed = !state.chatCollapsed;
   els.appShell.classList.toggle("chat-collapsed", state.chatCollapsed);
+  syncMobileViewTabs();
   requestAnimationFrame(() => requestAnimationFrame(updateCanvasOverlays));
+});
+$("#mobileChatTab").addEventListener("click", () => {
+  state.chatCollapsed = false;
+  els.appShell.classList.remove("chat-collapsed");
+  syncMobileViewTabs();
+});
+window.addEventListener("resize", syncMobileViewTabs);
+$("#builderNewChat")?.addEventListener("click", () => {
+  if (!state.busy && window.matchMedia("(max-width: 760px)").matches) $("#mobileChatTab").click();
 });
 $("#refreshBtn").addEventListener("click", () => {
   if (!state.current?.html) return showToast("Nothing to refresh yet");
@@ -4422,6 +4450,7 @@ async function initializeBuilder() {
   renderPromptHistory();
   renderCurrent();
   syncChatEmpty();
+  syncMobileViewTabs();
   autoSizeComposer();
   syncComposerActionState();
   setBuilderStatus("ready");

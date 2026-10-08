@@ -2,7 +2,7 @@
 export function profileAuthReturn(path = '') {
   const query = String(path).split('?')[1] || '';
   const target = new URLSearchParams(query).get('returnTo') || '';
-  return /^\/w\/[a-z0-9][a-z0-9-]*\/?$/i.test(target) ? target : '/app/find';
+  return /^\/w\/[a-z0-9][a-z0-9-]*\/?$/i.test(target) ? target : '/app/discovery';
 }
 
 export function profileSignInPath(slug) {

@@ -1,0 +1,12 @@
+/* One send control across customer chat, Butler and the website editor. */
+html body :is(#root,#composer) :is(.bb-support-composer-send,.bb-butler-send,.send-btn) {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important;
+  flex: 0 0 32px; width: 32px !important; min-width: 32px !important; height: 32px !important; min-height: 32px !important;
+  padding: 0 !important; border: 1px solid transparent !important; border-radius: 10px !important;
+  background: linear-gradient(#101828,#101828) padding-box, linear-gradient(120deg,#c6edff,#edd6ff,#d4f6de) border-box !important;
+  color: #fff !important; box-shadow: none !important; cursor: pointer; transition: background .15s ease, transform .15s ease;
+}
+html body :is(#root,#composer) :is(.bb-support-composer-send,.bb-butler-send,.send-btn):hover:not(:disabled) { background: linear-gradient(#344054,#344054) padding-box, linear-gradient(120deg,#c6edff,#edd6ff,#d4f6de) border-box !important; }
+html body :is(#root,#composer) :is(.bb-support-composer-send,.bb-butler-send,.send-btn):disabled { background:#f4f5f7 !important; border-color:#eef0f3 !important; color:#98a2b3 !important; cursor:default; opacity:1; }
+html body :is(#root,#composer) :is(.bb-support-composer-send,.bb-butler-send,.send-btn):focus-visible { outline:2px solid #667085; outline-offset:3px; }
+html body :is(#root,#composer) :is(.bb-support-composer-send,.bb-butler-send,.send-btn) :is(svg,.ui-icon) { width:18px !important; height:18px !important; stroke-width:1.8; }

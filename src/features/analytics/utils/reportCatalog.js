@@ -11,7 +11,7 @@ export const REPORT_GROUPS = [
   ] },
   ...['product', 'service'].map(kind => ({ id: `${kind}s`, title: kind === 'product' ? 'Products' : 'Services', description: `Your overall ${kind} activity across all traffic sources.`, metrics: [
     metric(`${kind}_views`, `${kind === 'product' ? 'Product' : 'Service'} page views`, `How many times your ${kind} pages were opened, wherever the visitor came from. Clicking a listing counts only when its page opens.`, { commerceKey: `${kind}Views`, kind }),
-    metric(`${kind}_discovery_views`, 'Views from discovery', `How many ${kind} page views came after someone found you through Places, Find Buy or Find Book. These views are also included in your total ${kind} page views.`, { commerceKey: `${kind}DiscoveryViews`, kind }),
+    metric(`${kind}_discovery_views`, 'Views from discovery', `How many ${kind} page views came after someone found you through Places, Discovery Buy or Discovery Book. These views are also included in your total ${kind} page views.`, { commerceKey: `${kind}DiscoveryViews`, kind }),
     metric(`${kind}_adds`, 'Add-to-carts', `How many times a ${kind} was added to a cart, including increases to its quantity. Adding three of the same ${kind} at once counts as one addition.`, { commerceKey: `${kind}Adds`, kind })
   ] })),
   { id: 'checkout', title: 'Carts & checkout', description: 'How customers use their carts and move through checkout.', metrics: [
@@ -20,10 +20,10 @@ export const REPORT_GROUPS = [
     metric('checkout_starts', 'Checkout starts', 'How many times someone started the checkout details step. Starting checkout again counts as another start.', { commerceKey: 'checkoutStarts' }),
     metric('submitted_checkouts', 'Submitted checkouts', 'How many checkouts finished by creating an order or booking request. This does not mean the customer has paid yet.', { commerceKey: 'submittedCheckouts' })
   ] },
-  { id: 'discovery', title: 'Discovery outcomes', description: 'Messages, orders and booking requests gained through Places, Find Buy and Find Book.', metrics: [
-    metric('discovery_messages', 'Message leads', 'How many new conversations started after someone found you through Places, Find Buy or Find Book. A conversation counts once, when the customer sends their first message.', { discoveryKey: 'messageLeads', distinct: true }),
-    metric('discovery_orders', 'Product orders', 'How many product orders came from visitors who found you through Places, Find Buy or Find Book. An order counts even if payment is still due.', { discoveryKey: 'orders' }),
-    metric('discovery_bookings', 'Booking requests', 'How many booking requests came from visitors who found you through Places, Find Buy or Find Book. A request may still need your approval or payment.', { discoveryKey: 'bookings' })
+  { id: 'discovery', title: 'Discovery outcomes', description: 'Messages, orders and booking requests gained through Places, Discovery Buy and Discovery Book.', metrics: [
+    metric('discovery_messages', 'Message leads', 'How many new conversations started after someone found you through Places, Discovery Buy or Discovery Book. A conversation counts once, when the customer sends their first message.', { discoveryKey: 'messageLeads', distinct: true }),
+    metric('discovery_orders', 'Product orders', 'How many product orders came from visitors who found you through Places, Discovery Buy or Discovery Book. An order counts even if payment is still due.', { discoveryKey: 'orders' }),
+    metric('discovery_bookings', 'Booking requests', 'How many booking requests came from visitors who found you through Places, Discovery Buy or Discovery Book. A request may still need your approval or payment.', { discoveryKey: 'bookings' })
   ] },
   { id: 'places', title: 'Places', description: 'How your Places listing reaches visitors and brings them to your business.', metrics: [
     metric('places_reach', 'Reach', 'How many different visitors saw your business listing on Places. Each visitor counts once, even if they see it again. A listing counts as seen when at least half of it is on screen.', { surface: 'places', action: 'reach', distinct: true, visitorBased: true }),
@@ -32,13 +32,13 @@ export const REPORT_GROUPS = [
     metric('places_orders', 'Product orders', 'How many product orders came from visitors who found you on Places. An order counts even if payment is still due.', { surface: 'places', action: 'orders' }),
     metric('places_bookings', 'Booking requests', 'How many booking requests came from visitors who found you on Places. A request may still need your approval or payment.', { surface: 'places', action: 'bookings' })
   ] },
-  ...[['buy', 'Find products', 'product', 'orders', 'Product orders'], ['book', 'Find services', 'service', 'bookings', 'Booking requests']].map(([surface, title, kind, outcome, outcomeLabel]) => ({
-    id: surface, title, description: `The reach and ${kind} activity your business gains from Find ${surface === 'buy' ? 'Buy' : 'Book'}.`, metrics: [
-      metric(`${surface}_reach`, 'Reach', `How many different visitors saw your ${kind}s on Find ${surface === 'buy' ? 'Buy' : 'Book'}. Each visitor counts once, even if they see several listings. A listing counts as seen when at least half of it is on screen.`, { surface, action: 'reach', kind, distinct: true, visitorBased: true }),
-      metric(`${surface}_page_views`, `${kind === 'product' ? 'Product' : 'Service'} page views`, `How many times your ${kind} pages opened after someone found you on Find ${surface === 'buy' ? 'Buy' : 'Book'}. Clicking a listing alone does not count.`, { surface, action: 'views', kind }),
-      metric(`${surface}_adds`, 'Add-to-carts', `How many times visitors from Find ${surface === 'buy' ? 'Buy' : 'Book'} added a ${kind} to their cart or increased its quantity. Adding three of the same ${kind} at once counts as one addition.`, { surface, action: 'adds', kind }),
-      metric(`${surface}_checkouts`, 'Checkout starts', `How many times visitors from Find ${surface === 'buy' ? 'Buy' : 'Book'} started checkout. Starting checkout again counts as another start.`, { surface, action: 'checkouts' }),
-      metric(`${surface}_${outcome}`, outcomeLabel, `How many ${outcome === 'orders' ? 'product orders' : 'booking requests'} came from visitors who found you on Find ${surface === 'buy' ? 'Buy' : 'Book'}. ${outcome === 'orders' ? 'An order counts even if payment is still due.' : 'A request may still need your approval or payment.'}`, { surface, action: outcome })
+  ...[['buy', 'Discovery products', 'product', 'orders', 'Product orders'], ['book', 'Discovery services', 'service', 'bookings', 'Booking requests']].map(([surface, title, kind, outcome, outcomeLabel]) => ({
+    id: surface, title, description: `The reach and ${kind} activity your business gains from Discovery ${surface === 'buy' ? 'Buy' : 'Book'}.`, metrics: [
+      metric(`${surface}_reach`, 'Reach', `How many different visitors saw your ${kind}s on Discovery ${surface === 'buy' ? 'Buy' : 'Book'}. Each visitor counts once, even if they see several listings. A listing counts as seen when at least half of it is on screen.`, { surface, action: 'reach', kind, distinct: true, visitorBased: true }),
+      metric(`${surface}_page_views`, `${kind === 'product' ? 'Product' : 'Service'} page views`, `How many times your ${kind} pages opened after someone found you on Discovery ${surface === 'buy' ? 'Buy' : 'Book'}. Clicking a listing alone does not count.`, { surface, action: 'views', kind }),
+      metric(`${surface}_adds`, 'Add-to-carts', `How many times visitors from Discovery ${surface === 'buy' ? 'Buy' : 'Book'} added a ${kind} to their cart or increased its quantity. Adding three of the same ${kind} at once counts as one addition.`, { surface, action: 'adds', kind }),
+      metric(`${surface}_checkouts`, 'Checkout starts', `How many times visitors from Discovery ${surface === 'buy' ? 'Buy' : 'Book'} started checkout. Starting checkout again counts as another start.`, { surface, action: 'checkouts' }),
+      metric(`${surface}_${outcome}`, outcomeLabel, `How many ${outcome === 'orders' ? 'product orders' : 'booking requests'} came from visitors who found you on Discovery ${surface === 'buy' ? 'Buy' : 'Book'}. ${outcome === 'orders' ? 'An order counts even if payment is still due.' : 'A request may still need your approval or payment.'}`, { surface, action: outcome })
     ]
   }))
 ];

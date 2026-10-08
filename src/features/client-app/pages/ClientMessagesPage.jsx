@@ -181,23 +181,11 @@ export function ClientMessagesPage({ threadId = '' }) {
   };
 
   return (
-    <ClientAppShell section="messages" title="Messages" unreadMessages={unreadTotal} hideHeader>
+    <ClientAppShell section="messages" title="Inbox" unreadMessages={unreadTotal}>
       <div className="bb-support-page bb-client-support-page">
         <section className={`bb-support-stage ${stageMode}`}>
           <aside className="bb-support-list">
             <div className="bb-support-list-head">
-              <div className="bb-support-list-head-copy">
-                <div className="bb-page-title-wrap">
-                  <span className="bb-page-title-main">
-                    <div className="bb-page-header-glow" aria-hidden="true" />
-                    <h2 className="bb-page-title bb-support-inbox-title">Inbox</h2>
-                  </span>
-                </div>
-                <p className="bb-muted m-0 text-xs mt-1">
-                  Bookings, orders, and business chats
-                </p>
-              </div>
-
               <label className="bb-support-search bb-search-field">
                 <Search size={15} className="bb-search-field-icon" aria-hidden="true" />
                 <input
@@ -239,16 +227,16 @@ export function ClientMessagesPage({ threadId = '' }) {
                 <div className="bb-muted p-4 m-0 text-sm">
                   <p className="m-0">
                     {mine.length === 0
-                      ? 'No conversations yet. Message a business from Find or a booking.'
+                      ? 'No conversations yet. Message a business from Discovery or a booking.'
                       : 'No conversations match this filter.'}
                   </p>
                   {mine.length === 0 ? (
                     <Button action="search" variant="primary"
                       type="button"
                       className="bb-primary-btn mt-3"
-                      onClick={() => navigate('/app/find')}
+                      onClick={() => navigate('/app/discovery')}
                     >
-                      Find businesses
+                      Discover businesses
                     </Button>
                   ) : null}
                 </div>
@@ -365,7 +353,7 @@ export function ClientMessagesPage({ threadId = '' }) {
               <div className="bb-support-empty">
                 <p className="bb-page-title text-xl m-0">Select a conversation</p>
                 <p className="bb-muted m-0 text-sm">
-                  Message a business from Find, or open a booking chat.
+                  Message a business from Discovery, or open a booking chat.
                 </p>
               </div>
             </div>

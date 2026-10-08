@@ -4,8 +4,8 @@ import { clientAppPath, navigate } from '../../app/routing';
 import { BrandMark } from '../../shared/ui/BrandMark';
 
 const TABS = [
-  { id: 'find', label: 'Find', icon: Search, path: '/app/find' },
-  { id: 'messages', label: 'Messages', icon: MessageCircle, path: '/app/messages' },
+  { id: 'discovery', label: 'Discovery', icon: Search, path: '/app/discovery' },
+  { id: 'messages', label: 'Inbox', icon: MessageCircle, path: '/app/messages' },
   { id: 'account', label: 'Account', icon: UserRound, path: '/app/account' }
 ];
 

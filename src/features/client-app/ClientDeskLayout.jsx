@@ -1,6 +1,6 @@
 function ContentTabs({ value, onChange, tabs = [] }) {
   return (
-    <div className="bb-client-content-tabs" role="tablist" aria-label="Find sections">
+    <div className="bb-client-content-tabs" role="tablist" aria-label="Discovery sections">
       {tabs.map(({ id, label }) => {
         const active = value === id;
         return (

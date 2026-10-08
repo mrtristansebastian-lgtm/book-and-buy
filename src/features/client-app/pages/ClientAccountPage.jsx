@@ -352,7 +352,7 @@ export function ClientAccountPage({ section = '' }) {
     body = (
       <div className="bb-client-stack bb-client-activity">
         {myBookings.length === 0 ? (
-          <EmptyState icon={CalendarDays} title="Your next booking starts here" description="Find a business and book your first service." action={<Button action="search" variant="primary" type="button" onClick={() => navigate('/app/find')}>Find services</Button>} />
+          <EmptyState icon={CalendarDays} title="Your next booking starts here" description="Find a business and book your first service." action={<Button action="search" variant="primary" type="button" onClick={() => navigate('/app/discovery')}>Discover services</Button>} />
         ) : (
           myBookings.map((booking) => (
             <article key={booking.id} className="bb-client-item">
@@ -381,7 +381,7 @@ export function ClientAccountPage({ section = '' }) {
     body = (
       <div className="bb-client-stack bb-client-activity">
         {myOrders.length === 0 ? (
-          <EmptyState icon={ClipboardList} title="Your orders, in one place" description="Discover products from businesses on Book and Buy. Your orders will appear here." action={<Button action="search" variant="primary" type="button" onClick={() => navigate('/app/find')}>Find products</Button>} />
+          <EmptyState icon={ClipboardList} title="Your orders, in one place" description="Discover products from businesses on Book and Buy. Your orders will appear here." action={<Button action="search" variant="primary" type="button" onClick={() => navigate('/app/discovery')}>Discover products</Button>} />
         ) : (
           myOrders.map((order) => (
             <article key={order.id} className="bb-client-item">
@@ -417,8 +417,8 @@ export function ClientAccountPage({ section = '' }) {
       <div className="bb-client-empty bb-client-saved-empty">
         <Bookmark size={24} />
         <strong>No saved places yet</strong>
-        <span>Save a business from Find and it will appear here.</span>
-        <Button action="search" variant="primary" type="button" className="bb-primary-btn" onClick={() => navigate('/app/find')}>Find places</Button>
+        <span>Save a business from Discovery and it will appear here.</span>
+        <Button action="search" variant="primary" type="button" className="bb-primary-btn" onClick={() => navigate('/app/discovery')}>Discover places</Button>
       </div>
     );
   } else if (active?.id === 'account') {
@@ -429,22 +429,14 @@ export function ClientAccountPage({ section = '' }) {
     <ClientAppShell
       section="account"
       title={isIndex ? 'Account' : active.label}
-      hideHeader
+      hideHeader={!isIndex}
     >
       <div
         className={`bb-settings bb-client-settings is-mobile-${isIndex ? 'index' : 'detail'}`}
       >
         {isIndex ? (
           <aside className="bb-settings-rail" aria-label="Account settings">
-            <header className="bb-settings-mobile-index-head">
-              <div className="bb-page-title-wrap">
-                <div className="bb-page-header-glow" aria-hidden="true" />
-                <h1 className="bb-page-title">Account</h1>
-              </div>
-              <p className="bb-muted">Profile, bookings, and sign-in.</p>
-            </header>
-
-            <nav className="bb-client-account-launcher" aria-label="Account apps">
+<nav className="bb-client-account-launcher" aria-label="Account apps">
               {ACCOUNT_GROUPS.map((group) => {
                 const GroupIcon = group.icon;
                 return (

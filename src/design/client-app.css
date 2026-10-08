@@ -5859,3 +5859,17 @@ a.bb-places-address:hover .bb-places-directions { border-color: #bfc7d2; color: 
 }
 
 .bb-purchase-review{margin-top:12px}.bb-purchase-review form{display:grid;gap:12px;padding-top:14px}.bb-purchase-review label{display:grid;gap:6px;font-size:13px}.bb-purchase-review textarea,.bb-purchase-review select{border:1px solid #e4e7ec;border-radius:10px;padding:10px;font:inherit;width:100%;background:var(--bb-surface,#fff);color:inherit}.bb-purchase-review form>div{display:flex;gap:8px;justify-content:flex-end}.bb-purchase-review p{font-size:12px;color:var(--bb-text-muted,#667085);line-height:1.6}
+
+/* Shared Discovery search layer: keep every result card beneath the open menu. */
+.bb-explore-discovery { position: relative; z-index: 30; isolation: isolate; }
+.bb-explore-search.is-open { z-index: 50; }
+.bb-explore-search-panel { background: #fff; max-height: min(26rem, 55dvh); overscroll-behavior: contain; }
+/* Inbox and Account use the same branded shell header as Discovery. */
+.bb-client-main:has(.bb-client-support-page) > .bb-client-top { flex: 0 0 auto; }
+.bb-client-shell:has(.bb-client-support-page) .bb-client-support-page { flex: 1 1 auto; min-height: 0; }
+html body .bb-client-shell .bb-client-ig-top:has(.bb-explore-search.is-open) { z-index: 15 !important; }
+/* Confine the branded splash to the common header, above flat account sections. */
+html body .bb-client-shell .bb-client-top { overflow: hidden; isolation: isolate; }
+html body .bb-client-settings.is-mobile-index .bb-client-account-launcher { gap: 0; padding-inline: 0; }
+html body .bb-client-settings.is-mobile-index .bb-client-account-group { padding: 22px var(--bb-client-gutter); border: 0; border-bottom: 1px solid #eaecf0; border-radius: 0; background: #fff; box-shadow: none; }
+html body .bb-client-settings.is-mobile-index .bb-demo-panel--account { border-radius: 0; box-shadow: none; border-inline: 0; }

@@ -83,7 +83,7 @@ test('Places and Find business links record explicit business opens on their act
   }
   assert.deepEqual(events().map(row => row.data.discoverySurface), ['places', 'book', 'buy']);
   assert.equal(events().every(row => row.data.discoveryAction === 'business_open'), true);
-  assert.equal(events()[1].data.path, '/app/find/book');
+  assert.equal(events()[1].data.path, '/app/discovery/book');
 });
 
 test('receipt acquisition is saved with presence and stays stable through navigation and other discovery clicks', async () => {

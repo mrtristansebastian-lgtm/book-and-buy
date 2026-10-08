@@ -13,7 +13,8 @@
 <link href="styles.css" rel="stylesheet"/>
 <link href="bookbuy-theme.css" rel="stylesheet"/>
 <link href="chat-polish.css" rel="stylesheet"/>
-<link href="/brand/book-and-buy-mark.png" rel="icon" type="image/png"/></head>
+<link href="/brand/book-and-buy-mark.png" rel="icon" type="image/png"/><link rel="stylesheet" href="/chat-controls.css"/>
+</head>
 <body class="builder-theme">
 <div class="app-shell" id="appShell">
 <header class="topbar">
@@ -41,14 +42,15 @@
 
 </div>
 <div class="builder-preview-controls"><nav aria-label="Editor view" class="view-tabs" id="mainViewTabs">
-<button aria-pressed="true" class="view-tab active" data-view="preview"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span><span class="button-label">Preview</span></button>
-<button aria-pressed="false" class="view-tab" data-view="code"><span aria-hidden="true" class="icon-slot" data-icon="code"></span><span class="button-label">Code</span></button>
+<button aria-pressed="true" class="mobile-chat-tab" id="mobileChatTab" type="button"><span aria-hidden="true" class="icon-slot" data-icon="message-square"></span><span>Chat</span></button>
+<button aria-pressed="true" class="view-tab active" data-view="preview"><span class="button-label">Preview</span></button>
+<button aria-pressed="false" class="view-tab" data-view="code"><span class="button-label">Code</span></button>
 </nav><div aria-label="Preview device" class="device-switcher" id="deviceSwitcher">
 <button aria-label="Desktop" aria-pressed="true" class="device-btn active" data-device="desktop" data-tooltip="Desktop"><span aria-hidden="true" class="icon-slot" data-icon="monitor"></span></button>
 <button aria-label="Tablet" aria-pressed="false" class="device-btn" data-device="tablet" data-tooltip="Tablet"><span aria-hidden="true" class="icon-slot" data-icon="tablet"></span></button>
 <button aria-label="Mobile" aria-pressed="false" class="device-btn" data-device="mobile" data-tooltip="Mobile"><span aria-hidden="true" class="icon-slot" data-icon="smartphone"></span></button>
 </div>
-<div id="canvasModeSwitcher" class="annotation-control" data-mode="view"><button aria-label="Annotate website" aria-pressed="false" class="icon-btn quiet canvas-mode-btn" data-canvas-mode="edit" data-tooltip="Annotate website"><span class="annotation-mark" aria-hidden="true"><img src="/brand/book-and-buy-mark.png" alt=""/><span class="icon-slot" data-icon="pencil"></span></span></button></div><span class="hidden" id="previewAddress" aria-live="polite"></span></div>
+<div id="canvasModeSwitcher" class="annotation-control" data-mode="view"><button aria-label="Annotate website" aria-pressed="false" class="icon-btn quiet canvas-mode-btn" data-canvas-mode="edit" data-tooltip="Annotate website"><span class="icon-slot annotation-brush" data-icon="paintbrush" aria-hidden="true"></span></button></div><span class="hidden" id="previewAddress" aria-live="polite"></span></div>
 <div class="topbar-right"><div class="stage-actions">
 <button aria-label="Refresh preview" class="icon-btn quiet" data-tooltip="Refresh preview" id="refreshBtn"><span aria-hidden="true" class="icon-slot" data-icon="refresh"></span></button>
 <button aria-label="Open preview" class="icon-btn quiet" data-tooltip="Open preview" id="openPreviewBtn"><span aria-hidden="true" class="icon-slot" data-icon="external-link"></span></button>
@@ -97,10 +99,7 @@
 <button aria-label="Clear canvas reference" data-tooltip="Clear selection" id="clearSelectionContext"><span aria-hidden="true" class="icon-slot" data-icon="x"></span></button>
 </div>
 <div class="composer" id="composer">
-<div class="composer-input-row"><textarea aria-label="Message Book &amp; Buy AI" id="promptInput" placeholder="Ask for a change, or describe your next idea…" rows="1"></textarea><div class="composer-actions">
-<span aria-live="polite" class="model-label" data-status="ready" id="modelLabel" role="status"><span class="model-dot"></span><span id="modelState">Ready</span></span>
-<button aria-label="Send prompt" class="send-btn" data-tooltip="Send" id="sendBtn"><span aria-hidden="true" class="send-icon icon-slot" data-icon="arrow-up"></span><span aria-hidden="true" class="stop-icon icon-slot" data-icon="square"></span></button>
-</div></div>
+<div class="composer-input-row"><textarea aria-label="Message Book &amp; Buy AI" id="promptInput" placeholder="Ask for a change, or describe your next idea…" rows="1"></textarea></div>
 <div class="composer-bottom">
 <div class="composer-tools">
 <div class="menu-anchor builder-picker-anchor">
@@ -147,7 +146,10 @@
 </div>
 <button aria-label="Attach files" class="composer-icon" data-tooltip="Attach files" id="attachBtn"><span aria-hidden="true" class="icon-slot" data-icon="paperclip"></span></button>
 </div>
-
+<div class="composer-actions">
+<span aria-live="polite" class="model-label" data-status="ready" id="modelLabel" role="status"><span class="model-dot"></span><span id="modelState">Ready</span></span>
+<button aria-label="Send prompt" class="send-btn" data-tooltip="Send" id="sendBtn"><span aria-hidden="true" class="send-icon icon-slot" data-icon="arrow-up"></span><span aria-hidden="true" class="stop-icon icon-slot" data-icon="square"></span></button>
+</div>
 </div>
 </div>
 <div class="composer-hint" id="composerHint"><span id="builderAiHelp">Drafts save automatically · review before publishing</span></div>

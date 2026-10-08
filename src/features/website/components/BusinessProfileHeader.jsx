@@ -60,7 +60,7 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
   return (
     <EditSection editMode={editMode} title="Business profile" sectionId="profile" className="bb-business-profile-identity">
       {<nav className="bb-business-profile-public-nav" aria-label="Business profile navigation">
-        <Button action="back" variant="secondary" disabled={!interactive} onClick={() => navigate('/app/find')}>Back to Places</Button>
+        <Button action="back" variant="secondary" disabled={!interactive} onClick={() => navigate('/app/discovery')}>Back to Places</Button>
         <Button action="share" icon={Share2} variant="secondary" disabled={!interactive} onClick={share} aria-live="polite">{copied ? 'Link copied' : 'Share profile'}</Button>
       </nav>}
       {website.heroImageUrl || website.heroImage || editMode ? <div className="bb-business-profile-banner">

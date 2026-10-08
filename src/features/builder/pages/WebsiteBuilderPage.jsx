@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Globe2, LoaderCircle, RotateCcw, X, ShoppingBag } from 'lucide-react';
-import { navigate, workspacePagePath } from '../../../app/routing';
+import { LoaderCircle, RotateCcw, X, ShoppingBag } from 'lucide-react';
 import { Button } from '../../../shared/ui/Button';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -123,16 +122,6 @@ function ConnectedWebsiteBuilder() {
             <h1 id="bb-builder-title" className="bb-page-title">Website builder</h1>
           </span>
         </div>
-        <Button
-          icon={Globe2}
-          variant="secondary"
-          className="bb-builder-profile-link"
-          aria-label="Open business profile"
-          onClick={() => navigate(workspacePagePath('website'))}
-        >
-          <span className="bb-builder-profile-label-desktop">Business profile</span>
-          <span className="bb-builder-profile-label-mobile">Profile</span>
-        </Button>
       </header>
 
       <div className="bb-builder-editor" aria-busy={loadState === 'loading'}>
