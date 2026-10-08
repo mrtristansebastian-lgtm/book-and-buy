@@ -119,3 +119,7 @@
 .bb-butler-composer-popover { bottom:calc(100% + 8px); }
 .native-ui .bb-butler-panel .bb-butler-plan-toggle[aria-pressed="true"] { color:var(--bb-ink); background:linear-gradient(var(--bb-surface),var(--bb-surface)) padding-box,var(--native-brand-gradient) border-box!important; }
 .bb-butler-composer-popover { max-height:min(640px,calc(var(--butler-viewport-height,100dvh) - 160px)); }
+@media (max-width:767px) {
+ .bb-shell:has(.bb-butler-overlay) { --bb-owner-dock-h:0px; --bb-owner-dock-pad:0px; }
+ .bb-shell:has(.bb-butler-overlay) .bb-owner-dock { display:none; }
+}
