@@ -4,6 +4,7 @@ export const SETTINGS_SECTIONS = [
   { id: 'billing', label: 'Billing' },
   { id: 'users', label: 'Users' },
   { id: 'payments', label: 'Payments' },
+  { id: 'butler', label: 'Book and Buy Butler' },
   { id: 'bookings', label: 'Bookings' },
   { id: 'checkout', label: 'Checkout' },
   { id: 'notifications', label: 'Notifications' },

@@ -1,4 +1,5 @@
 /** Provider API helpers — merchant keys only, hosted checkout redirects. */
+import { createHash } from 'node:crypto';
 
 export async function verifyStripeKeys({ secretKey, publicKey, mode }) {
   if (!String(secretKey || '').startsWith('sk_')) {
@@ -28,7 +29,8 @@ export async function createStripeCheckoutSession({
   customerEmail,
   successUrl,
   cancelUrl,
-  metadata = {}
+  metadata = {},
+  idempotencyKey
 }) {
   const params = new URLSearchParams();
   params.set('mode', 'payment');
@@ -47,6 +49,7 @@ export async function createStripeCheckoutSession({
     method: 'POST',
     headers: {
       Authorization: `Bearer ${secretKey}`,
+      ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: params
@@ -98,7 +101,8 @@ export async function createPayPalOrder({
   description,
   successUrl,
   cancelUrl,
-  customId
+  customId,
+  idempotencyKey
 }) {
   const { accessToken, base } = await verifyPayPalKeys({ clientId, secretKey, mode });
   const value = (Math.max(0, Math.round(amountInCents)) / 100).toFixed(2);
@@ -106,6 +110,7 @@ export async function createPayPalOrder({
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
+      ...(idempotencyKey ? { 'PayPal-Request-Id': createHash('sha256').update(idempotencyKey).digest('hex').slice(0,32) } : {}),
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
@@ -135,12 +140,13 @@ export async function createPayPalOrder({
   return { id: data.id, url: approve?.href, status: data.status };
 }
 
-export async function capturePayPalOrder({ clientId, secretKey, mode, orderId }) {
+export async function capturePayPalOrder({ clientId, secretKey, mode, orderId, idempotencyKey }) {
   const { accessToken, base } = await verifyPayPalKeys({ clientId, secretKey, mode });
   const res = await fetch(`${base}/v2/checkout/orders/${orderId}/capture`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
+      ...(idempotencyKey ? { 'PayPal-Request-Id': createHash('sha256').update(`capture-${idempotencyKey}`).digest('hex').slice(0,32) } : {}),
       'Content-Type': 'application/json'
     }
   });
@@ -175,7 +181,8 @@ export async function createPaystackTransaction({
   currency,
   description,
   callbackUrl,
-  metadata = {}
+  metadata = {},
+  reference
 }) {
   const res = await fetch('https://api.paystack.co/transaction/initialize', {
     method: 'POST',
@@ -185,6 +192,7 @@ export async function createPaystackTransaction({
     },
     body: JSON.stringify({
       email: email || 'customer@example.com',
+      ...(reference ? { reference } : {}),
       amount: Math.max(0, Math.round(amountInCents)),
       currency: String(currency || 'ZAR').toUpperCase(),
       callback_url: callbackUrl,
@@ -210,6 +218,15 @@ export async function createPaystackTransaction({
     accessCode: data.data?.access_code,
     status: 'pending'
   };
+}
+
+/** Verify PayPal's signed delivery with the merchant's registered webhook ID. */
+export async function verifyPayPalWebhook({ clientId,secretKey,mode,webhookId,headers,event }) {
+  if (!webhookId || !headers?.transmissionId || !headers?.transmissionTime || !headers?.transmissionSig || !headers?.certUrl || !headers?.authAlgo) throw new Error('PayPal webhook verification is not configured.');
+  const {accessToken,base} = await verifyPayPalKeys({clientId,secretKey,mode});
+  const response = await fetch(`${base}/v1/notifications/verify-webhook-signature`,{method:'POST',headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({auth_algo:headers.authAlgo,cert_url:headers.certUrl,transmission_id:headers.transmissionId,transmission_sig:headers.transmissionSig,transmission_time:headers.transmissionTime,webhook_id:webhookId,webhook_event:event}),signal:AbortSignal.timeout(15000)});
+  const result = await response.json(); if (!response.ok || result.verification_status !== 'SUCCESS') throw new Error('Invalid PayPal webhook signature.');
+  return true;
 }
 
 export async function verifyPaystackTransaction({ secretKey, reference }) {

@@ -19,6 +19,7 @@ export const BUTTON_ACTION_ICONS = Object.freeze({
   reconnect: Link,
   disconnect: Unlink,
   apply: Check,
+  adjust: SlidersHorizontal,
   continue: ArrowRight,
   next: ArrowRight,
   start: ArrowRight,

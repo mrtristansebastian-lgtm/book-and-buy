@@ -17,7 +17,17 @@ import {
   handlePayPalWebhook
 } from './payments/index.js';
 import { placeMarketOrder, updateMarketOrder } from './marketOrders.js';
-import { buildPublicAvailability } from './availability.js';
+import { getLivePublicServiceAvailability } from './availability.js';
+import { getPublicCommerceContext as commerceContext, quotePublicCommerce as commerceQuote } from './commerceRuntime.js';
+import { adjustInventory as inventoryAdjustment, expireInventoryReservations } from './inventoryService.js';
+import * as workspaceCommands from './workspaceCommands.js';
+import { readWorkspace } from './workspaceStore.js';
+import { assertOwner } from './workspaceDomain.js';
+import * as butler from './butler.js';
+import * as websites from './websiteRuntime.js';
+import { createAIGateway } from './ai/index.js';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { fetchPlaceReviews } from './places.js';
 import { getRescheduleContext, respondToReschedule, writeGuardedBooking } from './rescheduling.js';
 import { manageCustomDomain, resolveCustomDomain } from './domains.js';
@@ -29,18 +39,21 @@ const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
 const googlePlacesCallOptions = { secrets: [googlePlacesApiKey], cpu: 'gcf_gen1', memory: '256MiB', concurrency: 1, maxInstances: 5 };
 
 const APP_ID = process.env.APP_ID || 'book-and-buy-v1';
+const paymentSecrets = [defineSecret('PAYMENT_SETTINGS_ENCRYPTION_KEY')];
 
 function requireAuth(request) {
   if (!request.auth?.uid) {
     throw new HttpsError('unauthenticated', 'Sign in required.');
   }
+  assertOwner(request.auth.uid, request.auth);
   return request.auth.uid;
 }
 
 function wrapError(error) {
   const message = error?.message || 'Request failed';
   if (error instanceof HttpsError) throw error;
-  throw new HttpsError('failed-precondition', message);
+  const codes = ['invalid-argument', 'aborted', 'already-exists', 'permission-denied', 'unauthenticated', 'not-found', 'resource-exhausted', 'unavailable', 'data-loss', 'cancelled'];
+  throw new HttpsError(codes.includes(error?.code) ? error.code : 'failed-precondition', message);
 }
 
 export const health = onCall(async () => ({ ok: true, app: 'book-and-buy' }));
@@ -60,11 +73,11 @@ export const getPublicPaymentOptions = onCall(async (request) => {
   }
 });
 
-export const savePaymentGatewaySettings = onCall(async (request) => {
+export const savePaymentGatewaySettings = onCall({ secrets: paymentSecrets }, async (request) => {
   try {
     const uid = requireAuth(request);
     return await saveAndVerifyPaymentGateway(
-      { appId: APP_ID, ...(request.data || {}) },
+      { ...(request.data || {}), appId: APP_ID },
       uid
     );
   } catch (error) {
@@ -75,23 +88,23 @@ export const savePaymentGatewaySettings = onCall(async (request) => {
 export const disconnectPaymentGateway = onCall(async (request) => {
   try {
     const uid = requireAuth(request);
-    return await disconnectPaymentGatewayFn({ appId: APP_ID, ...(request.data || {}) }, uid);
+    return await disconnectPaymentGatewayFn({ ...(request.data || {}), appId: APP_ID }, uid);
   } catch (error) {
     wrapError(error);
   }
 });
 
-export const initiatePayment = onCall(async (request) => {
+export const initiatePayment = onCall({ secrets: paymentSecrets }, async (request) => {
   try {
-    return await initiatePaymentFn({ appId: APP_ID, ...(request.data || {}) });
+    return await initiatePaymentFn({ ...(request.data || {}), appId: APP_ID });
   } catch (error) {
     wrapError(error);
   }
 });
 
-export const confirmPaymentReturn = onCall(async (request) => {
+export const confirmPaymentReturn = onCall({ secrets: paymentSecrets }, async (request) => {
   try {
-    return await confirmPaymentReturnFn({ appId: APP_ID, ...(request.data || {}) });
+    return await confirmPaymentReturnFn({ ...(request.data || {}), appId: APP_ID });
   } catch (error) {
     wrapError(error);
   }
@@ -107,7 +120,7 @@ export const createPublicProductOrder = onCall(async (request) => {
 
 export const getPublicServiceAvailability = onCall(async (request) => {
   try {
-    return buildPublicAvailability(request.data || {});
+    return await getLivePublicServiceAvailability(request.data || {});
   } catch (error) {
     wrapError(error);
   }
@@ -144,7 +157,7 @@ export const getPublicGoogleReviews = onCall({ ...googlePlacesCallOptions, enfor
 });
 
 /** HTTP webhooks — configure per-merchant or platform forwarding with ownerId/slug query. */
-export const stripeWebhook = onRequest({ cors: false }, async (req, res) => {
+export const stripeWebhook = onRequest({ secrets: paymentSecrets, cors: false }, async (req, res) => {
   try {
     if (req.method !== 'POST') {
       res.status(405).send('Method not allowed');
@@ -169,7 +182,7 @@ export const stripeWebhook = onRequest({ cors: false }, async (req, res) => {
   }
 });
 
-export const paystackWebhook = onRequest({ cors: false }, async (req, res) => {
+export const paystackWebhook = onRequest({ secrets: paymentSecrets, cors: false }, async (req, res) => {
   try {
     if (req.method !== 'POST') {
       res.status(405).send('Method not allowed');
@@ -194,7 +207,7 @@ export const paystackWebhook = onRequest({ cors: false }, async (req, res) => {
   }
 });
 
-export const paypalWebhook = onRequest({ cors: false }, async (req, res) => {
+export const paypalWebhook = onRequest({ secrets: paymentSecrets, cors: false }, async (req, res) => {
   try {
     if (req.method !== 'POST') {
       res.status(405).send('Method not allowed');
@@ -204,11 +217,80 @@ export const paypalWebhook = onRequest({ cors: false }, async (req, res) => {
       appId: APP_ID,
       ownerId: req.query.ownerId,
       slug: req.query.slug,
-      event: req.body
+      event: req.body,
+      headers: { transmissionId: req.get('paypal-transmission-id'), transmissionTime: req.get('paypal-transmission-time'), transmissionSig: req.get('paypal-transmission-sig'), certUrl: req.get('paypal-cert-url'), authAlgo: req.get('paypal-auth-algo') }
     });
     res.json(result);
   } catch (error) {
     res.status(400).json({ ok: false, error: error.message });
   }
+});
+
+const ownerCall = handler => onCall({ timeoutSeconds: 120, maxInstances: 10 }, async request => {
+  try { return await handler(request.data || {}, request.auth); } catch (error) { wrapError(error); }
+});
+export const getOwnerWorkspace = ownerCall(workspaceCommands.getOwnerWorkspace);
+export const patchOwnerWorkspace = ownerCall(workspaceCommands.patchOwnerWorkspace);
+export const publishBusinessProfile = ownerCall(workspaceCommands.publishBusinessProfile);
+export const getWorkspaceReadiness = ownerCall(workspaceCommands.getWorkspaceReadiness);
+export const migrateWorkspaceCollections = ownerCall(workspaceCommands.migrateWorkspaceCollections);
+export const abortWorkspaceMigration = ownerCall(workspaceCommands.abortWorkspaceMigration);
+export const adjustInventory = ownerCall(inventoryAdjustment);
+export const getPublicCommerceContext = ownerCall(commerceContext);
+export const quotePublicCommerce = ownerCall(commerceQuote);
+export const getButlerState = ownerCall(butler.getButlerState);
+export const executeButlerTool = ownerCall(async (data, auth) => {
+  const uid = data.workspaceId || auth?.uid; assertOwner(uid, auth);
+  return butler.executeButlerTool({ uid, workspaceId: uid, name: data.name, arguments: data.arguments || {}, mode: data.mode || 'butler' });
+});
+export const applyButlerPreview = ownerCall(butler.applyButlerPreview);
+export const dismissButlerPreview = ownerCall(butler.dismissButlerPreview);
+export const saveButlerAutomation = ownerCall(butler.saveButlerAutomation);
+export const publishWebsite = ownerCall(websites.publishWebsite);
+export const getWebsitePublishStatus = ownerCall(websites.getWebsitePublishStatus);
+export const rollbackWebsite = ownerCall(websites.rollbackWebsite);
+export const getPublicWebsite = ownerCall(websites.getPublicWebsite);
+export const websiteGateway = onRequest({ secrets: paymentSecrets, cors: false, timeoutSeconds: 60, maxInstances: 20 }, websites.publicWebsiteGateway);
+
+const includedProviders = String(process.env.AI_INCLUDED_PROVIDERS || '').split(',').map(value => value.trim());
+const aiSecretNames = ['AI_SETTINGS_ENCRYPTION_KEY', ...includedProviders.includes('openai') ? ['OPENAI_API_KEY'] : [], ...includedProviders.includes('anthropic') ? ['ANTHROPIC_API_KEY'] : [], ...process.env.AI_CHATGPT_OAUTH_ENABLED === 'true' && process.env.CHATGPT_TOKEN_AUTH_METHOD === 'client_secret_basic' ? ['OPENAI_CLIENT_SECRET'] : []];
+const aiSecrets = aiSecretNames.map(name => defineSecret(name));
+const ai = createAIGateway({
+  authorizeWorkspace: async ({ uid, workspaceId, db }) => {
+    assertOwner(workspaceId, { uid, token: { email_verified: true } });
+    if (!(await readWorkspace(db, uid)).exists) throw new HttpsError('failed-precondition', 'Save your business workspace first.');
+  },
+  resolveContext: butler.getButlerContext,
+  executeTool: butler.executeButlerTool
+});
+const aiCall = handler => onCall({ secrets: aiSecrets, timeoutSeconds: 300, maxInstances: 10 }, async (request, response) => {
+  try {
+    if (request.auth?.token.firebase?.sign_in_provider === 'password' && !request.auth.token.email_verified) throw new HttpsError('permission-denied', 'Verify your email to connect and use AI.');
+    return await handler(request, response);
+  } catch (error) { wrapError(error); }
+});
+export const listAIConnections = aiCall(ai.listConnections);
+export const saveAIConnection = aiCall(ai.saveConnection);
+export const disconnectAIConnection = aiCall(ai.disconnectConnection);
+export const selectAIBillingSource = aiCall(ai.selectBilling);
+export const listAIModels = aiCall(ai.listModels);
+export const startChatGPTConnection = aiCall(ai.startChatGPT);
+export const runAI = aiCall(ai.run);
+export const getAIRun = aiCall(ai.getRun);
+export const cancelAIRun = aiCall(ai.cancelRun);
+export const chatGPTConnectionCallback = onRequest({ secrets: aiSecrets, cors: false, maxInstances: 10 }, ai.chatGPTCallback);
+
+export const expireStockHolds = onSchedule('every 1 minutes', async () => {
+  const db = getFirestore();
+  const reservations = await db.collectionGroup('inventoryReservations').where('status', '==', 'reserved').where('expiresAtMs', '<=', Date.now()).orderBy('expiresAtMs').limit(500).get();
+  const owners = new Set(reservations.docs.filter(doc => doc.data().expiresAtMs <= Date.now()).map(doc => doc.ref.parent.parent.id));
+  for (const ownerId of owners) await expireInventoryReservations({ ownerId }, db);
+});
+export const butlerAutomationTick = onSchedule('every 5 minutes', () => butler.runButlerAutomations());
+export const butlerWorkspaceEvent = onDocumentWritten(`artifacts/${APP_ID}/users/{ownerId}/config/settings`, async event => {
+  if (!event.data?.after.exists) return;
+  await workspaceCommands.syncPublicBusinessProfile(event.params.ownerId);
+  if (event.data.after.data().lastCommandSource === 'automation') return;
+  return butler.runButlerAutomations({ eventOwnerId: event.params.ownerId, eventId: event.id });
 });
 

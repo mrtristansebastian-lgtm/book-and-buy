@@ -109,13 +109,23 @@ function fixtureDb({ analyticsSession = session } = {}) {
   ]);
   if (analyticsSession) rows.set(`${base}/analyticsSessions/${data.analyticsSessionId}`, analyticsSession);
   const snapshot = (path) => ({ exists: rows.has(path), data: () => rows.get(path) });
+  const query = (path, predicates = []) => ({
+    path, predicates, isQuery: true,
+    where: (field, operator, value) => {
+      assert.equal(operator, '==');
+      return query(path, [...predicates, [field, value]]);
+    }
+  });
+  const querySnapshot = (ref) => ({ docs: [...rows].filter(([path, row]) => path.startsWith(`${ref.path}/`) && !path.slice(ref.path.length + 1).includes('/') && ref.predicates.every(([field, value]) => row[field] === value)).map(([path]) => ({ id: path.split('/').at(-1), ...snapshot(path) })) });
   const db = {
     doc: (path) => ({ path, get: async () => snapshot(path) }),
+    collection: (path) => query(path),
     runTransaction: async (action) => {
       const pending = [];
-      const result = await action({ get: async (ref) => snapshot(ref.path),
+      const result = await action({ get: async (ref) => ref.isQuery ? querySnapshot(ref) : snapshot(ref.path),
         update: (ref, patch) => pending.push(() => rows.set(ref.path, { ...rows.get(ref.path), ...patch })),
-        set: (ref, value) => pending.push(() => rows.set(ref.path, value)) });
+        set: (ref, value) => pending.push(() => rows.set(ref.path, value)),
+        create: (ref, value) => pending.push(() => { assert.equal(rows.has(ref.path), false, 'create must not overwrite an existing ledger or receipt'); rows.set(ref.path, value); }) });
       pending.forEach((write) => write());
       return result;
     }
@@ -209,11 +219,28 @@ test('a manual owner booking records catalog price and cost before any future ca
   rows.get(settingsPath).services[0].cost = 12;
   const day = new Date(Date.now() + 4 * 86400_000).toISOString().slice(0, 10);
   const auth = { uid: 'business', token: { email: 'owner@example.test', email_verified: true } };
-  const booking = await writeGuardedBooking({ ownerId: 'business', booking: { serviceId: 's', date: day, dateKey: day, time: '10:00', clientName: 'Client', clientEmail: 'client@example.test' } }, auth, db);
+  const booking = await writeGuardedBooking({ ownerId: 'business', booking: { serviceId: 's', date: day, dateKey: day, time: '10:00', clientName: 'Client', clientEmail: 'client@example.test',paymentStatus:'unpaid' } }, auth, db);
   assert.equal(booking.amountInCents, 5000);
   assert.equal(booking.costBasisInCents, 1200);
   assert.equal(booking.currency, 'R');
+  assert.equal(booking.paymentMethod, 'cash');
   rows.get(settingsPath).services[0].price = 99;
   const paid = await writeGuardedBooking({ ownerId: 'business', booking: { id: booking.id, paymentStatus: 'paid' }, expectedRevision: booking.revision }, auth, db);
   assert.equal(paid.amountPaidInCents, 5000);
+});
+
+test('owners cannot forge online paid status or switch its gateway to bypass verification',async () => {
+  const {db} = fixtureDb(); const day = new Date(Date.now()+4*86400_000).toISOString().slice(0,10);
+  const auth = {uid:'business',token:{email:'owner@example.test',email_verified:true}};
+  const booking = await writeGuardedBooking({ownerId:'business',booking:{serviceId:'s',date:day,dateKey:day,time:'10:00',paymentStatus:'unpaid',paymentMethod:'stripe'}},auth,db);
+  for (const patch of [{paymentStatus:'paid'},{paymentStatus:'paid',paymentMethod:'cash'},{paymentStatus:'refunded'}]) await assert.rejects(writeGuardedBooking({ownerId:'business',booking:{id:booking.id,...patch},expectedRevision:booking.revision},auth,db),/provider|refund workflow/);
+});
+
+test('stale public catalog revision rejects before creating a booking or order',async () => {
+  const {db,rows,settingsPath} = fixtureDb(); rows.get(settingsPath).sectionRevisions = {products:2,services:3};
+  const client = {clientName:'Client',clientEmail:'client@example.test'};
+  await assert.rejects(placeMarketOrder({slug:'shop',requestId:'stale-product',items:[{productId:'p',quantity:1}],client,paymentMethod:'cash',expectedCatalogRevision:1},null,db),/Refresh the quote/);
+  const day = new Date(Date.now()+4*86400_000).toISOString().slice(0,10);
+  await assert.rejects(writeGuardedBooking({slug:'shop',requestId:'stale-service',serviceId:'s',date:day,dateKey:day,time:'10:00',...client,expectedCatalogRevision:2},null,db,true),/Refresh the quote/);
+  assert.equal(rows.get(settingsPath).orders.length,0); assert.equal(rows.get(settingsPath).bookings.length,0);
 });

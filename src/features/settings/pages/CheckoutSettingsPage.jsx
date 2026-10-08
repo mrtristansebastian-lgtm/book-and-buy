@@ -6,7 +6,7 @@ const FIELD_TOGGLES = [
 ];
 
 export function CheckoutSettingsPage() {
-  const { workspace, updateFeatures } = useWorkspace();
+  const { workspace, updateFeatures, updateProfile } = useWorkspace();
   const features = workspace.features || {};
 
   return (
@@ -27,6 +27,9 @@ export function CheckoutSettingsPage() {
         </label>
       ))}
       <div className="bb-settings-explainer"><strong>Waitlists are not enabled</strong><p>A full class cannot currently accept a waitlist request. Availability and capacity are checked when the booking is submitted.</p></div>
+      <h3 className="m-0 text-lg">Stock reservations</h3>
+      <p className="bb-muted m-0 text-sm">Online payments hold stock while the customer pays. Manual requests hold stock once you accept them. Unpaid holds release automatically when their deadline passes.</p>
+      {[['inventoryOnlineHoldMinutes', 'Online checkout hold (minutes)', 10, 120], ['inventoryManualHoldHours', 'Accepted manual order payment deadline (hours)', 24, 168]].map(([key, label, fallback, max]) => <label key={key} className="grid gap-1 text-sm"><span>{label}</span><input type="number" className="native-control-input" min="1" max={max} value={workspace.checkout?.[key] ?? fallback} onChange={event => { const value = Number(event.target.value); if (Number.isInteger(value) && value >= 1 && value <= max) updateProfile({ checkout: { ...workspace.checkout, [key]: value } }); }} /></label>)}
     </section>
   );
 }

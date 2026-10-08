@@ -115,6 +115,12 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
         const validation = applyProductInventoryUpdates(workspace.products || [], updates);
         if (!validation.ok) return { ok: false, error: validation.error };
         onInventoryError('');
+        if (!workspace.isDemo) {
+          return firebaseCallables.adjustInventory({ ownerId: workspace.ownerId || user?.uid, updates: validation.updates, expectedRevision: workspace.sectionRevisions?.products || 0, requestId: crypto.randomUUID() }).then(result => {
+            setWorkspace(prev => ({ ...prev, products: result.products, sectionRevisions: { ...prev.sectionRevisions, products: result.revision } }));
+            return result;
+          }).catch(error => { const message = error.message || 'Stock could not be updated.'; onInventoryError(message); return { ok: false, error: message }; });
+        }
         setWorkspace((prev) => {
           const result = applyProductInventoryUpdates(prev.products || [], validation.updates);
           if (!result.ok) {
@@ -124,7 +130,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           }
           return result.products === prev.products ? prev : { ...prev, products: result.products };
         });
-        // This acknowledges a local update request; saveStatus tracks cloud persistence.
+        // Demo inventory stays on this device.
         return { ok: true };
       },
       removeProduct: (id) =>

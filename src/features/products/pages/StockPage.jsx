@@ -42,10 +42,15 @@ function QuantityDialog({ units, onClose, onApply }) {
   const [value, setValue] = useState(units.length === 1 && units[0].quantity != null ? String(units[0].quantity) : '');
   const [error, setError] = useState('');
   const preview = useMemo(() => buildInventoryAdjustments(units, { mode, value }), [units, mode, value]);
-  const apply = event => {
+  const [busy, setBusy] = useState(false);
+  const apply = async event => {
     event.preventDefault();
     if (!preview.ok) { setError(preview.error); return; }
-    const result = onApply(preview.updates);
+    if (busy) return;
+    setBusy(true);
+    let result;
+    try { result = await onApply(preview.updates); } catch (error) { setError(error.message); setBusy(false); return; }
+    setBusy(false);
     if (result?.ok === false) { setError(result.error); return; }
     onClose();
   };
@@ -61,7 +66,7 @@ function QuantityDialog({ units, onClose, onApply }) {
           {preview.ok ? <div className="bb-inventory-preview"><div className="bb-inventory-preview-head"><span>Stock item</span><span>Before → After</span></div>{preview.previews.slice(0, 5).map(item => <div key={item.id}><span>{unitLabel(item)}</span><strong>{item.before == null ? 'Not tracked' : formatCount(item.before)} <span aria-hidden="true">→</span> {formatCount(item.after)}</strong></div>)}{units.length > 5 && <p>And {formatCount(units.length - 5)} more selected items.</p>}</div> : value && <p className="bb-inventory-error" role="alert">{preview.error}</p>}
           {error && <p className="bb-inventory-error" role="alert">{error}</p>}
         </div>
-        <footer><Button action="cancel" onClick={onClose}>Cancel</Button><Button action="apply" variant="primary" type="submit" disabled={!preview.ok}>Apply {units.length > 1 ? `to ${formatCount(units.length)} items` : 'quantity'}</Button></footer>
+        <footer><Button action="cancel" onClick={onClose} disabled={busy}>Cancel</Button><Button action="apply" variant="primary" type="submit" busy={busy} disabled={!preview.ok}>Apply {units.length > 1 ? `to ${formatCount(units.length)} items` : 'quantity'}</Button></footer>
       </form>
     </div>, document.body);
 }
@@ -109,8 +114,8 @@ export function StockPage({ routeRest = [] }) {
   }); }, [units]);
   useEffect(() => { if (!notice) return; const timeout = setTimeout(() => setNotice(''), 4500); return () => clearTimeout(timeout); }, [notice]);
 
-  const applyUpdates = updates => {
-    const result = updateInventory(updates);
+  const applyUpdates = async updates => {
+    const result = await updateInventory(updates);
     if (result.ok) setNotice('Inventory updated.');
     return result;
   };

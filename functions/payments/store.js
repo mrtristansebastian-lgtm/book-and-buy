@@ -2,6 +2,8 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { decryptSecret } from './encrypt.js';
 import { pathJoin } from './publicOptions.js';
 import { paymentConfirmationSnapshot } from '../financialSnapshots.js';
+import { readWorkspace,writeWorkspace } from '../workspaceStore.js';
+import { paymentAppId } from './paymentPolicy.js';
 
 export function settingsDocRef(appId, ownerId) {
   return getFirestore().doc(pathJoin('artifacts', appId, 'users', ownerId, 'config', 'settings'));
@@ -33,8 +35,8 @@ export async function findOwnerBySlug(appId, slug) {
 }
 
 export async function loadOwnerSettings(appId, ownerId) {
-  const snap = await settingsDocRef(appId, ownerId).get();
-  return snap.exists ? snap.data() || {} : {};
+  paymentAppId(appId);
+  return (await readWorkspace(getFirestore(),ownerId)).workspace;
 }
 
 export async function loadDecryptedGateway(appId, ownerId, gatewayType) {
@@ -61,8 +63,7 @@ export async function loadDecryptedGateway(appId, ownerId, gatewayType) {
 export async function patchWorkspaceGatewaySummary(appId, ownerId, gatewayType, summaryPatch) {
   const ref = settingsDocRef(appId, ownerId);
   await getFirestore().runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    const data = snap.exists ? snap.data() || {} : {};
+    const {workspace:data} = await readWorkspace(getFirestore(),ownerId,tx);
     const list = Array.isArray(data.paymentGateways) ? [...data.paymentGateways] : [];
     const idx = list.findIndex((item) => item.gatewayType === gatewayType);
     const next = {
@@ -83,7 +84,7 @@ export async function patchWorkspaceGatewaySummary(appId, ownerId, gatewayType, 
     };
     if (idx >= 0) list[idx] = next;
     else list.push(next);
-    tx.set(ref, { ...data, paymentGateways: list }, { merge: true });
+    writeWorkspace(tx,getFirestore(),ownerId,data,{ ...data,paymentGateways:list,sectionRevisions:{...data.sectionRevisions,payments:(data.sectionRevisions?.payments || 0)+1} });
   });
 }
 

@@ -37,5 +37,5 @@ test('security rules deny direct order/booking writes and unauthenticated owner 
     assert.equal(response.status, 403, await response.text());
   }
   const allowed = await fetch(`${endpoint}${path}?updateMask.fieldPaths=brandName`, { method: 'PATCH', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ fields: { brandName: { stringValue: 'Permitted owner edit' } } }) });
-  assert.equal(allowed.status, 200, await allowed.text());
+  assert.equal(allowed.status, 403, await allowed.text());
 });

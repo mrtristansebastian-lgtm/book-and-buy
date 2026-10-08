@@ -49,8 +49,9 @@ test('Home upcoming bookings follow Schedule dates, confirmed status, business c
       return module.exports;
     }
     const { OverviewPage } = load('../src/features/dashboard/pages/OverviewPage.jsx');
+    const { PeriodPageHeader } = load('../src/shared/ui/PeriodPageHeader.jsx');
     const flatten = (tree, found = []) => { if (Array.isArray(tree)) tree.forEach(node => flatten(node, found));
-      else if (React.isValidElement(tree)) { found.push(tree); flatten(tree.props.children, found); } return found; };
+      else if (React.isValidElement(tree)) { found.push(tree); flatten(tree.type === PeriodPageHeader ? PeriodPageHeader(tree.props) : tree.props.children, found); } return found; };
     const render = () => { cursor = 0; effects.length = 0; return flatten(OverviewPage()); };
     const count = nodes => nodes.find(node => node.type === Stat && node.props.label === 'Upcoming bookings').props.value;
     let nodes = render(); effects.forEach(effect => effect());

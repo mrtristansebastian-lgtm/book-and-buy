@@ -6,6 +6,12 @@ import React from 'react';
 import ts from 'typescript';
 
 const require = createRequire(import.meta.url);
+function renderHeader(tree, Header) {
+  if (Array.isArray(tree)) return React.Children.map(tree, node => renderHeader(node, Header));
+  if (!React.isValidElement(tree)) return tree;
+  if (tree.type === Header) return renderHeader(Header(tree.props), Header);
+  return React.cloneElement(tree, undefined, renderHeader(tree.props.children, Header));
+}
 function elements(tree, predicate, found = []) {
   if (Array.isArray(tree)) tree.forEach(node => elements(node, predicate, found));
   else if (React.isValidElement(tree)) {
@@ -95,7 +101,8 @@ test('Schedule totals, period switches, filters and booking actions use the same
       return module.exports;
     }
     const { SchedulePage } = load('../src/features/schedule/pages/SchedulePage.jsx');
-    const render = () => { cursor = 0; effects = []; const tree = SchedulePage(); effects.forEach(effect => effect()); return tree; };
+    const { PeriodPageHeader } = load('../src/shared/ui/PeriodPageHeader.jsx');
+    const render = () => { cursor = 0; effects = []; const tree = renderHeader(SchedulePage(), PeriodPageHeader); effects.forEach(effect => effect()); return tree; };
     const props = (tree, type) => elements(tree, node => node.type === type)[0]?.props;
     const agendaIds = tree => props(tree, Agenda).groups.flatMap(group => group.items.map(row => row.booking.id));
     const welcome = tree => textContent(elements(tree, node => node.type === 'section' && node.props.className === 'bb-agenda-welcome')[0]);

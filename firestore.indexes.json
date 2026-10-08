@@ -3,12 +3,30 @@
     {
       "collectionGroup": "analyticsSessions",
       "queryScope": "COLLECTION",
-      "fields": [{ "fieldPath": "ownerId", "order": "ASCENDING" }, { "fieldPath": "startedAt", "order": "DESCENDING" }]
+      "fields": [
+        {
+          "fieldPath": "ownerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "startedAt",
+          "order": "DESCENDING"
+        }
+      ]
     },
     {
       "collectionGroup": "analyticsEvents",
       "queryScope": "COLLECTION",
-      "fields": [{ "fieldPath": "ownerId", "order": "ASCENDING" }, { "fieldPath": "at", "order": "DESCENDING" }]
+      "fields": [
+        {
+          "fieldPath": "ownerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "at",
+          "order": "DESCENDING"
+        }
+      ]
     },
     {
       "collectionGroup": "analyticsSessions",
@@ -168,6 +186,66 @@
         },
         {
           "fieldPath": "dueAtMs",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "inventoryReservations",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expiresAtMs",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "butlerAutomations",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "enabled",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "trigger",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "nextRunAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "butlerAutomations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "enabled",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "trigger",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "butlerAutomationRuns",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "leaseUntil",
           "order": "ASCENDING"
         }
       ]

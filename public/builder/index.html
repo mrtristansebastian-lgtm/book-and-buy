@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="light" name="color-scheme"/>
+<title>Book &amp; Buy — AI Builder</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..800&amp;family=Plus+Jakarta+Sans:wght@500..800&amp;display=swap" rel="stylesheet"/>
+<link href="theme-tokens.css" rel="stylesheet"/>
+<link href="styles.css" rel="stylesheet"/>
+<link href="bookbuy-theme.css" rel="stylesheet"/>
+<link href="chat-polish.css" rel="stylesheet"/>
+<link href="/brand/book-and-buy-mark.png" rel="icon" type="image/png"/></head>
+<body class="builder-theme">
+<div class="app-shell" id="appShell">
+<header class="topbar">
+<div class="topbar-left">
+<button aria-label="Builder project" class="brand" id="homeBtn">
+<img alt="" aria-hidden="true" class="app-logo brand-logo" src="/brand/book-and-buy-mark.png"/>
+<span class="builder-brand-copy"><span class="brand-wordmark">Book and Buy</span><span class="builder-brand-subtitle"><span aria-hidden="true" class="ai-presence" id="aiPresence"></span>Build with AI</span></span>
+</button>
+<span aria-hidden="true" class="top-divider"></span>
+<div class="menu-anchor">
+<button aria-controls="projectMenu" aria-expanded="false" aria-haspopup="menu" aria-label="Project menu" class="project-switcher" id="projectSwitcher">
+<span aria-hidden="true" class="project-state-dot"></span>
+<span class="project-name" id="projectName">Untitled project</span>
+<span aria-hidden="true" class="icon-slot chevron-slot" data-icon="chevron-down"></span>
+</button>
+<div class="popover menu-popover hidden" id="projectMenu" role="menu">
+<div class="popover-label">Project</div>
+<button class="menu-item" id="renameProjectBtn" role="menuitem"><span class="menu-item-main"><span aria-hidden="true" class="icon-slot" data-icon="pencil"></span><span class="menu-item-label">Rename project</span></span><kbd>R</kbd></button>
+<button class="menu-item" id="duplicateProjectBtn" role="menuitem"><span class="menu-item-main"><span aria-hidden="true" class="icon-slot" data-icon="copy"></span><span class="menu-item-label">Duplicate current</span></span><kbd>D</kbd></button>
+<div class="menu-separator"></div>
+<button class="menu-item" id="menuNewProjectBtn" role="menuitem"><span class="menu-item-main"><span aria-hidden="true" class="icon-slot" data-icon="plus-square"></span><span class="menu-item-label">New project</span></span><kbd>N</kbd></button>
+</div>
+</div>
+<div class="chat-head-actions"><button aria-label="New chat" class="icon-btn quiet" data-tooltip="New chat" id="builderNewChat" type="button"><span aria-hidden="true" class="icon-slot" data-icon="message-plus"></span></button><button aria-label="New project" class="icon-btn quiet" data-tooltip="New project" id="newProjectBtn"><span aria-hidden="true" class="icon-slot" data-icon="plus-square"></span></button><button aria-label="Show website" class="icon-btn quiet builder-show-canvas" data-tooltip="Show website" id="builderShowCanvas" type="button"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span></button></div>
+
+</div>
+<nav aria-label="Editor view" class="view-tabs" id="mainViewTabs">
+<button aria-pressed="true" class="view-tab active" data-view="preview"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span><span class="button-label">Preview</span></button>
+<button aria-pressed="false" class="view-tab" data-view="code"><span aria-hidden="true" class="icon-slot" data-icon="code"></span><span class="button-label">Code</span></button>
+</nav>
+<div class="topbar-right">
+<div aria-label="History controls" class="history-controls">
+<button aria-label="Undo" class="icon-btn quiet" data-tooltip="Undo" disabled="" id="undoBtn"><span aria-hidden="true" class="icon-slot" data-icon="undo"></span></button>
+<button aria-label="Redo" class="icon-btn quiet" data-tooltip="Redo" disabled="" id="redoBtn"><span aria-hidden="true" class="icon-slot" data-icon="redo"></span></button>
+</div>
+<button class="secondary-btn" id="shareBtn"><span aria-hidden="true" class="icon-slot" data-icon="share"></span><span class="button-label">Share</span></button>
+<button class="primary-btn" id="publishBtn" title="Publishing is not connected during local testing"><span aria-hidden="true" class="icon-slot" data-icon="publish"></span><span class="button-label">Publish</span></button>
+<div class="menu-anchor">
+<button aria-controls="accountMenu" aria-expanded="false" aria-haspopup="menu" aria-label="Account menu" class="avatar" id="avatarBtn">J</button>
+<div class="popover account-popover hidden" id="accountMenu" role="menu">
+<div class="account-row">
+<span class="account-avatar">J</span>
+<span><strong>Jordan</strong><small>Book &amp; Buy Builder</small></span>
+</div>
+<div class="menu-separator"></div>
+<button class="menu-item" id="shortcutsBtn" role="menuitem"><span class="menu-item-main"><span aria-hidden="true" class="icon-slot" data-icon="keyboard"></span><span class="menu-item-label">Keyboard shortcuts</span></span><kbd>?</kbd></button>
+<button class="menu-item" id="resetDemoBtn" role="menuitem"><span class="menu-item-main"><span aria-hidden="true" class="icon-slot" data-icon="rotate-ccw"></span><span class="menu-item-label">Reset demo</span></span></button>
+</div>
+</div>
+</div>
+</header>
+<main class="workspace">
+<aside class="chat-panel" id="chatPanel">
+<div class="chat-scroll" id="chatScroll">
+<section class="chat-empty" id="chatEmpty">
+<div aria-hidden="true" class="empty-mark"><img alt="" aria-hidden="true" class="app-logo ai-empty-logo" src="/brand/book-and-buy-mark.png"/></div>
+<p class="builder-welcome-kicker">A little inspiration. A lot of possibility.</p><h2>Let’s make something<br/>worth visiting.</h2>
+<p>Describe your idea, select something to refine, or bring your code. We’ll make it feel like you.</p>
+<div aria-label="Prompt suggestions" class="suggestions">
+<button class="suggestion"><span>Build a new website</span><span aria-hidden="true" class="icon-slot" data-icon="chevron-right"></span></button>
+<button class="suggestion"><span>Improve this design</span><span aria-hidden="true" class="icon-slot" data-icon="chevron-right"></span></button>
+<button class="suggestion"><span>Polish the mobile layout</span><span aria-hidden="true" class="icon-slot" data-icon="chevron-right"></span></button>
+</div>
+</section>
+<div class="messages" id="messages"></div>
+</div>
+<div class="composer-wrap" id="composerWrap">
+<div aria-label="Attachments" class="attachment-tray hidden" id="attachmentTray"></div>
+<div class="selection-context hidden" id="selectionContext">
+<span aria-hidden="true" class="context-icon icon-slot" data-icon="mouse-pointer"></span>
+<span class="context-copy"><small>Editing selection</small><strong id="selectionContextText">Hero title</strong></span>
+<button aria-label="Clear canvas reference" data-tooltip="Clear selection" id="clearSelectionContext"><span aria-hidden="true" class="icon-slot" data-icon="x"></span></button>
+</div>
+<div class="composer" id="composer">
+<div class="composer-input-row"><textarea aria-label="Message Book &amp; Buy AI" id="promptInput" placeholder="Ask for a change, or describe your next idea…" rows="1"></textarea><div class="composer-actions">
+<span aria-live="polite" class="model-label" data-status="ready" id="modelLabel" role="status"><span class="model-dot"></span><span id="modelState">Ready</span></span>
+<button aria-label="Send prompt" class="send-btn" data-tooltip="Send" id="sendBtn"><span aria-hidden="true" class="send-icon icon-slot" data-icon="arrow-up"></span><span aria-hidden="true" class="stop-icon icon-slot" data-icon="square"></span></button>
+</div></div>
+<div class="composer-bottom">
+<div class="composer-tools">
+<div class="menu-anchor builder-picker-anchor">
+<button type="button" id="builderModeTrigger" aria-label="Assistant mode" class="builder-picker-trigger" aria-controls="builderModeMenu" aria-haspopup="menu" aria-expanded="false"><span class="icon-slot" data-icon="mouse-pointer" id="builderModeIcon" aria-hidden="true"></span><span id="builderModeLabel">Build</span><span class="icon-slot" data-icon="chevron-down" aria-hidden="true"></span></button>
+<div id="builderModeMenu" class="builder-chat-menu hidden" role="menu" aria-label="Assistant mode">
+<div class="builder-menu-heading">Work with AI</div>
+<button type="button" role="menuitemradio" aria-checked="true" data-mode="build"><span class="icon-slot" data-icon="mouse-pointer" aria-hidden="true"></span><span><strong>Build</strong><small>Design and make changes</small></span><span class="builder-menu-check icon-slot" data-icon="check" aria-hidden="true"></span></button>
+<button type="button" role="menuitemradio" aria-checked="false" data-mode="plan"><span class="icon-slot" data-icon="list-checks" aria-hidden="true"></span><span><strong>Plan</strong><small>Work through the approach first</small></span><span class="builder-menu-check icon-slot" data-icon="check" aria-hidden="true"></span></button>
+<button type="button" role="menuitemradio" aria-checked="false" data-mode="ask"><span class="icon-slot" data-icon="message-square" aria-hidden="true"></span><span><strong>Ask</strong><small>Get answers without editing</small></span><span class="builder-menu-check icon-slot" data-icon="check" aria-hidden="true"></span></button>
+</div>
+<select id="builderAiMode" aria-label="Assistant mode" class="hidden"><option value="build">Build</option><option value="plan">Plan</option><option value="ask">Ask</option></select>
+</div>
+<div class="menu-anchor builder-picker-anchor builder-model-anchor">
+<button type="button" id="builderModelTrigger" aria-label="AI model and thinking level" class="builder-picker-trigger" aria-controls="builderModelMenu" aria-haspopup="menu" aria-expanded="false"><span class="icon-slot" data-icon="brain" aria-hidden="true"></span><span id="builderModelLabel" class="hidden">Choose model</span></button>
+<div id="builderModelMenu" class="builder-chat-menu hidden" role="menu" aria-label="AI model">
+<div class="builder-menu-heading">Choose a model <span id="builderProviderBilling">AI connection</span></div>
+<label class="builder-provider-select">Provider<select id="builderAiProvider" aria-label="AI provider"><option value="codex">ChatGPT · local Codex</option><option value="openai">OpenAI API</option><option value="anthropic">Claude API</option><option value="chatgpt">ChatGPT · hosted account</option></select></label>
+<input type="search" id="builderModelSearch" placeholder="Search models…" aria-label="Search models" autocomplete="off"/>
+<div id="builderModelOptions" class="builder-model-options" role="group" aria-label="Available models"></div>
+<div id="builderEffortMenu" class="builder-combined-effort" role="group" aria-label="Thinking level"><div class="builder-menu-heading">Thinking level</div><div id="builderEffortOptions"></div><p class="builder-menu-note">More thinking can take longer. Plans and available reasoning summaries appear in chat.</p></div><button id="builderEffortTrigger" class="hidden" type="button"><span id="builderEffortLabel">Medium</span></button><select id="builderAiEffort" class="hidden" aria-label="Thinking level"><option value="medium">Medium</option></select>
+<div class="builder-model-account"><span aria-live="polite" id="builderAiStatus" role="status">Checking connection…</span><button class="secondary-btn compact" id="builderAiConnect" type="button">Connect</button></div>
+</div>
+<select id="builderAiModel" aria-label="Codex model" class="hidden"><option value="">Loading models…</option></select>
+</div>
+
+
+<input accept="image/*,.pdf,.txt,.md,.json,.html,.css,.js" class="hidden" id="attachmentInput" multiple="" type="file"/>
+
+
+<div class="menu-anchor builder-picker-anchor">
+<button type="button" id="builderToolsTrigger" class="composer-icon" aria-label="Chat tools" data-tooltip="Chat tools" aria-controls="builderToolsMenu" aria-haspopup="menu" aria-expanded="false"><span class="icon-slot" data-icon="sliders" aria-hidden="true"></span></button>
+<div id="builderToolsMenu" class="builder-chat-menu builder-tools-menu hidden" role="menu" aria-label="Chat tools">
+<div class="builder-menu-heading">Chat tools</div>
+<button aria-label="Dictate message" class="composer-icon" id="builderVoiceInput" data-tooltip="Dictate message"><span class="icon-slot" data-icon="mic" aria-hidden="true"></span><span>Dictate message</span></button>
+<button aria-label="Read replies aloud" aria-pressed="false" class="composer-icon" id="builderVoiceOutput" data-tooltip="Read replies aloud"><span class="icon-slot" data-icon="volume" aria-hidden="true"></span><span>Read replies aloud</span></button>
+<button aria-label="Refine prompt" id="magicBtn" type="button" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="pencil"></span><span><strong>Refine prompt</strong><small>Make your request clearer</small></span></button>
+<div class="menu-anchor composer-menu-anchor">
+<button aria-controls="historyPopover" aria-expanded="false" aria-haspopup="menu" aria-label="Prompt history" id="historyBtn" type="button" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="history"></span><span><strong>Recent prompts</strong><small>Pick up an earlier request</small></span></button>
+</div>
+</div>
+</div>
+<button aria-label="Attach files" class="composer-icon" data-tooltip="Attach files" id="attachBtn"><span aria-hidden="true" class="icon-slot" data-icon="paperclip"></span></button>
+</div>
+
+</div>
+</div>
+<div class="composer-hint" id="composerHint"><span id="builderAiHelp">Uses your ChatGPT allowance · drafts saved here</span></div>
+<div class="popover history-popover hidden" id="historyPopover" role="menu"><div class="popover-label">Recent prompts</div><div class="history-list" id="historyList"></div></div>
+</div>
+</aside>
+<section class="stage" id="stage">
+<div class="stage-toolbar">
+<div class="stage-toolbar-left">
+<button aria-label="Toggle AI panel" class="icon-btn quiet collapse-chat" data-tooltip="Toggle AI panel" id="toggleChatBtn"><span aria-hidden="true" class="icon-slot" data-icon="panel-left"></span></button>
+<div aria-label="Preview device" class="device-switcher" id="deviceSwitcher">
+<button aria-label="Desktop" aria-pressed="true" class="device-btn active" data-device="desktop" data-tooltip="Desktop"><span aria-hidden="true" class="icon-slot" data-icon="monitor"></span></button>
+<button aria-label="Tablet" aria-pressed="false" class="device-btn" data-device="tablet" data-tooltip="Tablet"><span aria-hidden="true" class="icon-slot" data-icon="tablet"></span></button>
+<button aria-label="Mobile" aria-pressed="false" class="device-btn" data-device="mobile" data-tooltip="Mobile"><span aria-hidden="true" class="icon-slot" data-icon="smartphone"></span></button>
+</div>
+<div aria-label="Canvas mode" class="canvas-mode-switcher" id="canvasModeSwitcher">
+<button aria-label="Edit canvas" aria-pressed="true" class="canvas-mode-btn active" data-canvas-mode="edit" data-tooltip="Edit canvas"><span aria-hidden="true" class="icon-slot" data-icon="mouse-pointer"></span><span class="button-label">Edit</span></button>
+<button aria-label="View and use website" aria-pressed="false" class="canvas-mode-btn" data-canvas-mode="view" data-tooltip="Use website"><span aria-hidden="true" class="icon-slot" data-icon="eye"></span><span class="button-label">View</span></button>
+</div>
+</div>
+<div class="preview-location" title="Preview URL">
+<span class="location-dot"></span>
+<span id="previewAddress">preview.bookandbuy.app</span>
+</div>
+<div class="stage-actions">
+<button aria-label="Refresh preview" class="icon-btn quiet" data-tooltip="Refresh preview" id="refreshBtn"><span aria-hidden="true" class="icon-slot" data-icon="refresh"></span></button>
+<button aria-label="Open preview" class="icon-btn quiet" data-tooltip="Open preview" id="openPreviewBtn"><span aria-hidden="true" class="icon-slot" data-icon="external-link"></span></button>
+</div>
+</div>
+<div class="preview-area" id="previewArea">
+<div aria-hidden="true" class="canvas-grid"></div>
+<div class="preview-shell desktop" id="previewShell">
+<iframe id="previewFrame" title="Generated website preview"></iframe>
+<div class="preview-empty hidden" id="previewEmpty">
+<div class="preview-empty-icon"><span aria-hidden="true" class="icon-slot" data-icon="browser"></span></div>
+<strong>Your canvas is ready</strong>
+<span>Describe a site in the AI panel to start building.</span>
+</div>
+</div>
+<div aria-hidden="true" class="canvas-overlay" id="canvasOverlay">
+<div class="outline-box hover-outline hidden" id="hoverOutline"></div>
+<div class="outline-box selection-outline hidden" id="selectionOutline"></div>
+<div class="outline-box ai-outline hidden" id="aiOutline"><span id="aiOutlineLabel">AI editing</span></div>
+</div>
+<div aria-label="Selected element actions" class="selection-toolbar hidden" id="selectionToolbar" role="toolbar">
+<span class="selection-label" id="selectionLabel">Element</span>
+<button aria-label="Element permissions" aria-live="polite" class="permission-pill hidden" id="permissionPill"></button>
+<span class="selection-separator"></span>
+<button aria-label="Edit text" class="toolbar-icon" data-tooltip="Edit text" id="editSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="pencil"></span></button>
+<button aria-label="Edit button label" class="toolbar-icon hidden" data-tooltip="Edit button label" id="buttonEditSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="button-edit"></span></button>
+<div class="toolbar-menu-anchor">
+<button aria-controls="spacingMenu" aria-expanded="false" aria-haspopup="menu" aria-label="Spacing" class="toolbar-icon" data-tooltip="Spacing" id="spacingSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="spacing"></span></button>
+<div class="toolbar-popover hidden" id="spacingMenu" role="menu">
+<div class="toolbar-popover-label">Spacing</div>
+<button data-spacing="compact" role="menuitem">Compact</button>
+<button data-spacing="balanced" role="menuitem">Balanced</button>
+<button data-spacing="roomy" role="menuitem">Roomy</button>
+<div class="menu-separator"></div>
+<button data-spacing="reset" role="menuitem">Reset spacing</button>
+</div>
+</div>
+<div class="toolbar-menu-anchor">
+<button aria-controls="moveMenu" aria-expanded="false" aria-haspopup="menu" aria-label="Move" class="toolbar-icon" data-tooltip="Move" id="moveSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="move"></span></button>
+<div class="toolbar-popover hidden" id="moveMenu" role="menu">
+<div class="toolbar-popover-label">Move</div>
+<button data-move="up" role="menuitem">Move up</button>
+<button data-move="down" role="menuitem">Move down</button>
+<button data-move="start" role="menuitem">Move to start</button>
+<button data-move="end" role="menuitem">Move to end</button>
+</div>
+</div>
+<button aria-label="Duplicate selected element" class="toolbar-icon" data-tooltip="Duplicate" id="duplicateSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="copy"></span></button>
+<button aria-label="Hide selected element" class="toolbar-icon" data-tooltip="Hide" id="hideSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="eye-off"></span></button>
+<button aria-label="Delete selected element" class="toolbar-icon danger" data-tooltip="Delete" id="deleteSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="trash"></span></button>
+<div class="toolbar-menu-anchor">
+<button aria-controls="moreSelectionMenu" aria-expanded="false" aria-haspopup="menu" aria-label="More element actions" class="toolbar-icon" data-tooltip="More" id="moreSelectionBtn"><span aria-hidden="true" class="icon-slot" data-icon="more-horizontal"></span></button>
+<div class="toolbar-popover toolbar-popover-right hidden" id="moreSelectionMenu" role="menu">
+<button id="askAISelectionBtn" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="message-square"></span><span class="menu-item-label">Ask AI about selection</span></button>
+<button id="protectionInfoBtn" role="menuitem"><span aria-hidden="true" class="icon-slot" data-icon="shield"></span><span class="menu-item-label">Protection details</span></button>
+</div>
+</div>
+</div>
+<div aria-live="polite" class="build-overlay hidden" id="buildOverlay">
+<div class="build-overlay-card">
+<div aria-hidden="true" class="build-spinner"></div>
+<div>
+<strong id="buildOverlayTitle">Building your site</strong>
+<span id="buildOverlayText">Understanding the brief…</span>
+</div>
+</div>
+</div>
+</div>
+<div class="code-area hidden" id="codeArea">
+<aside class="code-sidebar">
+<div class="code-sidebar-head-row">
+<div class="code-sidebar-head">Project</div>
+<button aria-label="Import website project" class="code-import-btn" data-tooltip="Import website project" id="importSiteBtn"><span aria-hidden="true" class="icon-slot" data-icon="upload"></span></button>
+<input class="hidden" id="siteFilesInput" multiple="" type="file"/>
+<input class="hidden" directory="" id="siteFolderInput" multiple="" type="file" webkitdirectory=""/>
+</div>
+<div aria-label="Import website project" class="upload-site-card" id="uploadSiteCard" role="group" tabindex="0">
+<span aria-hidden="true" class="upload-site-icon"><span aria-hidden="true" class="icon-slot" data-icon="folder-up"></span></span>
+<span class="upload-site-copy"><strong>Import website</strong><small>Keep folders, images, fonts and assets intact.</small></span>
+<div class="upload-site-actions">
+<button class="mini-import-btn" id="importFolderBtn" type="button"><span aria-hidden="true" class="icon-slot" data-icon="folder"></span><span class="button-label">Folder</span></button>
+<button class="mini-import-btn" id="importFilesBtn" type="button"><span aria-hidden="true" class="icon-slot" data-icon="files"></span><span class="button-label">Files</span></button>
+</div>
+</div>
+<div class="project-file-summary" id="projectFileSummary">Drop a project folder here, or choose Folder.</div>
+<div aria-label="Project files" class="file-list" id="fileList"></div>
+</aside>
+<div class="editor-pane">
+<div class="editor-topbar">
+<div class="editor-path"><span class="editor-status-dot"></span><span id="editorPath">Generated site / index.html</span></div>
+<div class="editor-actions">
+<span class="editor-dirty hidden" id="editorDirty" role="status">Unsaved</span>
+<button class="secondary-btn compact" id="copyCodeBtn"><span aria-hidden="true" class="icon-slot" data-icon="copy"></span><span class="button-label">Copy</span></button>
+<button class="secondary-btn compact" id="downloadCodeBtn"><span aria-hidden="true" class="icon-slot" data-icon="download"></span><span class="button-label">Download</span></button>
+<button class="primary-btn compact code-apply-btn" disabled="" id="applyCodeBtn"><span aria-hidden="true" class="icon-slot" data-icon="check"></span><span class="button-label">Apply</span></button>
+</div>
+</div>
+<textarea aria-label="Code editor" class="code-editor" id="codeOutput" spellcheck="false"></textarea>
+</div>
+</div>
+</section>
+</main>
+</div>
+<div aria-labelledby="publishTitle" aria-modal="true" class="modal-backdrop hidden" id="publishModal" role="dialog">
+<div class="modal">
+<div class="modal-head">
+<div>
+<span class="modal-eyebrow"><span class="publish-status-dot"></span>Local testing</span>
+<h2 id="publishTitle">Publish your website</h2>
+</div>
+<button aria-label="Close publish dialog" class="icon-btn quiet" data-tooltip="Close" id="closePublish"><span aria-hidden="true" class="icon-slot" data-icon="x"></span></button>
+</div>
+<p class="modal-copy">Publishing checks your live catalog and market settings, then creates a version you can restore. Sign in to a configured business account to publish.</p>
+<label class="field-label" for="slugInput">Site address</label>
+<div class="slug-field">
+<span>bookandbuy.site/</span>
+<input autocomplete="off" id="slugInput" spellcheck="false" value="untitled-project"/>
+</div>
+<div aria-live="polite" class="modal-inline-status hidden" id="publishInlineStatus" role="status">
+<span aria-hidden="true" class="status-mini-dot"></span><span id="publishInlineStatusText"></span>
+</div>
+<div class="modal-actions">
+<button class="secondary-btn modal-cancel" id="cancelPublish">Cancel</button>
+<button class="primary-btn publish-confirm" id="publishConfirm"><span aria-hidden="true" class="icon-slot" data-icon="publish"></span><span class="button-label">Publish site</span></button>
+</div>
+</div>
+</div>
+<div aria-labelledby="shortcutsTitle" aria-modal="true" class="modal-backdrop hidden" id="shortcutsModal" role="dialog">
+<div class="modal shortcuts-modal">
+<div class="modal-head">
+<div>
+<span class="modal-eyebrow">Editor controls</span>
+<h2 id="shortcutsTitle">Keyboard shortcuts</h2>
+</div>
+<button aria-label="Close shortcuts dialog" class="icon-btn quiet" data-tooltip="Close" id="closeShortcuts"><span aria-hidden="true" class="icon-slot" data-icon="x"></span></button>
+</div>
+<div class="shortcut-list">
+<div><span>Send prompt</span><kbd>Enter</kbd></div>
+<div><span>New line</span><kbd>Shift + Enter</kbd></div>
+<div><span>Prompt history</span><kbd>↑ / ↓</kbd></div>
+<div><span>Undo</span><kbd>Ctrl/⌘ + Z</kbd></div>
+<div><span>Redo</span><kbd>Ctrl/⌘ + Shift + Z</kbd></div>
+<div><span>Deselect / cancel edit</span><kbd>Esc</kbd></div>
+<div><span>Edit selected text</span><kbd>Enter</kbd></div>
+<div><span>Delete selected element</span><kbd>Delete</kbd></div>
+</div>
+</div>
+</div>
+<div aria-labelledby="protectionTitle" aria-modal="true" class="modal-backdrop hidden" id="protectionModal" role="dialog">
+<div class="modal compact-modal">
+<div class="modal-head">
+<div>
+<span class="modal-eyebrow"><span class="protected-dot"></span>Book &amp; Buy protection</span>
+<h2 id="protectionTitle">Protected commerce component</h2>
+</div>
+<button aria-label="Close protection details" class="icon-btn quiet" data-tooltip="Close" id="closeProtection"><span aria-hidden="true" class="icon-slot" data-icon="x"></span></button>
+</div>
+<p class="modal-copy" id="protectionCopy">This component can be styled and repositioned, while its behavior and data binding stay locked.</p>
+<div class="protection-grid" id="protectionGrid"></div>
+<div class="modal-actions">
+<button class="secondary-btn" id="protectionDone"><span aria-hidden="true" class="icon-slot" data-icon="check"></span><span class="button-label">Done</span></button>
+</div>
+</div>
+</div>
+<div aria-labelledby="actionModalTitle" aria-modal="true" class="modal-backdrop hidden" id="actionModal" role="dialog">
+<div class="modal compact-modal">
+<div class="modal-head">
+<div>
+<span class="modal-eyebrow" id="actionModalEyebrow">Project</span>
+<h2 id="actionModalTitle">Confirm action</h2>
+</div>
+<button aria-label="Close dialog" class="icon-btn quiet" data-tooltip="Close" id="closeActionModal"><span aria-hidden="true" class="icon-slot" data-icon="x"></span></button>
+</div>
+<p class="modal-copy" id="actionModalCopy"></p>
+<label class="field-label hidden" for="actionInput" id="actionInputLabel">Name</label>
+<input class="action-input hidden" id="actionInput"/>
+<div class="modal-actions">
+<button class="secondary-btn" id="actionCancelBtn">Cancel</button>
+<button class="primary-btn" id="actionConfirmBtn"><span aria-hidden="true" class="icon-slot" data-icon="arrow-right"></span><span class="button-label">Continue</span></button>
+</div>
+</div>
+</div>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+<script src="website-contract.js"></script>
+<script src="runtime-sdk.js"></script>
+<script src="commerce.js"></script>
+<script src="local-services.js"></script>
+<script src="app.js"></script>
+<script src="local-ui.js"></script>
+</body>
+</html>
+

@@ -37,6 +37,12 @@ import { isFirebaseConfigured } from '../../../shared/firebase/client';
 import { serviceLineKey } from '../hooks/useCart';
 import { firebaseCallables } from '../../../shared/firebase/callables';
 import { APP_ID } from '../../../config/appConfig';
+import { buildTestCheckoutResult } from '../../../utils/testCheckout';
+import {
+  checkoutQuoteInput, clearCheckoutRecovery, mergePublicCommerceWorkspace,
+  onlineCheckoutRestriction, quotePublicCart, quoteRevisionPayload,
+  readCheckoutRecovery, saveCheckoutRecovery
+} from '../../../utils/publicCommerceCheckout';
 import { navigate, publicPagePath } from '../../../app/routing';
 import {
   trackAnalyticsEvent,
@@ -224,13 +230,17 @@ export function PublicCartCheckout({
   onBack,
   forceStep = '',
   previewResult = null,
-  lockedPreview = false
+  lockedPreview = false,
+  testMode = false
 }) {
   const ctx = useWorkspace();
   const cart = usePublicCart();
   const { user } = useAuth();
   const { profile, isClient } = useClientProfile();
-  const workspace = catalogWorkspace || ctx.workspace;
+  const initialWorkspace = catalogWorkspace || ctx.workspace;
+  const liveCommerce = publicMode && !lockedPreview && !testMode;
+  const [catalogState, setCatalogState] = useState({ status: 'loading', key: '', catalog: null, error: '' });
+  const workspace = mergePublicCommerceWorkspace(initialWorkspace, catalogState.catalog);
   const analyticsEnabled = publicMode && !lockedPreview && user?.uid !== workspace?.ownerId;
   const bookings =
     (catalogWorkspace && catalogWorkspace !== ctx.workspace
@@ -267,6 +277,9 @@ export function PublicCartCheckout({
   const [submitNote, setSubmitNote] = useState('');
   const [result, setResult] = useState(() => previewResult || null);
   const [submitting, setSubmitting] = useState(false);
+  const [quoteState, setQuoteState] = useState({ status: 'idle', signature: '', quote: null, error: '' });
+  const [quoteRefresh, setQuoteRefresh] = useState(0);
+  const [paymentRecovery, setPaymentRecovery] = useState(null);
   const bookingRequests = useRef(new Map());
   const requestAttribution = useRef(new Map());
   const [returnState, setReturnState] = useState(null);
@@ -288,6 +301,40 @@ export function PublicCartCheckout({
     if (previewResult) setResult(previewResult);
   }, [previewResult]);
 
+  const buyerCountry = initialWorkspace.website?.buyerCountryCode || details.country;
+  const catalogKey = `${initialWorkspace.slug || ''}:${buyerCountry}`;
+  useEffect(() => {
+    if (!liveCommerce) return undefined;
+    let stopped = false;
+    setCatalogState({ status: 'loading', key: catalogKey, catalog: null, error: '' });
+    if (!isFirebaseConfigured() || !initialWorkspace.slug) {
+      setCatalogState({ status: 'error', key: catalogKey, catalog: null,
+        error: 'The business checkout is unavailable. Please try again later.' });
+      return undefined;
+    }
+    firebaseCallables.getPublicCommerceContext({ slug: initialWorkspace.slug, countryCode: buyerCountry })
+      .then((catalog) => { if (!stopped) setCatalogState({ status: 'ready', key: catalogKey, catalog, error: '' }); })
+      .catch((error) => { if (!stopped) setCatalogState({ status: 'error', key: catalogKey, catalog: null,
+        error: error?.message || 'Could not load the current business catalog.' }); });
+    return () => { stopped = true; };
+  }, [liveCommerce, catalogKey, quoteRefresh]);
+
+  useEffect(() => {
+    if (!liveCommerce || !workspace.slug) return;
+    const saved = readCheckoutRecovery(window.sessionStorage, workspace.slug);
+    if (!saved) return;
+    setPaymentRecovery(saved);
+    if (cart.items.length && !readCheckoutReturnParams().paid && !readCheckoutReturnParams().cancelled) return;
+    setResult(saved.result);
+    setStep('success');
+    setSubmitNote('Your confirmed request is saved. Continue payment below, or check its status in your bookings and orders.');
+  }, [liveCommerce, workspace.slug]);
+
+  useEffect(() => {
+    if (!paymentOptions.length || paymentOptions.some((option) => option.gatewayType === paymentMethod)) return;
+    setPaymentMethod(paymentOptions[0].gatewayType);
+  }, [paymentOptions, paymentMethod]);
+
   useEffect(() => {
     if (!analyticsEnabled || step !== 'details') return;
     const ownerId = workspace?.ownerId;
@@ -307,7 +354,7 @@ export function PublicCartCheckout({
   }, [step, analyticsEnabled, workspace?.ownerId, workspace?.slug]);
 
   useEffect(() => {
-    if (lockedPreview) return undefined;
+    if (lockedPreview || testMode) return undefined;
     const params = readCheckoutReturnParams();
     if (!params.paid && !params.cancelled) return undefined;
     let cancelled = false;
@@ -319,8 +366,8 @@ export function PublicCartCheckout({
       }
       if (!params.attemptId || !isFirebaseConfigured()) {
         setReturnState({
-          kind: 'paid_local',
-          note: 'Payment return received. Confirm in Receipts & invoices if the studio uses cloud payments.'
+          kind: 'error',
+          note: 'This payment return could not be verified. Check your bookings and orders or contact the business before paying again.'
         });
         return;
       }
@@ -337,9 +384,15 @@ export function PublicCartCheckout({
           reference: params.reference || undefined
         });
         if (cancelled) return;
+        if (confirmed?.paid) {
+          clearCheckoutRecovery(window.sessionStorage, workspace.slug);
+          setPaymentRecovery(null);
+        }
         setReturnState({
-          kind: confirmed?.paid ? 'paid' : 'pending',
-          note: confirmed?.reason || ''
+          kind: confirmed?.inventoryException ? 'exception' : confirmed?.paid ? 'paid' : 'pending',
+          note: confirmed?.inventoryException
+            ? 'Payment was received after the stock reservation ended. The business must review availability and fulfilment.'
+            : confirmed?.reason || ''
         });
       } catch (error) {
         if (cancelled) return;
@@ -354,7 +407,7 @@ export function PublicCartCheckout({
     return () => {
       cancelled = true;
     };
-  }, [workspace.slug, lockedPreview]);
+  }, [workspace.slug, lockedPreview, testMode]);
 
   const sameOwnerContext =
     !publicMode ||
@@ -369,8 +422,8 @@ export function PublicCartCheckout({
   });
   const summaryRows = useMemo(() => buildSummaryRows(cart), [cart]);
   const marketsConfigured = Array.isArray(workspace.website?.markets);
-  const buyerCountry = workspace.website?.buyerCountryCode || details.country;
   const delivery = (() => {
+    if (liveCommerce) return { amountInCents: quoteState.quote?.shippingAmountInCents || 0, profileIds: [], error: '' };
     if (!marketsConfigured) return { amountInCents: 0, profileIds: [], error: '' };
     try {
       const market = resolveMarket(workspace.website, buyerCountry);
@@ -379,6 +432,28 @@ export function PublicCartCheckout({
       return { ...shippingQuote(workspace.website, buyerCountry, cart.productItems, cart.productItems.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0)), error: '' };
     } catch (error) { return { amountInCents: 0, profileIds: [], error: error.message }; }
   })();
+  const onlineRestriction = onlineCheckoutRestriction(cart.items, paymentMethod);
+  const quoteInput = checkoutQuoteInput({ slug: workspace.slug, items: cart.items, details, countryCode: buyerCountry, paymentMethod });
+  const quoteSignature = JSON.stringify(quoteInput);
+  const detailsReady = Boolean(details.clientName.trim() &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.clientEmail.trim()) &&
+    (!marketsConfigured || buyerCountry) &&
+    (!marketsConfigured || !cart.hasProducts || details.shippingAddress.trim()) && cart.allServicesSlotted);
+  const currentQuote = quoteState.status === 'ready' && quoteState.signature === quoteSignature ? quoteState.quote : null;
+  useEffect(() => {
+    if (!liveCommerce || step !== 'details') return undefined;
+    let stopped = false;
+    setQuoteState({ status: 'idle', signature: quoteSignature, quote: null, error: '' });
+    if (!detailsReady || onlineRestriction || catalogState.status !== 'ready' || catalogState.key !== catalogKey) return undefined;
+    setQuoteState({ status: 'loading', signature: quoteSignature, quote: null, error: '' });
+    const timer = window.setTimeout(() => {
+      quotePublicCart(quoteInput, firebaseCallables)
+        .then((quote) => { if (!stopped) setQuoteState({ status: 'ready', signature: quoteSignature, quote, error: '' }); })
+        .catch((error) => { if (!stopped) setQuoteState({ status: 'error', signature: quoteSignature, quote: null,
+          error: error?.message || 'Could not confirm the checkout total.' }); });
+    }, 300);
+    return () => { stopped = true; window.clearTimeout(timer); };
+  }, [liveCommerce, step, quoteSignature, detailsReady, onlineRestriction, catalogState.status, catalogState.key, catalogKey, quoteRefresh]);
   const canContinueDetails = cart.items.length > 0 && cart.allServicesSlotted;
   const canSubmit =
     cart.items.length > 0 &&
@@ -387,6 +462,9 @@ export function PublicCartCheckout({
     !delivery.error &&
     (!marketsConfigured || !cart.hasProducts || details.shippingAddress.trim()) &&
     cart.allServicesSlotted &&
+    (!liveCommerce || (catalogState.status === 'ready' && catalogState.key === catalogKey && currentQuote &&
+      paymentOptions.some((option) => option.gatewayType === paymentMethod))) &&
+    (!onlineRestriction || testMode) &&
     !submitting;
 
   const chargeNow = ONLINE_GATEWAYS.includes(paymentMethod);
@@ -451,7 +529,13 @@ export function PublicCartCheckout({
       workspaceName: workspaceName || workspace.brandName
     };
 
-    if (publicMode && isFirebaseConfigured() && workspace.slug) {
+    if (liveCommerce) {
+      const quote = currentQuote?.serviceQuotes.find((row) => row.lineKey === item.lineKey);
+      Object.assign(payload, quoteRevisionPayload(quote), { amountInCents: quote.amountInCents, currency: quote.currency });
+    }
+
+    if (liveCommerce) {
+      if (!isFirebaseConfigured() || !workspace.slug) throw new Error('The business checkout is unavailable.');
       try {
         const signature = JSON.stringify({ slug: workspace.slug, ...payload });
         if (!bookingRequests.current.has(signature)) bookingRequests.current.set(signature, crypto.randomUUID());
@@ -463,7 +547,8 @@ export function PublicCartCheckout({
           ...payload,
           ...requestAttribution.current.get(signature)
         });
-        return { ...payload, id: remote?.id || `bk-${Date.now()}`, ...(remote || {}) };
+        if (!remote?.id) throw new Error('The booking service returned no confirmation.');
+        return { ...payload, ...remote };
       } catch (failure) {
         throw new Error(failure.message || 'The booking could not be confirmed. Please try again.');
       }
@@ -486,7 +571,8 @@ export function PublicCartCheckout({
     const signature = JSON.stringify({ slug: workspace.slug, items: productItems, client, paymentMethod });
     if (!bookingRequests.current.has(signature)) bookingRequests.current.set(signature, crypto.randomUUID());
 
-    if (publicMode && isFirebaseConfigured() && workspace.slug) {
+    if (liveCommerce) {
+      if (!isFirebaseConfigured() || !workspace.slug) throw new Error('The business checkout is unavailable.');
       try {
         if (!requestAttribution.current.has(signature)) requestAttribution.current.set(signature,
           analyticsEnabled ? await getAnalyticsAttribution({ ownerId: workspace.ownerId, slug: workspace.slug }) : {});
@@ -496,9 +582,10 @@ export function PublicCartCheckout({
           items: productItems,
           client,
           paymentMethod,
+          ...quoteRevisionPayload(currentQuote?.productQuote),
           ...requestAttribution.current.get(signature)
         });
-        if (remote && typeof remote === 'object') return remote;
+        if (remote?.id) return remote;
         throw new Error('The order service returned no confirmation.');
       } catch (error) {
         throw new Error(error.message || 'Your order could not be placed. Please try again.');
@@ -526,9 +613,34 @@ export function PublicCartCheckout({
     });
   };
 
+  const continuePayment = async (recovery = paymentRecovery) => {
+    if (!liveCommerce || !recovery?.sourceId || submitting) return;
+    setSubmitting(true);
+    setSubmitNote('Opening secure payment…');
+    try {
+      const { successUrl, cancelUrl } = buildReturnUrls(workspace.slug, recovery.sourceType === 'order' ? 'buy' : 'book');
+      const initiated = await firebaseCallables.initiatePayment({
+        appId: APP_ID, slug: workspace.slug, gatewayType: recovery.paymentMethod,
+        sourceType: recovery.sourceType, sourceId: recovery.sourceId,
+        requestId: `checkout-${recovery.sourceId}`, successUrl, cancelUrl
+      });
+      if (!initiated?.redirectUrl) throw new Error(initiated?.reason || 'Payment could not start. Your confirmed request remains saved.');
+      window.location.assign(initiated.redirectUrl);
+    } catch (error) {
+      setSubmitNote(`${error?.message || 'Payment could not start.'} Your request is saved. Retry payment below without placing another request.`);
+    } finally { setSubmitting(false); }
+  };
+
   const submit = async () => {
     if (lockedPreview) return;
     if (!canSubmit) return;
+    if (testMode) {
+      setResult(buildTestCheckoutResult(cart.items, details));
+      setSubmitNote('Test checkout completed. No order, booking or payment was created.');
+      setStep('success');
+      return;
+    }
+    if (onlineRestriction) { setSubmitNote(onlineRestriction); return; }
     setSubmitting(true);
     setSubmitNote('');
     const notes = [];
@@ -559,21 +671,25 @@ export function PublicCartCheckout({
             );
           }
           bookingsCreated.push(booking);
-        } catch {
-          notes.push(`Could not request ${item.name}.`);
+        } catch (error) {
+          notes.push(error?.message || `Could not request ${item.name}.`);
         }
       }
 
       const productsOk = !hadProducts || Boolean(order);
       const servicesOk = !hadServices || bookingsCreated.length === serviceSnapshot.length;
+      if (liveCommerce && (!productsOk || !servicesOk)) setQuoteRefresh((value) => value + 1);
 
       if (productsOk && servicesOk) {
+        const confirmedResult = { order, bookings: bookingsCreated };
+        setResult(confirmedResult);
+        setStep('success');
         cart.clear();
 
         const ownerId = workspace?.ownerId;
         const slug = workspace?.slug;
         if (analyticsEnabled && ownerId && slug) {
-          const valueCents = productSnapshot.reduce(
+          const valueCents = currentQuote?.amountInCents ?? productSnapshot.reduce(
             (sum, item) => sum + (item.unitPriceCents || 0) * (item.quantity || 0),
             0
           ) + serviceSnapshot.reduce(
@@ -596,28 +712,25 @@ export function PublicCartCheckout({
           );
         }
 
-        const online = ONLINE_GATEWAYS.includes(paymentMethod);
-        if (online && publicMode && isFirebaseConfigured() && workspace.slug) {
-          const { successUrl, cancelUrl } = buildReturnUrls(
-            workspace.slug,
-            hadProducts ? 'buy' : 'book'
-          );
-          const paySource = order
-            ? { sourceType: 'order', sourceId: order.id }
-            : bookingsCreated[0]
-              ? { sourceType: 'booking', sourceId: bookingsCreated[0].id }
-              : null;
-
-          if (paySource?.sourceId) {
+        if (chargeNow && liveCommerce) {
+          const firstBooking = bookingsCreated[0];
+          const recovery = {
+            slug: workspace.slug, paymentMethod, result: confirmedResult,
+            sourceType: order ? 'order' : 'booking', sourceId: order?.id || firstBooking?.id,
+            serviceId: firstBooking?.serviceId, serviceName: firstBooking?.serviceName
+          };
+          saveCheckoutRecovery(window.sessionStorage, recovery);
+          setPaymentRecovery(recovery);
+          if (recovery.sourceId) {
             try {
+              const { successUrl, cancelUrl } = buildReturnUrls(workspace.slug, hadProducts ? 'buy' : 'book');
               const initiated = await firebaseCallables.initiatePayment({
                 appId: APP_ID,
                 slug: workspace.slug,
                 gatewayType: paymentMethod,
-                sourceType: paySource.sourceType,
-                sourceId: paySource.sourceId,
-                customerEmail: details.clientEmail.trim(),
-                customerName: details.clientName.trim(),
+                sourceType: recovery.sourceType,
+                sourceId: recovery.sourceId,
+                requestId: `checkout-${recovery.sourceId}`,
                 successUrl,
                 cancelUrl
               });
@@ -627,31 +740,20 @@ export function PublicCartCheckout({
               }
               notes.push(
                 initiated?.reason ||
-                  'Online payment could not start — request saved as unpaid.'
+                  'Payment could not start. Your confirmed request is saved. Retry payment below.'
               );
             } catch (error) {
               notes.push(
                 error?.message ||
-                  'Online payment could not start — request saved as unpaid. Try again or choose cash.'
+                  'Payment could not start. Your confirmed request is saved. Retry payment below.'
               );
             }
           }
-        } else if (online && !isFirebaseConfigured()) {
-          notes.push(
-            'Online card/PayPal checkout needs Firebase payments. Request saved unpaid — connect gateways when cloud is enabled.'
-          );
-        }
-
-        setResult({ order, bookings: bookingsCreated });
-        setStep('success');
-        if (isClient && workspace?.slug) {
         }
       } else if (order || bookingsCreated.length) {
         notes.push('Part of your cart went through — check the summary below.');
         setResult({ order, bookings: bookingsCreated, partial: true });
         setStep('success');
-        if (isClient && workspace?.slug) {
-        }
         if (order) {
           for (const item of productSnapshot) cart.removeItem(item.lineKey);
         }
@@ -667,6 +769,9 @@ export function PublicCartCheckout({
       }
 
       setSubmitNote([...new Set(notes.filter(Boolean))].join(' '));
+    } catch (error) {
+      setSubmitNote(error?.message || 'Your request could not be submitted. Please try again.');
+      if (liveCommerce) setQuoteRefresh((value) => value + 1);
     } finally {
       setSubmitting(false);
     }
@@ -681,7 +786,7 @@ export function PublicCartCheckout({
               ? 'Payment cancelled'
               : returnState.kind === 'confirming'
                 ? 'Confirming payment…'
-                : returnState.kind === 'paid' || returnState.kind === 'paid_local'
+                : returnState.kind === 'paid'
                   ? 'Payment received'
                   : returnState.kind === 'pending'
                     ? 'Payment pending'
@@ -689,17 +794,19 @@ export function PublicCartCheckout({
           </h2>
           <p className="bb-checkout-flow__lede">
             {returnState.kind === 'cancelled'
-              ? 'No charge was completed. You can try again from checkout.'
+              ? 'Payment was cancelled. Your confirmed request remains saved. Check its status before retrying.'
               : returnState.kind === 'confirming'
                 ? 'Checking with the payment provider…'
                 : returnState.kind === 'paid'
                   ? `${workspaceName || workspace.brandName} will see this as paid.`
                   : returnState.note || 'Thanks — the studio will confirm shortly.'}
           </p>
-          {returnState.note && returnState.kind !== 'paid' ? (
-            <p className="bb-checkout-flow__lede">{returnState.note}</p>
-          ) : null}
         </div>
+        {paymentRecovery && returnState.kind !== 'paid' && returnState.kind !== 'confirming' ? (
+          <Button action="continue" variant="secondary" type="button" disabled={submitting} onClick={() => { setReturnState(null); setStep('success'); }}>
+            View saved request
+          </Button>
+        ) : null}
         <Button action="continue" variant="primary"
           type="button"
           className="bb-checkout-cta"
@@ -744,9 +851,8 @@ export function PublicCartCheckout({
       hasServices: Boolean(activeResult.bookings?.length),
       hasProducts: Boolean(activeResult.order)
     });
-    const reference = formatCheckoutReference(
-      activeResult.order?.id || firstBooking?.id || activeResult.reference
-    );
+    const resultReference = activeResult.order?.id || firstBooking?.id || activeResult.reference;
+    const reference = testMode ? resultReference : formatCheckoutReference(resultReference);
 
     return (
       <div className="bb-checkout-flow bb-checkout-success">
@@ -757,11 +863,18 @@ export function PublicCartCheckout({
         </div>
         <div className="bb-checkout-flow__intro bb-checkout-flow__intro--center">
           <h2 className="bb-checkout-flow__title">
-            {activeResult.partial ? 'Partly submitted.' : successCopy.successTitle}
+            {testMode ? 'Test checkout complete.' : activeResult.partial ? 'Partly submitted.' : successCopy.successTitle}
           </h2>
-          <p className="bb-checkout-flow__lede">{successCopy.successLede}</p>
+          <p className="bb-checkout-flow__lede">{testMode ? 'Your website connection passed this checkout preview.' : successCopy.successLede}</p>
           {submitNote ? <p className="bb-checkout-flow__lede">{submitNote}</p> : null}
         </div>
+
+        {!testMode && paymentRecovery?.sourceId === resultReference ? (
+          <Button action="continue" variant="primary" type="button" className="bb-checkout-cta"
+            disabled={submitting} busy={submitting} busyLabel="Opening payment…" onClick={() => continuePayment()}>
+            Continue secure payment
+          </Button>
+        ) : null}
 
         <div className="bb-checkout-success__cards">
           <article className="bb-checkout-success__card">
@@ -771,16 +884,16 @@ export function PublicCartCheckout({
             </p>
             <p className="bb-checkout-success__card-value">{reference}</p>
             <p className="bb-checkout-success__card-body">
-              Keep this for updates with the business.
+              {testMode ? 'Preview reference only.' : 'Keep this for updates with the business.'}
             </p>
           </article>
           <article className="bb-checkout-success__card">
-            <p className="bb-checkout-success__card-title">{successCopy.processTitle}</p>
-            <p className="bb-checkout-success__card-body">{successCopy.processBody}</p>
+            <p className="bb-checkout-success__card-title">{testMode ? 'Connected to Book & Buy' : successCopy.processTitle}</p>
+            <p className="bb-checkout-success__card-body">{testMode ? 'Product options, booking times and customer details use the same checkout rules as your profile.' : successCopy.processBody}</p>
           </article>
         </div>
 
-        <div className="bb-checkout-companion">
+        {!testMode && <div className="bb-checkout-companion">
           <div className="bb-checkout-companion__top">
             <span className="bb-checkout-companion__logo" aria-hidden="true">
               b
@@ -809,7 +922,7 @@ export function PublicCartCheckout({
               <Download size={14} strokeWidth={2.4} aria-hidden="true" />
             </Button>
           </div>
-        </div>
+        </div>}
 
         <div className="bb-checkout-secondary">
           {calendarUrl ? (
@@ -830,6 +943,7 @@ export function PublicCartCheckout({
                   clientPhone: '',
                   clientNote: '',
                   country: '',
+                  shippingAddress: '',
                   birthday: '',
                   emailUpdates: true
                 });
@@ -981,7 +1095,7 @@ export function PublicCartCheckout({
 
           {paymentOptions.length > 1 || chargeNow ? (
             <div className="bb-checkout-pay">
-              {paymentOptions.some((option) => option.mode === 'test') && chargeNow ? (
+              {paymentOptions.find((option) => option.gatewayType === paymentMethod)?.mode === 'test' && chargeNow ? (
                 <p className="bb-pay-test-banner">Test mode — no live charges.</p>
               ) : null}
               <div className="bb-segment flex-wrap">
@@ -1002,7 +1116,36 @@ export function PublicCartCheckout({
             </div>
           ) : null}
 
-          {submitNote ? <p className="bb-checkout-flow__lede">{submitNote}</p> : null}
+          {liveCommerce ? (
+            <section className="bb-checkout-summary" aria-label="Current checkout quote" aria-live="polite">
+              <h3 className="bb-checkout-summary__title">Review your current total</h3>
+              {catalogState.error ? <p role="alert">{catalogState.error}</p>
+                : onlineRestriction ? <p role="alert">{onlineRestriction}</p>
+                  : !paymentOptions.length && catalogState.status === 'ready' ? <p role="alert">The business has no payment option available for checkout.</p>
+                    : quoteState.status === 'error' ? <p role="alert">{quoteState.error}</p>
+                      : !currentQuote ? <p>{detailsReady ? 'Checking current prices, delivery and booking availability…' : 'Complete your details to check the current total and availability.'}</p>
+                        : <>
+                          {currentQuote.productQuote?.items.map((item) => (
+                            <div className="bb-checkout-summary__row" key={`${item.productId}:${item.variantId}`}>
+                              <p>{item.name}{item.variantLabel ? ` · ${item.variantLabel}` : ''} × {item.quantity}</p>
+                              <p>{formatCents(item.lineTotalCents, currentQuote.currency)}</p>
+                            </div>
+                          ))}
+                          {currentQuote.serviceQuotes.map((quote) => (
+                            <div className="bb-checkout-summary__row" key={quote.lineKey}>
+                              <p>{cart.items.find((item) => item.lineKey === quote.lineKey)?.name}</p>
+                              <p>{quote.quoteBased ? 'Price confirmed by the business after consultation' : formatCents(quote.amountInCents, currentQuote.currency)}</p>
+                            </div>
+                          ))}
+                          {currentQuote.productQuote ? <div className="bb-checkout-summary__row"><p>Delivery</p><p>{formatCents(currentQuote.shippingAmountInCents, currentQuote.currency)}</p></div> : null}
+                          <div className="bb-checkout-summary__total"><span>Total:</span><span>{formatCents(currentQuote.amountInCents, currentQuote.currency)}</span></div>
+                          <p className="bb-muted">{chargeNow ? 'Review this total before continuing to secure payment.' : 'Review this total before placing your request. No payment is taken now.'}</p>
+                        </>}
+              {quoteState.status === 'error' || catalogState.status === 'error' ? <Button action="refresh" variant="secondary" type="button" onClick={() => setQuoteRefresh((value) => value + 1)}>Refresh checkout</Button> : null}
+            </section>
+          ) : null}
+          {paymentRecovery ? <p className="bb-muted">You also have a saved payment request. <button type="button" className="bb-ghost-btn" onClick={() => { setResult(paymentRecovery.result); setStep('success'); }}>View saved request</button></p> : null}
+          {submitNote ? <p role="status" className="bb-checkout-flow__lede">{submitNote}</p> : null}
 
           {!lockedPreview ? (
             <Button action="back" variant="secondary"
@@ -1051,10 +1194,10 @@ export function PublicCartCheckout({
           );
         })}
         <div className="bb-checkout-summary__total">
-          <span>Total:</span>
+          <span>{liveCommerce ? 'Estimated items:' : 'Total:'}</span>
           <span>{formatCents(cart.subtotalCents + delivery.amountInCents, cart.currency)}</span>
         </div>
-        {marketsConfigured && cart.hasProducts && <div className="bb-checkout-summary__row"><p>{delivery.profileIds.length ? delivery.profileIds.map((id) => shippingDisplayName(workspace.website.shippingProfiles?.find((profile) => profile.id === id))).join(' + ') : 'Shipping'}</p><p>{delivery.error ? 'Unavailable' : delivery.amountInCents === 0 ? 'Free' : formatCents(delivery.amountInCents, cart.currency)}</p></div>}
+        {liveCommerce ? <p className="bb-muted">Current prices, delivery and availability are confirmed after you complete your details.</p> : marketsConfigured && cart.hasProducts && <div className="bb-checkout-summary__row"><p>{delivery.profileIds.length ? delivery.profileIds.map((id) => shippingDisplayName(workspace.website.shippingProfiles?.find((profile) => profile.id === id))).join(' + ') : 'Shipping'}</p><p>{delivery.error ? 'Unavailable' : delivery.amountInCents === 0 ? 'Free' : formatCents(delivery.amountInCents, cart.currency)}</p></div>}
       </section>
 
       {cart.hasServices ? (
@@ -1076,7 +1219,7 @@ export function PublicCartCheckout({
                       'Fixed programme window'}
                   </p>
                   <p className="bb-muted m-0 text-sm">
-                    {openSpots > 0
+                    {liveCommerce ? 'Seat availability is checked before you submit.' : openSpots > 0
                       ? `${openSpots} open spot${openSpots === 1 ? '' : 's'} remaining`
                       : 'This programme is currently full — you can still request a seat.'}
                   </p>
@@ -1171,6 +1314,9 @@ export function PublicCartCheckout({
             : null
         }
         workspace={workspace}
+        publicMode={liveCommerce}
+        slug={workspace.slug}
+        countryCode={buyerCountry}
         bookings={bookings}
         initialDateKey={slotEditItem?.dateKey || ''}
         initialTime={slotEditItem?.time || ''}

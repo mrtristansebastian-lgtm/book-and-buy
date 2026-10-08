@@ -1,5 +1,5 @@
 import { Button } from '../../../shared/ui/Button';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { Check, Eye, EyeOff } from 'lucide-react';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { GATEWAY_META, ONLINE_GATEWAY_IDS } from '../../finance/config/gatewayMeta';
@@ -31,6 +31,7 @@ function OnlineGatewayCard({
   const [publicKey, setPublicKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
   const [webhookSecret, setWebhookSecret] = useState('');
+  const [webhookId, setWebhookId] = useState('');
   const [showSecret, setShowSecret] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -50,7 +51,8 @@ function OnlineGatewayCard({
           publicKey: publicKey.trim(),
           clientId: publicKey.trim(),
           secretKey: secretKey.trim(),
-          webhookSecret: webhookSecret.trim() || undefined
+          webhookSecret: webhookSecret.trim() || undefined,
+          webhookId: webhookId.trim() || undefined
         });
         onSaved?.(gateway.gatewayType, {
           ...saved,
@@ -77,6 +79,7 @@ function OnlineGatewayCard({
       }
       setSecretKey('');
       setWebhookSecret('');
+      setWebhookId('');
       setReplaceSecret(false);
       setOpen(false);
     } catch (err) {
@@ -223,6 +226,7 @@ function OnlineGatewayCard({
             )}
           </label>
 
+          {gateway.gatewayType === 'paypal' && <label className="grid gap-1 text-sm"><span className="font-semibold">PayPal webhook ID</span><input className="native-control-input px-4" value={webhookId} onChange={event => setWebhookId(event.target.value)} autoComplete="off" placeholder="ID from your PayPal webhook setup"/><small className="bb-muted">Required to verify PayPal payment notifications.</small></label>}
           {gateway.gatewayType === 'stripe' || gateway.gatewayType === 'paystack' ? (
             <label className="grid gap-1 text-sm">
               <span className="font-semibold">Webhook signing secret (optional)</span>
@@ -267,20 +271,20 @@ function OnlineGatewayCard({
   );
 }
 
-function ManualGatewayCard({ gateway, onSaved }) {
+function ManualGatewayCard({ gateway, onSaved, cloudReady }) {
   const meta = GATEWAY_META[gateway.gatewayType];
   const [enabled, setEnabled] = useState(Boolean(gateway.enabled));
   const [summary, setSummary] = useState(gateway.credentialSummary || {});
 
+  const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  const queue = useRef(Promise.resolve());
   const persist = (nextEnabled, nextSummary) => {
-    onSaved?.(gateway.gatewayType, {
-      gatewayType: gateway.gatewayType,
-      enabled: nextEnabled,
-      mode: 'live',
-      configured: true,
-      providerName: meta.name,
-      credentialSummary: nextSummary
-    });
+    const patch = { gatewayType: gateway.gatewayType, enabled: nextEnabled, mode: 'live', configured: true, providerName: meta.name, credentialSummary: { ...nextSummary } };
+    setBusy(true); setError('');
+    queue.current = queue.current.catch(() => {}).then(async () => {
+      const saved = cloudReady ? await firebaseCallables.savePaymentGatewaySettings({ appId: APP_ID, ...patch }) : patch;
+      onSaved?.(gateway.gatewayType, { ...patch, ...saved });
+    }).catch(failure => { setError(failure.message || 'Payment instructions could not be saved.'); setEnabled(Boolean(gateway.enabled)); }).finally(() => setBusy(false));
   };
 
   return (
@@ -294,6 +298,7 @@ function ManualGatewayCard({ gateway, onSaved }) {
           <input
             type="checkbox"
             checked={enabled}
+            disabled={busy}
             onChange={(event) => {
               const next = event.target.checked;
               setEnabled(next);
@@ -341,6 +346,8 @@ function ManualGatewayCard({ gateway, onSaved }) {
           onBlur={() => persist(enabled, summary)}
         /></label>
       )}
+      {error && <p className="bb-pay-error m-0" role="alert">{error}</p>}
+      {busy && <small className="bb-muted" role="status">Saving payment instructions…</small>}
     </article>
   );
 }
@@ -396,7 +403,7 @@ export function PaymentGatewaysPanel({
       {roster
         .filter((gateway) => !ONLINE_GATEWAY_IDS.includes(gateway.gatewayType))
         .map((gateway) => (
-          <ManualGatewayCard key={gateway.gatewayType} gateway={gateway} onSaved={handleSaved} />
+          <ManualGatewayCard key={gateway.gatewayType} gateway={gateway} cloudReady={cloudReady} onSaved={handleSaved} />
         ))}</div></section>
 
       <section className="bb-panel p-5 grid gap-2">

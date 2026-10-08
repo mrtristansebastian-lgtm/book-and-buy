@@ -3,6 +3,10 @@
  * Keep in sync with src/utils/availability.js slot generation rules.
  */
 
+import { getFirestore } from 'firebase-admin/firestore';
+import { availableRescheduleSlots } from './bookingDomain.js';
+import { loadPublishedCommerce, serviceCommerceQuote } from './commerceRuntime.js';
+
 const DEFAULT_OPEN = '09:00';
 const DEFAULT_CLOSE = '17:00';
 
@@ -79,4 +83,25 @@ export function buildPublicAvailability({
       return !busy.some((block) => start < block.end && end > block.start);
     })
     .map((time) => ({ time, available: true }));
+}
+
+/** Live public reads expose slots only, never clients or booking records. */
+export async function getLivePublicServiceAvailability(data, db = getFirestore()) {
+  const { workspace } = await loadPublishedCommerce(data.slug, db);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dateKey || '')) throw new Error('Choose a valid date.');
+  const quote = serviceCommerceQuote(workspace,data);
+  const service = workspace.services.find((item) => item.id === quote.serviceId);
+  const partySize = data.partySize ?? 1;
+  if (!Number.isSafeInteger(partySize) || partySize < 1 || partySize > 100) throw new Error('Invalid party size.');
+  if (data.staffId && !(service.staffIds || []).includes(data.staffId)) throw new Error('Choose an available staff member.');
+  const staffIds = data.staffId ? [data.staffId] : service.staffIds?.length ? service.staffIds : [''];
+  const slots = new Map();
+  for (const staffId of staffIds) {
+    const booking = { id: '__availability__', serviceId: service.id, durationMinutes: quote.durationMinutes, scheduleType: service.scheduleType || 'appointment', staffId, partySize };
+    for (const slot of availableRescheduleSlots(workspace,booking,data.dateKey,workspace.bookings || [])) {
+      const key = `${slot.time}:${slot.scheduleSessionId || ''}:${staffId}`;
+      slots.set(key,{ ...slot, staffId, available: true });
+    }
+  }
+  return [...slots.values()].sort((a,b) => a.time.localeCompare(b.time));
 }

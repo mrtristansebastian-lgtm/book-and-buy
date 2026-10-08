@@ -13,14 +13,19 @@ import {
 import {
   findOwnerBySlug,
   loadDecryptedGateway,
-  loadOwnerSettings,
-  markSourcePaid,
   paymentAttemptRef,
   paymentSettingsRef,
   patchWorkspaceGatewaySummary,
   resolveSourceFromPayload
 } from './store.js';
-import { getPublicPaymentOptions, toIsoCurrency } from './publicOptions.js';
+import { getPublicPaymentOptions } from './publicOptions.js';
+import { getApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { createHash } from 'node:crypto';
+import { readWorkspace,writeWorkspace } from '../workspaceStore.js';
+import { reservationRef } from '../inventoryService.js';
+import { settleVerifiedPayment } from './settlement.js';
+import { paymentAppId, canonicalPayment, validatePaymentReturnUrls, paymentAttemptKey, paymentReturnUrl } from './paymentPolicy.js';
 
 const ONLINE = new Set(['stripe', 'paypal', 'paystack']);
 const NAMES = {
@@ -54,12 +59,12 @@ export function savePaymentGatewaySettings(input = {}) {
 }
 
 export async function saveAndVerifyPaymentGateway(payload = {}, authUid) {
-  const appId = payload.appId || process.env.APP_ID || 'book-and-buy-v1';
+  const appId = paymentAppId(payload.appId);
   const ownerId = authUid || payload.ownerId;
   if (!ownerId) throw new Error('Authentication required.');
 
   const gatewayType = payload.gatewayType;
-  if (!gatewayType) throw new Error('gatewayType is required');
+  if (!Object.hasOwn(NAMES,gatewayType)) throw new Error('Choose a supported payment gateway.');
 
   const mode = payload.mode === 'live' ? 'live' : 'test';
   const enabled = payload.enabled !== false;
@@ -115,13 +120,16 @@ export async function saveAndVerifyPaymentGateway(payload = {}, authUid) {
     gatewayType,
     mode,
     enabled,
-    publicKey: gatewayType === 'paypal' ? undefined : publicKey,
-    clientId: gatewayType === 'paypal' ? publicKey : undefined,
+    ...(gatewayType === 'paypal' ? {clientId:publicKey} : {publicKey}),
     secretCiphertext: enc.ciphertext,
     secretIv: enc.iv,
     updatedAt: Date.now(),
     updatedBy: ownerId
   };
+  if (gatewayType === 'paypal' && payload.webhookId) {
+    if (!/^[a-zA-Z0-9-]{1,128}$/.test(payload.webhookId)) throw new Error('Invalid PayPal webhook ID.');
+    doc.webhookId = payload.webhookId;
+  }
 
   if (payload.webhookSecret) {
     const wh = encryptSecret(String(payload.webhookSecret));
@@ -134,7 +142,7 @@ export async function saveAndVerifyPaymentGateway(payload = {}, authUid) {
   const credentialSummary = {
     publicKeyLast4: last4(publicKey),
     secretKeyConfigured: true,
-    webhookConfigured: Boolean(payload.webhookSecret)
+    webhookConfigured: Boolean(payload.webhookSecret || payload.webhookId)
   };
 
   await patchWorkspaceGatewaySummary(appId, ownerId, gatewayType, {
@@ -157,7 +165,7 @@ export async function saveAndVerifyPaymentGateway(payload = {}, authUid) {
 }
 
 export async function disconnectPaymentGateway(payload = {}, authUid) {
-  const appId = payload.appId || process.env.APP_ID || 'book-and-buy-v1';
+  const appId = paymentAppId(payload.appId);
   const ownerId = authUid || payload.ownerId;
   if (!ownerId) throw new Error('Authentication required.');
   const gatewayType = payload.gatewayType;
@@ -172,255 +180,93 @@ export async function disconnectPaymentGateway(payload = {}, authUid) {
   return { ok: true, gatewayType };
 }
 
-function amountFromSource(source, workspace) {
-  if (source?.amountInCents != null) return Math.round(Number(source.amountInCents) || 0);
-  if (source?.price != null) {
-    const n = Number(source.price);
-    if (Number.isFinite(n)) return Math.round(n * 100);
-  }
-  const service = (workspace.services || []).find((row) => row.id === source?.serviceId);
-  if (service?.price != null) {
-    const n = Number(service.price);
-    if (Number.isFinite(n)) return Math.round(n * 100);
-  }
-  return 0;
-}
-
-export async function initiatePayment(payload = {}) {
-  const appId = payload.appId || process.env.APP_ID || 'book-and-buy-v1';
-  const gatewayType = payload.gatewayType;
-  if (!ONLINE.has(gatewayType)) {
-    throw new Error('Online payment gateway required (stripe, paypal, or paystack).');
-  }
-
-  const slug = payload.slug || payload.publicSlug;
-  let ownerId = payload.businessId || payload.ownerId;
-  let workspace = {};
-
-  if (slug) {
-    const found = await findOwnerBySlug(appId, slug);
-    if (!found?.ownerId) throw new Error('Business not found for this public link.');
-    ownerId = found.ownerId;
-    workspace = (await loadOwnerSettings(appId, ownerId)) || found.workspace || {};
-  } else if (ownerId) {
-    workspace = await loadOwnerSettings(appId, ownerId);
-  } else {
-    throw new Error('slug or businessId is required.');
-  }
-
-  const { sourceType, sourceId } = resolveSourceFromPayload(payload);
-  if (!sourceId) throw new Error('sourceId (booking or order id) is required.');
-
-  const listKey = sourceType === 'order' ? 'orders' : 'bookings';
-  const source = (workspace[listKey] || []).find((item) => item.id === sourceId);
-  if (!source) throw new Error(`${sourceType} not found.`);
-
-  const amountInCents = amountFromSource(source, workspace);
-  if (amountInCents <= 0) {
-    throw new Error('Amount must be greater than zero to start online payment.');
-  }
-
-  const gateway = await loadDecryptedGateway(appId, ownerId, gatewayType);
-  const iso = toIsoCurrency(payload.currency || workspace.currency || source.currency || 'R');
-  const description =
-    payload.description ||
-    source.serviceName ||
-    source.workspaceName ||
-    `${workspace.brandName || 'Business'} payment`;
-  const customerEmail = payload.customerEmail || source.clientEmail || '';
-  const successUrl = payload.successUrl;
-  const cancelUrl = payload.cancelUrl;
-  if (!successUrl || !cancelUrl) {
-    throw new Error('successUrl and cancelUrl are required.');
-  }
-
-  const attemptId = `pay-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const successWithAttempt = successUrl.includes('?')
-    ? `${successUrl}&attemptId=${encodeURIComponent(attemptId)}&gateway=${gatewayType}`
-    : `${successUrl}?attemptId=${encodeURIComponent(attemptId)}&gateway=${gatewayType}`;
-
-  let provider;
-  if (gatewayType === 'stripe') {
-    provider = await createStripeCheckoutSession({
-      secretKey: gateway.secretKey,
-      amountInCents,
-      currency: iso,
-      description,
-      customerEmail,
-      successUrl: successWithAttempt,
-      cancelUrl,
-      metadata: { attemptId, sourceType, sourceId, ownerId, appId }
-    });
-  } else if (gatewayType === 'paypal') {
-    provider = await createPayPalOrder({
-      clientId: gateway.clientId,
-      secretKey: gateway.secretKey,
-      mode: gateway.mode,
-      amountInCents,
-      currency: iso.toUpperCase(),
-      description,
-      successUrl: successWithAttempt,
-      cancelUrl,
-      customId: attemptId
-    });
-  } else {
-    provider = await createPaystackTransaction({
-      secretKey: gateway.secretKey,
-      amountInCents,
-      email: customerEmail || 'customer@example.com',
-      currency: iso.toUpperCase(),
-      description,
-      callbackUrl: successWithAttempt,
-      metadata: { attemptId, sourceType, sourceId, ownerId, appId }
-    });
-  }
-
-  if (!provider?.url) throw new Error('Provider did not return a redirect URL.');
-
-  await paymentAttemptRef(appId, ownerId, attemptId).set({
-    id: attemptId,
-    gatewayType,
-    sourceType,
-    sourceId,
-    amountInCents,
-    currency: iso,
-    status: 'redirected',
-    providerRef: provider.id || '',
-    createdAt: Date.now(),
-    ownerId,
-    slug: slug || workspace.slug || ''
-  });
-
-  return {
-    ok: true,
-    redirectUrl: provider.url,
-    attemptId,
-    providerRef: provider.id || ''
-  };
-}
-
-export async function confirmPaymentReturn(payload = {}) {
-  const appId = payload.appId || process.env.APP_ID || 'book-and-buy-v1';
-  const attemptId = payload.attemptId;
-  const gatewayType = payload.gatewayType;
-  const providerRef =
-    payload.providerRef || payload.session_id || payload.token || payload.reference;
-
-  let ownerId = payload.ownerId || payload.businessId;
-  let attempt = null;
-
-  if (payload.slug && !ownerId) {
-    const found = await findOwnerBySlug(appId, payload.slug);
-    ownerId = found?.ownerId;
-  }
-
-  if (!attemptId) throw new Error('attemptId is required to confirm payment.');
-  if (!ownerId) throw new Error('Could not resolve business for this payment.');
-
-  const snap = await paymentAttemptRef(appId, ownerId, attemptId).get();
-  if (!snap.exists) throw new Error('Payment attempt not found.');
-  attempt = { id: snap.id, ...snap.data() };
-
-  const gw = gatewayType || attempt.gatewayType;
-  const gateway = await loadDecryptedGateway(appId, ownerId, gw);
-  const ref =
-    gw === 'paypal'
-      ? attempt.providerRef || providerRef
-      : providerRef || attempt.providerRef;
-
-  let paid = false;
-  let providerPaymentId = ref;
-
-  if (gw === 'stripe') {
-    const session = await retrieveStripeCheckoutSession({
-      secretKey: gateway.secretKey,
-      sessionId: ref
-    });
-    paid = session.payment_status === 'paid' || session.status === 'complete';
-    providerPaymentId = session.payment_intent || session.id;
-  } else if (gw === 'paypal') {
-    const captured = await capturePayPalOrder({
-      clientId: gateway.clientId,
-      secretKey: gateway.secretKey,
-      mode: gateway.mode,
-      orderId: ref
-    });
-    paid = ['COMPLETED', 'APPROVED'].includes(captured.status);
-    providerPaymentId = captured.id;
-  } else if (gw === 'paystack') {
-    const txn = await verifyPaystackTransaction({
-      secretKey: gateway.secretKey,
-      reference: ref || attempt.providerRef
-    });
-    paid = txn.status === 'success';
-    providerPaymentId = txn.reference || txn.id;
-  }
-
-  if (!paid) {
-    return { ok: false, paid: false, reason: 'Payment not completed yet.' };
-  }
-
-  await markSourcePaid({
-    appId,
-    ownerId,
-    sourceType: attempt.sourceType,
-    sourceId: attempt.sourceId,
-    providerPaymentId,
-    gatewayType: gw
-  });
-
-  await paymentAttemptRef(appId, ownerId, attempt.id).set(
-    {
-      status: 'paid',
-      paidAt: Date.now(),
-      providerPaymentId
-    },
-    { merge: true }
-  );
-
-  return { ok: true, paid: true, attemptId: attempt.id, providerPaymentId };
-}
-
-export async function applyWebhookPaid({
-  appId,
-  ownerId,
-  gatewayType,
-  providerPaymentId,
-  attemptId,
-  sourceType,
-  sourceId
-}) {
-  if (attemptId) {
-    const snap = await paymentAttemptRef(appId, ownerId, attemptId).get();
-    if (snap.exists) {
-      const attempt = snap.data();
-      await markSourcePaid({
-        appId,
-        ownerId,
-        sourceType: attempt.sourceType,
-        sourceId: attempt.sourceId,
-        providerPaymentId,
-        gatewayType
-      });
-      await paymentAttemptRef(appId, ownerId, attemptId).set(
-        { status: 'paid', paidAt: Date.now(), providerPaymentId },
-        { merge: true }
-      );
-      return { ok: true };
-    }
-  }
-  if (sourceType && sourceId) {
-    await markSourcePaid({
-      appId,
-      ownerId,
-      sourceType,
-      sourceId,
-      providerPaymentId,
-      gatewayType
-    });
-    return { ok: true };
-  }
-  return { ok: false, reason: 'Could not map webhook to a payment attempt.' };
-}
-
 export { getPublicPaymentOptions };
+
+/** Resolve trusted return origins from deployment config and verified domain records. */
+async function paymentOrigins(db,appId,ownerId) {
+  const origins = String(process.env.PAYMENT_RETURN_ORIGINS || '').split(',').map((item) => item.trim()).filter(Boolean);
+  const projectId = getApp().options.projectId || process.env.GCLOUD_PROJECT;
+  if (projectId) origins.push(`https://${projectId}.web.app`,`https://${projectId}.firebaseapp.com`);
+  const domain = await db.doc(`artifacts/${appId}/users/${ownerId}/private/customDomain`).get();
+  if (domain.exists && domain.data().status === 'connected') origins.push(`https://${domain.data().domain}`);
+  return origins;
+}
+export async function initiatePayment(payload = {}) {
+  const appId = paymentAppId(payload.appId); const db = getFirestore();
+  if (!ONLINE.has(payload.gatewayType)) throw new Error('Choose a supported online payment gateway.');
+  const slug = payload.slug || payload.publicSlug;
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(slug || '')) throw new Error('A published business address is required.');
+  const found = await findOwnerBySlug(appId,slug); if (!found?.ownerId || found.workspace?.published === false) throw new Error('Business not found.');
+  const ownerId = found.ownerId;
+  if (payload.ownerId && payload.ownerId !== ownerId || payload.businessId && payload.businessId !== ownerId) throw new Error('Business ownership does not match.');
+  const {sourceType,sourceId} = resolveSourceFromPayload(payload);
+  if (!['order','booking'].includes(sourceType) || !/^[a-zA-Z0-9_-]{1,128}$/.test(sourceId || '')) throw new Error('A valid transaction is required.');
+  if (payload.requestId && !/^[a-zA-Z0-9_-]{1,128}$/.test(payload.requestId)) throw new Error('Invalid payment request identifier.');
+  const urls = validatePaymentReturnUrls(payload.successUrl,payload.cancelUrl,await paymentOrigins(db,appId,ownerId),Boolean(process.env.FUNCTIONS_EMULATOR));
+  const requestId = payload.requestId || 'legacy-checkout';
+  const attemptId = paymentAttemptKey(ownerId,sourceType,sourceId,payload.gatewayType,requestId);
+  const attemptRef = db.doc(`artifacts/${appId}/users/${ownerId}/payment_attempts/${attemptId}`);
+  const fingerprint = createHash('sha256').update(JSON.stringify({ sourceType,sourceId,gatewayType:payload.gatewayType,...urls })).digest('hex');
+  const preparation = await db.runTransaction(async (tx) => {
+    const [{workspace,exists},previous] = await Promise.all([readWorkspace(db,ownerId,tx),tx.get(attemptRef)]);
+    if (!exists) throw new Error('Business unavailable.');
+    if (previous.exists) {
+      const prior = previous.data(); if (prior.fingerprint !== fingerprint) throw new Error('Payment request identifier already used.');
+      if (prior.status === 'paid') throw new Error('This payment has already completed.');
+      if (prior.redirectUrl) return { replay:prior };
+      if (prior.status === 'creating' && Date.now() - prior.updatedAt < 30000) throw new Error('This payment is being prepared. Retry shortly.');
+    }
+    const source = (workspace[sourceType === 'order' ? 'orders' : 'bookings'] || []).find((item) => item.id === sourceId);
+    const amount = canonicalPayment(source,workspace,{ ...payload,sourceType });
+    if (source.paymentAttemptId && source.paymentAttemptId !== attemptId) throw new Error('A payment has already started for this transaction. Use its original checkout.');
+    if (sourceType === 'order') { const hold = await tx.get(reservationRef(db,ownerId,sourceId)); if (!hold.exists || hold.data().status !== 'reserved' || hold.data().expiresAtMs <= Date.now()) throw new Error('The inventory hold has expired. Create a new order.'); }
+    const attempt = { id:attemptId,ownerId,slug,sourceType,sourceId,gatewayType:payload.gatewayType,...amount,fingerprint,status:'creating',createdAt:previous.data()?.createdAt || Date.now(),updatedAt:Date.now() };
+    const field = sourceType === 'order' ? 'orders' : 'bookings';
+    writeWorkspace(tx,db,ownerId,workspace,{...workspace,[field]:workspace[field].map((item) => item.id === sourceId ? {...item,paymentAttemptId:attemptId,revision:(item.revision || 0)+1} : item)});
+    tx.set(attemptRef,attempt); return { attempt,source,workspace };
+  });
+  if (preparation.replay) return { ok:true,redirectUrl:preparation.replay.redirectUrl,attemptId,providerRef:preparation.replay.providerRef };
+  const {attempt,source,workspace} = preparation;
+  try {
+    const gateway = await loadDecryptedGateway(appId,ownerId,payload.gatewayType);
+    const successUrl = paymentReturnUrl(urls.successUrl,attemptId,payload.gatewayType);
+    const description = source.serviceName || source.workspaceName || `${workspace.brandName || 'Business'} payment`;
+    const common = { amountInCents:attempt.amountInCents,currency:attempt.currency,description,successUrl,cancelUrl:urls.cancelUrl,idempotencyKey:attemptId };
+    const metadata = {attemptId,sourceType,sourceId,ownerId,appId};
+    let provider;
+    if (payload.gatewayType === 'stripe') provider = await createStripeCheckoutSession({ ...common,secretKey:gateway.secretKey,customerEmail:source.clientEmail || '',metadata });
+    else if (payload.gatewayType === 'paypal') provider = await createPayPalOrder({ ...common,clientId:gateway.clientId,secretKey:gateway.secretKey,mode:gateway.mode,customId:attemptId });
+    else provider = await createPaystackTransaction({ ...common,secretKey:gateway.secretKey,email:source.clientEmail,callbackUrl:successUrl,metadata,reference:attemptId });
+    if (!provider?.url || !provider.id) throw new Error('Provider did not return a checkout.');
+    await db.runTransaction(async (tx) => { const saved = await tx.get(attemptRef); tx.update(attemptRef,{status:saved.data()?.status === 'paid' ? 'paid' : 'redirected',providerRef:provider.id,redirectUrl:provider.url,updatedAt:Date.now()}); });
+    return {ok:true,redirectUrl:provider.url,attemptId,providerRef:provider.id};
+  } catch (error) { await db.runTransaction(async (tx) => { const saved = await tx.get(attemptRef); if (saved.data()?.status !== 'paid') tx.update(attemptRef,{status:'failed',updatedAt:Date.now()}); }); throw error; }
+}
+export async function confirmPaymentReturn(payload = {}) {
+  const appId = paymentAppId(payload.appId);
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(payload.attemptId || '')) throw new Error('A valid payment attempt is required.');
+  const found = payload.slug ? await findOwnerBySlug(appId,payload.slug) : null;
+  const ownerId = found?.ownerId || payload.ownerId || payload.businessId;
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(ownerId || '')) throw new Error('A valid business is required.');
+  const snap = await paymentAttemptRef(appId,ownerId,payload.attemptId).get(); if (!snap.exists) throw new Error('Payment attempt not found.');
+  const attempt = snap.data(); const gatewayType = payload.gatewayType || attempt.gatewayType;
+  const providedRef = payload.providerRef || payload.session_id || payload.token || payload.reference;
+  if (gatewayType !== attempt.gatewayType || providedRef && providedRef !== attempt.providerRef) throw new Error('Payment provider reference does not match.');
+  if (attempt.status === 'paid') return {ok:true,paid:true,attemptId:payload.attemptId,inventoryException:attempt.inventoryException === true};
+  const gateway = await loadDecryptedGateway(appId,ownerId,gatewayType);
+  let evidence = null;
+  if (gatewayType === 'stripe') {
+    const session = await retrieveStripeCheckoutSession({secretKey:gateway.secretKey,sessionId:attempt.providerRef});
+    if (session.payment_status === 'paid') evidence = {providerPaymentId:session.payment_intent || session.id,providerRef:session.id,amountInCents:session.amount_total,currency:session.currency,sourceType:session.metadata?.sourceType,sourceId:session.metadata?.sourceId};
+  } else if (gatewayType === 'paypal') {
+    const captured = await capturePayPalOrder({clientId:gateway.clientId,secretKey:gateway.secretKey,mode:gateway.mode,orderId:attempt.providerRef,idempotencyKey:attempt.id});
+    const captures = (captured.purchase_units || []).flatMap((unit) => unit.payments?.captures || []);
+    if (captured.status === 'COMPLETED' && captures.length === 1 && captures[0].status === 'COMPLETED') evidence = {providerPaymentId:captures[0].id,providerRef:captured.id,amountInCents:Math.round(Number(captures[0].amount?.value) * 100),currency:captures[0].amount?.currency_code};
+  } else if (gatewayType === 'paystack') {
+    const txn = await verifyPaystackTransaction({secretKey:gateway.secretKey,reference:attempt.providerRef});
+    if (txn.status === 'success') evidence = {providerPaymentId:txn.reference,providerRef:txn.reference,amountInCents:txn.amount,currency:txn.currency,sourceType:txn.metadata?.sourceType,sourceId:txn.metadata?.sourceId};
+  }
+  if (!evidence) return {ok:false,paid:false,reason:'Payment not completed yet.'};
+  return settleVerifiedPayment({appId,ownerId,attemptId:payload.attemptId,gatewayType,...evidence});
+}
+export async function applyWebhookPaid(data) { return settleVerifiedPayment(data); }

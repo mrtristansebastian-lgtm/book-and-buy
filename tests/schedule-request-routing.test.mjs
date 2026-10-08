@@ -6,6 +6,12 @@ import React from 'react';
 import ts from 'typescript';
 
 const require = createRequire(import.meta.url);
+function renderHeader(tree, Header) {
+  if (Array.isArray(tree)) return React.Children.map(tree, node => renderHeader(node, Header));
+  if (!React.isValidElement(tree)) return tree;
+  if (tree.type === Header) return renderHeader(Header(tree.props), Header);
+  return React.cloneElement(tree, undefined, renderHeader(tree.props.children, Header));
+}
 function elements(tree, predicate, found = []) {
   if (Array.isArray(tree)) tree.forEach(node => elements(node, predicate, found));
   else if (React.isValidElement(tree)) {
@@ -51,6 +57,7 @@ test('Schedule booking links reveal the matching request after loading, preserve
       const module = { exports: {} }; modules.set(file.href, module.exports);
       new Function('module', 'exports', 'require', outputText)(module, module.exports, id => {
         if (id === 'react') return hooks;
+        if (id.endsWith('.css')) return {};
         if (id === '../../workspace/WorkspaceContext') return { useWorkspace: () => ({ bookings, services: [], staff: [] }) };
         if (id === '../../../shared/ui/PeriodSegmentedControl') return { PeriodSegmentedControl: Period };
         if (id === '../../ops-desk/components/OpsDeskPrimitives') return new Proxy({ OpsDeskTabs: Tabs }, { get: (target, key) => target[key] || (() => null) });
@@ -62,7 +69,8 @@ test('Schedule booking links reveal the matching request after loading, preserve
       return module.exports;
     }
     const { BookingRequestsDesk } = load('../src/features/bookings/components/BookingRequestsDesk.jsx');
-    const render = () => { cursor = 0; effects = []; const tree = BookingRequestsDesk({}); effects.forEach(effect => effect()); return tree; };
+    const { PeriodPageHeader } = load('../src/shared/ui/PeriodPageHeader.jsx');
+    const render = () => { cursor = 0; effects = []; const tree = renderHeader(BookingRequestsDesk({}), PeriodPageHeader); effects.forEach(effect => effect()); return tree; };
     const articleIds = tree => elements(tree, node => node.type === 'article').map(node => node.props.id);
     const period = tree => elements(tree, node => node.type === Period)[0].props;
     const tabs = tree => elements(tree, node => node.type === Tabs)[0].props;

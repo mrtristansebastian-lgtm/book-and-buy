@@ -216,7 +216,7 @@ test('both demo and owner device caches roundtrip warning overrides and cleared 
 });
 
 test('workspace inventory API merges functional state and reports validation without pretending to await a cloud save', async () => {
-  const initial = { products: products(), isDemo: false, ownerId: 'owner', orders: [], bookings: [] };
+  const initial = { products: products(), isDemo: true, ownerId: 'owner', orders: [], bookings: [] };
   let current = initial;
   let queued;
   const errors = [];
@@ -303,15 +303,15 @@ test('catalog drafts retain private costs and thresholds, while catalog saves pr
 test('warning thresholds and private costs persist in owner saves but never appear in published catalogs', async () => {
   const records = [];
   const ownerLoader = loader({ 'firebase/firestore': {
-    doc: (_db, ...path) => path, setDoc: async (path, payload, options) => records.push({ path, payload, options })
-  }, './client': { getFirebase: () => ({ db: {} }) }, '../../config/appConfig': { APP_ID: 'test' },
+    doc: (_db, ...path) => path
+  }, 'firebase/functions': { httpsCallable: (_functions, name) => async (input) => { if (name === 'getOwnerWorkspace') return {data: null}; records.push({payload: input.changes[0].patch}); return {data: {ok: true, workspace: input.changes[0].patch}}; } }, './client': { getFirebase: () => ({ db: {}, functions: {} }) }, '../../config/appConfig': { APP_ID: 'test' },
   './paths': { ownerConfigPath: (_appId, ownerId, id) => ['owner', ownerId, id] } });
   const { saveOwnerWorkspaceToFirestore } = ownerLoader('../src/shared/firebase/ownerWorkspace.ts');
   const saved = applyProductInventoryUpdates(products(), [
     { productId: 'shirt', patch: { lowStockThreshold: 15 } },
     { productId: 'shirt', variantId: 'small', patch: { lowStockThreshold: 0, cost: 125 } }
   ]).products;
-  assert.deepEqual(await saveOwnerWorkspaceToFirestore('owner', { products: saved, orders: [{ id: 'server' }], bookings: [], bookingRevision: 3 }), { ok: true });
+  assert.equal((await saveOwnerWorkspaceToFirestore('owner', { products: saved, orders: [{ id: 'server' }], bookings: [], bookingRevision: 3 })).ok, true);
   const payload = JSON.parse(JSON.stringify(records[0].payload));
   assert.equal(payload.products[0].lowStockThreshold, 15);
   assert.equal(payload.products[0].variants[0].lowStockThreshold, 0);

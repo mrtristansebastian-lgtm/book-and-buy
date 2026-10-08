@@ -5,8 +5,9 @@ import { useAuth } from '../auth/AuthContext';
 import {
   loadOwnerWorkspaceFromFirestore,
   saveOwnerWorkspaceToFirestore,
-  subscribeOwnerBookings
+  subscribeOwnerWorkspace
 } from '../../shared/firebase/ownerWorkspace';
+import { WORKSPACE_SECTIONS } from '../../../functions/workspaceDomain.js';
 import { createWorkspaceApi } from './createWorkspaceApi';
 import {
   MODE_KEY,
@@ -61,6 +62,7 @@ export function WorkspaceProvider({ children }) {
   const cloudHydratedRef = useRef(false);
   const skipNextCloudSaveRef = useRef(false);
   const clearedDemoForUid = useRef('');
+  const remoteWorkspaceRef = useRef(null);
 
   useEffect(() => {
     try { persistWorkspace(workspace); } catch { setSaveStatus('error'); setSaveError('This device could not save your changes. Free browser storage and try again.'); }
@@ -124,6 +126,7 @@ export function WorkspaceProvider({ children }) {
       cloudHydratedRef.current = true;
       try {
         const remote = await loadOwnerWorkspaceFromFirestore(user.uid);
+        remoteWorkspaceRef.current = remote || {};
         if (cancelled || !remote || isDemoWorkspace(remote)) return;
         skipNextCloudSaveRef.current = true;
         setWorkspace((prev) => {
@@ -161,7 +164,24 @@ export function WorkspaceProvider({ children }) {
   /** Debounced owner settings write-through. */
   useEffect(() => {
     if (!configured || !user?.uid || isDemoWorkspace(workspace) || workspace.ownerId !== user.uid) return undefined;
-    return subscribeOwnerBookings(user.uid, (bookings, orders) => setWorkspace((prior) => JSON.stringify(prior.bookings) === JSON.stringify(bookings) && JSON.stringify(prior.orders) === JSON.stringify(orders) ? prior : ({ ...prior, bookings, orders })));
+    return subscribeOwnerWorkspace(user.uid, remote => {
+      const baseline = remoteWorkspaceRef.current || remote;
+      remoteWorkspaceRef.current = remote;
+      setWorkspace(prior => {
+        const next = { ...prior, ...remote, sectionRevisions: { ...(remote.sectionRevisions || {}) } };
+        let dirty = false;
+        for (const [section, fields] of Object.entries(WORKSPACE_SECTIONS)) {
+          let sectionDirty = false;
+          for (const field of fields) if (JSON.stringify(prior[field]) !== JSON.stringify(baseline[field])) {
+            next[field] = prior[field]; sectionDirty = true; dirty = true;
+          }
+          if (sectionDirty) next.sectionRevisions[section] = prior.sectionRevisions?.[section] || 0;
+        }
+        if (JSON.stringify(prior) === JSON.stringify(next)) return prior;
+        if (!dirty) skipNextCloudSaveRef.current = true;
+        return next;
+      });
+    }, error => { setSaveStatus('error'); setSaveError(error.message || 'Live workspace updates are unavailable.'); });
   }, [configured, user?.uid, workspace.isDemo, workspace.ownerId]);
 
   /** Debounced owner settings write-through. */
@@ -179,7 +199,20 @@ export function WorkspaceProvider({ children }) {
         ...workspace,
         ownerId: user.uid,
         isDemo: false
-      }).then((result) => { if (result?.ok !== true) throw new Error(result?.reason || 'Save unavailable'); if (!cancelled) setSaveStatus('saved'); }).catch(() => { if (!cancelled) { setSaveStatus('error'); setSaveError('Cloud save failed. Your changes are kept on this device. Check your connection and retry.'); } });
+      }).then((result) => {
+        if (result?.ok !== true) throw new Error(result?.reason || 'Save unavailable');
+        if (result.workspace) {
+          remoteWorkspaceRef.current = result.workspace;
+          setWorkspace(prior => {
+            const next = { ...prior, sectionRevisions: result.workspace.sectionRevisions || prior.sectionRevisions };
+            for (const fields of Object.values(WORKSPACE_SECTIONS)) for (const field of fields) {
+              if (JSON.stringify(prior[field]) === JSON.stringify(workspace[field]) && result.workspace[field] !== undefined) next[field] = result.workspace[field];
+            }
+            return JSON.stringify(next) === JSON.stringify(prior) ? prior : next;
+          });
+        }
+        if (!cancelled) setSaveStatus('saved');
+      }).catch(error => { if (!cancelled) { setSaveStatus('error'); setSaveError(error.message || 'Cloud save failed. Your changes are kept on this device. Check your connection and retry.'); } });
     }, 900);
     return () => { cancelled = true; window.clearTimeout(timer); };
   }, [configured, user?.uid, workspace, saveRetry]);

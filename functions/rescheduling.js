@@ -1,9 +1,13 @@
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { randomUUID, createHash } from 'node:crypto';
-import { availableRescheduleSlots, bookingError, bookingSlot, nextProposal, validateBookingSlot } from './bookingDomain.js';
+import { availableRescheduleSlots, bookingError, bookingSlot, nextProposal, validateBookingSlot,bookingNoticeMinutes,wallTimeMillis } from './bookingDomain.js';
 import { resolveMarket, catalogAllowed } from './marketPolicy.js';
 import { verifiedAnalyticsAttribution } from './analyticsAttribution.js';
 import { catalogUnitCostCents, paymentConfirmationSnapshot, clientTransactionSnapshot } from './financialSnapshots.js';
+import { serviceCommerceQuote } from './commerceRuntime.js';
+import { getPublicPaymentOptions } from './payments/publicOptions.js';
+import { readWorkspace, writeWorkspace } from './workspaceStore.js';
+import { assertCommerceQuoteRevision } from './commercePolicy.js';
 
 const APP_ID = 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
@@ -25,9 +29,7 @@ async function readContext(tx, db, auth, threadId) {
   if (!safeId(thread.ownerId) || !safeId(thread.bookingId)) bookingError('Link a booking before requesting a reschedule.');
   const role = await participant(tx, db, auth, thread.ownerId, thread.clientEmail);
   const ownerRoot = `artifacts/${APP_ID}/users/${thread.ownerId}`;
-  const settingsRef = db.doc(`${ownerRoot}/config/settings`); const settingsSnap = await tx.get(settingsRef);
-  if (!settingsSnap.exists) bookingError('Business settings unavailable.');
-  const workspace = settingsSnap.data();
+  const { ref: settingsRef, workspace } = await readWorkspace(db,thread.ownerId,tx);
   const booking = (workspace.bookings || []).find((b) => b.id === thread.bookingId);
   if (!booking || String(booking.clientEmail).toLowerCase() !== String(thread.clientEmail).toLowerCase()) bookingError('The linked booking does not belong to this conversation.', 'permission-denied');
   if (!['pending', 'confirmed'].includes(booking.status)) bookingError('Only active bookings can be rescheduled.');
@@ -51,6 +53,10 @@ export async function respondToReschedule(data, auth, db = getFirestore()) {
     const context = await readContext(tx, db, auth, threadId);
     const { booking, workspace, current, role, proposalRef, settingsRef, ownerRoot, threadRef, thread } = context;
     if (role === 'client' && workspace.availabilityRules?.reschedulingAllowed === false && ['propose', 'counter'].includes(action)) bookingError('This business does not allow client reschedule requests.');
+    if (role === 'client' && ['propose','counter'].includes(action)) {
+      const window = bookingNoticeMinutes(workspace.availabilityRules?.cancellationWindow);
+      if (window && wallTimeMillis(booking.dateKey || booking.date,booking.time,workspace.timezone || 'UTC') - Date.now() < window * 60000) bookingError('This booking is within the minimum change notice. Contact the business.');
+    }
     const receiptRef = db.doc(`${ownerRoot}/idempotencyKeys/reschedule-${requestId}`); const receipt = await tx.get(receiptRef);
     if (receipt.exists) { const value = receipt.data(); if (value.uid !== auth.uid || value.fingerprint !== fingerprint) bookingError('Request ID already used.', 'already-exists'); return value.result; }
     const proposal = nextProposal({ current, booking, actor: role, action, slot, note, expectedRevision, id: booking.id });
@@ -60,7 +66,7 @@ export async function respondToReschedule(data, auth, db = getFirestore()) {
       const nextBooking = { ...booking, date: proposal.proposed.dateKey, dateKey: proposal.proposed.dateKey, time: proposal.proposed.time, scheduleSessionId: proposal.proposed.scheduleSessionId || booking.scheduleSessionId || '', revision: (booking.revision || 0) + 1, updatedAt: now };
       const bookings = workspace.bookings.map((b) => b.id === booking.id ? nextBooking : b);
       // This shared settings document is also the transaction guard for all booking writes.
-      tx.update(settingsRef, { bookings, bookingRevision: (workspace.bookingRevision || 0) + 1 });
+      writeWorkspace(tx,db,thread.ownerId,workspace,{ ...workspace, bookings, bookingRevision: (workspace.bookingRevision || 0) + 1 });
       tx.set(db.doc(`${ownerRoot}/bookings/${booking.id}`), { ...nextBooking, ownerId: thread.ownerId, serverUpdatedAt: timestamp });
       tx.set(db.doc(`artifacts/${APP_ID}/clientAccess/${thread.clientEmail}/bookings/${booking.id}`), { ...clientTransactionSnapshot(nextBooking), ownerId: thread.ownerId, serverUpdatedAt: timestamp });
       tx.set(db.doc(`${ownerRoot}/notifications/reschedule-${requestId}`), { type: 'reschedule', audience: 'owner', ownerId: thread.ownerId, clientEmail: thread.clientEmail, bookingId: booking.id, body: `Booking rescheduled · ${booking.serviceName}`, read: false, createdAt: now });
@@ -85,18 +91,25 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
   if (publicRequest && !safeId(data.requestId)) bookingError('A booking request identifier is required.', 'invalid-argument');
   const id = !publicRequest && safeId(input.id) ? input.id : randomUUID();
   return db.runTransaction(async (tx) => {
-    const settingsRef = db.doc(`artifacts/${APP_ID}/users/${ownerId}/config/settings`); const snap = await tx.get(settingsRef); if (!snap.exists) bookingError('Business unavailable.');
-    const workspace = snap.data();
-    const receiptRef = publicRequest ? db.doc(`artifacts/${APP_ID}/users/${ownerId}/idempotencyKeys/booking-${data.requestId}`) : null;
-    const fingerprint = publicRequest ? requestHash(data) : null;
-    if (receiptRef) { const receipt = await tx.get(receiptRef); if (receipt.exists) { if (receipt.data().fingerprint !== fingerprint) bookingError('Request ID already used.', 'already-exists'); return clientTransactionSnapshot(receipt.data().booking); } }
+    const { ref: settingsRef, workspace, exists } = await readWorkspace(db,ownerId,tx);
+    if (!exists) bookingError('Business unavailable.');
+    if (data.requestId && !safeId(data.requestId)) bookingError('Invalid booking request identifier.');
+    const receiptRef = publicRequest || data.requestId ? db.doc(`artifacts/${APP_ID}/users/${ownerId}/idempotencyKeys/booking-${data.requestId}`) : null;
+    const fingerprint = receiptRef ? requestHash(data) : null;
+    if (receiptRef) { const receipt = await tx.get(receiptRef); if (receipt.exists) { if (receipt.data().fingerprint !== fingerprint || !publicRequest && receipt.data().uid !== auth?.uid) bookingError('Request ID already used.', 'already-exists'); return publicRequest ? clientTransactionSnapshot(receipt.data().booking) : receipt.data().booking; } }
+    if (publicRequest && data.expectedCatalogRevision !== undefined && data.expectedCatalogRevision !== (workspace.sectionRevisions?.services || 0)) bookingError('The service changed. Refresh the quote before booking.', 'aborted');
+    if (publicRequest) assertCommerceQuoteRevision(workspace,'service',data.expectedQuoteRevision);
     if (!publicRequest && await participant(tx, db, auth, ownerId, '') !== 'business') bookingError('Business access required.', 'permission-denied');
     const old = (workspace.bookings || []).find((b) => b.id === id);
     if (old && data.expectedRevision !== (old.revision || 0)) bookingError('This booking changed. Refresh before editing.', 'aborted');
     const allowed = ['serviceId', 'serviceName', 'date', 'dateKey', 'time', 'durationMinutes', 'scheduleType', 'scheduleSessionId', 'sessionEndDate', 'sessionEndTime', 'staffId', 'staffName', 'clientName', 'clientEmail', 'clientPhone', 'clientUid', 'clientNote', 'clientCountry', 'clientBirthday', 'partySize', 'variantId', 'variantName', 'paymentMethod', 'currency', 'amountInCents', 'status', 'paymentStatus', 'source'];
     const patch = Object.fromEntries(Object.entries(input).filter(([key, value]) => allowed.includes(key) && value !== undefined));
-    const service = (workspace.services || []).find((s) => s.id === (old?.serviceId || patch.serviceId)); if (!service) bookingError('Service unavailable.');
+    const service = (workspace.services || []).find((s) => s.id === (patch.serviceId || old?.serviceId)); if (!service) bookingError('Service unavailable.');
     const booking = { ...(old || {}), ...patch, id, ownerId, serviceName: old?.serviceName || service.name, status: publicRequest ? 'pending' : patch.status || old?.status || 'pending', paymentStatus: publicRequest ? 'unpaid' : patch.paymentStatus || old?.paymentStatus || 'unpaid', revision: (old?.revision || 0) + 1, updatedAt: Date.now(), timestamp: old?.timestamp || Date.now() };
+    // Owner-entered bookings without a gateway represent a manual receipt.
+    // This also upgrades old manual records when they are next changed.
+    booking.paymentMethod = booking.paymentMethod || 'cash';
+    if (!['cash','manual_eft','stripe','paypal','paystack'].includes(booking.paymentMethod)) bookingError('Choose a supported payment method.');
     if (!old) {
       const variant = booking.variantId ? (service.variants || []).find((item) => item.id === booking.variantId) : null;
       const costBasisInCents = catalogUnitCostCents(service, variant);
@@ -110,10 +123,17 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
       }
       booking.currency = booking.currency || workspace.currency || 'R';
     }
+    if (!['pending','confirmed','declined','cancelled','waitlist','completed','no_show'].includes(booking.status)) bookingError('Invalid booking status.');
+    if (!publicRequest && patch.paymentStatus != null && patch.paymentStatus !== old?.paymentStatus && patch.paymentStatus !== 'paid' && (old || !['unpaid','manual_pending'].includes(patch.paymentStatus))) bookingError('Payment changes require a verified receipt or provider refund workflow.');
+    if (!publicRequest && patch.paymentStatus === 'paid' && (!['cash','manual_eft'].includes(booking.paymentMethod) || old?.paymentMethod && !['cash','manual_eft'].includes(old.paymentMethod))) bookingError('Online payments must be confirmed by the payment provider.');
+    if (!publicRequest && old && (old.paymentAttemptId || ['paid','refunded'].includes(old.paymentStatus)) && ['amountInCents','currency','paymentMethod'].some((key) => patch[key] !== undefined && patch[key] !== old[key])) bookingError('Payment receipt details cannot change after payment starts.');
     if (!publicRequest && booking.paymentStatus === 'paid') Object.assign(booking, paymentConfirmationSnapshot({ ...booking, paymentStatus: old?.paymentStatus || 'unpaid' }));
     if (publicRequest) {
       if (Array.isArray(workspace.website?.markets) && (!/^[A-Z]{2}$/.test(booking.clientCountry || '') || !catalogAllowed(resolveMarket(workspace.website, booking.clientCountry), 'service', service.id))) bookingError('This service is not available in the selected country.');
       if (service.active === false || service.available === false) bookingError('Service unavailable.');
+      if (!['cash','stripe','paypal','paystack'].includes(booking.paymentMethod || 'cash')) bookingError('Choose a supported payment method.');
+      booking.paymentMethod = booking.paymentMethod || 'cash';
+      if (Array.isArray(workspace.paymentGateways) && !getPublicPaymentOptions(workspace).options.some((option) => option.gatewayType === booking.paymentMethod)) bookingError('This payment method is not enabled by the business.');
       const variant = booking.variantId ? (service.variants || []).find((item) => item.id === booking.variantId && item.available !== false) : null;
       if (booking.variantId && !variant) bookingError('That service option is unavailable.');
       if (!booking.clientEmail || !/^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(booking.clientEmail) || !String(booking.clientName || '').trim()) bookingError('Enter a valid client name and email.');
@@ -121,21 +141,27 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
       if (booking.partySize != null && (!Number.isInteger(booking.partySize) || booking.partySize < 1 || booking.partySize > 100)) bookingError('Invalid party size.');
       booking.clientUid = auth?.token?.email === booking.clientEmail ? auth.uid : '';
       booking.scheduleType = service.scheduleType || 'appointment';
-      booking.durationMinutes = Number(service.durationMinutes) || Number(String(variant?.minDuration || service.minDuration || service.duration || '60').replace(/[^\d.]/g, '')) || 60;
-      if (booking.scheduleType === 'class_session') { const elapsed = Date.parse(`${service.sessionEndDate || service.sessionStartDate}T${service.sessionEndTime}:00Z`) - Date.parse(`${service.sessionStartDate}T${service.sessionStartTime}:00Z`); booking.durationMinutes = elapsed > 0 ? elapsed / 60000 : 60; }
-      booking.amountInCents = ['quote', 'free'].includes(service.priceType) ? 0 : Math.round(Number(String(variant?.price ?? service.price ?? '').replace(/[^\d.]/g, '')) * 100) || 0;
+      const quote = serviceCommerceQuote(workspace,{ serviceId: service.id, variantId: booking.variantId, clientCountry: booking.clientCountry });
+      booking.durationMinutes = quote.durationMinutes;
+      booking.amountInCents = quote.amountInCents;
       booking.variantName = variant?.name || ''; booking.currency = workspace.currency || 'R'; booking.source = 'public';
+      if (!booking.staffId && service.scheduleType !== 'class_session' && (service.staffIds || []).length) {
+        if (workspace.availabilityRules?.staffAssignmentMode === 'client') bookingError('Choose an available staff member.');
+        booking.staffId = service.staffIds.find((staffId) => { try { validateBookingSlot(workspace,{...booking,staffId},bookingSlot(booking),workspace.bookings || []); return true; } catch { return false; } }) || '';
+        if (!booking.staffId) bookingError('That time is no longer available.');
+        booking.staffName = (workspace.staff || []).find((member) => member.id === booking.staffId)?.name || '';
+      }
       Object.assign(booking, await verifiedAnalyticsAttribution(data, ownerId, data.slug, async (sessionId) => {
         const session = await tx.get(db.doc(`artifacts/${APP_ID}/analyticsSessions/${sessionId}`));
         return session.exists ? session.data() : null;
       }));
     }
-    if (['pending', 'confirmed'].includes(booking.status) && (!old || old.date !== booking.date || old.time !== booking.time || old.staffId !== booking.staffId || old.status !== booking.status)) validateBookingSlot(workspace, booking, bookingSlot(booking), workspace.bookings || []);
+    if (['pending', 'confirmed'].includes(booking.status) && (!old || ['date','dateKey','time','staffId','status','serviceId','partySize','durationMinutes','scheduleSessionId'].some((key) => old[key] !== booking[key]))) validateBookingSlot(workspace, booking, bookingSlot(booking), workspace.bookings || []);
     const bookings = old ? workspace.bookings.map((b) => b.id === id ? booking : b) : [...(workspace.bookings || []), booking];
-    tx.update(settingsRef, { bookings, bookingRevision: (workspace.bookingRevision || 0) + 1 });
-    tx.set(db.doc(`artifacts/${APP_ID}/users/${ownerId}/bookings/${id}`), booking);
+    writeWorkspace(tx,db,ownerId,workspace,{ ...workspace,bookings,bookingRevision: (workspace.bookingRevision || 0) + 1 });
+    if (workspace.storageMode !== 'collections') tx.set(db.doc(`artifacts/${APP_ID}/users/${ownerId}/bookings/${id}`), booking);
     if (booking.clientEmail && !booking.clientEmail.includes('/')) tx.set(db.doc(`artifacts/${APP_ID}/clientAccess/${booking.clientEmail}/bookings/${id}`), clientTransactionSnapshot(booking));
-    if (receiptRef) tx.set(receiptRef, { fingerprint, booking, createdAt: FieldValue.serverTimestamp() });
+    if (receiptRef) tx.set(receiptRef, { fingerprint, booking, uid: auth?.uid || '', createdAt: FieldValue.serverTimestamp() });
     return publicRequest ? clientTransactionSnapshot(booking) : booking;
   });
 }

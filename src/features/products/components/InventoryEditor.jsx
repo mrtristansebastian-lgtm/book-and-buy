@@ -355,6 +355,7 @@ export function StockEditSheet({ product, initialVariantId, onClose, onSave, var
   const [draft, setDraft] = useState(product);
   const [activeVariantId, setActiveVariantId] = useState(() => initialVariantId === 'product' || product?.variants?.some(item => item.id === initialVariantId) ? initialVariantId : product?.variants?.[0]?.id || 'product');
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const originalRef = useRef(product);
   const dialogRef = useDetailDialog(Boolean(product), onClose, false);
   const isPage = variant === 'page';
@@ -381,10 +382,13 @@ export function StockEditSheet({ product, initialVariantId, onClose, onSave, var
     }));
   };
 
-  const save = () => {
-    const result = onSave?.(buildInventoryUpdates(draft, originalRef.current));
-    if (result?.ok === false) { setError(result.error || 'Changes could not be applied.'); return; }
-    onClose?.();
+  const save = async () => {
+    if (saving) return; setSaving(true); setError('');
+    try {
+      const result = await onSave?.(buildInventoryUpdates(draft, originalRef.current));
+      if (result?.ok === false) throw new Error(result.error || 'Changes could not be applied.');
+      onClose?.();
+    } catch (error) { setError(error.message); } finally { setSaving(false); }
   };
 
   const content = (
@@ -433,7 +437,7 @@ export function StockEditSheet({ product, initialVariantId, onClose, onSave, var
             <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Cancel
             </Button>
-            <Button action="save" variant="primary" type="button" className="bb-primary-btn" onClick={save}>
+            <Button action="save" variant="primary" type="button" className="bb-primary-btn" busy={saving} onClick={save}>
               Save changes
             </Button>
           </div>

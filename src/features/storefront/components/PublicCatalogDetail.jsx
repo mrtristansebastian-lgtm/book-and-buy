@@ -25,6 +25,9 @@ import {
 import { getCatalogCategory } from '../../../utils/catalogCategories';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
 import { serviceLineKey } from '../../storefront/hooks/useCart';
+import { isFirebaseConfigured } from '../../../shared/firebase/client';
+import { firebaseCallables } from '../../../shared/firebase/callables';
+import { mergePublicCommerceWorkspace } from '../../../utils/publicCommerceCheckout';
 
 function collectImages(item = {}, variant = null) {
   if (!item) return [];
@@ -45,13 +48,14 @@ function collectImages(item = {}, variant = null) {
  */
 export function PublicCatalogDetail({
   kind = 'product',
-  item,
-  workspace,
+  item: initialItem,
+  workspace: initialWorkspace,
   workspaceName,
   slug,
   preview = false,
   publicMode = false,
-  onBack
+  onBack,
+  checkoutTestMode = false
 }) {
   const cart = usePublicCart();
   const [panel, setPanel] = useState('detail');
@@ -59,9 +63,33 @@ export function PublicCatalogDetail({
   const [slotSheetOpen, setSlotSheetOpen] = useState(false);
   const [serviceVariantId, setServiceVariantId] = useState('');
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const liveCommerce = publicMode && !preview && !checkoutTestMode;
+  const [liveState, setLiveState] = useState({ status: 'loading', catalog: null, error: '' });
+  const [availability, setAvailability] = useState({ status: 'loading', available: false, error: '' });
+  const [refresh, setRefresh] = useState(0);
+  const countryCode = initialWorkspace?.website?.buyerCountryCode || '';
+  const businessSlug = slug || initialWorkspace?.slug || '';
+  const workspace = mergePublicCommerceWorkspace(initialWorkspace, liveState.catalog);
+  const item = liveCommerce && liveState.status === 'ready'
+    ? (kind === 'service' ? workspace.services : workspace.products)?.find((row) => row.id === initialItem?.id) || null
+    : initialItem;
   const studioBack = typeof onBack === 'function';
   const catalogPage = kind === 'service' ? 'book' : 'buy';
   const catalogLabel = kind === 'service' ? 'Book' : 'Buy';
+
+  useEffect(() => {
+    if (!liveCommerce) return undefined;
+    let stopped = false;
+    setLiveState({ status: 'loading', catalog: null, error: '' });
+    if (!isFirebaseConfigured() || !businessSlug) {
+      setLiveState({ status: 'error', catalog: null, error: 'The current business catalog is unavailable. Please try again later.' });
+      return undefined;
+    }
+    firebaseCallables.getPublicCommerceContext({ slug: businessSlug, countryCode })
+      .then((catalog) => { if (!stopped) setLiveState({ status: 'ready', catalog, error: '' }); })
+      .catch((error) => { if (!stopped) setLiveState({ status: 'error', catalog: null, error: error?.message || 'Could not load the current catalog.' }); });
+    return () => { stopped = true; };
+  }, [liveCommerce, businessSlug, countryCode, refresh]);
 
   const goBack = () => {
     if (studioBack) {
@@ -121,6 +149,17 @@ export function PublicCatalogDetail({
     return findServiceVariant(item, serviceVariantId);
   }, [item, kind, serviceVariantId]);
 
+  useEffect(() => {
+    if (!liveCommerce || liveState.status !== 'ready' || kind !== 'service' || !item || getServiceScheduleType(item) !== 'class_session') return undefined;
+    let stopped = false;
+    setAvailability({ status: 'loading', available: false, error: '' });
+    firebaseCallables.getPublicServiceAvailability({ slug: businessSlug, countryCode, serviceId: item.id,
+      variantId: selectedServiceVariant?.id || '', dateKey: item.sessionStartDate })
+      .then((slots) => { if (!stopped) setAvailability({ status: 'ready', available: Array.isArray(slots) && slots.some((slot) => slot.available !== false), error: '' }); })
+      .catch((error) => { if (!stopped) setAvailability({ status: 'error', available: false, error: error?.message || 'Could not check seat availability.' }); });
+    return () => { stopped = true; };
+  }, [liveCommerce, liveState.status, kind, item, selectedServiceVariant?.id, businessSlug, countryCode, refresh]);
+
   const images = collectImages(item, selectedProductVariant);
   const imageListKey = images.join('\n');
   const activeImageIndex = Math.min(selectedImageIndex, Math.max(0, images.length - 1));
@@ -129,15 +168,18 @@ export function PublicCatalogDetail({
     setSelectedImageIndex(0);
   }, [item?.id, selectedProductVariant?.id, imageListKey]);
 
-  if (!item) {
+  if ((liveCommerce && liveState.status !== 'ready') || !item) {
     return (
       <section className="bb-public-detail bb-public-gutter bb-catalog-detail">
         <div className="bb-public-measure grid gap-4 py-10">
           <p className="bb-muted m-0">
-            {workspace?.website?.catalogAvailability === 'country-required'
+            {liveCommerce && liveState.status === 'loading' ? 'Checking the current catalog…'
+              : liveCommerce && liveState.error ? liveState.error
+              : workspace?.website?.catalogAvailability === 'country-required'
               ? 'Choose your shopping country above to check availability.'
               : `${kind === 'service' ? 'Service' : 'Product'} is not available. It may have been removed or may not be sold in your country.`}
           </p>
+          {liveCommerce && liveState.status === 'error' ? <Button action="refresh" variant="secondary" type="button" onClick={() => setRefresh((value) => value + 1)}>Refresh catalog</Button> : null}
           <Button action="back" variant="secondary"
             type="button"
             className="bb-ghost-btn justify-self-start"
@@ -167,7 +209,7 @@ export function PublicCatalogDetail({
   const isSpotService =
     kind === 'service' && getServiceScheduleType(item) === 'class_session';
   const hasBookingRecords = Array.isArray(workspace?.bookings);
-  const spotCount = isSpotService
+  const spotCount = isSpotService && !liveCommerce
     ? hasBookingRecords
       ? getServiceOpenSpots(item, workspace.bookings)
       : Math.max(1, Number(item.capacity) || 1)
@@ -191,7 +233,7 @@ export function PublicCatalogDetail({
       : `product:${item.id}:${selectedProductVariant?.id || 'base'}`;
   const inCart = cart.items.some((row) => row.lineKey === lineKey);
   const cartDisabled =
-    kind === 'service'
+    liveCommerce && isSpotService && (availability.status !== 'ready' || !availability.available) ? true : kind === 'service'
       ? inCart || (needsServiceVariant && !selectedServiceVariant)
       : !purchasable || (needsProductVariant && !selectedProductVariant);
 
@@ -233,6 +275,7 @@ export function PublicCatalogDetail({
         <div className="bb-public-measure-wide grid gap-6">
           <div className="flex justify-end">{cartButton}</div>
           <PublicCartCheckout
+            testMode={checkoutTestMode}
             catalogWorkspace={workspace}
             workspaceName={workspaceName || workspace.brandName}
             publicMode={publicMode}
@@ -343,6 +386,12 @@ export function PublicCatalogDetail({
                   </span>
                 ) : null}
               </div>
+            ) : null}
+            {liveCommerce && isSpotService ? (
+              <p className="bb-public-detail-availability" role="status">
+                {availability.status === 'loading' ? 'Checking seat availability…'
+                  : availability.error || (availability.available ? 'Seats currently available' : 'This session has no available seats.')}
+              </p>
             ) : null}
 
             {kind === 'product' && options.length ? (
@@ -461,6 +510,9 @@ export function PublicCatalogDetail({
           open={slotSheetOpen}
           service={item}
           workspace={workspace}
+          publicMode={liveCommerce}
+          slug={businessSlug}
+          countryCode={countryCode}
           bookings={workspace?.bookings || []}
           initialVariantId={serviceVariantId}
           confirmLabel="Add to cart"

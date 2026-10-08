@@ -10,15 +10,25 @@ export function businessClock(timezone = 'UTC', now = Date.now()) {
   return { dateKey: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}` };
 }
 export function validWallTime(dateKey, time, timezone) {
+  return Number.isFinite(wallTimeMillis(dateKey,time,timezone));
+}
+export function wallTimeMillis(dateKey,time,timezone) {
   const target = `${dateKey} ${time}`; const nominal = Date.parse(`${dateKey}T${time}:00Z`);
-  if (!Number.isFinite(nominal)) return false;
+  if (!Number.isFinite(nominal)) return NaN;
   // Test actual zone offsets surrounding the date; rejects DST gaps, accepts a real overlap.
   const candidates = new Set();
   for (const delta of [-86400000, 0, 86400000]) {
     const instant = nominal + delta; const clock = businessClock(timezone, instant);
     const local = Date.parse(`${clock.dateKey}T${clock.time}:00Z`); candidates.add(nominal - (local - instant));
   }
-  return [...candidates].some((instant) => { const clock = businessClock(timezone, instant); return `${clock.dateKey} ${clock.time}` === target; });
+  return [...candidates].sort((a,b) => a-b).find((instant) => { const clock = businessClock(timezone, instant); return `${clock.dateKey} ${clock.time}` === target; }) ?? NaN;
+}
+export function bookingNoticeMinutes(value) {
+  if (value == null || String(value).trim() === '') return 0;
+  if (Number.isFinite(Number(value)) && Number(value) >= 0) return Number(value);
+  const match = String(value).trim().match(/^(\d+)\s*(minutes?|hours?|days?|weeks?)$/i);
+  if (!match) bookingError('Correct the booking notice setting.');
+  return Number(match[1]) * ({minute:1,hour:60,day:1440,week:10080}[match[2].toLowerCase().replace(/s$/,'')] || 1);
 }
 function workingRanges(workspace, staffId, dateKey) {
   const rules = workspace.availabilityRules || {};
@@ -47,6 +57,9 @@ export function validateBookingSlot(workspace, booking, slot, bookings = [], now
   const today = businessClock(zone, now); const key = slot?.dateKey; const time = slot?.time;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(key || '') || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time || '') || !validWallTime(key, time, zone)) bookingError('Choose a valid date and time in the business timezone.');
   if (`${key} ${time}` <= `${today.dateKey} ${today.time}`) bookingError('Choose a future time.');
+  const notice = bookingNoticeMinutes(rules.bookingNoticeMinutes ?? rules.bookingNotice);
+  const wallDistance = (wallTimeMillis(key,time,zone) - now) / 60000;
+  if (notice && wallDistance < notice) bookingError('That time is within the minimum booking notice.');
   const limitDays = rules.maxAdvanceBookingDays ?? 90;
   const limit = rules.maxAdvanceBookingUntil || (Number(limitDays) > 0 ? new Date(Date.parse(`${today.dateKey}T12:00:00Z`) + Number(limitDays) * 86400000).toISOString().slice(0, 10) : '9999-12-31');
   if (key > limit) bookingError('That date is beyond the booking window.');
@@ -54,7 +67,7 @@ export function validateBookingSlot(workspace, booking, slot, bookings = [], now
   if (!service) bookingError('This service is no longer available.');
   const duration = Math.max(15, Number(booking.durationMinutes) || Number(String(booking.serviceDuration || service.duration || '60').replace(/[^\d.]/g, '')) || 60);
   const start = minutes(time); const end = start + duration;
-  const busy = bookings.filter((b) => b.id !== booking.id && !['cancelled', 'declined', 'waitlist'].includes(b.status));
+  const busy = bookings.filter((b) => b.id !== booking.id && !['cancelled', 'declined', 'waitlist'].includes(b.status) && (rules.holdMode === 'confirmed_only' || rules.holdMode === 'confirmed' ? b.status === 'confirmed' : rules.holdMode === 'pending_only' ? b.status === 'pending' : true));
   const isClass = (booking.scheduleType || service.scheduleType) === 'class_session';
   if (isClass) {
     const sessions = service.sessions || [{ id: service.id, dateKey: service.sessionStartDate, time: service.sessionStartTime, capacity: service.capacity || service.sessionCapacity }];
@@ -81,7 +94,9 @@ export function validateBookingSlot(workspace, booking, slot, bookings = [], now
 export function availableRescheduleSlots(workspace, booking, dateKey, bookings = [], now = Date.now()) {
   const service = (workspace.services || []).find((s) => s.id === booking.serviceId);
   const isClass = (booking.scheduleType || service?.scheduleType) === 'class_session';
-  const candidates = isClass ? (service?.sessions || [{ id: service?.id, dateKey: service?.sessionStartDate, time: service?.sessionStartTime }]).filter((s) => (s.dateKey || s.date) === dateKey).map((s) => ({ dateKey, time: s.time || s.startTime, scheduleSessionId: s.id || '' })) : Array.from({ length: 96 }, (_, i) => ({ dateKey, time: `${String(Math.floor(i / 4)).padStart(2, '0')}:${String(i % 4 * 15).padStart(2, '0')}` }));
+  const interval = Number(workspace.availabilityRules?.slotDurationMode === 'custom' ? workspace.availabilityRules.slotDurationMinutes : workspace.availabilityRules?.arrivalIntervalMinutes || 15);
+  if (!Number.isSafeInteger(interval) || interval < 5 || interval > 1440) bookingError('Correct the booking interval setting.');
+  const candidates = isClass ? (service?.sessions || [{ id: service?.id, dateKey: service?.sessionStartDate, time: service?.sessionStartTime }]).filter((s) => (s.dateKey || s.date) === dateKey).map((s) => ({ dateKey, time: s.time || s.startTime, scheduleSessionId: s.id || '' })) : Array.from({ length: Math.ceil(1440 / interval) }, (_, i) => ({ dateKey, time: `${String(Math.floor(i * interval / 60)).padStart(2, '0')}:${String(i * interval % 60).padStart(2, '0')}` }));
   return candidates.filter((slot) => { if (sameSlot(slot, bookingSlot(booking))) return false; try { validateBookingSlot(workspace, booking, slot, bookings, now); return true; } catch { return false; } });
 }
 export function nextProposal({ current, booking, actor, action, slot, note = '', expectedRevision = 0, now = Date.now(), id }) {

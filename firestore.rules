@@ -180,9 +180,9 @@ service cloud.firestore {
 
     match /artifacts/{appId}/users/{userId}/config/{docId} {
       allow read: if canStaff(appId, userId);
-      allow create: if (docId == 'clients' ? canStaff(appId, userId) : canAdmin(appId, userId)) &&
+      allow create: if docId != 'settings' && (docId == 'clients' ? canStaff(appId, userId) : canAdmin(appId, userId)) &&
         (docId != 'settings' || !request.resource.data.keys().hasAny(['bookings', 'bookingRevision', 'orders']));
-      allow update: if (docId == 'clients' ? canStaff(appId, userId) : canAdmin(appId, userId)) &&
+      allow update: if docId != 'settings' && (docId == 'clients' ? canStaff(appId, userId) : canAdmin(appId, userId)) &&
         (docId != 'settings' || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['bookings', 'bookingRevision', 'orders']));
       allow delete: if canAdmin(appId, userId) && docId != 'settings';
     }
@@ -330,18 +330,10 @@ service cloud.firestore {
 
     match /artifacts/{appId}/public/data/workspaces/{slug} {
       allow read: if true;
-      allow create: if signedIn() &&
-        request.resource.data.ownerId is string &&
-        canAdmin(appId, request.resource.data.ownerId);
+      allow create: if false;
       // A profile address belongs to its existing owner. Incoming ownership
       // alone must never authorize replacing another business's profile.
-      allow update: if signedIn() &&
-        resource.data.ownerId is string &&
-        request.resource.data.ownerId == resource.data.ownerId &&
-        canAdmin(appId, resource.data.ownerId);
-      allow delete: if signedIn() &&
-        resource.data.ownerId is string &&
-        canAdmin(appId, resource.data.ownerId);
+      allow update, delete: if false;
 
       match /bookingSubmissions/{bookingId} {
         allow read, create, update, delete: if false;
@@ -375,6 +367,13 @@ service cloud.firestore {
 
     match /artifacts/{appId}/securityRateLimits/{rateLimitId} {
       allow read, write: if false;
+    }
+    // AI, commands, immutable designs, reservations and Butler are server capabilities.
+    match /artifacts/{appId}/aiOAuthStates/{stateId} { allow read, write: if false; }
+    match /artifacts/{appId}/public/data/websites/{siteId} { allow read, write: if false; }
+    match /artifacts/{appId}/users/{userId}/{capability}/{recordId} {
+      allow read, write: if false;
+      match /{nested=**} { allow read, write: if false; }
     }
 
     match /artifacts/{appId}/reminderQueue/{jobId} {

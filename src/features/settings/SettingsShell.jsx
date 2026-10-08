@@ -19,7 +19,7 @@ import {
   Users,
   WalletCards
 } from 'lucide-react';
-import { navigate } from '../../app/routing';
+import { navigate, workspacePagePath } from '../../app/routing';
 import { PageBackButton } from '../../shared/ui/PageBackButton';
 import { useWorkspace } from '../workspace/WorkspaceContext';
 import {
@@ -43,8 +43,10 @@ import { ReviewsSettingsPage } from './pages/ReviewsSettingsPage';
 import { DomainsSettingsPage } from './pages/DomainsSettingsPage';
 import { PoliciesSettingsPage } from './pages/PoliciesSettingsPage';
 import { AccountSettingsPage } from './pages/AccountSettingsPage';
+import { ButlerSettingsPage } from './pages/ButlerSettingsPage';
 
 const ICONS = {
+  butler: Settings2,
   general: Store,
   plan: NotebookTabs,
   billing: Receipt,
@@ -63,6 +65,7 @@ const ICONS = {
 };
 
 const COPY = {
+  butler: { title: 'Book and Buy Butler', lede: 'Your assistant, routine permissions and activity.' },
   markets: { title: 'Markets', lede: 'Where you sell, what you offer and how it arrives.' },
   shipping: { title: 'Shipping', lede: 'Reusable delivery profiles for your products and markets.' },
   general: {
@@ -154,7 +157,7 @@ export function SettingsShell({ section: sectionProp }) {
   // Desktop always needs a section URL so the split pane stays in sync.
   useEffect(() => {
     if (hasExplicitSection || isMobile) return;
-    navigate(`/dashboard/settings/${DEFAULT_SETTINGS_SECTION}`, { replace: true });
+    navigate(workspacePagePath(`settings/${DEFAULT_SETTINGS_SECTION}`), { replace: true });
   }, [hasExplicitSection, isMobile]);
 
   const filtered = useMemo(() => {
@@ -163,8 +166,8 @@ export function SettingsShell({ section: sectionProp }) {
     return SETTINGS_SECTIONS.filter((item) => item.label.toLowerCase().includes(q));
   }, [query]);
 
-  const go = (id) => navigate(`/dashboard/settings/${id}`);
-  const goList = () => navigate('/dashboard/settings');
+  const go = (id) => navigate(workspacePagePath(`settings/${id}`));
+  const goList = () => navigate(workspacePagePath('settings'));
 
   const activeId = hasExplicitSection ? section : isMobile ? null : DEFAULT_SETTINGS_SECTION;
   const mobileView = hasExplicitSection ? 'detail' : 'index';
@@ -175,6 +178,7 @@ export function SettingsShell({ section: sectionProp }) {
   else if (section === 'billing') body = <BillingSettingsPage />;
   else if (section === 'users') body = <UsersSettingsPage />;
   else if (section === 'payments') body = <PaymentsSettingsPage />;
+  else if (section === 'butler') body = <ButlerSettingsPage />;
   else if (section === 'bookings') body = <BookingsSettingsPage />;
   else if (section === 'checkout') body = <CheckoutSettingsPage />;
   else if (section === 'notifications') body = <NotificationsSettingsPage />;

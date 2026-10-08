@@ -6,7 +6,7 @@ import {
   uploadBytes,
   uploadBytesResumable
 } from 'firebase/storage';
-import { doc, runTransaction } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import { APP_ID } from '../../config/appConfig';
 import { chatAttachmentMetadata } from '../../features/support/utils/voiceMedia';
 import { getFirebase, isFirebaseConfigured } from './client';
@@ -452,39 +452,9 @@ export async function publishWorkspaceToFirestore(workspace: Record<string, unkn
     };
   }
 
-  const snapshot = buildPublicWorkspaceSnapshot({
-    ...workspace,
-    ownerId
-  });
-
-  if (!snapshot.ownerId) {
-    return {
-      ok: false as const,
-      localOnly: true,
-      reason: 'Missing ownerId — sign in and try Publish again.'
-    };
-  }
-
-  const path = publicWorkspacePath(APP_ID, slug);
-  try {
-    await runTransaction(firebase.db, (transaction) =>
-      writeOwnedPublicProfile(transaction, doc(firebase.db, ...path), snapshot)
-    );
-  } catch (error) {
-    if (error instanceof ProfileAddressUnavailableError) {
-      return { ok: false as const, localOnly: true, reason: error.message };
-    }
-    throw error;
-  }
-  await saveOwnerWorkspaceToFirestore(ownerId, {
-    ...workspace,
-    ownerId,
-    publishedAt: snapshot.publishedAt,
-    website: {
-      ...(workspace.website as object),
-      published: true
-    }
-  });
-
-  return { ok: true as const, localOnly: false, reason: 'Published to Firestore.' };
+  const saved = await saveOwnerWorkspaceToFirestore(ownerId, { ...workspace, ownerId });
+  if (!saved?.ok) return { ok: false as const, localOnly: true, reason: 'Save your business before publishing.' };
+  const response = await httpsCallable(firebase.functions, 'publishBusinessProfile')({ ownerId });
+  const result = response.data as { ok: boolean; slug: string };
+  return { ok: result.ok, localOnly: false, reason: 'Published to your live business address.' };
 }
