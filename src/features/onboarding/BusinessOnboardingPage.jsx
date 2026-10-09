@@ -4,6 +4,8 @@ import { E_BUSINESS_PLATFORM_NAME } from '../../config/eBusinessPlatform';
 import { navigate, publicPagePath } from '../../app/routing';
 import { BrandMark } from '../../shared/ui/BrandMark';
 import { useWorkspace } from '../workspace/WorkspaceContext';
+import { BusinessPresenceFields } from '../shared/BusinessPresenceFields';
+import { isPresenceOnlyBusiness } from '../../../functions/businessCapabilities.js';
 
 const STEPS = ['business', 'pages', 'ready'];
 
@@ -14,10 +16,14 @@ export function BusinessOnboardingPage() {
     brandName: '',
     slug: '',
     email: '',
+    categoryId: '',
+    profileCategory: '',
+    profileMode: 'commerce',
     tagline: 'Book services. Buy products.',
     enableBook: true,
     enableBuy: true
   });
+  const presenceOnly = isPresenceOnlyBusiness({ website: form });
 
   const slugFromName = (name) =>
     String(name || '')
@@ -35,14 +41,17 @@ export function BusinessOnboardingPage() {
       email: form.email.trim(),
       tagline: form.tagline.trim(),
       website: {
+        categoryId: form.categoryId,
+        profileCategory: form.profileCategory,
+        profileMode: presenceOnly ? 'presence' : 'commerce',
         pages: {
           home: true,
-          book: form.enableBook,
-          buy: form.enableBuy
+          book: !presenceOnly && form.enableBook,
+          buy: !presenceOnly && form.enableBuy
         },
         homeHeadline: `Welcome to ${form.brandName.trim() || 'your business'}.`,
         homeSubtext: form.tagline.trim(),
-        ctaLabel: form.enableBook ? 'Book now' : 'Buy now'
+        ctaLabel: presenceOnly ? 'Contact us' : form.enableBook ? 'Book now' : 'Buy now'
       }
     });
     navigate('/dashboard/overview', { replace: true });
@@ -126,6 +135,7 @@ export function BusinessOnboardingPage() {
           <section className="bb-panel p-5 grid gap-3">
             <h2 className="bb-page-title text-xl m-0">{E_BUSINESS_PLATFORM_NAME}</h2>
             <p className="bb-muted m-0 text-sm">Choose what customers can do on your profile. You can change these sections later.</p>
+            <BusinessPresenceFields website={form} onChange={patch => setForm(previous => ({ ...previous, ...patch }))} />
             {[
               ['enableBook', 'Book — services and appointments'],
               ['enableBuy', 'Buy — products and orders']
@@ -133,7 +143,8 @@ export function BusinessOnboardingPage() {
               <label key={key} className="flex items-center gap-2 text-sm font-semibold">
                 <input
                   type="checkbox"
-                  checked={Boolean(form[key])}
+                  checked={!presenceOnly && Boolean(form[key])}
+                  disabled={presenceOnly}
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, [key]: event.target.checked }))
                   }
@@ -161,8 +172,9 @@ export function BusinessOnboardingPage() {
             </p>
             <ul className="m-0 pl-5 text-sm grid gap-1">
               <li>Business profile always included</li>
-              {form.enableBook ? <li>Book section enabled</li> : null}
-              {form.enableBuy ? <li>Buy section enabled</li> : null}
+              {presenceOnly ? <li>Presence-only card with contact details, location and photos</li> : null}
+              {!presenceOnly && form.enableBook ? <li>Book section enabled</li> : null}
+              {!presenceOnly && form.enableBuy ? <li>Buy section enabled</li> : null}
               <li>Add a banner, profile photo and business details in E-Business, then publish to appear on Places</li>
             </ul>
             <div className="flex flex-wrap gap-2">

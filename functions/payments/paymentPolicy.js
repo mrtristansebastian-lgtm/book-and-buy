@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { toIsoCurrency } from './publicOptions.js';
+import { assertBusinessCommerceEnabled } from '../businessCapabilities.js';
+import { isEnquiryListing } from '../listingTypes.js';
 export const PAYMENT_APP_ID = process.env.APP_ID || 'book-and-buy-v1';
 export function configuredPaymentOrigins(env = process.env, projectId = '') {
   const values = [...String(env.PAYMENT_RETURN_ORIGINS || '').split(','),env.APP_PUBLIC_BASE_URL,env.WEBSITE_PUBLIC_BASE_URL,
@@ -12,7 +14,9 @@ export function configuredPaymentOrigins(env = process.env, projectId = '') {
 }
 export function paymentAppId(input) { if (input && input !== PAYMENT_APP_ID) throw new Error('Invalid application.'); return PAYMENT_APP_ID; }
 export function canonicalPayment(source, workspace, payload) {
+  assertBusinessCommerceEnabled(workspace);
   if (!source || !['order','booking'].includes(payload.sourceType)) throw new Error('Choose a valid payment source.');
+  if (payload.sourceType === 'order' && (source.items || []).some(line => isEnquiryListing((workspace.products || []).find(product => product.id === line.productId)))) throw new Error('This listing accepts enquiries only and cannot be paid for here.');
   if (['paid','refunded'].includes(source.paymentStatus) || ['cancelled','declined'].includes(source.status)) throw new Error('This transaction cannot accept a new payment.');
   if (source.inventoryStatus === 'payment_exception') throw new Error('Resolve this payment exception with the business.');
   if (source.paymentMethod !== payload.gatewayType) throw new Error('The payment gateway does not match this transaction.');

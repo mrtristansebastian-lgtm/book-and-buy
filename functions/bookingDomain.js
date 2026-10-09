@@ -1,4 +1,5 @@
 // Shared, dependency-free booking policy used by the server and local demo.
+import { assertBusinessCommerceEnabled } from './businessCapabilities.js';
 export function bookingError(message, code = 'failed-precondition') { const error = new Error(message); error.code = code; throw error; }
 const minutes = (time) => /^\d{2}:\d{2}$/.test(time || '') ? Number(time.slice(0, 2)) * 60 + Number(time.slice(3)) : NaN;
 const overlaps = (a, b, c, d) => a < d && b > c;
@@ -53,6 +54,8 @@ function workingRanges(workspace, staffId, dateKey) {
   return ranges;
 }
 export function validateBookingSlot(workspace, booking, slot, bookings = [], now = Date.now()) {
+  assertBusinessCommerceEnabled(workspace);
+  if (booking.staffId && workspace.staff?.some(member => member.id === booking.staffId && member.active === false)) bookingError('This team member is not available for new bookings.');
   const rules = workspace.availabilityRules || {}; const zone = workspace.timezone || 'UTC';
   const today = businessClock(zone, now); const key = slot?.dateKey; const time = slot?.time;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(key || '') || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time || '') || !validWallTime(key, time, zone)) bookingError('Choose a valid date and time in the business timezone.');

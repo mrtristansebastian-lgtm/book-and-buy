@@ -3,6 +3,7 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { navigate } from '../../../app/routing';
 import { BusinessHoursSettings } from '../../schedule/components/AvailabilityStudioSettingsSheet';
 import { ValidatedProfileField } from '../components/ValidatedProfileField';
+import { BusinessPresenceFields } from '../../shared/BusinessPresenceFields';
 
 const CURRENCIES = [
   { value: 'R', label: 'R — South African Rand' },
@@ -25,7 +26,7 @@ const TIMEZONES = [
 ];
 
 export function GeneralSettingsPage() {
-  const { workspace, updateProfile, updateAvailabilityRules } = useWorkspace();
+  const { workspace, updateProfile, updateWebsite, updateAvailabilityRules } = useWorkspace();
 
   return (
     <div className="bb-settings-content bb-settings-content--general">
@@ -77,6 +78,12 @@ export function GeneralSettingsPage() {
             ))}
           </select>
         </label>
+      </section>
+
+      <section className="bb-panel p-5 grid gap-3 bb-settings-business-profile">
+        <div className="bb-settings-section-heading"><h2>Business profile</h2><p>Choose how your business appears in Places and what visitors can do.</p></div>
+        <BusinessPresenceFields website={workspace.website || {}} onChange={updateWebsite} />
+        <p className="bb-muted text-xs m-0">Publish your profile from E-Business to update what customers see.</p>
       </section>
 
       <section className="bb-panel p-5 grid gap-3 bb-settings-business-hours">

@@ -19,6 +19,7 @@ function loader(overrides = {}) {
     modules.set(file.href, module.exports);
     const scopedRequire = (id) => {
       if (id in overrides) return overrides[id];
+      if (id.endsWith('.css')) return {};
       if (!id.startsWith('.')) return require(id);
       const base = new URL(id, file);
       const target = [base, ...['.js', '.jsx', '.ts'].map((extension) => new URL(`${base.href}${extension}`))].find(existsSync);
@@ -67,7 +68,7 @@ function findElement(tree, predicate) {
   return predicate(tree) ? tree : findElement(tree.props.children, predicate);
 }
 
-test('saving the service editor blocks invalid main and option costs, but accepts blank and zero', () => {
+test('saving the service editor blocks invalid main and option costs, but accepts blank and zero', async () => {
   const blankComponent = () => null;
   const componentStub = new Proxy({}, { get: () => blankComponent });
   let saved = 0;
@@ -80,28 +81,29 @@ test('saving the service editor blocks invalid main and option costs, but accept
     '../../../shared/ui/useDialogFocus': { useDialogFocus() {} },
     '../../../config/businessCategories': { isValidExploreCategoryPair: () => true },
     '../../../shared/ui/Button': componentStub,
+    '../../../shared/ui/SetupPicker': componentStub,
     '../../media/ImageCropModal': componentStub,
-    ...Object.fromEntries(['Category', 'Details', 'Duration', 'Photo', 'Review', 'Type', 'Variants', 'When']
+    ...Object.fromEntries(['Category', 'Configuration', 'Details', 'Duration', 'Photo', 'Review', 'Type', 'Variants', 'When']
       .map((step) => [`./ServiceEditor${step}Step`, componentStub]))
   });
   const { ServiceEditorSheet } = loadSheet('../src/features/services/components/ServiceEditorSheet.jsx');
-  const save = (cost, optionCost) => {
+  const save = async (cost, optionCost) => {
     messages.length = 0;
     const tree = ServiceEditorSheet({ open: true, variant: 'page', onSave: () => saved++, draft: {
-      id: 'service', name: 'Haircut', scheduleType: 'appointment', duration: '60', cost,
-      variants: [{ id: 'option', name: 'Classic', minDuration: '60', cost: optionCost }]
+      id: 'service', name: 'Haircut', scheduleType: 'appointment', duration: '60', price: '100', cost,
+      variants: [{ id: 'option', name: 'Classic', minDuration: '60', price: '150', cost: optionCost }]
     } });
-    findElement(tree, (node) => node.props.action === 'save').props.onClick();
+    await findElement(tree, (node) => node.props.action === 'save').props.onClick();
   };
-  save('-1', '0');
+  await save('-1', '0');
   assert.equal(saved, 0);
   assert.ok(messages.some((message) => String(message).includes('booking cost')));
-  save('0', 'Infinity');
+  await save('0', 'Infinity');
   assert.equal(saved, 0);
   assert.ok(messages.some((message) => String(message).includes('Classic')));
-  save('', '');
-  save('0', '0');
-  save('45.50', '25');
+  await save('', '');
+  await save('0', '0');
+  await save('45.50', '25');
   assert.equal(saved, 3);
 });
 

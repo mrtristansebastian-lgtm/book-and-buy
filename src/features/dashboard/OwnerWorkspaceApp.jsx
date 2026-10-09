@@ -15,6 +15,7 @@ import { FinancialReportsPage } from '../finance/pages/FinancialReportsPage';
 import { AnalyticsPage } from '../analytics/pages/AnalyticsPage';
 import { LiveStatsPage } from '../analytics/pages/LiveStatsPage';
 import { ClientsPage } from '../clients/pages/ClientsPage';
+import { TeamsPage } from '../teams/pages/TeamsPage';
 import { SettingsShell } from '../settings/SettingsShell';
 import { ButlerPanel } from '../butler/ButlerPanel';
 
@@ -54,6 +55,8 @@ export function OwnerWorkspaceApp({ tab, rest = [] }) {
         <AnalyticsPage routeRest={rest} />
       ) : tab === 'clients' ? (
         <ClientsPage />
+      ) : tab === 'teams' ? (
+        <TeamsPage />
       ) : tab === 'settings' ? (
         <SettingsShell section={rest?.[0]} detail={rest?.[1]} nestedDetail={rest?.[2]} />
       ) : null}

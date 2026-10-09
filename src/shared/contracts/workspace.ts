@@ -87,6 +87,12 @@ export interface WorkspaceServiceVariant {
 
 export interface WorkspaceService {
   id: string;
+  /** Curated service template selected in the category-first setup. */
+  catalogTemplateId?: string;
+  exploreMainCategoryId?: string;
+  exploreSubcategoryId?: string;
+  serviceDetails?: Record<string, string | number>;
+  serviceSpecFields?: string[];
   name: string;
   description?: string;
   price?: string | number;
@@ -142,6 +148,19 @@ export interface WorkspaceProductVariant {
 
 export interface WorkspaceProduct {
   id: string;
+  /** Curated product template selected in the category-first setup. */
+  catalogTemplateId?: string;
+  exploreMainCategoryId?: string;
+  exploreSubcategoryId?: string;
+  listingType?: 'physical' | 'vehicle' | 'equipment' | 'electronics';
+  transactionMode?: 'checkout' | 'enquiry';
+  listingAvailability?: 'available' | 'reserved' | 'sold';
+  vehicleDetails?: Record<string, string | number>;
+  equipmentDetails?: Record<string, string | number>;
+  electronicsDetails?: Record<string, string | number>;
+  physicalDetails?: Record<string, string | number>;
+  /** Optional specification fields selected in the listing editor. */
+  listingSpecFields?: string[];
   name: string;
   description?: string;
   price?: string | number;
@@ -212,6 +231,9 @@ export interface WebsiteFaqItem {
 export type VenueMode = "physical" | "online" | "hybrid";
 
 export interface WebsiteSettings {
+  /** A presence-only business card has no booking, shop or checkout actions. */
+  profileMode?: 'commerce' | 'presence';
+  socialLinks?: Partial<Record<'instagram' | 'facebook' | 'tiktok' | 'youtube' | 'linkedin' | 'x', string>>;
   homeHeadline?: string;
   homeSubtext?: string;
   /** Preset industry id from businessCategories.js */

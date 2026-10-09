@@ -1,8 +1,11 @@
 import { isPublicPageEnabled } from '../../config/eBusinessPlatform.js';
 import { isProductPubliclyVisible } from '../../utils/products.js';
+import { isPresenceOnlyBusiness } from '../../../functions/businessCapabilities.js';
+import { isEnquiryListing, listingSearchTerms } from '../../../functions/listingTypes.js';
 
 /** Capability is determined before market filtering; a country picker must remain reachable. */
 export function profileCatalog(workspace = {}) {
+  if (isPresenceOnlyBusiness(workspace)) return { services: [], products: [], book: false, buy: false };
   const services = (workspace.services || []).filter((item) => item && item.active !== false);
   const products = (workspace.products || []).filter((item) => item && isProductPubliclyVisible(item));
   const available = workspace.profileCapabilities || { book: services.length > 0, buy: products.length > 0 };
@@ -47,18 +50,22 @@ function hasProfileStory(website) {
 export function searchPublicCatalog(items, query = '') {
   const words = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   return items.filter((item) => {
-    const text = [item.name, item.category, item.description, ...(item.tags || [])].filter(Boolean).join(' ').toLocaleLowerCase();
+    const text = [item.name, item.category, item.description, ...listingSearchTerms(item), ...(item.tags || [])].filter(Boolean).join(' ').toLocaleLowerCase();
     return words.every((word) => text.includes(word));
   });
 }
 
 export function sortPublicCatalog(items, order = 'featured') {
   const price = item => {
-    const options = item.variants?.filter(variant => variant.active !== false) || item.packages?.filter(option => option.active !== false) || [];
-    const values = options.length ? options.map(option => Number(option.price)) : [Number(item.price)];
-    return Math.min(...values.filter(Number.isFinite));
+    const options = isEnquiryListing(item) ? [] : item.variants?.filter(variant => variant.active !== false && variant.available !== false) || item.packages?.filter(option => option.active !== false && option.available !== false) || [];
+    const values = (options.length ? options.map(option => option.price) : [item.price]).filter(value => value != null && String(value).trim() !== '').map(Number).filter(Number.isFinite);
+    return values.length ? Math.min(...values) : null;
   };
   if (order === 'name') return [...items].sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
-  if (order === 'price-asc' || order === 'price-desc') return [...items].sort((a, b) => (price(a) - price(b)) * (order === 'price-desc' ? -1 : 1));
+  if (order === 'price-asc' || order === 'price-desc') return [...items].sort((a, b) => {
+    const left = price(a), right = price(b);
+    if (left === null || right === null) return left === right ? 0 : left === null ? 1 : -1;
+    return (left - right) * (order === 'price-desc' ? -1 : 1);
+  });
   return items;
 }

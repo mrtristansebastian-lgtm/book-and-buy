@@ -5,13 +5,36 @@ function installBookBuyRuntime() {
   let count = 0;
   const pending = new Map();
   const waiters = [];
+  const isEnquiryListing = item => ['vehicle', 'equipment'].includes(item?.listingType) || item?.transactionMode === 'enquiry';
   const priceCents = (item, variant) => {
     const configured = variant?.priceInCents ?? item.priceInCents;
     if (Number.isSafeInteger(configured)) return configured;
-    const raw = String(variant?.price ?? item.price ?? 0).replace(/^(?:R|ZAR|USD|EUR|GBP|\$|€|£)\s*/i, '');
+    const raw = String(variant?.price ?? item.price ?? '').trim().replace(/^(?:R|ZAR|USD|EUR|GBP|\$|€|£)\s*/i, '');
     return /^\d+(?:\.\d{1,2})?$/.test(raw) ? Math.round(Number(raw) * 100) : null;
   };
   function applyCatalog(catalog) {
+    const presenceOnly = catalog.profileMode === 'presence';
+    const enquiryOnly = (catalog.products || []).length > 0 && (catalog.products || []).every(isEnquiryListing) && !(catalog.services || []).length;
+    for (const control of document.querySelectorAll('[data-bb-action]')) {
+      const cartAction = ['cart.open', 'checkout.create'].includes(control.getAttribute('data-bb-action'));
+      if (enquiryOnly && cartAction && !control.hasAttribute('data-bb-enquiry-cart-hidden')) { control.dataset.bbEnquiryCartWasHidden = String(control.hidden); control.hidden = true; control.setAttribute('data-bb-enquiry-cart-hidden', ''); }
+      else if ((!enquiryOnly || !cartAction) && control.hasAttribute('data-bb-enquiry-cart-hidden')) { control.hidden = control.dataset.bbEnquiryCartWasHidden === 'true'; control.removeAttribute('data-bb-enquiry-cart-hidden'); delete control.dataset.bbEnquiryCartWasHidden; }
+    }
+    for (const node of document.querySelectorAll('[data-bb-catalog], [data-bb-product-id], [data-bb-service-id], [data-bb-action], [data-bb-bind]')) {
+      if (presenceOnly && !node.hasAttribute('data-bb-presence-hidden')) {
+        node.dataset.bbPresenceWasHidden = String(node.hidden);
+        node.hidden = true;
+        node.setAttribute('data-bb-presence-hidden', '');
+      } else if (!presenceOnly && node.hasAttribute('data-bb-presence-hidden')) {
+        node.hidden = node.dataset.bbPresenceWasHidden === 'true';
+        node.removeAttribute('data-bb-presence-hidden');
+        delete node.dataset.bbPresenceWasHidden;
+      }
+    }
+    if (presenceOnly) {
+      window.dispatchEvent(new CustomEvent('bookbuy:catalog', { detail: catalog }));
+      return;
+    }
     for (const kind of ['product', 'service']) {
       const items = catalog[kind + 's'] || [];
       for (const section of document.querySelectorAll(`[data-bb-catalog="${kind}s"]`)) {
@@ -35,9 +58,22 @@ function installBookBuyRuntime() {
         if (!item && !node.hasAttribute('data-bb-unavailable')) { node.dataset.bbRuntimeWasHidden = String(node.hidden); node.hidden = true; node.setAttribute('data-bb-unavailable', ''); }
         if (item && node.hasAttribute('data-bb-unavailable')) { node.hidden = node.dataset.bbRuntimeWasHidden === 'true'; node.removeAttribute('data-bb-unavailable'); delete node.dataset.bbRuntimeWasHidden; }
         if (!item) continue;
-        const available = item.available !== false && (item.stockAvailable == null || String(item.stockAvailable).trim() === '' || Number(item.stockAvailable) > 0 || item.variants?.some(variant => variant.available !== false && Number(variant.stockAvailable) > 0));
+        const enquiry = kind === 'product' && isEnquiryListing(item);
+        const available = item.available !== false && (enquiry ? !item.listingAvailability || item.listingAvailability === 'available' : item.stockAvailable == null || String(item.stockAvailable).trim() === '' || Number(item.stockAvailable) > 0 || item.variants?.some(variant => variant.available !== false && Number(variant.stockAvailable) > 0));
         const cents = priceCents(item);
-        const values = { name: item.name || item.title || '', description: item.description || '', price: item.quoteBased || item.priceType === 'quote' ? 'Quote after consultation' : cents == null ? 'Choose an option' : `${catalog.currency || 'R'} ${(cents / 100).toFixed(2)}`, duration: item.durationMinutes || item.minDuration || item.duration || '', available: available ? 'Available' : 'Unavailable' };
+        const values = { name: item.name || item.title || '', description: item.description || '', price: enquiry ? cents == null ? 'Price on enquiry' : `${catalog.currency || 'R'} ${(cents / 100).toFixed(2)}` : item.quoteBased || item.priceType === 'quote' ? 'Quote after consultation' : cents == null ? 'Choose an option' : `${catalog.currency || 'R'} ${(cents / 100).toFixed(2)}`, duration: item.durationMinutes || item.minDuration || item.duration || '', available: enquiry && item.listingAvailability === 'sold' ? 'Sold' : enquiry && item.listingAvailability === 'reserved' ? 'Reserved' : available ? 'Available' : 'Unavailable' };
+        const controls = [...node.querySelectorAll('[data-bb-action="cart.add"]')];
+        if (node.getAttribute('data-bb-action') === 'cart.add') controls.unshift(node);
+        for (const control of controls) {
+          if (enquiry && !control.hasAttribute('data-bb-enquiry-label')) {
+            control.dataset.bbEnquiryOriginalLabel = control.textContent;
+            control.setAttribute('data-bb-enquiry-label', '');
+            if (!control.children.length) control.textContent = 'View listing';
+          } else if (!enquiry && control.hasAttribute('data-bb-enquiry-label')) {
+            if (!control.children.length) control.textContent = control.dataset.bbEnquiryOriginalLabel || 'Add to cart';
+            control.removeAttribute('data-bb-enquiry-label'); delete control.dataset.bbEnquiryOriginalLabel;
+          }
+        }
         const fields = [...node.querySelectorAll('[data-bb-bind]')];
         if (node.hasAttribute('data-bb-bind')) fields.unshift(node);
         for (const field of fields) {
@@ -86,6 +122,7 @@ function installBookBuyRuntime() {
     availability: payload => request('availability.get', payload),
     cart: Object.freeze({ get: () => request('cart.get'), add: payload => request('cart.add', payload), remove: payload => request('cart.remove', payload), updateQuantity: payload => request('cart.updateQuantity', payload), open: () => request('cart.open') }),
     booking: Object.freeze({ create: payload => request('booking.create', payload), select: payload => request('booking.select', payload) }),
+    enquiry: Object.freeze({ create: payload => request('enquiry.create', payload) }),
     checkout: Object.freeze({ create: payload => request('checkout.create', payload), status: payload => request('checkout.status', payload) }),
     payment: Object.freeze({ start: payload => request('payment.start', payload), confirm: payload => request('payment.confirm', payload) })
   });
@@ -100,7 +137,7 @@ function installBookBuyRuntime() {
     event.preventDefault();
     const payload = product ? { productId: product.dataset.bbProductId } : service ? { serviceId: service.dataset.bbServiceId } : {};
     // Annotated buttons open authoritative selection unless a custom form calls the SDK.
-    const resolvedAction = action === 'cart.add' ? 'product.open' : ['booking.create', 'booking.date', 'booking.slot'].includes(action) ? 'service.open' : action;
+    const resolvedAction = ['cart.add', 'enquiry.create'].includes(action) ? 'product.open' : ['booking.create', 'booking.date', 'booking.slot'].includes(action) ? 'service.open' : action;
     request(resolvedAction, payload).catch(error => {
       window.dispatchEvent(new CustomEvent('bookbuy:error', { detail: { action, message: error.message } }));
     });

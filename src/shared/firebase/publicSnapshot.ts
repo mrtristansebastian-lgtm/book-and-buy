@@ -2,7 +2,10 @@
  * Public-safe workspace fields for Firestore `#/w/:slug` documents.
  * Never include bookings, orders, threads, or payment secrets.
  */
+import { effectivePublicPages, isPresenceOnlyBusiness, publicBusinessSocialLinks } from '../../../functions/businessCapabilities.js';
 
+import { normalizeListing, listingDetailsKey, publicListingDetails, listingSpecificationGroups, listingFacts } from '../../../functions/listingTypes.js';
+import { normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts } from '../../../functions/serviceTemplates.js';
 type AnyRecord = Record<string, unknown>;
 
 function publicPaymentGateways(gateways: unknown) {
@@ -37,8 +40,11 @@ function publicPaymentGateways(gateways: unknown) {
 function publicServices(services: unknown) {
   if (!Array.isArray(services)) return [];
   return services
-    .filter((service): service is AnyRecord => Boolean(service && typeof service === 'object' && (service as AnyRecord).active !== false))
+    .filter((service): service is AnyRecord => Boolean(service && typeof service === 'object' && (service as AnyRecord).active !== false && (service as AnyRecord).available !== false && !['draft', 'archived'].includes(String((service as AnyRecord).status || ''))))
     .map((service) => ({
+      ...normalizeServiceConfiguration(service),
+      serviceConfigurationFields: serviceConfigurationFields(service),
+      serviceFacts: serviceFacts(service),
       id: service.id,
       name: service.name,
       description: service.description || '',
@@ -50,14 +56,20 @@ function publicServices(services: unknown) {
       priceType: service.priceType,
       scheduleType: service.scheduleType,
       category: service.category || '',
+      exploreMainCategoryId: service.exploreMainCategoryId || '',
+      exploreSubcategoryId: service.exploreSubcategoryId || '',
       capacity: service.capacity,
       sessionStartDate: service.sessionStartDate,
       sessionStartTime: service.sessionStartTime,
       sessionEndDate: service.sessionEndDate,
       sessionEndTime: service.sessionEndTime,
+      sessions: service.sessions,
+      sessionLabel: service.sessionLabel,
+      staffIds: service.staffIds,
+      photoURL: service.photoURL,
       imageUrls: service.imageUrls || [],
       variants: Array.isArray(service.variants)
-        ? service.variants.map((variant: AnyRecord) => ({
+        ? service.variants.filter((variant: AnyRecord) => variant.available !== false).map((variant: AnyRecord) => ({
             id: variant.id,
             name: variant.name,
             description: variant.description || '',
@@ -81,6 +93,10 @@ function publicProducts(products: unknown) {
   return products
     .filter((product): product is AnyRecord => Boolean(product && typeof product === 'object' && isPublicProduct(product as AnyRecord)))
     .map((product) => ({
+      ...normalizeListing(product),
+      [listingDetailsKey(product)]: publicListingDetails(product),
+      listingSpecificationGroups: listingSpecificationGroups(product),
+      listingFacts: listingFacts(product),
       id: product.id,
       name: product.name,
       title: product.title,
@@ -92,6 +108,8 @@ function publicProducts(products: unknown) {
       priceType: product.priceType,
       quoteBased: product.quoteBased,
       category: product.category || product.mainCategory || '',
+      exploreMainCategoryId: product.exploreMainCategoryId || '',
+      exploreSubcategoryId: product.exploreSubcategoryId || '',
       productType: product.productType || '',
       vendor: product.vendor || '',
       tags: Array.isArray(product.tags) ? product.tags : [],
@@ -135,7 +153,7 @@ function publicProducts(products: unknown) {
 function publicStaff(staff: unknown) {
   if (!Array.isArray(staff)) return [];
   return staff
-    .filter((member): member is AnyRecord => Boolean(member && typeof member === 'object'))
+    .filter((member): member is AnyRecord => Boolean(member && typeof member === 'object' && (member as AnyRecord).active !== false))
     .map((member) => ({
       id: member.id,
       name: member.name,
@@ -145,6 +163,7 @@ function publicStaff(staff: unknown) {
 }
 
 export function buildPublicWorkspaceSnapshot(workspace: AnyRecord) {
+  const presenceOnly = isPresenceOnlyBusiness(workspace);
   const ownerId = String(workspace.ownerId || '');
   const slug = String(workspace.slug || '');
   const website = (workspace.website || {}) as AnyRecord;
@@ -169,7 +188,7 @@ export function buildPublicWorkspaceSnapshot(workspace: AnyRecord) {
     email: workspace.email || '',
     phone: workspace.phone || '',
     welcomeMessage: workspace.welcomeMessage || '',
-    website,
+    website: { ...website, pages: effectivePublicPages(workspace), profileMode: presenceOnly ? 'presence' : 'commerce', socialLinks: publicBusinessSocialLinks((website.socialLinks || {}) as AnyRecord) },
     // Denormalized discovery fields for Explore directory reads
     categoryId,
     categoryLabel,
@@ -179,12 +198,12 @@ export function buildPublicWorkspaceSnapshot(workspace: AnyRecord) {
     countryCode,
     city,
     servesCountries,
-    services: publicServices(workspace.services),
-    products: publicProducts(workspace.products),
+    services: presenceOnly ? [] : publicServices(workspace.services),
+    products: presenceOnly ? [] : publicProducts(workspace.products),
     staff: publicStaff(workspace.staff),
     availabilityRules: workspace.availabilityRules || {},
     staffAvailability: workspace.staffAvailability || {},
-    paymentGateways: publicPaymentGateways(workspace.paymentGateways),
+    paymentGateways: presenceOnly ? [] : publicPaymentGateways(workspace.paymentGateways),
     published: true,
     publishedAt: Date.now(),
     updatedAt: Date.now()

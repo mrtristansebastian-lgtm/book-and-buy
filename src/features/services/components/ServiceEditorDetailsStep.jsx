@@ -1,4 +1,7 @@
+import { getServiceBookingFormat } from '../../../../functions/serviceTemplates';
+
 export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus = false, currency = 'R' }) {
+  const isEvent = getServiceBookingFormat(draft) === 'event';
   return (
     <section className="bb-services-section">
       <div className="bb-services-step-head">
@@ -33,7 +36,7 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
         {showCapacity ? (
           <div className="bb-services-field-row bb-services-field-row--2">
             <label className="bb-services-field">
-              <span>Price</span>
+              <span>{isEvent ? 'Price per ticket' : 'Price per spot'}</span>
               <div className="bb-products-money">
                 <span className="bb-products-money-prefix">{currency}</span>
                 <input
@@ -45,20 +48,22 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
               </div>
             </label>
             <label className="bb-services-field">
-              <span>Open spots</span>
+              <span>{isEvent ? 'Event capacity' : 'Session capacity'}</span>
               <input
                 className="native-control-input bb-services-control"
+                aria-label={isEvent ? 'Event capacity' : 'Session capacity'}
                 inputMode="numeric"
                 value={draft.capacity}
                 onChange={(event) =>
                   patch({ capacity: event.target.value.replace(/[^\d]/g, '') })
                 }
               />
+              <small className="bb-services-field-hint">Total spots available across all package options.</small>
             </label>
           </div>
         ) : (
           <label className="bb-services-field">
-            <span>Price</span>
+            <span>Price per booking</span>
             <div className="bb-products-money">
               <span className="bb-products-money-prefix">{currency}</span>
               <input

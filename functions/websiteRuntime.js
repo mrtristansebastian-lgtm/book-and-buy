@@ -12,6 +12,8 @@ import { initiatePayment, confirmPaymentReturn } from './payments/index.js';
 import { assertOwner, readinessIssues } from './workspaceDomain.js';
 import { readWorkspace } from './workspaceStore.js';
 import { normalizeDomain } from './domainValidation.js';
+import { isPresenceOnlyBusiness } from './businessCapabilities.js';
+import { createListingEnquiry } from './enquiries.js';
 
 const APP = process.env.APP_ID || 'book-and-buy-v1';
 const fail = (code, message) => { throw new HttpsError(code, message); };
@@ -168,7 +170,7 @@ function validatePublication(html, workspace, catalog) {
   // Blob references are device-local. Reject them anywhere, including CSS/JS/imports.
   const decoded = html.replace(/&#x([a-f0-9]+);?|&#(\d+);?|&colon;/gi, (_, hex, decimal) => hex || decimal ? String.fromCodePoint(Math.min(parseInt(hex || decimal, hex ? 16 : 10), 0x10ffff)) : ':').replace(/\\([a-f0-9]{1,6})\s?/gi, (_, hex) => String.fromCodePoint(Math.min(parseInt(hex, 16), 0x10ffff)));
   if (/\bblob\s*:/i.test(decoded)) fail('failed-precondition', 'This website contains a browser-local asset URL. Embed its asset data or use a durable HTTPS asset before publishing.');
-  if (getMarkets(workspace.website).filter(market => market.enabled).some(market => marketReadiness(workspace, market).shippingIssues > 0)) fail('failed-precondition', 'Complete shipping settings for your enabled markets before publishing.');
+  if (!isPresenceOnlyBusiness(workspace) && getMarkets(workspace.website).filter(market => market.enabled).some(market => marketReadiness(workspace, market).shippingIssues > 0)) fail('failed-precondition', 'Complete shipping settings for your enabled markets before publishing.');
   try { return validateWebsiteBindings(html, catalog); } catch (error) { fail('failed-precondition', error.message); }
 }
 async function readBundle(pointer, bucket) {
@@ -321,6 +323,7 @@ export async function executePublicWebsiteAction(data, dependencies = {}) {
   if (data.action === 'catalog.get') return getPublicCommerceContext(scoped, db);
   if (data.action === 'quote.get') return quotePublicCommerce(scoped, undefined, db);
   if (data.action === 'availability.get') return getLivePublicServiceAvailability(scoped, db);
+  if (data.action === 'enquiry.create') return createListingEnquiry(scoped, { ip: dependencies.ip }, db);
   if (data.action === 'booking.create') return checkoutCapability(db, pointer, 'booking', await writeGuardedBooking(scoped, undefined, db, true));
   if (data.action === 'checkout.create') return checkoutCapability(db, pointer, 'order', await placeMarketOrder(scoped, undefined, db));
   if (data.action === 'checkout.status') {
@@ -341,7 +344,7 @@ export async function enforceWebsiteRequestLimit(key, db = getFirestore(), now =
   const ref = db.doc(`artifacts/${APP}/websiteRequestLimits/${digest(`${key}:${Math.floor(now / 60000)}`)}`);
   await db.runTransaction(async tx => { const current = (await tx.get(ref)).data(); if ((current?.count || 0) >= 120) fail('resource-exhausted', 'Too many website requests. Wait a minute and try again.'); tx.set(ref, { count: (current?.count || 0) + 1, expiresAt: new Date(now + 120000) }); });
 }
-export async function publicWebsiteGateway(req, res) {
+export async function publicWebsiteGateway(req, res, dependencies = {}) {
   res.set('Cache-Control', 'no-store');
   res.set('X-Content-Type-Options', 'nosniff');
   try {
@@ -350,11 +353,11 @@ export async function publicWebsiteGateway(req, res) {
     if (origin && origin !== base) {
       let parsed; try { parsed = new URL(origin); } catch { fail('permission-denied', 'Use the published website to make this request.'); }
       if (parsed.protocol !== 'https:' || parsed.origin !== origin || parsed.origin === new URL(process.env.APP_PUBLIC_BASE_URL).origin) fail('permission-denied', 'Use the published website to make this request.');
-      try { await resolveWebsiteDomain(parsed.hostname); domain = parsed.hostname; } catch { fail('permission-denied', 'Use the published website to make this request.'); }
+      try { await resolveWebsiteDomain(parsed.hostname, dependencies); domain = parsed.hostname; } catch { fail('permission-denied', 'Use the published website to make this request.'); }
     }
-    if (req.method === 'GET') { const requested = String(req.query.domain || ''); if (requested && requested !== new URL(base).hostname) domain = requested; await enforceWebsiteRequestLimit(String(req.ip || 'unknown')); return res.json(await getPublicWebsite({ siteId: String(req.query.siteId || ''), previewToken: String(req.query.previewToken || ''), domain })); }
+    if (req.method === 'GET') { const requested = String(req.query.domain || ''); if (requested && requested !== new URL(base).hostname) domain = requested; await enforceWebsiteRequestLimit(String(req.ip || 'unknown'), dependencies.db); return res.json(await getPublicWebsite({ siteId: String(req.query.siteId || ''), previewToken: String(req.query.previewToken || ''), domain }, dependencies)); }
     if (req.method !== 'POST' || !req.is('application/json') || !origin || JSON.stringify(req.body).length > 45000) fail('invalid-argument', 'Invalid website request.');
-    await enforceWebsiteRequestLimit(String(req.ip || 'unknown'));
-    return res.json(await executePublicWebsiteAction({ ...(req.body || {}), domain }));
+    await enforceWebsiteRequestLimit(String(req.ip || 'unknown'), dependencies.db);
+    return res.json(await executePublicWebsiteAction({ ...(req.body || {}), domain }, { ...dependencies, ip: req.ip }));
   } catch (error) { const message = typeof error.code === 'number' || /websiteBundles\/|websiteDrafts\/|artifacts\/|ENOTFOUND|ECONN|bucket|credential|access token/i.test(error.message || '') ? 'The website could not complete this request. Please try again.' : error.message || 'Website request failed.'; res.status(error.code === 'not-found' ? 404 : error.code === 'unauthenticated' ? 401 : error.code === 'permission-denied' ? 403 : error.code === 'resource-exhausted' ? 429 : 400).json({ error: message }); }
 }

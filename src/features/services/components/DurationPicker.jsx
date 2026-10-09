@@ -1,8 +1,11 @@
 import { DURATION_PRESETS, parseDurationMinutes } from '../../../utils/services';
+import { useState } from 'react';
+import { FilterChip } from '../../../shared/ui/FilterChip';
 
 export function DurationPicker({ label, value, onChange, hint = '' }) {
   const minutes = parseDurationMinutes(value);
   const isCustom = minutes > 0 && !DURATION_PRESETS.includes(minutes);
+  const [custom, setCustom] = useState(() => isCustom || !minutes);
 
   return (
     <div className="bb-services-duration">
@@ -12,14 +15,14 @@ export function DurationPicker({ label, value, onChange, hint = '' }) {
       </div>
       <div className="bb-services-duration-presets" role="group" aria-label={label}>
         {DURATION_PRESETS.map((preset) => {
-          const active = minutes === preset;
+          const active = !custom && minutes === preset;
           return (
             <FilterChip
               key={preset}
               type="button"
               selected={active}
               className={`bb-services-duration-chip${active ? ' is-active' : ''}`}
-              onClick={() => onChange(String(preset))}
+              onClick={() => { setCustom(false); onChange(String(preset)); }}
             >
               {preset} min
             </FilterChip>
@@ -27,16 +30,17 @@ export function DurationPicker({ label, value, onChange, hint = '' }) {
         })}
         <FilterChip
           type="button"
-          selected={isCustom}
-          className={`bb-services-duration-chip${isCustom ? ' is-active' : ''}`}
+          selected={custom || isCustom}
+          className={`bb-services-duration-chip${custom || isCustom ? ' is-active' : ''}`}
           onClick={() => {
-            if (!isCustom) onChange(minutes ? String(minutes) : '75');
+            setCustom(true);
+            if (!minutes) onChange('75');
           }}
         >
           Custom
         </FilterChip>
       </div>
-      {isCustom || !minutes ? (
+      {custom || isCustom || !minutes ? (
         <label className="bb-services-field">
           <span>Minutes</span>
           <input
@@ -51,4 +55,3 @@ export function DurationPicker({ label, value, onChange, hint = '' }) {
     </div>
   );
 }
-import { FilterChip } from '../../../shared/ui/FilterChip';

@@ -1,4 +1,6 @@
 import { categoryLabel } from '../../../config/businessCategories';
+import { isEnquiryListing } from '../../../../functions/listingTypes.js';
+import { SetupPicker } from '../../../shared/ui/SetupPicker';
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active — visible on Buy' },
@@ -25,12 +27,14 @@ export function ProductEditorReviewStep({
           )}
         </div>
         <dl className="bb-services-review-list">
+          <div><dt>Subcategory</dt><dd>{categoryLabel(draft.exploreSubcategoryId) || 'Not set'}</dd></div>
+          <div><dt>Customer action</dt><dd>{isEnquiryListing(draft) ? 'Enquiry or viewing request' : 'Online checkout'}</dd></div>
           <div>
             <dt>Name</dt>
             <dd>{String(draft.name || '').trim() || '—'}</dd>
           </div>
           <div>
-            <dt>Price</dt>
+            <dt>{isEnquiryListing(draft) ? 'Asking price' : 'Price'}</dt>
             <dd>{priceLabel || '—'}</dd>
           </div>
           <div>
@@ -46,9 +50,9 @@ export function ProductEditorReviewStep({
             </dd>
           </div>
           <div>
-            <dt>Variants</dt>
+            <dt>{isEnquiryListing(draft) ? 'Availability' : 'Variants'}</dt>
             <dd>
-              {hasVariants
+              {isEnquiryListing(draft) ? draft.listingAvailability || 'available' : hasVariants
                 ? `${draft.variants?.length || 0} variants`
                 : 'Single item'}
             </dd>
@@ -66,20 +70,10 @@ export function ProductEditorReviewStep({
         </dl>
       </div>
 
-      <label className="bb-services-field">
+      <div className="bb-services-field">
         <span>Status</span>
-        <select
-          className="native-control-input bb-services-control"
-          value={draft.status || 'active'}
-          onChange={(event) => setStatus(event.target.value)}
-        >
-          {STATUS_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
+        <SetupPicker label="Status" value={draft.status || 'active'} options={STATUS_OPTIONS} onChange={setStatus}/>
+      </div>
     </section>
   );
 }

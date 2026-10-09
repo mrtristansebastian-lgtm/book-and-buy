@@ -1,9 +1,12 @@
+import { getProductTemplate } from '../../functions/catalogTemplates.js';
+import { getServiceTemplate } from '../../functions/serviceTemplates.js';
+
 /**
  * Resolve the business-set category label for a catalog item.
  */
 export function getCatalogCategory(item = {}, fallback = '') {
   const value = String(item.category || item.mainCategory || '').trim();
-  return value || fallback;
+  return value || getProductTemplate(item.catalogTemplateId)?.label || getServiceTemplate(item.catalogTemplateId)?.label || fallback;
 }
 
 /**

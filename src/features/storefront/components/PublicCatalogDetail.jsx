@@ -28,6 +28,10 @@ import { serviceLineKey } from '../../storefront/hooks/useCart';
 import { isFirebaseConfigured } from '../../../shared/firebase/client';
 import { firebaseCallables } from '../../../shared/firebase/callables';
 import { mergePublicCommerceWorkspace } from '../../../utils/publicCommerceCheckout';
+import { isEnquiryListing, hasListingSpecifications } from '../../../../functions/listingTypes.js';
+import { ListingSpecifications } from '../../products/components/ListingSpecifications';
+import { ServiceSpecifications } from '../../services/components/ServiceSpecifications';
+import { PublicListingEnquiry } from '../../enquiries/components/PublicListingEnquiry';
 
 function collectImages(item = {}, variant = null) {
   if (!item) return [];
@@ -211,6 +215,7 @@ export function PublicCatalogDetail({
     kind === 'product'
       ? item.quoteBased || item.priceType === 'quote'
       : item.priceType === 'quote';
+  const enquiryListing = kind === 'product' && isEnquiryListing(item);
   const price =
     kind === 'service'
       ? formatServicePrice(item, selectedServiceVariant)
@@ -236,7 +241,7 @@ export function PublicCatalogDetail({
       ? getCatalogCategory(item, 'Service')
       : getCatalogCategory(item, 'Product');
 
-  const needsProductVariant = kind === 'product' && productHasVariants(item);
+  const needsProductVariant = kind === 'product' && !enquiryListing && productHasVariants(item);
   const needsServiceVariant = kind === 'service' && serviceHasVariants(item);
   const purchasable =
     kind === 'service'
@@ -267,6 +272,7 @@ export function PublicCatalogDetail({
   );
 
   const addToCart = () => {
+    if (enquiryListing) return;
     if (cartDisabled) return;
     if (kind === 'service') {
       if (isSpotService && !needsServiceVariant) {
@@ -316,7 +322,7 @@ export function PublicCatalogDetail({
             <ArrowLeft size={16} />
             Back to {catalogLabel}
           </Button>
-          {cartButton}
+          {!enquiryListing && cartButton}
         </header>
 
         <div className="bb-public-detail-layout">
@@ -379,6 +385,7 @@ export function PublicCatalogDetail({
               <p className="bb-public-service-meta">{meta}</p>
               <h1 className="bb-public-detail-title">{item.name}</h1>
             </header>
+            {enquiryListing && <div className="bb-public-detail-price-group"><span className="bb-public-detail-total-label">Asking price</span><p className="bb-public-detail-price">{price}</p><p className="bb-listing-price-note">{stock} · Enquiries only</p></div>}
 
             {item.description ? (
               <section className="bb-public-detail-body" aria-label={`About ${item.name}`}>
@@ -387,7 +394,10 @@ export function PublicCatalogDetail({
               </section>
             ) : null}
 
-            {kind === 'product' && options.length ? (
+            {kind === 'product' && hasListingSpecifications(item) && <ListingSpecifications product={item}/>}
+            {kind === 'service' && <ServiceSpecifications service={item} />}
+
+            {kind === 'product' && !enquiryListing && options.length ? (
               <div className="bb-products-public-options">
                 {options.map((option) => (
                   <fieldset key={option.id || option.name} className="bb-products-public-option">
@@ -464,7 +474,7 @@ export function PublicCatalogDetail({
               </fieldset>
             ) : null}
 
-            <div className="bb-public-detail-summary">
+            {!enquiryListing && <div className="bb-public-detail-summary">
               {(isSpotService && timingMeta) || spotCount != null ? (
                 <div className="bb-public-detail-facts">
                   {timingMeta ? <div className="bb-public-detail-fact">
@@ -488,7 +498,7 @@ export function PublicCatalogDetail({
                 </p>
                 {stock ? <p className="bb-public-detail-availability">{stock}</p> : null}
               </div>
-            </div>
+            </div>}
 
             {liveCommerce && isSpotService ? (
               <p className="bb-public-detail-availability" role="status">
@@ -497,7 +507,7 @@ export function PublicCatalogDetail({
               </p>
             ) : null}
 
-            <Button action="addToCart" variant="primary"
+            {enquiryListing ? <PublicListingEnquiry key={item.id} product={item} slug={businessSlug} isDemo={Boolean(workspace.isDemo || preview)} ownerId={workspace.ownerId || ''}/> : <Button action="addToCart" variant="primary"
               type="button"
               className="bb-public-product-cart-btn bb-public-detail-cart-btn"
               disabled={cartDisabled}
@@ -519,7 +529,7 @@ export function PublicCatalogDetail({
                         ? 'Unavailable'
                         : 'Add to cart'}
               </span>
-            </Button>
+            </Button>}
 
           </aside>
         </div>

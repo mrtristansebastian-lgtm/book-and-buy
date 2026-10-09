@@ -42,6 +42,7 @@ export const TAB_ICONS = {
   analytics: ChartColumn,
   'live-stats': Radio,
   clients: Users,
+  teams: Users,
   settings: Settings
 };
 
@@ -65,6 +66,7 @@ export const TAB_HINTS = {
   analytics: 'Visitors & discovery',
   'live-stats': 'Visitors & carts now',
   clients: 'People & history',
+  teams: 'People, services & availability',
   settings: 'Business & team'
 };
 
@@ -117,9 +119,9 @@ export const launcherApps = [
   {
     id: 'business',
     label: 'Office',
-    blurb: 'Messages, clients and settings.',
+    blurb: 'Your team, clients, enquiries and messages.',
     icon: BriefcaseBusiness,
-    tabs: ['communications', 'clients', 'settings'],
+    tabs: ['communications', 'clients', 'teams', 'settings'],
     size: 'lg',
     hue: 'mint',
     tint: ['#ffd4f2', '#ffd4f2']

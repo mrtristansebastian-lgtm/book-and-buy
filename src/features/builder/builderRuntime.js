@@ -7,6 +7,7 @@ import { getServiceUnitPriceCents, getServiceDurationMinutes } from '../../utils
 import { getDaySlots } from '../../utils/availability';
 import { buildTestCheckoutResult } from '../../utils/testCheckout';
 import { shippingQuote } from '../../../functions/marketPolicy.js';
+import { assertBusinessCommerceEnabled, isPresenceOnlyBusiness } from '../../../functions/businessCapabilities.js';
 
 export async function builderCallable(name, payload) {
   const firebase = getFirebase();
@@ -14,6 +15,7 @@ export async function builderCallable(name, payload) {
   return (await httpsCallable(firebase.functions, name)(payload)).data;
 }
 export function builderTestQuote(workspace, payload, includeShipping = true) {
+  assertBusinessCommerceEnabled(workspace);
   const client = payload.client || {};
   const items = payload.items || [];
   if (!items.length) throw new Error('Add an item before checkout.');
@@ -40,6 +42,8 @@ export async function executeBuilderRuntime(workspace, cart, action, payload, op
   validateWebsiteRequest(action, payload);
   const snapshot = () => ({ items: cart.items, count: cart.count, subtotalCents: cart.subtotalCents, currency: cart.currency, test: true });
   if (action === 'catalog.get') return buildBuilderCommerceContext(workspace);
+  if (isPresenceOnlyBusiness(workspace) && action === 'cart.get') return { ...snapshot(), items: [], count: 0, subtotalCents: 0 };
+  if (action !== 'cart.close') assertBusinessCommerceEnabled(workspace);
   if (action === 'cart.get') return snapshot();
   if (action === 'quote.get' && payload.serviceId) {
     resolveBuilderCommerceAction(workspace, 'service.open', payload);

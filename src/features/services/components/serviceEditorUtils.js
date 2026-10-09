@@ -1,23 +1,25 @@
 import { parseDurationMinutes } from '../../../utils/services';
 import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
 
-export function buildSetupSteps(scheduleType) {
+export function buildSetupSteps(scheduleType, hasTemplate = false, isEvent = false) {
   const isSpot = scheduleType === 'class_session';
   return [
     {
       id: 'type',
-      label: 'Type',
-      lede: 'How do clients book this?'
+      label: 'Service type',
+      lede: 'Choose a Slot, Spot or Event.'
     },
+    { id: 'classification', label: 'Category', lede: 'Choose a main category and subcategory.' },
     {
       id: 'details',
       label: 'Details',
       lede: 'Name it, describe it, and set the base price.'
     },
+    ...(hasTemplate ? [{ id: 'configuration', label: 'Service details', lede: 'Add the details that matter for this service.' }] : []),
     {
       id: 'variants',
       label: 'Variants',
-      lede: 'Optional packages with their own price and minimum duration.'
+      lede: isEvent ? 'Add ticket types and prices for this event.' : isSpot ? 'Optional ticket or package options for the same session.' : 'Optional packages with their own price and duration.'
     },
     {
       id: 'photo',
@@ -28,7 +30,7 @@ export function buildSetupSteps(scheduleType) {
       ? {
           id: 'when',
           label: 'When',
-          lede: 'Set the start and end date and time for this class or programme.'
+          lede: isEvent ? 'Set the event’s start and end date and time.' : 'Set the start and end date and time for this class or programme.'
         }
       : {
           id: 'duration',
@@ -37,7 +39,7 @@ export function buildSetupSteps(scheduleType) {
         },
     {
       id: 'category',
-      label: 'Category',
+      label: 'Browse label',
       lede: 'Optional — helps clients browse your Book page.'
     },
     {

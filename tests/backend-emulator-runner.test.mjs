@@ -52,7 +52,8 @@ test('Windows emulator launch uses the short socket directory and only local dem
   assert.ok(launch.args.includes(`-Djava.io.tmpdir=${launch.socketTemp}`));
   assert.ok(launch.args.includes(DEMO_PROJECT)); assert.ok(launch.args.includes('127.0.0.1'));
   assert.ok(launch.args.includes('8285')); assert.equal(launch.args.includes('--import-data'), false);
-  assert.equal(BACKEND_SUITES.length, 11); assert.ok(BACKEND_SUITES.includes('tests/platform-reviews.test.mjs'));
+  assert.equal(BACKEND_SUITES.length, 12); assert.ok(BACKEND_SUITES.includes('tests/platform-reviews.test.mjs'));
+  assert.ok(BACKEND_SUITES.includes('tests/listing-enquiries-emulator.test.mjs'));
 });
 
 test('only a runner-owned emulator startup tolerates temporary timeouts; unrelated services fail closed', async () => {

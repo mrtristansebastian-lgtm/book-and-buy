@@ -13,11 +13,12 @@ function FileIcon({ mime = '', kind = 'file' }) {
   return <File size={16} />;
 }
 
-export function MessageTimeline({ messages = [], onOpenImage, perspective = 'business', rescheduling }) {
+export function MessageTimeline({ messages = [], onOpenImage, perspective = 'business', rescheduling, header }) {
   let lastDay = '';
   const latestProposalMessage = [...messages].reverse().find((message) => message.type === 'reschedule');
   return (
     <div className="bb-support-timeline">
+      {header}
       {messages.map((message) => {
         const day = formatDayLabel(message.at);
         const showDay = day && day !== lastDay;

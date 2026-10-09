@@ -1,6 +1,7 @@
 import { Button } from '../../shared/ui/Button';
 import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
+import { isFoodPresenceCategory } from '../../../functions/businessCapabilities.js';
 import {
   BUSINESS_CATEGORIES,
   categoryLabel,
@@ -90,7 +91,7 @@ export function BusinessCategoryPicker({
               onClick={() => onChange?.({ categoryId: item.id, label: item.label })}
             >
               <span className="bb-biz-cat-picker-chip-mode">
-                {item.modes.includes('book') && item.modes.includes('buy')
+                {isFoodPresenceCategory(item.id) ? 'Presence only' : item.modes.includes('book') && item.modes.includes('buy')
                   ? 'Book · Buy'
                   : item.modes[0] === 'book'
                     ? 'Book'

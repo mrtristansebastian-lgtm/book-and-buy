@@ -1,6 +1,7 @@
 import { getServiceScheduleType } from './scheduleTypes';
-import { parseDateKey } from './dates';
+import { parseDateKey, toDateKey } from './dates';
 import { isValidExploreCategoryPair } from '../config/businessCategories';
+import { normalizeServiceConfiguration } from '../../functions/serviceTemplates';
 
 export const createServiceId = () =>
   `service-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -126,6 +127,8 @@ export const sessionWindowEndMs = (service = {}) => {
 export const isValidServiceSessionWindow = (service = {}) => {
   if (!service.sessionStartDate || !service.sessionStartTime) return false;
   if (!service.sessionEndDate || !service.sessionEndTime) return false;
+  if (![service.sessionStartDate, service.sessionEndDate].every((value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value)) && toDateKey(parseDateKey(value)) === value)) return false;
+  if (![service.sessionStartTime, service.sessionEndTime].every((value) => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(String(value)))) return false;
   const start = sessionWindowStartMs(service);
   const end = sessionWindowEndMs(service);
   return Number.isFinite(start) && Number.isFinite(end) && end > start;
@@ -160,6 +163,7 @@ export const formatServiceDuration = (duration = '') => {
 
 /** Catalog / card label for fixed or minimum duration. */
 export const formatServiceDurationLabel = (service = {}, variant = null) => {
+  if (getServiceScheduleType(service) === 'class_session') return formatServiceSessionLabel(service);
   if (variant) {
     const min = parseDurationMinutes(variant.minDuration);
     return min ? `${min} min` : '';
@@ -240,6 +244,7 @@ export const normalizeService = (service = {}, index = 0) => {
   );
   return {
     ...service,
+    ...normalizeServiceConfiguration(service),
     id: service.id || createServiceId(),
     name: service.name || `Service ${index + 1}`,
     category: service.category || '',

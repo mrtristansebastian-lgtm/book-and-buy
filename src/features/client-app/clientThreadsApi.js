@@ -65,6 +65,7 @@ function findReusableThread(existing, { ownerId, bookingId, orderId, subject, wo
         thread.ownerId === ownerId &&
         !thread.bookingId &&
         !thread.orderId &&
+        !thread.enquiryId &&
         (thread.workspaceSlug === workspaceSlug ||
           thread.subject === subject ||
           String(thread.subject || '').startsWith('Message ·'))
@@ -81,13 +82,9 @@ export async function listClientThreadsByEmail(email) {
   const needle = normalizeEmail(email);
   if (!firebase || !exact) return [];
   const col = collection(firebase.db, ...clientThreadsPath(APP_ID));
-  const snap = await getDocs(query(col, where('clientEmail', '==', exact), limit(60)));
-  let rows = snap.docs.map((item) => mapThread(item.id, item.data() || {}));
-  if (!rows.length && needle !== exact) {
-    const alt = await getDocs(query(col, where('clientEmail', '==', needle), limit(60)));
-    rows = alt.docs.map((item) => mapThread(item.id, item.data() || {}));
-  }
-  return rows;
+  const emailFilter = needle === exact ? where('clientEmail', '==', exact) : where('clientEmail', 'in', [exact, needle]);
+  const snap = await getDocs(query(col, emailFilter, limit(60)));
+  return snap.docs.map((item) => mapThread(item.id, item.data() || {}));
 }
 
 /** Subscribe to threads for a client email. */
@@ -99,7 +96,9 @@ export function subscribeClientThreadsByEmail(email, onChange) {
     return () => {};
   }
   const col = collection(firebase.db, ...clientThreadsPath(APP_ID));
-  const q = query(col, where('clientEmail', '==', exact), limit(60));
+  const needle = normalizeEmail(email);
+  const emailFilter = needle === exact ? where('clientEmail', '==', exact) : where('clientEmail', 'in', [exact, needle]);
+  const q = query(col, emailFilter, limit(60));
   return onSnapshot(
     q,
     (snap) => {
@@ -234,6 +233,7 @@ export async function sendClientThreadMessage(threadId, { body, from = 'client',
   batch.update(doc(firebase.db, ...clientThreadPath(APP_ID, threadId)), {
     updatedAt: now,
     lastMessageAt: now,
+    lastMessageFrom: from,
     unread: true,
     unreadForClient: from !== 'client',
     lastMessagePreview: (text || (type === 'voice' ? 'Voice note' : 'Attachment')).slice(0, 140)

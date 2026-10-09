@@ -5,6 +5,8 @@
   let catalog, site, countryCode = sessionStorage.getItem('bookbuy-country:' + siteId) || '', cart = [];
   let runtimePort, catalogSignature = '', catalogLoading, lastCatalogRead = 0;
   const money = value => `${catalog?.currency || 'R'} ${(Number(value) / 100).toFixed(2)}`;
+  const assertCommerce = () => { if (catalog?.profileMode === 'presence') throw new Error('This business has a presence-only profile. Please use its contact details. Bookings and orders are unavailable.'); };
+  const isEnquiryListing = item => ['vehicle', 'equipment'].includes(item?.listingType) || item?.transactionMode === 'enquiry';
   const snapshot = () => ({ items: cart.map(row => ({ ...row })), count: cart.reduce((sum, row) => sum + row.quantity, 0), subtotalCents: cart.reduce((sum, row) => sum + row.quantity * row.unitPriceCents, 0), currency: catalog?.currency });
   async function server(action, payload = {}) {
     const response = await fetch('/api/website', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ siteId, previewToken, action, payload: { ...payload, countryCode: payload.countryCode || countryCode } }) });
@@ -14,7 +16,7 @@
     for (const line of cart) {
       const item = catalog[line.kind === 'product' ? 'products' : 'services'].find(row => row.id === (line.productId || line.serviceId));
       const variant = line.variantId ? item?.variants?.find(row => row.id === line.variantId) : null;
-      line.unavailable = !item || Boolean(line.variantId && !variant) || variant?.available === false;
+      line.unavailable = !item || Boolean(line.variantId && !variant) || variant?.available === false || line.kind === 'product' && isEnquiryListing(item);
       if (item && !line.unavailable) {
         line.name = item.name || item.title;
         line.unitPriceCents = productPrice(item, variant);
@@ -32,6 +34,7 @@
     if (catalogLoading) return catalogLoading;
     catalogLoading = server('catalog.get', payload).then(next => {
       lastCatalogRead = Date.now(); catalog = next;
+      if (next.profileMode === 'presence') { cart = []; if (dialog.open) dialog.close(); }
       const signature = JSON.stringify(next);
       if (signature !== catalogSignature || force) { catalogSignature = signature; reconcileCart(); announceCatalog(); }
       return next;
@@ -39,6 +42,40 @@
     return catalogLoading;
   }
   function element(tag, text, attributes = {}) { const node = document.createElement(tag); if (text) node.textContent = text; Object.assign(node, attributes); return node; }
+  function listingPhotos(item) {
+    const photos = (item.imageUrls?.length ? item.imageUrls : [item.image || item.photoURL]).filter(url => typeof url === 'string' && /^(https:\/\/|data:image\/)/i.test(url));
+    if (!photos.length) return;
+    const image = element('img', '', { src: photos[0], alt: item.name || 'Listing', className: 'listing-image' }); body.append(image);
+    if (photos.length > 1) {
+      const thumbnails = element('div', '', { className: 'listing-thumbnails' });
+      photos.slice(0, 12).forEach((url, index) => { const button = element('button', '', { type: 'button', title: `View image ${index + 1}` }); button.setAttribute('aria-label', `View image ${index + 1}`); button.append(element('img', '', { src: url, alt: '' })); button.addEventListener('click', () => { image.src = url; }); thumbnails.append(button); });
+      body.append(thumbnails);
+    }
+  }
+  function listingFacts(item, fallback = []) {
+    const values = Array.isArray(item.listingFacts) ? item.listingFacts : fallback;
+    if (!values.length) return;
+    const facts = element('div', '', { className: 'listing-facts' }); values.filter(value => ['string', 'number'].includes(typeof value) && String(value).trim()).slice(0, 6).forEach(value => facts.append(element('span', String(value)))); body.append(facts);
+  }
+  function specificationGroups(source, disclosure = '') {
+    if (!Array.isArray(source)) return;
+    const groups = source.filter(group => typeof group.label === 'string' && Array.isArray(group.fields) && group.fields.length);
+    for (const [index, group] of groups.entries()) {
+      const section = element('details', '', { className: 'listing-specification-group', open: index === 0 });
+      const definitions = element('dl');
+      for (const field of group.fields) {
+        if (typeof field.label !== 'string' || !['string', 'number'].includes(typeof field.value) || !String(field.value).trim()) continue;
+        const row = element('div'); row.append(element('dt', field.label), element('dd', String(field.value) + (field.unit ? ' ' + field.unit : ''))); definitions.append(row);
+      }
+      if (definitions.children.length) { section.append(element('summary', group.label), definitions); body.append(section); }
+    }
+    if (groups.length && disclosure) body.append(element('p', disclosure, { className: 'listing-privacy' }));
+  }
+  function listingSpecifications(item) {
+    specificationGroups(item.listingSpecificationGroups, isEnquiryListing(item)
+      ? 'Specifications are supplied by the seller. Confirm the details of this particular listing with them.'
+      : 'Specifications are supplied by the seller. Check the selected option for its exact configuration.');
+  }
   function open(title) { document.getElementById('commerceTitle').textContent = title; body.replaceChildren(); note.textContent = ''; if (!dialog.open) dialog.showModal(); }
   function field(form, label, name, options) {
     const wrap = element('label', label), input = element(options ? 'select' : 'input', '', { name, required: true });
@@ -64,9 +101,11 @@
   function productPrice(item, variant) { const raw = String(variant?.price ?? item.price ?? 0).replace(/^(?:R|ZAR|USD|EUR|GBP|\$|€|£)\s*/i, ''); return item.priceType === 'quote' || item.quoteBased ? 0 : variant?.priceInCents ?? item.priceInCents ?? (/^\d+(?:\.\d{1,2})?$/.test(raw) ? Math.round(Number(raw) * 100) : 0); }
   async function add(payload) {
     await refreshCatalog({ force: true });
+    assertCommerce();
     if (!catalog || catalog.catalogAvailability !== 'available') await chooseCountry();
     const product = catalog.products.find(row => row.id === payload.productId), service = catalog.services.find(row => row.id === payload.serviceId);
     const item = product || service; if (!item) throw new Error('This item is unavailable in your country.');
+    if (product && isEnquiryListing(product)) throw new Error('This listing accepts enquiries only. Open the listing to contact the business.');
     if (product && (product.quoteBased || product.priceType === 'quote')) throw new Error('This product needs a quote from the business.');
     const variant = payload.variantId ? item.variants?.find(row => row.id === payload.variantId) : null;
     if (payload.variantId && !variant || product && item.variants?.length && !variant || variant?.available === false) throw new Error('Choose an available option.');
@@ -91,13 +130,24 @@
   }
   async function openItem(kind, payload) {
     await refreshCatalog({ force: true });
+    assertCommerce();
     if (catalog.catalogAvailability !== 'available') await chooseCountry();
     const item = catalog[kind === 'product' ? 'products' : 'services'].find(row => row.id === payload[kind + 'Id']);
     if (!item) throw new Error('This item is unavailable.');
+    if (kind === 'product' && isEnquiryListing(item)) return openListing(item);
     open(item.name || 'Choose options');
-    const form = element('form'); if (item.description) form.append(element('p', item.description));
+    listingPhotos(item); listingFacts(kind === 'product' ? item : { listingFacts: item.serviceFacts });
+    if (item.description) body.append(element('p', item.description, { className: 'listing-description' }));
+    if (kind === 'product') listingSpecifications(item);
+    else if (Array.isArray(item.serviceConfigurationFields)) specificationGroups([{ label: 'Service details', fields: item.serviceConfigurationFields }]);
+    const form = element('form');
     let variant;
     if (item.variants?.length) variant = field(form, 'Option', 'variantId', item.variants.map(row => ({ value: row.id, label: row.title || row.name || Object.values(row.optionValues || {}).join(' / ') })));
+    if (kind === 'product') {
+      const amount = element('p', '', { className: 'amount' });
+      const refreshPrice = () => { const option = item.variants?.find(row => row.id === variant?.value) || item.variants?.[0]; amount.textContent = item.quoteBased || item.priceType === 'quote' ? 'Price on request' : money(productPrice(item, option)); };
+      refreshPrice(); variant?.addEventListener('change', refreshPrice); body.append(amount);
+    }
     if (kind === 'product') { const input = field(form, 'Quantity', 'quantity'); input.type = 'number'; input.min = 1; input.max = 999; input.value = 1; }
     else {
       const date = field(form, 'Date', 'dateKey'); date.type = 'date'; const time = field(form, 'Available time', 'time', []);
@@ -107,13 +157,54 @@
     form.append(element('button', 'Add to cart', { type: 'submit' }));
     form.addEventListener('submit', async event => { event.preventDefault(); const values = Object.fromEntries(new FormData(form)); try { const slot = kind === 'service' ? JSON.parse(values.time) : {}; await add({ ...values, ...slot, [kind + 'Id']: item.id }); openCart(); } catch (error) { note.textContent = error.message; } }); body.append(form); return { opened: true };
   }
+  function openListing(item) {
+    open(item.name || 'Listing');
+    listingPhotos(item);
+    const raw = String(item.price ?? '').trim().replace(/^(?:R|ZAR|USD|EUR|GBP|\$|€|£)\s*/i, '');
+    const price = Number.isSafeInteger(item.priceInCents) ? money(item.priceInCents) : raw && /^\d+(?:\.\d{1,2})?$/.test(raw) ? money(Math.round(Number(raw) * 100)) : 'Price on enquiry';
+    body.append(element('p', price, { className: 'amount' }));
+    const details = item.listingType === 'vehicle' ? item.vehicleDetails || {} : item.equipmentDetails || {};
+    const facts = item.listingType === 'vehicle' ? [details.year, details.mileage != null && String(details.mileage).trim() ? `${Number(details.mileage).toLocaleString()} km` : '', details.transmission, details.fuel, details.location] : [details.manufacturer, details.model, details.condition, details.operatingHours ? `${details.operatingHours} h` : '', details.location];
+    listingFacts(item, facts.filter(Boolean));
+    if (item.description) body.append(element('p', item.description, { className: 'listing-description' }));
+    listingSpecifications(item);
+    const availability = item.listingAvailability || 'available';
+    if (availability !== 'available') { body.append(element('p', availability === 'sold' ? 'This listing has been sold.' : 'This listing is reserved.', { className: 'listing-notice' })); return { opened: true }; }
+    if (site?.preview) { body.append(element('p', 'Shared preview · browsing only. Enquiries open after publication.', { className: 'listing-notice' })); return { opened: true }; }
+    const form = element('form', '', { className: 'listing-enquiry-form' });
+    const intent = field(form, 'How can we help?', 'intent', [{ label: 'Ask a question', value: 'enquiry' }, { label: 'Request a viewing', value: 'viewing' }]);
+    const name = field(form, 'Your name', 'customerName'); name.maxLength = 100; name.minLength = 2; name.autocomplete = 'name';
+    const email = field(form, 'Email address', 'email'); email.type = 'email'; email.maxLength = 254; email.autocomplete = 'email';
+    const phone = field(form, 'Phone · optional', 'phone'); phone.type = 'tel'; phone.required = false; phone.maxLength = 32; phone.autocomplete = 'tel';
+    const messageLabel = element('label', 'Your message · optional'), message = element('textarea', '', { name: 'message', rows: 3, maxLength: 3000, placeholder: 'Ask a question or share a suitable day and time for a viewing.' }); messageLabel.append(message); form.append(messageLabel);
+    form.append(element('p', 'Your details are shared with this business to respond to your request. Viewing times are confirmed by the business.', { className: 'listing-privacy' }));
+    const submit = element('button', 'Send enquiry', { type: 'submit' }); form.append(submit); body.append(form);
+    intent.addEventListener('change', () => { submit.textContent = intent.value === 'viewing' ? 'Request viewing' : 'Send enquiry'; });
+    let retry, busy = false;
+    form.addEventListener('submit', async event => {
+      event.preventDefault(); if (busy) return;
+      const payload = { ...Object.fromEntries(new FormData(form)), productId: item.id };
+      const signature = JSON.stringify(payload);
+      if (!retry || retry.signature !== signature) retry = { signature, requestId: crypto.randomUUID() };
+      busy = true; submit.disabled = true; submit.textContent = 'Sending…'; note.textContent = '';
+      try {
+        const result = await server('enquiry.create', { ...payload, requestId: retry.requestId });
+        if (!result?.ok || !result.id) throw new Error('Your enquiry could not be saved. Please try again.');
+        open('Enquiry sent'); body.append(element('p', 'Your enquiry is in the business’s Inbox. They can use your contact details to reply.'), element('p', 'Reference: ' + result.id, { className: 'listing-privacy' }));
+      } catch (error) { note.textContent = error.message; }
+      finally { busy = false; submit.disabled = false; submit.textContent = intent.value === 'viewing' ? 'Request viewing' : 'Send enquiry'; }
+    });
+    return { opened: true };
+  }
   function openCart() {
+    assertCommerce();
     open('Your cart');
     if (!cart.length) { body.append(element('p', 'Your cart is empty.')); return { opened: true }; }
     for (const row of cart) { const card = element('article'); card.append(element('strong', row.name), element('p', `${row.quantity} × ${money(row.unitPriceCents)}${row.dateKey ? ' · ' + row.dateKey + ' ' + row.time : ''}${row.unavailable ? ' · unavailable, please remove' : ''}`)); const remove = element('button', 'Remove'); remove.addEventListener('click', () => { cart = cart.filter(item => item.lineKey !== row.lineKey); runtimePort?.postMessage({ type: 'cart-update', cart: snapshot() }); openCart(); }); card.append(remove); body.append(card); }
     body.append(element('p', 'Subtotal ' + money(snapshot().subtotalCents), { className: 'amount' })); const checkout = element('button', 'Continue to checkout', { className: 'primary' }); checkout.addEventListener('click', openCheckout); body.append(checkout); return { opened: true };
   }
   function openCheckout() {
+    assertCommerce();
     if (site?.preview) { open('Shared preview'); body.append(element('p', 'Browsing only. Orders, bookings and payments open after publication.')); return { opened: true }; }
     if (!cart.length) return openCart();
     open('Checkout'); const form = element('form');
@@ -163,19 +254,21 @@
   }
   async function execute(action, payload = {}) {
     window.BookBuyWebsiteContract.validateWebsiteRequest(action, payload);
-    if (site?.preview && ['checkout.create', 'booking.create', 'payment.start', 'payment.confirm', 'checkout.status'].includes(action)) throw new Error('Shared preview · browsing only. Orders, bookings and payments open after publication.');
+    if (site?.preview && ['checkout.create', 'booking.create', 'enquiry.create', 'payment.start', 'payment.confirm', 'checkout.status'].includes(action)) throw new Error('Shared preview · browsing only. Enquiries, orders, bookings and payments open after publication.');
     if (action === 'catalog.get') {
       if (payload.countryCode && payload.countryCode !== countryCode) { countryCode = String(payload.countryCode).toUpperCase(); cart = []; sessionStorage.setItem('bookbuy-country:' + siteId, countryCode); }
       return refreshCatalog({ force: true, payload });
     }
+    if (action === 'cart.close') { dialog.close(); return { closed: true }; }
+    await refreshCatalog();
     if (action === 'cart.get') return snapshot();
+    assertCommerce();
     if (action === 'cart.add') return add(payload);
     if (action === 'cart.remove') { cart = cart.filter(row => row.lineKey !== payload.lineKey); runtimePort?.postMessage({ type: 'cart-update', cart: snapshot() }); return snapshot(); }
     if (action === 'cart.updateQuantity') { const line = cart.find(row => row.lineKey === payload.lineKey); if (!line || line.kind !== 'product') throw new Error('Choose a product in your cart.'); const previous = line.quantity; line.quantity = 0; try { await add({ ...line, quantity: payload.quantity }); } catch (error) { line.quantity = previous; throw error; } return snapshot(); }
     if (action === 'product.open') return openItem('product', payload);
     if (['service.open', 'booking.select', 'booking.date', 'booking.slot'].includes(action)) return openItem('service', payload);
     if (action === 'cart.open') return openCart();
-    if (action === 'cart.close') { dialog.close(); return { closed: true }; }
     if (action === 'checkout.create' && !payload.client) return openCheckout();
     if (['checkout.create', 'booking.create'].includes(action)) payload = { ...payload, requestId: payload.requestId || crypto.randomUUID() };
     return server(action, payload);
@@ -190,12 +283,12 @@
   document.getElementById('closeDialog').addEventListener('click', () => dialog.close());
   async function start() {
     const response = await fetch('/api/website?siteId=' + encodeURIComponent(siteId) + '&previewToken=' + encodeURIComponent(previewToken) + '&domain=' + encodeURIComponent(location.hostname)); site = await response.json(); if (!response.ok || site.error) throw new Error(site.error || 'Website unavailable.');
-    catalog = await refreshCatalog({ force: true }); if (catalog.catalogAvailability !== 'available') await chooseCountry();
+    catalog = await refreshCatalog({ force: true }); if (catalog.profileMode !== 'presence' && catalog.catalogAvailability !== 'available') await chooseCountry();
     const doc = new DOMParser().parseFromString(site.html, 'text/html'); doc.querySelectorAll('[data-bb-connected-runtime],base,meta[http-equiv]').forEach(node => node.remove());
     const runtime = doc.createElement('script'); runtime.dataset.bbConnectedRuntime = 'true'; runtime.textContent = `(${window.BookBuyRuntimeInstaller.toString()})();`; doc.head.prepend(runtime);
     document.title = doc.title || catalog.brandName || 'Book & Buy'; frame.srcdoc = '<!doctype html>\n' + doc.documentElement.outerHTML; frame.hidden = false; status.hidden = true;
     if (site.preview) { const banner = element('div', 'Shared preview · browsing only', { className: 'preview-banner' }); document.body.append(banner); }
-    const params = new URLSearchParams(location.search); if (params.get('attemptId')) { const result = await server('payment.confirm', Object.fromEntries([...params].filter(([key]) => key !== 'site'))); open('Payment status'); body.append(element('p', result.paid ? 'Payment confirmed. Thank you.' : 'Your payment is awaiting confirmation.')); }
+    const params = new URLSearchParams(location.search); if (catalog.profileMode !== 'presence' && params.get('attemptId')) { const result = await server('payment.confirm', Object.fromEntries([...params].filter(([key]) => key !== 'site'))); open('Payment status'); body.append(element('p', result.paid ? 'Payment confirmed. Thank you.' : 'Your payment is awaiting confirmation.')); }
     setInterval(() => { if (!document.hidden) refreshCatalog({ force: true }).catch(() => {}); }, 30000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshCatalog({ force: true }).catch(() => {}); });
   }

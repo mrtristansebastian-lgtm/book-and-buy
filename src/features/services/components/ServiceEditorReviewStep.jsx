@@ -1,6 +1,8 @@
 import { formatServiceSessionLabel } from '../../../utils/services';
-import { durationSummary, typeSummary } from './serviceEditorUtils';
+import { durationSummary } from './serviceEditorUtils';
 import { categoryLabel } from '../../../config/businessCategories';
+import { FilterChip } from '../../../shared/ui/FilterChip';
+import { getServiceTemplate, serviceConfigurationFields, getServiceBookingFormat } from '../../../../functions/serviceTemplates';
 
 export function ServiceEditorReviewStep({
   draft,
@@ -10,6 +12,10 @@ export function ServiceEditorReviewStep({
   staff,
   currency = 'R'
 }) {
+  const activeStaff = staff.filter((member) => member.active !== false);
+  const inactiveAssigned = staff.filter((member) => member.active === false && (draft.staffIds || []).includes(member.id));
+  const template = getServiceTemplate(draft.catalogTemplateId);
+  const configuration = serviceConfigurationFields(draft);
   return (
     <section className="bb-services-section">
       <h3 className="bb-services-section-title">Review</h3>
@@ -39,7 +45,7 @@ export function ServiceEditorReviewStep({
           <div>
             <dt>Type</dt>
             <dd>
-              {typeSummary(draft)}
+              {getServiceBookingFormat(draft) === 'event' ? 'Event' : isSpot ? 'Spot' : 'Slot'}{template?.label ? ` · ${template.label}` : ''}
               {showCapacity && draft.capacity ? ` · ${draft.capacity} open spots` : ''}
             </dd>
           </div>
@@ -63,6 +69,7 @@ export function ServiceEditorReviewStep({
                 : 'Not set'}
             </dd>
           </div>
+          {configuration.map((field) => <div key={field.key}><dt>{field.label}</dt><dd>{field.value}</dd></div>)}
           {String(draft.description || '').trim() ? (
             <div className="bb-services-review-desc">
               <dt>Description</dt>
@@ -75,10 +82,10 @@ export function ServiceEditorReviewStep({
       <div className="bb-services-staff">
         <span className="bb-services-field-label">Assigned staff</span>
         <div className="bb-services-staff-chips">
-          {staff.length === 0 ? (
-            <p className="bb-services-empty-note">Add team members on Schedule.</p>
+          {activeStaff.length === 0 ? (
+            <p className="bb-services-empty-note">Add active team members in Teams. With no assigned staff, this service uses your business availability.</p>
           ) : (
-            staff.map((member) => {
+            activeStaff.map((member) => {
               const on = (draft.staffIds || []).includes(member.id);
               return (
                 <FilterChip
@@ -100,6 +107,13 @@ export function ServiceEditorReviewStep({
             })
           )}
         </div>
+        {inactiveAssigned.length > 0 && <div className="bb-services-staff-chips">
+          <p className="bb-services-empty-note">These assigned team members are inactive. Remove them or reactivate them in Teams to offer their availability.</p>
+          {inactiveAssigned.map((member) => <FilterChip key={member.id} type="button" selected
+            aria-label={`Remove inactive ${member.name}`} onClick={() => patch({ staffIds: (draft.staffIds || []).filter((id) => id !== member.id) })}>
+            {member.name} · inactive ×
+          </FilterChip>)}
+        </div>}
       </div>
 
       <label className="bb-services-check">
@@ -113,4 +127,3 @@ export function ServiceEditorReviewStep({
     </section>
   );
 }
-import { FilterChip } from '../../../shared/ui/FilterChip';

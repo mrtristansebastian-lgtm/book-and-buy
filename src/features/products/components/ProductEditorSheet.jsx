@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
+import { SetupPicker } from '../../../shared/ui/SetupPicker';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { ImageCropModal } from '../../media/ImageCropModal';
@@ -16,9 +17,13 @@ import { ProductEditorDetailsStep } from './ProductEditorDetailsStep';
 import { ProductEditorMediaStep } from './ProductEditorMediaStep';
 import { ProductEditorReviewStep } from './ProductEditorReviewStep';
 import { ProductEditorVariantsStep } from './ProductEditorVariantsStep';
+import { ProductEditorTypeStep, ProductEditorSpecificationsStep } from './ProductEditorTypeStep';
+import { isEnquiryListing, hasListingSpecifications, validateListing } from '../../../../functions/listingTypes.js';
 import { isValidExploreCategoryPair } from '../../../config/businessCategories';
+import { getProductCategoryTemplate, getProductTemplate } from '../../../../functions/catalogTemplates.js';
 
 const SETUP_STEPS = [
+  { id: 'type', label: 'Category', lede: 'Choose a main category and subcategory.' },
   {
     id: 'details',
     label: 'Details',
@@ -31,8 +36,8 @@ const SETUP_STEPS = [
   },
   {
     id: 'category',
-    label: 'Category',
-    lede: 'Set flexible Buy navigation and required Explore discovery tags.'
+    label: 'Store category',
+    lede: 'Optionally organise this product on your Buy page.'
   },
   {
     id: 'variants',
@@ -58,7 +63,7 @@ export function ProductEditorSheet({
 }) {
   const { workspace } = useWorkspace();
   const fileRef = useRef(null);
-  const [step, setStep] = useState('details');
+  const [step, setStep] = useState('type');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [cropSource, setCropSource] = useState(null);
@@ -71,7 +76,7 @@ export function ProductEditorSheet({
 
   useEffect(() => {
     if (!open) return;
-    setStep('details');
+    setStep(draft?.id ? 'details' : 'type');
     setError('');
     setValueDrafts({});
   }, [open, draft?.id]);
@@ -93,17 +98,20 @@ export function ProductEditorSheet({
   );
 
   const hasVariants = options.some((option) => option.values.length > 0);
+  const enquiryListing = isEnquiryListing(draft);
+  const specificationsListing = hasListingSpecifications(draft);
+  const setupSteps = SETUP_STEPS.filter(item => !enquiryListing || item.id !== 'variants').flatMap(item => specificationsListing && item.id === 'details' ? [item, { id: 'specifications', label: 'Specifications', lede: 'Start with the basics, then add the specifications that matter.' }] : [item]);
   const stepIndex = Math.max(
     0,
-    SETUP_STEPS.findIndex((item) => item.id === step)
+    setupSteps.findIndex((item) => item.id === step)
   );
-  const activeStep = SETUP_STEPS[stepIndex] || SETUP_STEPS[0];
+  const activeStep = setupSteps[stepIndex] || setupSteps[0];
   const isLast = step === 'review';
   const isEdit = Boolean(draft?.id);
 
   if (!open) return null;
 
-  const patch = (partial) => onChange?.({ ...draft, ...partial });
+  const patch = (partial) => { setError(''); onChange?.({ ...draft, ...partial }); };
 
   const syncVariants = (nextOptions, existing = draft.variants) =>
     buildVariantMatrix(nextOptions, existing || [], {
@@ -164,11 +172,11 @@ export function ProductEditorSheet({
     patch({ status, active: status === 'active' });
   };
 
-  const addOption = () => {
+  const addOption = (preset = {}) => {
     if (options.length >= 3) return;
     const nextOptions = [
       ...options,
-      { id: `option-${Date.now()}`, name: '', values: [] }
+      { id: `option-${Date.now()}`, name: preset.name || '', values: preset.values || [] }
     ];
     patch({ options: nextOptions, variants: syncVariants(nextOptions) });
   };
@@ -213,6 +221,12 @@ export function ProductEditorSheet({
   };
 
   const validateStep = (id) => {
+    if (id === 'type') {
+      if (!isValidExploreCategoryPair(draft.exploreMainCategoryId, draft.exploreSubcategoryId, 'buy')) { setError('Choose a main category and matching subcategory.'); return false; }
+      if (!draft.id && (!getProductCategoryTemplate(draft.exploreSubcategoryId) || !getProductTemplate(draft.catalogTemplateId))) { setError('Choose a supported product subcategory.'); return false; }
+      if (draft.catalogTemplateId && !getProductTemplate(draft.catalogTemplateId)) { setError('Choose a supported product subcategory.'); return false; }
+    }
+    if (id === 'specifications') { const problem = validateListing(draft); if (problem) { setError(problem); return false; } }
     if (id === 'details') {
       if (!String(draft.name || '').trim()) {
         setError('Add a product name.');
@@ -232,12 +246,12 @@ export function ProductEditorSheet({
   };
 
   const goToStep = (id) => {
-    const target = SETUP_STEPS.findIndex((item) => item.id === id);
+    const target = setupSteps.findIndex((item) => item.id === id);
     if (target < 0) return;
     if (!isEdit && target > stepIndex) {
       for (let i = 0; i < target; i += 1) {
-        if (!validateStep(SETUP_STEPS[i].id)) {
-          setStep(SETUP_STEPS[i].id);
+        if (!validateStep(setupSteps[i].id)) {
+          setStep(setupSteps[i].id);
           return;
         }
       }
@@ -249,22 +263,28 @@ export function ProductEditorSheet({
   const goBack = () => {
     if (stepIndex <= 0) return;
     setError('');
-    setStep(SETUP_STEPS[stepIndex - 1].id);
+    setStep(setupSteps[stepIndex - 1].id);
   };
 
   const goContinue = () => {
     if (!validateStep(step)) return;
-    if (stepIndex >= SETUP_STEPS.length - 1) return;
-    setStep(SETUP_STEPS[stepIndex + 1].id);
+    if (stepIndex >= setupSteps.length - 1) return;
+    setStep(setupSteps[stepIndex + 1].id);
   };
 
-  const save = () => {
+  const save = async () => {
+    if (busy) return;
+    if (!validateStep('type')) { setStep('type'); return; }
+    if (specificationsListing && !validateStep('specifications')) { setStep('specifications'); return; }
     if (!validateStep('details') || !validateStep('category')) {
       setStep(!String(draft.name || '').trim() ? 'details' : 'category');
       return;
     }
     setError('');
-    onSave?.();
+    setBusy(true);
+    try { await onSave?.(); }
+    catch (failure) { setError(failure.message || 'Your product could not be saved. Please try again.'); }
+    finally { setBusy(false); }
   };
 
   const categoryOptions = (() => {
@@ -280,6 +300,8 @@ export function ProductEditorSheet({
   })();
 
   const priceLabel = formatProductPrice({
+    listingType: draft.listingType,
+    transactionMode: draft.transactionMode,
     price: draft.price,
     quoteBased: draft.quoteBased,
     priceType: draft.quoteBased ? 'quote' : 'fixed',
@@ -318,19 +340,17 @@ export function ProductEditorSheet({
         </header>
 
         <div className="bb-services-sheet-body bb-services-setup">
-          {isEdit && <label className="bb-editor-section-picker">Editing section
-            <select value={step} onChange={(event) => goToStep(event.target.value)}>
-              {SETUP_STEPS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-            </select>
-          </label>}
+          {isEdit && <div className="bb-editor-section-picker"><span>Editing section</span>
+            <SetupPicker label="Editing section" value={step} options={setupSteps.map(item => ({ value: item.id, label: item.label }))} onChange={goToStep}/>
+          </div>}
           <p className="bb-services-setup-mobile" aria-live="polite">
-            Step {stepIndex + 1} of {SETUP_STEPS.length}
+            Step {stepIndex + 1} of {setupSteps.length}
             <span>{activeStep.label}</span>
           </p>
 
           <nav className="bb-services-setup-rail" aria-label="Setup steps">
             <ol className="bb-services-setup-rail-list">
-              {SETUP_STEPS.map((item, index) => {
+              {setupSteps.map((item, index) => {
                 const done = index < stepIndex;
                 const current = index === stepIndex;
                 const state = current ? 'current' : done ? 'done' : 'upcoming';
@@ -364,6 +384,8 @@ export function ProductEditorSheet({
           </nav>
 
           <div className="bb-services-setup-stage" key={step}>
+            {step === 'type' && <ProductEditorTypeStep draft={draft} patch={patch}/>}
+            {step === 'specifications' && <ProductEditorSpecificationsStep draft={draft} patch={patch}/>}
             {step === 'details' ? (
               <ProductEditorDetailsStep draft={draft} patch={patch} autoFocus={isPage} />
             ) : null}

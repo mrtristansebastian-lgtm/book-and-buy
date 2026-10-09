@@ -82,10 +82,10 @@ service cloud.firestore {
 
     function isThreadParticipant(appId, threadData) {
       return verifiedSignedIn() &&
-        threadData.ownerId is string &&
         (
-          canStaff(appId, threadData.ownerId) ||
-          (request.auth.token.email != null && threadData.clientEmail == request.auth.token.email)
+          (request.auth.token.email != null &&
+            (threadData.clientEmail == request.auth.token.email || threadData.clientEmail == request.auth.token.email.lower())) ||
+          (threadData.ownerId is string && canStaff(appId, threadData.ownerId))
         );
     }
 
@@ -138,6 +138,14 @@ service cloud.firestore {
           !request.resource.data.keys().hasAny(['attachments']) ||
           validChatAttachments(appId, threadId, request.resource.data.attachments)
         );
+    }
+
+    function validMessageAuthor(appId, threadId) {
+      let thread = get(/databases/$(database)/documents/artifacts/$(appId)/clientThreads/$(threadId)).data;
+      return
+        (request.resource.data.from == 'business' && canStaff(appId, thread.ownerId)) ||
+        (request.resource.data.from == 'client' && request.auth.token.email != null &&
+          (thread.clientEmail == request.auth.token.email || thread.clientEmail == request.auth.token.email.lower()));
     }
 
     match /artifacts/{appId}/accounts/{accountId} {
@@ -310,6 +318,7 @@ service cloud.firestore {
     match /artifacts/{appId}/clientThreads/{threadId} {
       allow read: if isThreadParticipant(appId, resource.data);
       allow create: if verifiedSignedIn() &&
+        !request.resource.data.keys().hasAny(['enquiryId', 'enquiryStatus', 'enquiryType']) &&
         request.resource.data.ownerId is string &&
         (
           canStaff(appId, request.resource.data.ownerId) ||
@@ -317,13 +326,16 @@ service cloud.firestore {
         );
       allow update: if isThreadParticipant(appId, resource.data) &&
         request.resource.data.ownerId == resource.data.ownerId &&
-        request.resource.data.clientEmail == resource.data.clientEmail;
+        request.resource.data.clientEmail == resource.data.clientEmail &&
+        request.resource.data.get('enquiryId', '') == resource.data.get('enquiryId', '') &&
+        request.resource.data.get('enquiryStatus', '') == resource.data.get('enquiryStatus', '') &&
+        request.resource.data.get('enquiryType', '') == resource.data.get('enquiryType', '');
       allow delete: if canAdmin(appId, resource.data.ownerId);
 
       match /messages/{messageId} {
         allow read: if canAccessThread(appId, threadId);
         allow create: if canAccessThread(appId, threadId) &&
-          validMessageCreate(appId, threadId);
+          validMessageCreate(appId, threadId) && validMessageAuthor(appId, threadId);
         allow update, delete: if false;
       }
     }

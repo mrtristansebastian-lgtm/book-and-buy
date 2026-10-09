@@ -1,6 +1,7 @@
 import { distanceKm } from '../../shared/geo/haversine';
 import { resolveMarket } from '../../utils/markets';
 import { coordinateOrNull } from './exploreViewState';
+import { effectivePublicPages, isPresenceOnlyBusiness } from '../../../functions/businessCapabilities.js';
 import {
   categoryLabel,
   expandExploreCategoryFilter
@@ -42,7 +43,8 @@ export function normalizeBiz(raw = {}) {
     logoUrl: raw.logoUrl || raw.logo || website.logoUrl || '',
     heroImageUrl: raw.heroImageUrl || raw.bannerUrl || website.heroImageUrl || '',
     categoryId,
-    pages: { ...(website.pages || raw.pages || {}) },
+    profileMode: isPresenceOnlyBusiness(raw) ? 'presence' : 'commerce',
+    pages: effectivePublicPages(raw),
     categoryLabel: categoryLabelText,
     venueMode,
     locationLat,
@@ -118,6 +120,10 @@ export function filterDiscoverBusinesses(directory, prefs = {}) {
   const cats = expandExploreCategoryFilter(categoryIds);
   const hasClientLocation = coordinateOrNull(clientLat, 90) != null && coordinateOrNull(clientLng, 180) != null;
   let list = (directory || []).map((biz) => ({ ...biz }));
+  // Food and other presence profiles remain in Places, not Book/Buy mode results.
+  if (categoryIds.some(id => ['mode:book', 'mode:buy', 'mode:both'].includes(id))) {
+    list = list.filter(biz => !isPresenceOnlyBusiness(biz));
+  }
 
   if (cats) {
     list = list.filter((biz) => biz.categoryId && cats.has(biz.categoryId));

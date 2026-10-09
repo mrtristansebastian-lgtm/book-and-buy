@@ -65,7 +65,7 @@
       return;
     }
     section.replaceChildren();
-    const heading = doc.createElement('h2'); heading.textContent = kind === 'product' ? 'Shop our products' : 'Book a service'; section.append(heading);
+    const heading = doc.createElement('h2'); heading.textContent = kind === 'product' ? list.some(item => item.transactionMode === 'enquiry') ? 'Explore our listings' : 'Shop our products' : 'Book a service'; section.append(heading);
     const grid = doc.createElement('div'); grid.className = 'bb-connected-grid';
     for (const item of list) {
       const card = doc.createElement('article'); card.className = 'bb-connected-card';
@@ -74,7 +74,7 @@
       if (/^(https?:|data:image\/)/i.test(item.image)) { const img = doc.createElement('img'); img.src = item.image; img.alt = item.name; img.loading = 'lazy'; card.append(img); }
       const title = doc.createElement('h3'); title.textContent = item.name;
       const price = doc.createElement('p'); price.textContent = item.price; price.dataset.bbBind = `${kind}.price`;
-      const button = doc.createElement('button'); button.type = 'button'; button.textContent = kind === 'product' ? 'Choose options' : 'Choose a time';
+      const button = doc.createElement('button'); button.type = 'button'; button.textContent = kind === 'product' ? item.transactionMode === 'enquiry' ? 'View listing' : 'Choose options' : 'Choose a time';
       button.dataset.bbAction = kind === 'product' ? 'product.open' : 'service.open';
       card.append(title, price, button); grid.append(card);
     }
@@ -84,6 +84,10 @@
     if (!context) throw new Error('The catalog connection is not ready yet.');
     const doc = new DOMParser().parseFromString(html, 'text/html');
     doc.querySelectorAll('base,meta[http-equiv]').forEach(node => node.remove());
+    if (context.profileMode === 'presence') {
+      // Remove connected commerce UI from old drafts when the business becomes a place card.
+      doc.querySelectorAll('[data-bb-catalog], [data-bb-product-id], [data-bb-service-id], [data-bb-action], [data-bb-bind]').forEach(node => node.remove());
+    }
     if (allowRetired && !draft) for (const kind of ['product', 'service']) {
       for (const element of doc.querySelectorAll(`[data-bb-${kind}-id]`)) if (!(context[`${kind}s`] || []).some(item => item.id === element.getAttribute(`data-bb-${kind}-id`))) element.remove();
     }

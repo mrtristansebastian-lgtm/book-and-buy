@@ -1,11 +1,10 @@
 import { ChipList } from './ChipList';
-import { ExploreCategoryPicker } from '../../../shared/ui/ExploreCategoryPicker';
 
 export function ProductEditorCategoryStep({ categoryOptions, draft, patch }) {
   return (
     <section className="bb-services-section">
-      <h3 className="bb-services-section-title">Category</h3>
-      <p className="bb-services-section-lede">Store categories stay flexible and shape your Buy page navigation.</p>
+      <h3 className="bb-services-section-title">Store category</h3>
+      <p className="bb-services-section-lede">Optionally group this product on your Buy page. Its discovery category is already set in the first step.</p>
       <ChipList
         values={categoryOptions}
         selected={draft.category || ''}
@@ -13,7 +12,6 @@ export function ProductEditorCategoryStep({ categoryOptions, draft, patch }) {
         onAdd={(label) => patch({ category: label })}
         addLabel="Add category"
       />
-      <ExploreCategoryPicker mode="buy" value={draft} onChange={patch} />
     </section>
   );
 }

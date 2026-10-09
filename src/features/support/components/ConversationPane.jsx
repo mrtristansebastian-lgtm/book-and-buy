@@ -7,6 +7,7 @@ import { MessageTimeline } from './MessageBubble';
 import { useRescheduling } from '../hooks/useRescheduling';
 import { RescheduleDialog } from './RescheduleInterface';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { ListingEnquiryCard } from '../../enquiries/components/ListingEnquiryCard';
 
 export function ConversationPane({ inbox }) {
   const { workspace } = useWorkspace();
@@ -118,6 +119,7 @@ export function ConversationPane({ inbox }) {
       />
 
       <MessageTimeline
+        header={active.enquiryId ? <ListingEnquiryCard key={active.id} thread={active} /> : null}
         messages={active.messages || []}
         rescheduling={rescheduling}
         onOpenImage={(url) => setLightboxUrl(url)}

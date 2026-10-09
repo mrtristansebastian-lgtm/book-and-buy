@@ -27,6 +27,17 @@ function load(path) {
 const { createDemoWorkspace, hydrateDemoWorkspace } = load('../src/data/demoWorkspace.js');
 const { buildFinanceLedger } = load('../src/features/finance/utils/financeLedger.js');
 
+test('current demo service edits and team assignments survive rehydration with the two-service catalogue', () => {
+  const current = createDemoWorkspace();
+  assert.equal(current.services.length, 2);
+  const staffId = 'new-team-member';
+  const edited = { ...current, staff: [...current.staff, { id: staffId, name: 'New member', active: true }], services: current.services.map((service, index) => index ? service : { ...service, description: 'My edited service', staffIds: [...service.staffIds, staffId] }) };
+  const hydrated = hydrateDemoWorkspace(edited);
+  assert.equal(hydrated.services[0].description, 'My edited service');
+  assert.ok(hydrated.services[0].staffIds.includes(staffId));
+  assert.ok(hydrated.staff.some(member => member.id === staffId));
+});
+
 function elements(tree, predicate, result = []) {
   if (Array.isArray(tree)) tree.forEach((node) => elements(node, predicate, result));
   else if (React.isValidElement(tree)) {
@@ -158,6 +169,17 @@ test('demo financial reports use saved paid dates, amounts and coherent cost sna
     assert.equal(order.costBasisInCents, order.items.reduce((total, item) => total + item.lineCostInCents, 0));
     for (const item of order.items) assert.equal(item.lineCostInCents, item.unitCostInCents * item.quantity);
   }
+});
+
+test('current demo preserves added specialist listings, service assignments and website edits on reload', () => {
+  const current = createDemoWorkspace();
+  const listing = { id: 'qa-car', name: 'Toyota Corolla', listingType: 'vehicle', transactionMode: 'enquiry', exploreMainCategoryId: 'buy_vehicles', exploreSubcategoryId: 'vehicles_cars', vehicleDetails: { make: 'Toyota', model: 'Corolla' } };
+  const changed = { ...current, products: [...current.products, listing], services: current.services.map(service => ({ ...service, staffIds: ['new-team-member'] })), website: { ...current.website, homeSubtext: 'Edited business introduction' } };
+  const hydrated = hydrateDemoWorkspace(changed);
+  assert.equal(hydrated.products.find(product => product.id === listing.id)?.transactionMode, 'enquiry');
+  assert.deepEqual(hydrated.services[0].staffIds, ['new-team-member']);
+  assert.equal(hydrated.website.homeSubtext, 'Edited business introduction');
+  assert.equal(hydrateDemoWorkspace({ ...changed, products: changed.products.slice(1) }).products.length, changed.products.length - 1);
 });
 
 test('cached demos receive finance upgrades even when their website content is already current', () => {

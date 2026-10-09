@@ -18,6 +18,9 @@ async function callCallable<TReq extends object, TRes>(
 }
 
 export const firebaseCallables = {
+  createPublicListingEnquiry: (payload: object) => callCallable<object, any>('createPublicListingEnquiry', payload),
+  getOwnerListingEnquiry: (payload: object) => callCallable<object, any>('getOwnerListingEnquiry', payload),
+  updateOwnerListingEnquiry: (payload: object) => callCallable<object, any>('updateOwnerListingEnquiry', payload),
   adjustInventory: (payload: object) => callCallable<object, any>('adjustInventory', payload),
   getPublicCommerceContext: (payload: object) => callCallable<object, any>('getPublicCommerceContext', payload),
   quotePublicCommerce: (payload: object) => callCallable<object, any>('quotePublicCommerce', payload),

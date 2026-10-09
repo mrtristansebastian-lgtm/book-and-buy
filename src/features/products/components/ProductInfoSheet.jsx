@@ -1,7 +1,12 @@
 import { Button } from '../../../shared/ui/Button';
-import { X } from 'lucide-react';
+import { useState } from 'react';
+import { Package, X } from 'lucide-react';
+import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { useDetailDialog } from '../../../shared/ui/useDetailDialog';
+import { isEnquiryListing, hasListingSpecifications } from '../../../../functions/listingTypes.js';
+import { ListingSpecifications } from './ListingSpecifications';
+import '../../../shared/ui/owner-catalog-detail.css';
 import {
   formatCompareAtPrice,
   formatProductPrice,
@@ -17,10 +22,12 @@ export function ProductInfoSheet({
   variant = 'sheet'
 }) {
   const dialogRef = useDetailDialog(Boolean(product), onClose, variant === 'page');
+  const [imageIndex, setImageIndex] = useState(0);
   if (!product) return null;
 
   const isPage = variant === 'page';
-  const imageSrc = product.imageUrls?.[0] || '';
+  const images = (product.imageUrls || []).filter(Boolean);
+  const imageSrc = images[Math.min(imageIndex, images.length - 1)] || '';
   const category = String(product.category || '').trim();
   const stock = formatStockNote(product);
   const price = formatProductPrice(product);
@@ -33,7 +40,7 @@ export function ProductInfoSheet({
   return (
     <div
       ref={dialogRef}
-      className={`bb-services-sheet bb-catalog-detail${isPage ? ' is-page' : ''}`}
+      className={isPage ? 'bb-owner-catalog-detail' : 'bb-services-sheet bb-catalog-detail'}
       role={isPage ? 'region' : 'dialog'}
       aria-modal={isPage ? undefined : true}
       aria-labelledby="product-info-title"
@@ -41,39 +48,40 @@ export function ProductInfoSheet({
       {isPage ? null : (
         <div className="bb-services-sheet-backdrop" onClick={onClose} />
       )}
-      <div className="bb-services-sheet-panel">
-        <header className="bb-services-sheet-head">
+      <div className={isPage ? 'bb-owner-catalog-detail-panel' : 'bb-services-sheet-panel'}>
+        <header className={isPage ? 'bb-owner-catalog-detail-head' : 'bb-services-sheet-head'}>
+          {isPage && <PageBackButton ariaLabel="Back to Products" onClick={onClose} />}
           <div>
             <p className="bb-services-sheet-eyebrow">Product</p>
-            <h2 id="product-info-title" className="bb-services-sheet-title">
-              {product.name || 'Product'}
-            </h2>
-            <p className="bb-services-sheet-lede">
-              Preview how this item looks in your catalog.
-            </p>
+            {isPage ? <h1 id="product-info-title">{product.name || 'Product'}</h1> : <h2 id="product-info-title" className="bb-services-sheet-title">{product.name || 'Product'}</h2>}
           </div>
-          <button
+          {isPage ? <Button action="edit" variant="secondary" type="button" onClick={() => onEdit?.(product)}>Edit product</Button> : <button
             type="button"
             className="bb-ghost-btn bb-services-sheet-close"
             onClick={onClose}
             aria-label="Close"
           >
             <X size={18} />
-          </button>
+          </button>}
         </header>
 
-        <div className="bb-services-sheet-body">
+        <div className={isPage ? 'bb-owner-catalog-detail-body' : 'bb-services-sheet-body'}>
+          {isPage && <div className="bb-owner-catalog-detail-gallery">
+            <div className="bb-owner-catalog-detail-image">{imageSrc ? <img src={imageSrc} alt={product.name || 'Product'} /> : <Package size={52} strokeWidth={1} aria-hidden="true" />}</div>
+            {images.length > 1 && <div className="bb-owner-catalog-detail-thumbnails" aria-label="Product images">{images.map((src, index) => <button type="button" key={`${src}-${index}`} aria-label={`View product image ${index + 1}`} aria-pressed={index === Math.min(imageIndex, images.length - 1)} onClick={() => setImageIndex(index)}><img src={src} alt="" /></button>)}</div>}
+          </div>}
           <div className="bb-product-info">
             <div className="bb-product-info-hero">
-              <div className="bb-product-info-media">
+              {!isPage && <div className="bb-product-info-media">
                 {imageSrc ? (
                   <img src={imageSrc} alt="" />
                 ) : (
                   <span className="bb-product-info-media-empty" />
                 )}
-              </div>
+              </div>}
               <div className="bb-product-info-copy">
                 <div className="bb-product-info-badges">
+                  {isEnquiryListing(product) && <span className="bb-product-info-badge is-soft">Enquiries only</span>}
                   <StatusBadge status={status} label={statusLabel} />
                   {category ? (
                     <span className="bb-product-info-badge is-soft">{category}</span>
@@ -102,6 +110,7 @@ export function ProductInfoSheet({
               </div>
             ) : null}
 
+            {hasListingSpecifications(product) && <ListingSpecifications product={product}/>}
             <dl className="bb-stock-info-facts">
               <div>
                 <dt>Status</dt>
@@ -140,7 +149,7 @@ export function ProductInfoSheet({
           </div>
         </div>
 
-        <footer className="bb-services-sheet-footer">
+        {!isPage && <footer className="bb-services-sheet-footer">
           <div className="bb-services-sheet-footer-actions">
             <Button action="close" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>
               Close
@@ -155,7 +164,7 @@ export function ProductInfoSheet({
               </Button>
             ) : null}
           </div>
-        </footer>
+        </footer>}
       </div>
     </div>
   );

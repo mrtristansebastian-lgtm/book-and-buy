@@ -1,5 +1,8 @@
 import { validateBranches } from './branchesDomain.js';
+import { validateListing, normalizeListing, getListingType } from './listingTypes.js';
+import { validateServiceConfiguration, normalizeServiceConfiguration } from './serviceTemplates.js';
 import { validateProfileStory } from './profileStoryDomain.js';
+import { isPresenceOnlyBusiness } from './businessCapabilities.js';
 // Shared policy metadata: safe to import in the browser. Enforcement lives on the server.
 export const SETTINGS_COVERAGE = [
   { id: 'butler', status: 'ready', rule: 'Owner tools, previews and bounded policies', public: 'No private business capabilities', tool: 'automations.read', test: 'butler-emulator' },
@@ -74,6 +77,23 @@ function preserveStock(previous, products) {
   for (const old of previous.products || []) if (!result.some(row => row.id === old.id)) result.push({ ...old, status: 'archived', active: false });
   return result;
 }
+function validateConfiguredServiceBooking(service) {
+  const positiveMinutes = value => /^\d+$/.test(String(value ?? '')) && Number.isSafeInteger(Number(value)) && Number(value) > 0;
+  if (service.scheduleType === 'class_session') {
+    const capacity = Number(service.capacity);
+    if (!/^\d+$/.test(String(service.capacity ?? '')) || !Number.isSafeInteger(capacity) || capacity < 1) domainError('Set a whole number of available spots.');
+    const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && Number.isFinite(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+    const validTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(value || '');
+    if (!validDate(service.sessionStartDate) || !validDate(service.sessionEndDate) || !validTime(service.sessionStartTime) || !validTime(service.sessionEndTime)
+      || `${service.sessionEndDate} ${service.sessionEndTime}` <= `${service.sessionStartDate} ${service.sessionStartTime}`) domainError('Set a valid session start and end, with the end after the start.');
+  } else {
+    const duration = service.fixedDuration === false ? service.minDuration : service.duration;
+    if (!positiveMinutes(duration)) domainError('Set a positive whole-minute service duration.');
+    for (const variant of service.variants || []) {
+      if (variant.available !== false && !positiveMinutes(variant.minDuration)) domainError('Set a positive whole-minute duration for each service option.');
+    }
+  }
+}
 export function applyWorkspaceChanges(previous = {}, changes = [], { initial = false } = {}) {
   if (!Array.isArray(changes) || !changes.length || changes.length > 20) domainError('Provide one or more workspace section changes.');
   const next = { ...previous, sectionRevisions: { ...(previous.sectionRevisions || {}) }, schemaVersion: 2 };
@@ -87,11 +107,28 @@ export function applyWorkspaceChanges(previous = {}, changes = [], { initial = f
     if (!patch || Array.isArray(patch) || !Object.keys(patch).length || Object.keys(patch).some(key => !fields.includes(key))) domainError('Change contains fields outside this section.');
     for (const [key, value] of Object.entries(patch)) {
       if (key === 'website' && value?.platformReviewsEnabled !== undefined && typeof value.platformReviewsEnabled !== 'boolean') domainError('Book & Buy reviews must be enabled or disabled.');
+      if (key === 'website' && value?.profileMode !== undefined && !['commerce','presence'].includes(value.profileMode)) domainError('Choose a valid business profile mode.');
       if (key === 'website' && value) Object.assign(value, validateProfileStory(value));
       if (key === 'website' && value?.branches !== undefined) value.branches = validateBranches(value.branches);
       if (key === 'products' || key === 'services' || key === 'staff' || key === 'clients') {
         if (!Array.isArray(value)) domainError(`${key} must be a list.`);
         const ids = new Set(); for (const row of value) { assertId(row.id, key); if (ids.has(row.id)) domainError('Record identifiers must be unique.'); ids.add(row.id);
+          if (key === 'products') {
+            const prior = previous.products?.find(product => product.id === row.id);
+            if (prior && getListingType(prior) !== getListingType(row)) domainError('Create a new listing to use a different listing type.');
+            const problem = validateListing(row); if (problem) domainError(problem); Object.assign(row, normalizeListing(row));
+          }
+          if (key === 'services' && (row.catalogTemplateId !== undefined || row.serviceDetails !== undefined || row.serviceSpecFields !== undefined)) {
+            const problem = validateServiceConfiguration(row); if (problem) domainError(problem);
+            if (row.catalogTemplateId) {
+              const prior = previous.services?.find(service => service.id === row.id);
+              const previousMode = String(prior?.scheduleType || prior?.bookingType || prior?.serviceType || '').trim().toLowerCase().replace(/[-\s]+/g, '_');
+              const previousType = ['class', 'classes', 'class_session', 'group', 'workshop', 'session', 'event'].includes(previousMode) ? 'class_session' : 'appointment';
+              if (prior && previousType !== row.scheduleType) domainError('Create a new service to use a different booking setup.');
+              validateConfiguredServiceBooking(row);
+            }
+            Object.assign(row, normalizeServiceConfiguration(row));
+          }
           if (Array.isArray(row.variants)) { const variants = new Set(); for (const variant of row.variants) { assertId(variant.id, 'Variant'); if (variants.has(variant.id)) domainError('Variant identifiers must be unique.'); variants.add(variant.id); } }
         }
       }
@@ -117,6 +154,7 @@ export function workspaceChanges(previous = {}, desired = {}) {
   });
 }
 export function readinessIssues(workspace = {}) {
+  if (isPresenceOnlyBusiness(workspace)) return [];
   const issues = []; const rules = workspace.availabilityRules || {};
   if (rules.scheduleMode === 'first_come') issues.push({ section: 'bookings', code: 'unsupported_schedule', message: 'First-come scheduling is not supported by the website runtime.' });
   if (workspace.features?.emailUpdates === true) issues.push({ section: 'notifications', code: 'unsupported_reminders', message: 'Automatic email reminders are not connected.' });

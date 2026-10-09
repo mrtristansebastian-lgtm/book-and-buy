@@ -28,7 +28,7 @@ function fixture({ onSave } = {}) {
   const snap = path => ({ id: path.split('/').at(-1), exists: docs.has(path), data: () => docs.has(path) ? structuredClone(docs.get(path)) : undefined });
   let queue = Promise.resolve();
   const db = {
-    doc(path) { return { path, get: async () => snap(path) }; },
+    doc(path) { return { path, get: async () => snap(path), collection(name) { return { doc: id => db.doc(`${path}/${name}/${id}`) }; } }; },
     collection(path) { const query = { where: () => query, orderBy: () => query, limit: () => query, get: async () => ({ docs: [...docs.keys()].filter(key => key.startsWith(path + '/') && key.slice(path.length + 1).indexOf('/') < 0).map(snap) }) }; return query; },
     runTransaction(callback) {
       const task = queue.then(async () => {
@@ -127,6 +127,34 @@ test('dedicated website gateway rejects opaque/cross-origin mutation requests be
     let code, response; const res = { set() {}, status(value) { code = value; return this; }, json(value) { response = value; return this; } };
     await publicWebsiteGateway(req, res); assert.ok([400,403].includes(code)); assert.match(response.error, /published website|Invalid website request/);
   }
+});
+
+test('published custom websites send specialist enquiries into the existing Inbox with trusted scope and request IP', async t => {
+  configured(t); const f = fixture();
+  const ws = f.docs.get(`${base}/users/${auth.uid}/config/settings`);
+  ws.products = [{ id: 'car', name: '2024 Toyota Corolla', listingType: 'vehicle', transactionMode: 'enquiry', price: 250000, active: true, listingAvailability: 'available' }];
+  f.docs.set(`${base}/public/data/websites/enquiry-site`, { siteId: 'enquiry-site', revision: 'live-revision', contractVersion: 1, ownerId: auth.uid, slug: ws.slug });
+  const payload = { productId: 'car', requestId: 'website-enquiry-request', customerName: 'Buyer', email: 'buyer@example.test', phone: '', message: 'Can I view it?', intent: 'viewing', countryCode: 'ZA' };
+  let response, status = 200;
+  const req = { method: 'POST', ip: '192.0.2.15', get: () => 'https://storefront.example.test', is: () => true, body: { siteId: 'enquiry-site', action: 'enquiry.create', payload } };
+  const res = { set() {}, status(value) { status = value; return this; }, json(value) { response = value; return this; } };
+  await publicWebsiteGateway(req, res, f);
+  assert.equal(status, 200); assert.equal(response.ok, true);
+  const enquiry = f.docs.get(`${base}/users/${auth.uid}/listingEnquiries/${response.id}`);
+  assert.equal(enquiry.productId, 'car'); assert.equal(enquiry.ownerId, auth.uid); assert.equal(enquiry.askingPrice, '250000');
+  assert.equal(f.docs.get(`${base}/clientThreads/${enquiry.threadId}`).enquiryId, enquiry.id);
+  assert.equal(f.docs.get(`${base}/clientThreads/${enquiry.threadId}/messages/enquiry-${enquiry.id}`).from, 'client');
+  const ipHash = createHash('sha256').update('ip:192.0.2.15').digest('hex');
+  assert.equal(f.docs.get(`${base}/securityRateLimits/listing-${ipHash}`).count, 1);
+  assert.deepEqual(await executePublicWebsiteAction({ siteId: 'enquiry-site', action: 'enquiry.create', payload }, { ...f, ip: req.ip }), { ok: true, id: response.id, duplicate: true });
+  await assert.rejects(executePublicWebsiteAction({ siteId: 'enquiry-site', action: 'enquiry.create', payload: { ...payload, ownerId: 'another-owner' } }, f), /cannot choose a business/);
+  await assert.rejects(executePublicWebsiteAction({ siteId: 'enquiry-site', action: 'enquiry.create', payload: { ...payload, askingPrice: '1' } }, f), /Unsupported listing enquiry field/);
+  ws.website.profileMode = 'presence';
+  await assert.rejects(executePublicWebsiteAction({ siteId: 'enquiry-site', action: 'enquiry.create', payload: { ...payload, requestId: 'another-request' } }, f), /profile and contact details only/);
+  const token = 'p'.repeat(32);
+  f.docs.set(`${base}/publicWebsitePreviews/${createHash('sha256').update(token).digest('hex')}`, { siteId: 'enquiry-site', revision: 'live-revision', contractVersion: 1, ownerId: auth.uid, slug: ws.slug, preview: true, expiresAt: Date.now() + 60000 });
+  await assert.rejects(executePublicWebsiteAction({ previewToken: token, action: 'enquiry.create', payload }, f), /read-only/);
+  assert.equal([...f.docs.keys()].filter(path => path.includes('/listingEnquiries/')).length, 1);
 });
 
 test('live catalog patches keep custom DOM/layouts and restore only visibility changed by runtime', () => {

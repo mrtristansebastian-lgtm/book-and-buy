@@ -9,7 +9,7 @@ export const FIXTURE_PROJECTS = [DEMO_PROJECT, 'demo-book-buy'];
 export const BACKEND_SUITES = [
   'ai-emulator', 'platform-reviews', 'commerce-authority', 'inventory-authority', 'payment-authority',
   'website-runtime', 'workspace-butler-authority', 'profile-publishing',
-  'rescheduling-emulator', 'markets-emulator', 'analytics-rules-emulator'
+  'rescheduling-emulator', 'markets-emulator', 'analytics-rules-emulator', 'listing-enquiries-emulator'
 ].map(name => `tests/${name}.test.mjs`);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 

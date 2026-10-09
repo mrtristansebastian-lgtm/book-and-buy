@@ -1,4 +1,5 @@
 /** Backward-compatible market settings. Country selection is explicit, never inferred from IP. */
+import { isEnquiryListing } from './listingTypes.js';
 export function getMarkets(website = {}) {
   if (Array.isArray(website.markets)) return website.markets;
   return (website.servesCountries || []).map((countryCode) => ({
@@ -88,6 +89,7 @@ export function marketReadiness(workspace, market) {
   const profiles = (workspace.website?.shippingProfiles || []).filter((profile) =>
     profile.enabled !== false && (market.shippingProfileIds || []).includes(profile.id));
   const uncovered = products.filter((product) => {
+    if (isEnquiryListing(product)) return false;
     const variants = (product.variants || []).filter((variant) => variant.available !== false
       && catalogAllowed({ ...market, enabled: true }, 'product', product.id, variant.id));
     const items = variants.length ? variants.map((variant) => ({ productId: product.id, variantId: variant.id })) : [{ productId: product.id }];

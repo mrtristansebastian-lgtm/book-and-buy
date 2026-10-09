@@ -1,4 +1,5 @@
 import { isValidExploreCategoryPair } from '../config/businessCategories';
+import { normalizeListing, isEnquiryListing } from '../../functions/listingTypes.js';
 
 export const createProductId = () =>
   `product-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -309,6 +310,7 @@ export const normalizeProduct = (product = {}, index = 0) => {
 
   return {
     ...product,
+    ...normalizeListing(product),
     id: product.id || createProductId(),
     name: product.name || `Product ${index + 1}`,
     description: product.description || '',
@@ -492,6 +494,10 @@ const formatMoney = (amount, currency = 'R') => {
 };
 
 export const formatProductPrice = (product = {}, variant = null) => {
+  if (isEnquiryListing(product)) {
+    const raw = String(product.price ?? '').trim();
+    return raw ? formatMoney(Number.isFinite(Number(raw)) ? Number(raw).toLocaleString('en-ZA',{ maximumFractionDigits:2 }) : raw, product.currency) : 'Price on enquiry';
+  }
   if (product.quoteBased || product.priceType === 'quote') return 'Quote on request';
   if (variant) {
     return formatMoney(variant.price ?? product.price, product.currency);
@@ -507,12 +513,13 @@ export const formatProductPrice = (product = {}, variant = null) => {
 };
 
 export const formatCompareAtPrice = (product = {}, variant = null) => {
-  if (product.quoteBased || product.priceType === 'quote') return '';
+  if (isEnquiryListing(product) || product.quoteBased || product.priceType === 'quote') return '';
   const amount = variant?.compareAtPrice ?? product.compareAtPrice;
   return formatMoney(amount, product.currency);
 };
 
 export const formatStockNote = (product = {}, variant = null) => {
+  if (isEnquiryListing(product)) return ({ available: 'Available', reserved: 'Reserved', sold: 'Sold' })[product.listingAvailability || 'available'] || '';
   if (product.hideStockOnCard) return '';
   if (variant) {
     if (variant.available === false) return 'Unavailable';
@@ -569,6 +576,7 @@ export const isProductPubliclyVisible = (product = {}) => {
 };
 
 export const isVariantPurchasable = (product = {}, variant = null) => {
+  if (isEnquiryListing(product)) return false;
   if (product.quoteBased || product.priceType === 'quote') return false;
   if (productHasVariants(product)) {
     if (!variant) return false;

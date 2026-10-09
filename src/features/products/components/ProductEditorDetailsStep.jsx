@@ -1,8 +1,10 @@
 import { Button } from '../../../shared/ui/Button';
 import { useEffect, useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import { isEnquiryListing } from '../../../../functions/listingTypes.js';
 
 export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
+  const enquiryListing = isEnquiryListing(draft);
   const hasCompareAt = Boolean(String(draft.compareAtPrice || '').trim());
   const [showCompareAt, setShowCompareAt] = useState(hasCompareAt);
 
@@ -55,7 +57,7 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
 
         <div className="bb-products-pricing">
           <label className="bb-services-field">
-            <span>Price</span>
+            <span>{enquiryListing ? 'Asking price (optional)' : 'Price'}</span>
             <div className="bb-products-money">
               <span className="bb-products-money-prefix">
                 {draft.currency || 'R'}
@@ -72,7 +74,7 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
             </div>
           </label>
 
-          {!draft.quoteBased && showCompareAt ? (
+          {!enquiryListing && !draft.quoteBased && showCompareAt ? (
             <label className="bb-services-field bb-products-compare-field">
               <span className="bb-services-field-label-row">
                 <span>Compare-at price</span>
@@ -103,7 +105,7 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
             </label>
           ) : null}
 
-          {!draft.quoteBased && !showCompareAt ? (
+          {!enquiryListing && !draft.quoteBased && !showCompareAt ? (
             <Button action="add" variant="primary"
               type="button"
               className="bb-products-compare-add"
@@ -115,7 +117,7 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
           ) : null}
         </div>
 
-        <label className="bb-services-check bb-products-check">
+        {!enquiryListing && <label className="bb-services-check bb-products-check">
           <input
             type="checkbox"
             checked={Boolean(draft.quoteBased)}
@@ -129,7 +131,7 @@ export function ProductEditorDetailsStep({ draft, patch, autoFocus = false }) {
             }}
           />
           <span>Quote only (no cart price)</span>
-        </label>
+        </label>}
       </div>
     </section>
   );

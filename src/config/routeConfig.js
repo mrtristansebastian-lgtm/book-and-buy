@@ -21,6 +21,7 @@ export const workspaceTabIds = [
   'live-stats',
   'analytics',
   'clients',
+  'teams',
   'settings'
 ];
 
@@ -28,7 +29,8 @@ export const workspaceTabAliases = {
   business: 'staff',
   schedule: 'staff',
   calendar: 'staff',
-  team: 'staff',
+  team: 'teams',
+  enquiries: 'communications',
   hours: 'availability',
   'staff-availability': 'availability',
   'my-clients': 'clients',
@@ -95,6 +97,7 @@ export const workspaceTabGroups = {
   'live-stats': 'run',
   analytics: 'run',
   clients: 'run',
+  teams: 'run',
   settings: 'run'
 };
 
@@ -118,6 +121,7 @@ export const workspaceTabLabels = {
   'live-stats': 'Live Stats',
   analytics: 'Traffic reports',
   clients: 'Clients',
+  teams: 'Teams',
   settings: 'Settings'
 };
 

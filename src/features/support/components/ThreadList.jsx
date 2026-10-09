@@ -16,7 +16,8 @@ const FILTERS = [
   { id: 'unread', label: 'Unread', Icon: Mail },
   { id: 'pending', label: 'Pending', Icon: Clock3 },
   { id: 'bookings', label: 'Bookings', Icon: CalendarDays },
-  { id: 'orders', label: 'Orders', Icon: Box }
+  { id: 'orders', label: 'Orders', Icon: Box },
+  { id: 'enquiries', label: 'Enquiries', Icon: Mail }
 ];
 
 function lastMessage(thread) {
@@ -70,7 +71,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
               <h1 className="bb-page-title bb-support-inbox-title">Inbox</h1>
             </span>
           </div>
-          <p className="bb-muted m-0 text-xs mt-1">Bookings, orders, and client messages</p>
+          <p className="bb-muted m-0 text-xs mt-1">Messages, enquiries, bookings and orders</p>
         </div>
 
         <label className="bb-support-search bb-search-field">
@@ -130,7 +131,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
                 <span className="bb-support-thread-copy">
                   <strong>{thread.clientName}</strong>
                   <p className="bb-support-thread-preview support-thread-preview">
-                    {messagePreview(last) || thread.subject}
+                    {messagePreview(last) || thread.lastMessagePreview || thread.subject}
                   </p>
                 </span>
                 <span className="bb-support-thread-meta">

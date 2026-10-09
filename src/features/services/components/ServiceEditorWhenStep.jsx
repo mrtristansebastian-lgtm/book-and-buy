@@ -1,12 +1,13 @@
 import { DateField } from '../../../shared/ui/DateField';
 import { TimeField } from '../../../shared/ui/TimeField';
+import { getServiceBookingFormat } from '../../../../functions/serviceTemplates';
 
 export function ServiceEditorWhenStep({ draft, patch }) {
   return (
     <section className="bb-services-section">
       <h3 className="bb-services-section-title">When</h3>
       <p className="bb-services-section-lede">
-        Clients reserve a seat for this fixed class or programme window.
+        {getServiceBookingFormat(draft) === 'event' ? 'Set when the event opens and ends. All ticket types share these dates.' : 'Clients reserve a seat for this fixed class or programme window.'}
       </p>
       <div className="bb-services-fields">
         <div className="bb-services-field-row bb-services-field-row--2">

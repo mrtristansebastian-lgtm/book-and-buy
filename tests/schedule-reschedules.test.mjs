@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as demoEnquiryStore from '../src/features/enquiries/enquiryStore.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -91,10 +92,11 @@ test('Communications retains requested conversation focus through asynchronous o
   const { useSupportInbox } = compile('../src/features/support/hooks/useSupportInbox.js', {
     react: runner.hooks, '../../workspace/WorkspaceContext': { useWorkspace: () => context },
     '../utils/supportFormat': { takeSupportFocusThread: () => ++focusReads === 1 ? 'requested-remote' : '' },
-    'firebase/firestore': { collection: (...parts) => parts, doc: (...parts) => ({ parts }), query: (...parts) => parts, where: (...parts) => parts, limit: size => size,
+    'firebase/firestore': { collection: (...parts) => parts, doc: (...parts) => ({ parts }), query: (...parts) => parts, where: (...parts) => parts, orderBy: (...parts) => parts, limit: size => size,
       onSnapshot: (reference, callback) => { if (Array.isArray(reference)) remoteSuccess = callback; return () => {}; } },
     '../../../shared/firebase/client': { getFirebase: () => ({ db: {} }) }, '../../../config/appConfig': { APP_ID: 'test-app' },
-    '../../client-app/clientThreadsApi': { subscribeThreadMessages: () => () => {} }
+    '../../client-app/clientThreadsApi': { subscribeThreadMessages: () => () => {} },
+    '../../enquiries/enquiryStore': demoEnquiryStore
   });
   const render = () => runner.render(useSupportInbox);
   render(); render();
@@ -114,11 +116,12 @@ test('Communications opens an existing owner conversation outside the inbox limi
     react: runner.hooks, '../../workspace/WorkspaceContext': { useWorkspace: () => context },
     '../utils/supportFormat': { takeSupportFocusThread: () => 'older-thread' },
     'firebase/firestore': { collection: (...parts) => parts, doc: (...parts) => ({ kind: 'document', id: parts.at(-1) }),
-      query: (...parts) => ({ kind: 'query', parts }), where: (...parts) => parts, limit: size => size,
+      query: (...parts) => ({ kind: 'query', parts }), where: (...parts) => parts, orderBy: (...parts) => parts, limit: size => size,
       onSnapshot: (reference, success, failure) => { const listener = { ...reference, success, failure, stopped: false }; listeners.push(listener); return () => { listener.stopped = true; }; },
       updateDoc: () => { writes++; }, writeBatch: () => { writes++; throw new Error('Navigation must not create a message'); } },
     '../../../shared/firebase/client': { getFirebase: () => ({ db: {} }) }, '../../../config/appConfig': { APP_ID: 'test-app' },
-    '../../client-app/clientThreadsApi': { subscribeThreadMessages: (id, success) => { const subscription = { id, success, stopped: false }; messageSubscriptions.push(subscription); return () => { subscription.stopped = true; }; } }
+    '../../client-app/clientThreadsApi': { subscribeThreadMessages: (id, success) => { const subscription = { id, success, stopped: false }; messageSubscriptions.push(subscription); return () => { subscription.stopped = true; }; } },
+    '../../enquiries/enquiryStore': demoEnquiryStore
   });
   const render = () => runner.render(useSupportInbox);
   render(); render();

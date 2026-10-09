@@ -1,7 +1,8 @@
 import { Button } from '../../../shared/ui/Button';
 import { FilterChip } from '../../../shared/ui/FilterChip';
-import { Plus, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { getServiceBookingFormat } from '../../../../functions/serviceTemplates';
 import {
   DURATION_PRESETS,
   createServiceVariantId
@@ -9,6 +10,7 @@ import {
 
 export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
   const variants = Array.isArray(draft.variants) ? draft.variants : [];
+  const isSession = draft.scheduleType === 'class_session';
   const [expandedId, setExpandedId] = useState(variants.find((variant) => !variant.name?.trim())?.id || '');
 
   const setVariants = (next) => patch({ variants: next });
@@ -23,7 +25,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
         description: '',
         price: draft.price || '',
         cost: '',
-        minDuration: draft.minDuration || draft.duration || '60',
+        minDuration: isSession ? '' : draft.minDuration || draft.duration || '60',
         available: true
       }
     ]);
@@ -48,8 +50,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
         <div>
           <h3 className="bb-services-section-title">Variants</h3>
           <p className="bb-services-section-lede">
-            Optional packages with their own name, description, price, and
-            minimum duration. No stock tracking for services.
+            {isSession ? 'Optional ticket or package choices, each with its own price per spot. Every choice shares the same session time and capacity.' : 'Optional packages with their own name, description, price and duration.'}
           </p>
         </div>
         <Button action="add" variant="primary" type="button" className="bb-ghost-btn" onClick={addVariant}>
@@ -68,7 +69,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
               <div className="bb-services-variant-card-head">
                 <button type="button" className="bb-variant-summary" aria-expanded={expandedId === variant.id} aria-controls={`service-variant-${variant.id}`} onClick={() => setExpandedId(expandedId === variant.id ? '' : variant.id)}>
                   <strong>{variant.name || `Variant ${index + 1}`}</strong>
-                  <span>{variant.minDuration || '—'} min · {currency} {variant.price || '0'} · {variant.available === false ? 'Hidden' : 'Available'}</span>
+                  <span>{!isSession ? `${variant.minDuration || '—'} min · ` : ''}{currency} {variant.price || '0'}{isSession ? ' / spot' : ''} · {variant.available === false ? 'Hidden' : 'Available'}</span>
                   <small>{expandedId === variant.id ? 'Close details' : 'Edit details'}</small>
                 </button>
                 <button
@@ -109,7 +110,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                 </label>
                 <div className="bb-services-variant-row">
                   <label className="bb-services-field">
-                    <span>Price ({currency})</span>
+                    <span>{getServiceBookingFormat(draft) === 'event' ? 'Price per ticket' : isSession ? 'Price per spot' : 'Price'} ({currency})</span>
                     <input
                       className="native-control-input bb-services-control"
                       value={variant.price ?? ''}
@@ -121,8 +122,8 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                       }
                     />
                   </label>
-                  <label className="bb-services-field">
-                    <span>Min duration (min)</span>
+                  {!isSession && <label className="bb-services-field">
+                    <span>Duration (min)</span>
                     <input
                       className="native-control-input bb-services-control"
                       inputMode="numeric"
@@ -134,7 +135,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                         })
                       }
                     />
-                  </label>
+                  </label>}
                 </div>
                 <label className="bb-services-field">
                   <span>Cost per booking ({currency}, optional)</span>
@@ -148,7 +149,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                   />
                   <small className="bb-services-field-hint" id={`service-variant-cost-${variant.id}`}>Private to your team. Leave blank to use the main service cost, or enter this option’s own cost.</small>
                 </label>
-                <div className="bb-services-duration-presets">
+                {!isSession && <div className="bb-services-duration-presets">
                   {DURATION_PRESETS.map((mins) => (
                     <FilterChip
                       key={mins}
@@ -164,7 +165,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                       {mins} min
                     </FilterChip>
                   ))}
-                </div>
+                </div>}
                 <label className="bb-services-check">
                   <input
                     type="checkbox"

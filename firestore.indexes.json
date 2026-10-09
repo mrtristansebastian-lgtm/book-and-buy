@@ -1,6 +1,14 @@
 {
   "indexes": [
     {
+      "collectionGroup": "clientThreads",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerId", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "butlerPreviews",
       "queryScope": "COLLECTION",
       "fields": [

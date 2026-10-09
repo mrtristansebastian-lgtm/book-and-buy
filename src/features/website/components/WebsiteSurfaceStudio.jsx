@@ -11,6 +11,7 @@ import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { DevicePreviewFrame } from '../components/DevicePreviewFrame';
+import { effectivePublicPages, isPresenceOnlyBusiness, resolveBusinessPublicPage } from '../../../../functions/businessCapabilities.js';
 
 function countActiveOffers(items = []) {
   return (items || []).filter((item) => item && item.active !== false).length;
@@ -54,6 +55,7 @@ export function WebsiteSurfaceStudio({
     addSocialPost
   } = useWorkspace();
   const website = workspace.website || {};
+  const presenceOnly = isPresenceOnlyBusiness(workspace);
   const isMobile = useIsMobileStudio();
   const [stepSurface, setStepSurface] = useState(
     stepOptions?.[0]?.id || fixedSurface || 'home'
@@ -69,8 +71,9 @@ export function WebsiteSurfaceStudio({
   const editMode = mode === 'edit';
   const previewOnlySurface = isEBusinessPreviewOnlyPage(surface);
   const homeLocked = isHomePageAlwaysVisible(surface);
-  const livePage = openLivePage || (previewOnlySurface ? 'buy' : surface);
-  const pageVisible = isPublicPageEnabled(website.pages, surface);
+  const livePage = resolveBusinessPublicPage(workspace, openLivePage || (previewOnlySurface ? 'buy' : surface));
+  const pageVisible = !presenceOnly || !['book', 'buy', 'cart', 'checkout', 'success'].includes(surface)
+    ? isPublicPageEnabled(effectivePublicPages(workspace), surface) : false;
   const previewDevice = isMobile ? 'phone' : device;
   const serviceCount = countActiveOffers(workspace.services);
   const productCount = countActiveOffers(workspace.products);
@@ -111,6 +114,7 @@ export function WebsiteSurfaceStudio({
   };
 
   const togglePage = (pageId) => {
+    if (presenceOnly && ['book', 'buy'].includes(pageId)) return;
     if (isEBusinessPreviewOnlyPage(pageId) || isHomePageAlwaysVisible(pageId)) return;
     const enabled = isPublicPageEnabled(website.pages, pageId);
     updateWebsite({
@@ -123,7 +127,7 @@ export function WebsiteSurfaceStudio({
   };
 
   const canToggleVisibility =
-    showPageVisible && !previewOnlySurface && !homeLocked;
+    showPageVisible && !previewOnlySurface && !homeLocked && !presenceOnly;
 
   const onPublishAction = async () => {
     if (canToggleVisibility && !pageVisible) {
@@ -204,6 +208,7 @@ export function WebsiteSurfaceStudio({
                 <input
                   type="checkbox"
                   checked={pageVisible}
+                  disabled={presenceOnly && ['book', 'buy'].includes(surface)}
                   onChange={() => togglePage(surface)}
                 />
                 Page visible
@@ -239,6 +244,7 @@ export function WebsiteSurfaceStudio({
       </header>
 
       {publishNote ? <p role="status" className="bb-profile-publish-note">{publishNote}</p> : null}
+      {presenceOnly && <p className="bb-profile-publish-note">Presence-only profile · Visitors can discover your place, view photos and contact you. Book, Buy and checkout are off.</p>}
 
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>
         <DevicePreviewFrame

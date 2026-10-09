@@ -1,3 +1,4 @@
+import { assertBusinessCommerceEnabled } from '../businessCapabilities.js';
 import { encryptSecret, last4 } from './encrypt.js';
 import {
   capturePayPalOrder,
@@ -210,6 +211,7 @@ export async function initiatePayment(payload = {}) {
   const preparation = await db.runTransaction(async (tx) => {
     const [{workspace,exists},previous] = await Promise.all([readWorkspace(db,ownerId,tx),tx.get(attemptRef)]);
     if (!exists) throw new Error('Business unavailable.');
+    assertBusinessCommerceEnabled(workspace);
     const profile = await tx.get(db.doc(`artifacts/${appId}/public/data/workspaces/${slug}`));
     assertPublishedWorkspace(workspace,profile.exists ? profile.data() : null,slug,ownerId);
     if (previous.exists) {

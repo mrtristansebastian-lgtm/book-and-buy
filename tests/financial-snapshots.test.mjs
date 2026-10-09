@@ -56,7 +56,7 @@ function load(path) {
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const module = { exports: {} };
   moduleCache.set(file.href, module.exports);
-  const scopedRequire = id => !id.startsWith('.') ? require(id) : load(new URL(`${id}.js`, file).href);
+  const scopedRequire = id => !id.startsWith('.') ? require(id) : load(new URL(id.endsWith('.js') ? id : `${id}.js`, file).href);
   new Function('require', 'module', 'exports', compiled)(scopedRequire, module, module.exports);
   moduleCache.set(file.href, module.exports);
   return module.exports;

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
+import { SetupPicker } from '../../../shared/ui/SetupPicker';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { uploadPublicImage } from '../../../shared/firebase/integrations';
 import { ImageCropModal } from '../../media/ImageCropModal';
@@ -12,15 +13,19 @@ import {
   parseDurationMinutes
 } from '../../../utils/services';
 import { ServiceEditorCategoryStep } from './ServiceEditorCategoryStep';
+import { ServiceEditorConfigurationStep } from './ServiceEditorConfigurationStep';
 import { ServiceEditorDetailsStep } from './ServiceEditorDetailsStep';
 import { ServiceEditorDurationStep } from './ServiceEditorDurationStep';
 import { ServiceEditorPhotoStep } from './ServiceEditorPhotoStep';
 import { ServiceEditorReviewStep } from './ServiceEditorReviewStep';
 import { ServiceEditorTypeStep } from './ServiceEditorTypeStep';
+import { ServiceEditorClassificationStep } from './ServiceEditorClassificationStep';
 import { ServiceEditorVariantsStep } from './ServiceEditorVariantsStep';
 import { ServiceEditorWhenStep } from './ServiceEditorWhenStep';
 import { buildSetupSteps } from './serviceEditorUtils';
 import { isValidExploreCategoryPair } from '../../../config/businessCategories';
+import { getServiceTemplate, validateServiceConfiguration } from '../../../../functions/serviceTemplates';
+import './service-templates.css';
 
 export function ServiceEditorSheet({
   open,
@@ -66,8 +71,8 @@ export function ServiceEditorSheet({
   }, [categories, draft.category]);
 
   const setupSteps = useMemo(
-    () => buildSetupSteps(draft?.scheduleType || 'appointment'),
-    [draft?.scheduleType]
+    () => buildSetupSteps(draft?.scheduleType || 'appointment', Boolean(getServiceTemplate(draft?.catalogTemplateId)), getServiceTemplate(draft?.catalogTemplateId)?.event === true || draft.bookingFormat === 'event'),
+    [draft?.scheduleType, draft?.catalogTemplateId, draft?.bookingFormat]
   );
 
   const stepIndex = Math.max(
@@ -87,7 +92,7 @@ export function ServiceEditorSheet({
 
   if (!open) return null;
 
-  const patch = (partial) => onChange?.({ ...draft, ...partial });
+  const patch = (partial) => { setError(''); onChange?.({ ...draft, ...partial }); };
 
   const onPick = (event) => {
     const file = event.target.files?.[0];
@@ -125,10 +130,19 @@ export function ServiceEditorSheet({
 
   const validateStep = (id) => {
     if (id === 'type') {
-      if (!draft.scheduleType) {
-        setError('Choose how clients book this service.');
+      if (!draft.id && !['slot', 'spot', 'event'].includes(draft.bookingFormat)) { setError('Choose Slot, Spot or Event.'); return false; }
+    }
+    if (id === 'classification') {
+      if ((!draft.id || draft.catalogTemplateId) && (!getServiceTemplate(draft.catalogTemplateId) || !isValidExploreCategoryPair(draft.exploreMainCategoryId, draft.exploreSubcategoryId, 'book'))) {
+        setError('Choose a main category and subcategory.');
         return false;
       }
+      const configurationError = validateServiceConfiguration(draft);
+      if (configurationError) { setError(configurationError); return false; }
+    }
+    if (id === 'configuration') {
+      const configurationError = validateServiceConfiguration(draft);
+      if (configurationError) { setError(configurationError); return false; }
     }
     if (id === 'details') {
       if (!String(draft.name || '').trim()) {
@@ -139,14 +153,14 @@ export function ServiceEditorSheet({
         setError('Enter a booking cost of 0 or more, or leave it blank.');
         return false;
       }
-    }
-    if (id === 'category' && !isValidExploreCategoryPair(
-      draft.exploreMainCategoryId,
-      draft.exploreSubcategoryId,
-      'book'
-    )) {
-      setError('Choose an Explore main category and matching subcategory.');
-      return false;
+      if (!['free', 'quote'].includes(draft.priceType) && (!/^\d+(?:\.\d{1,2})?$/.test(String(draft.price ?? '').trim()) || !Number.isFinite(Number(draft.price)))) {
+        setError('Enter a price of 0 or more, with up to two decimal places.');
+        return false;
+      }
+      if (isSpot && (!/^\d+$/.test(String(draft.capacity)) || !Number.isSafeInteger(Number(draft.capacity)) || Number(draft.capacity) < 1)) {
+        setError('Set the number of spots to a whole number of 1 or more.');
+        return false;
+      }
     }
     if (id === 'variants') {
       const rows = Array.isArray(draft.variants) ? draft.variants : [];
@@ -159,7 +173,11 @@ export function ServiceEditorSheet({
           setError(`Enter a cost of 0 or more for “${variant.name}”, or leave it blank.`);
           return false;
         }
-        if (!parseDurationMinutes(variant.minDuration)) {
+        if (!['free', 'quote'].includes(draft.priceType) && (!/^\d+(?:\.\d{1,2})?$/.test(String(variant.price ?? '').trim()) || !Number.isFinite(Number(variant.price)))) {
+          setError(`Enter a price of 0 or more with up to two decimal places for “${variant.name}”.`);
+          return false;
+        }
+        if (!isSpot && (!/^\d+$/.test(String(variant.minDuration)) || !Number.isSafeInteger(Number(variant.minDuration)) || !parseDurationMinutes(variant.minDuration))) {
           setError(`Set a minimum duration for “${variant.name || 'each variant'}”.`);
           return false;
         }
@@ -167,11 +185,11 @@ export function ServiceEditorSheet({
     }
     if (id === 'duration') {
       if (draft.fixedDuration === false) {
-        if (!parseDurationMinutes(draft.minDuration)) {
+        if (!/^\d+$/.test(String(draft.minDuration)) || !Number.isSafeInteger(Number(draft.minDuration)) || !parseDurationMinutes(draft.minDuration)) {
           setError('Set a minimum duration for schedule availability.');
           return false;
         }
-      } else if (!parseDurationMinutes(draft.duration)) {
+      } else if (!/^\d+$/.test(String(draft.duration)) || !Number.isSafeInteger(Number(draft.duration)) || !parseDurationMinutes(draft.duration)) {
         setError('Set how long this service takes.');
         return false;
       }
@@ -184,22 +202,6 @@ export function ServiceEditorSheet({
     }
     setError('');
     return true;
-  };
-
-  const selectScheduleType = (id) => {
-    if (id === 'appointment') {
-      patch({ scheduleType: id, capacity: '1' });
-      return;
-    }
-    const current = Number(draft.capacity) || 1;
-    patch({
-      scheduleType: id,
-      capacity: String(current > 1 ? current : 8),
-      sessionStartDate: draft.sessionStartDate || '',
-      sessionStartTime: draft.sessionStartTime || '10:00',
-      sessionEndDate: draft.sessionEndDate || draft.sessionStartDate || '',
-      sessionEndTime: draft.sessionEndTime || '12:00'
-    });
   };
 
   const goToStep = (id) => {
@@ -229,11 +231,13 @@ export function ServiceEditorSheet({
     setStep(setupSteps[stepIndex + 1].id);
   };
 
-  const save = () => {
+  const save = async () => {
+    if (busy) return;
     if (!validateStep('type')) {
       setStep('type');
       return;
     }
+    if (!validateStep('classification')) { setStep('classification'); return; }
     if (!validateStep('details')) {
       setStep('details');
       return;
@@ -255,8 +259,19 @@ export function ServiceEditorSheet({
       setStep('duration');
       return;
     }
+    if (!validateStep('configuration')) {
+      setStep('configuration');
+      return;
+    }
     setError('');
-    onSave?.();
+    setBusy(true);
+    try {
+      await onSave?.();
+    } catch (err) {
+      setError(err?.message || 'Could not save your service. Your changes are still here.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const showCapacity = isSpot;
@@ -291,9 +306,8 @@ export function ServiceEditorSheet({
 
         <div className="bb-services-sheet-body bb-services-setup">
           {isEdit && <label className="bb-editor-section-picker">Editing section
-            <select value={step} onChange={(event) => goToStep(event.target.value)}>
-              {setupSteps.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-            </select>
+            <SetupPicker value={step} label="Editing section" onChange={goToStep}
+              options={setupSteps.map((item) => ({ value: item.id, label: item.label }))} />
           </label>}
           <p className="bb-services-setup-mobile" aria-live="polite">
             Step {stepIndex + 1} of {setupSteps.length}
@@ -331,9 +345,12 @@ export function ServiceEditorSheet({
             {step === 'type' ? (
               <ServiceEditorTypeStep
                 draft={draft}
-                selectScheduleType={selectScheduleType}
+                patch={patch}
               />
             ) : null}
+
+            {step === 'classification' ? <ServiceEditorClassificationStep draft={draft} patch={patch} /> : null}
+            {step === 'configuration' ? <ServiceEditorConfigurationStep draft={draft} patch={patch} /> : null}
 
             {step === 'details' ? (
               <ServiceEditorDetailsStep

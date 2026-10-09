@@ -9,6 +9,7 @@ import {
 import { PublicAnalyticsLayer } from '../../../shared/analytics/PublicAnalyticsLayer';
 import { PublicHomeView } from './PublicSurfaceViews';
 import { ProfilePageFrame } from './ProfilePageFrame';
+import { resolveBusinessPublicPage } from '../../../../functions/businessCapabilities.js';
 import {
   isEBusinessPreviewOnlyPage,
   resolveVisiblePublicPage
@@ -78,7 +79,7 @@ function PublicSurfaceContent({
   onAddSocialPost,
   showDrafts = false
 }) {
-  const requestedPage = String(page || 'home').trim().toLowerCase();
+  const requestedPage = resolveBusinessPublicPage(workspace, page);
   // Studio keeps the requested surface so owners can edit hidden pages.
   // Live public URLs fall back to Home when a page is turned off.
   const pageId =

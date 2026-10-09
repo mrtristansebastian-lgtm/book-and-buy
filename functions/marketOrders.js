@@ -1,6 +1,8 @@
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { randomUUID, createHash } from 'node:crypto';
 import { shippingQuote } from './marketPolicy.js';
+import { isEnquiryListing } from './listingTypes.js';
+import { assertBusinessCommerceEnabled } from './businessCapabilities.js';
 import { getPublicPaymentOptions } from './payments/publicOptions.js';
 import { verifiedAnalyticsAttribution } from './analyticsAttribution.js';
 import { catalogUnitCostCents, paymentConfirmationSnapshot, clientTransactionSnapshot } from './financialSnapshots.js';
@@ -14,6 +16,7 @@ const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.
 const fail = (message) => { throw new Error(message); };
 
 export function priceMarketOrder(workspace, data, auth = null, { requireCustomer = true } = {}) {
+  assertBusinessCommerceEnabled(workspace);
   const client = data.client || {};
   if (requireCustomer && (!String(client.clientName || '').trim() || !/^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(client.clientEmail || ''))) fail('Enter your name and a valid email address.');
   if (!Array.isArray(data.items) || !data.items.length || data.items.length > 100) fail('Choose between 1 and 100 order items.');
@@ -23,6 +26,7 @@ export function priceMarketOrder(workspace, data, auth = null, { requireCustomer
   const items = data.items.map((item) => {
     if (!Number.isSafeInteger(item.quantity) || item.quantity < 1 || item.quantity > 999) fail('Invalid product quantity.');
     const product = (workspace.products || []).find((row) => row.id === item.productId);
+    if (product && isEnquiryListing(product)) fail('This listing accepts enquiries only and cannot be purchased.');
     if (!product || product.active === false || (product.status && product.status !== 'active') || product.quoteBased || product.priceType === 'quote') fail('A product is no longer available.');
     const variant = item.variantId ? (product.variants || []).find((row) => row.id === item.variantId) : null;
     if (((product.variants || []).length && !variant) || (item.variantId && !variant) || variant?.available === false) fail('A product variant is no longer available.');

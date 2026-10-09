@@ -1,10 +1,10 @@
 import { Button } from '../../../shared/ui/Button';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CatalogToolbar } from '../../../shared/ui/CatalogToolbar';
 import { filterManagedCatalog } from '../../../utils/catalogSearch';
 import { Plus } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
   collectServiceCategories,
@@ -14,6 +14,7 @@ import {
 import { ServiceCatalogCard } from '../components/ServiceCatalogCard';
 import { ServiceEditorSheet } from '../components/ServiceEditorSheet';
 import { ServiceInfoSheet } from '../components/ServiceInfoSheet';
+import { getServiceBookingFormat } from '../../../../functions/serviceTemplates';
 
 const emptyDraft = () => ({
   id: '',
@@ -24,10 +25,14 @@ const emptyDraft = () => ({
   fixedDuration: true,
   minDuration: '',
   scheduleType: 'appointment',
+  bookingFormat: '',
   description: '',
   category: '',
   exploreMainCategoryId: '',
   exploreSubcategoryId: '',
+  catalogTemplateId: '',
+  serviceDetails: {},
+  serviceSpecFields: [],
   capacity: '1',
   sessionStartDate: '',
   sessionStartTime: '10:00',
@@ -41,6 +46,8 @@ const emptyDraft = () => ({
 
 function toDraft(service) {
   return {
+    ...service,
+    bookingFormat: getServiceBookingFormat(service),
     id: service.id,
     name: service.name || '',
     price: String(service.price ?? ''),
@@ -53,6 +60,9 @@ function toDraft(service) {
     category: service.category || '',
     exploreMainCategoryId: service.exploreMainCategoryId || '',
     exploreSubcategoryId: service.exploreSubcategoryId || '',
+    catalogTemplateId: service.catalogTemplateId || '',
+    serviceDetails: { ...(service.serviceDetails || {}) },
+    serviceSpecFields: [...(service.serviceSpecFields || [])],
     capacity: String(service.capacity || 1),
     sessionStartDate: service.sessionStartDate || '',
     sessionStartTime: service.sessionStartTime || '10:00',
@@ -91,27 +101,35 @@ function useIsMobileEditor() {
   return mobile;
 }
 
+function decodeItemId(value = '') {
+  try { return decodeURIComponent(value); } catch { return value; }
+}
+
 export function ServicesPage({ routeRest = [] }) {
   const {
     services = [],
     staff = [],
     workspace,
+    ownerWorkspaceReady = true,
     upsertService,
     removeService,
     setServiceCategories
   } = useWorkspace();
   const isMobile = useIsMobileEditor();
+  const servicesPath = workspacePagePath('services');
   const [draftOpen, setDraftOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
   const [query, setQuery] = useState('');
-  const [viewService, setViewService] = useState(null);
   const [catalogStatus, setCatalogStatus] = useState('all');
+  const openedEditorRoute = useRef('');
   const visibleServices = useMemo(() => filterManagedCatalog(services, query, catalogStatus), [services, query, catalogStatus]);
 
   const mode = routeRest[0] || '';
-  const editId = routeRest[1] || '';
-  const pageMode =
-    isMobile && (mode === 'new' || (mode === 'edit' && Boolean(editId)));
+  const editId = decodeItemId(routeRest[1] || '');
+  const editorRoute = mode === 'new' || (mode === 'edit' && Boolean(editId));
+  const pageMode = isMobile && editorRoute;
+  const pageView = mode === 'view';
+  const viewService = pageView ? services.find((item) => item.id === editId) : null;
 
   const categories = useMemo(
     () =>
@@ -120,8 +138,16 @@ export function ServicesPage({ routeRest = [] }) {
   );
 
   useEffect(() => {
-    if (!pageMode) return;
+    if (!ownerWorkspaceReady) return;
+    if (!editorRoute) {
+      openedEditorRoute.current = '';
+      setDraftOpen(false);
+      return;
+    }
+    const routeKey = `${mode}/${editId}`;
+    if (openedEditorRoute.current === routeKey) return;
     if (mode === 'new') {
+      openedEditorRoute.current = routeKey;
       setDraft(emptyDraft());
       setDraftOpen(true);
       return;
@@ -129,43 +155,38 @@ export function ServicesPage({ routeRest = [] }) {
     if (mode === 'edit' && editId) {
       const existing = services.find((item) => item.id === editId);
       if (existing) {
+        openedEditorRoute.current = routeKey;
         setDraft(toDraft(existing));
         setDraftOpen(true);
       } else {
-        navigate('/dashboard/services');
+        navigate(servicesPath, { replace: true });
       }
     }
-  }, [pageMode, mode, editId, services]);
+  }, [editorRoute, mode, editId, services, servicesPath, ownerWorkspaceReady]);
 
   const openCreate = () => {
-    if (isMobile) {
-      navigate('/dashboard/services/new');
-      return;
-    }
-    setDraft(emptyDraft());
-    setDraftOpen(true);
+    navigate(`${servicesPath}/new`);
   };
 
   const openEdit = (service) => {
-    if (isMobile) {
-      navigate(`/dashboard/services/edit/${service.id}`);
-      return;
-    }
-    setDraft(toDraft(service));
-    setDraftOpen(true);
+    navigate(`${servicesPath}/edit/${encodeURIComponent(service.id)}`);
   };
+
+  const openView = (service) => navigate(`${servicesPath}/view/${encodeURIComponent(service.id)}`);
+  const closeView = () => navigate(servicesPath);
 
   const closeDraft = () => {
     setDraftOpen(false);
     setDraft(emptyDraft());
-    if (pageMode) navigate('/dashboard/services');
+    if (editorRoute) navigate(servicesPath);
   };
 
-  const saveDraft = () => {
+  const saveDraft = async () => {
     const fixedDuration = draft.fixedDuration !== false;
-    upsertService(
+    const { bookingFormat, ...serviceDraft } = draft;
+    await upsertService(
       normalizeService({
-        ...draft,
+        ...serviceDraft,
         id: draft.id || createServiceId(),
         fixedDuration,
         duration: fixedDuration ? draft.duration : draft.duration || draft.minDuration,
@@ -186,6 +207,18 @@ export function ServicesPage({ routeRest = [] }) {
     ]);
     setServiceCategories?.(merged);
   };
+
+  if ((pageView || editorRoute) && !ownerWorkspaceReady) {
+    return <div className="bb-services-desk bb-managed-catalog" role="status">Loading service details…</div>;
+  }
+
+  if (pageView && viewService) {
+    return <ServiceInfoSheet key={viewService.id} service={viewService} staff={staff} onClose={closeView} onEdit={openEdit} variant="page" />;
+  }
+
+  if (pageView) {
+    return <div className="bb-services-desk bb-managed-catalog"><div className="bb-page-title-wrap"><PageBackButton ariaLabel="Back to Services" onClick={closeView} /><h1 className="bb-page-title">Service unavailable</h1></div><p>This service may have been removed.</p><Button variant="secondary" type="button" onClick={closeView}>Back to Services</Button></div>;
+  }
 
   if (pageMode && draftOpen) {
     return (
@@ -235,12 +268,12 @@ export function ServicesPage({ routeRest = [] }) {
           No services yet. Add your first offering.
         </div>
       ) : visibleServices.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching services</strong><p>Try a different name, category or status.</p><Button action="clear" variant="secondary" className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</Button></div> : (
-        <div className="bb-public-product-grid bb-business-catalog-grid">
+        <div className="bb-managed-catalog-list">
           {visibleServices.map((service) => (
             <ServiceCatalogCard
               key={service.id}
               service={service}
-              onView={setViewService}
+              onView={openView}
               bookings={workspace.bookings || []}
               onEdit={openEdit}
               onRemove={(item) => removeService(item.id)}
@@ -249,10 +282,9 @@ export function ServicesPage({ routeRest = [] }) {
         </div>
       )}
 
-      {viewService && <ServiceInfoSheet service={viewService} staff={staff} onClose={() => setViewService(null)} onEdit={(service) => { setViewService(null); openEdit(service); }} />}
       {!isMobile ? (
         <ServiceEditorSheet
-          open={draftOpen}
+          open={editorRoute && draftOpen}
           draft={draft}
           onChange={setDraft}
           onClose={closeDraft}

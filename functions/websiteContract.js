@@ -1,6 +1,6 @@
 // Website contract v1. Keep the browser companion in public/builder in sync.
 export const WEBSITE_CONTRACT_VERSION = 1;
-export const WEBSITE_ACTIONS = Object.freeze(['catalog.get', 'quote.get', 'availability.get', 'cart.get', 'cart.add', 'cart.remove', 'cart.updateQuantity', 'cart.open', 'cart.close', 'product.open', 'service.open', 'booking.select', 'booking.date', 'booking.slot', 'booking.create', 'checkout.create', 'checkout.status', 'payment.start', 'payment.confirm']);
+export const WEBSITE_ACTIONS = Object.freeze(['catalog.get', 'quote.get', 'availability.get', 'cart.get', 'cart.add', 'cart.remove', 'cart.updateQuantity', 'cart.open', 'cart.close', 'product.open', 'service.open', 'booking.select', 'booking.date', 'booking.slot', 'booking.create', 'enquiry.create', 'checkout.create', 'checkout.status', 'payment.start', 'payment.confirm']);
 const bindings = new Set(['product.name', 'product.price', 'product.image', 'product.description', 'product.available', 'service.name', 'service.price', 'service.image', 'service.description', 'service.duration', 'cart.count', 'cart.total']);
 const decode = value => String(value).replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&').replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
 
@@ -24,6 +24,10 @@ export function readWebsiteBindings(html) {
 
 export function validateWebsiteBindings(html, catalog, { previousHtml = '', preserve = false } = {}) {
   const records = readWebsiteBindings(html);
+  if (catalog?.profileMode === 'presence') {
+    if (records.length) throw new Error('Presence-only profiles cannot include Book, Buy, cart or payment connections. Use contact details, location and photos instead.');
+    return { version: WEBSITE_CONTRACT_VERSION, bindings: [], products: [], services: [] };
+  }
   const products = new Set((catalog?.products || []).map(item => String(item.id)));
   const services = new Set((catalog?.services || []).map(item => String(item.id)));
   for (const row of records) {
@@ -49,5 +53,13 @@ export function validateWebsiteRequest(action, payload = {}) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload) || JSON.stringify(payload).length > 40_000) throw new Error('Invalid website request.');
   // Scope is always supplied by the trusted host, never by generated website code.
   if (['ownerId', 'businessId', 'workspaceId', 'slug', 'publicSlug', 'appId'].some(key => Object.hasOwn(payload, key))) throw new Error('Website requests cannot choose a business account.');
+  if (action === 'enquiry.create') {
+    const allowed = ['productId', 'requestId', 'customerName', 'email', 'phone', 'message', 'intent', 'countryCode'];
+    if (Object.keys(payload).some(key => !allowed.includes(key))) throw new Error('Unsupported listing enquiry field.');
+    const limits = { productId: 128, requestId: 128, customerName: 100, email: 254, phone: 32, message: 3000, intent: 10, countryCode: 2 };
+    for (const [key, value] of Object.entries(payload)) if (typeof value !== 'string' || value.length > limits[key]) throw new Error('Invalid listing enquiry field.');
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(payload.productId || '') || !/^[A-Za-z0-9_-]{1,128}$/.test(payload.requestId || '') || !['enquiry', 'viewing'].includes(payload.intent)) throw new Error('Choose a valid listing enquiry.');
+    if (!payload.customerName || payload.customerName.trim().length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email || '')) throw new Error('Enter your name and a valid email address.');
+  }
   return payload;
 }

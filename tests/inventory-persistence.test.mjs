@@ -245,23 +245,32 @@ test('workspace inventory API merges functional state and reports validation wit
   assert.match(errors.at(-1), /quantity changed/);
 });
 
-test('catalog drafts retain private costs and thresholds, while catalog saves preserve newer inventory edits', () => {
+test('catalog drafts retain private costs and thresholds, while catalog saves preserve newer inventory edits', async (t) => {
   const slots = [];
   let slotIndex = 0;
+  let effects = [];
+  let routeRest = [];
+  const previousWindow = globalThis.window;
+  globalThis.window = { matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} }) };
+  t.after(() => { if (previousWindow === undefined) delete globalThis.window; else globalThis.window = previousWindow; });
   let catalog = products();
   let saved;
   const Card = () => null;
   const Editor = () => null;
   const Empty = () => null;
   const pageLoader = loader({
-    react: { ...React, useEffect() {}, useMemo: (factory) => factory(), useState: (initial) => {
+    react: { ...React, useEffect: (effect) => effects.push(effect), useMemo: (factory) => factory(), useRef: (initial) => {
+      const index = slotIndex++;
+      if (!(index in slots)) slots[index] = { current: initial };
+      return slots[index];
+    }, useState: (initial) => {
       const index = slotIndex++;
       if (!(index in slots)) slots[index] = typeof initial === 'function' ? initial() : initial;
       return [slots[index], (value) => { slots[index] = typeof value === 'function' ? value(slots[index]) : value; }];
     } },
     '../../workspace/WorkspaceContext': { useWorkspace: () => ({ products: catalog, workspace: { productCategories: [] },
       upsertProduct: (product) => { saved = product; } }) },
-    '../../../app/routing': { navigate() {} },
+    '../../../app/routing': { workspacePagePath: (page) => `/dashboard/${page}`, navigate(path) { routeRest = path.split('/').slice(3); } },
     '../components/ProductCatalogCard': { ProductCatalogCard: Card },
     '../components/ProductEditorSheet': { ProductEditorSheet: Editor },
     '../components/ProductInfoSheet': { ProductInfoSheet: Empty },
@@ -273,7 +282,11 @@ test('catalog drafts retain private costs and thresholds, while catalog saves pr
     if (!React.isValidElement(tree)) return undefined;
     return tree.type === component ? tree : find(tree.props.children, component);
   };
-  const render = () => { slotIndex = 0; return ProductsPage({}); };
+  const render = () => {
+    const pass = () => { slotIndex = 0; effects = []; const tree = ProductsPage({ routeRest }); effects.forEach((effect) => effect()); return tree; };
+    pass();
+    return pass();
+  };
   find(render(), Card).props.onEdit(catalog[0]);
   const initialEditor = find(render(), Editor);
   assert.equal(initialEditor.props.draft.cost, 100);
@@ -285,7 +298,7 @@ test('catalog drafts retain private costs and thresholds, while catalog saves pr
     variants: catalog[0].variants.map((variant) => variant.id === 'small'
       ? { ...variant, sku: '', stockAvailable: '', cost: 130, lowStockThreshold: 0, weight: 45 }
       : { ...variant, cost: '', lowStockThreshold: '' }) }, catalog[1]];
-  find(render(), Editor).props.onSave();
+  await find(render(), Editor).props.onSave();
   assert.equal(saved.price, '300');
   assert.equal(saved.cost, 0);
   assert.equal(saved.lowStockThreshold, 0);

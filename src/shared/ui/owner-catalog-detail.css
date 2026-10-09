@@ -1,0 +1,50 @@
+.bb-owner-catalog-detail {
+  width: 100%;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 40px);
+  color: #101828;
+}
+
+.bb-owner-catalog-detail-panel { max-width: 1280px; margin: 0 auto; min-width: 0; }
+.bb-owner-catalog-detail-head { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; min-width: 0; }
+.bb-owner-catalog-detail-head > div { flex: 1; min-width: 0; }
+.bb-owner-catalog-detail-head h1 { margin: 0; font-family: var(--bb-font-display); font-size: clamp(25px, 2.6vw, 36px); font-weight: 750; letter-spacing: -.035em; line-height: 1.2; overflow-wrap: anywhere; }
+.bb-owner-catalog-detail-head > .bb-button { flex: 0 0 auto; white-space: nowrap; }
+.bb-owner-catalog-detail .bb-services-sheet-eyebrow { margin: 0 0 5px; font: 500 12px/1.4 var(--bb-font-body); letter-spacing: 0; text-transform: none; color: #667085; }
+.bb-owner-catalog-detail-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 60px); align-items: start; }
+.bb-owner-catalog-detail-gallery { position: sticky; top: 24px; min-width: 0; }
+.bb-owner-catalog-detail-image { display: grid; place-items: center; width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: 18px; background: #f8fafb; color: #98a2b3; }
+.bb-owner-catalog-detail-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.bb-owner-catalog-detail-thumbnails { display: flex; gap: 10px; overflow-x: auto; padding: 12px 2px 3px; }
+.bb-owner-catalog-detail-thumbnails button { flex: 0 0 66px; width: 66px; height: 66px; overflow: hidden; border-radius: 10px; padding: 2px; border: 1px solid #e4e7ec; background: #fff; cursor: pointer; }
+.bb-owner-catalog-detail-thumbnails button[aria-pressed="true"] { border-color: #101828; }
+.bb-owner-catalog-detail-thumbnails button:focus-visible { outline: 2px solid #101828; outline-offset: 2px; }
+.bb-owner-catalog-detail-thumbnails img { width: 100%; height: 100%; border-radius: 7px; object-fit: cover; }
+.bb-owner-catalog-detail .bb-product-info { display: grid; gap: 24px; min-width: 0; }
+.bb-owner-catalog-detail .bb-product-info-hero { display: block; padding: 0 0 24px; border: 0; border-bottom: 1px solid #edf0f2; border-radius: 0; background: transparent; }
+.bb-owner-catalog-detail .bb-product-info-copy { gap: 14px; }
+.bb-owner-catalog-detail .bb-product-info-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.bb-owner-catalog-detail .bb-product-info-badge { font: 400 12px/1.4 var(--bb-font-body); text-transform: none; letter-spacing: 0; background: #f8fafc; color: #475467; border: 1px solid #e4e7ec; }
+.bb-owner-catalog-detail .bb-product-info-price { margin: 0; font: 650 32px/1.25 var(--bb-font-body); letter-spacing: -.025em; flex-wrap: wrap; }
+.bb-owner-catalog-detail .bb-product-info-desc { margin: 0; font: 400 14px/1.75 var(--bb-font-body); color: #475467; white-space: pre-wrap; overflow-wrap: anywhere; }
+.bb-owner-catalog-detail .bb-product-info-block { display: grid; gap: 10px; min-width: 0; }
+.bb-owner-catalog-detail .bb-stock-section-label { margin: 0; font: 600 16px/1.4 var(--bb-font-body); text-transform: none; letter-spacing: 0; }
+.bb-owner-catalog-detail .bb-stock-info-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; margin: 0; }
+.bb-owner-catalog-detail .bb-stock-info-facts > div { display: grid; gap: 5px; min-width: 0; padding: 15px 0; border: 0; border-bottom: 1px solid #edf0f2; border-radius: 0; background: none; }
+.bb-owner-catalog-detail .bb-stock-info-facts dt { font: 400 12px/1.4 var(--bb-font-body); color: #667085; text-transform: none; letter-spacing: 0; }
+.bb-owner-catalog-detail .bb-stock-info-facts dd { margin: 0; font: 500 14px/1.5 var(--bb-font-body); overflow-wrap: anywhere; }
+.bb-owner-catalog-detail .bb-stock-info-variant-list { margin: 0; gap: 0; }
+.bb-owner-catalog-detail .bb-stock-info-variant-list li { min-width: 0; padding: 15px 0; border: 0; border-bottom: 1px solid #edf0f2; border-radius: 0; }
+.bb-owner-catalog-detail .bb-stock-info-variant-list strong { font: 500 14px/1.5 var(--bb-font-body); overflow-wrap: anywhere; }
+.bb-owner-catalog-detail .bb-stock-info-variant-list span { font: 400 13px/1.6 var(--bb-font-body); color: #667085; overflow-wrap: anywhere; }
+
+@media (max-width: 899px) {
+  .bb-owner-catalog-detail { padding: 20px 16px 36px; }
+  .bb-owner-catalog-detail-head { gap: 12px; margin-bottom: 24px; }
+  .bb-owner-catalog-detail-head h1 { font-size: 24px; }
+  .bb-owner-catalog-detail-head > .bb-button { --bb-button-height: 44px; padding-inline: 12px; font-size: 12px; }
+  .bb-owner-catalog-detail-body { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .bb-owner-catalog-detail-gallery { position: static; }
+  .bb-owner-catalog-detail-image { border-radius: 14px; }
+  .bb-owner-catalog-detail .bb-product-info-price { font-size: 28px; }
+}

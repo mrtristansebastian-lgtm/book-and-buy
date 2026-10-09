@@ -178,6 +178,27 @@ export const BUSINESS_CATEGORIES = [
     keywords: ['kids', 'children', 'play', 'activities']
   },
   // Buy — legacy leaves (kept for existing categoryId values) + new subcategories
+  { id: 'vehicles_cars', label: 'Cars & dealerships', modes: ['buy'], icon: 'Car', keywords: ['car', 'vehicle', 'dealership', 'motor'] },
+  { id: 'equipment_machinery', label: 'Equipment & machinery', modes: ['buy'], icon: 'Wrench', keywords: ['equipment', 'machinery', 'industrial'] },
+  { id: 'equipment_construction', label: 'Construction machinery', modes: ['buy'], icon: 'Wrench', keywords: ['construction', 'excavator', 'loader'] },
+  { id: 'equipment_agricultural', label: 'Agricultural machinery', modes: ['buy'], icon: 'Wrench', keywords: ['agriculture', 'tractor', 'farm'] },
+  { id: 'equipment_workshop', label: 'Workshop & industrial machinery', modes: ['buy'], icon: 'Wrench', keywords: ['workshop', 'industrial', 'machine'] },
+  { id: 'equipment_generators', label: 'Generators', modes: ['buy'], icon: 'Wrench', keywords: ['generator', 'power', 'backup'] },
+  { id: 'equipment_commercial', label: 'Commercial equipment', modes: ['buy'], icon: 'Wrench', keywords: ['commercial', 'equipment', 'business'] },
+  { id: 'equipment_tools', label: 'Specialist tools', modes: ['buy'], icon: 'Wrench', keywords: ['tool', 'specialist', 'workshop'] },
+  { id: 'clothing_tops', label: 'Tops, T-shirts & shirts', modes: ['buy'], icon: 'Shirt', keywords: ['tops', 'tshirt', 'shirt', 'blouse'] },
+  { id: 'clothing_bottoms', label: 'Trousers, jeans & shorts', modes: ['buy'], icon: 'Shirt', keywords: ['trousers', 'jeans', 'shorts'] },
+  { id: 'clothing_dresses', label: 'Dresses & skirts', modes: ['buy'], icon: 'Shirt', keywords: ['dress', 'skirt'] },
+  { id: 'clothing_outerwear', label: 'Jackets, coats & knitwear', modes: ['buy'], icon: 'Shirt', keywords: ['jacket', 'coat', 'knitwear', 'hoodie'] },
+  { id: 'clothing_activewear', label: 'Activewear & sportswear', modes: ['buy'], icon: 'Shirt', keywords: ['activewear', 'sportswear'] },
+  { id: 'clothing_underwear', label: 'Underwear & sleepwear', modes: ['buy'], icon: 'Shirt', keywords: ['underwear', 'sleepwear'] },
+  { id: 'clothing_swimwear', label: 'Swimwear', modes: ['buy'], icon: 'Shirt', keywords: ['swimwear', 'swimsuit'] },
+  { id: 'clothing_baby', label: 'Baby & toddler clothing', modes: ['buy'], icon: 'Shirt', keywords: ['baby', 'toddler'] },
+  { id: 'clothing_workwear', label: 'Workwear & uniforms', modes: ['buy'], icon: 'Shirt', keywords: ['workwear', 'uniform'] },
+  { id: 'clothing_occasion', label: 'Formal & occasion wear', modes: ['buy'], icon: 'Shirt', keywords: ['formal', 'occasion', 'suit'] },
+  { id: 'fashion_footwear', label: 'Footwear', modes: ['buy'], icon: 'Shirt', keywords: ['shoes', 'sneakers', 'boots', 'sandals'] },
+  { id: 'fashion_accessories', label: 'Fashion accessories', modes: ['buy'], icon: 'Shirt', keywords: ['accessories', 'belt', 'scarf', 'hat'] },
+  { id: 'home_kitchenware', label: 'Kitchenware & utensils', modes: ['buy'], icon: 'Lamp', keywords: ['kitchen', 'utensil', 'cookware', 'dinnerware'] },
   {
     id: 'fashion',
     label: 'Fashion & apparel',
@@ -390,18 +411,26 @@ export const BUSINESS_CATEGORIES = [
   },
   {
     id: 'electronics_acc',
-    label: 'Electronics accessories',
+    label: 'Electronics & accessories',
     modes: ['buy'],
     icon: 'Smartphone',
     keywords: ['electronics', 'accessories', 'gadgets']
   },
   {
     id: 'electronics_phone',
-    label: 'Phone accessories',
+    label: 'Phones & tablets',
     modes: ['buy'],
     icon: 'Smartphone',
-    keywords: ['phone', 'case', 'charger']
+    keywords: ['phone', 'tablet', 'smartphone', 'case', 'charger']
   },
+  { id: 'electronics_computers', label: 'Computers & laptops', modes: ['buy'], icon: 'Monitor', keywords: ['computer', 'laptop', 'desktop', 'pc'] },
+  { id: 'electronics_displays', label: 'TVs & monitors', modes: ['buy'], icon: 'Monitor', keywords: ['tv', 'television', 'monitor', 'display'] },
+  { id: 'electronics_cameras', label: 'Cameras & photography', modes: ['buy'], icon: 'Camera', keywords: ['camera', 'lens', 'photography'] },
+  { id: 'electronics_gaming', label: 'Gaming & consoles', modes: ['buy'], icon: 'Gamepad2', keywords: ['gaming', 'console', 'controller'] },
+  { id: 'electronics_networking', label: 'Networking', modes: ['buy'], icon: 'Wifi', keywords: ['router', 'network', 'mesh', 'modem'] },
+  { id: 'electronics_components', label: 'Components & storage', modes: ['buy'], icon: 'Cpu', keywords: ['component', 'processor', 'graphics', 'memory', 'storage', 'drive'] },
+  { id: 'electronics_smart_home', label: 'Smart home', modes: ['buy'], icon: 'Home', keywords: ['smart', 'automation', 'sensor', 'lighting'] },
+  { id: 'electronics_wearables', label: 'Wearable technology', modes: ['buy'], icon: 'Smartphone', keywords: ['smartwatch', 'wearable', 'tracker'] },
   {
     id: 'electronics_audio',
     label: 'Audio',
@@ -772,6 +801,8 @@ export const DISTANCE_RINGS_KM = [5, 15, 30, 50, 100];
 
 /** Parent groups for Explore browse — leaves stay as BUSINESS_CATEGORIES ids. */
 export const BUSINESS_CATEGORY_GROUPS = [
+  { id: 'buy_vehicles', label: 'Vehicles', mode: 'buy', icon: 'Car', keywords: ['car', 'vehicle', 'dealership'], categoryIds: ['vehicles_cars'] },
+  { id: 'buy_equipment', label: 'Equipment', mode: 'buy', icon: 'Wrench', keywords: ['equipment', 'machinery', 'industrial'], categoryIds: ['equipment_machinery', 'equipment_construction', 'equipment_agricultural', 'equipment_workshop', 'equipment_generators', 'equipment_commercial', 'equipment_tools'] },
   {
     id: 'beauty_body',
     label: 'Beauty',
@@ -852,7 +883,7 @@ export const BUSINESS_CATEGORY_GROUPS = [
   },
   {
     id: 'buy_fashion',
-    label: 'Fashion',
+    label: 'Clothing & fashion',
     mode: 'buy',
     icon: 'Shirt',
     keywords: ['fashion', 'apparel', 'clothing', 'clothes'],
@@ -861,7 +892,19 @@ export const BUSINESS_CATEGORY_GROUPS = [
       'fashion_womens',
       'fashion_mens',
       'fashion_kids',
-      'fashion_streetwear'
+      'fashion_streetwear',
+      'fashion_footwear',
+      'fashion_accessories',
+      'clothing_tops',
+      'clothing_bottoms',
+      'clothing_dresses',
+      'clothing_outerwear',
+      'clothing_activewear',
+      'clothing_underwear',
+      'clothing_swimwear',
+      'clothing_baby',
+      'clothing_workwear',
+      'clothing_occasion'
     ]
   },
   {
@@ -937,7 +980,15 @@ export const BUSINESS_CATEGORY_GROUPS = [
     categoryIds: [
       'electronics_acc',
       'electronics_phone',
+      'electronics_computers',
+      'electronics_displays',
+      'electronics_cameras',
+      'electronics_gaming',
+      'electronics_networking',
+      'electronics_components',
+      'electronics_smart_home',
       'electronics_audio',
+      'electronics_wearables',
       'electronics_gifts'
     ]
   },
@@ -963,7 +1014,7 @@ export const BUSINESS_CATEGORY_GROUPS = [
     mode: 'buy',
     icon: 'Lamp',
     keywords: ['home', 'decor', 'furniture'],
-    categoryIds: ['home_decor', 'home_furniture', 'home_soft', 'home_accents']
+    categoryIds: ['home_decor', 'home_furniture', 'home_soft', 'home_accents', 'home_kitchenware']
   },
   {
     id: 'buy_food',

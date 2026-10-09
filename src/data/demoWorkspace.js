@@ -1340,12 +1340,7 @@ export function hydrateDemoWorkspace(stored) {
     !Array.isArray(stored.website?.reasons) ||
     !stored.website.reasons.length ||
     !Array.isArray(stored.website?.venueImages) ||
-    !stored.website.venueImages.length ||
-    !Array.isArray(stored.products) ||
-    stored.products.length !== 9 ||
-    stored.products.some((product) =>
-      ['bench-tools-set', 'linen-tea-towel', 'proofing-basket'].includes(product?.id)
-    );
+    !stored.website.venueImages.length;
 
 
   const staleThreads =
@@ -1378,7 +1373,6 @@ export function hydrateDemoWorkspace(stored) {
   const staleServices =
     Number(stored.servicesSchema || 0) < DEMO_SERVICES_SCHEMA ||
     !Array.isArray(stored.services) ||
-    stored.services.length < 6 ||
     spotServicesMissingSessions;
 
   const staleProducts =

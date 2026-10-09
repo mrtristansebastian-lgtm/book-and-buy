@@ -18,6 +18,7 @@ import {
   handlePayPalWebhook
 } from './payments/index.js';
 import { placeMarketOrder, updateMarketOrder } from './marketOrders.js';
+import { createListingEnquiry, getListingEnquiry, updateListingEnquiry } from './enquiries.js';
 import { getLivePublicServiceAvailability } from './availability.js';
 import { getPublicCommerceContext as commerceContext, quotePublicCommerce as commerceQuote } from './commerceRuntime.js';
 import { adjustInventory as inventoryAdjustment, expireInventoryReservations } from './inventoryService.js';
@@ -118,6 +119,19 @@ export const createPublicProductOrder = onCall(async (request) => {
   } catch (error) {
     wrapError(error);
   }
+});
+
+export const createPublicListingEnquiry = onCall({ maxInstances: 10 }, async (request) => {
+  try { return await createListingEnquiry(request.data || {}, { ip: request.rawRequest?.ip, uid: request.auth?.uid }); }
+  catch (error) { wrapError(error); }
+});
+export const getOwnerListingEnquiry = onCall(async (request) => {
+  try { return await getListingEnquiry(request.data || {}, request.auth); }
+  catch (error) { wrapError(error); }
+});
+export const updateOwnerListingEnquiry = onCall(async (request) => {
+  try { return await updateListingEnquiry(request.data || {}, request.auth); }
+  catch (error) { wrapError(error); }
 });
 
 export const getPublicServiceAvailability = onCall(async (request) => {

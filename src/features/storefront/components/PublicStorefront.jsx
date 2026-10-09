@@ -9,6 +9,8 @@ import { PublicCartCheckout } from './PublicCartCheckout';
 import { CatalogCategoryTabs } from './CatalogCategoryTabs';
 import { PublicOfferCard } from './PublicOfferCard';
 import { formatProductPrice, isProductPubliclyVisible } from '../../../utils/products';
+import { getListingType, isEnquiryListing, hasListingSpecifications } from '../../../../functions/listingTypes.js';
+import '../../products/components/listing-types.css';
 import {
   buildCatalogCategoryTabs,
   filterCatalogByCategory
@@ -29,6 +31,7 @@ export function PublicStorefront({
   const products = workspace.products || [];
   const cart = usePublicCart();
   const [panel, setPanel] = useState('shop');
+  const [listingFilters, setListingFilters] = useState({ type: '', make: '', transmission: '', fuel: '' });
   const categoryId = cart.browse?.buy?.categoryId || 'all';
   const query = cart.browse?.buy?.query || '';
   const sortOrder = cart.browse?.buy?.sortOrder || 'featured';
@@ -42,9 +45,20 @@ export function PublicStorefront({
     [products]
   );
   const categoryTabs = useMemo(() => buildCatalogCategoryTabs(catalog), [catalog]);
+  const hasVehicles = catalog.some(product => getListingType(product) === 'vehicle');
+  const hasSpecialistListings = catalog.some(product => hasListingSpecifications(product));
+  const hasCheckoutProducts = catalog.some(product => !isEnquiryListing(product));
+  const listingTypes = [...new Set(catalog.map(getListingType))];
+  const makes = [...new Set(catalog.filter(product => getListingType(product) === 'vehicle').map(product => product.vehicleDetails?.make).filter(Boolean))].sort();
+  const updateListingFilter = key => event => setListingFilters(prior => ({ ...prior, [key]: event.target.value, ...(key === 'type' ? { make: '', transmission: '', fuel: '' } : {}) }));
   const filteredCatalog = useMemo(
-    () => sortPublicCatalog(searchPublicCatalog(filterCatalogByCategory(catalog, categoryId), query), sortOrder),
-    [catalog, categoryId, query, sortOrder]
+    () => sortPublicCatalog(searchPublicCatalog(filterCatalogByCategory(catalog, categoryId), query).filter(product =>
+      (!listingFilters.type || getListingType(product) === listingFilters.type) &&
+      (!listingFilters.make || product.vehicleDetails?.make === listingFilters.make) &&
+      (!listingFilters.transmission || product.vehicleDetails?.transmission === listingFilters.transmission) &&
+      (!listingFilters.fuel || product.vehicleDetails?.fuel === listingFilters.fuel)
+    ), sortOrder),
+    [catalog, categoryId, query, sortOrder, listingFilters]
   );
 
   const openDetail = (productId) => {
@@ -145,8 +159,17 @@ export function PublicStorefront({
               <label className="bb-profile-catalog-sort">Sort by<select value={sortOrder} onChange={e => cart.updateBrowse('buy', { sortOrder: e.target.value })}>
                 <option value="featured">Featured</option><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option>
               </select></label>
-              <div className="bb-profile-catalog-cart">{cartButton}</div>
+              {hasCheckoutProducts && <div className="bb-profile-catalog-cart">{cartButton}</div>}
             </div>
+
+            {hasSpecialistListings && <div className="bb-listing-browse-filters" aria-label="Listing filters">
+              {listingTypes.length > 1 && <label>Listing type<select className="bb-listing-filter-select" value={listingFilters.type} onChange={updateListingFilter('type')}><option value="">All listings</option>{listingTypes.map(type => <option key={type} value={type}>{type === 'vehicle' ? 'Vehicles' : type === 'equipment' ? 'Equipment' : type === 'electronics' ? 'Electronics' : 'Products'}</option>)}</select></label>}
+              {hasVehicles && (!listingFilters.type || listingFilters.type === 'vehicle') && <>
+                <label>Make<select className="bb-listing-filter-select" value={listingFilters.make} onChange={updateListingFilter('make')}><option value="">All makes</option>{makes.map(make => <option key={make}>{make}</option>)}</select></label>
+                <label>Transmission<select className="bb-listing-filter-select" value={listingFilters.transmission} onChange={updateListingFilter('transmission')}><option value="">Any transmission</option>{['Manual','Automatic','CVT','Dual-clutch','Other'].map(value => <option key={value}>{value}</option>)}</select></label>
+                <label>Fuel / energy<select className="bb-listing-filter-select" value={listingFilters.fuel} onChange={updateListingFilter('fuel')}><option value="">Any fuel / energy</option>{['Petrol','Diesel','Electric','Hybrid','Plug-in hybrid','Other'].map(value => <option key={value}>{value}</option>)}</select></label>
+              </>}
+            </div>}
 
             <div className="bb-public-catalog-mobile-panel">
               {cartOpen ? cartCheckout : productGrid}

@@ -1,4 +1,5 @@
 import { Button } from '../../../shared/ui/Button';
+import { getProductTemplate } from '../../../../functions/catalogTemplates.js';
 import { Plus, Trash2 } from 'lucide-react';
 
 export function ProductEditorVariantsStep({
@@ -14,6 +15,8 @@ export function ProductEditorVariantsStep({
   draft,
   patchVariant
 }) {
+  const clothing = getProductTemplate(draft.catalogTemplateId)?.family === 'apparel';
+  const presets = [{ name: 'Size', values: ['XS', 'S', 'M', 'L', 'XL', 'XXL'] }, { name: 'Colour', values: [] }];
   return (
     <section className="bb-services-section">
       <div className="bb-products-step-head">
@@ -27,7 +30,7 @@ export function ProductEditorVariantsStep({
         <Button action="add" variant="primary"
           type="button"
           className="bb-ghost-btn"
-          onClick={addOption}
+          onClick={() => addOption()}
           disabled={options.length >= 3}
         >
           <Plus size={14} />
@@ -35,6 +38,7 @@ export function ProductEditorVariantsStep({
         </Button>
       </div>
 
+      {clothing && <div className="bb-products-chips" style={{ marginBottom: 16 }}>{presets.filter(preset => !options.some(option => option.name.toLowerCase() === preset.name.toLowerCase())).map(preset => <Button key={preset.name} type="button" disabled={options.length >= 3} onClick={() => addOption(preset)}><Plus size={14}/>Add {preset.name.toLowerCase()} options</Button>)}<p className="bb-services-field-hint">Edit the sizes to match your range, or use age-based and numeric sizes. Set each combination’s price here; manage its stock in Stock.</p></div>}
       {options.length === 0 ? (
         <p className="bb-services-section-lede">
           No options yet — this product sells as a single item.

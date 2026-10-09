@@ -28,7 +28,9 @@ const TABS = [
 function withCatalog(raw = {}) {
   const normalized = normalizeBiz(raw);
   if (!normalized) return null;
-  return { ...normalized, services: Array.isArray(raw.services) ? raw.services : [], products: Array.isArray(raw.products) ? raw.products : [] };
+  return { ...normalized,
+    services: normalized.pages.book === false ? [] : Array.isArray(raw.services) ? raw.services : [],
+    products: normalized.pages.buy === false || normalized.pages.shop === false ? [] : Array.isArray(raw.products) ? raw.products : [] };
 }
 
 function offerItem(item, kind) {

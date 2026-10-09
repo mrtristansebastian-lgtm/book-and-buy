@@ -1,7 +1,5 @@
 import { Button } from '../../../shared/ui/Button';
 import { FilterChip } from '../../../shared/ui/FilterChip';
-import { Plus } from 'lucide-react';
-import { ExploreCategoryPicker } from '../../../shared/ui/ExploreCategoryPicker';
 
 export function ServiceEditorCategoryStep({
   draft,
@@ -78,7 +76,6 @@ export function ServiceEditorCategoryStep({
           </Button>
         </div>
       ) : null}
-      <ExploreCategoryPicker mode="book" value={draft} onChange={patch} />
     </section>
   );
 }

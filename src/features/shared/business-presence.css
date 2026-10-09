@@ -1,0 +1,12 @@
+.bb-business-presence-fields { display: grid; min-width: 0; gap: 1rem; }
+.bb-business-presence-options { margin: 0; min-width: 0; padding: 0; border: 0; }
+.bb-business-presence-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.bb-business-presence-choice { display: flex; align-items: flex-start; min-width: 0; gap: .75rem; padding: 1rem; border: 1px solid #e2e6ed; border-radius: 14px; background: #fff; font-size: .875rem; line-height: 1.55; cursor: pointer; transition: border-color .15s, background .15s; }
+.bb-business-presence-choice.is-selected { border-color: #aeb8c7; background: #fafbfd; }
+.bb-business-presence-choice.is-disabled { opacity: .6; cursor: default; }
+.bb-business-presence-choice:focus-within { outline: 2px solid #75849a; outline-offset: 2px; }
+.bb-business-presence-choice > span { min-width: 0; }
+.bb-business-presence-choice strong { display: block; margin-bottom: .25rem; font-weight: 650; }
+.native-ui .bb-business-presence-choice input[type="radio"], .bb-business-presence-choice input[type="radio"] { width: 18px; height: 18px; min-width: 18px; min-height: 18px; max-height: 18px; padding: 0; margin: .2rem 0 0; flex: 0 0 18px; accent-color: #172234; }
+.native-ui .bb-settings-content--general > .bb-panel.bb-settings-business-profile { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 700px) { .bb-business-presence-choices { grid-template-columns: minmax(0, 1fr); } }

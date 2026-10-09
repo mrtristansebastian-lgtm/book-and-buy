@@ -1,8 +1,8 @@
 import { Button } from '../../../shared/ui/Button';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import {
   collectProductCategories,
@@ -32,6 +32,10 @@ function useIsMobileEditor() {
   return mobile;
 }
 
+function decodeItemId(value = '') {
+  try { return decodeURIComponent(value); } catch { return value; }
+}
+
 const emptyDraft = () => ({
   id: '',
   name: '',
@@ -42,6 +46,15 @@ const emptyDraft = () => ({
   exploreMainCategoryId: '',
   exploreSubcategoryId: '',
   productType: '',
+  catalogTemplateId: '',
+  listingType: 'physical',
+  transactionMode: 'checkout',
+  listingAvailability: 'available',
+  vehicleDetails: {},
+  equipmentDetails: {},
+  electronicsDetails: {},
+  physicalDetails: {},
+  listingSpecFields: [],
   vendor: '',
   tags: [],
   collections: [],
@@ -66,6 +79,15 @@ const toDraft = (product = {}) => {
     exploreMainCategoryId: normalized.exploreMainCategoryId || '',
     exploreSubcategoryId: normalized.exploreSubcategoryId || '',
     productType: normalized.productType || '',
+    catalogTemplateId: normalized.catalogTemplateId || '',
+    listingType: normalized.listingType,
+    transactionMode: normalized.transactionMode,
+    listingAvailability: normalized.listingAvailability,
+    vehicleDetails: normalized.vehicleDetails,
+    equipmentDetails: normalized.equipmentDetails,
+    electronicsDetails: normalized.electronicsDetails,
+    physicalDetails: normalized.physicalDetails,
+    listingSpecFields: normalized.listingSpecFields,
     vendor: normalized.vendor || '',
     tags: normalized.tags || [],
     collections: normalized.collections || [],
@@ -171,23 +193,26 @@ export function ProductsPage({ routeRest = [] }) {
   const {
     products,
     workspace,
+    ownerWorkspaceReady = true,
     upsertProduct,
     removeProduct,
     setProductCategories
   } = useWorkspace();
   const isMobile = useIsMobileEditor();
+  const productsPath = workspacePagePath('products');
   const [draftOpen, setDraftOpen] = useState(false);
+  const openedEditorRoute = useRef('');
   const [draft, setDraft] = useState(emptyDraft);
-  const [viewProduct, setViewProduct] = useState(null);
   const [query, setQuery] = useState('');
   const [catalogStatus, setCatalogStatus] = useState('all');
   const visibleProducts = useMemo(() => filterManagedCatalog(products, query, catalogStatus), [products, query, catalogStatus]);
 
   const mode = routeRest[0] || '';
-  const editId = routeRest[1] || '';
-  const pageEdit =
-    isMobile && (mode === 'new' || (mode === 'edit' && Boolean(editId)));
-  const pageView = isMobile && mode === 'view' && Boolean(editId);
+  const editId = decodeItemId(routeRest[1] || '');
+  const editorRoute = mode === 'new' || (mode === 'edit' && Boolean(editId));
+  const pageEdit = isMobile && editorRoute;
+  const pageView = mode === 'view';
+  const viewProduct = pageView ? products.find((item) => item.id === editId) : null;
 
   const categories = useMemo(
     () => collectProductCategories(products, workspace.productCategories || []),
@@ -195,8 +220,16 @@ export function ProductsPage({ routeRest = [] }) {
   );
 
   useEffect(() => {
-    if (!pageEdit) return;
+    if (!ownerWorkspaceReady) return;
+    if (!editorRoute) {
+      openedEditorRoute.current = '';
+      setDraftOpen(false);
+      return;
+    }
+    const routeKey = `${mode}/${editId}`;
+    if (openedEditorRoute.current === routeKey) return;
     if (mode === 'new') {
+      openedEditorRoute.current = routeKey;
       setDraft(emptyDraft());
       setDraftOpen(true);
       return;
@@ -204,73 +237,38 @@ export function ProductsPage({ routeRest = [] }) {
     if (mode === 'edit' && editId) {
       const existing = products.find((item) => item.id === editId);
       if (existing) {
+        openedEditorRoute.current = routeKey;
         setDraft(toDraft(existing));
         setDraftOpen(true);
       } else {
-        navigate('/dashboard/products');
+        navigate(productsPath, { replace: true });
       }
     }
-  }, [pageEdit, mode, editId, products]);
-
-  useEffect(() => {
-    if (!pageView) return;
-    const existing = products.find((item) => item.id === editId);
-    if (existing) {
-      setViewProduct(existing);
-    } else {
-      navigate('/dashboard/products');
-    }
-  }, [pageView, editId, products]);
+  }, [editorRoute, mode, editId, products, productsPath, ownerWorkspaceReady]);
 
   const openCreate = () => {
-    if (isMobile) {
-      navigate('/dashboard/products/new');
-      return;
-    }
-    setDraft(emptyDraft());
-    setDraftOpen(true);
+    navigate(`${productsPath}/new`);
   };
 
   const openEdit = (product) => {
-    if (isMobile) {
-      navigate(`/dashboard/products/edit/${product.id}`);
-      return;
-    }
-    setViewProduct(null);
-    setDraft(toDraft(product));
-    setDraftOpen(true);
+    navigate(`${productsPath}/edit/${encodeURIComponent(product.id)}`);
   };
 
   const openView = (product) => {
-    if (isMobile) {
-      navigate(`/dashboard/products/view/${product.id}`);
-      return;
-    }
-    setViewProduct(product);
+    navigate(`${productsPath}/view/${encodeURIComponent(product.id)}`);
   };
 
   const closeDraft = () => {
     setDraftOpen(false);
     setDraft(emptyDraft());
-    if (pageEdit) navigate('/dashboard/products');
+    if (editorRoute) navigate(productsPath);
   };
 
   const closeView = () => {
-    setViewProduct(null);
-    if (pageView) navigate('/dashboard/products');
+    navigate(productsPath);
   };
 
-  const openEditFromView = (product) => {
-    if (isMobile) {
-      navigate(`/dashboard/products/edit/${product.id}`);
-      return;
-    }
-    setViewProduct(null);
-    setDraft(toDraft(product));
-    setDraftOpen(true);
-  };
-
-  const saveDraft = () => {
+  const saveDraft = async () => {
     if (!String(draft.name || '').trim()) return;
     const nextCategory = String(draft.category || '').trim();
     if (nextCategory) {
@@ -278,11 +276,11 @@ export function ProductsPage({ routeRest = [] }) {
         ...(workspace.productCategories || []),
         nextCategory
       ]);
-      setProductCategories?.(merged);
+      await setProductCategories?.(merged);
     }
     const existing = products.find((item) => item.id === draft.id);
     const merged = mergeInventoryFromExisting(draft, existing);
-    upsertProduct(
+    await upsertProduct(
       normalizeProduct({
         ...merged,
         id: draft.id || createProductId(),
@@ -292,19 +290,24 @@ export function ProductsPage({ routeRest = [] }) {
     closeDraft();
   };
 
-  const liveViewProduct = viewProduct
-    ? products.find((item) => item.id === viewProduct.id) || viewProduct
-    : null;
+  if ((pageView || editorRoute) && !ownerWorkspaceReady) {
+    return <div className="bb-services-desk bb-managed-catalog" role="status">Loading product details…</div>;
+  }
 
-  if (pageView && liveViewProduct) {
+  if (pageView && viewProduct) {
     return (
       <ProductInfoSheet
-        product={liveViewProduct}
+        key={viewProduct.id}
+        product={viewProduct}
         onClose={closeView}
-        onEdit={openEditFromView}
+        onEdit={openEdit}
         variant="page"
       />
     );
+  }
+
+  if (pageView) {
+    return <div className="bb-services-desk bb-managed-catalog"><div className="bb-page-title-wrap"><PageBackButton ariaLabel="Back to Products" onClick={closeView} /><h1 className="bb-page-title">Product unavailable</h1></div><p>This product may have been removed.</p><Button variant="secondary" type="button" onClick={closeView}>Back to Products</Button></div>;
   }
 
   if (pageEdit && draftOpen) {
@@ -353,7 +356,7 @@ export function ProductsPage({ routeRest = [] }) {
           No products yet. Add your first item.
         </div>
       ) : visibleProducts.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching products</strong><p>Try a different name, SKU, category or status.</p><Button action="clear" variant="secondary" className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</Button></div> : (
-        <div className="bb-public-product-grid bb-business-catalog-grid">
+        <div className="bb-managed-catalog-list">
           {visibleProducts.map((product) => (
             <ProductCatalogCard
               key={product.id}
@@ -368,7 +371,7 @@ export function ProductsPage({ routeRest = [] }) {
 
       {!isMobile ? (
         <ProductEditorSheet
-          open={draftOpen}
+          open={editorRoute && draftOpen}
           draft={draft}
           onChange={setDraft}
           onClose={closeDraft}
@@ -385,13 +388,6 @@ export function ProductsPage({ routeRest = [] }) {
         />
       ) : null}
 
-      {!isMobile && liveViewProduct ? (
-        <ProductInfoSheet
-          product={liveViewProduct}
-          onClose={closeView}
-          onEdit={openEditFromView}
-        />
-      ) : null}
     </div>
   );
 }

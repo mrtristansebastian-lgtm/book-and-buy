@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { takeSupportFocusThread } from '../utils/supportFormat';
-import { collection, doc, limit, onSnapshot, query, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { collection, doc, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { getFirebase } from '../../../shared/firebase/client';
 import { APP_ID } from '../../../config/appConfig';
 import { subscribeThreadMessages } from '../../client-app/clientThreadsApi';
+import { demoEnquiryThreads, sendDemoEnquiryMessage, updateDemoEnquiryThread } from '../../enquiries/enquiryStore';
 
 export function useSupportInbox() {
   const ctx = useWorkspace();
@@ -28,6 +29,19 @@ export function useSupportInbox() {
   const ownerId = ctx.workspace.ownerId || '';
   const demo = ctx.workspace.isDemo === true;
   const scope = `${demo ? 'demo' : 'owner'}:${ownerId}`;
+  const [demoEnquiryState, setDemoEnquiryState] = useState({ slug: '', threads: [] });
+  const enquiryThreads = demo && demoEnquiryState.slug === ctx.workspace.slug ? demoEnquiryState.threads : [];
+  useEffect(() => {
+    if (!demo) return undefined;
+    const reload = () => {
+      try { setDemoEnquiryState({ slug: ctx.workspace.slug, threads: demoEnquiryThreads(ctx.workspace.slug) }); }
+      catch { setDemoEnquiryState({ slug: ctx.workspace.slug, threads: [] }); }
+    };
+    reload();
+    window.addEventListener('bb-demo-enquiries', reload);
+    window.addEventListener('storage', reload);
+    return () => { window.removeEventListener('bb-demo-enquiries', reload); window.removeEventListener('storage', reload); };
+  }, [demo, ctx.workspace.slug]);
   const [selection, setSelection] = useState({ scope, id: '' });
   const activeId = selection.scope === scope ? selection.id : '';
   const setActiveId = id => setSelection({ scope, id });
@@ -54,7 +68,7 @@ export function useSupportInbox() {
     setRemoteList({ scope, threads: [] });
     const firebase = getFirebase();
     if (demo || !firebase || !ownerId) return undefined;
-    const unsubscribe = onSnapshot(query(collection(firebase.db, 'artifacts', APP_ID, 'clientThreads'), where('ownerId', '==', ownerId), limit(60)), snapshot => {
+    const unsubscribe = onSnapshot(query(collection(firebase.db, 'artifacts', APP_ID, 'clientThreads'), where('ownerId', '==', ownerId), orderBy('updatedAt', 'desc'), limit(60)), snapshot => {
       if (active) setRemoteList({ scope, threads: snapshot.docs.filter(item => item.data().ownerId === ownerId).map(item => ({ ...item.data(), id: item.id })) });
     }, () => { if (active) setRemoteList({ scope, threads: [] }); });
     return () => { active = false; unsubscribe(); };
@@ -81,6 +95,7 @@ export function useSupportInbox() {
     return () => { active = false; unsubscribe(); };
   }, [scope, activeId, remoteThreads.map((thread) => thread.id).join('|')]);
   const updateThread = (id, patch) => {
+    if (demo && enquiryThreads.some(thread => thread.id === id)) return updateDemoEnquiryThread(ctx.workspace.slug, id, patch);
     const firebase = getFirebase();
     if (ctx.workspace.isDemo || !remoteThreads.some((thread) => thread.id === id)) return updateLocalThread(id, patch);
     if (!firebase) throw new Error('Chat is not connected.');
@@ -88,17 +103,19 @@ export function useSupportInbox() {
   };
   const sorted = useMemo(() => {
     const merged = new Map((threads || []).map((thread) => [thread.id, thread]));
+    enquiryThreads.forEach(thread => merged.set(thread.id, thread));
     remoteThreads.forEach((thread) => merged.set(thread.id, { ...merged.get(thread.id), ...thread, messages: thread.id === activeId ? remoteMessages : [] }));
     return [...merged.values()].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-  }, [threads, remoteThreads, remoteMessages, activeId]);
+  }, [threads, enquiryThreads, remoteThreads, remoteMessages, activeId]);
   const sendThreadMessage = async (id, payload) => {
+    if (demo && enquiryThreads.some(thread => thread.id === id)) return sendDemoEnquiryMessage(ctx.workspace.slug, id, payload);
     const firebase = getFirebase();
     if (ctx.workspace.isDemo || !remoteThreads.some((thread) => thread.id === id)) return sendLocalThreadMessage(id, payload);
     if (!firebase) throw new Error('Chat is not connected.');
     const at = Date.now();
     const batch = writeBatch(firebase.db);
     batch.set(doc(collection(firebase.db, 'artifacts', APP_ID, 'clientThreads', id, 'messages')), { ...payload, from: 'business', at });
-    batch.update(doc(firebase.db, 'artifacts', APP_ID, 'clientThreads', id), { lastMessageAt: at, updatedAt: at, unreadForClient: true, lastMessagePreview: String(payload.body || (payload.type === 'voice' ? 'Voice note' : 'Attachment')).slice(0, 140) });
+    batch.update(doc(firebase.db, 'artifacts', APP_ID, 'clientThreads', id), { lastMessageAt: at, lastMessageFrom: 'business', updatedAt: at, unreadForClient: true, lastMessagePreview: String(payload.body || (payload.type === 'voice' ? 'Voice note' : 'Attachment')).slice(0, 140) });
     await batch.commit();
   };
   const [mobileShowChat, setMobileShowChat] = useState(false);
@@ -127,6 +144,7 @@ export function useSupportInbox() {
   useEffect(() => {
     if (active?.id && active.unread) {
       if (remoteThreads.some((thread) => thread.id === active.id)) updateThread(active.id, { unread: false }).catch(() => {});
+      else if (active.enquiryId && demo) updateThread(active.id, { unread: false });
       else markLocalThreadRead(active.id);
     }
   }, [active?.id, active?.unread, markLocalThreadRead]);
@@ -165,7 +183,7 @@ export function useSupportInbox() {
         id: active.clientId || '',
         name: active.clientName,
         email: active.clientEmail,
-        phone: '',
+        phone: active.clientPhone || '',
         country: ''
       }
     );

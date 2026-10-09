@@ -5,6 +5,9 @@ import { getPublicPaymentOptions } from './payments/publicOptions.js';
 import { expireInventoryReservations, COMMERCE_APP_ID } from './inventoryService.js';
 import { readWorkspace } from './workspaceStore.js';
 import { commerceQuoteRevision, assertPublishedWorkspace } from './commercePolicy.js';
+import { isPresenceOnlyBusiness, assertBusinessCommerceEnabled } from './businessCapabilities.js';
+import { normalizeListing, listingDetailsKey, publicListingDetails, listingSpecificationGroups, listingFacts } from './listingTypes.js';
+import { normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts } from './serviceTemplates.js';
 export async function loadPublishedCommerce(slug, db = getFirestore()) {
   if (!/^[a-zA-Z0-9_-]{1,128}$/.test(slug || '')) throw new Error('Choose a valid business.');
   return db.runTransaction(async tx => {
@@ -19,21 +22,23 @@ export async function loadPublishedCommerce(slug, db = getFirestore()) {
 }
 const pick = (source, keys) => Object.fromEntries(keys.filter((key) => source[key] !== undefined).map((key) => [key, source[key]]));
 export function publicCommerceCatalog(workspace, countryCode = '') {
+  if (isPresenceOnlyBusiness(workspace)) return { ok: true, profileMode: 'presence', ownerId: workspace.ownerId, slug: workspace.slug, brandName: workspace.brandName, currency: workspace.currency || 'R', products: [], services: [], staff: [], markets: [], paymentOptions: [], marketsConfigured: false, catalogAvailability: 'presence-only' };
   const configured = Array.isArray(workspace.website?.markets); const country = String(countryCode || '').toUpperCase();
   const market = configured ? resolveMarket(workspace.website, country) : null;
   const allowed = (kind, id, variantId = '') => !configured || country && catalogAllowed(market, kind, id, variantId);
-  const productKeys = ['id','name','title','description','price','priceInCents','compareAtPrice','currency','priceType','quoteBased','category','productType','vendor','tags','collections','sku','stockAvailable','stockLabel','hideStockOnCard','image','imageUrls','options'];
+  const productKeys = ['id','name','title','description','price','priceInCents','compareAtPrice','currency','priceType','quoteBased','category','exploreMainCategoryId','exploreSubcategoryId','productType','vendor','tags','collections','sku','stockAvailable','stockLabel','hideStockOnCard','image','imageUrls','options'];
   const variantKeys = ['id','title','optionValues','price','priceInCents','compareAtPrice','sku','stockAvailable','imageUrl','available','weight','weightUnit','length','width','height','dimensionUnit','size'];
-  const serviceKeys = ['id','name','description','price','priceType','duration','durationMinutes','minDuration','fixedDuration','category','scheduleType','capacity','sessions','sessionStartDate','sessionStartTime','sessionEndDate','sessionEndTime','sessionLabel','staffIds','photoURL','imageUrls'];
-  return { ok: true, ownerId: workspace.ownerId, slug: workspace.slug, brandName: workspace.brandName || '', currency: workspace.currency || 'R', timezone: workspace.timezone || 'Africa/Johannesburg',
-    products: (workspace.products || []).filter((item) => item.active !== false && !['draft','archived'].includes(item.status) && allowed('product',item.id)).map((item) => ({ ...pick(item, productKeys), active: true, variants: (item.variants || []).filter((variant) => allowed('product',item.id,variant.id)).map((variant) => pick(variant,variantKeys)) })),
-    services: (workspace.services || []).filter((item) => item.active !== false && item.available !== false && !['draft','archived'].includes(item.status) && allowed('service',item.id)).map((item) => ({ ...pick(item,serviceKeys), active: true, variants: (item.variants || []).filter((variant) => variant.available !== false).map((variant) => pick(variant,['id','name','description','price','minDuration','available'])) })),
+  const serviceKeys = ['id','name','description','price','priceType','duration','durationMinutes','minDuration','fixedDuration','category','exploreMainCategoryId','exploreSubcategoryId','scheduleType','capacity','sessions','sessionStartDate','sessionStartTime','sessionEndDate','sessionEndTime','sessionLabel','staffIds','photoURL','imageUrls'];
+  return { ok: true, profileMode: 'commerce', ownerId: workspace.ownerId, slug: workspace.slug, brandName: workspace.brandName || '', currency: workspace.currency || 'R', timezone: workspace.timezone || 'Africa/Johannesburg',
+    products: (workspace.products || []).filter((item) => item.active !== false && !['draft','archived'].includes(item.status) && allowed('product',item.id)).map((item) => ({ ...pick(item, productKeys), ...normalizeListing(item), [listingDetailsKey(item)]: publicListingDetails(item), listingSpecificationGroups: listingSpecificationGroups(item), listingFacts: listingFacts(item), active: true, variants: (item.variants || []).filter((variant) => allowed('product',item.id,variant.id)).map((variant) => pick(variant,variantKeys)) })),
+    services: (workspace.services || []).filter((item) => item.active !== false && item.available !== false && !['draft','archived'].includes(item.status) && allowed('service',item.id)).map((item) => ({ ...pick(item,serviceKeys), ...normalizeServiceConfiguration(item), serviceConfigurationFields: serviceConfigurationFields(item), serviceFacts: serviceFacts(item), active: true, variants: (item.variants || []).filter((variant) => variant.available !== false).map((variant) => pick(variant,['id','name','description','price','minDuration','available'])) })),
     staff: (workspace.staff || []).filter(item => item.active !== false).map((item) => pick(item,['id','name','role','color'])),
     markets: getMarkets(workspace.website).map((market) => pick(market,['id','countryCode','enabled'])), paymentOptions: getPublicPaymentOptions(workspace).options.map((option) => pick(option,['id','gatewayType','name','enabled','mode'])),
     policies: pick(workspace.policies || {},['cancellation','terms','privacy']), checkout: pick(workspace.features || {},['collectClientPhone','collectClientNotes','birthday']),
     revision: { ...commerceQuoteRevision(workspace,'product'),services:workspace.sectionRevisions?.services || 0 }, marketsConfigured: configured, catalogAvailability: !configured ? 'available' : !country ? 'country-required' : !market?.enabled ? 'country-disabled' : 'available' };
 }
 export function serviceCommerceQuote(workspace, data) {
+  assertBusinessCommerceEnabled(workspace);
   const service = (workspace.services || []).find((item) => item.id === data.serviceId);
   if (!service || service.active === false || service.available === false || ['draft','archived'].includes(service.status)) throw new Error('Service unavailable.');
   const countryCode = String(data.countryCode || data.client?.country || data.clientCountry || '').trim().toUpperCase();
