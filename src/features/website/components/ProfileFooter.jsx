@@ -19,7 +19,7 @@ export function ProfileFooter({ workspace, preview, editMode, patchWebsite, asPa
     workspace.email && { label: 'Email us', value: workspace.email, href: `mailto:${workspace.email}`, Icon: Mail }
   ].filter(Boolean);
   return <>
-    {asPage && !editMode ? <section className="bb-profile-contact-page" aria-label="Contact">
+    {asPage ? <section className="bb-profile-contact-page" aria-label="Contact">
       <div className="bb-profile-contact-main">
         <header className="bb-profile-contact-intro bb-profile-page-intro">
           <h2>Get in touch</h2>
@@ -36,9 +36,9 @@ export function ProfileFooter({ workspace, preview, editMode, patchWebsite, asPa
         </div>
       </div>
       <div className="bb-profile-contact-details">
-        {socials.length > 0 && <section className="bb-profile-contact-panel">
+        {(socials.length > 0 || editMode) && <section className="bb-profile-contact-panel">
           <h3>Find us online</h3>
-          <div className="bb-profile-contact-links">{socials.map(([label, url]) => <a key={label} href={url}
+          <div className="bb-profile-contact-links">{editMode ? PROFILE_SOCIALS.map(label => <div key={label} className="bb-profile-social-edit"><span>{label}</span><EditableText as="p" editMode maxLength={2048} value={workspace.website?.socialLinks?.[label.toLowerCase()] || ''} placeholder="Add link" ariaLabel={`${label} link`} onChange={value => patchWebsite?.({ socialLinks: { ...workspace.website?.socialLinks, [label.toLowerCase()]: value } })} /></div>) : socials.map(([label, url]) => <a key={label} href={url}
             target="_blank" rel="noopener noreferrer"><span>{label}</span><ArrowUpRight size={16} strokeWidth={1.6} aria-hidden="true" /></a>)}</div>
         </section>}
       </div>

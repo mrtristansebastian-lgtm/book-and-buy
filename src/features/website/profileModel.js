@@ -20,7 +20,7 @@ export function profileTabs(workspace) {
     ...(catalog.buy ? [{ id: 'buy', label: 'Buy' }] : [])];
 }
 
-export function profileSectionTabs(workspace = {}) {
+export function profileSectionTabs(workspace = {}, { editing = false } = {}) {
   const website = workspace.website || {};
   const sections = website.sections || {};
   return [
@@ -31,7 +31,7 @@ export function profileSectionTabs(workspace = {}) {
     { id: 'map', label: 'Location' },
     { id: 'faq', label: 'FAQs' },
     { id: 'contact', label: 'Contact' }
-  ].filter(tab => isPublicPageEnabled(website.pages, tab.id) && sections[tab.section || tab.id] !== false && (tab.id !== 'gallery' || sections.venue !== false || sections.gallery === true) &&
+  ].filter(tab => editing || isPublicPageEnabled(website.pages, tab.id) && sections[tab.section || tab.id] !== false && (tab.id !== 'gallery' || sections.venue !== false || sections.gallery === true) &&
     (tab.id !== 'about' || hasProfileStory(website)) &&
     (tab.id !== 'offers' || website.reasonsBody || (website.reasons || []).some(reason => reason.title || reason.body)));
 }

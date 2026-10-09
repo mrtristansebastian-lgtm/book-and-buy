@@ -45,7 +45,7 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
   const logo = website.logoUrl || workspace.logoUrl || '';
   const interactive = !preview && !editMode;
   useEffect(() => {
-    if (compact || editMode) return;
+    if (compact) return;
     const identity = menuTriggerRef.current?.closest('.bb-business-profile-identity');
     const copy = identity?.querySelector('.bb-business-profile-bio');
     if (!identity || !copy) return;
@@ -104,15 +104,15 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
             const current = buttons.indexOf(document.activeElement);
             const index = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (current + (['ArrowDown', 'ArrowRight'].includes(event.key) ? 1 : -1) + buttons.length) % buttons.length;
             buttons[index]?.focus();
-          }}>{navigation.map(item => { const Icon = pageIcons[item.id] || Compass; return <button type="button" key={item.id} aria-current={activePage === item.id ? 'page' : undefined} disabled={editMode} onClick={() => openPage(item.id)}><Icon size={16} strokeWidth={1.6}/><span>{item.label}</span></button>; })}</nav>
+          }}>{navigation.map(item => { const Icon = pageIcons[item.id] || Compass; return <button type="button" key={item.id} aria-current={activePage === item.id ? 'page' : undefined} onClick={() => openPage(item.id)}><Icon size={16} strokeWidth={1.6}/><span>{item.label}</span></button>; })}</nav>
         </div>}
         </div>
         {compact && <button type="button" className="bb-profile-mini-identity" onClick={() => openPage('home')} aria-label={`Back to ${name} business card`}>
           {logo && <img src={logo} alt=""/>}<span>{name}</span>
         </button>}
         <div className="bb-profile-quick-actions">
-          {navigation.some(item => item.id === 'book') && <button type="button" className={`bb-profile-quick-button${activePage === 'book' ? ' is-active' : ''}`} disabled={editMode} onClick={() => openPage('book')}><CalendarDays size={16}/><span>Book</span></button>}
-          {navigation.some(item => item.id === 'buy') && <button type="button" className={`bb-profile-quick-button${activePage === 'buy' ? ' is-active' : ''}`} disabled={editMode} onClick={() => openPage('buy')}><ShoppingBag size={16}/><span>Buy</span></button>}
+          {navigation.some(item => item.id === 'book') && <button type="button" className={`bb-profile-quick-button${activePage === 'book' ? ' is-active' : ''}`} aria-label="Book" title="Book" onClick={() => openPage('book')}><CalendarDays size={16}/><span>Book</span></button>}
+          {navigation.some(item => item.id === 'buy') && <button type="button" className={`bb-profile-quick-button${activePage === 'buy' ? ' is-active' : ''}`} aria-label="Buy" title="Buy" onClick={() => openPage('buy')}><ShoppingBag size={16}/><span>Buy</span></button>}
         </div>
       </nav>
       {compact && <h1 className="bb-profile-page-title sr-only">{navigation.find(item => item.id === activePage)?.label || ({ cart: 'Your cart', checkout: 'Checkout', success: 'Confirmation' })[activePage] || 'Business profile'}</h1>}
@@ -149,7 +149,6 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
             value={bio} placeholder="A short introduction to your business" website={website}
             patchWebsite={patchWebsite}
             onChange={(value) => patchWebsite({ homeSubtext: value, subcopy: value })} />
-          {editMode ? <p className="bb-business-profile-edit-note">Edit your name, introduction and photos here. Location and business category are managed in Business settings.</p> : null}
         </div>
         <div className="bb-business-profile-actions">
           {<>

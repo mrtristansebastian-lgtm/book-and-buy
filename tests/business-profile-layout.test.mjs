@@ -29,7 +29,7 @@ const Gallery = load('src/features/website/components/home-sections/VenueSection
 });
 const html = (component, props) => renderToStaticMarkup(React.createElement(component, props));
 
-test('published About shows every chapter together and editing retains chapter controls', () => {
+test('published About and editing show the same chapter card layout', () => {
   const rendered = html(About, { website: { aboutPages: [
     { id: 'a', title: 'Our story', body: 'Existing copy', imageUrl: '/story.jpg', icon: 'info' },
     { id: 'b', title: 'Our mission', body: 'Existing mission' }
@@ -46,8 +46,9 @@ test('published About shows every chapter together and editing retains chapter c
     { id: 'a', title: 'Our story', body: 'Existing copy' },
     { id: 'b', title: 'Our mission', body: 'Existing mission' }
   ] } });
-  assert.match(editing, /aria-label="Story timeline"/);
-  assert.equal((editing.match(/role="tab"/g) || []).length, 2);
+  assert.match(editing, /bb-profile-about-overview-grid/);
+  assert.equal((editing.match(/<article/g) || []).length, 2);
+  assert.doesNotMatch(editing, /role="tab"|Story timeline/);
   assert.match(rendered, /story.jpg/);
   assert.doesNotMatch(rendered, /carousel|Previous page|Next page/);
 });

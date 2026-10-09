@@ -19,11 +19,10 @@ export function ProfilePageFrame({
   const modulesRef = useRef(null);
   const navigation = [
     ...profileTabs(workspace).map(item => item.id === 'home' ? { ...item, label: 'Business card' } : item),
-    ...profileSectionTabs(workspace)
+    ...profileSectionTabs(workspace, { editing: editMode })
   ];
   const pageLabel = navigation.find(item => item.id === page)?.label || ({ cart: 'Cart', checkout: 'Checkout', success: 'Confirmation' }[page]) || 'Business profile';
   const openPage = id => {
-    if (editMode) return;
     if (onOpenPage) { onOpenPage(id); return; }
     navigate(publicPagePath(workspace.slug, id));
   };
@@ -40,7 +39,7 @@ export function ProfilePageFrame({
       <div ref={modulesRef} className="bb-public-profile-modules" data-scroll-root tabIndex={0} role="region" aria-label={pageLabel}>
         {children}
       </div>
-      <ProfileCardFooter workspace={workspace} />
+      <ProfileCardFooter workspace={workspace} onOpenPage={openPage} />
     </div>
   </div>;
 }

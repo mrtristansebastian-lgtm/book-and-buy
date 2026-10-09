@@ -154,30 +154,13 @@ export function WebsiteSurfaceStudio({
                 <h1 className="bb-page-title m-0">{compact ? 'Business profile' : title}</h1>
               </span>
             </div>
+      <div className="bb-profile-draft-status" role="status">
+        {saveStatus === 'error' ? <><span>{saveError}</span><Button action="refresh" variant="secondary" onClick={retrySave}>Retry save</Button></> :
+          <span>{saveStatus === 'saving' ? 'Saving draft…' : workspace.isDemo ? 'Demo · changes saved on this device only.' : saveStatus === 'saved' ? 'Draft saved · publish to make it live.' : 'Draft on this device · publish to make it live.'}</span>}
+        {website.published && workspace.publishedAt ? <span>Last published {new Date(workspace.publishedAt).toLocaleString()}</span> : <span>Not published yet</span>}
+      </div>
             {!compact ? <p className="bb-muted m-0 text-sm bb-studio-toolbar-lede">{lede}</p> : null}
           </div>}
-          <div className="bb-studio-actions">
-            <Button action="open" variant="secondary"
-              type="button"
-              className="bb-studio-action bb-studio-action--ghost"
-              onClick={() => navigate(publicPagePath(workspace.slug, livePage))}
-            >
-              <ExternalLink size={14} strokeWidth={2.2} />
-              Open live
-            </Button>
-            <Button action="publish" variant="secondary"
-              type="button"
-              className={`bb-studio-action bb-studio-action--primary${
-                canToggleVisibility && !pageVisible ? ' is-unpublished' : ''
-              }`}
-              disabled={publishing}
-              onClick={onPublishAction}
-            >
-              {publishLabel}
-            </Button>
-          </div>
-        </div>
-
         <div className="bb-studio-controls">
           {stepOptions ? (
             <PeriodSegmentedControl
@@ -231,15 +214,31 @@ export function WebsiteSurfaceStudio({
             </div>
           )}
         </div>
+          <div className="bb-studio-actions">
+            <Button action="open" variant="secondary"
+              type="button"
+              className="bb-studio-action bb-studio-action--ghost"
+              onClick={() => navigate(publicPagePath(workspace.slug, livePage))}
+            >
+              <ExternalLink size={14} strokeWidth={2.2} />
+              Open live
+            </Button>
+            <Button action="publish" variant="secondary"
+              type="button"
+              className={`bb-studio-action bb-studio-action--primary${
+                canToggleVisibility && !pageVisible ? ' is-unpublished' : ''
+              }`}
+              disabled={publishing}
+              onClick={onPublishAction}
+            >
+              {publishLabel}
+            </Button>
+          </div>
+        </div>
+
       </header>
 
-      <div className="bb-profile-draft-status" role="status">
-        {saveStatus === 'error' ? <><span>{saveError}</span><Button action="refresh" variant="secondary" onClick={retrySave}>Retry save</Button></> :
-          <span>{saveStatus === 'saving' ? 'Saving draft…' : workspace.isDemo ? 'Demo · changes saved on this device only.' : saveStatus === 'saved' ? 'Draft saved · publish to make it live.' : 'Draft on this device · publish to make it live.'}</span>}
-        {website.published && workspace.publishedAt ? <span>Last published {new Date(workspace.publishedAt).toLocaleString()}</span> : <span>Not published yet</span>}
-      </div>
       {publishNote ? <p role="status" className="bb-profile-publish-note">{publishNote}</p> : null}
-      {compact && editMode ? <p className="bb-profile-inline-hint">Click any text or image below to edit. Changes save to your draft automatically.</p> : null}
 
       <div className={`bb-studio-stage ${editMode ? 'is-edit' : 'is-view'}`}>
         <DevicePreviewFrame
