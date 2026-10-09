@@ -20,6 +20,30 @@ export function profileTabs(workspace) {
     ...(catalog.buy ? [{ id: 'buy', label: 'Buy' }] : [])];
 }
 
+export function profileSectionTabs(workspace = {}) {
+  const website = workspace.website || {};
+  const sections = website.sections || {};
+  return [
+    { id: 'about', label: 'About' },
+    { id: 'offers', section: 'offerIntro', label: 'What we offer' },
+    { id: 'gallery', label: 'Gallery' },
+    { id: 'reviews', label: 'Reviews' },
+    { id: 'map', label: 'Location' },
+    { id: 'faq', label: 'FAQs' },
+    { id: 'contact', label: 'Contact' }
+  ].filter(tab => isPublicPageEnabled(website.pages, tab.id) && sections[tab.section || tab.id] !== false && (tab.id !== 'gallery' || sections.venue !== false || sections.gallery === true) &&
+    (tab.id !== 'about' || hasProfileStory(website)) &&
+    (tab.id !== 'offers' || website.reasonsBody || (website.reasons || []).some(reason => reason.title || reason.body)));
+}
+
+function hasProfileStory(website) {
+  const hasBody = body => Boolean(String(body || '').trim());
+  if (website.storyPages?.length) return website.storyPages.some(page => hasBody(page.body));
+  const bodies = website.aboutPages?.length ? website.aboutPages.map(page => page.body) : [website.aboutBody, website.missionBody, website.visionBody];
+  const chapters = bodies.filter(hasBody);
+  return hasBody(website.storyBody ?? chapters[0]) || chapters.slice(1).some(hasBody);
+}
+
 export function searchPublicCatalog(items, query = '') {
   const words = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   return items.filter((item) => {

@@ -44,7 +44,6 @@
 <div class="builder-preview-controls"><nav aria-label="Editor view" class="view-tabs" id="mainViewTabs">
 <button aria-pressed="true" class="mobile-chat-tab" id="mobileChatTab" type="button"><span aria-hidden="true" class="icon-slot" data-icon="message-square"></span><span>Chat</span></button>
 <button aria-pressed="true" class="view-tab active" data-view="preview"><span class="button-label">Preview</span></button>
-<button aria-pressed="false" class="view-tab" data-view="code"><span class="button-label">Code</span></button>
 </nav><div aria-label="Preview device" class="device-switcher" id="deviceSwitcher">
 <button aria-label="Desktop" aria-pressed="true" class="device-btn active" data-device="desktop" data-tooltip="Desktop"><span aria-hidden="true" class="icon-slot" data-icon="monitor"></span></button>
 <button aria-label="Tablet" aria-pressed="false" class="device-btn" data-device="tablet" data-tooltip="Tablet"><span aria-hidden="true" class="icon-slot" data-icon="tablet"></span></button>
@@ -60,6 +59,7 @@
 <button aria-label="Undo" class="icon-btn quiet" data-tooltip="Undo" disabled="" id="undoBtn"><span aria-hidden="true" class="icon-slot" data-icon="undo"></span></button>
 <button aria-label="Redo" class="icon-btn quiet" data-tooltip="Redo" disabled="" id="redoBtn"><span aria-hidden="true" class="icon-slot" data-icon="redo"></span></button>
 </div>
+<button class="icon-btn quiet" id="downloadWebsiteBtn" aria-label="Download website files" data-tooltip="Download website files"><span aria-hidden="true" class="icon-slot" data-icon="download"></span></button>
 <button class="secondary-btn" id="shareBtn"><span aria-hidden="true" class="icon-slot" data-icon="share"></span><span class="button-label">Share</span></button>
 <button class="primary-btn" id="publishBtn" title="Publish a verified website version"><span aria-hidden="true" class="icon-slot" data-icon="publish"></span><span class="button-label">Publish</span></button>
 <div class="menu-anchor">
@@ -334,6 +334,7 @@
 <script src="runtime-sdk.js"></script>
 <script src="commerce.js"></script>
 <script src="local-services.js"></script>
+<script src="site-export.js"></script>
 <script src="app.js"></script>
 <script src="local-ui.js"></script>
 </body>

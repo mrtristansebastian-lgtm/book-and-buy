@@ -29,18 +29,25 @@ const Gallery = load('src/features/website/components/home-sections/VenueSection
 });
 const html = (component, props) => renderToStaticMarkup(React.createElement(component, props));
 
-test('story timeline shows one chapter with titles for the other chapters', () => {
+test('published About shows every chapter together and editing retains chapter controls', () => {
   const rendered = html(About, { website: { aboutPages: [
     { id: 'a', title: 'Our story', body: 'Existing copy', imageUrl: '/story.jpg', icon: 'info' },
     { id: 'b', title: 'Our mission', body: 'Existing mission' }
   ] } });
   assert.match(rendered, /Existing copy/);
-  assert.doesNotMatch(rendered, /Existing mission/);
+  assert.match(rendered, /Existing mission/);
   assert.match(rendered, /Our story/);
-  assert.equal((rendered.match(/<h2/g) || []).length, 1);
+  assert.equal((rendered.match(/<h2/g) || []).length, 2);
   assert.match(rendered, /Our mission/);
-  assert.match(rendered, /aria-label="Story timeline"/);
-  assert.equal((rendered.match(/role="tab"/g) || []).length, 2);
+  assert.match(rendered, /bb-profile-about-overview-grid/);
+  assert.equal((rendered.match(/<article/g) || []).length, 2);
+  assert.doesNotMatch(rendered, /role="tab"|Next story chapter/);
+  const editing = html(About, { editMode: true, website: { aboutPages: [
+    { id: 'a', title: 'Our story', body: 'Existing copy' },
+    { id: 'b', title: 'Our mission', body: 'Existing mission' }
+  ] } });
+  assert.match(editing, /aria-label="Story timeline"/);
+  assert.equal((editing.match(/role="tab"/g) || []).length, 2);
   assert.match(rendered, /story.jpg/);
   assert.doesNotMatch(rendered, /carousel|Previous page|Next page/);
 });
@@ -67,10 +74,12 @@ test('profile photo gallery keeps accessible descriptions but hides visible capt
   assert.equal(html(Gallery, { website: {}, venueImages: [] }), '');
 });
 
-test('one shared identity sits above all profile tabs; URL drives tab selection', () => {
+test('one shared identity includes section navigation; URL drives selected content', () => {
   const view = source('src/features/website/components/PublicSurfaceViews.jsx');
   assert.match(view, /bb-business-profile/);
-  assert.ok(view.indexOf('<BusinessProfileHeader') < view.indexOf('<nav'));
+  assert.ok(view.indexOf('<BusinessProfileHeader') < view.indexOf('className="bb-public-profile-modules"'));
+  assert.match(view, /navigation=\{tabs\} activePage=\{visibleTab\}/);
+  assert.doesNotMatch(view, /role="tablist"|role="tabpanel"/);
   assert.doesNotMatch(view, /<HeroSection|setActiveTab|railLocked/);
   assert.match(view, /publicPagePath\(workspace\.slug, id\)/);
   assert.match(view, /id="bb-profile-panel-book"/);

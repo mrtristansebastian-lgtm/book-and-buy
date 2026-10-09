@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Lightbulb, Brain, SlidersHorizontal, Paperclip, ArrowUp, Square, CalendarDays, Package, ShoppingBag, MessageCircle, BarChart3, ListChecks } from 'lucide-react';
+import { Lightbulb, Brain, SlidersHorizontal, Paperclip, ArrowUp, Square, CalendarDays, Package, ShoppingBag, MessageCircle, BarChart3, ListChecks, AudioLines } from 'lucide-react';
 
 const TASKS = [
   { label: 'Today’s priorities', description: 'What needs your attention', icon: ListChecks, prompt: 'Review my bookings and orders. What needs my attention today? Be clear about information you cannot access.' },
@@ -33,6 +33,8 @@ export function ButlerComposer({ input, onInput, fieldRef, mode, onMode, working
       {menu === 'ai' && <section id="butler-ai-menu" className="bb-butler-composer-popover is-ai" aria-label="AI model and thinking level">{aiSettings}</section>}
       {menu === 'tools' && <section id="butler-tools-menu" className="bb-butler-composer-popover" aria-label="Butler tools"><header>A little help with your business<small>Choose a task to prepare your message.</small></header>{TASKS.map(({ label, description, icon: Icon, prompt }) => <button type="button" key={label} className="bb-butler-menu-option" onClick={() => chooseTask(prompt)}><Icon size={18}/><span><strong>{label}</strong><small>{description}</small></span></button>)}<button type="button" className="bb-butler-menu-option" onClick={() => { onMenu(''); onReports(); }}><BarChart3 size={18}/><span><strong>Analytics reports</strong><small>Open your business reports</small></span></button></section>}
       <button className="bb-butler-send" type={working ? 'button' : 'submit'} aria-label={working ? 'Stop Butler' : 'Send message to Butler'} disabled={!working && (!canSend || !input.trim())} onClick={working ? onStop : undefined}>{working ? <Square size={14} fill="currentColor"/> : <ArrowUp size={18}/>}</button>
+      <button type="button" data-menu="voice" className="bb-butler-voice" aria-label="Butler voice mode" title="Butler voice mode" aria-expanded={menu === 'voice'} aria-controls="butler-voice-menu" onClick={() => toggle('voice')}><AudioLines size={18} aria-hidden="true"/></button>
+      {menu === 'voice' && <section id="butler-voice-menu" className="bb-butler-composer-popover" aria-label="Butler voice mode"><header>Talk with your Butler<small>Voice conversations aren’t available yet. You can keep chatting here by text.</small></header></section>}
     </div>
   </form>;
 }

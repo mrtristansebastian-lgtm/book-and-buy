@@ -24,10 +24,22 @@ function load(file) {
   new Function('module', 'exports', 'require', outputText)(module, module.exports, require);
   return module.exports;
 }
-const { profileCatalog, profileTabs, searchPublicCatalog } = load('src/features/website/profileModel.js');
+const { profileCatalog, profileTabs, profileSectionTabs, searchPublicCatalog } = load('src/features/website/profileModel.js');
 const product = { id: 'p', name: 'Object', active: true, status: 'active' };
 const service = { id: 's', name: 'Consultation', active: true };
 const ids = (workspace) => profileTabs(workspace).map(({ id }) => id);
+
+test('profile section tabs respect hidden sections, legacy gallery settings and empty offers', () => {
+  const website = { sections: { gallery: false, reviews: false }, pages: { faq: false }, reasons: [] };
+  assert.deepEqual(profileSectionTabs({ website }).map(tab => tab.id), ['map', 'contact']);
+  assert.ok(profileSectionTabs({ website: { reasonsBody: 'Classes and products' } }).some(tab => tab.id === 'offers'));
+  assert.ok(!profileSectionTabs({ website: { sections: { venue: false } } }).some(tab => tab.id === 'gallery'));
+  assert.ok(profileSectionTabs({ website: { storyPages: [{ body: 'Our newest chapter' }] } }).some(tab => tab.id === 'about'));
+  assert.ok(!profileSectionTabs({ website: { storyPages: [{ body: '   ' }] } }).some(tab => tab.id === 'about'));
+  assert.ok(!profileSectionTabs({ website: { aboutBody: 'Our story', sections: { about: false } } }).some(tab => tab.id === 'about'));
+  assert.ok(!profileSectionTabs({ website: { aboutBody: 'Old story', storyBody: '' } }).some(tab => tab.id === 'about'));
+  assert.ok(!profileSectionTabs({ website: { aboutBody: 'Old story', storyPages: [{ id: 'story', body: '' }] } }).some(tab => tab.id === 'about'));
+});
 
 test('profile actions match services-only, products-only, mixed and empty businesses', () => {
   assert.deepEqual(ids({ services: [service] }), ['home', 'book']);

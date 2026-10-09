@@ -331,11 +331,14 @@ html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile h
 /* Preview hardware surrounds the live renderer without scaling its contents. */
 .bb-profile-device--plain { min-width:0; width:100%; }
 .bb-profile-device { box-sizing:border-box; margin-inline:auto; min-width:0; background:linear-gradient(135deg,#fafbfc 0%,#dce0e5 28%,#f5f6f8 52%,#d2d7de 80%,#eef0f3 100%); box-shadow:inset 0 1px 2px #ffffff,inset 0 -2px 3px #aab1bc66,0 16px 40px #10182814; }
-.bb-profile-device--desktop { width:100%; max-width:1160px; padding:10px; border:1px solid #b9c0ca; border-radius:18px; }
+.bb-profile-device--desktop { width:100%; max-width:1160px; padding:0; border:0; border-radius:0; background:#fff; box-shadow:none; }
+.bb-profile-device--desktop .bb-profile-device-chrome { display:none; }
+.bb-business-profile .bb-public-profile-tabs { overflow-x:auto; scrollbar-width:none; }
+.bb-business-profile .bb-public-profile-tabs::-webkit-scrollbar { display:none; }
 .bb-profile-device-chrome { display:flex; align-items:center; gap:6px; height:32px; padding:0 6px 8px; }
 .bb-profile-device--desktop .bb-profile-device-chrome > span { width:7px; height:7px; border-radius:50%; background:#a0a8b3; box-shadow:inset 0 1px 1px #67718055,0 1px 0 #ffffff; }
 .bb-profile-device-address { flex:1; max-width:380px; margin:auto; padding:3px 16px; border-radius:6px; text-align:center; color:#667085; background:#ffffffa6; box-shadow:inset 0 1px 2px #10182812,0 1px 0 #fff; font:400 11px/1.5 var(--bb-font-body); }
-.bb-profile-device--desktop .bb-device-screen { width:100% !important; max-width:none !important; height:720px; overflow-y:auto; border-radius:8px; background:#fff; }
+.bb-profile-device--desktop .bb-device-screen { width:100% !important; max-width:none !important; height:720px; overflow-y:auto; border-radius:0; border:0; box-shadow:none; background:#fff; }
 .bb-profile-device--phone { width:414px; max-width:100%; padding:10px; border:2px solid #bac1ca; border-radius:40px; }
 .bb-profile-device--phone .bb-profile-device-chrome { justify-content:center; height:24px; padding:0; }
 .bb-profile-device-speaker { display:block; width:64px; height:5px; border-radius:999px; background:#9099a5; box-shadow:inset 0 1px 2px #4b556366,0 1px 0 #fff; }

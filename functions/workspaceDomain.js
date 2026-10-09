@@ -1,4 +1,5 @@
 import { validateBranches } from './branchesDomain.js';
+import { validateProfileStory } from './profileStoryDomain.js';
 // Shared policy metadata: safe to import in the browser. Enforcement lives on the server.
 export const SETTINGS_COVERAGE = [
   { id: 'butler', status: 'ready', rule: 'Owner tools, previews and bounded policies', public: 'No private business capabilities', tool: 'automations.read', test: 'butler-emulator' },
@@ -86,6 +87,7 @@ export function applyWorkspaceChanges(previous = {}, changes = [], { initial = f
     if (!patch || Array.isArray(patch) || !Object.keys(patch).length || Object.keys(patch).some(key => !fields.includes(key))) domainError('Change contains fields outside this section.');
     for (const [key, value] of Object.entries(patch)) {
       if (key === 'website' && value?.platformReviewsEnabled !== undefined && typeof value.platformReviewsEnabled !== 'boolean') domainError('Book & Buy reviews must be enabled or disabled.');
+      if (key === 'website' && value) Object.assign(value, validateProfileStory(value));
       if (key === 'website' && value?.branches !== undefined) value.branches = validateBranches(value.branches);
       if (key === 'products' || key === 'services' || key === 'staff' || key === 'clients') {
         if (!Array.isArray(value)) domainError(`${key} must be a list.`);

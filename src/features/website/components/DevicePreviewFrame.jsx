@@ -35,6 +35,10 @@ export function DevicePreviewFrame({
   }, [page, device]);
 
   useEffect(() => {
+    surfaceRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [currentPage]);
+
+  useEffect(() => {
     surfaceRef.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
   }, [itemId]);
 

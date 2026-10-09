@@ -1,5 +1,7 @@
-import { profileTabs } from '../profileModel';
+import { profileTabs, profileSectionTabs } from '../profileModel';
+import { useEffect, useRef } from 'react';
 import { BusinessProfileHeader } from './BusinessProfileHeader';
+import { ProfileCardFooter } from './ProfileCardFooter';
 import { ProfileFooter } from './ProfileFooter';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
@@ -33,7 +35,7 @@ function resolveSectionOrder() {
 function normalizeRailTab(value) {
   const id = String(value || 'home').trim().toLowerCase();
   if (id === 'social' || id === 'content') return 'home';
-  if (id === 'book' || id === 'buy' || id === 'home') return id;
+  if (['book', 'buy', 'home', 'about', 'offers', 'gallery', 'reviews', 'map', 'faq', 'contact', 'cancellation', 'terms', 'privacy'].includes(id)) return id;
   return 'home';
 }
 
@@ -76,19 +78,22 @@ export function PublicHomeView({
   };
 
   const order = resolveSectionOrder().filter((id) => sectionOn(website, id) || editMode);
-  const tabs = profileTabs(workspace);
+  const tabs = [...profileTabs(workspace).map(tab => tab.id === 'home' ? { ...tab, label: 'Business card' } : tab), ...profileSectionTabs(workspace)];
   // The URL is the selected tab: deep links, browser Back and analytics agree.
-  const visibleTab = tabs.some((tab) => tab.id === requestedTab) ? requestedTab : 'home';
+  const policyLabels = { cancellation: 'Cancellation policy', terms: 'Terms of service', privacy: 'Privacy policy' };
+  const visibleTab = policyLabels[requestedTab] || tabs.some((tab) => tab.id === requestedTab) ? requestedTab : 'home';
+  const contentRef = useRef(null);
+  useEffect(() => { contentRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }, [visibleTab]);
   const openRailTab = (id) => {
     if (editMode) return;
     if (onOpenPage) { onOpenPage(id); return; }
-    if (!preview) navigate(publicPagePath(workspace.slug, id));
+    navigate(publicPagePath(workspace.slug, id));
   };
 
   const homeSections = (
     <div className="bb-public-profile-home-stack">
       {marketPicker}
-      {order.map((id) => {
+      {order.filter(id => editMode || id === (visibleTab === 'offers' ? 'offerIntro' : visibleTab)).map((id) => {
         if (id === 'offerIntro') {
           if (!editMode && !reasons.some((reason) => reason.title || reason.body) && !website.reasonsBody) return null;
           return (
@@ -171,14 +176,17 @@ export function PublicHomeView({
   );
 
   let panel = (
-    <div id="bb-profile-panel-home" className="bb-public-profile-panel" role="tabpanel" aria-labelledby="bb-profile-tab-home">
-      {homeSections}
+    <div id={`bb-profile-panel-${visibleTab}`} className="bb-public-profile-panel" role="region" aria-label={tabs.find(tab => tab.id === visibleTab)?.label}>
+      {!policyLabels[visibleTab] && visibleTab !== 'contact' && homeSections}
+      {policyLabels[visibleTab] && <section className="bb-profile-policy-page"><h2>{policyLabels[visibleTab]}</h2><p>{workspace.policies?.[visibleTab]?.trim() || 'This business has not added this policy yet. Please contact them for details.'}</p></section>}
+      {visibleTab === 'contact' && <ProfileFooter asPage workspace={workspace} preview={preview} editMode={editMode} patchWebsite={patchWebsite} />}
     </div>
   );
 
   if (visibleTab === 'book') {
     panel = (
-      <div id="bb-profile-panel-book" className="bb-public-profile-panel bb-public-profile-panel--book" role="tabpanel" aria-labelledby="bb-profile-tab-book">
+      <div id="bb-profile-panel-book" className="bb-public-profile-panel bb-public-profile-panel--book" role="region" aria-label="Book">
+        <header className="bb-profile-page-intro"><h2>Book</h2><p>{String(website.bookSubtext || '').trim() || 'Choose a service and request a time.'}</p></header>
         {marketPicker}
         <PublicBookingFlow
           catalogWorkspace={workspace}
@@ -192,11 +200,14 @@ export function PublicHomeView({
     );
   } else if (visibleTab === 'buy') {
     panel = (
-      <div id="bb-profile-panel-buy" className="bb-public-profile-panel bb-public-profile-panel--buy" role="tabpanel" aria-labelledby="bb-profile-tab-buy">
+      <div id="bb-profile-panel-buy" className="bb-public-profile-panel bb-public-profile-panel--buy" role="region" aria-label="Buy">
+        <header className="bb-profile-page-intro"><h2>Buy</h2><p>{String(website.buySubtext || '').trim() || 'Discover products from this business.'}</p></header>
         {marketPicker}
         <PublicStorefront
           catalogWorkspace={workspace}
           workspaceName={workspace.brandName}
+          hideTitle
+          hideIntro
           preview={preview}
           publicMode={publicMode}
           onOpenItem={onOpenItem}
@@ -206,45 +217,13 @@ export function PublicHomeView({
   }
 
   return (
-    <div className="bb-public-home-stack bb-public-profile bb-business-profile">
+    <div className={`bb-public-home-stack bb-public-profile bb-business-profile bb-profile-storyboard${visibleTab === 'home' ? ' is-card-home' : ' is-section-page'}${editMode ? ' is-editing' : ''}`}>
       <div className="bb-public-profile-rail">
         <BusinessProfileHeader workspace={workspace} editMode={editMode} preview={preview}
-          patchWebsite={patchWebsite} onUpdateProfile={onUpdateProfile} onOpenTab={openRailTab} />
-        {tabs.length ? (
-          <nav className="bb-public-profile-tabs bb-public-profile-tabs--top" role="tablist" aria-label="Profile">
-            {tabs.map((tab) => {
-              const active = visibleTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  id={`bb-profile-tab-${tab.id}`}
-                  tabIndex={active ? 0 : -1}
-                  aria-selected={active}
-                  className={`bb-public-profile-tab${active ? ' is-active' : ''}`}
-                  aria-controls={`bb-profile-panel-${tab.id}`}
-                  disabled={editMode}
-                  onClick={() => openRailTab(tab.id)}
-                  onKeyDown={(event) => {
-                    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
-                    event.preventDefault();
-                    const index = tabs.findIndex((item) => item.id === tab.id);
-                    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 :
-                      (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-                    event.currentTarget.closest('[role="tablist"]')?.querySelectorAll('[role="tab"]')[next]?.focus();
-                    openRailTab(tabs[next].id);
-                  }}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        ) : null}
-
-        <div className="bb-public-profile-modules">{panel}</div>
-        <ProfileFooter workspace={workspace} preview={preview} editMode={editMode} patchWebsite={patchWebsite} />
+          patchWebsite={patchWebsite} onUpdateProfile={onUpdateProfile} onOpenTab={openRailTab} navigation={tabs} activePage={visibleTab} compact={visibleTab !== 'home' && !editMode} />
+        {(visibleTab !== 'home' || editMode) && <div className="bb-public-profile-modules" ref={contentRef} data-scroll-root tabIndex={0} aria-label={`${tabs.find(tab => tab.id === visibleTab)?.label || 'Business profile'} content`}>{panel}</div>}
+        <ProfileCardFooter workspace={workspace} />
+        {editMode && <ProfileFooter workspace={workspace} preview={preview} editMode={editMode} patchWebsite={patchWebsite} />}
       </div>
     </div>
   );

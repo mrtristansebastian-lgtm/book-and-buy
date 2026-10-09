@@ -17,6 +17,8 @@ import {
 export function PublicStorefront({
   catalogWorkspace,
   workspaceName,
+  hideTitle = false,
+  hideIntro = false,
   preview = false,
   publicMode = false,
   onOpenItem
@@ -129,13 +131,13 @@ export function PublicStorefront({
           <aside className="bb-public-catalog-side">{categoryTabsEl}</aside>
 
           <div className="bb-public-catalog-main">
-            <header className="bb-public-catalog-intro">
+            {!hideIntro && <header className="bb-public-catalog-intro">
               <div className="bb-public-catalog-intro-copy">
-                <h2 className="bb-public-catalog-intro-title">Our Products</h2>
+                {!hideTitle && <h2 className="bb-public-catalog-intro-title">Our Products</h2>}
                 <p className="bb-public-catalog-intro-body">{introBody}</p>
               </div>
 
-            </header>
+            </header>}
 
             <div className="bb-profile-catalog-toolbar">
               <label className="bb-profile-catalog-search">Search products<input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search by name or category" /></label>

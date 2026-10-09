@@ -30,7 +30,7 @@ export const isHomePageAlwaysVisible = (pageId) =>
 export const railTabToPageId = (tabId) => {
   const id = String(tabId || 'home').trim().toLowerCase();
   if (id === 'content' || id === 'social') return 'home';
-  if (id === 'book' || id === 'buy' || id === 'home') return id;
+  if (['book', 'buy', 'home', 'about', 'offers', 'gallery', 'reviews', 'map', 'faq', 'contact'].includes(id)) return id;
   return 'home';
 };
 

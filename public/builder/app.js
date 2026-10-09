@@ -871,6 +871,7 @@ function renderCurrent() {
 }
 
 function setView(view) {
+  view = "preview";
   if (state.view === "code" && view !== "code" && state.codeDirty) applyCodeEdits({ silent: true });
   state.view = view;
   if (window.matchMedia("(max-width: 760px)").matches) {
@@ -4126,7 +4127,7 @@ function openSiteFilePicker(kind = "folder") {
 }
 
 els.importSiteBtn?.addEventListener("click", () => openSiteFilePicker("folder"));
-$("#builderImportWebsiteFiles")?.addEventListener("click", () => { closeAllPopovers(); setView("code"); openSiteFilePicker("files"); });
+$("#builderImportWebsiteFiles")?.addEventListener("click", () => { closeAllPopovers(); openSiteFilePicker("files"); });
 els.importFolderBtn?.addEventListener("click", event => { event.stopPropagation(); openSiteFilePicker("folder"); });
 els.importFilesBtn?.addEventListener("click", event => { event.stopPropagation(); openSiteFilePicker("files"); });
 els.uploadSiteCard?.addEventListener("keydown", event => {
@@ -4222,6 +4223,55 @@ $("#downloadCodeBtn").addEventListener("click", () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 0);
   showToast(`${state.activeFile} downloaded`, { tone: "success" });
+});
+
+$("#downloadWebsiteBtn")?.addEventListener("click", async () => {
+  if (!state.current?.html) return showToast("Create a website before downloading.", { tone: "info" });
+  const button = $("#downloadWebsiteBtn"); button.disabled = true;
+  try {
+    const exporter = window.BookBuySiteExport, encoder = new TextEncoder(), entries = [];
+    const source = state.current.files || { 'index.html': state.current.html };
+    const excludedScripts = new Set(Object.entries(source).filter(([path, content]) => /\.(?:m?js)$/i.test(path) && /bookbuy-preview|BookBuyServices|BookBuyRuntimeSDK/.test(String(content))).map(([path]) => path));
+    for (const [path, raw] of Object.entries(source)) {
+      exporter.validate(path, raw);
+      let content = String(raw);
+      // Preview transport is app infrastructure, never an exported site capability.
+      if (excludedScripts.has(path)) continue;
+      if (/\.html?$/i.test(path)) {
+        const doc = new DOMParser().parseFromString(content, 'text/html');
+        doc.querySelectorAll('script[data-bb-layer="core"],script[data-bb-protected="true"],script[data-bb-runtime],script[data-bb-preview]').forEach(el => el.remove());
+        doc.querySelectorAll('script').forEach(el => {
+          const src = el.getAttribute('src') || '';
+          if (excludedScripts.has(resolveProjectPath(path, src)) || /bookbuy-preview|BookBuyServices|BookBuyRuntimeSDK/.test(el.textContent) || /(?:^|\/)builder\//i.test(src)) el.remove();
+        });
+        doc.querySelectorAll('*').forEach(el => {
+          for (const attr of Array.from(el.attributes)) {
+            if (attr.name.startsWith('data-bb-original-')) el.setAttribute(attr.name.slice(17), attr.value);
+          }
+          for (const attr of Array.from(el.attributes)) if (attr.name.startsWith('data-bb-')) el.removeAttribute(attr.name);
+        });
+        content = '<!doctype html>\n' + doc.documentElement.outerHTML;
+      }
+      exporter.validate(path, content); entries.push({ path, bytes: encoder.encode(content) });
+    }
+    for (const [path, asset] of Object.entries(state.current.assets || {})) {
+      exporter.validate(path, '');
+      const url = asset.previewUrl || asset.url;
+      if (!/^(?:data:|blob:)/i.test(url || '')) throw new Error('An asset is unavailable locally. Reimport it before downloading.');
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('An asset could not be downloaded.');
+      entries.push({ path, bytes: new Uint8Array(await response.arrayBuffer()) });
+    }
+    let readme = 'BOOK & BUY WEBSITE EXPORT\n\nYour website design files only. Serve these files with a static web server.\nBook & Buy commerce, booking, payment, AI, and owner tools are not included.\nHosted integrations must be reconnected before accepting orders or bookings.\nExternal image/font links remain external.\n';
+    let readmePath = 'BOOK-AND-BUY-EXPORT.txt';
+    while (entries.some(entry => entry.path === readmePath)) readmePath = '_' + readmePath;
+    entries.push({ path: readmePath, bytes: encoder.encode(readme) });
+    const url = URL.createObjectURL(exporter.zip(entries)), link = document.createElement('a');
+    link.href = url; link.download = `${String(state.current.name || 'website').replace(/[^a-z0-9_-]+/gi, '-').slice(0, 80) || 'website'}.zip`;
+    link.click(); setTimeout(() => URL.revokeObjectURL(url), 30000);
+    showToast('Website files downloaded', { tone: 'success' });
+  } catch (error) { showToast(error.message || 'Could not download website files.', { tone: 'error' }); }
+  finally { button.disabled = false; }
 });
 
 // History

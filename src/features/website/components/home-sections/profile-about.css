@@ -1,0 +1,72 @@
+/* About uses the same compact section rhythm as the business profile's other pages. */
+.bb-profile-about-section { min-width:0; }
+.bb-profile-about-head { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.bb-profile-about-title-wrap { min-width:0; }
+.bb-profile-about-title { margin:0; font:600 22px/1.35 var(--bb-font-display); letter-spacing:-.025em; overflow-wrap:anywhere; }
+.bb-profile-about-controls { display:flex; flex:none; align-items:center; gap:6px; }
+.bb-profile-about-count { padding-right:6px; font:400 12px/1.4 var(--bb-font-body); color:#98a2b3; font-variant-numeric:tabular-nums; }
+.bb-profile-about-controls button { display:grid; place-items:center; flex:none; width:32px; height:32px; padding:0; color:#475467; background:#fff; border:1px solid #e4e7ec; border-radius:9px; cursor:pointer; }
+.bb-profile-about-controls button:hover { color:#101828; border-color:#cdd3dc; background:#fafbfc; }
+.bb-profile-about-chapters { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 20px; padding:0; }
+.bb-profile-about-chapters button { min-width:0; min-height:36px; padding:7px 12px; border:1px solid transparent; border-radius:10px; background:#fff; color:#667085; font:400 13px/1.5 var(--bb-font-body); text-align:left; overflow-wrap:anywhere; cursor:pointer; }
+.bb-profile-about-chapters button[aria-selected=true] { color:#101828; background-image:linear-gradient(#fff,#fff),var(--native-accent-gradient); background-origin:border-box; background-clip:padding-box,border-box; background-size:100% 100%,420% 420%; background-position:0 0,var(--native-accent-x,40%) 50%; }
+.bb-profile-about-chapter { display:grid; grid-template-columns:minmax(0,1fr); gap:24px; align-items:start; min-width:0; touch-action:pan-y; }
+.bb-profile-about-chapter.has-photo { grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr); }
+.bb-profile-about-photo { position:relative; width:100%; aspect-ratio:3/2; max-height:280px; border-radius:12px; background:#f2f4f7; overflow:hidden; }
+.bb-profile-about-photo > img { display:block; width:100%; height:100%; object-fit:cover; border-radius:inherit; }
+.bb-profile-about-photo.bb-editable-image { overflow:visible; }
+.bb-profile-about-photo .bb-editable-image-blank { min-height:0; height:100%; border-radius:inherit; overflow:hidden; }
+.bb-profile-about-photo .bb-editable-image-actions { z-index:2; }
+.bb-profile-about-copy { min-width:0; align-self:center; }
+.bb-profile-about-text { display:grid; gap:14px; max-width:68ch; white-space:pre-line; overflow-wrap:anywhere; }
+.bb-profile-about-text p { margin:0; font:400 14px/1.7 var(--bb-font-body); color:#475467; }
+.bb-profile-about-text.bb-editable-text { display:block; white-space:pre-wrap; }
+.bb-profile-about-add { margin-top:20px; }
+.bb-profile-about-section :is(button,[role=tabpanel]):focus-visible { outline:2px solid #101828; outline-offset:3px; }
+.bb-profile-about-chapter--next { animation:bb-profile-about-enter .22s ease-out both; }
+.bb-profile-about-chapter--previous { animation:bb-profile-about-enter .22s ease-out both; }
+@keyframes bb-profile-about-enter { from { opacity:.6; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-about-head { display:flex; justify-items:normal; align-items:center; text-align:left; margin-bottom:18px; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-about-section h2.bb-profile-about-title { width:auto !important; margin:0 !important; padding:0 !important; font:600 22px/1.35 var(--bb-font-display) !important; letter-spacing:-.025em !important; text-align:left !important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-about-text p { max-width:68ch !important; margin:0 !important; font:400 14px/1.7 var(--bb-font-body) !important; letter-spacing:normal !important; text-align:left !important; color:#475467; }
+@container bb-profile-width (max-width:599px) {
+  .bb-profile-about-chapter.has-photo { grid-template-columns:minmax(0,1fr); gap:18px; }
+  .bb-profile-about-photo { aspect-ratio:16/9; max-height:220px; }
+  .bb-profile-about-chapters { gap:4px; margin-bottom:18px; }
+  .bb-profile-about-chapters button { padding:7px 10px; }
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile .bb-profile-about-section h2.bb-profile-about-title { font-size:20px !important; }
+}
+@media(prefers-reduced-motion:reduce) { .bb-profile-about-chapter--next,.bb-profile-about-chapter--previous { animation:none; } }
+
+/* Published About is a single editorial composition, rather than a chapter carousel. */
+html body .native-ui .bb-public-surface .bb-profile-storyboard .bb-profile-about-overview {
+  display: grid;
+  min-height: 100%;
+  padding: 24px;
+  border: 0;
+  box-sizing: border-box;
+}
+.bb-profile-about-overview-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:16px; min-width:0; }
+.bb-profile-about-tile { display:flex; flex-direction:column; min-width:0; border:1px solid #e9edf1; border-radius:14px; overflow:hidden; background:#fff; }
+.bb-profile-about-tile-copy { display:grid; align-content:start; gap:12px; min-width:0; padding:20px; }
+.bb-profile-about-tile-body { display:grid; gap:12px; min-width:0; white-space:pre-line; overflow-wrap:anywhere; }
+.bb-profile-about-tile-image { position:relative; flex:none; width:100%; min-height:0; aspect-ratio:1/1; overflow:hidden; background:#f8f9fa; }
+.bb-profile-about-tile-image img { position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-about-tile h2.bb-profile-about-tile-title {
+  width:auto!important; margin:0!important; padding:0!important; text-align:left!important;
+  font:600 20px/1.3 var(--bb-font-display)!important; letter-spacing:-.4px!important;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-about-overview .bb-profile-about-tile h2.bb-profile-about-tile-title::after { display:none!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-about-tile .bb-profile-about-tile-body p {
+  margin:0!important; text-align:left!important; color:#475467!important;
+  font:400 14px/1.7 var(--bb-font-body)!important; letter-spacing:normal!important;
+}
+@container bb-profile-width (min-width:760px) {
+  .bb-profile-about-overview-grid { width:100%; max-width:1000px; margin-inline:auto; }
+  .bb-profile-about-overview-grid.has-multiple { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .bb-profile-about-overview-grid.has-three-or-more { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@container bb-profile-width (max-width:759px) {
+  html body .native-ui .bb-public-surface .bb-profile-storyboard .bb-profile-about-overview { min-height:0; padding:20px 18px; }
+  .bb-profile-about-tile-copy { padding:18px; }
+}

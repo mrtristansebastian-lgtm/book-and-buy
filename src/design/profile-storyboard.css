@@ -1,0 +1,165 @@
+/* The public profile is one responsive digital card, with a stable inner scroller. */
+html body .native-ui .bb-public-surface .bb-public-profile.bb-profile-storyboard {
+ --bb-profile-content:1200px; --bb-public-gutter:24px;
+ width:100%; max-width:var(--bb-profile-content); margin-inline:auto; box-sizing:border-box;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-profile-storyboard:not(.is-editing) {
+ display:flex; align-items:center; justify-content:center; height:100dvh!important; min-height:0;
+ --bb-card-available-height:calc(100dvh - 48px);
+ max-width:none!important; padding:24px; background:#fff;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-profile-storyboard:not(.is-editing) .bb-public-profile-rail {
+ display:flex!important; flex-direction:column; flex:none; width:min(100%,1200px,calc(var(--bb-card-available-height) * 1040 / 620)); max-width:1200px; height:auto!important; aspect-ratio:1040/620; max-height:calc(1200px * 620 / 1040)!important;
+ min-height:0; margin:0 auto; overflow:hidden!important; box-sizing:border-box;
+ border:1px solid #e4e7ec; border-radius:24px;
+ background:#fff;
+ box-shadow:0 24px 64px -28px #10182826,0 4px 16px #10182805;
+ container-type:inline-size; container-name:bb-profile-width bb-storyboard;
+}
+html body .native-ui .bb-public-surface--preview .bb-public-profile.bb-profile-storyboard:not(.is-editing) { height:min(720px,calc(100dvh - 120px))!important; --bb-card-available-height:calc(min(720px,calc(100dvh - 120px)) - 48px); }
+html body .native-ui .bb-studio-surface--phone .bb-public-surface .bb-public-profile.bb-profile-storyboard:not(.is-editing) { height:min(760px,calc(100dvh - 80px))!important; padding:0; }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-identity {
+ position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:none;
+ gap:0; margin:0; padding:0 0 22px; box-sizing:border-box; background:transparent; border:0;
+}
+html body .native-ui .bb-profile-storyboard:not(.is-editing) .bb-business-profile-identity { flex:0 0 auto; }
+html body .native-ui .bb-profile-storyboard.is-card-home:not(.is-editing) .bb-business-profile-identity {
+ flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin;
+}
+html body .native-ui .bb-profile-storyboard .bb-profile-card-nav {
+ display:flex; align-items:center; justify-content:space-between; flex-wrap:nowrap;
+ flex:0 0 auto; width:100%; padding:18px 24px; gap:12px; box-sizing:border-box;
+}
+.bb-profile-menu-anchor { position:relative; flex:0 0 auto; }
+.bb-profile-quick-actions { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+html body .native-ui .bb-profile-storyboard :is(.bb-profile-menu-trigger,.bb-profile-quick-button) {
+ display:inline-flex; align-items:center; justify-content:center; gap:7px; width:auto; min-height:36px;
+ padding:7px 12px; border:1px solid #e4e7ec; border-radius:10px; background:#fff;
+ box-shadow:none; font:500 14px/1.4 var(--bb-font-body); color:#344054; cursor:pointer;
+}
+html body .native-ui .bb-profile-storyboard .bb-profile-menu-trigger { padding-inline:0; border-color:transparent; }
+html body .native-ui .bb-profile-storyboard .bb-profile-quick-button.is-active {
+ border-color:transparent; background:linear-gradient(#fff,#fff) padding-box,var(--native-accent-gradient) border-box; color:#101828;
+}
+html body .native-ui .bb-profile-storyboard .bb-profile-quick-button:hover:not(:disabled) { border-color:#cbd1da; background:#fafbfc; }
+/* Only the individual page pills have surfaces; no backdrop or menu panel. */
+.bb-profile-page-popover { position:absolute; z-index:60; top:calc(100% + 10px); left:0; width:min(420px,calc(100cqw - 48px)); background:transparent; border:0; padding:0; animation:bb-profile-pills-enter .16s ease-out; }
+.bb-profile-page-popover nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+html body .native-ui .bb-profile-storyboard .bb-profile-page-popover button {
+ display:flex; align-items:center; gap:9px; min-width:0; min-height:44px; padding:10px 14px;
+ border:1px solid #e4e7ec; border-radius:999px; background:#fff; box-shadow:0 4px 14px #10182812;
+ color:#344054; text-align:left; font:400 12px/1.4 var(--bb-font-body); cursor:pointer;
+}
+.bb-profile-page-popover button svg { flex:0 0 auto; color:#667085; }
+html body .native-ui .bb-profile-storyboard .bb-profile-page-popover button:is(:hover,[aria-current="page"]) {
+ border-color:transparent; background:linear-gradient(#fff,#fff) padding-box,var(--native-accent-gradient) border-box; color:#101828;
+}
+@keyframes bb-profile-pills-enter { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-banner {
+ position:relative; flex:0 0 auto; width:calc(100% - 24px); max-width:none; height:auto; aspect-ratio:3.7/1; margin:0;
+}
+html body .native-ui .bb-profile-storyboard .bb-business-profile-banner-media { position:absolute; inset:0; width:100%; height:100%; border-radius:14px; }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-banner-media>img { display:block; width:100%; height:100%; object-fit:cover; border-radius:inherit; }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-details {
+ position:relative; display:flex; flex-direction:column; align-items:center; width:100%; max-width:none; gap:16px;
+ margin:0 0 24px; padding:0 28px; box-sizing:border-box;
+}
+html body .native-ui .bb-profile-storyboard .bb-business-profile-photo {
+ width:96px; height:96px; min-width:96px; margin:-44px 0 0; border:6px solid #fff;
+ border-radius:50%; background:#fff; box-shadow:0 4px 18px #1018280c;
+}
+html body .native-ui .bb-profile-storyboard .bb-business-profile-photo-media { width:100%; height:100%; border-radius:50%; }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-photo-media>img { border-radius:inherit; object-fit:contain; }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-identity:not(:has(.bb-business-profile-banner)) .bb-business-profile-photo { margin-top:18px; }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-copy { display:grid; gap:10px; width:100%; justify-items:center; text-align:center; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-business-profile-name {
+ width:100%; margin:0!important; font:600 32px/1.22 var(--bb-font-display)!important;
+ letter-spacing:-1px!important; text-align:center!important;
+}
+html body .native-ui .bb-profile-storyboard .bb-business-profile-meta { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px 15px; margin:0; }
+html body .native-ui .bb-profile-storyboard .bb-profile-metadata-pill {
+ display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid transparent; border-radius:999px; background:linear-gradient(#fff,#fff) padding-box,var(--native-accent-gradient) border-box;
+ box-shadow:none; color:#667085; font:400 12px/1.5 var(--bb-font-body);
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-business-profile-bio {
+ max-width:46ch!important; margin:0!important; color:#667085; font:400 14px/1.75 var(--bb-font-body)!important; text-align:center!important;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-business-profile-actions {
+ display:flex; align-items:center; align-self:center; justify-content:center; flex-wrap:wrap;
+ width:100%; max-width:none; gap:8px; margin:4px 0 0; padding:0;
+}
+html body .native-ui .bb-profile-storyboard .bb-business-profile-actions .bb-button[data-variant] {
+ flex:0 1 auto; min-height:40px!important; padding:8px 12px!important; font-size:12px!important;
+}
+html body .native-ui .bb-profile-storyboard .bb-profile-card-signature {
+ display:flex; align-items:center; justify-content:space-between; flex:0 0 auto; width:calc(100% - 48px);
+ height:72px; box-sizing:border-box; gap:12px; margin:0 auto; padding:0; border-top:1px solid #1018280a;
+}
+.bb-profile-card-signature>span { display:flex; align-items:center; gap:9px; color:#475467; font:500 11px/1.5 var(--bb-font-body); }
+.bb-profile-card-signature>span>img { width:16px; height:25px; object-fit:contain; opacity:.82; }
+.bb-profile-card-signature>span>span { display:grid; gap:1px; }
+.bb-profile-card-signature small { color:#98a2b3; font:400 9px/1.5 var(--bb-font-body); letter-spacing:.04em; }
+.bb-profile-card-signature button { display:inline-flex; align-items:center; gap:7px; min-height:36px; border:0; padding:7px 0 7px 10px; background:transparent; color:#667085; font:400 11px/1.5 var(--bb-font-body); cursor:pointer; }
+.bb-profile-card-signature button:hover { color:#101828; }
+.bb-profile-card-share { display:grid; justify-items:end; max-width:60%; }
+.bb-profile-card-share [role="alert"] { max-width:32ch; margin:0; color:#b42318; font:400 10px/1.3 var(--bb-font-body); text-align:right; }
+html body .native-ui .bb-profile-storyboard .bb-business-profile-identity.is-compact { padding:0 24px; border-bottom:1px solid #edf0f2; }
+html body .native-ui .bb-profile-storyboard .is-compact .bb-profile-card-nav { padding:16px 0; gap:14px; }
+.bb-profile-mini-identity { display:flex; align-items:center; justify-content:center; gap:9px; min-width:0; margin-inline:auto; padding:0; border:0; background:transparent; color:#344054; cursor:pointer; }
+.bb-profile-mini-identity img { flex:none; width:40px; height:40px; object-fit:contain; border-radius:50%; }
+.bb-profile-mini-identity span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:500 16px/1.5 var(--bb-font-body); }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-page-title {
+ position:absolute!important; width:1px!important; height:1px!important; min-height:0!important;
+ margin:-1px!important; padding:0!important; overflow:hidden!important; white-space:nowrap; clip-path:inset(50%);
+}
+html body .native-ui .bb-profile-storyboard:not(.is-editing) .bb-public-profile-modules {
+ display:block!important; flex:1 1 auto; height:auto!important; max-height:none!important; min-height:0!important; padding:0; overflow-y:auto!important; overflow-x:hidden!important; overscroll-behavior:contain;
+ scrollbar-width:thin; scrollbar-color:#d5d9e0 transparent;
+}
+html body .native-ui .bb-profile-storyboard :is(.bb-public-profile-panel--book,.bb-public-profile-panel--buy) { display:block!important; height:auto!important; max-height:none!important; min-height:0!important; overflow:visible!important; }
+.bb-profile-storyboard .bb-public-profile-modules:focus-visible { outline:2px solid #667085; outline-offset:-2px; }
+html body .native-ui .bb-public-surface .bb-profile-storyboard :is(.bb-business-profile-section-head,.bb-public-profile-section-head,.bb-public-about-journey-head) { text-align:left; justify-items:start; margin-bottom:22px!important; }
+html body .native-ui .bb-public-surface .bb-profile-storyboard h2:not(.bb-offer-card):not(.bb-offer-card *) { font-size:23px!important; font-weight:600!important; line-height:1.3!important; letter-spacing:-.4px!important; }
+html body .native-ui .bb-public-surface .bb-profile-storyboard h2:not(.bb-offer-card *)::after { display:none!important; }
+html body .native-ui .bb-profile-storyboard .bb-public-catalog-intro { margin:0 0 18px!important; padding:0!important; border:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-public-catalog-intro-body { margin:0!important; text-align:left!important; font:400 14px/1.65 var(--bb-font-body)!important; color:#667085; }
+html body .native-ui .bb-profile-storyboard .bb-public-catalog-intro-copy { align-items:flex-start; }
+/* Actual cart review uses the inline panel, keeping payment logic and a single scroller. */
+html body .native-ui .bb-profile-storyboard :is(.bb-public-catalog-desk-grid,.bb-public-catalog-cart-scrim,.bb-public-catalog-cart-drawer) { display:none!important; }
+html body .native-ui .bb-profile-storyboard .bb-public-catalog-mobile-panel { display:block!important; }
+html body .native-ui .bb-profile-storyboard :is(.bb-public-catalog-desk,.bb-public-catalog-shell,.bb-public-catalog-layout,.bb-public-catalog-main) { height:auto!important; min-height:0!important; overflow:visible!important; }
+@container bb-storyboard (min-width:760px) {
+ html body .native-ui .bb-profile-storyboard.is-card-home:not(.is-editing) .bb-business-profile-identity { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-template-rows:76px minmax(0,1fr); padding:0; overflow:hidden; }
+ html body .native-ui .bb-profile-storyboard.is-card-home .bb-profile-card-nav { grid-column:1/-1; grid-row:1; }
+ html body .native-ui .bb-profile-storyboard.is-card-home .bb-business-profile-banner { grid-column:1; grid-row:2; align-self:center; justify-self:center; width:calc(100% - 124px); height:auto; aspect-ratio:1; margin:0; transform:translateX(var(--bb-profile-photo-shift,0px)); }
+ html body .native-ui .bb-profile-storyboard.is-card-home .bb-business-profile-details { grid-column:2; grid-row:2; justify-content:center; height:100%; padding:18px 32px 26px; gap:18px; margin:0; }
+ html body .native-ui .bb-profile-storyboard.is-card-home .bb-business-profile-photo { width:88px; height:88px; min-width:88px; margin:0; }
+ html body .native-ui .bb-profile-storyboard.is-card-home .bb-business-profile-meta { flex-direction:row; gap:8px; }
+ html body .native-ui .bb-profile-storyboard.is-card-home .bb-business-profile-identity:not(:has(.bb-business-profile-banner)) .bb-business-profile-details { grid-column:1/-1; }
+}
+@container bb-storyboard (max-width:599px) {
+ html body .native-ui .bb-profile-storyboard .bb-profile-card-nav { padding:16px 18px; }
+ html body .native-ui .bb-profile-storyboard .bb-business-profile-banner { width:calc(100% - 24px); aspect-ratio:2/1; }
+ html body .native-ui .bb-profile-storyboard .bb-business-profile-details { padding-inline:18px; gap:15px; }
+ html body .native-ui .bb-profile-storyboard .bb-business-profile-photo { width:82px; height:82px; min-width:82px; margin-top:-36px; border-width:5px; }
+ html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-business-profile-name { font-size:27px!important; letter-spacing:-.7px!important; }
+ html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-business-profile-bio { font-size:13px!important; }
+ html body .native-ui .bb-profile-storyboard .bb-profile-card-signature { width:calc(100% - 36px); }
+ html body .native-ui .bb-profile-storyboard .bb-business-profile-identity.is-compact { padding-inline:18px; }
+ html body .native-ui .bb-profile-storyboard .is-compact .bb-profile-card-nav { padding:16px 0; gap:10px; flex-wrap:wrap; }
+ .bb-profile-mini-identity { order:3; width:100%; justify-content:flex-start; }
+ html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-page-title { font-size:23px!important; }
+ .bb-profile-page-popover { width:calc(100cqw - 36px); }
+ html body .native-ui .bb-profile-storyboard .bb-profile-page-popover button { padding-inline:12px; }
+}
+@container bb-device (max-width:599px) {
+ html body .native-ui .bb-public-surface .bb-public-profile.bb-profile-storyboard:not(.is-editing) { padding:0; }
+ html body .native-ui .bb-public-surface .bb-public-profile.bb-profile-storyboard:not(.is-editing) .bb-public-profile-rail { width:100%; height:100%!important; aspect-ratio:auto; max-height:none!important; border-radius:0; }
+}
+@media(max-width:759px) {
+ html body .native-ui .bb-public-surface .bb-public-profile.bb-profile-storyboard:not(.is-editing) { padding:0; }
+ html body .native-ui .bb-public-surface .bb-public-profile.bb-profile-storyboard:not(.is-editing) .bb-public-profile-rail { width:100%; height:100%!important; aspect-ratio:auto; max-height:none!important; border-radius:0; }
+ html body .native-ui .bb-profile-storyboard.is-card-home .bb-profile-card-nav { padding-top:max(16px,env(safe-area-inset-top)); }
+ html body .native-ui .bb-profile-storyboard .bb-profile-card-signature { padding-bottom:env(safe-area-inset-bottom); }
+}
+@media(prefers-reduced-motion:reduce) { .bb-profile-page-popover { animation:none; } }

@@ -282,6 +282,7 @@ export function PublicCartCheckout({
   const [paymentRecovery, setPaymentRecovery] = useState(null);
   const bookingRequests = useRef(new Map());
   const requestAttribution = useRef(new Map());
+  const flowRef = useRef(null);
   const [returnState, setReturnState] = useState(null);
   const [slotEditItem, setSlotEditItem] = useState(null);
   const [step, setStep] = useState(() => {
@@ -290,6 +291,14 @@ export function PublicCartCheckout({
     }
     return 'review';
   });
+
+  useEffect(() => {
+    const flow = flowRef.current;
+    const scrollRoot = flow?.closest('[data-scroll-root]');
+    if (!scrollRoot) return;
+    scrollRoot.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    flow.querySelector('h2.bb-checkout-flow__title')?.focus({ preventScroll: true });
+  }, [step, returnState?.kind, cart.items.length === 0]);
 
   useEffect(() => {
     if (forceStep === 'details' || forceStep === 'success' || forceStep === 'review') {
@@ -779,9 +788,9 @@ export function PublicCartCheckout({
 
   if (returnState) {
     return (
-      <div className="bb-checkout-flow">
+      <div ref={flowRef} className="bb-checkout-flow">
         <div className="bb-checkout-flow__intro">
-          <h2 className="bb-checkout-flow__title">
+          <h2 tabIndex={-1} className="bb-checkout-flow__title">
             {returnState.kind === 'cancelled'
               ? 'Payment cancelled'
               : returnState.kind === 'confirming'
@@ -855,14 +864,14 @@ export function PublicCartCheckout({
     const reference = testMode ? resultReference : formatCheckoutReference(resultReference);
 
     return (
-      <div className="bb-checkout-flow bb-checkout-success">
+      <div ref={flowRef} className="bb-checkout-flow bb-checkout-success">
         <div className="bb-checkout-success__mark" aria-hidden="true">
           <span className="bb-checkout-success__mark-core">
             <Check size={22} strokeWidth={2.6} />
           </span>
         </div>
         <div className="bb-checkout-flow__intro bb-checkout-flow__intro--center">
-          <h2 className="bb-checkout-flow__title">
+          <h2 tabIndex={-1} className="bb-checkout-flow__title">
             {testMode ? 'Test checkout complete.' : activeResult.partial ? 'Partly submitted.' : successCopy.successTitle}
           </h2>
           <p className="bb-checkout-flow__lede">{testMode ? 'Your website connection passed this checkout preview.' : successCopy.successLede}</p>
@@ -961,7 +970,7 @@ export function PublicCartCheckout({
 
   if (!cart.items.length && !lockedPreview) {
     return (
-      <div className="bb-checkout-flow bb-checkout-empty">
+      <div ref={flowRef} className="bb-checkout-flow bb-checkout-empty">
         <p className="bb-checkout-flow__lede">Your cart is empty.</p>
         <p className="bb-checkout-flow__lede">
           Add services from Book or products from Buy. Quote-based products stay request-only.
@@ -976,10 +985,10 @@ export function PublicCartCheckout({
 
   if (step === 'details') {
     return (
-      <div className="bb-checkout-flow">
+      <div ref={flowRef} className="bb-checkout-flow">
         <div className="bb-checkout-flow__intro">
           <p className="bb-checkout-flow__eyebrow">Checkout</p>
-          <h2 className="bb-checkout-flow__title">Fill in your details.</h2>
+          <h2 tabIndex={-1} className="bb-checkout-flow__title">Fill in your details.</h2>
           <p className="bb-checkout-flow__lede">{copy.detailsLede}</p>
         </div>
 
@@ -1167,7 +1176,7 @@ export function PublicCartCheckout({
   }
 
   return (
-    <div className="bb-checkout-flow">
+    <div ref={flowRef} className="bb-checkout-flow">
       <Button action="edit" variant="secondary" type="button" className="bb-checkout-flow__back" onClick={onBack}>
         <ChevronLeft size={14} strokeWidth={2.4} aria-hidden="true" />
         Edit selection
@@ -1175,7 +1184,7 @@ export function PublicCartCheckout({
 
       <div className="bb-checkout-flow__intro bb-checkout-flow__intro--center">
         <p className="bb-checkout-flow__eyebrow">{copy.reviewEyebrow}</p>
-        <h2 className="bb-checkout-flow__title">{copy.reviewTitle}</h2>
+        <h2 tabIndex={-1} className="bb-checkout-flow__title">{copy.reviewTitle}</h2>
         <p className="bb-checkout-flow__lede">{copy.reviewLede}</p>
       </div>
 

@@ -1,0 +1,144 @@
+/* Contact is a page of useful actions, separate from the persistent card footer. */
+html body .native-ui .bb-profile-storyboard:not(.is-editing) .bb-public-profile-modules:has(.bb-profile-contact-page) { display:grid!important; }
+html body .native-ui .bb-public-surface .bb-profile-storyboard .bb-profile-contact-page {
+  display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); align-items:center;
+  min-height:100%; gap:40px; padding:36px 48px; box-sizing:border-box;
+}
+.bb-profile-contact-main { display:grid; gap:28px; min-width:0; }
+.bb-profile-contact-intro { display:grid; gap:10px; min-width:0; }
+.bb-profile-contact-eyebrow { color:#667085; font:500 11px/1.5 var(--bb-font-body); letter-spacing:.12em; text-transform:uppercase; }
+.bb-profile-contact-methods { display:grid; gap:12px; }
+.bb-profile-contact-method { display:flex; align-items:center; gap:16px; min-width:0; min-height:88px; padding:18px; border:1px solid #e4e7ec; border-radius:14px; background:#fff; text-decoration:none; color:#101828; box-sizing:border-box; }
+.bb-profile-contact-method:hover:not([aria-disabled=true]) { border-color:#bfc7d2; background:#fafbfc; }
+.bb-profile-contact-method-icon { display:grid; place-items:center; flex:none; width:40px; height:40px; border:1px solid #edf0f2; border-radius:50%; color:#475467; }
+.bb-profile-contact-method-copy { display:grid; gap:5px; min-width:0; flex:1; }
+.bb-profile-contact-method-copy>span { color:#667085; font:400 12px/1.5 var(--bb-font-body); }
+.bb-profile-contact-method-copy>strong { font:500 16px/1.5 var(--bb-font-body); overflow-wrap:anywhere; }
+.bb-profile-contact-method>svg { flex:none; color:#98a2b3; }
+.bb-profile-contact-details { display:grid; gap:16px; min-width:0; }
+.bb-profile-contact-panel { min-width:0; padding:24px; border:1px solid #e4e7ec; border-radius:14px; background:#fff; }
+.bb-profile-contact-links { display:grid; margin-top:16px; }
+.bb-profile-contact-links :is(button,a) { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:46px; padding:10px 0; border:0; border-bottom:1px solid #edf0f2; background:transparent; color:#344054; text-decoration:none; text-align:left; font:400 14px/1.5 var(--bb-font-body); cursor:pointer; }
+.bb-profile-contact-links :is(button,a):last-child { border-bottom:0; }
+.bb-profile-contact-links :is(button,a):hover { color:#101828; }
+.bb-profile-contact-links svg { flex:none; color:#98a2b3; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page .bb-profile-contact-intro h2 {
+  margin:0!important; text-align:left!important; font:600 32px/1.2 var(--bb-font-display)!important; letter-spacing:-.8px!important;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page .bb-profile-contact-panel h3 {
+  margin:0!important; text-align:left!important; font:600 18px/1.4 var(--bb-font-display)!important; letter-spacing:-.2px!important;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page :is(h2,h3)::after { display:none!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page :is(.bb-profile-contact-intro p,.bb-profile-contact-note) {
+  margin:0!important; text-align:left!important; color:#667085!important; font:400 14px/1.65 var(--bb-font-body)!important;
+}
+.bb-profile-contact-panel .bb-profile-contact-note { padding-top:8px; }
+
+/* Visit details are centred above the map, instead of sitting in a side column. */
+html body .native-ui .bb-profile-storyboard:not(.is-editing) #bb-profile-panel-offers :is(.bb-public-home-block,.bb-business-profile-section) { border-bottom:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block { padding:28px; border-bottom:0; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block .bb-public-visit {
+  display:flex!important; flex-direction:column; align-items:center; gap:20px; width:100%; max-width:none; margin:0;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block .bb-public-visit-copy {
+  display:grid; justify-items:center; align-content:start; width:100%; max-width:760px; gap:14px; text-align:center;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block .bb-public-profile-section-head {
+  align-items:center!important; justify-items:center!important; text-align:center!important; gap:10px!important; margin:0!important;
+}
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block :is(.bb-public-visit-title,.bb-public-profile-section-body,.bb-public-visit-body) { text-align:center!important; margin:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block .bb-public-visit-title::after { display:none!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block .bb-public-map-wrap { width:100%; max-width:960px; margin:0; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block .bb-public-map-frame { width:100%; height:260px; border:1px solid #e4e7ec; border-radius:14px; box-shadow:none; box-sizing:border-box; }
+
+@container bb-profile-width (max-width:759px) {
+  html body .native-ui .bb-public-surface .bb-profile-storyboard .bb-profile-contact-page { grid-template-columns:minmax(0,1fr); align-content:start; gap:24px; padding:24px 18px; }
+  .bb-profile-contact-main { gap:20px; }
+  .bb-profile-contact-method { gap:12px; padding:16px; }
+  .bb-profile-contact-method-copy>strong { font-size:14px; }
+  .bb-profile-contact-panel { padding:20px; }
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block { padding:24px 18px; }
+  html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-public-map-block .bb-public-map-frame { height:240px; }
+}
+
+/* Shared page heading and quiet policy navigation. */
+html body .native-ui .bb-public-surface .bb-profile-storyboard .bb-profile-contact-page { grid-template-columns:minmax(0,1fr); align-content:start; max-width:960px; margin:auto; gap:24px; }
+.bb-profile-contact-main { gap:24px; }
+.bb-profile-contact-methods { grid-template-columns:repeat(2,minmax(0,1fr)); }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page .bb-profile-contact-intro h2 { text-align:center!important; font-size:26px!important; letter-spacing:-.5px!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page .bb-profile-contact-intro p { text-align:center!important; }
+.bb-profile-card-policies { display:flex; justify-content:center; flex-wrap:wrap; gap:6px 16px; }
+.bb-profile-card-policies a { color:#98a2b3; font:400 11px/1.5 var(--bb-font-body); text-decoration:none; }
+.bb-profile-card-policies a:hover { color:#475467; text-decoration:underline; }
+.bb-profile-policy-page { max-width:800px; margin:auto; padding:32px 24px; }
+.bb-profile-policy-page p { white-space:pre-wrap; line-height:1.75; }
+@container bb-profile-width (max-width:759px) {
+ .bb-profile-contact-methods { grid-template-columns:minmax(0,1fr); }
+ html body .native-ui .bb-profile-storyboard .bb-profile-card-signature { flex-wrap:wrap; height:auto; min-height:88px; gap:6px; padding-top:10px; padding-bottom:10px; }
+ .bb-profile-card-policies { order:3; width:100%; gap:6px 12px; }
+ .bb-profile-card-policies a { font-size:10px; }
+}
+
+/* Contact and catalog introductions follow the same centred section treatment. */
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-page-intro { display:grid; justify-items:center; text-align:center; gap:16px; padding:28px 24px!important; margin:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-page-intro h2 { position:relative; margin:0!important; padding:0 0 12px!important; text-align:center!important; font:600 26px/1.35 var(--bb-font-display)!important; letter-spacing:-.025em!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-page-intro h2::after { content:''; display:block!important; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:56px; height:2px; background:linear-gradient(90deg,#a5eaff,#e0b8ff); }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-page-intro p { width:100%; max-width:70ch; margin:0!important; text-align:center!important; font:400 14px/1.65 var(--bb-font-body)!important; color:#101828!important; letter-spacing:normal!important; }
+html body .native-ui .bb-profile-storyboard #bb-profile-panel-book .bb-public-catalog-intro { display:none!important; }
+html body .native-ui .bb-profile-storyboard .bb-profile-contact-page { padding-top:0; }
+
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro h2 { font:700 26px/1.35 var(--bb-font-body)!important; letter-spacing:-.025em!important; padding-bottom:12px!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro p { color:#101828!important; font:400 14px/1.65 var(--bb-font-body)!important; }
+
+/* Keep the business identity on the card centre, regardless of action widths. */
+html body .native-ui .bb-profile-storyboard .is-compact .bb-profile-card-nav { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2fr) minmax(0,1fr); }
+html body .native-ui .bb-profile-storyboard .is-compact .bb-profile-menu-anchor { justify-self:start; }
+html body .native-ui .bb-profile-storyboard .is-compact .bb-profile-quick-actions { justify-self:end; }
+html body .native-ui .bb-profile-storyboard .bb-profile-mini-identity { justify-self:center; margin:0; max-width:100%; }
+html body .native-ui .bb-profile-storyboard .bb-profile-mini-identity span { font:600 18px/1.4 var(--bb-font-display); letter-spacing:-.025em; }
+html body .native-ui .bb-profile-storyboard :is(h1,h2,h3,h4,h5,h6)::after,
+html body .native-ui .bb-profile-storyboard :is(.bb-public-profile-heading,.bb-business-profile-heading,.bb-public-about-journey-title)::after { display:none!important; content:none!important; }
+@container bb-profile-width (max-width:599px) {
+ html body .native-ui .bb-profile-storyboard .is-compact .bb-profile-card-nav { grid-template-columns:1fr 1fr; }
+ html body .native-ui .bb-profile-storyboard .bb-profile-mini-identity { grid-column:1/-1; grid-row:2; width:100%; justify-content:center; }
+ html body .native-ui .bb-profile-storyboard .bb-profile-mini-identity span { font-size:17px; }
+}
+
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard :is(h1,h2,h3,h4,h5,h6)[class]::after,
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-page-intro h2::after,
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro h2::after { display:none!important; content:none!important; }
+
+/* One introduction rhythm for every public card section. */
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro) { display:grid!important; justify-items:center!important; align-items:start!important; text-align:center!important; gap:16px!important; margin:0 0 24px!important; padding:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro) h2 { font:700 26px/1.35 var(--bb-font-body)!important; letter-spacing:-.025em!important; text-align:center!important; padding:0!important; margin:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro) p { width:100%!important; max-width:70ch!important; font:400 14px/1.65 var(--bb-font-body)!important; color:#101828!important; letter-spacing:normal!important; text-align:center!important; margin:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(#bb-profile-panel-book,#bb-profile-panel-buy)>.bb-profile-page-intro { padding:28px 24px 0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-profile-contact-page { padding-top:28px; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro h2 { padding:0!important; }
+
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-home-block,.bb-business-profile-section,.bb-public-map-block) { padding-top:28px!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-profile-contact-intro.bb-profile-page-intro { gap:16px!important; margin-bottom:0!important; }
+
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(#bb-profile-panel-book,#bb-profile-panel-buy)>.bb-profile-page-intro { align-content:start!important; min-height:0!important; box-sizing:border-box; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(#bb-profile-panel-book,#bb-profile-panel-buy)>.bb-profile-page-intro h2 { margin:0!important; padding:0!important; line-height:1.35!important; }
+
+/* A fine tapered line follows the title rather than a fixed decorative width. */
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro) h2 { position:relative; width:fit-content!important; max-width:100%!important; padding-bottom:12px!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro) h2::after,
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro h2::after { content:''!important; display:block!important; position:absolute; left:0; bottom:0; transform:none; width:100%; height:1.5px; margin:0; background:linear-gradient(90deg,#9de5ff00,#a5eaff 25%,#d8b4ff 75%,#d8b4ff00); clip-path:polygon(0 50%,50% 0,100% 50%,50% 100%); }
+
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(#bb-profile-panel-book,#bb-profile-panel-buy) { padding-top:0!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(#bb-profile-panel-book,#bb-profile-panel-buy)>.bb-profile-page-intro h2,
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro h2 { padding-bottom:12px!important; width:fit-content!important; }
+
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-profile-about-tile h2.bb-profile-about-tile-title,.bb-profile-policy-page h2) { position:relative; width:fit-content!important; padding-bottom:12px!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-profile-about-tile h2.bb-profile-about-tile-title,.bb-profile-policy-page h2)::after { content:''!important; display:block!important; position:absolute; left:0; bottom:0; transform:none; width:100%; height:1.5px; margin:0; background:linear-gradient(90deg,#9de5ff00,#a5eaff 25%,#d8b4ff 75%,#d8b4ff00); clip-path:polygon(0 50%,50% 0,100% 50%,50% 100%); }
+
+/* Centre the title box itself, including headings narrowed to their text width. */
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro) { grid-template-columns:minmax(0,1fr)!important; }
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro) h2,
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) :is(#bb-profile-panel-book,#bb-profile-panel-buy)>.bb-profile-page-intro h2,
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard:not(.is-editing) .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro h2 { justify-self:center!important; align-self:start!important; margin-inline:auto!important; text-align:center!important; grid-column:1!important; }
+
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard.bb-profile-storyboard:not(.is-editing) :is(.bb-public-profile-section-head,.bb-business-profile-section-head,.bb-public-about-journey-head,.bb-profile-page-intro,.bb-profile-about-tile,.bb-profile-policy-page) h2::after,
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard.bb-profile-storyboard:not(.is-editing) .bb-profile-contact-page .bb-profile-contact-intro.bb-profile-page-intro h2::after { display:block!important; content:''!important; width:100%!important; max-width:100%!important; min-width:0!important; left:50%!important; right:auto!important; transform:translateX(-50%)!important; margin:0!important; bottom:0!important; height:1.5px!important; background:linear-gradient(90deg,#9de5ff00,#a5eaff 25%,#d8b4ff 75%,#d8b4ff00)!important; clip-path:polygon(0 50%,50% 0,100% 50%,50% 100%); }

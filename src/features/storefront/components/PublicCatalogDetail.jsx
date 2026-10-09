@@ -1,5 +1,5 @@
 import { Button } from '../../../shared/ui/Button';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Image as ImageIcon, ShoppingBag } from 'lucide-react';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { usePublicCart } from '../../storefront/PublicCartContext';
@@ -58,6 +58,8 @@ export function PublicCatalogDetail({
   checkoutTestMode = false
 }) {
   const cart = usePublicCart();
+  const detailRef = useRef(null);
+  const previousPanel = useRef('detail');
   const [panel, setPanel] = useState('detail');
   const [selections, setSelections] = useState({});
   const [slotSheetOpen, setSlotSheetOpen] = useState(false);
@@ -76,6 +78,19 @@ export function PublicCatalogDetail({
   const studioBack = typeof onBack === 'function';
   const catalogPage = kind === 'service' ? 'book' : 'buy';
   const catalogLabel = kind === 'service' ? 'Book' : 'Buy';
+
+  useEffect(() => {
+    const changed = previousPanel.current !== panel;
+    previousPanel.current = panel;
+    const scrollRoot = detailRef.current?.closest('[data-scroll-root]');
+    if (!changed || !scrollRoot) return;
+    scrollRoot.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const heading = detailRef.current?.querySelector('.bb-public-detail-title, .bb-checkout-flow__title');
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({ preventScroll: true });
+    }
+  }, [panel]);
 
   useEffect(() => {
     if (!liveCommerce) return undefined;
@@ -170,7 +185,7 @@ export function PublicCatalogDetail({
 
   if ((liveCommerce && liveState.status !== 'ready') || !item) {
     return (
-      <section className="bb-public-detail bb-public-gutter bb-catalog-detail">
+      <section ref={detailRef} className="bb-public-detail bb-public-gutter bb-catalog-detail">
         <div className="bb-public-measure grid gap-4 py-10">
           <p className="bb-muted m-0">
             {liveCommerce && liveState.status === 'loading' ? 'Checking the current catalog…'
@@ -268,6 +283,7 @@ export function PublicCatalogDetail({
   if (panel === 'cart') {
     return (
       <section
+        ref={detailRef}
         className={`bb-public-detail bb-public-gutter bb-catalog-detail ${
           preview && !studioBack ? 'pointer-events-none' : ''
         }`}
@@ -289,6 +305,7 @@ export function PublicCatalogDetail({
 
   return (
     <section
+      ref={detailRef}
       className={`bb-public-detail bb-public-gutter bb-catalog-detail is-${kind} ${
         preview && !studioBack ? 'pointer-events-none' : ''
       }`}
@@ -303,7 +320,7 @@ export function PublicCatalogDetail({
         </header>
 
         <div className="bb-public-detail-layout">
-          <div className="bb-public-detail-gallery" role="group" aria-label={`${item.name} images`}>
+          <div className={`bb-public-detail-gallery${images.length > 1 ? ' has-thumbnails' : ''}`} role="group" aria-label={`${item.name} images`}>
             {images.length ? (
               <>
                 <figure className="bb-public-detail-frame">
@@ -363,35 +380,11 @@ export function PublicCatalogDetail({
               <h1 className="bb-public-detail-title">{item.name}</h1>
             </header>
 
-            <div className="bb-public-detail-price-group">
-              <p className="bb-public-detail-price" aria-label={`Price: ${price || 'Not listed'}`}>
-                {compareAt ? <s className="bb-products-compare-at">{compareAt}</s> : null}
-                <span>{price || '—'}</span>
-              </p>
-              {stock ? <p className="bb-public-detail-availability">{stock}</p> : null}
-            </div>
-
-            {timingMeta || spotCount != null ? (
-              <div className="bb-public-detail-facts">
-                {timingMeta ? <div className="bb-public-detail-fact">
-                  <span className="bb-public-product-stat-label">
-                    {isSpotService ? 'When' : 'Duration'}
-                  </span>
-                  <span className="bb-public-detail-fact-value">{timingMeta}</span>
-                </div> : null}
-                {spotCount != null ? (
-                  <span className="bb-public-detail-spots-left">
-                    <strong>{spotCount}</strong>{' '}
-                    {spotCount === 1 ? 'spot' : 'spots'} {hasBookingRecords ? 'left' : 'per session'}
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
-            {liveCommerce && isSpotService ? (
-              <p className="bb-public-detail-availability" role="status">
-                {availability.status === 'loading' ? 'Checking seat availability…'
-                  : availability.error || (availability.available ? 'Seats currently available' : 'This session has no available seats.')}
-              </p>
+            {item.description ? (
+              <section className="bb-public-detail-body" aria-label={`About ${item.name}`}>
+                <h2 className="bb-public-detail-section-label">About</h2>
+                <p>{item.description}</p>
+              </section>
             ) : null}
 
             {kind === 'product' && options.length ? (
@@ -449,11 +442,6 @@ export function PublicCatalogDetail({
                         <span className="bb-public-service-variant-name">
                           {variant.name}
                         </span>
-                        {variant.description ? (
-                          <span className="bb-public-service-variant-desc">
-                            {variant.description}
-                          </span>
-                        ) : null}
                         <span className="bb-public-service-variant-meta">
                           {[
                             formatServicePrice(item, variant) || null,
@@ -468,7 +456,45 @@ export function PublicCatalogDetail({
                     );
                   })}
                 </div>
+                {selectedServiceVariant?.description ? (
+                  <p className="bb-public-service-selection-description">
+                    {selectedServiceVariant.description}
+                  </p>
+                ) : null}
               </fieldset>
+            ) : null}
+
+            <div className="bb-public-detail-summary">
+              {(isSpotService && timingMeta) || spotCount != null ? (
+                <div className="bb-public-detail-facts">
+                  {timingMeta ? <div className="bb-public-detail-fact">
+                    <span className="bb-public-product-stat-label">When</span>
+                    <span className="bb-public-detail-fact-value">{timingMeta}</span>
+                  </div> : null}
+                  {spotCount != null ? (
+                    <span className="bb-public-detail-spots-left">
+                      <strong>{spotCount}</strong>{' '}
+                      {spotCount === 1 ? 'spot' : 'spots'} {hasBookingRecords ? 'left' : 'per session'}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+
+              <div className="bb-public-detail-price-group">
+                <span className="bb-public-detail-total-label">{kind === 'service' && !quote ? 'Total' : 'Price'}</span>
+                <p className="bb-public-detail-price" aria-label={`Price: ${price || 'Not listed'}`}>
+                  {compareAt ? <s className="bb-products-compare-at">{compareAt}</s> : null}
+                  <span>{price || '—'}</span>
+                </p>
+                {stock ? <p className="bb-public-detail-availability">{stock}</p> : null}
+              </div>
+            </div>
+
+            {liveCommerce && isSpotService ? (
+              <p className="bb-public-detail-availability" role="status">
+                {availability.status === 'loading' ? 'Checking seat availability…'
+                  : availability.error || (availability.available ? 'Seats currently available' : 'This session has no available seats.')}
+              </p>
             ) : null}
 
             <Button action="addToCart" variant="primary"
@@ -495,12 +521,6 @@ export function PublicCatalogDetail({
               </span>
             </Button>
 
-            {item.description ? (
-              <section className="bb-public-detail-body" aria-label={`About ${item.name}`}>
-                <h2 className="bb-public-detail-section-label">About</h2>
-                <p>{item.description}</p>
-              </section>
-            ) : null}
           </aside>
         </div>
       </div>

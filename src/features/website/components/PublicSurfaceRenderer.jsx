@@ -8,6 +8,7 @@ import {
 } from '../../storefront/components/PublicCartCheckout';
 import { PublicAnalyticsLayer } from '../../../shared/analytics/PublicAnalyticsLayer';
 import { PublicHomeView } from './PublicSurfaceViews';
+import { ProfilePageFrame } from './ProfilePageFrame';
 import {
   isEBusinessPreviewOnlyPage,
   resolveVisiblePublicPage
@@ -19,10 +20,11 @@ export function pageToRailTab(page = 'home') {
   if (id === 'social' || id === 'content') return 'content';
   if (id === 'book') return 'book';
   if (id === 'buy') return 'buy';
+  if (['about', 'offers', 'gallery', 'reviews', 'map', 'faq', 'contact', 'cancellation', 'terms', 'privacy'].includes(id)) return id;
   return 'home';
 }
 
-function CheckoutFlowPreview({ workspace, page, preview = false }) {
+function CheckoutFlowPreview({ workspace, page, preview = false, editMode = false, onOpenPage, onUpdateWebsite, onUpdateProfile }) {
   const forceStep =
     page === 'checkout' ? 'details' : page === 'success' ? 'success' : 'review';
   const seedItems = buildCheckoutPreviewCartItems(workspace);
@@ -35,16 +37,19 @@ function CheckoutFlowPreview({ workspace, page, preview = false }) {
         className={`bb-public-surface ${preview ? 'bb-public-surface--preview' : ''}`}
         data-page={page}
       >
-        <div className="bb-public-gutter bb-public-buy-section" style={{ paddingTop: '1.5rem' }}>
-          <PublicCartCheckout
-            catalogWorkspace={workspace}
-            workspaceName={workspace.brandName}
-            forceStep={forceStep}
-            previewResult={previewResult}
-            lockedPreview
-            onBack={() => {}}
-          />
-        </div>
+        <ProfilePageFrame workspace={workspace} page={page} preview={preview} editMode={editMode}
+          onOpenPage={onOpenPage} onUpdateWebsite={onUpdateWebsite} onUpdateProfile={onUpdateProfile}>
+          <div className="bb-public-gutter bb-public-buy-section" style={{ paddingTop: '1.5rem' }}>
+            <PublicCartCheckout
+              catalogWorkspace={workspace}
+              workspaceName={workspace.brandName}
+              forceStep={forceStep}
+              previewResult={previewResult}
+              lockedPreview
+              onBack={() => {}}
+            />
+          </div>
+        </ProfilePageFrame>
       </div>
     </PublicCartProvider>
   );
@@ -86,7 +91,8 @@ function PublicSurfaceContent({
 
   if (isEBusinessPreviewOnlyPage(pageId)) {
     return (
-      <CheckoutFlowPreview workspace={workspace} page={pageId} preview={preview || editMode} />
+      <CheckoutFlowPreview workspace={workspace} page={pageId} preview={preview || editMode} editMode={editMode}
+        onOpenPage={onOpenPage} onUpdateWebsite={onUpdateWebsite} onUpdateProfile={onUpdateProfile} />
     );
   }
 
@@ -110,17 +116,21 @@ function PublicSurfaceContent({
           }`}
           data-page={pageId}
         >
-          {marketPicker}
-          <PublicCatalogDetail
-            kind={kind}
-            item={item}
-            workspace={workspace}
-            workspaceName={workspace.brandName}
-            slug={workspace.slug}
-            preview={preview}
-            publicMode={publicMode}
-            onBack={onCloseItem}
-          />
+          <ProfilePageFrame workspace={workspace} page={pageId} preview={preview} editMode={editMode}
+            onOpenPage={onOpenPage} onUpdateWebsite={onUpdateWebsite} onUpdateProfile={onUpdateProfile} scrollKey={detailId}>
+            {marketPicker}
+            <PublicCatalogDetail
+              key={`${kind}:${detailId}`}
+              kind={kind}
+              item={item}
+              workspace={workspace}
+              workspaceName={workspace.brandName}
+              slug={workspace.slug}
+              preview={preview}
+              publicMode={publicMode}
+              onBack={onCloseItem}
+            />
+          </ProfilePageFrame>
         </div>
       </>
     );

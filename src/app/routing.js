@@ -3,6 +3,7 @@ import { resolveWorkspaceTab } from '../config/routeConfig';
 const stripHash = (value = '') => value.replace(/^#/, '');
 
 const PUBLIC_PAGES = new Set([
+  'about', 'offers', 'gallery', 'reviews', 'map', 'faq', 'contact', 'cancellation', 'terms', 'privacy',
   'home',
   'book',
   'buy',
