@@ -7,6 +7,7 @@ import { getApps, initializeApp } from 'firebase-admin/app';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onRequest } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
+import { setGlobalOptions } from 'firebase-functions/v2';
 import {
   getPublicPaymentOptions as getPublicPaymentOptionsHelper,
   saveAndVerifyPaymentGateway,
@@ -35,6 +36,9 @@ import { fetchPlaceReviews } from './places.js';
 import { getRescheduleContext, respondToReschedule, writeGuardedBooking } from './rescheduling.js';
 import { manageCustomDomain, resolveCustomDomain } from './domains.js';
 import { getFirestore } from 'firebase-admin/firestore';
+// Most handlers wait on Firebase or external APIs. Keep idle instances small
+// so a complete rollout fits the project's regional CPU allowance.
+setGlobalOptions({ cpu: 'gcf_gen1', memory: '256MiB', concurrency: 1, maxInstances: 3 });
 if (!getApps().length) initializeApp();
 
 const googlePlacesApiKey = defineSecret('GOOGLE_PLACES_API_KEY');
@@ -286,7 +290,7 @@ const ai = createAIGateway({
   resolveContext: butler.getButlerContext,
   executeTool: butler.executeButlerTool
 });
-const aiCall = handler => onCall({ secrets: aiSecrets, timeoutSeconds: 300, maxInstances: 10 }, async (request, response) => {
+const aiCall = (handler, options = {}) => onCall({ secrets: aiSecrets, timeoutSeconds: 300, maxInstances: 10, ...options }, async (request, response) => {
   try {
     if (request.auth?.token.firebase?.sign_in_provider === 'password' && !request.auth.token.email_verified) throw new HttpsError('permission-denied', 'Verify your email to connect and use AI.');
     return await handler(request, response);
@@ -301,7 +305,7 @@ export const startChatGPTConnection = aiCall(ai.startChatGPT);
 export const getPendingChatGPTConnection = aiCall(ai.getPendingChatGPT);
 export const confirmChatGPTConnection = aiCall(ai.confirmChatGPT);
 export const acknowledgeChatGPTPlanUsage = aiCall(ai.acknowledgePlanUsage);
-export const runAI = aiCall(ai.run);
+export const runAI = aiCall(ai.run, { cpu: 1 });
 export const getAIRun = aiCall(ai.getRun);
 export const cancelAIRun = aiCall(ai.cancelRun);
 export const listAIConversations = aiCall(ai.listConversations);
