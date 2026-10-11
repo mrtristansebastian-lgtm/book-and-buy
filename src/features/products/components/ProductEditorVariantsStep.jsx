@@ -21,9 +21,9 @@ export function ProductEditorVariantsStep({
     <section className="bb-services-section">
       <div className="bb-products-step-head">
         <div>
-          <h3 className="bb-services-section-title">Variants</h3>
+          <h3 className="bb-services-section-title">Options</h3>
           <p className="bb-services-section-lede">
-            Add up to 3 options and set each variant’s price here. SKU and stock
+            Add up to 3 options and set each option’s price here. SKU and stock
             live on Stock.
           </p>
         </div>
@@ -38,7 +38,7 @@ export function ProductEditorVariantsStep({
         </Button>
       </div>
 
-      {clothing && <div className="bb-products-chips" style={{ marginBottom: 16 }}>{presets.filter(preset => !options.some(option => option.name.toLowerCase() === preset.name.toLowerCase())).map(preset => <Button key={preset.name} type="button" disabled={options.length >= 3} onClick={() => addOption(preset)}><Plus size={14}/>Add {preset.name.toLowerCase()} options</Button>)}<p className="bb-services-field-hint">Edit the sizes to match your range, or use age-based and numeric sizes. Set each combination’s price here; manage its stock in Stock.</p></div>}
+      {clothing && <div className="bb-products-chips" style={{ marginBottom: 16 }}>{presets.filter(preset => !options.some(option => option.name.toLowerCase() === preset.name.toLowerCase())).map(preset => <Button key={preset.name} type="button" disabled={options.length >= 3} onClick={() => addOption(preset)}><Plus size={14}/>Add {preset.name.toLowerCase()} options</Button>)}<p className="bb-services-field-hint">Edit the sizes to match your range, or use age-based and numeric sizes. Set each option’s price here; manage its stock in Stock.</p></div>}
       {options.length === 0 ? (
         <p className="bb-services-section-lede">
           No options yet — this product sells as a single item.
@@ -132,7 +132,7 @@ export function ProductEditorVariantsStep({
           <table className="bb-products-variant-table">
             <thead>
               <tr>
-                <th>Variant</th>
+                <th>Option</th>
                 <th>Price ({draft.currency || 'R'})</th>
                 <th>
                   Compare-at{' '}
@@ -154,7 +154,7 @@ export function ProductEditorVariantsStep({
                     <input
                       type="text"
                       inputMode="decimal"
-                      aria-label={`Price for ${variant.title || 'variant'} (${draft.currency || 'R'})`}
+                      aria-label={`Price for ${variant.title || 'option'} (${draft.currency || 'R'})`}
                       value={variant.price ?? ''}
                       placeholder="0.00"
                       onChange={(event) =>
@@ -168,7 +168,7 @@ export function ProductEditorVariantsStep({
                     <input
                       type="text"
                       inputMode="decimal"
-                      aria-label={`Compare-at price for ${variant.title || 'variant'} (${draft.currency || 'R'})`}
+                      aria-label={`Compare-at price for ${variant.title || 'option'} (${draft.currency || 'R'})`}
                       value={variant.compareAtPrice ?? ''}
                       placeholder="—"
                       onChange={(event) =>
@@ -181,7 +181,7 @@ export function ProductEditorVariantsStep({
                   <td>
                     <input
                       type="checkbox"
-                      aria-label={`${variant.title || 'Variant'} available to buy`}
+                      aria-label={`${variant.title || 'Option'} available to buy`}
                       checked={variant.available !== false}
                       onChange={(event) =>
                         patchVariant(variant.id, {

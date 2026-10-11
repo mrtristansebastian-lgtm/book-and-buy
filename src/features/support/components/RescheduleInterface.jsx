@@ -7,7 +7,7 @@ import { ArrowRight, CalendarDays, Clock3, X } from 'lucide-react';
 import { bookingSlot } from '../../../../functions/bookingDomain';
 
 function TimeLabel({ slot, timezone }) {
-  if (!slot?.dateKey) return <span>Time unavailable</span>;
+  if (!slot?.dateKey) return <span>Time to be arranged</span>;
   const day = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${slot.dateKey}T12:00:00Z`));
   return <span><strong>{day}</strong><span>{slot.time} <small>{timezone}</small></span></span>;
 }

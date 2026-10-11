@@ -1,7 +1,5 @@
-import { getServiceBookingFormat } from '../../../../functions/serviceTemplates';
 
 export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus = false, currency = 'R' }) {
-  const isEvent = getServiceBookingFormat(draft) === 'event';
   return (
     <section className="bb-services-section">
       <div className="bb-services-step-head">
@@ -36,7 +34,7 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
         {showCapacity ? (
           <div className="bb-services-field-row bb-services-field-row--2">
             <label className="bb-services-field">
-              <span>{isEvent ? 'Price per ticket' : 'Price per spot'}</span>
+              <span>Price per spot</span>
               <div className="bb-products-money">
                 <span className="bb-products-money-prefix">{currency}</span>
                 <input
@@ -48,10 +46,10 @@ export function ServiceEditorDetailsStep({ draft, patch, showCapacity, autoFocus
               </div>
             </label>
             <label className="bb-services-field">
-              <span>{isEvent ? 'Event capacity' : 'Session capacity'}</span>
+              <span>Session capacity</span>
               <input
                 className="native-control-input bb-services-control"
-                aria-label={isEvent ? 'Event capacity' : 'Session capacity'}
+                aria-label="Session capacity"
                 inputMode="numeric"
                 value={draft.capacity}
                 onChange={(event) =>

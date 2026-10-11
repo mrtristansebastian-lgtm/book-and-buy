@@ -10,6 +10,7 @@ export function mergePublicCommerceWorkspace(snapshot = {}, catalog) {
     brandName: catalog.brandName,
     currency: catalog.currency,
     timezone: catalog.timezone,
+    availabilityRules: { ...snapshot.availabilityRules, ...catalog.availabilityRules },
     products: catalog.products.map((item) => ({ ...item, currency: catalog.currency })),
     services: catalog.services.map((item) => ({ ...item, currency: catalog.currency })),
     staff: catalog.staff,

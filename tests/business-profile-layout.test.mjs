@@ -12,7 +12,7 @@ const source = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'u
 const editables = {
   EditableText: ({ as = 'span', value }) => value ? React.createElement(as, {}, value) : null,
   EditableImage: ({ src, alt, preset }) => React.createElement('img', { src: src || undefined, alt, 'data-preset': preset }),
-  EditSection: ({ hidden, editMode, children }) => hidden && !editMode ? null : React.createElement('section', {}, children)
+  EditSection: ({ hidden, editMode, children, className }) => hidden && !editMode ? null : React.createElement('section', { className }, children)
 };
 function load(file, name, overrides = {}) {
   const { outputText } = ts.transpileModule(source(file), { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } });
@@ -29,7 +29,29 @@ const Gallery = load('src/features/website/components/home-sections/VenueSection
 });
 const html = (component, props) => renderToStaticMarkup(React.createElement(component, props));
 
-test('published About and editing show the same chapter card layout', () => {
+test('initial card places Explore after contact actions and retains menu and catalog corners', () => {
+  const Header = load('src/features/website/components/BusinessProfileHeader.jsx', 'BusinessProfileHeader', {
+    '../../../app/routing': { navigate() {} },
+    '../../client-app/ClientProfileContext': { useClientProfile: () => ({ profile: {}, isPlaceSaved: () => false, togglePlaceSave() {} }) },
+    '../../client-app/startClientMessage': { startClientMessage() {} },
+    '../../workspace/WorkspaceContext': { useWorkspace: () => ({ workspace: {}, startThreadFromClient() {} }) },
+    '../../client-app/profileAuthReturn': { profileSignInPath() {} },
+    '../profileModel': { profileJourney: () => ({ nextStory: { id: 'about', label: 'About' } }) }
+  });
+  const props = { workspace: { slug: 'example', brandName: 'Your Business', email: 'hello@example.com', phone: '+27000000000' },
+    navigation: [{ id: 'home', label: 'Business card' }, { id: 'book', label: 'Book' }, { id: 'buy', label: 'Buy' }, { id: 'about', label: 'About' }] };
+  const initial = html(Header, props);
+  for (const action of ['Message', 'Email', 'Call', 'Save']) assert.ok(initial.indexOf(`>${action}<`) < initial.indexOf('Explore the business'));
+  assert.match(initial, /Explore the business/);
+  assert.match(initial, /bb-profile-menu-trigger/);
+  assert.match(initial, /bb-profile-quick-actions/);
+  assert.doesNotMatch(initial, /Browse products and services|bb-profile-story-edge/);
+  const compact = html(Header, { ...props, compact: true, activePage: 'about' });
+  assert.doesNotMatch(compact, /Explore the business/);
+  assert.match(compact, /bb-profile-quick-actions/);
+});
+
+test('About presents existing copy and media in one composition with subordinate headings', () => {
   const rendered = html(About, { website: { aboutPages: [
     { id: 'a', title: 'Our story', body: 'Existing copy', imageUrl: '/story.jpg', icon: 'info' },
     { id: 'b', title: 'Our mission', body: 'Existing mission' }
@@ -37,20 +59,59 @@ test('published About and editing show the same chapter card layout', () => {
   assert.match(rendered, /Existing copy/);
   assert.match(rendered, /Existing mission/);
   assert.match(rendered, /Our story/);
-  assert.equal((rendered.match(/<h2/g) || []).length, 2);
+  assert.equal((rendered.match(/<h2/g) || []).length, 1);
+  assert.equal((rendered.match(/<h3/g) || []).length, 1);
   assert.match(rendered, /Our mission/);
-  assert.match(rendered, /bb-profile-about-overview-grid/);
-  assert.equal((rendered.match(/<article/g) || []).length, 2);
+  assert.match(rendered, /bb-profile-about-composition/);
+  assert.doesNotMatch(rendered, /bb-profile-about-tile|bb-profile-about-overview-grid/);
   assert.doesNotMatch(rendered, /role="tab"|Next story chapter/);
   const editing = html(About, { editMode: true, website: { aboutPages: [
     { id: 'a', title: 'Our story', body: 'Existing copy' },
     { id: 'b', title: 'Our mission', body: 'Existing mission' }
   ] } });
-  assert.match(editing, /bb-profile-about-overview-grid/);
-  assert.equal((editing.match(/<article/g) || []).length, 2);
+  assert.match(editing, /bb-profile-about-composition/);
+  assert.equal((editing.match(/Remove section/g) || []).length, 2);
+  assert.equal((editing.match(/Remove heading/g) || []).length, 2);
   assert.doesNotMatch(editing, /role="tab"|Story timeline/);
   assert.match(rendered, /story.jpg/);
   assert.doesNotMatch(rendered, /carousel|Previous page|Next page/);
+});
+
+test('About edits retain other sections and media, and deleted headings or sections do not revive legacy content', () => {
+  const file = 'src/features/website/components/home-sections/AboutSection.jsx';
+  const resolve = load(file, 'resolveStoryPages');
+  const update = load(file, 'updateStoryPage');
+  const remove = load(file, 'removeStoryPage');
+  const add = load(file, 'addStoryPage');
+  const website = { aboutBody: 'Legacy About', missionBody: 'Legacy mission', heroImageUrl: '/banner.jpg',
+    aboutPages: [{ id: 'about', title: 'About us', body: 'All existing copy', imageUrl: '/original.jpg', icon: 'info' },
+      { id: 'mission', title: 'Mission', body: 'Existing mission', imageUrl: '/mission.jpg' }] };
+  const before = structuredClone(website);
+  const edited = { ...website, ...update(website, 'about', { title: '', body: 'Revised copy' }) };
+  assert.equal(resolve(edited)[0].title, '');
+  assert.equal(resolve(edited)[0].imageUrl, '/original.jpg');
+  assert.deepEqual(resolve(edited)[1], website.aboutPages[1]);
+  assert.doesNotMatch(html(About, { website: edited }), /About us|Legacy About/);
+  assert.match(html(About, { website: edited }), /Revised copy/);
+  const oneRemoved = { ...edited, ...remove(edited, 'mission') };
+  const allRemoved = { ...oneRemoved, ...remove(oneRemoved, 'about') };
+  assert.deepEqual(resolve(allRemoved), []);
+  assert.equal(html(About, { website: allRemoved }), '');
+  const restored = { ...allRemoved, ...add(allRemoved, 'about') };
+  assert.equal(resolve(restored)[0].body, '');
+  assert.equal(resolve(restored)[0].imageUrl, '');
+  assert.equal(html(About, { website: restored }), '');
+  assert.deepEqual(website, before);
+});
+
+test('long merchant text and image-only sections remain available in the About composition', () => {
+  const body = Array.from({ length: 300 }, (_, i) => `Paragraph ${i + 1}.`).join('\n\n');
+  const rendered = html(About, { website: { storyPages: [
+    { id: 'about', title: 'About', body }, { id: 'vision', title: '', body: '', imageUrl: '/retained.jpg' }
+  ] } });
+  assert.match(rendered, /Paragraph 300\./);
+  assert.match(rendered, /retained.jpg/);
+  assert.equal((rendered.match(/<p>/g) || []).length, 300);
 });
 
 test('legacy merchant story fields remain readable and empty profiles do not show ghost sections', () => {

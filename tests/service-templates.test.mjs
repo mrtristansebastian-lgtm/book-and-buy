@@ -22,24 +22,18 @@ test('subcategory setups retain tailored fields and both supported booking forma
     const wrong = { ...input, scheduleType: template.scheduleType === 'appointment' ? 'class_session' : 'appointment' };
     assert.match(validateServiceConfiguration(wrong), /booking setup/i);
   }
-  assert.deepEqual(getServiceCategoryTemplates('cooking_classes').map(item => getServiceBookingFormat(offer(item.id))), ['slot', 'spot', 'event']);
+  assert.deepEqual(getServiceCategoryTemplates('cooking_classes').map(item => getServiceBookingFormat(offer(item.id))), ['slot', 'spot']);
   assert.deepEqual(getServiceCategoryTemplates('kids_activities').filter(item => !item.event).map(item => item.scheduleType), ['class_session']);
   assert.equal(getServiceCategoryTemplates('medical').length, 0);
 });
 
-test('event identity, venue and ticket scheduling survive approved public normalization', () => {
-  const input = offer('service_category_events_event', { venue: 'Studio Hall', venueAddress: '12 Main Road', organiser: 'Our team', privateSecret: 'hidden' });
-  input.id = 'event-1';
-  input.capacity = 80;
-  const normalized = { ...input, ...normalizeServiceConfiguration(input) };
-  assert.equal(getServiceBookingFormat(normalized), 'event');
-  assert.equal(normalized.scheduleType, 'class_session');
-  assert.equal(normalized.capacity, 80);
-  assert.equal(normalized.serviceDetails.venue, 'Studio Hall');
-  assert.equal(normalized.serviceDetails.privateSecret, undefined);
-  assert(serviceConfigurationFields(normalized).some(field => field.key === 'venue'));
+test('event admission templates are withdrawn while appointment planning remains supported', () => {
+  assert.equal(getServiceTemplate('service_category_events_event'), null);
+  assert(SERVICE_CATEGORY_TEMPLATES.every(template => !template.event));
+  assert.equal(getServiceBookingFormat(offer('service_event_consultation')), 'slot');
   assert.equal(getServiceBookingFormat({ ...offer('service_category_fitness_pt_appointment'), id: 'old', bookingFormat: 'event' }), 'slot');
 });
+
 test('exact service templates map consistently to supported booking formats and categories', () => {
   assert(SERVICE_TEMPLATES.length > 80);
   assert.equal(new Set(SERVICE_TEMPLATES.map((item) => item.id)).size, SERVICE_TEMPLATES.length);

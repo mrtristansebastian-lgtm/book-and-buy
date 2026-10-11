@@ -1,0 +1,127 @@
+import { Button } from '../../../shared/ui/Button';
+import { useEffect, useMemo, useState } from 'react';
+import { AppSheet } from '../../../shared/ui/AppSheet';
+import { AvailabilityMonthGrid } from './AvailabilityMonthGrid';
+import { formatDisplayDate, parseDateKey, toDateKey } from '../../../utils/dates';
+import { getMaxBookableDateKey, isDateWithinAdvanceWindow } from '../../../utils/availability';
+import { clampMonthAnchor, sameMonth, formatWindowDate } from './availabilityEditorUtils';
+import { isBusinessOpenOnDate } from '../../../utils/staffAvailability';
+
+export function ApplyDayStatusDatesSheet({
+  initialDay,
+  status,
+  statusLabel,
+  businessOnly = false,
+  availabilityRules = {},
+  resolveStatus,
+  onClose,
+  onApply
+}) {
+  const todayKey = toDateKey(new Date());
+  const maxBookableDateKey = useMemo(
+    () => getMaxBookableDateKey(availabilityRules, todayKey),
+    [availabilityRules, todayKey]
+  );
+  const [selectedDays, setSelectedDays] = useState(() => (initialDay ? [initialDay] : []));
+  const [monthAnchor, setMonthAnchor] = useState(() => {
+    const date = parseDateKey(initialDay) || new Date();
+    return clampMonthAnchor(new Date(date.getFullYear(), date.getMonth(), 1), todayKey, maxBookableDateKey);
+  });
+
+  useEffect(() => {
+    const date = parseDateKey(initialDay) || new Date();
+    setSelectedDays(initialDay ? [initialDay] : []);
+    setMonthAnchor(clampMonthAnchor(new Date(date.getFullYear(), date.getMonth(), 1), todayKey, maxBookableDateKey));
+  }, [initialDay, maxBookableDateKey, todayKey]);
+
+  const canGoPrevious = useMemo(() => {
+    const today = parseDateKey(todayKey) || new Date();
+    return !sameMonth(monthAnchor, today);
+  }, [monthAnchor, todayKey]);
+  const canGoNext = useMemo(() => {
+    if (!maxBookableDateKey) return true;
+    const nextMonthStart = new Date(monthAnchor.getFullYear(), monthAnchor.getMonth() + 1, 1);
+    return toDateKey(nextMonthStart) <= maxBookableDateKey;
+  }, [monthAnchor, maxBookableDateKey]);
+
+  const toggleDay = (key) => {
+    if (!isDateWithinAdvanceWindow(key, availabilityRules, { todayKey }) || !(businessOnly || isBusinessOpenOnDate(key, availabilityRules))) return;
+    setSelectedDays((previous) =>
+      previous.includes(key) ? previous.filter((day) => day !== key) : [...previous, key].sort()
+    );
+  };
+  const applicableDays = selectedDays.filter((key) => isDateWithinAdvanceWindow(key, availabilityRules, { todayKey }) && (businessOnly || isBusinessOpenOnDate(key, availabilityRules)));
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    const panel = document.querySelector('.bb-schedule-apply-shift-panel');
+    panel?.querySelector('button')?.focus();
+    const trapFocus = (event) => {
+      if (event.key !== 'Tab' || !panel) return;
+      const controls = [...panel.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), [tabindex="0"]')].filter((control) => control.getClientRects().length);
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', trapFocus);
+    return () => { document.removeEventListener('keydown', trapFocus); if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus({ preventScroll: true }); };
+  }, []);
+
+  const shiftLabel = statusLabel || 'Selected status';
+  const windowLabel = maxBookableDateKey
+    ? `${formatWindowDate(todayKey)} – ${formatWindowDate(maxBookableDateKey)}`
+    : 'No end date configured';
+
+  return (
+    <AppSheet
+      onClose={onClose}
+      eyebrow="Availability"
+      title="Apply day status to dates"
+      lede={`Choose one or more dates to mark ${shiftLabel.toLowerCase()}. Booking dates are limited to ${windowLabel}.`}
+      labelledBy="apply-shift-dates-title"
+      panelClassName="bb-schedule-avail-sheet-panel bb-schedule-apply-shift-panel"
+      bodyClassName="bb-schedule-avail bb-schedule-apply-shift-body"
+      footer={
+        <div className="bb-services-sheet-footer-actions">
+          <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" onClick={onClose}>Cancel</Button>
+          <Button action="apply" variant="primary"
+            type="button"
+            className="bb-primary-btn"
+            disabled={!applicableDays.length}
+            onClick={() => onApply?.({ dates: applicableDays, status })}
+          >
+            Apply to {applicableDays.length || 0} {applicableDays.length === 1 ? 'day' : 'days'}
+          </Button>
+        </div>
+      }
+    >
+      <div className="bb-schedule-apply-shift-summary">
+        <span className="bb-schedule-avail-day-feed-tag">Day status</span>
+        <strong>{shiftLabel}</strong>
+        <span>{applicableDays.length ? `${applicableDays.length} selected` : 'Select dates below'}</span>
+      </div>
+      <AvailabilityMonthGrid
+        monthAnchor={monthAnchor}
+        selectedDay=""
+        selectedDays={applicableDays}
+        multiSelect
+        activeEdit
+        canGoPrevious={canGoPrevious}
+        canGoNext={canGoNext}
+        resolveStatus={(key) => resolveStatus?.(key) || 'open'}
+        isDateEnabled={(key) => isDateWithinAdvanceWindow(key, availabilityRules, { todayKey }) && (businessOnly || isBusinessOpenOnDate(key, availabilityRules))}
+        onPreviousMonth={() => setMonthAnchor((previous) => clampMonthAnchor(new Date(previous.getFullYear(), previous.getMonth() - 1, 1), todayKey, maxBookableDateKey))}
+        onNextMonth={() => setMonthAnchor((previous) => clampMonthAnchor(new Date(previous.getFullYear(), previous.getMonth() + 1, 1), todayKey, maxBookableDateKey))}
+        onSelectDay={(key) => toggleDay(key)}
+        className="bb-schedule-apply-shift-calendar"
+      />
+      <p className="bb-schedule-avail-hint m-0">
+        {applicableDays.length
+          ? `Selected ${applicableDays.map((day) => formatDisplayDate(day)).join(', ')}.`
+          : businessOnly ? 'Select at least one date within the booking period.' : 'Select at least one date. Closed business days and dates outside the booking period are unavailable.'}
+      </p>
+      <p className="bb-schedule-avail-hint m-0">Only selected dates change. Working days keep their existing shifts and breaks where available. Existing bookings are not moved.</p>
+    </AppSheet>
+  );
+}

@@ -1,6 +1,7 @@
 import { validateBranches } from './branchesDomain.js';
 import { validateListing, normalizeListing, getListingType } from './listingTypes.js';
 import { validateServiceConfiguration, normalizeServiceConfiguration } from './serviceTemplates.js';
+import { getServiceTimingMode, validateServiceTiming } from './serviceTiming.js';
 import { validateProfileStory } from './profileStoryDomain.js';
 import { isPresenceOnlyBusiness } from './businessCapabilities.js';
 // Shared policy metadata: safe to import in the browser. Enforcement lives on the server.
@@ -82,6 +83,7 @@ function validateConfiguredServiceBooking(service) {
   if (service.scheduleType === 'class_session') {
     const capacity = Number(service.capacity);
     if (!/^\d+$/.test(String(service.capacity ?? '')) || !Number.isSafeInteger(capacity) || capacity < 1) domainError('Set a whole number of available spots.');
+    if (getServiceTimingMode(service) !== 'fixed') return;
     const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') && Number.isFinite(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
     const validTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(value || '');
     if (!validDate(service.sessionStartDate) || !validDate(service.sessionEndDate) || !validTime(service.sessionStartTime) || !validTime(service.sessionEndTime)
@@ -107,6 +109,7 @@ export function applyWorkspaceChanges(previous = {}, changes = [], { initial = f
     if (!patch || Array.isArray(patch) || !Object.keys(patch).length || Object.keys(patch).some(key => !fields.includes(key))) domainError('Change contains fields outside this section.');
     for (const [key, value] of Object.entries(patch)) {
       if (key === 'website' && value?.platformReviewsEnabled !== undefined && typeof value.platformReviewsEnabled !== 'boolean') domainError('Book & Buy reviews must be enabled or disabled.');
+      if (key === 'availabilityRules' && value?.scheduleMode !== undefined && !['time_slots', 'first_come'].includes(value.scheduleMode)) domainError('Choose a valid booking mode.');
       if (key === 'website' && value?.profileMode !== undefined && !['commerce','presence'].includes(value.profileMode)) domainError('Choose a valid business profile mode.');
       if (key === 'website' && value) Object.assign(value, validateProfileStory(value));
       if (key === 'website' && value?.branches !== undefined) value.branches = validateBranches(value.branches);
@@ -118,6 +121,7 @@ export function applyWorkspaceChanges(previous = {}, changes = [], { initial = f
             if (prior && getListingType(prior) !== getListingType(row)) domainError('Create a new listing to use a different listing type.');
             const problem = validateListing(row); if (problem) domainError(problem); Object.assign(row, normalizeListing(row));
           }
+          if (key === 'services') { const timingError = validateServiceTiming(row); if (timingError) domainError(timingError); }
           if (key === 'services' && (row.catalogTemplateId !== undefined || row.serviceDetails !== undefined || row.serviceSpecFields !== undefined)) {
             const problem = validateServiceConfiguration(row); if (problem) domainError(problem);
             if (row.catalogTemplateId) {
@@ -156,7 +160,6 @@ export function workspaceChanges(previous = {}, desired = {}) {
 export function readinessIssues(workspace = {}) {
   if (isPresenceOnlyBusiness(workspace)) return [];
   const issues = []; const rules = workspace.availabilityRules || {};
-  if (rules.scheduleMode === 'first_come') issues.push({ section: 'bookings', code: 'unsupported_schedule', message: 'First-come scheduling is not supported by the website runtime.' });
   if (workspace.features?.emailUpdates === true) issues.push({ section: 'notifications', code: 'unsupported_reminders', message: 'Automatic email reminders are not connected.' });
   if (workspace.checkout?.taxEnabled || workspace.website?.taxEnabled) issues.push({ section: 'checkout', code: 'unsupported_tax', message: 'Tax calculation is not connected.' });
   return issues;

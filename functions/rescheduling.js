@@ -8,6 +8,7 @@ import { serviceCommerceQuote } from './commerceRuntime.js';
 import { getPublicPaymentOptions } from './payments/publicOptions.js';
 import { readWorkspace, writeWorkspace } from './workspaceStore.js';
 import { assertCommerceQuoteRevision, assertPublishedWorkspace } from './commercePolicy.js';
+import { bookingIntake } from './bookingModes.js';
 
 const APP_ID = 'book-and-buy-v1';
 const safeId = (value) => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(value);
@@ -110,6 +111,7 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
     const patch = Object.fromEntries(Object.entries(input).filter(([key, value]) => allowed.includes(key) && value !== undefined));
     const service = (workspace.services || []).find((s) => s.id === (patch.serviceId || old?.serviceId)); if (!service) bookingError('Service unavailable.');
     const booking = { ...(old || {}), ...patch, id, ownerId, serviceName: old?.serviceName || service.name, status: publicRequest ? 'pending' : patch.status || old?.status || 'pending', paymentStatus: publicRequest ? 'unpaid' : patch.paymentStatus || old?.paymentStatus || 'unpaid', revision: (old?.revision || 0) + 1, updatedAt: Date.now(), timestamp: old?.timestamp || Date.now() };
+    Object.assign(booking, bookingIntake(workspace, service, input, old, publicRequest));
     // Owner-entered bookings without a gateway represent a manual receipt.
     // This also upgrades old manual records when they are next changed.
     booking.paymentMethod = booking.paymentMethod || 'cash';
@@ -137,7 +139,7 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
       if (service.active === false || service.available === false || ['draft','archived'].includes(service.status)) bookingError('Service unavailable.');
       if (!['cash','stripe','paypal','paystack'].includes(booking.paymentMethod || 'cash')) bookingError('Choose a supported payment method.');
       booking.paymentMethod = booking.paymentMethod || 'cash';
-      if (Array.isArray(workspace.paymentGateways) && !getPublicPaymentOptions(workspace).options.some((option) => option.gatewayType === booking.paymentMethod)) bookingError('This payment method is not enabled by the business.');
+      if (booking.bookingMode !== 'first_come' && Array.isArray(workspace.paymentGateways) && !getPublicPaymentOptions(workspace).options.some((option) => option.gatewayType === booking.paymentMethod)) bookingError('This payment method is not enabled by the business.');
       const variant = booking.variantId ? (service.variants || []).find((item) => item.id === booking.variantId && item.available !== false) : null;
       if (booking.variantId && !variant) bookingError('That service option is unavailable.');
       if (!booking.clientEmail || !/^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/.test(booking.clientEmail) || !String(booking.clientName || '').trim()) bookingError('Enter a valid client name and email.');
@@ -149,7 +151,7 @@ export async function writeGuardedBooking(data, auth, db = getFirestore(), publi
       booking.durationMinutes = quote.durationMinutes;
       booking.amountInCents = quote.amountInCents;
       booking.variantName = variant?.name || ''; booking.currency = workspace.currency || 'R'; booking.source = 'public';
-      if (!booking.staffId && service.scheduleType !== 'class_session' && (service.staffIds || []).length) {
+      if (booking.bookingMode !== 'first_come' && !booking.staffId && service.scheduleType !== 'class_session' && (service.staffIds || []).length) {
         if (workspace.availabilityRules?.staffAssignmentMode === 'client') bookingError('Choose an available staff member.');
         booking.staffId = service.staffIds.find((staffId) => { try { validateBookingSlot(workspace,{...booking,staffId},bookingSlot(booking),workspace.bookings || []); return true; } catch { return false; } }) || '';
         if (!booking.staffId) bookingError('That time is no longer available.');

@@ -1,4 +1,5 @@
 import { Button } from '../../shared/ui/Button';
+import { ProfileAvatarPlaceholder } from '../../shared/ui/ProfileAvatarPlaceholder';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Bell,
@@ -268,7 +269,7 @@ export function SettingsShell({ section: sectionProp, detail = '', nestedDetail 
 
         <div className="bb-settings-rail-foot">
           <div className="bb-settings-avatar" aria-hidden>
-            {initials(workspace.brandName)}
+            {workspace.logoUrl || workspace.website?.logoUrl ? <img src={workspace.logoUrl || workspace.website.logoUrl} alt="" /> : <ProfileAvatarPlaceholder />}
           </div>
           <div className="min-w-0">
             <strong>{workspace.brandName || 'Business'}</strong>

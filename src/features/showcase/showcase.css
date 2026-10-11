@@ -1,0 +1,13 @@
+.bb-showcase-intro { display: grid; gap: 6px; padding: 16px 18px; border: 1px solid #dbe6ee; border-radius: 14px; background: linear-gradient(115deg, #f6fcf8, #f6f9ff 60%, #fcf8ff); color: #465469; }
+.bb-showcase-intro strong { color: #182438; font-size: 15px; }
+.bb-showcase-intro p { margin: 0; font-size: 13px; line-height: 1.6; }
+.bb-showcase-filters { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+.bb-showcase-filter { appearance: none; padding: 6px 10px; border: 1px solid #dbe3eb; border-radius: 999px; background: #fff; color: #627089; font: inherit; font-size: 11px; cursor: pointer; }
+.bb-showcase-filter[aria-pressed="true"] { border-color: #263448; color: #fff; background: #263448; }
+.bb-showcase-guide { display: grid; gap: 9px; margin-block: 18px; padding: 16px; border: 1px solid #dbe6ee; border-radius: 14px; background: #f7fafc; color: #526174; min-width: 0; }
+.bb-showcase-guide h2 { margin: 0; font-size: 14px; color: #223048; }
+.bb-showcase-guide p { margin: 0; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.bb-showcase-guide .bb-button { justify-self: start; }
+.bb-showcase-guide-kicker { color: #7b8796; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+.bb-showcase-reset-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+@media (max-width: 599px) { .bb-showcase-intro { padding: 13px; } .bb-showcase-guide { padding: 13px; } }

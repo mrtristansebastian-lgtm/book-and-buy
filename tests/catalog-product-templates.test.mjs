@@ -106,16 +106,17 @@ test('template selection cannot bypass enquiry policy or convert an existing lis
   assert.equal(updated.products[0].physicalDetails.material, 'Linen');
 });
 
-test('equipment templates add relevant output details without exposing unrelated machine specifications', () => {
-  const generator = { listingType: 'equipment', catalogTemplateId: 'equipment_generator', equipmentDetails: { manufacturer: 'Example', model: 'G5', condition: 'New', location: 'Cape Town', ratedPower: '5', fuel: 'Diesel', liftingCapacity: '1000' } };
-  assert.equal(validateListing(generator), '');
-  const generatorFields = fields(getApplicableListingSchema(generator));
-  assert.equal(generatorFields.find(field => field.key === 'ratedPower').essential, true);
-  assert.ok(generatorFields.some(field => field.key === 'phase'));
-  assert.equal(generatorFields.some(field => field.key === 'liftingCapacity'), false);
-  assert.equal(publicListingDetails(generator).liftingCapacity, undefined);
-  assert.equal(normalizeListing(generator).equipmentDetails.liftingCapacity, '1000', 'Approved owner data remains available after changing template');
-  assert.deepEqual(listingFacts(generator), ['New', '5 kW', 'Diesel']);
+test('portable backup power uses retail specifications with explicit energy and output units', () => {
+  const station = { listingType: 'physical', catalogTemplateId: 'category_electronics_backup_power',
+    physicalDetails: { brand: 'Example', model: 'P512', material: 'ABS', colour: 'Black', batteryCapacityWh: '512', ratedPowerW: '600', outputPorts: 'AC and USB', internalNotes: 'PRIVATE' } };
+  assert.equal(validateListing(station), '');
+  const stationFields = fields(getApplicableListingSchema(station));
+  assert.equal(stationFields.find(field => field.key === 'batteryCapacityWh').essential, true);
+  assert.equal(stationFields.some(field => field.key === 'liftingCapacity'), false);
+  assert.equal(publicListingDetails(station).internalNotes, undefined);
+  assert.deepEqual(listingFacts(station), ['512 Wh', '600 W', 'AC and USB']);
+  assert.equal(normalizeListing(station).transactionMode, 'checkout');
+  assert.match(validateListing({ ...station, physicalDetails: { ...station.physicalDetails, batteryCapacityWh: '-1' } }), /battery capacity/i);
 });
 
 test('all optional physical specifications validate their type and public allowlists are unique', () => {

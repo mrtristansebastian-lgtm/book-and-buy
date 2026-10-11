@@ -12,6 +12,7 @@ import { PeriodCustomPicker } from '../../../shared/ui/PeriodCustomPicker';
 import { PeriodSegmentedControl } from '../../../shared/ui/PeriodSegmentedControl';
 import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { SortField } from '../../../shared/ui/SortField';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
 import {
@@ -197,7 +198,7 @@ export function ProductOrdersDesk({ heading = null, headingActions = null }) {
 
       <div className="bb-ops-rows">
         {rows.length === 0 ? (
-          <div className="bb-ops-empty">No product orders in this view.</div>
+          <EmptyState icon={PackageCheck} title={orders.length === 0 ? 'Your orders start here' : 'No orders in this view'} description={orders.length === 0 ? 'New purchases will appear here, ready for you to accept, prepare and fulfil.' : 'Try another status or date range to find an order.'} />
         ) : (
           rows.map((order) => {
             const status = order.status || 'pending';

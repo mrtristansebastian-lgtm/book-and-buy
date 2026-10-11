@@ -277,7 +277,7 @@ test('CSV exports every provided filtered line with quotes and honest blank quan
     product('b', 0, { name: 'Tea' })
   ]));
   const csv = inventoryCsv(units);
-  assert.ok(csv.startsWith('"Product","Variant","SKU","Category","Product status","Quantity","Low-stock warning threshold","Stock status"\r\n'));
+  assert.ok(csv.startsWith('"Product","Option","SKU","Category","Product status","Quantity","Low-stock warning threshold","Stock status"\r\n'));
   assert.ok(csv.includes('"Coffee, ""dark""\nroast","","SKU-a","Drinks","active","","12","Quantity unset"\r\n'));
   assert.ok(csv.includes('"Tea","","SKU-b","","active","0","3","Out of stock"\r\n'));
   const filtered = selectInventoryUnits(units, { filterId: 'out' });

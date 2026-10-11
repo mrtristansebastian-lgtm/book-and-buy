@@ -78,7 +78,18 @@ function load(path) {
 }
 
 const { LiveTrafficTable } = load('../src/features/analytics/components/LiveTrafficTable.jsx');
-const { liveSessionRows, computeLiveStrip } = load('../src/features/analytics/utils/analyticsMetrics.js');
+const { buildDemoAnalytics, liveSessionRows, computeLiveStrip, activeCartRows } = load('../src/features/analytics/utils/analyticsMetrics.js');
+
+test('fresh demo has no synthetic live visitors, locations, or active carts', () => {
+  const demo = buildDemoAnalytics({ now: at });
+  assert.deepEqual(liveSessionRows(demo.sessions, at), []);
+  assert.deepEqual(activeCartRows(demo.carts, at), []);
+  const live = computeLiveStrip({ ...demo, now: at });
+  assert.equal(live.liveVisitors, 0);
+  assert.equal(live.activeCarts, 0);
+  assert.equal(live.activeCheckouts, 0);
+  assert.equal(buildLiveTrafficRows(demo.sessions).total, 0);
+});
 
 test('live adapter keeps the latest visitor observation, distinct legacy sessions and excludes stale bots', () => {
   const sessions = [

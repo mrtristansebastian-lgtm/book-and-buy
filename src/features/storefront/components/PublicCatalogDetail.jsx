@@ -32,6 +32,11 @@ import { isEnquiryListing, hasListingSpecifications } from '../../../../function
 import { ListingSpecifications } from '../../products/components/ListingSpecifications';
 import { ServiceSpecifications } from '../../services/components/ServiceSpecifications';
 import { PublicListingEnquiry } from '../../enquiries/components/PublicListingEnquiry';
+import { serviceNeedsTimingConversation } from '../../../../functions/serviceTiming';
+import { ServiceTimingConversation } from '../../booking/components/ServiceTimingConversation';
+import { DemoShowcaseGuide } from '../../showcase/DemoShowcaseGuide';
+import { isFirstComeService } from '../../../../functions/bookingModes';
+import { FirstComeBookingRequest } from '../../booking/components/FirstComeBookingRequest';
 
 function collectImages(item = {}, variant = null) {
   if (!item) return [];
@@ -169,7 +174,7 @@ export function PublicCatalogDetail({
   }, [item, kind, serviceVariantId]);
 
   useEffect(() => {
-    if (!liveCommerce || liveState.status !== 'ready' || kind !== 'service' || !item || getServiceScheduleType(item) !== 'class_session') return undefined;
+    if (!liveCommerce || liveState.status !== 'ready' || kind !== 'service' || !item || serviceNeedsTimingConversation(item) || getServiceScheduleType(item) !== 'class_session') return undefined;
     let stopped = false;
     setAvailability({ status: 'loading', available: false, error: '' });
     firebaseCallables.getPublicServiceAvailability({ slug: businessSlug, countryCode, serviceId: item.id,
@@ -228,8 +233,10 @@ export function PublicCatalogDetail({
       : '';
   const isSpotService =
     kind === 'service' && getServiceScheduleType(item) === 'class_session';
+  const timingConversation = kind === 'service' && serviceNeedsTimingConversation(item);
+  const firstCome = kind === 'service' && isFirstComeService(workspace, item);
   const hasBookingRecords = Array.isArray(workspace?.bookings);
-  const spotCount = isSpotService && !liveCommerce
+  const spotCount = isSpotService && !timingConversation && !liveCommerce
     ? hasBookingRecords
       ? getServiceOpenSpots(item, workspace.bookings)
       : Math.max(1, Number(item.capacity) || 1)
@@ -272,7 +279,7 @@ export function PublicCatalogDetail({
   );
 
   const addToCart = () => {
-    if (enquiryListing) return;
+    if (enquiryListing || timingConversation) return;
     if (cartDisabled) return;
     if (kind === 'service') {
       if (isSpotService && !needsServiceVariant) {
@@ -394,6 +401,7 @@ export function PublicCatalogDetail({
               </section>
             ) : null}
 
+            <DemoShowcaseGuide isDemo={workspace.isDemo === true} kind={kind} itemId={item.id} />
             {kind === 'product' && hasListingSpecifications(item) && <ListingSpecifications product={item}/>}
             {kind === 'service' && <ServiceSpecifications service={item} />}
 
@@ -475,7 +483,7 @@ export function PublicCatalogDetail({
             ) : null}
 
             {!enquiryListing && <div className="bb-public-detail-summary">
-              {(isSpotService && timingMeta) || spotCount != null ? (
+              {((isSpotService || timingConversation) && timingMeta) || spotCount != null ? (
                 <div className="bb-public-detail-facts">
                   {timingMeta ? <div className="bb-public-detail-fact">
                     <span className="bb-public-product-stat-label">When</span>
@@ -500,14 +508,15 @@ export function PublicCatalogDetail({
               </div>
             </div>}
 
-            {liveCommerce && isSpotService ? (
+            {kind === 'service' && !timingConversation && item.timingNotes && <p style={{ whiteSpace: 'pre-wrap' }}>{item.timingNotes}</p>}
+            {liveCommerce && isSpotService && !timingConversation ? (
               <p className="bb-public-detail-availability" role="status">
                 {availability.status === 'loading' ? 'Checking seat availability…'
                   : availability.error || (availability.available ? 'Seats currently available' : 'This session has no available seats.')}
               </p>
             ) : null}
 
-            {enquiryListing ? <PublicListingEnquiry key={item.id} product={item} slug={businessSlug} isDemo={Boolean(workspace.isDemo || preview)} ownerId={workspace.ownerId || ''}/> : <Button action="addToCart" variant="primary"
+            {firstCome ? <FirstComeBookingRequest key={item.id} service={item} variant={selectedServiceVariant} workspace={workspace} slug={businessSlug} live={liveCommerce} preview={preview} /> : timingConversation ? <ServiceTimingConversation service={item} workspace={workspace} preview={preview} optionName={selectedServiceVariant?.name || ''} /> : enquiryListing ? <PublicListingEnquiry key={item.id} product={item} slug={businessSlug} isDemo={Boolean(workspace.isDemo || preview)} ownerId={workspace.ownerId || ''}/> : <Button action="addToCart" variant="primary"
               type="button"
               className="bb-public-product-cart-btn bb-public-detail-cart-btn"
               disabled={cartDisabled}

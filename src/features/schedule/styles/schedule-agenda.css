@@ -9,9 +9,6 @@ html body .native-ui .bb-schedule-agenda-page :is(.bb-agenda-client,.bb-agenda-b
 html body .native-ui .bb-schedule-agenda-page .bb-agenda-time time { color:#101828 !important; font:600 15px/1.6 var(--bb-font-body); }
 .bb-schedule-agenda-page .bb-agenda-time > span { font-size:12px !important; }
 .bb-schedule-agenda-page .bb-agenda-desktop-staff { margin-top:20px; }
-@media(min-width:900px) {
-  .bb-schedule-agenda-page .bb-agenda-workspace { grid-template-columns:270px minmax(0,1fr); }
-}
 html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-avatar {
   grid-template-columns:40px minmax(0,1fr);
   gap:12px;
@@ -43,7 +40,7 @@ html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-avatar .bb-schedule
 .bb-schedule-agenda-page .bb-agenda-page-lede { margin: 8px 0 0 46px; color: #667085; font-size: 13px; line-height: 1.5; }
 .bb-schedule-agenda-page .bb-agenda-google-button { flex: 0 0 auto; }
 .bb-schedule-agenda-page .bb-agenda-google-button img { object-fit: contain; }
-.bb-schedule-agenda-page .bb-agenda-workspace { display: grid; grid-template-columns: 238px minmax(0,1fr); gap: 30px; align-items: start; margin-top: 16px; }
+.bb-schedule-agenda-page .bb-agenda-workspace { display: grid; grid-template-columns: 300px minmax(0,1fr); gap: 30px; align-items: start; margin-top: 16px; }
 .bb-schedule-agenda-page .bb-agenda-welcome { padding: 30px 0 20px; }
 .bb-schedule-agenda-page .bb-agenda-welcome h2 { max-width: 38ch; margin: 0; color: #344054; font: 500 clamp(22px,2.2vw,28px)/1.4 var(--bb-font-body); letter-spacing: -.035em; overflow-wrap: anywhere; }
 .bb-schedule-agenda-page .bb-agenda-welcome h2 > span { color: #101828; font-weight: 650; font-variant-numeric: tabular-nums; }
@@ -158,7 +155,7 @@ html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-avatar .bb-schedule
 .bb-schedule-booking-details .bb-schedule-booking-details-reschedule > div { display: flex; align-items: center; gap: 8px; color: #475e94; }
 .bb-schedule-booking-details .bb-schedule-booking-details-reschedule dl { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 16px 0 0; }
 @media (max-width: 1100px) {
-  .bb-schedule-agenda-page .bb-agenda-workspace { grid-template-columns: 210px minmax(0,1fr); gap: 20px; }
+  .bb-schedule-agenda-page .bb-agenda-workspace { grid-template-columns: 260px minmax(0,1fr); gap: 20px; }
   .bb-schedule-agenda-page .bb-agenda-rail { padding-right: 18px; }
   .bb-schedule-agenda-page .bb-agenda-booking { grid-template-columns: 66px 12px minmax(0,1fr); }
   .bb-schedule-agenda-page .bb-agenda-booking-actions { grid-column: 3; flex-direction: row; align-items: center; justify-content: space-between; max-width: none; padding-top: 12px; }
@@ -210,4 +207,11 @@ html body .native-ui .bb-schedule-sidebar .bb-schedule-staff-avatar .bb-schedule
   .bb-schedule-agenda-page .bb-agenda-empty { padding: 36px 16px; }
   .bb-schedule-agenda-page .bb-agenda-empty h2 { font-size: 14px; }
   .bb-schedule-booking-details .bb-schedule-booking-details-facts { gap: 16px; }
+}
+
+.bb-schedule-agenda-page .bb-agenda-header-controls { display: flex; align-items: center; justify-content: flex-end; gap: 12px; max-width: 100%; }
+.bb-schedule-agenda-page .bb-agenda-header-controls > .bb-agenda-google-button { flex: none; }
+@media (max-width: 599px) {
+  .bb-schedule-agenda-page .bb-agenda-header-controls { flex-wrap: wrap; justify-content: flex-start; width: 100%; }
+  .bb-schedule-agenda-page .bb-agenda-header-controls > .bb-segment { flex: 1; min-width: 240px; }
 }

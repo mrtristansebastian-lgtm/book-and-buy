@@ -1,0 +1,32 @@
+/* Keep the existing white card and all of its geometry; polish only its edge. */
+html body .native-ui .bb-public-surface .bb-public-profile.bb-business-profile.bb-profile-storyboard > .bb-public-profile-rail {
+  position: relative;
+  isolation: isolate;
+  background: #fff;
+  border-color: #c4d0df92;
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    inset 1px 0 0 #ffffffcc,
+    inset 0 -1px 0 #a9b8ce26,
+    0 0 0 1px #ffffffb3,
+    -3px -2px 14px -9px #8bddff99,
+    3px 2px 14px -9px #b59affa8,
+    0 22px 54px -28px #374b6655,
+    0 4px 12px -6px #374b6626;
+}
+
+/* A fine reflective rim, masked to the border so the centre stays plain white. */
+html body .native-ui .bb-public-surface .bb-profile-storyboard > .bb-public-profile-rail::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(125deg, #ffffffee, #8edcffb3 18%, #e6d4ffb8 38%, #ffffff66 54%, #a9deffb3 76%, #e3ccffcc 90%, #ffffffee);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}

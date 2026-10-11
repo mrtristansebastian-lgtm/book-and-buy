@@ -2,6 +2,7 @@ import { EditableImage, EditableText, EditSection } from '../editable';
 
 /** Existing copy becomes paragraphs in one story. Original fields and images stay stored. */
 export function resolveStory(website = {}) {
+  if (Array.isArray(website.storyPages)) return website.storyPages.map(page => String(page.body || '').trim()).filter(Boolean).join('\n\n');
   if (typeof website.storyBody === 'string') return website.storyBody;
   const pages = Array.isArray(website.aboutPages) ? website.aboutPages : [];
   const bodies = pages.length ? pages.map((page) => page.body) :
@@ -10,38 +11,63 @@ export function resolveStory(website = {}) {
 }
 
 export function resolveStoryPages(website = {}) {
-  if (Array.isArray(website.storyPages) && website.storyPages.length) return website.storyPages;
+  // An explicit empty list means the owner removed the sections.
+  if (Array.isArray(website.storyPages)) return website.storyPages.map(page => ({ ...page }));
   const legacy = website.aboutPages?.length ? website.aboutPages : [
-    { id: 'story', title: 'Our story', body: website.aboutBody, imageUrl: website.aboutImageUrl },
-    { id: 'mission', title: website.missionTitle || 'Our mission', body: website.missionBody, imageUrl: website.missionImageUrl },
-    { id: 'vision', title: website.visionTitle || 'Our vision', body: website.visionBody, imageUrl: website.visionImageUrl }
+    { id: 'about', title: website.aboutTitle ?? 'About', body: website.aboutBody, imageUrl: website.aboutImageUrl },
+    { id: 'mission', title: website.missionTitle ?? 'Mission', body: website.missionBody, imageUrl: website.missionImageUrl },
+    { id: 'vision', title: website.visionTitle ?? 'Vision', body: website.visionBody, imageUrl: website.visionImageUrl }
   ];
-  const pages = legacy.filter(page => String(page.body || '').trim()).map((page, index) => ({ ...page, id: page.id || `story-${index}` }));
-  if (!pages.length) pages.push({ id: 'story', title: 'Our story', body: '', imageUrl: '' });
-  pages[0] = { ...pages[0], title: website.storyTitle || 'Our story', body: website.storyBody ?? pages[0].body,
+  const pages = legacy.map((page, index) => ({ ...page, id: page.id || `story-${index}` }));
+  pages[0] = { ...pages[0], title: website.storyTitle ?? pages[0].title, body: website.storyBody ?? pages[0].body,
     imageUrl: website.storyImageUrl ?? pages[0].imageUrl ?? '' };
   return pages;
 }
 
+export const updateStoryPage = (website, id, changes) => ({
+  storyPages: resolveStoryPages(website).map(page => page.id === id ? { ...page, ...changes } : page)
+});
+export const removeStoryPage = (website, id) => ({ storyPages: resolveStoryPages(website).filter(page => page.id !== id) });
+export function addStoryPage(website, kind = 'section') {
+  const pages = resolveStoryPages(website);
+  let id = kind;
+  for (let suffix = 2; pages.some(page => page.id === id); suffix++) id = `${kind}-${suffix}`;
+  return { storyPages: [...pages, { id, title: ({ about: 'About', vision: 'Vision', mission: 'Mission' })[kind] || 'Section', body: '', imageUrl: '' }] };
+}
+
 export function AboutSection({ website, editMode, hidden, patchWebsite }) {
   const storedPages = resolveStoryPages(website);
-  const pages = editMode ? storedPages : storedPages.filter(item => String(item.body || '').trim());
-  if (!editMode && !pages.some(item => String(item.body || '').trim())) return null;
-  return <EditSection editMode={editMode} hidden={hidden} title="Our story" sectionId="about"
-    className="bb-business-profile-section bb-profile-about-overview">
-    <div className={`bb-profile-about-overview-grid${pages.length > 1 ? ' has-multiple' : ''}${pages.length > 2 ? ' has-three-or-more' : ''}`}>
-      {pages.map((chapter, index) => <article key={chapter.id} aria-label={chapter.title || `Chapter ${index + 1}`}
-        className={`bb-profile-about-tile${chapter.imageUrl ? ' has-image' : ''}`}>
-        {chapter.imageUrl || editMode ? <div className="bb-profile-about-tile-image">
-          <EditableImage editMode={editMode} src={chapter.imageUrl || ''} alt={chapter.title || `Chapter ${index + 1}`} preset="about" storageFolder="website" onChange={imageUrl => patchWebsite({ storyPages: pages.map((item, i) => i === index ? { ...item, imageUrl } : item) })} />
-        </div> : null}
-        <div className="bb-profile-about-tile-copy">
-          <EditableText as="h2" editMode={editMode} className="bb-profile-about-tile-title" value={chapter.title || `Chapter ${index + 1}`} onChange={title => patchWebsite({ storyPages: pages.map((item, i) => i === index ? { ...item, title } : item) })} />
-          <div className="bb-profile-about-tile-body">
-            {editMode ? <EditableText as="p" editMode multiline value={chapter.body || ''} onChange={body => patchWebsite({ storyPages: pages.map((item, i) => i === index ? { ...item, body } : item) })} /> : String(chapter.body || '').split(/\n\s*\n/).filter(Boolean).map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
+  const pages = editMode ? storedPages : storedPages.filter(item => String(item.body || '').trim() || item.imageUrl);
+  if (!editMode && !pages.length) return null;
+  return <EditSection editMode={editMode} hidden={hidden} title="About" sectionId="about"
+    className="bb-business-profile-section bb-profile-about-composition">
+    <div className="bb-profile-about-copy">
+      {pages.map((part, index) => <section key={part.id} aria-label={part.title || `About section ${index + 1}`}
+        className="bb-profile-about-part">
+        {editMode && <div className="bb-profile-about-edit-actions">
+          {part.title && <button type="button" onClick={() => patchWebsite(updateStoryPage(website, part.id, { title: '' }))}>Remove heading</button>}
+          <button type="button" onClick={() => patchWebsite(removeStoryPage(website, part.id))}>Remove section</button>
+        </div>}
+        <EditableText as={index === 0 ? 'h2' : 'h3'} editMode={editMode} className="bb-profile-about-heading"
+          value={part.title ?? ''} placeholder={index === 0 ? 'About heading' : 'Section heading'} maxLength={120}
+          onChange={title => patchWebsite(updateStoryPage(website, part.id, { title }))} />
+        <div className={`bb-profile-about-part-content${part.imageUrl || editMode ? ' has-image' : ''}`}>
+          {part.imageUrl || editMode ? <div className="bb-profile-about-image">
+            <EditableImage editMode={editMode} src={part.imageUrl || ''} alt={part.title || 'About the business'} preset="about" storageFolder="website"
+              onChange={imageUrl => patchWebsite(updateStoryPage(website, part.id, { imageUrl }))}
+              onRemove={() => patchWebsite(updateStoryPage(website, part.id, { imageUrl: '' }))} />
+          </div> : null}
+          <div className="bb-profile-about-body">
+            {editMode ? <EditableText as="p" editMode multiline value={part.body || ''} placeholder="Write about your business" maxLength={20000}
+              onChange={body => patchWebsite(updateStoryPage(website, part.id, { body }))} /> : String(part.body || '').split(/\n\s*\n/).filter(Boolean).map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}
           </div>
         </div>
-      </article>)}
+      </section>)}
+      {editMode && <div className="bb-profile-about-add-actions">
+        {['about', 'vision', 'mission'].filter(kind => !storedPages.some(page => page.id === kind)).map(kind =>
+          <button key={kind} type="button" onClick={() => patchWebsite(addStoryPage(website, kind))}>Add {kind}</button>)}
+        <button type="button" onClick={() => patchWebsite(addStoryPage(website))}>Add section</button>
+      </div>}
     </div>
   </EditSection>;
 }

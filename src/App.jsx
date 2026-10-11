@@ -1,6 +1,8 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { parseAppRoute, useHashRoute, navigate, scrollAppToTop } from './app/routing';
 import { AppLoginScreen } from './features/auth/AppLoginScreen';
+import { VerifyEmailScreen } from './features/auth/VerifyEmailScreen';
+import { needsEmailVerification } from './features/auth/emailVerification';
 import { useAuth } from './features/auth/AuthContext';
 import { OwnerWorkspaceApp } from './features/dashboard/OwnerWorkspaceApp';
 import { PublicWebsiteApp } from './features/website/PublicWebsiteApp';
@@ -14,6 +16,8 @@ import { useViewportZoomGate } from './shared/ui/useViewportZoomGate';
 import { useCustomDomain } from './features/website/useCustomDomain';
 import { ControlReview } from './shared/ui/ControlReview';
 import { Button } from './shared/ui/Button';
+import { EmptyState } from './shared/ui/EmptyState';
+import { CloudOff } from 'lucide-react';
 
 const ProfileReview = import.meta.env.DEV ? lazy(() => import('./features/website/dev/ProfileReview')) : null;
 
@@ -68,8 +72,9 @@ export default function App() {
   if (route.kind === 'public') {
     return <PublicWebsiteApp slug={route.slug} page={route.page} itemId={route.itemId || ''} />;
   }
+  if (['owner','onboarding'].includes(route.kind) && !route.demo && configured && needsEmailVerification(user)) return <VerifyEmailScreen />;
   if (['owner','onboarding'].includes(route.kind) && !route.demo && configured && user && ownerWorkspaceReady === false) {
-    return <div className="bb-shell native-ui min-h-screen grid place-items-center"><div className="grid gap-4 justify-items-center text-center p-5"><BrandMark size="lg" className="bb-welcome-brand-slot" />{ownerWorkspaceError ? <><p role="alert" className="bb-muted">{ownerWorkspaceError}</p><Button action="retry" onClick={retrySave}>Try again</Button></> : <p className="bb-muted" role="status">Opening your business…</p>}</div></div>;
+    return <div className="bb-shell native-ui min-h-screen grid place-items-center"><div className="grid gap-4 justify-items-center text-center p-5" style={{ maxWidth: 520 }}><BrandMark size="lg" className="bb-welcome-brand-slot" />{ownerWorkspaceError ? <div role="alert"><EmptyState icon={CloudOff} title="We couldn’t open your business" description={ownerWorkspaceError} action={<Button action="retry" onClick={retrySave}>Try again</Button>} /></div> : <p className="bb-muted" role="status">Opening your business…</p>}</div></div>;
   }
   if (route.kind === 'onboarding') return configured && !user && !isLocalMode ? <AppLoginScreen /> : <BusinessOnboardingPage />;
   if (route.kind === 'client') {

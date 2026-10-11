@@ -6,6 +6,7 @@
 import { getFirestore } from 'firebase-admin/firestore';
 import { availableRescheduleSlots } from './bookingDomain.js';
 import { loadPublishedCommerce, serviceCommerceQuote } from './commerceRuntime.js';
+import { isFirstComeService } from './bookingModes.js';
 
 const DEFAULT_OPEN = '09:00';
 const DEFAULT_CLOSE = '17:00';
@@ -91,6 +92,7 @@ export async function getLivePublicServiceAvailability(data, db = getFirestore()
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data.dateKey || '')) throw new Error('Choose a valid date.');
   const quote = serviceCommerceQuote(workspace,data);
   const service = workspace.services.find((item) => item.id === quote.serviceId);
+  if (isFirstComeService(workspace, service)) return [];
   const partySize = data.partySize ?? 1;
   if (!Number.isSafeInteger(partySize) || partySize < 1 || partySize > 100) throw new Error('Invalid party size.');
   if (data.staffId && !(service.staffIds || []).includes(data.staffId)) throw new Error('Choose an available staff member.');

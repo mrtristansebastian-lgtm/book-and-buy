@@ -3156,3 +3156,7 @@ html body .native-ui .bb-schedule-desk .bb-schedule-spot-sheet-facts dd {
   color: var(--bb-ink) !important;
   font-weight: 800 !important;
 }
+
+.bb-day-status-section .bb-day-status-actions { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.bb-day-status-section .bb-schedule-avail-status { display: inline-flex; flex: 0 1 auto; width: auto; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 599px) { .bb-day-status-actions > .bb-button { width: 100%; } }

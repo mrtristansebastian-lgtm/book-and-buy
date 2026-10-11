@@ -105,6 +105,8 @@ export interface WorkspaceService {
   category?: string;
   active?: boolean;
   scheduleType?: ScheduleType | string;
+  timingMode?: 'fixed' | 'availability' | 'arranged' | 'to_be_announced';
+  timingNotes?: string;
   bookingType?: ScheduleType | string;
   serviceType?: ScheduleType | string;
   capacity?: number | string;

@@ -74,7 +74,7 @@ export function buildInventoryRows(products = []) {
       const lowStockThreshold = hasVariants ? getInventoryThreshold(source, threshold) : threshold;
       const variantId = hasVariants ? cleanText(source.id) || null : null;
       const title = hasVariants
-        ? cleanText(source.title) || Object.values(source.optionValues || {}).map(cleanText).filter(Boolean).join(' / ') || `Variant ${unitIndex + 1}`
+        ? cleanText(source.title) || Object.values(source.optionValues || {}).map(cleanText).filter(Boolean).join(' / ') || `Option ${unitIndex + 1}`
         : name;
       return {
         id: hasVariants ? `${id}:${variantId || `variant-${unitIndex}`}` : `${id}:product`,
@@ -176,7 +176,7 @@ const csvCell = (value, textCell = true) => {
 
 export function inventoryCsv(units = []) {
   const labels = { out: 'Out of stock', low: 'Low stock', healthy: 'In stock', unset: 'Quantity unset' };
-  const header = ['Product', 'Variant', 'SKU', 'Category', 'Product status', 'Quantity', 'Low-stock warning threshold', 'Stock status'];
+  const header = ['Product', 'Option', 'SKU', 'Category', 'Product status', 'Quantity', 'Low-stock warning threshold', 'Stock status'];
   const lines = [header.map((cell) => csvCell(cell)).join(',')];
   for (const unit of units) {
     const quantity = parseInventoryQuantity(unit.quantity);

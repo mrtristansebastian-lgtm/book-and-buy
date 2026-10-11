@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { hydrateDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { useAuth } from '../auth/AuthContext';
+import { needsEmailVerification } from '../auth/emailVerification';
+import { workspaceConnectionError } from './workspaceConnectionError';
 import {
   loadOwnerWorkspaceFromFirestore,
   saveOwnerWorkspaceToFirestore,
@@ -78,12 +80,17 @@ export function WorkspaceProvider({ children }) {
     try { persistWorkspace(workspace); } catch { setSaveStatus('error'); setSaveError('This device could not save your changes. Free browser storage and try again.'); }
   }, [workspace]);
 
-  /** One-time upgrade for cached demo workspaces missing rich Home sections. */
+  /** Apply an explicitly versioned demo reset without touching owner workspaces. */
   useEffect(() => {
     setWorkspace((prev) => {
       if (!prev.isDemo) return prev;
       const next = hydrateDemoWorkspace(prev);
       if (
+        next.demoScenarioSchema === prev.demoScenarioSchema &&
+        next.demoCatalogRevision === prev.demoCatalogRevision &&
+        next.demoRetailSchema === prev.demoRetailSchema &&
+        next.demoInboxSchema === prev.demoInboxSchema &&
+        next.demoProfilePictureSchema === prev.demoProfilePictureSchema &&
         next.websiteSchema === prev.websiteSchema &&
         next.financeSchema === prev.financeSchema &&
         next.website?.aboutBody === prev.website?.aboutBody &&
@@ -101,7 +108,7 @@ export function WorkspaceProvider({ children }) {
   }, [workspace.isDemo]);
 
   /**
-   * Real signed-in accounts must never keep Flame & Flour / demo state.
+   * Real signed-in accounts must never keep demo state.
    */
   useEffect(() => {
     let cancelled = false;
@@ -140,6 +147,7 @@ export function WorkspaceProvider({ children }) {
         });
       }
 
+      if (needsEmailVerification(user)) return;
       if (cloudHydratedRef.current) return;
       setOwnerWorkspaceError('');
       try {
@@ -187,14 +195,14 @@ export function WorkspaceProvider({ children }) {
           return next;
         });
       } catch (error) {
-        if (!cancelled) { const message = error.message || 'Your cloud workspace could not be loaded. Check your connection and retry before saving.'; setOwnerWorkspaceError(message); setSaveStatus('error'); setSaveError(message); }
+        if (!cancelled) { const message = workspaceConnectionError(error); setOwnerWorkspaceError(message); setSaveStatus('error'); setSaveError(message); }
       }
     }
     hydrateOwner();
     return () => {
       cancelled = true;
     };
-  }, [configured, user?.uid, user?.email, saveRetry]);
+  }, [configured, user?.uid, user?.email, user?.emailVerified, saveRetry]);
 
   /** Debounced owner settings write-through. */
   useEffect(() => {

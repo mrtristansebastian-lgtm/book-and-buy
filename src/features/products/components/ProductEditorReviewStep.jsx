@@ -38,11 +38,11 @@ export function ProductEditorReviewStep({
             <dd>{priceLabel || '—'}</dd>
           </div>
           <div>
-            <dt>Category</dt>
+            <dt>Store Category</dt>
             <dd>{String(draft.category || '').trim() || 'None'}</dd>
           </div>
           <div>
-            <dt>Explore</dt>
+            <dt>Discovery Category</dt>
             <dd>
               {draft.exploreMainCategoryId && draft.exploreSubcategoryId
                 ? `${categoryLabel(draft.exploreMainCategoryId)} · ${categoryLabel(draft.exploreSubcategoryId)}`
@@ -50,7 +50,7 @@ export function ProductEditorReviewStep({
             </dd>
           </div>
           <div>
-            <dt>{isEnquiryListing(draft) ? 'Availability' : 'Variants'}</dt>
+            <dt>{isEnquiryListing(draft) ? 'Availability' : 'Options'}</dt>
             <dd>
               {isEnquiryListing(draft) ? draft.listingAvailability || 'available' : hasVariants
                 ? `${draft.variants?.length || 0} variants`

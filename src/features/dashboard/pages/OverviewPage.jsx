@@ -35,6 +35,7 @@ function firstNameFrom(value = '') {
 }
 
 function resolvePersonName({ user, staff = [], workspace }) {
+  if (workspace?.isDemo) return staff.find(member => member.accessRole === 'Owner')?.name || 'Your Business';
   const email = String(user?.email || '').trim().toLowerCase();
   if (email) {
     const match = (staff || []).find(

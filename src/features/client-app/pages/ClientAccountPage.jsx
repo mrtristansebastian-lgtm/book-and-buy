@@ -1,5 +1,6 @@
 import { PurchaseReviewForm } from '../PurchaseReviewForm';
 import { Button } from '../../../shared/ui/Button';
+import { ProfileAvatarPlaceholder } from '../../../shared/ui/ProfileAvatarPlaceholder';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -125,7 +126,7 @@ function GeneralSettings({ profile, updateClientProfile, setClientPresence }) {
             {profile?.photoURL ? (
               <img src={profile.photoURL} alt="" />
             ) : (
-              initials(profile?.displayName, profile?.email)
+              <ProfileAvatarPlaceholder />
             )}
           </span>
           <div className="grid gap-2">
@@ -361,7 +362,7 @@ export function ClientAccountPage({ section = '' }) {
                 <StatusPill>{booking.status}</StatusPill>
               </div>
               <p className="bb-muted m-0 text-sm">
-                {formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}
+                {booking.bookingMode === 'first_come' && !(booking.dateKey || booking.date) ? 'Time to be arranged' : <>{formatDisplayDate(booking.dateKey || booking.date)} · {booking.time}</>}
               </p>
               {booking.paymentStatus && <div className="bb-client-activity-payment"><span>Payment</span><StatusBadge status={booking.paymentStatus} label={activityStatusLabel(booking.paymentStatus)} /></div>}
               <Button action="chat" variant="secondary"

@@ -2,7 +2,6 @@ import { Button } from '../../../shared/ui/Button';
 import { FilterChip } from '../../../shared/ui/FilterChip';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { getServiceBookingFormat } from '../../../../functions/serviceTemplates';
 import {
   DURATION_PRESETS,
   createServiceVariantId
@@ -48,19 +47,19 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
     <section className="bb-services-section">
       <div className="bb-services-step-head">
         <div>
-          <h3 className="bb-services-section-title">Variants</h3>
+          <h3 className="bb-services-section-title">Options</h3>
           <p className="bb-services-section-lede">
-            {isSession ? 'Optional ticket or package choices, each with its own price per spot. Every choice shares the same session time and capacity.' : 'Optional packages with their own name, description, price and duration.'}
+            {isSession ? 'Optional ticket options, each with its own price per spot. Every choice shares the same session time and capacity.' : 'Optional options with their own name, description, price and duration.'}
           </p>
         </div>
         <Button action="add" variant="primary" type="button" className="bb-ghost-btn" onClick={addVariant}>
-          Add variant
+          Add option
         </Button>
       </div>
 
       {variants.length === 0 ? (
         <p className="bb-services-section-lede">
-          No variants — this service books as one option.
+          No options — this service books as one option.
         </p>
       ) : (
         <div className="bb-services-variant-list">
@@ -68,14 +67,14 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
             <article key={variant.id || index} className="bb-services-variant-card">
               <div className="bb-services-variant-card-head">
                 <button type="button" className="bb-variant-summary" aria-expanded={expandedId === variant.id} aria-controls={`service-variant-${variant.id}`} onClick={() => setExpandedId(expandedId === variant.id ? '' : variant.id)}>
-                  <strong>{variant.name || `Variant ${index + 1}`}</strong>
+                  <strong>{variant.name || `Option ${index + 1}`}</strong>
                   <span>{!isSession ? `${variant.minDuration || '—'} min · ` : ''}{currency} {variant.price || '0'}{isSession ? ' / spot' : ''} · {variant.available === false ? 'Hidden' : 'Available'}</span>
                   <small>{expandedId === variant.id ? 'Close details' : 'Edit details'}</small>
                 </button>
                 <button
                   type="button"
                   className="bb-ghost-btn"
-                  aria-label={`Remove ${variant.name || `variant ${index + 1}`}`}
+                  aria-label={`Remove ${variant.name || `option ${index + 1}`}`}
                   onClick={() => removeVariant(variant.id)}
                 >
                   <Trash2 size={14} />
@@ -110,7 +109,7 @@ export function ServiceEditorVariantsStep({ draft, patch, currency = 'R' }) {
                 </label>
                 <div className="bb-services-variant-row">
                   <label className="bb-services-field">
-                    <span>{getServiceBookingFormat(draft) === 'event' ? 'Price per ticket' : isSession ? 'Price per spot' : 'Price'} ({currency})</span>
+                    <span>{isSession ? 'Price per spot' : 'Price'} ({currency})</span>
                     <input
                       className="native-control-input bb-services-control"
                       value={variant.price ?? ''}

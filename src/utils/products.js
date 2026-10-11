@@ -134,7 +134,7 @@ export const normalizeProductVariant = (variant = {}, index = 0) => {
     title:
       String(variant.title || '').trim() ||
       Object.values(optionValues).filter(Boolean).join(' / ') ||
-      `Variant ${index + 1}`
+      `Option ${index + 1}`
   };
 };
 
@@ -423,7 +423,7 @@ export function applyProductInventoryUpdates(products = [], updates = []) {
         .filter((item) => item && typeof item === 'object').map((item) => [item.id, item])));
     }
     const source = variantId ? variantsByProduct.get(product.id).get(variantId) : product;
-    if (!source) return fail('This variant is no longer available. Refresh your inventory and try again.');
+    if (!source) return fail('This option is no longer available. Refresh your inventory and try again.');
     const key = JSON.stringify([product.id, variantId]);
     if (seen.has(key)) return fail('Each inventory item can only be updated once per batch.');
     seen.add(key);

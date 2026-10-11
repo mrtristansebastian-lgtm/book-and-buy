@@ -1,8 +1,9 @@
 import { formatServiceSessionLabel } from '../../../utils/services';
+import { serviceTimingLabel, serviceNeedsTimingConversation } from '../../../../functions/serviceTiming';
 import { durationSummary } from './serviceEditorUtils';
 import { categoryLabel } from '../../../config/businessCategories';
 import { FilterChip } from '../../../shared/ui/FilterChip';
-import { getServiceTemplate, serviceConfigurationFields, getServiceBookingFormat } from '../../../../functions/serviceTemplates';
+import { getServiceTemplate, serviceConfigurationFields } from '../../../../functions/serviceTemplates';
 
 export function ServiceEditorReviewStep({
   draft,
@@ -38,31 +39,32 @@ export function ServiceEditorReviewStep({
           </div>
           {(draft.variants || []).length ? (
             <div>
-              <dt>Variants</dt>
+              <dt>Options</dt>
               <dd>{draft.variants.length} {draft.variants.length === 1 ? 'variant' : 'variants'}</dd>
             </div>
           ) : null}
           <div>
             <dt>Type</dt>
             <dd>
-              {getServiceBookingFormat(draft) === 'event' ? 'Event' : isSpot ? 'Spot' : 'Slot'}{template?.label ? ` · ${template.label}` : ''}
+              {isSpot ? 'Spot' : 'Slot'}{template?.label ? ` · ${template.label}` : ''}
               {showCapacity && draft.capacity ? ` · ${draft.capacity} open spots` : ''}
             </dd>
           </div>
           <div>
-            <dt>{isSpot ? 'When' : 'Duration'}</dt>
+            <dt>When</dt>
             <dd>
-              {isSpot
-                ? formatServiceSessionLabel(draft) || 'Not set'
-                : durationSummary(draft)}
+              {serviceNeedsTimingConversation(draft) || !isSpot ? serviceTimingLabel(draft)
+                : formatServiceSessionLabel(draft) || 'Not set'}
             </dd>
           </div>
+          {draft.timingNotes && <div><dt>Timing details</dt><dd>{draft.timingNotes}</dd></div>}
+          {!isSpot && <div><dt>Duration</dt><dd>{durationSummary(draft)}</dd></div>}
           <div>
-            <dt>Category</dt>
+            <dt>Store Category</dt>
             <dd>{String(draft.category || '').trim() || 'None'}</dd>
           </div>
           <div>
-            <dt>Explore</dt>
+            <dt>Discovery Category</dt>
             <dd>
               {draft.exploreMainCategoryId && draft.exploreSubcategoryId
                 ? `${categoryLabel(draft.exploreMainCategoryId)} · ${categoryLabel(draft.exploreSubcategoryId)}`

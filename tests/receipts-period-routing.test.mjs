@@ -27,12 +27,15 @@ function load(path) {
 const { createDemoWorkspace, hydrateDemoWorkspace } = load('../src/data/demoWorkspace.js');
 const { buildFinanceLedger } = load('../src/features/finance/utils/financeLedger.js');
 
-test('current demo service edits and team assignments survive rehydration with the two-service catalogue', () => {
+test('services and teammates added to a fresh demo survive rehydration', () => {
   const current = createDemoWorkspace();
-  assert.equal(current.services.length, 2);
+  assert.equal(current.services.length, 35);
+  assert.equal(current.staff.length, 25);
   const staffId = 'new-team-member';
-  const edited = { ...current, staff: [...current.staff, { id: staffId, name: 'New member', active: true }], services: current.services.map((service, index) => index ? service : { ...service, description: 'My edited service', staffIds: [...service.staffIds, staffId] }) };
+  const edited = { ...current, staff: [{ id: staffId, name: 'New member', active: true }],
+    services: [{ id: 'my-service', name: 'My service', description: 'My edited service', staffIds: [staffId] }] };
   const hydrated = hydrateDemoWorkspace(edited);
+  assert.strictEqual(hydrated, edited);
   assert.equal(hydrated.services[0].description, 'My edited service');
   assert.ok(hydrated.services[0].staffIds.includes(staffId));
   assert.ok(hydrated.staff.some(member => member.id === staffId));
@@ -96,6 +99,7 @@ test('receipt links apply custom dates, keep demo paths and react to back/forwar
       if (id === '../components/RevenuePulseHeader') return { RevenuePulseHeader: Header };
       if (id === '../components/FinanceLedgerToolbar') return { FinanceLedgerToolbar: Toolbar };
       if (id === '../components/TransactionReceiptCard') return { TransactionReceiptCard: Receipt };
+      if (id === '../../../shared/ui/EmptyState') return { EmptyState: (props) => React.createElement('section', props) };
       if (id === '../../../app/routing') return load('../src/app/routing.js');
       if (id === '../utils/financeLedger') return load('../src/features/finance/utils/financeLedger.js');
       return require(id);
@@ -154,13 +158,28 @@ test('receipt links apply custom dates, keep demo paths and react to back/forwar
   }
 });
 
-test('demo financial reports use saved paid dates, amounts and coherent cost snapshots', () => {
-  const demo = createDemoWorkspace();
+test('added receipts use their saved financial snapshots independently of showcase receipts', () => {
+  const demo = { ...createDemoWorkspace(), bookings: [], orders: [] };
+  assert.deepEqual(buildFinanceLedger(demo), []);
+  const timestamp = Date.parse('2026-10-01T10:00:00Z');
+  const paidAt = timestamp + 3600000;
+  demo.services.push({ id: 'my-service', name: 'My service', price: 999 });
+  demo.bookings.push({ id: 'my-booking', serviceId: 'my-service', serviceName: 'My service',
+    timestamp, paidAt, amountInCents: 65000, amountPaidInCents: 65000, costBasisInCents: 22000,
+    paymentStatus: 'paid', paymentMethod: 'cash', currency: 'R' });
+  demo.orders.push({ id: 'my-order', timestamp: timestamp + 1000, paidAt, amountInCents: 24000,
+    amountPaidInCents: 24000, subtotalCents: 24000, costBasisInCents: 9000,
+    paymentStatus: 'paid', paymentMethod: 'manual_eft', currency: 'R',
+    items: [{ productId: 'my-product', name: 'My product', quantity: 2, unitPriceCents: 12000,
+      unitCostInCents: 4500, lineTotalCents: 24000, lineCostInCents: 9000 }] });
   const ledger = buildFinanceLedger({ bookings: demo.bookings, orders: demo.orders, services: demo.services, currency: demo.currency });
   const paid = ledger.filter((row) => row.paymentStatus === 'paid');
-  assert.ok(paid.length > 0);
+  assert.equal(paid.length, 2);
+  assert.equal(ledger.find(row => row.sourceId === 'my-booking').amountInCents, 65000,
+    'A changed current service price cannot change a saved receipt');
   for (const row of paid) {
     assert.equal(row.paidAtAuthoritative, true, row.id);
+    assert.equal(row.paidAt, paidAt, row.id);
     assert.equal(row.amountAuthoritative, true, row.id);
     assert.ok(Number.isFinite(row.costBasisInCents) && row.costBasisInCents >= 0, row.id);
   }
@@ -174,7 +193,10 @@ test('demo financial reports use saved paid dates, amounts and coherent cost sna
 test('current demo preserves added specialist listings, service assignments and website edits on reload', () => {
   const current = createDemoWorkspace();
   const listing = { id: 'qa-car', name: 'Toyota Corolla', listingType: 'vehicle', transactionMode: 'enquiry', exploreMainCategoryId: 'buy_vehicles', exploreSubcategoryId: 'vehicles_cars', vehicleDetails: { make: 'Toyota', model: 'Corolla' } };
-  const changed = { ...current, products: [...current.products, listing], services: current.services.map(service => ({ ...service, staffIds: ['new-team-member'] })), website: { ...current.website, homeSubtext: 'Edited business introduction' } };
+  const changed = { ...current, products: [listing],
+    staff: [{ id: 'new-team-member', name: 'New teammate' }],
+    services: [{ id: 'my-service', name: 'My service', staffIds: ['new-team-member'] }],
+    website: { ...current.website, homeSubtext: 'Edited business introduction' } };
   const hydrated = hydrateDemoWorkspace(changed);
   assert.equal(hydrated.products.find(product => product.id === listing.id)?.transactionMode, 'enquiry');
   assert.deepEqual(hydrated.services[0].staffIds, ['new-team-member']);
@@ -182,22 +204,28 @@ test('current demo preserves added specialist listings, service assignments and 
   assert.equal(hydrateDemoWorkspace({ ...changed, products: changed.products.slice(1) }).products.length, changed.products.length - 1);
 });
 
-test('cached demos receive finance upgrades even when their website content is already current', () => {
+test('the workspace provider applies an old demo reset once and preserves current edits', () => {
   const current = createDemoWorkspace();
-  const cached = { ...current, financeSchema: 2 };
+  const cached = { ...current, demoScenarioSchema: 5, financeSchema: 2,
+    orders: [{ id: 'old-demo-order', amountInCents: 10000 }] };
   const upgraded = hydrateDemoWorkspace(cached);
-  assert.equal(upgraded.websiteSchema, cached.websiteSchema);
-  assert.equal(upgraded.financeSchema, 3);
+  assert.equal(upgraded.demoScenarioSchema, 7);
+  assert.equal(upgraded.orders.length, 24);
+  assert.equal(upgraded.orders.some(order => order.id === 'old-demo-order'), false);
   const source = readFileSync(new URL('../src/features/workspace/WorkspaceContext.jsx', import.meta.url), 'utf8');
   const file = ts.createSourceFile('WorkspaceContext.jsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
   let equalityCheck;
   const visit = (node) => {
-    if (ts.isIfStatement(node) && node.expression.getText(file).includes('next.websiteSchema === prev.websiteSchema')) {
+    if (ts.isIfStatement(node) && node.expression.getText(file).includes('next.demoScenarioSchema === prev.demoScenarioSchema')) {
       equalityCheck = new Function('prev', 'next', `return (${node.expression.getText(file)});`);
     }
     ts.forEachChild(node, visit);
   };
   visit(file);
-  assert.equal(equalityCheck(cached, upgraded), false, 'The provider must keep the upgraded financial snapshots');
+  assert.equal(typeof equalityCheck, 'function');
+  assert.equal(equalityCheck(cached, upgraded), false, 'The provider must keep the fresh showcase');
   assert.equal(equalityCheck(current, hydrateDemoWorkspace(current)), true, 'Current demo data avoids unnecessary updates');
+  const edited = { ...current, financeSchema: 2, orders: [{ id: 'my-new-order', amountInCents: 12000 }] };
+  assert.strictEqual(hydrateDemoWorkspace(edited), edited, 'An old section marker cannot clear a new plan');
+  assert.equal(equalityCheck(edited, hydrateDemoWorkspace(edited)), true);
 });

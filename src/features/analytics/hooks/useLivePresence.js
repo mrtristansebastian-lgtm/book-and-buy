@@ -9,7 +9,7 @@ import {
 } from '../../../shared/analytics/livePresence';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
-import { buildDemoAnalytics, liveSessionRows } from '../utils/analyticsMetrics';
+import { liveSessionRows } from '../utils/analyticsMetrics';
 
 function snapshotRows(snapshot) {
   return snapshot.docs.map((row) => {
@@ -27,15 +27,12 @@ export function useLivePresence({ enabled = true } = {}) {
   const { user, isLocalMode } = useAuth();
   const { workspace } = useWorkspace();
   const ownerId = user?.uid || workspace?.ownerId || '';
-  const allowDemo = Boolean(workspace?.isDemo) || (!user && (isLocalMode || !isFirebaseConfigured()));
   const configured =
     enabled && isFirebaseConfigured() && !isLocalMode && Boolean(ownerId) && !workspace?.isDemo;
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(configured);
   const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now());
-  const [demoNow, setDemoNow] = useState(0);
-  const [usingDemo, setUsingDemo] = useState(enabled && allowDemo);
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -48,22 +45,11 @@ export function useLivePresence({ enabled = true } = {}) {
       setRows([]);
       setLoading(false);
       setError('');
-      setUsingDemo(false);
-      setDemoNow(0);
       return undefined;
     }
 
     if (!configured) {
-      if (allowDemo) {
-        const fixtureNow = Date.now();
-        setRows(buildDemoAnalytics({ now: fixtureNow }).sessions);
-        setDemoNow(fixtureNow);
-        setUsingDemo(true);
-      } else {
-        setRows([]);
-        setDemoNow(0);
-        setUsingDemo(false);
-      }
+      setRows([]);
       setLoading(false);
       setError('');
       return undefined;
@@ -74,8 +60,6 @@ export function useLivePresence({ enabled = true } = {}) {
     setRows([]);
     setLoading(true);
     setError('');
-    setUsingDemo(false);
-    setDemoNow(0);
 
     const cutoff = Timestamp.fromMillis(Date.now() - LIVE_VISITOR_WINDOW_MS);
     const sessionsQuery = query(
@@ -98,9 +82,9 @@ export function useLivePresence({ enabled = true } = {}) {
         setLoading(false);
       }
     );
-  }, [enabled, configured, allowDemo, ownerId]);
+  }, [enabled, configured, ownerId]);
 
-  const activityNow = usingDemo ? demoNow || now : now;
+  const activityNow = now;
   const liveSessions = useMemo(
     () => liveSessionRows(rows, activityNow),
     [rows, activityNow]
@@ -110,7 +94,7 @@ export function useLivePresence({ enabled = true } = {}) {
   return {
     loading,
     error,
-    usingDemo,
+    usingDemo: false,
     activityNow,
     liveSessions,
     liveCount: liveSessions.length,

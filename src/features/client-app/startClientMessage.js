@@ -70,7 +70,8 @@ export async function startClientMessage({
   } else if (startThreadFromClient) {
     local = startThreadFromClient({
       name: profile.displayName || 'Client',
-      email: profile.email
+      email: profile.email,
+      subject: threadSubject
     });
   }
 

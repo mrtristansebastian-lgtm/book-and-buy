@@ -13,8 +13,8 @@ export function ServiceEditorCategoryStep({
 }) {
   return (
     <section className="bb-services-section">
-      <h3 className="bb-services-section-title">Category</h3>
-      <p className="bb-services-section-lede">Store categories stay flexible and shape your Book page navigation.</p>
+      <h3 className="bb-services-section-title">Store Category</h3>
+      <p className="bb-services-section-lede">Optionally group this service on your Book page. Your Store Category is separate from your Discovery Category.</p>
       <div className="bb-services-category-chips">
         <FilterChip
           type="button"
@@ -51,7 +51,7 @@ export function ServiceEditorCategoryStep({
           <input
             className="native-control-input bb-services-control"
             value={newCategory}
-            placeholder="New category"
+            placeholder="New Store Category"
             autoFocus
             onChange={(event) => setNewCategory(event.target.value)}
             onKeyDown={(event) => {

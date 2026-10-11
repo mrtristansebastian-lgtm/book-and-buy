@@ -25,6 +25,7 @@ import { ServiceEditorWhenStep } from './ServiceEditorWhenStep';
 import { buildSetupSteps } from './serviceEditorUtils';
 import { isValidExploreCategoryPair } from '../../../config/businessCategories';
 import { getServiceTemplate, validateServiceConfiguration } from '../../../../functions/serviceTemplates';
+import { getServiceTimingMode, validateServiceTiming } from '../../../../functions/serviceTiming';
 import './service-templates.css';
 
 export function ServiceEditorSheet({
@@ -71,7 +72,7 @@ export function ServiceEditorSheet({
   }, [categories, draft.category]);
 
   const setupSteps = useMemo(
-    () => buildSetupSteps(draft?.scheduleType || 'appointment', Boolean(getServiceTemplate(draft?.catalogTemplateId)), getServiceTemplate(draft?.catalogTemplateId)?.event === true || draft.bookingFormat === 'event'),
+    () => buildSetupSteps(draft?.scheduleType || 'appointment', Boolean(getServiceTemplate(draft?.catalogTemplateId))),
     [draft?.scheduleType, draft?.catalogTemplateId, draft?.bookingFormat]
   );
 
@@ -87,7 +88,6 @@ export function ServiceEditorSheet({
   useEffect(() => {
     if (!open) return;
     if (step === 'duration' && isSpot) setStep('when');
-    if (step === 'when' && !isSpot) setStep('duration');
   }, [open, isSpot, step]);
 
   if (!open) return null;
@@ -130,7 +130,7 @@ export function ServiceEditorSheet({
 
   const validateStep = (id) => {
     if (id === 'type') {
-      if (!draft.id && !['slot', 'spot', 'event'].includes(draft.bookingFormat)) { setError('Choose Slot, Spot or Event.'); return false; }
+      if (!draft.id && !['slot', 'spot'].includes(draft.bookingFormat)) { setError('Choose Slot or Spot.'); return false; }
     }
     if (id === 'classification') {
       if ((!draft.id || draft.catalogTemplateId) && (!getServiceTemplate(draft.catalogTemplateId) || !isValidExploreCategoryPair(draft.exploreMainCategoryId, draft.exploreSubcategoryId, 'book'))) {
@@ -195,7 +195,9 @@ export function ServiceEditorSheet({
       }
     }
     if (id === 'when') {
-      if (!isValidServiceSessionWindow(draft)) {
+      const timingError = validateServiceTiming(draft);
+      if (timingError) { setError(timingError); return false; }
+      if (getServiceTimingMode(draft) === 'fixed' && !isValidServiceSessionWindow(draft)) {
         setError('Set a start and end date/time — end must be after start.');
         return false;
       }
@@ -233,6 +235,7 @@ export function ServiceEditorSheet({
 
   const save = async () => {
     if (busy) return;
+    if (!validateStep('when')) { setStep('when'); return; }
     if (!validateStep('type')) {
       setStep('type');
       return;
@@ -376,7 +379,7 @@ export function ServiceEditorSheet({
             ) : null}
 
             {step === 'when' ? (
-              <ServiceEditorWhenStep draft={draft} patch={patch} />
+              <ServiceEditorWhenStep draft={draft} patch={patch} availabilityRules={workspace.availabilityRules} />
             ) : null}
 
             {step === 'duration' ? (

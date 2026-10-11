@@ -124,7 +124,7 @@ export function getDaySlots({
   if (!isBusinessOpenOnDate(dateKey, rules)) return [];
 
   const service = (services || []).find((item) => item.id === serviceId);
-  if (service && getServiceScheduleType(service) === 'class_session') {
+  if (service && (['arranged', 'to_be_announced'].includes(service.timingMode) || getServiceScheduleType(service) === 'class_session')) {
     return [];
   }
 

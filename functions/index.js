@@ -242,11 +242,13 @@ export const paypalWebhook = onRequest({ secrets: paymentSecrets, cors: false },
   }
 });
 
-const ownerCall = handler => onCall({ timeoutSeconds: 120, maxInstances: 10 }, async request => {
+const ownerCall = (handler, options = {}) => onCall({ timeoutSeconds: 120, cpu: 'gcf_gen1', memory: '256MiB', concurrency: 1, maxInstances: 3, ...options }, async request => {
   try { return await handler(request.data || {}, request.auth); } catch (error) { wrapError(error); }
 });
-export const getOwnerWorkspace = ownerCall(workspaceCommands.getOwnerWorkspace);
-export const patchOwnerWorkspace = ownerCall(workspaceCommands.patchOwnerWorkspace);
+// Firebase verifies end-user tokens inside the callable; Cloud Run must let requests reach it.
+// Both handlers enforce verified ownership before reading or writing any workspace data.
+export const getOwnerWorkspace = ownerCall(workspaceCommands.getOwnerWorkspace, { invoker: 'public' });
+export const patchOwnerWorkspace = ownerCall(workspaceCommands.patchOwnerWorkspace, { invoker: 'public' });
 export const publishBusinessProfile = ownerCall(workspaceCommands.publishBusinessProfile);
 export const getWorkspaceReadiness = ownerCall(workspaceCommands.getWorkspaceReadiness);
 export const migrateWorkspaceCollections = ownerCall(workspaceCommands.migrateWorkspaceCollections);

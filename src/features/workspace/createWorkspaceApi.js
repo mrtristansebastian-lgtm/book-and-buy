@@ -1,5 +1,6 @@
 import { publishProfileDraft } from '../website/publishProfileDraft';
 import { createDemoWorkspace, hydrateDemoWorkspace } from '../../data/demoWorkspace';
+import { syncShowcaseEnquiries } from '../showcase/showcasePersistence';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
 import { normalizeService, normalizeServiceList, collectServiceCategories } from '../../utils/services';
 import { applyProductInventoryUpdates, collectProductCategories, normalizeProduct } from '../../utils/products';
@@ -12,6 +13,9 @@ import {
 import { normalizeAvailabilityRules } from '../../utils/staffAvailability';
 import { MODE_KEY, OWNER_KEY, DEMO_KEY, safeParse } from './workspacePersistence';
 import { demoBookingSnapshot, demoOrderCostSnapshot, demoPaymentSnapshot } from './demoFinancialSnapshots';
+import { serviceNeedsTimingConversation } from '../../../functions/serviceTiming';
+import { bookingIntake } from '../../../functions/bookingModes';
+import { bookingSlot, validateBookingSlot } from '../../../functions/bookingDomain';
 
 export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError = () => {}, onInventoryError = () => {}, onBookingError = () => {} }) {
     const updateBooking = async (id, patch) => {
@@ -28,12 +32,17 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           return null;
         }
       }
+      const current = workspace.bookings.find(booking => booking.id === id);
+      if (!current) throw new Error('Booking not found.');
+      const record = { ...current, ...patch, ...demoPaymentSnapshot(current, patch), updatedAt: Date.now() };
+      if (record.bookingMode === 'first_come' && ['pending', 'confirmed'].includes(record.status)) validateBookingSlot(workspace, record, bookingSlot(record), workspace.bookings);
       setWorkspace((prev) => ({
         ...prev,
         bookings: prev.bookings.map((booking) =>
-          booking.id === id ? { ...booking, ...patch, ...demoPaymentSnapshot(booking, patch), updatedAt: Date.now() } : booking
+          booking.id === id ? record : booking
         )
       }));
+      return record;
     };
 
     const updateOrder = async (id, patch) => {
@@ -150,6 +159,8 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
         }));
       },
       addBooking: async (booking) => {
+        const service = workspace.services?.find(item => item.id === booking.serviceId);
+        if (service && serviceNeedsTimingConversation(service)) throw new Error('Set a bookable schedule for this service before creating a booking.');
         const record = {
           id: booking.id || `bk-${Date.now()}`,
           timestamp: Date.now(),
@@ -158,14 +169,16 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
           source: booking.source || 'owner',
           ...booking
         };
+        if (service) Object.assign(record, bookingIntake(workspace, service, booking, null, booking.source === 'public'));
         if (!workspace.isDemo) {
           const remote = await firebaseCallables.createOwnerBookingRequest({ ownerId: workspace.ownerId || user?.uid, booking: record, requestId: crypto.randomUUID() });
           setWorkspace((prev) => ({ ...prev, bookings: [remote, ...prev.bookings.filter((b) => b.id !== remote.id)] }));
           return remote;
         }
         const snapshot = demoBookingSnapshot(record, workspace);
+        if (snapshot.bookingMode === 'first_come') validateBookingSlot(workspace, snapshot, bookingSlot(snapshot), workspace.bookings);
         const demoRecord = snapshot.paymentStatus === 'paid' ? { ...snapshot, ...demoPaymentSnapshot({ ...snapshot, paymentStatus: 'unpaid' }, { paymentStatus: 'paid' }) } : snapshot;
-        setWorkspace((prev) => ({ ...prev, bookings: [demoRecord, ...prev.bookings] }));
+        setWorkspace((prev) => ({ ...prev, bookings: [demoRecord, ...prev.bookings.filter(item => item.id !== demoRecord.id)] }));
         return demoRecord;
       },
       updateBooking,
@@ -498,10 +511,11 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
         let created = null;
         setWorkspace((prev) => {
           const email = String(client.email || '').toLowerCase();
+          const subject = client.subject || `Message · ${prev.brandName || client.name}`;
           const existing = (prev.threads || []).find(
             (thread) =>
               String(thread.clientEmail || '').toLowerCase() === email &&
-              thread.subject === `Message · ${client.name}`
+              thread.subject === subject
           );
           if (existing) {
             created = existing;
@@ -519,7 +533,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
             id: `thread-${now}`,
             clientName: client.name,
             clientEmail: client.email || '',
-            subject: `Message · ${prev.brandName || client.name}`,
+            subject,
             clientId: client.id,
             brandName: prev.brandName || '',
             workspaceSlug: prev.slug || '',
@@ -683,6 +697,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
       loadDemoWorkspace: ({ reset = false } = {}) => {
         const stored = !reset ? safeParse(localStorage.getItem(DEMO_KEY), null) : null;
         const next = reset ? createDemoWorkspace() : hydrateDemoWorkspace(stored);
+        syncShowcaseEnquiries(next, { reset });
         localStorage.setItem(MODE_KEY, 'demo');
         localStorage.setItem(DEMO_KEY, JSON.stringify(next));
         setWorkspace(next);
@@ -690,6 +705,7 @@ export function createWorkspaceApi({ workspace, setWorkspace, user, onOrderError
       },
       resetDemoWorkspace: () => {
         const next = createDemoWorkspace();
+        syncShowcaseEnquiries(next, { reset: true });
         localStorage.setItem(MODE_KEY, 'demo');
         localStorage.setItem(DEMO_KEY, JSON.stringify(next));
         setWorkspace(next);

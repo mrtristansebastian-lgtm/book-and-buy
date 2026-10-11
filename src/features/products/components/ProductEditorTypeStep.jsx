@@ -6,6 +6,7 @@ import { getProductCategoryTemplate, getProductTemplate } from '../../../../func
 import { CatalogTypePicker } from '../../../shared/ui/CatalogTypePicker';
 import { SetupPicker } from '../../../shared/ui/SetupPicker';
 import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
+import { listingLocationOptions } from '../../../../functions/listingLocation.js';
 import './listing-types.css';
 
 const basics = field => field.required || field.essential;
@@ -103,7 +104,7 @@ function AddSpecificationsDialog({ groups, selectedKeys, onAdd, onClose }) {
   </div>, document.body);
 }
 
-export function ProductEditorSpecificationsStep({ draft, patch }) {
+export function ProductEditorSpecificationsStep({ draft, patch, workspace = {} }) {
   const [addOpen, setAddOpen] = useState(false);
   const key = listingDetailsKey(draft);
   const details = draft[key] || {};
@@ -134,6 +135,7 @@ export function ProductEditorSpecificationsStep({ draft, patch }) {
     patch({ [key]: nextDetails, listingSpecFields: [...new Set([...savedSelection, ...selectedKeys])].filter(item => item !== field) });
   };
   const heading = template ? `${template.label} specifications` : type === 'vehicle' ? 'Vehicle specifications' : type === 'equipment' ? 'Equipment specifications' : type === 'electronics' ? 'Electronics specifications' : 'Product specifications';
+  const locations = listingLocationOptions(workspace, details.location || '');
   return <section className="bb-services-section bb-spec-editor">
     <h3 className="bb-services-section-title">{heading}</h3>
     <p className="bb-services-section-lede">Start with the essentials. Add extra specifications when you need them.</p>
@@ -142,7 +144,7 @@ export function ProductEditorSpecificationsStep({ draft, patch }) {
       { value: 'reserved', label: 'Reserved', description: 'Pause new enquiries while it is reserved' },
       { value: 'sold', label: 'Sold', description: 'Keep the listing with its sold status' }
     ]}/></div>}
-    <fieldset className="bb-listing-fieldset bb-spec-essentials"><legend><span>Essentials</span><small>The basics buyers look for</small></legend><div className="bb-listing-field-grid">{essentialFields.map(field => <SpecificationField key={field.key} field={field} value={details[field.key]} onChange={value => set(field.key, value)}/>)}</div></fieldset>
+    <fieldset className="bb-listing-fieldset bb-spec-essentials"><legend><span>Essentials</span><small>The basics buyers look for</small></legend><div className="bb-listing-field-grid">{essentialFields.map(field => <SpecificationField key={field.key} field={field.key === 'location' ? { ...field, ...(locations.length ? { options: locations } : {}), hint: locations.length ? [details.location, 'Defaults to your business location. Choose a branch if this listing is based elsewhere.'].filter(Boolean).join(' — ') : 'Set your business location and branches in Settings → Locations, or enter this listing’s location here.' } : field} value={details[field.key]} onChange={value => set(field.key, value)}/>)}</div></fieldset>
     <div className="bb-spec-extras-heading"><div><h4>Additional specifications</h4><p>{selectedKeys.size ? `${selectedKeys.size} ${selectedKeys.size === 1 ? 'detail' : 'details'} added to this listing` : 'Make the listing yours, one detail at a time.'}</p></div><button type="button" className="bb-spec-add" onClick={() => setAddOpen(true)} disabled={!availableCount}><Plus size={17}/>Add specification</button></div>
     {preservedFields && <p className="bb-spec-preserved">Specifications from your previous selection are kept below. Remove any that no longer apply.</p>}
     {selectedGroups.length ? selectedGroups.map(group => <fieldset className="bb-listing-fieldset bb-spec-extra-group" key={group.label}><legend>{group.label}</legend><div className="bb-listing-field-grid">{group.fields.map(field => <SpecificationField key={field.key} field={field} value={details[field.key]} onChange={value => set(field.key, value)} onRemove={() => remove(field.key)}/>)}</div></fieldset>) : <div className="bb-spec-start"><span><SlidersHorizontal size={22}/></span><div><strong>Only show what matters.</strong><p>{type === 'electronics' ? 'Add storage, display, connectivity and other useful specs.' : type === 'vehicle' ? 'Add engine details, performance figures, fitted features and other useful specs.' : type === 'equipment' ? 'Add operating hours, capacity, power requirements and other useful specs.' : 'Add materials, dimensions, care instructions and the details that help buyers choose.'}</p></div></div>}

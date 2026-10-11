@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { FilterChip } from '../../../shared/ui/FilterChip';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import {
   Box,
   CalendarDays,
@@ -109,9 +110,7 @@ export function ThreadList({ threads, activeId, onSelect }) {
 
       <div className="bb-support-list-scroll">
         {visible.length === 0 ? (
-          <p className="bb-muted p-4 m-0 text-sm">
-            {threads.length === 0 ? 'No conversations yet.' : 'No conversations match this filter.'}
-          </p>
+          <EmptyState compact icon={Mail} title={threads.length === 0 ? 'Your inbox is ready' : 'No matching conversations'} description={threads.length === 0 ? 'Messages, enquiries and booking conversations will arrive here.' : 'Try another search or filter.'} />
         ) : (
           visible.map((thread) => {
             const last = lastMessage(thread);

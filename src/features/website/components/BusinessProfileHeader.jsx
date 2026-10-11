@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Bookmark, MapPin, Phone, Menu, BookOpen, Images, Star, HelpCircle, MessageCircle, ShoppingBag, CalendarDays, LayoutGrid, Compass } from 'lucide-react';
+import { ArrowRight, Bookmark, MapPin, Phone, Menu, BookOpen, Images, Star, HelpCircle, MessageCircle, ShoppingBag, CalendarDays, LayoutGrid, Compass } from 'lucide-react';
 import { EditableImage, EditableText, EditSection } from './editable';
 import { Button } from '../../../shared/ui/Button';
 import { navigate } from '../../../app/routing';
@@ -7,6 +7,7 @@ import { useClientProfile } from '../../client-app/ClientProfileContext';
 import { startClientMessage } from '../../client-app/startClientMessage';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { profileSignInPath } from '../../client-app/profileAuthReturn';
+import { profileJourney } from '../profileModel';
 
 /** One identity for the public profile, discovery and the E-Business editor.
  * Keep the existing image/copy fields so published merchant content isn't lost.
@@ -44,6 +45,7 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
   const category = website.profileCategory || '';
   const logo = website.logoUrl || workspace.logoUrl || '';
   const interactive = !preview && !editMode;
+  const explorePage = editMode ? navigation.find(item => item.id === 'about') : profileJourney(workspace).nextStory;
   useEffect(() => {
     if (compact) return;
     const identity = menuTriggerRef.current?.closest('.bb-business-profile-identity');
@@ -164,6 +166,11 @@ export function BusinessProfileHeader({ workspace, editMode, preview, patchWebsi
             </Button>
           </>}
         </div>
+        {explorePage && <div className="bb-profile-explore-action">
+          <Button icon={ArrowRight} variant="secondary" className="bb-profile-explore-button" onClick={() => openPage(explorePage.id)}>
+            Explore the business
+          </Button>
+        </div>}
       </div>
       </>}
       {error ? <p className="bb-business-profile-error" role="alert">{error}</p> : null}

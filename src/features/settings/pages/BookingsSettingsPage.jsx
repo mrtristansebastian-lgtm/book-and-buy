@@ -1,8 +1,9 @@
 import { Button } from '../../../shared/ui/Button';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { AdvanceBookingField } from '../../schedule/components/AdvanceBookingField';
-import { navigate } from '../../../app/routing';
+import { navigate, workspacePagePath } from '../../../app/routing';
 import { CancellationNoticeField } from '../components/CancellationNoticeField';
+import { BookingModeSettings } from '../components/BookingModeSettings';
 
 export function BookingsSettingsPage() {
   const { workspace, updateAvailabilityRules } = useWorkspace();
@@ -20,6 +21,7 @@ export function BookingsSettingsPage() {
           until={rules.maxAdvanceBookingUntil || ''}
           onChange={updateAvailabilityRules}
         />
+        <BookingModeSettings rules={rules} onChange={updateAvailabilityRules} />
         <div className="bb-settings-explainer"><strong>Requests need your confirmation</strong><p>New bookings enter Requests as pending. Accepting a request confirms the booking; payment does not automatically confirm it. Automatic confirmation is not currently available.</p></div>
         <CancellationNoticeField value={rules.cancellationWindow || ''} onChange={(value) => updateAvailabilityRules({ cancellationWindow: value })} />
         <label className="flex items-center gap-2 text-sm font-semibold">
@@ -38,7 +40,7 @@ export function BookingsSettingsPage() {
       <Button action="calendar" variant="secondary"
         type="button"
         className="bb-ghost-btn justify-self-start"
-        onClick={() => navigate('/dashboard/availability')}
+        onClick={() => navigate(workspacePagePath('availability'))}
       >
         Manage staff shifts &amp; day status
       </Button>

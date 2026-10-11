@@ -128,9 +128,8 @@ export function SchedulePage() {
     <div className="bb-page-chrome"><header className="bb-agenda-page-head">
       <PeriodPageHeader
         title={<div className="bb-page-title-wrap"><PageBackButton /><span className="bb-page-title-main"><div className="bb-page-header-glow" aria-hidden="true" /><h1 className="bb-page-title">Schedule</h1></span></div>}
-        period={<PeriodSegmentedControl value={period} onChange={setPeriod} onCustomSelect={() => setCustomOpen(true)} options={PERIODS} variant="period" ariaLabel="Schedule period" />}
+        period={<div className="bb-agenda-header-controls"><Button action="sync" icon={<img src="/review-logos/google-calendar.webp" alt="" />} variant="secondary" className="bb-agenda-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">Google Calendar</Button><PeriodSegmentedControl value={period} onChange={setPeriod} onCustomSelect={() => setCustomOpen(true)} options={PERIODS} variant="period" ariaLabel="Schedule period" /></div>}
         description={<p className="bb-agenda-page-lede">Your bookings, one clear day at a time.</p>}
-        actions={<Button action="sync" icon={<img src="/review-logos/google-calendar.webp" alt="" />} variant="secondary" className="bb-agenda-google-button" onClick={() => setGoogleCalendarOpen(true)} aria-haspopup="dialog">Google Calendar</Button>}
       />
     </header></div>
 

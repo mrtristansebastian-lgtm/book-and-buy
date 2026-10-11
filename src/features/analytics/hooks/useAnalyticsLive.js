@@ -19,7 +19,6 @@ import {
 import { useLivePresence } from './useLivePresence';
 import {
   activeCartRows,
-  buildDemoAnalytics,
   getPeriodBounds,
   computeLiveStrip,
   filterByPeriod,
@@ -43,7 +42,7 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   const { user, isLocalMode } = useAuth();
   const { workspace, orders, bookings } = useWorkspace();
   const ownerId = user?.uid || workspace?.ownerId || '';
-  const allowDemo = Boolean(workspace?.isDemo) || (!user && (isLocalMode || !isFirebaseConfigured()));
+  const allowDemo = workspace?.isDemo === true;
   const configured = isFirebaseConfigured() && !isLocalMode && Boolean(ownerId) && !workspace?.isDemo;
 
   const [sessions, setSessions] = useState([]);
@@ -52,13 +51,20 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   const [loading, setLoading] = useState(configured);
   const [error, setError] = useState('');
   const [now, setNow] = useState(Date.now());
-  const [usingDemo, setUsingDemo] = useState(allowDemo);
+  const [usingDemo, setUsingDemo] = useState(false);
   const [coverage, setCoverage] = useState({ sessions: true, events: true, carts: false });
   const [cartTracking, setCartTracking] = useState(false);
   const bounds = getPeriodBounds(periodId, customRange);
   const reportStart = liveMode ? null : bounds.start;
   const reportEnd = liveMode ? null : bounds.end;
   const presence = useLivePresence({ enabled: liveMode });
+  // Empty demo reports have known coverage, without fabricated observations.
+  const tracking = useMemo(() => allowDemo ? {
+    visitorIdentity: true, pageViews: true, offerViews: true, discoveryViews: true,
+    offerClicks: true, cartAdds: true, itemAdds: true, checkout: true,
+    places: true, messageLeads: true, attribution: true,
+    discoverySurfaces: ['places', 'buy', 'book']
+  } : {}, [allowDemo]);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 4000);
@@ -72,11 +78,7 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
       setError('');
       setUsingDemo(presence.usingDemo);
       if (!configured) {
-        setCarts(
-          allowDemo
-            ? buildDemoAnalytics({ now: presence.activityNow || Date.now() }).carts
-            : []
-        );
+        setCarts([]);
         setLoading(false);
         return undefined;
       }
@@ -121,18 +123,10 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     if (!configured) {
       setCoverage({ sessions: true, events: true, carts: true });
       setCartTracking(allowDemo);
-      if (allowDemo) {
-        const demo = buildDemoAnalytics({ orders, bookings, products: workspace.products, services: workspace.services });
-        setSessions(demo.sessions);
-        setEvents(demo.events);
-        setCarts(demo.carts);
-        setUsingDemo(true);
-      } else {
-        setSessions([]);
-        setEvents([]);
-        setCarts([]);
-        setUsingDemo(false);
-      }
+      setSessions([]);
+      setEvents([]);
+      setCarts([]);
+      setUsingDemo(false);
       setLoading(false);
       return undefined;
     }
@@ -277,14 +271,7 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
     [carts, periodId, customRange]
   );
 
-  // Freeze demo activity at the moment its fixture was created so the live
-  // preview does not expire while someone is reviewing the page.
-  const activityNow = useMemo(() => {
-    if (liveMode) return presence.activityNow;
-    if (!usingDemo) return now;
-    const fixtureNow = Math.max(0, ...carts.map((cart) => Number(cart.updatedAt || 0)));
-    return fixtureNow || now;
-  }, [liveMode, presence.activityNow, usingDemo, carts, now]);
+  const activityNow = liveMode ? presence.activityNow : now;
 
   const live = useMemo(
     () => computeLiveStrip({ sessions: effectiveSessions, carts, now: activityNow }),
@@ -296,15 +283,15 @@ export function useAnalyticsLive(periodId = 'week', customRange = {}, options = 
   );
 
   const complete = coverage.sessions && coverage.events && coverage.carts;
-  const traffic = useMemo(() => buildTrafficReport({ sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd, complete }), [periodSessions, periodEvents, reportStart, reportEnd, complete]);
-  const discovery = useMemo(() => buildPlacesReport({ sessions: periodSessions, events: periodEvents, orders, bookings, start: reportStart, end: reportEnd, complete }), [periodSessions, periodEvents, orders, bookings, reportStart, reportEnd, complete]);
+  const traffic = useMemo(() => buildTrafficReport({ sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd, complete, tracking }), [periodSessions, periodEvents, reportStart, reportEnd, complete, tracking]);
+  const discovery = useMemo(() => buildPlacesReport({ sessions: periodSessions, events: periodEvents, orders, bookings, start: reportStart, end: reportEnd, complete, tracking }), [periodSessions, periodEvents, orders, bookings, reportStart, reportEnd, complete, tracking]);
   const commerce = useMemo(() => buildCommerceReport({ sessions, events: periodEvents, carts: periodCarts,
     products: workspace.products || [], services: workspace.services || [], start: reportStart, end: reportEnd,
-    now: activityNow, cartTracking }), [sessions, periodEvents, periodCarts, workspace.products, workspace.services, reportStart, reportEnd, activityNow, cartTracking]);
-  const series = useMemo(() => buildTrafficSeries({ metricId, sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd }), [metricId, periodSessions, periodEvents, reportStart, reportEnd]);
+    now: activityNow, cartTracking, tracking }), [sessions, periodEvents, periodCarts, workspace.products, workspace.services, reportStart, reportEnd, activityNow, cartTracking, tracking]);
+  const series = useMemo(() => buildTrafficSeries({ metricId, sessions: periodSessions, events: periodEvents, start: reportStart, end: reportEnd, tracking }), [metricId, periodSessions, periodEvents, reportStart, reportEnd, tracking]);
   const reports = useMemo(() => liveMode ? null : buildReportDashboard({ sessions, events, carts, orders, bookings,
     products: workspace.products || [], services: workspace.services || [], start: reportStart, end: reportEnd,
-    now: activityNow, cartTracking, complete }), [liveMode, sessions, events, carts, orders, bookings, workspace.products, workspace.services, reportStart, reportEnd, activityNow, cartTracking, complete]);
+    now: activityNow, cartTracking, complete, tracking }), [liveMode, sessions, events, carts, orders, bookings, workspace.products, workspace.services, reportStart, reportEnd, activityNow, cartTracking, complete, tracking]);
 
   const geo = useMemo(() => rollupGeo(periodSessions), [periodSessions]);
   const topPaths = useMemo(

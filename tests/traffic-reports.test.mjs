@@ -5,6 +5,7 @@ import {
   buildTrafficReport, buildPlacesReport, buildTrafficSeries,
   dedupeReportSessions, reportTimestampMs, REPORT_METRICS
 } from '../src/features/analytics/utils/trafficReports.js';
+import { buildReportDashboard } from '../src/features/analytics/utils/reportCatalog.js';
 
 const at = Date.parse('2026-10-04T10:00:00Z');
 const day = 86400000;
@@ -185,17 +186,44 @@ test('date boundaries, Firestore timestamps and explicit empty tracking preserve
   assert.deepEqual(series.map(row => row.raw), [0, 0]);
 });
 
-test('v2 demo identities and discovery outcomes are deterministic fixtures, never event-based revenue', () => {
+test('fresh demo analytics never fabricates traffic, carts, leads, or conversions from receipts', () => {
   const code = readFileSync(new URL('../src/features/analytics/utils/analyticsMetrics.js', import.meta.url), 'utf8');
   const fixtureSource = code.slice(code.indexOf('export function buildDemoAnalytics')).replace('export function', 'function');
-  const buildDemo = new Function('DAY_MS', 'LIVE_WINDOW_MS', `${fixtureSource}; return buildDemoAnalytics;`)(day, 60000);
-  const demo = buildDemo({ now: at });
-  assert.deepEqual(demo, buildDemo({ now: at }));
+  const buildDemo = new Function(`${fixtureSource}; return buildDemoAnalytics;`)();
+  const input = {
+    now: at,
+    orders: [{ id: 'manual-order', timestamp: at, paymentStatus: 'paid', amountInCents: 10000 }],
+    bookings: [{ id: 'manual-booking', timestamp: at, status: 'confirmed', amountInCents: 20000 }],
+    products: [{ id: 'new-product', name: 'A new product', price: 100 }],
+    services: [{ id: 'new-service', name: 'A new service', price: 200 }],
+    threads: [{ id: 'new-thread' }]
+  };
+  const before = structuredClone(input);
+  const demo = buildDemo();
+  assert.deepEqual(demo, { sessions: [], events: [], carts: [] });
+  assert.deepEqual(buildDemo(input), demo, 'Adding manual records does not invent browser activity');
+  assert.deepEqual(input, before);
   const traffic = buildTrafficReport(demo);
   const places = buildPlacesReport({ ...demo, ledger: [] });
-  assert.equal(traffic.metrics.sessions, 48);
-  assert.equal(traffic.metrics.uniqueVisitors, 24);
-  assert.ok(places.metrics.profileVisits > 0);
-  assert.ok(places.metrics.messageLeads > 0);
-  assert.equal(places.metrics.paidRevenueCents, 0);
+  assert.equal(traffic.metrics.sessions, 0);
+  assert.equal(traffic.metrics.uniqueVisitors, null, 'Unknown owner tracking remains unavailable');
+  assert.equal(places.metrics.paidRevenueCents, null, 'Missing owner attribution remains unavailable');
+});
+
+test('empty demo reporting with known tracking coverage shows every report count as zero', () => {
+  const tracking = {
+    visitorIdentity: true, pageViews: true, offerViews: true, discoveryViews: true,
+    offerClicks: true, cartAdds: true, itemAdds: true, checkout: true,
+    places: true, messageLeads: true, attribution: true,
+    discoverySurfaces: ['places', 'buy', 'book']
+  };
+  const report = buildReportDashboard({ start: at - day, end: at, now: at, tracking, cartTracking: true });
+  for (const [id, stat] of Object.entries(report.stats)) {
+    assert.equal(stat.available, true, id);
+    assert.equal(stat.value, 0, id);
+  }
+  assert.deepEqual(report.commerce.items, []);
+  assert.deepEqual(report.traffic.locations, []);
+  const series = buildTrafficSeries({ metricId: 'visitors', start: at - day, end: at, tracking });
+  assert.deepEqual(series.map(row => row.raw), [0, 0]);
 });

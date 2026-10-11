@@ -5,16 +5,25 @@ import ts from 'typescript';
 import { buildTestCheckoutResult } from '../src/utils/testCheckout.js';
 import { assertBusinessCommerceEnabled, isPresenceOnlyBusiness } from '../functions/businessCapabilities.js';
 import { normalizeListing, listingDetailsKey, publicListingDetails, isEnquiryListing, listingSpecificationGroups, listingFacts } from '../functions/listingTypes.js';
-import { normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts } from '../functions/serviceTemplates.js';
+import { normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts, isRetiredEventService } from '../functions/serviceTemplates.js';
+import { isFirstComeService } from '../functions/bookingModes.js';
 import { publicCommerceCatalog } from '../functions/commerceRuntime.js';
 
 // Exercise the public-data/action boundary independently of React and Firebase.
 const source = readFileSync(new URL('../src/features/builder/builderCommerce.js', import.meta.url), 'utf8').replace(/^import .*;\r?\n/gm, '').replace(/export function /g, 'function ');
-const { buildBuilderCommerceContext, resolveBuilderCommerceAction } = new Function('formatProductPrice', 'isProductPubliclyVisible', 'formatServicePrice', 'getServiceDurationMinutes', 'getPublicPaymentOptions', 'assertBusinessCommerceEnabled', 'isPresenceOnlyBusiness', 'normalizeListing', 'listingDetailsKey', 'publicListingDetails', 'isEnquiryListing', 'listingSpecificationGroups', 'listingFacts', 'normalizeServiceConfiguration', 'serviceConfigurationFields', 'serviceFacts', `${source};return{buildBuilderCommerceContext,resolveBuilderCommerceAction}`)(
+const { buildBuilderCommerceContext, resolveBuilderCommerceAction } = new Function('formatProductPrice', 'isProductPubliclyVisible', 'formatServicePrice', 'getServiceDurationMinutes', 'getPublicPaymentOptions', 'assertBusinessCommerceEnabled', 'isPresenceOnlyBusiness', 'normalizeListing', 'listingDetailsKey', 'publicListingDetails', 'isEnquiryListing', 'listingSpecificationGroups', 'listingFacts', 'normalizeServiceConfiguration', 'serviceConfigurationFields', 'serviceFacts', 'isRetiredEventService', 'isFirstComeService', `${source};return{buildBuilderCommerceContext,resolveBuilderCommerceAction}`)(
   () => 'R 100', row => row.active !== false && row.status !== 'draft', () => 'R 200', () => 60,
-  ws => ({ options: (ws.paymentGateways || []).filter(row => row.enabled) }), assertBusinessCommerceEnabled, isPresenceOnlyBusiness, normalizeListing, listingDetailsKey, publicListingDetails, isEnquiryListing, listingSpecificationGroups, listingFacts, normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts
+  ws => ({ options: (ws.paymentGateways || []).filter(row => row.enabled) }), assertBusinessCommerceEnabled, isPresenceOnlyBusiness, normalizeListing, listingDetailsKey, publicListingDetails, isEnquiryListing, listingSpecificationGroups, listingFacts, normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts, isRetiredEventService, isFirstComeService
 );
 const workspace = { brandName: 'Test', products: [{ id: 'p1', name: 'Bread', cost: 999, internalNotes: 'secret' }, { id: 'draft', status: 'draft' }], services: [{ id: 's1', name: 'Class', cost: 555 }, { id: 'draft-service', status: 'draft' }, { id: 'unavailable-service', available: false }], clients: [{ email: 'private@example.com' }], bookings: [{ clientPhone: 'private' }], paymentGateways: [{ id: 'cash', name: 'Cash', enabled: true, secretKey: 'do-not-share' }] };
+
+test('builder teaches request queues and omits retired event services', () => {
+  const context = buildBuilderCommerceContext({ ...workspace, availabilityRules: { scheduleMode: 'first_come' }, services: [workspace.services[0], { id: 'retired', catalogTemplateId: 'service_category_events_event' }] });
+  assert.equal(context.services.length,1);
+  assert.equal(context.services[0].bookingMode,'first_come');
+  assert.equal(context.booking.scheduleMode,'first_come');
+  assert.ok(!context.checkout.required.includes('available date/time for appointments'));
+});
 
 test('connected builder receives safe specialist details and opens enquiry listings without adding to cart', () => {
   const dealer = { ...workspace, products: [{ id:'car', listingType:'vehicle', price:'249900', vehicleDetails:{ make:'Toyota', model:'Corolla', vin:'private-vin', privateNotes:'secret' } }] };

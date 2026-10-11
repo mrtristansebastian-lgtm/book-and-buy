@@ -27,6 +27,7 @@ export interface BookingServiceSnapshot {
   serviceScheduleType?: ScheduleType | string;
   scheduleSessionId?: string;
   scheduleSessionName?: string;
+  bookingMode?: "time_slots" | "first_come";
   partySize?: string | number;
 }
 

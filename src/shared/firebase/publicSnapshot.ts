@@ -5,7 +5,7 @@
 import { effectivePublicPages, isPresenceOnlyBusiness, publicBusinessSocialLinks } from '../../../functions/businessCapabilities.js';
 
 import { normalizeListing, listingDetailsKey, publicListingDetails, listingSpecificationGroups, listingFacts } from '../../../functions/listingTypes.js';
-import { normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts } from '../../../functions/serviceTemplates.js';
+import { normalizeServiceConfiguration, serviceConfigurationFields, serviceFacts, isRetiredEventService } from '../../../functions/serviceTemplates.js';
 type AnyRecord = Record<string, unknown>;
 
 function publicPaymentGateways(gateways: unknown) {
@@ -40,7 +40,7 @@ function publicPaymentGateways(gateways: unknown) {
 function publicServices(services: unknown) {
   if (!Array.isArray(services)) return [];
   return services
-    .filter((service): service is AnyRecord => Boolean(service && typeof service === 'object' && (service as AnyRecord).active !== false && (service as AnyRecord).available !== false && !['draft', 'archived'].includes(String((service as AnyRecord).status || ''))))
+    .filter((service): service is AnyRecord => Boolean(service && typeof service === 'object' && !isRetiredEventService(service) && (service as AnyRecord).active !== false && (service as AnyRecord).available !== false && !['draft', 'archived'].includes(String((service as AnyRecord).status || ''))))
     .map((service) => ({
       ...normalizeServiceConfiguration(service),
       serviceConfigurationFields: serviceConfigurationFields(service),
@@ -55,6 +55,8 @@ function publicServices(services: unknown) {
       currency: service.currency,
       priceType: service.priceType,
       scheduleType: service.scheduleType,
+      timingMode: service.timingMode,
+      timingNotes: service.timingNotes,
       category: service.category || '',
       exploreMainCategoryId: service.exploreMainCategoryId || '',
       exploreSubcategoryId: service.exploreSubcategoryId || '',

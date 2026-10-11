@@ -1,5 +1,6 @@
 import { createDemoWorkspace, hydrateDemoWorkspace } from '../../data/demoWorkspace';
 import { createBlankWorkspace } from '../../data/blankWorkspace';
+import { syncShowcaseEnquiries } from '../showcase/showcasePersistence';
 
 export const MODE_KEY = 'book-and-buy.workspace-mode';
 export const OWNER_KEY = 'book-and-buy.owner-workspace';
@@ -17,7 +18,9 @@ export function readInitialWorkspace() {
   try {
     const mode = localStorage.getItem(MODE_KEY);
     if (mode === 'demo') {
-      return hydrateDemoWorkspace(safeParse(localStorage.getItem(DEMO_KEY), null));
+      const next = hydrateDemoWorkspace(safeParse(localStorage.getItem(DEMO_KEY), null));
+      syncShowcaseEnquiries(next);
+      return next;
     }
     if (mode === 'owner' || mode === 'blank') {
       return safeParse(
@@ -28,7 +31,7 @@ export function readInitialWorkspace() {
   } catch {
     /* ignore */
   }
-  // Fresh install / unknown mode: blank owner shell — never auto-load Flame & Flour.
+  // Fresh install / unknown mode: blank owner shell — never auto-load demo data.
   return createBlankWorkspace({ onboardingComplete: false, isDemo: false });
 }
 
@@ -37,6 +40,7 @@ export function persistWorkspace(next) {
     if (next.isDemo) {
       localStorage.setItem(MODE_KEY, 'demo');
       localStorage.setItem(DEMO_KEY, JSON.stringify(next));
+      syncShowcaseEnquiries(next);
       return;
     }
     localStorage.setItem(MODE_KEY, 'owner');

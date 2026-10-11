@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CircleHelp } from 'lucide-react';
+import { CircleHelp, ChartNoAxesCombined } from 'lucide-react';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { useAnalyticsLive } from '../hooks/useAnalyticsLive';
 import { AnalyticsHeader } from '../components/AnalyticsHeader';
 import { AnalyticsSalesChart } from '../components/AnalyticsSalesChart';
@@ -59,6 +60,8 @@ export function AnalyticsPage({ routeRest = [] }) {
       onBack={metric ? () => navigate(`${base}?${periodQuery}`) : undefined} backLabel={metric ? 'Back to Traffic reports' : undefined} />
     {data.loading ? <p className="bb-reports-data-notice" role="status">Loading your insights…</p> : null}
     {data.error && !data.usingDemo ? <p className="bb-analytics-error" role="alert">{data.error}</p> : null}
+    {!metric && !data.loading && !data.error && !data.usingDemo && report?.traffic?.metrics?.sessions === 0 ?
+      <EmptyState icon={ChartNoAxesCombined} title="Your audience starts here" description="As people visit your business, their activity will appear here. Share your profile to bring your first visitors in." /> : null}
     {!data.complete && !data.loading && !data.error ? <p className="bb-reports-data-notice">This period exceeds the latest 1,000 sessions, events or carts. Choose a shorter period for complete insights.</p> : null}
     {metric ? <>
       <section className="bb-report-detail-total" aria-label="Selected period total">

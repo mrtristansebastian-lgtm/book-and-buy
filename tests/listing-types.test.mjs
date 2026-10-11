@@ -10,6 +10,22 @@ import { canonicalPayment } from '../functions/payments/paymentPolicy.js';
 import { validateBookingSlot } from '../functions/bookingDomain.js';
 import { applyWorkspaceChanges, readinessIssues } from '../functions/workspaceDomain.js';
 import { marketReadiness } from '../functions/marketPolicy.js';
+import { defaultListingLocation, listingLocationOptions } from '../functions/listingLocation.js';
+
+test('listing locations default from the business and offer enabled branches without changing existing addresses', () => {
+  const workspace = { website: { address: 'Main business address', branches: [
+    { id: 'a', name: 'North showroom', address: 'North branch address', enabled: true, showOnWebsite: false },
+    { id: 'b', name: 'Closed showroom', address: 'Closed branch address', enabled: false }
+  ] } };
+  for (const [listingType, key] of [['vehicle', 'vehicleDetails'], ['equipment', 'equipmentDetails']]) {
+    assert.deepEqual(defaultListingLocation({ listingType, [key]: { model: 'Model' } }, workspace), { [key]: { model: 'Model', location: workspace.website.address } });
+    assert.equal(defaultListingLocation({ listingType, [key]: { location: 'Custom existing address' } }, workspace), null);
+  }
+  assert.deepEqual(listingLocationOptions(workspace).map(row => row.value), ['Main business address', 'North branch address']);
+  assert.equal(listingLocationOptions(workspace, 'Custom existing address').at(-1).value, 'Custom existing address');
+  assert.equal(defaultListingLocation({ listingType: 'vehicle' }, {}), null);
+  assert.equal(defaultListingLocation({ listingType: 'physical' }, workspace), null);
+});
 
 const require = createRequire(import.meta.url);
 const frontendModules = new Map();

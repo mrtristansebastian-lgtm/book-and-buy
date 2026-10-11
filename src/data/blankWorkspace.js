@@ -1,6 +1,5 @@
 import { createDefaultSettings } from '../config/workspaceDefaults';
 import { createDefaultPlanFields } from '../config/billingPlans';
-import { DEMO_PAYMENT_GATEWAYS } from './demoWorkspace';
 import {
   createStaffAvailabilityForRoster,
   normalizeAvailabilityRules
@@ -32,6 +31,7 @@ export function createBlankWorkspace(overrides = {}) {
   return {
     ...defaults,
     ...planFields,
+    isDemo: false,
     ...overrides,
     website: {
       ...defaults.website,
@@ -51,10 +51,16 @@ export function createBlankWorkspace(overrides = {}) {
       ...defaults.features,
       ...(overrides.features || {})
     },
-    paymentGateways: (overrides.paymentGateways || DEMO_PAYMENT_GATEWAYS).map((gateway) => ({
+    paymentGateways: (overrides.paymentGateways || [
+      { gatewayType: 'stripe', providerName: 'Stripe' },
+      { gatewayType: 'paypal', providerName: 'PayPal' },
+      { gatewayType: 'paystack', providerName: 'Paystack' },
+      { gatewayType: 'manual_eft', providerName: 'Manual EFT' },
+      { gatewayType: 'cash', providerName: 'Cash' }
+    ]).map((gateway) => ({
       ...gateway,
       enabled: ['manual_eft', 'cash'].includes(gateway.gatewayType),
-      configured: ['manual_eft', 'cash'].includes(gateway.gatewayType),
+      configured: gateway.gatewayType === 'cash',
       mode: gateway.mode || 'test'
     })),
     staff,

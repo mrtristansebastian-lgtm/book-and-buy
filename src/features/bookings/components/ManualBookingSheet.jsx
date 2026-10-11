@@ -12,6 +12,8 @@ import {
   getServiceDurationMinutes
 } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
+import { serviceNeedsTimingConversation } from '../../../../functions/serviceTiming';
+import { isFirstComeService } from '../../../../functions/bookingModes';
 
 export function ManualBookingSheet({ onClose }) {
   const { services, staff, bookings, addBooking, workspace } = useWorkspace();
@@ -33,6 +35,7 @@ export function ManualBookingSheet({ onClose }) {
 
   const service = services.find((item) => item.id === form.serviceId);
   const isSpot = getServiceScheduleType(service) === 'class_session';
+  const firstCome = isFirstComeService(workspace, service);
 
   useEffect(() => {
     if (!isSpot || !service) return;
@@ -45,7 +48,7 @@ export function ManualBookingSheet({ onClose }) {
 
   const slots = useMemo(
     () =>
-      isSpot
+      isSpot || firstCome
         ? []
         : getDaySlots({
             dateKey: form.date,
@@ -62,6 +65,7 @@ export function ManualBookingSheet({ onClose }) {
           }),
     [
       isSpot,
+      firstCome,
       form.date,
       form.serviceId,
       form.staffId,
@@ -76,7 +80,8 @@ export function ManualBookingSheet({ onClose }) {
   const selectedStaff = staff.find((item) => item.id === form.staffId);
   const slotAvailable = isSpot ? Boolean(service?.sessionStartDate && service?.sessionStartTime)
     : slots.some((slot) => slot.available !== false && slot.time === form.time);
-  const canSubmit = Boolean(service && form.date && form.time && slotAvailable && form.clientName.trim());
+  const timingPending = service && serviceNeedsTimingConversation(service);
+  const canSubmit = Boolean(service && !timingPending && (firstCome || form.date && form.time && slotAvailable) && form.clientName.trim());
 
   const submit = async () => {
     if (!canSubmit || saving) return;
@@ -87,9 +92,9 @@ export function ManualBookingSheet({ onClose }) {
       scheduleType: service.scheduleType,
       staffId: selectedStaff?.id,
       staffName: selectedStaff?.name,
-      date: form.date,
-      dateKey: form.date,
-      time: form.time,
+      date: firstCome ? '' : form.date,
+      dateKey: firstCome ? '' : form.date,
+      time: firstCome ? '' : form.time,
       sessionEndDate: isSpot ? service.sessionEndDate || '' : '',
       sessionEndTime: isSpot ? service.sessionEndTime || '' : '',
       durationMinutes: getServiceDurationMinutes(service),
@@ -135,7 +140,7 @@ export function ManualBookingSheet({ onClose }) {
             </option>
           ))}
         </select></label>
-        {isSpot ? (
+        {firstCome ? <p className="bb-muted" role="status">First come, first served. Save this request without a date or time; arrange a time later from Bookings.</p> : timingPending ? <p className="bb-muted" role="status">Agree the timing with your client, then set a bookable schedule in the service editor before creating a booking.</p> : isSpot ? (
           <p className="bb-muted m-0 text-sm">
             Spot programme · {formatServiceSessionLabel(service) || 'Session window'}
           </p>
@@ -191,7 +196,7 @@ export function ManualBookingSheet({ onClose }) {
           <option value="confirmed">Confirmed</option>
           <option value="pending">Pending</option>
         </select></label>
-        {!canSubmit && <p className="bb-muted m-0 text-sm" id="manual-booking-requirements">Select an available time and enter the client's name to create a booking.</p>}
+        {!canSubmit && <p className="bb-muted m-0 text-sm" id="manual-booking-requirements">{firstCome ? 'Enter the client’s name to create a booking request.' : 'Select an available time and enter the client’s name to create a booking.'}</p>}
         </div>
         <footer className="bb-manual-booking-footer">
           <Button action="cancel" variant="secondary" type="button" className="bb-ghost-btn" disabled={saving} onClick={close}>

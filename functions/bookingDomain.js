@@ -1,5 +1,8 @@
 // Shared, dependency-free booking policy used by the server and local demo.
 import { assertBusinessCommerceEnabled } from './businessCapabilities.js';
+import { serviceNeedsTimingConversation } from './serviceTiming.js';
+import { isFirstComeBooking } from './bookingModes.js';
+import { isRetiredEventService } from './serviceTemplates.js';
 export function bookingError(message, code = 'failed-precondition') { const error = new Error(message); error.code = code; throw error; }
 const minutes = (time) => /^\d{2}:\d{2}$/.test(time || '') ? Number(time.slice(0, 2)) * 60 + Number(time.slice(3)) : NaN;
 const overlaps = (a, b, c, d) => a < d && b > c;
@@ -58,6 +61,13 @@ export function validateBookingSlot(workspace, booking, slot, bookings = [], now
   if (booking.staffId && workspace.staff?.some(member => member.id === booking.staffId && member.active === false)) bookingError('This team member is not available for new bookings.');
   const rules = workspace.availabilityRules || {}; const zone = workspace.timezone || 'UTC';
   const today = businessClock(zone, now); const key = slot?.dateKey; const time = slot?.time;
+  const service = (workspace.services || []).find((s) => s.id === booking.serviceId);
+  if (!service) bookingError('This service is no longer available.');
+  if (isRetiredEventService(service)) bookingError('Event bookings are no longer supported. Choose a Slot or Spot service.');
+  if (serviceNeedsTimingConversation(service)) bookingError('Contact the business to arrange the timing before booking.');
+  const firstCome = isFirstComeBooking(workspace, service, booking);
+  // A queue entry holds no calendar time. Partial dates still fail normal validation.
+  if (firstCome && !key && !time && !slot?.scheduleSessionId) return true;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(key || '') || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time || '') || !validWallTime(key, time, zone)) bookingError('Choose a valid date and time in the business timezone.');
   if (`${key} ${time}` <= `${today.dateKey} ${today.time}`) bookingError('Choose a future time.');
   const notice = bookingNoticeMinutes(rules.bookingNoticeMinutes ?? rules.bookingNotice);
@@ -66,8 +76,6 @@ export function validateBookingSlot(workspace, booking, slot, bookings = [], now
   const limitDays = rules.maxAdvanceBookingDays ?? 90;
   const limit = rules.maxAdvanceBookingUntil || (Number(limitDays) > 0 ? new Date(Date.parse(`${today.dateKey}T12:00:00Z`) + Number(limitDays) * 86400000).toISOString().slice(0, 10) : '9999-12-31');
   if (key > limit) bookingError('That date is beyond the booking window.');
-  const service = (workspace.services || []).find((s) => s.id === booking.serviceId);
-  if (!service) bookingError('This service is no longer available.');
   const duration = Math.max(15, Number(booking.durationMinutes) || Number(String(booking.serviceDuration || service.duration || '60').replace(/[^\d.]/g, '')) || 60);
   const start = minutes(time); const end = start + duration;
   const busy = bookings.filter((b) => b.id !== booking.id && !['cancelled', 'declined', 'waitlist'].includes(b.status) && (rules.holdMode === 'confirmed_only' || rules.holdMode === 'confirmed' ? b.status === 'confirmed' : rules.holdMode === 'pending_only' ? b.status === 'pending' : true));
@@ -80,7 +88,7 @@ export function validateBookingSlot(workspace, booking, slot, bookings = [], now
     if (!Number.isFinite(capacity) || capacity < 1) bookingError('This session needs a valid capacity before it can be booked.');
     const occupied = busy.filter((b) => b.serviceId === booking.serviceId && (b.dateKey || b.date) === key && b.time === time).reduce((sum, b) => sum + Math.max(1, Number(b.partySize) || 1), 0);
     if (occupied + Math.max(1, Number(booking.partySize) || 1) > capacity) bookingError('This session is now full.');
-  } else {
+  } else if (!firstCome) {
     const previousDate = new Date(Date.parse(`${key}T12:00:00Z`) - 86400000).toISOString().slice(0, 10);
     const ranges = [...workingRanges(workspace, booking.staffId, key), ...workingRanges(workspace, booking.staffId, previousDate).filter(([, b]) => b > 1440).map(([a, b]) => [a - 1440, b - 1440])];
     if (!ranges.some(([a, b]) => start >= a && end <= b)) bookingError('That time is outside available working hours.');

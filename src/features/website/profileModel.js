@@ -2,11 +2,13 @@ import { isPublicPageEnabled } from '../../config/eBusinessPlatform.js';
 import { isProductPubliclyVisible } from '../../utils/products.js';
 import { isPresenceOnlyBusiness } from '../../../functions/businessCapabilities.js';
 import { isEnquiryListing, listingSearchTerms } from '../../../functions/listingTypes.js';
+import { publicBranches } from '../../../functions/branchesDomain.js';
+import { isRetiredEventService } from '../../../functions/serviceTemplates.js';
 
 /** Capability is determined before market filtering; a country picker must remain reachable. */
 export function profileCatalog(workspace = {}) {
   if (isPresenceOnlyBusiness(workspace)) return { services: [], products: [], book: false, buy: false };
-  const services = (workspace.services || []).filter((item) => item && item.active !== false);
+  const services = (workspace.services || []).filter((item) => item && item.active !== false && !isRetiredEventService(item));
   const products = (workspace.products || []).filter((item) => item && isProductPubliclyVisible(item));
   const available = workspace.profileCapabilities || { book: services.length > 0, buy: products.length > 0 };
   return {
@@ -36,15 +38,42 @@ export function profileSectionTabs(workspace = {}, { editing = false } = {}) {
     { id: 'contact', label: 'Contact' }
   ].filter(tab => editing || isPublicPageEnabled(website.pages, tab.id) && sections[tab.section || tab.id] !== false && (tab.id !== 'gallery' || sections.venue !== false || sections.gallery === true) &&
     (tab.id !== 'about' || hasProfileStory(website)) &&
-    (tab.id !== 'offers' || website.reasonsBody || (website.reasons || []).some(reason => reason.title || reason.body)));
+    (tab.id !== 'offers' || [website.reasonsBody, ...(website.reasons || []).flatMap(reason => [reason.title, reason.body])]
+      .some(value => String(value || '').trim())));
+}
+
+/** Guided navigation follows the same enabled pages as the public profile menu. */
+export function profileJourney(workspace = {}, page = 'home') {
+  const website = workspace.website || {};
+  const story = profileSectionTabs(workspace).filter(tab => {
+    if (tab.id === 'gallery') return (website.venueImages || []).some(image => image.url);
+    if (tab.id === 'faq') return (website.bookFaq || []).some(item => String(item.q || '').trim());
+    if (tab.id === 'map') return [website.address, website.mapBody, website.mapLinkUrl, website.mapEmbedUrl]
+      .some(value => String(value || '').trim()) || publicBranches(website.branches).length > 0;
+    return true;
+  });
+  const commerce = profileTabs(workspace).filter(tab => tab.id !== 'home');
+  const storyIndex = story.findIndex(tab => tab.id === page);
+  const commerceIndex = commerce.findIndex(tab => tab.id === page);
+  return {
+    story,
+    commerce,
+    nextStory: page === 'home' ? story[0] || null : storyIndex < 0 ? null :
+      story[storyIndex + 1] || { id: 'home', label: 'Business card' },
+    nextCommerce: commerceIndex < 0 ? commerce[0] || null : commerce[commerceIndex + 1] || null
+  };
 }
 
 function hasProfileStory(website) {
   const hasBody = body => Boolean(String(body || '').trim());
-  if (website.storyPages?.length) return website.storyPages.some(page => hasBody(page.body));
-  const bodies = website.aboutPages?.length ? website.aboutPages.map(page => page.body) : [website.aboutBody, website.missionBody, website.visionBody];
-  const chapters = bodies.filter(hasBody);
-  return hasBody(website.storyBody ?? chapters[0]) || chapters.slice(1).some(hasBody);
+  if (Array.isArray(website.storyPages)) return website.storyPages.some(page => hasBody(page.body) || hasBody(page.imageUrl));
+  const pages = website.aboutPages?.length ? website.aboutPages : [
+    { body: website.aboutBody, imageUrl: website.aboutImageUrl },
+    { body: website.missionBody, imageUrl: website.missionImageUrl },
+    { body: website.visionBody, imageUrl: website.visionImageUrl }
+  ];
+  return hasBody(website.storyBody ?? pages[0]?.body) || hasBody(website.storyImageUrl ?? pages[0]?.imageUrl) ||
+    pages.slice(1).some(page => hasBody(page.body) || hasBody(page.imageUrl));
 }
 
 export function searchPublicCatalog(items, query = '') {

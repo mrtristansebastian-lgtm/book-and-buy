@@ -10,6 +10,8 @@ import { CatalogCategoryTabs } from '../../storefront/components/CatalogCategory
 import { PublicOfferCard } from '../../storefront/components/PublicOfferCard';
 import { formatServiceCardMeta, formatServicePrice, getServiceOpenSpots } from '../../../utils/services';
 import { getServiceScheduleType } from '../../../utils/scheduleTypes';
+import { serviceNeedsTimingConversation } from '../../../../functions/serviceTiming';
+import { isRetiredEventService } from '../../../../functions/serviceTemplates';
 import {
   buildCatalogCategoryTabs,
   filterCatalogByCategory
@@ -42,7 +44,7 @@ export function PublicBookingFlow({
   const studioNav = typeof onOpenItem === 'function';
 
   const activeServices = useMemo(
-    () => (workspace.services || []).filter((service) => service.active !== false),
+    () => (workspace.services || []).filter((service) => service.active !== false && !isRetiredEventService(service)),
     [workspace.services]
   );
   const categoryTabs = useMemo(
@@ -98,7 +100,7 @@ export function PublicBookingFlow({
       {visibleServices.map((item) => {
         const price = formatServicePrice(item);
         const cardMeta = formatServiceCardMeta(item);
-        const isSpot = getServiceScheduleType(item) === 'class_session';
+        const isSpot = getServiceScheduleType(item) === 'class_session' && !serviceNeedsTimingConversation(item);
         const spotCount = isSpot
           ? hasBookingRecords ? getServiceOpenSpots(item, bookings) : Math.max(1, Number(item.capacity) || 1)
           : null;

@@ -2,7 +2,7 @@ import { Button } from '../../shared/ui/Button';
 import { FilterChip } from '../../shared/ui/FilterChip';
 import { CompassIcon } from '../../shared/ui/CompassIcon';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Bike, BookOpen, Car, ChevronRight, Clock3, Cookie, Download, Dumbbell, Flower, Gem, GraduationCap, Hand, Home, Image, Lamp, Layers, MapPin, PartyPopper, PawPrint, Search, Shirt, ShoppingBag, Smartphone, Sparkles, Ticket, UtensilsCrossed, X } from 'lucide-react';
+import { Baby, Bike, BookOpen, Car, ChevronRight, Clock3, Cookie, Download, Dumbbell, Flower, Gamepad2, Gem, GraduationCap, Hand, Home, Image, Lamp, Layers, MapPin, Music, PartyPopper, PawPrint, Plug, Search, Shirt, ShoppingBag, Smartphone, Sparkles, Ticket, UtensilsCrossed, Wrench, X } from 'lucide-react';
 import {
   EXPLORE_MODE_FILTERS,
   bookCategoryGroups,
@@ -43,7 +43,12 @@ const GROUP_ICONS = {
   Download,
   Lamp,
   Cookie,
-  Flower
+  Flower,
+  Baby,
+  Gamepad2,
+  Music,
+  Plug,
+  Wrench
 };
 
 const MODE_ICONS = {

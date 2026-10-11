@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
+import { Receipt } from 'lucide-react';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { RevenuePulseHeader } from '../components/RevenuePulseHeader';
 import { FinanceLedgerToolbar } from '../components/FinanceLedgerToolbar';
 import { TransactionReceiptCard } from '../components/TransactionReceiptCard';
@@ -144,11 +146,9 @@ export function FinancePage() {
         />
 
         {visibleRows.length === 0 ? (
-          <div className="bb-finance-empty">
-            {tab === 'orders'
-              ? 'No order receipts or invoices match these filters.'
-              : 'No booking receipts or invoices match these filters.'}
-          </div>
+          <EmptyState icon={Receipt}
+            title={ledger.length === 0 ? 'Your receipts will appear here' : 'No matching receipts'}
+            description={ledger.length === 0 ? 'As bookings and orders come in, keep track of their invoices and payments in one place.' : 'Try another date range, status, or search.'} />
         ) : (
           <div className="bb-finance-receipts">
             {visibleRows.map((row) => (

@@ -12,6 +12,15 @@ const { initializeApp, getApps } = require('firebase-admin/app'), { getFirestore
 const enabled = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 if (enabled && !getApps().length) initializeApp({ projectId: process.env.GCLOUD_PROJECT || 'demo-book-buy-agent' });
 const original = () => ({ brandName:'Tea shop', slug:`shop-${randomUUID()}`, timezone:'UTC', currency:'R', products:[{id:'tea',name:'Tea',price:10,cost:4,stockAvailable:2,variants:[{id:'small',price:5,stockAvailable:0}]}], services:[], clients:[], orders:[], bookings:[], sectionRevisions:{products:0,general:0}, website:{} });
+
+test('workspace callables reject guests, other owners and unverified password accounts before database access', async () => {
+  const db = new Proxy({}, { get() { throw new Error('Unauthorized request reached the database'); } });
+  for (const handler of [getOwnerWorkspace, patchOwnerWorkspace]) {
+    for (const auth of [null, {uid:'someone-else'}, {uid:'owner-a',token:{firebase:{sign_in_provider:'password'},email_verified:false}}]) {
+      await assert.rejects(handler({ownerId:'owner-a',requestId:'request-a',changes:[]},auth,db), error => error.code === 'permission-denied');
+    }
+  }
+});
 test('coverage includes every app settings page and separates unavailable capabilities', () => {
   assert.deepEqual(new Set(SETTINGS_COVERAGE.map(row => row.id)), new Set(SETTINGS_SECTIONS.map(row => row.id)));
   assert.equal(SETTINGS_COVERAGE.find(row => row.id === 'billing').status,'unavailable');

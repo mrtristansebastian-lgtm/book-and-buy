@@ -1,4 +1,5 @@
 import { Button } from '../../../shared/ui/Button';
+import { ProfileAvatarPlaceholder } from '../../../shared/ui/ProfileAvatarPlaceholder';
 import { FilterChip } from '../../../shared/ui/FilterChip';
 import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { EmptyState } from '../../../shared/ui/EmptyState';
@@ -303,13 +304,7 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
             </div>
             <div className="bb-clients-directory-scroll">
               {filtered.length === 0 ? (
-                <div className="bb-clients-directory-empty">
-                  <p>
-                    {clients.length === 0
-                      ? 'No clients yet. Add your first contact.'
-                      : 'No clients match that filter.'}
-                  </p>
-                </div>
+                <EmptyState compact icon={Users} title={clients.length === 0 ? 'Your client list starts here' : 'No matching clients'} description={clients.length === 0 ? 'Add a contact to keep their details and history together.' : 'Try a different search or filter.'} />
               ) : (
                 letterGroups.map((group) => (
                   <div key={group.letter}>
@@ -329,7 +324,7 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                           onClick={() => openClient(client.id)}
                         >
                           <span className="bb-clients-avatar" aria-hidden="true">
-                            {client.photoUrl || client.avatarUrl ? <img src={client.photoUrl || client.avatarUrl} alt="" /> : clientInitials(client.name)}
+                            {client.photoUrl || client.avatarUrl ? <img src={client.photoUrl || client.avatarUrl} alt="" /> : <ProfileAvatarPlaceholder />}
                           </span>
                           <span className="bb-clients-row-copy">
                             <strong className="bb-clients-row-name">{client.name}</strong>
@@ -375,7 +370,7 @@ export function ClientsPage({ fileClient = null, onEditorOpenChange, onReturnToC
                 <div className="bb-clients-sheet-hero">
                   <div className="bb-clients-sheet-identity">
                     <span className="bb-clients-sheet-avatar" aria-hidden="true">
-                      {selected.photoUrl || selected.avatarUrl ? <img src={selected.photoUrl || selected.avatarUrl} alt="" /> : clientInitials(selected.name)}
+                      {selected.photoUrl || selected.avatarUrl ? <img src={selected.photoUrl || selected.avatarUrl} alt="" /> : <ProfileAvatarPlaceholder />}
                     </span>
                     <div>
                       <h2 className="bb-clients-sheet-name">{selected.name}</h2>

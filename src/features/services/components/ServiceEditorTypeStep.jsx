@@ -1,16 +1,15 @@
-import { CalendarClock, UsersRound, Ticket, Check, ArrowUpRight } from 'lucide-react';
+import { CalendarClock, UsersRound, Check, ArrowUpRight } from 'lucide-react';
 import { getServiceBookingFormat } from '../../../../functions/serviceTemplates';
 
 export function ServiceEditorTypeStep({ draft, patch }) {
   const selected = draft.id ? getServiceBookingFormat(draft) : draft.bookingFormat;
   const types = [
-    { id: 'slot', label: 'Slot', icon: CalendarClock, title: 'A time just for them.', description: 'Clients choose an available time for an appointment or one-to-one service.', hint: 'Availability · Duration · Team' },
-    { id: 'spot', label: 'Spot', icon: UsersRound, title: 'A place in your session.', description: 'Clients reserve a place in a class, workshop or programme with a shared start time.', hint: 'Session dates · Price per spot · Capacity' },
-    { id: 'event', label: 'Event', icon: Ticket, title: 'An occasion worth attending.', description: 'Sell admission to a scheduled event with a venue, ticket options and attendee capacity.', hint: 'Event dates · Tickets · Venue' }
+    { id: 'slot', label: 'Slot', icon: CalendarClock, title: 'A service just for them.', description: 'Appointments or one-to-one services. Clients choose an available time or submit a request when first come, first served is enabled.', hint: 'Appointments · Duration · Team' },
+    { id: 'spot', label: 'Spot', icon: UsersRound, title: 'A place in your session.', description: 'Clients reserve a place in a class, workshop or programme with a shared start time.', hint: 'Session dates · Price per spot · Capacity' }
   ];
   const choose = id => {
     if (draft.id || selected === id) return;
-    patch({ bookingFormat: id, scheduleType: id === 'slot' ? 'appointment' : 'class_session', capacity: id === 'slot' ? '1' : String(Number(draft.capacity) > 1 ? draft.capacity : 8),
+    patch({ bookingFormat: id, timingMode: undefined, scheduleType: id === 'slot' ? 'appointment' : 'class_session', capacity: id === 'slot' ? '1' : String(Number(draft.capacity) > 1 ? draft.capacity : 8),
       catalogTemplateId: '', exploreMainCategoryId: '', exploreSubcategoryId: '',
       variants: (draft.variants || []).map(variant => ({ ...variant, minDuration: id === 'slot' ? variant.minDuration || draft.duration || '60' : '' })) });
   };

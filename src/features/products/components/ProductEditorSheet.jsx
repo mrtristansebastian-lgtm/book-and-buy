@@ -21,9 +21,10 @@ import { ProductEditorTypeStep, ProductEditorSpecificationsStep } from './Produc
 import { isEnquiryListing, hasListingSpecifications, validateListing } from '../../../../functions/listingTypes.js';
 import { isValidExploreCategoryPair } from '../../../config/businessCategories';
 import { getProductCategoryTemplate, getProductTemplate } from '../../../../functions/catalogTemplates.js';
+import { defaultListingLocation } from '../../../../functions/listingLocation.js';
 
 const SETUP_STEPS = [
-  { id: 'type', label: 'Category', lede: 'Choose a main category and subcategory.' },
+  { id: 'type', label: 'Discovery Category', lede: 'Choose a main category and subcategory for Discovery.' },
   {
     id: 'details',
     label: 'Details',
@@ -36,12 +37,12 @@ const SETUP_STEPS = [
   },
   {
     id: 'category',
-    label: 'Store category',
+    label: 'Store Category',
     lede: 'Optionally organise this product on your Buy page.'
   },
   {
     id: 'variants',
-    label: 'Variants',
+    label: 'Options',
     lede: 'Optional size or colour options. SKUs and stock live on Stock.'
   },
   {
@@ -80,6 +81,12 @@ export function ProductEditorSheet({
     setError('');
     setValueDrafts({});
   }, [open, draft?.id]);
+
+  useEffect(() => {
+    if (!open) return;
+    const location = defaultListingLocation(draft, workspace);
+    if (location) onChange?.({ ...draft, ...location });
+  }, [open, draft, workspace.website?.address, workspace.website?.profileLocation, onChange]);
 
   const imageUrls = useMemo(
     () =>
@@ -385,7 +392,7 @@ export function ProductEditorSheet({
 
           <div className="bb-services-setup-stage" key={step}>
             {step === 'type' && <ProductEditorTypeStep draft={draft} patch={patch}/>}
-            {step === 'specifications' && <ProductEditorSpecificationsStep draft={draft} patch={patch}/>}
+            {step === 'specifications' && <ProductEditorSpecificationsStep draft={draft} patch={patch} workspace={workspace}/>}
             {step === 'details' ? (
               <ProductEditorDetailsStep draft={draft} patch={patch} autoFocus={isPage} />
             ) : null}

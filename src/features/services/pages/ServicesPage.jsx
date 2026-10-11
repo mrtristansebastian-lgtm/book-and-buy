@@ -2,7 +2,8 @@ import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CatalogToolbar } from '../../../shared/ui/CatalogToolbar';
 import { filterManagedCatalog } from '../../../utils/catalogSearch';
-import { Plus } from 'lucide-react';
+import { Plus, CalendarDays } from 'lucide-react';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { navigate, workspacePagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -115,6 +116,7 @@ export function ServicesPage({ routeRest = [] }) {
     removeService,
     setServiceCategories
   } = useWorkspace();
+  const catalogReady = workspace.isDemo === true || ownerWorkspaceReady;
   const isMobile = useIsMobileEditor();
   const servicesPath = workspacePagePath('services');
   const [draftOpen, setDraftOpen] = useState(false);
@@ -138,7 +140,7 @@ export function ServicesPage({ routeRest = [] }) {
   );
 
   useEffect(() => {
-    if (!ownerWorkspaceReady) return;
+    if (!catalogReady) return;
     if (!editorRoute) {
       openedEditorRoute.current = '';
       setDraftOpen(false);
@@ -162,7 +164,7 @@ export function ServicesPage({ routeRest = [] }) {
         navigate(servicesPath, { replace: true });
       }
     }
-  }, [editorRoute, mode, editId, services, servicesPath, ownerWorkspaceReady]);
+  }, [editorRoute, mode, editId, services, servicesPath, catalogReady]);
 
   const openCreate = () => {
     navigate(`${servicesPath}/new`);
@@ -208,7 +210,7 @@ export function ServicesPage({ routeRest = [] }) {
     setServiceCategories?.(merged);
   };
 
-  if ((pageView || editorRoute) && !ownerWorkspaceReady) {
+  if ((pageView || editorRoute) && !catalogReady) {
     return <div className="bb-services-desk bb-managed-catalog" role="status">Loading service details…</div>;
   }
 
@@ -264,9 +266,8 @@ export function ServicesPage({ routeRest = [] }) {
 
       <CatalogToolbar query={query} onQueryChange={setQuery} status={catalogStatus} onStatusChange={setCatalogStatus} count={visibleServices.length} total={services.length} noun="services" />
       {services.length === 0 ? (
-        <div className="bb-services-catalog-empty">
-          No services yet. Add your first offering.
-        </div>
+        <EmptyState icon={CalendarDays} title="Turn what you do into a booking" description="Create your first service, choose how people book, and set up your pricing and availability."
+          action={<Button action="add" variant="primary" onClick={openCreate}>Add service</Button>} />
       ) : visibleServices.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching services</strong><p>Try a different name, category or status.</p><Button action="clear" variant="secondary" className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</Button></div> : (
         <div className="bb-managed-catalog-list">
           {visibleServices.map((service) => (

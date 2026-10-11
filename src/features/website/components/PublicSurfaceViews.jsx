@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { BusinessProfileHeader } from './BusinessProfileHeader';
 import { ProfileCardFooter } from './ProfileCardFooter';
 import { ProfileFooter } from './ProfileFooter';
+import { ProfileStoryNavigation } from './ProfileStoryNavigation';
 import { EditableText } from './editable';
 import { navigate, publicPagePath } from '../../../app/routing';
 import { createDefaultHomeSectionOrder } from '../../../config/workspaceDefaults';
@@ -83,8 +84,18 @@ export function PublicHomeView({
   // The URL is the selected tab: deep links, browser Back and analytics agree.
   const policyLabels = { cancellation: 'Cancellation policy', terms: 'Terms of service', privacy: 'Privacy policy' };
   const visibleTab = policyLabels[requestedTab] || tabs.some((tab) => tab.id === requestedTab) ? requestedTab : 'home';
+  const informationPage = visibleTab !== 'home' && !['book', 'buy'].includes(visibleTab);
   const contentRef = useRef(null);
-  useEffect(() => { contentRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }, [visibleTab]);
+  const railRef = useRef(null);
+  const previousTabRef = useRef(visibleTab);
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (previousTabRef.current !== visibleTab && !editMode) {
+      const target = contentRef.current || railRef.current;
+      target?.focus({ preventScroll: true });
+    }
+    previousTabRef.current = visibleTab;
+  }, [visibleTab, editMode]);
   const openRailTab = (id) => {
     if (onOpenPage) { onOpenPage(id); return; }
     navigate(publicPagePath(workspace.slug, id));
@@ -217,11 +228,16 @@ export function PublicHomeView({
   }
 
   return (
-    <div className={`bb-public-home-stack bb-public-profile bb-business-profile bb-profile-storyboard${visibleTab === 'home' ? ' is-card-home' : ' is-section-page'}${editMode ? ' is-editing' : ''}`}>
-      <div className="bb-public-profile-rail">
+    <div className={`bb-public-home-stack bb-public-profile bb-business-profile bb-profile-storyboard${visibleTab === 'home' ? ' is-card-home' : ' is-section-page'}${informationPage ? ' is-information-page' : ''}${editMode ? ' is-editing' : ''}`}>
+      <div className="bb-public-profile-rail" ref={railRef} tabIndex={-1}>
         <BusinessProfileHeader workspace={workspace} editMode={editMode} preview={preview}
           patchWebsite={patchWebsite} onUpdateProfile={onUpdateProfile} onOpenTab={openRailTab} navigation={tabs} activePage={visibleTab} compact={visibleTab !== 'home'} />
-        {visibleTab !== 'home' && <div className="bb-public-profile-modules" ref={contentRef} data-scroll-root tabIndex={0} aria-label={`${tabs.find(tab => tab.id === visibleTab)?.label || 'Business profile'} content`}>{panel}</div>}
+        {visibleTab !== 'home' && <div className="bb-public-profile-modules" ref={contentRef} data-scroll-root tabIndex={0} aria-label={`${tabs.find(tab => tab.id === visibleTab)?.label || 'Business profile'} content`}>
+          {informationPage ? <div className="bb-profile-information-content">
+            <div key={visibleTab} className="bb-profile-story-motion">{panel}</div>
+            {!editMode && <ProfileStoryNavigation workspace={workspace} page={visibleTab} onOpenPage={openRailTab} />}
+          </div> : panel}
+        </div>}
         <ProfileCardFooter workspace={workspace} onOpenPage={openRailTab} />
       </div>
     </div>

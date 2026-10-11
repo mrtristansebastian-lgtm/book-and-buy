@@ -1,4 +1,5 @@
 /** Curated Book & Buy industry presets — no medical or legal. */
+import { RETAIL_CATEGORY_ADDITIONS, RETAIL_MAIN_CATEGORIES, extendRetailDiscoveryGroups } from '../../functions/retailCategories.js';
 
 export const BUSINESS_CATEGORIES = [
   // Book
@@ -179,13 +180,7 @@ export const BUSINESS_CATEGORIES = [
   },
   // Buy — legacy leaves (kept for existing categoryId values) + new subcategories
   { id: 'vehicles_cars', label: 'Cars & dealerships', modes: ['buy'], icon: 'Car', keywords: ['car', 'vehicle', 'dealership', 'motor'] },
-  { id: 'equipment_machinery', label: 'Equipment & machinery', modes: ['buy'], icon: 'Wrench', keywords: ['equipment', 'machinery', 'industrial'] },
-  { id: 'equipment_construction', label: 'Construction machinery', modes: ['buy'], icon: 'Wrench', keywords: ['construction', 'excavator', 'loader'] },
-  { id: 'equipment_agricultural', label: 'Agricultural machinery', modes: ['buy'], icon: 'Wrench', keywords: ['agriculture', 'tractor', 'farm'] },
-  { id: 'equipment_workshop', label: 'Workshop & industrial machinery', modes: ['buy'], icon: 'Wrench', keywords: ['workshop', 'industrial', 'machine'] },
-  { id: 'equipment_generators', label: 'Generators', modes: ['buy'], icon: 'Wrench', keywords: ['generator', 'power', 'backup'] },
-  { id: 'equipment_commercial', label: 'Commercial equipment', modes: ['buy'], icon: 'Wrench', keywords: ['commercial', 'equipment', 'business'] },
-  { id: 'equipment_tools', label: 'Specialist tools', modes: ['buy'], icon: 'Wrench', keywords: ['tool', 'specialist', 'workshop'] },
+  { id: 'equipment_tools', label: 'Tools & DIY', modes: ['buy'], icon: 'Wrench', keywords: ['tools', 'diy', 'hand tools', 'power tools', 'hardware', 'home improvement'] },
   { id: 'clothing_tops', label: 'Tops, T-shirts & shirts', modes: ['buy'], icon: 'Shirt', keywords: ['tops', 'tshirt', 'shirt', 'blouse'] },
   { id: 'clothing_bottoms', label: 'Trousers, jeans & shorts', modes: ['buy'], icon: 'Shirt', keywords: ['trousers', 'jeans', 'shorts'] },
   { id: 'clothing_dresses', label: 'Dresses & skirts', modes: ['buy'], icon: 'Shirt', keywords: ['dress', 'skirt'] },
@@ -619,7 +614,9 @@ export const BUSINESS_CATEGORIES = [
     modes: ['buy'],
     icon: 'PawPrint',
     keywords: ['pet', 'grooming', 'shampoo']
-  }
+  },
+  ...RETAIL_CATEGORY_ADDITIONS.map(({ id, label, groupId, keywords }) => ({ id, label, modes: ['buy'], keywords,
+    icon: RETAIL_MAIN_CATEGORIES.find(group => group.id === groupId).icon }))
 ];
 
 const BY_ID = new Map(BUSINESS_CATEGORIES.map((item) => [item.id, item]));
@@ -800,9 +797,9 @@ export const DISTANCE_MAX_KM = 100;
 export const DISTANCE_RINGS_KM = [5, 15, 30, 50, 100];
 
 /** Parent groups for Explore browse — leaves stay as BUSINESS_CATEGORIES ids. */
-export const BUSINESS_CATEGORY_GROUPS = [
+export const BUSINESS_CATEGORY_GROUPS = extendRetailDiscoveryGroups([
   { id: 'buy_vehicles', label: 'Vehicles', mode: 'buy', icon: 'Car', keywords: ['car', 'vehicle', 'dealership'], categoryIds: ['vehicles_cars'] },
-  { id: 'buy_equipment', label: 'Equipment', mode: 'buy', icon: 'Wrench', keywords: ['equipment', 'machinery', 'industrial'], categoryIds: ['equipment_machinery', 'equipment_construction', 'equipment_agricultural', 'equipment_workshop', 'equipment_generators', 'equipment_commercial', 'equipment_tools'] },
+  { id: 'buy_tools', label: 'Tools & DIY', mode: 'buy', icon: 'Wrench', keywords: ['tools', 'diy', 'hardware', 'home improvement'], categoryIds: ['equipment_tools'] },
   {
     id: 'beauty_body',
     label: 'Beauty',
@@ -1046,7 +1043,7 @@ export const BUSINESS_CATEGORY_GROUPS = [
     keywords: ['pet', 'supplies', 'food'],
     categoryIds: ['pet_supplies', 'pet_food', 'pet_toys', 'pet_grooming_products']
   }
-];
+]);
 
 const GROUP_BY_ID = new Map(BUSINESS_CATEGORY_GROUPS.map((g) => [g.id, g]));
 

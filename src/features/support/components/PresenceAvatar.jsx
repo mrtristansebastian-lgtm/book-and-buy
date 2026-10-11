@@ -1,4 +1,4 @@
-import { clientInitials } from '../utils/supportFormat';
+import { ProfileAvatarPlaceholder } from '../../../shared/ui/ProfileAvatarPlaceholder';
 import {
   isPresenceVisible,
   normalizePresenceStatus
@@ -22,7 +22,7 @@ export function PresenceAvatar({
       aria-hidden="true"
     >
       <span className="bb-support-avatar-face">
-        {photoUrl ? <img src={photoUrl} alt="" /> : clientInitials(name)}
+        {photoUrl ? <img src={photoUrl} alt="" /> : <ProfileAvatarPlaceholder />}
       </span>
       {showDot ? (
         <span

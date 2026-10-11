@@ -1,4 +1,5 @@
 import { Image as ImageIcon, User } from 'lucide-react';
+import { ProfileAvatarPlaceholder } from './ProfileAvatarPlaceholder';
 
 /**
  * Industry-standard empty media surface — soft grey field with a muted glyph.
@@ -21,9 +22,9 @@ export function BlankMedia({
       role="img"
       aria-label={label || 'No image'}
     >
-      <span className="bb-blank-media-glyph" aria-hidden="true">
+      {variant === 'avatar' && !IconProp ? <ProfileAvatarPlaceholder /> : <span className="bb-blank-media-glyph" aria-hidden="true">
         <Icon size={iconSize} strokeWidth={1.6} />
-      </span>
+      </span>}
     </div>
   );
 }

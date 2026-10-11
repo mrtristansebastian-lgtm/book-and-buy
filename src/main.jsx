@@ -10,6 +10,8 @@ import './design/profile-storyboard.css';
 import './features/website/components/home-sections/profile-about.css';
 import './features/storefront/components/profile-detail.css';
 import './design/profile-contact-location.css';
+import './design/profile-glass.css';
+import './design/profile-story-navigation.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

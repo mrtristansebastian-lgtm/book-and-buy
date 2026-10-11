@@ -67,6 +67,7 @@ export function useCart(initialItems = []) {
 
   const addService = (service, slot = null, variant = null) => {
     if (!service?.id) return false;
+    if (['arranged', 'to_be_announced'].includes(service.timingMode)) return false;
     const variantId = variant?.id || '';
     const lineKey = serviceLineKey(service.id, variantId);
     const isSpot = getServiceScheduleType(service) === 'class_session';

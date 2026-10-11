@@ -8,7 +8,7 @@ export function ShippingRatePreview({ workspace }) {
   const [chosen, setChosen] = useState([]);
   const [subtotal, setSubtotal] = useState('');
   const products = workspace.products || [];
-  const options = products.flatMap((product) => product.variants?.length ? product.variants.map((variant) => ({ key: `${product.id}:${variant.id}`, productId: product.id, variantId: variant.id, label: `${product.name} · ${variant.title || variant.name || 'Variant'}` })) : [{ key: product.id, productId: product.id, label: product.name }]);
+  const options = products.flatMap((product) => product.variants?.length ? product.variants.map((variant) => ({ key: `${product.id}:${variant.id}`, productId: product.id, variantId: variant.id, label: `${product.name} · ${variant.title || variant.name || 'Option'}` })) : [{ key: product.id, productId: product.id, label: product.name }]);
   const result = useMemo(() => {
     if (!country || !chosen.length) return null;
     try { return shippingQuote(workspace.website || {}, country, options.filter((item) => chosen.includes(item.key)), Math.max(0, Math.round(Number(subtotal) * 100) || 0)); }

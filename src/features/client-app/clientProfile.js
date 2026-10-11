@@ -1,8 +1,8 @@
 import { APP_ID } from '../../config/appConfig';
 import { coordinateOrNull, readExploreViewState } from './exploreViewState';
 
-export const DEMO_CLIENT_EMAIL = 'aisha.naidoo@example.com';
-export const DEMO_CLIENT_NAME = 'Aisha Naidoo';
+export const DEMO_CLIENT_EMAIL = 'client1@example.com';
+export const DEMO_CLIENT_NAME = 'Client #1';
 export const CLIENT_PROFILE_KEY = 'bb.clientProfile';
 
 export function emptyClientProfile(overrides = {}) {
@@ -38,6 +38,7 @@ export function readLocalClientProfile() {
     return {
       ...emptyClientProfile(),
       ...parsed,
+      ...(parsed.isDemo === true ? { email: DEMO_CLIENT_EMAIL, displayName: DEMO_CLIENT_NAME } : {}),
       savedPlaceSlugs: Array.isArray(parsed.savedPlaceSlugs)
         ? [...new Set(parsed.savedPlaceSlugs.map(String).filter(Boolean))]
         : [],
@@ -87,7 +88,7 @@ export function makeDemoClientProfile() {
   return emptyClientProfile({
     email: DEMO_CLIENT_EMAIL,
     displayName: DEMO_CLIENT_NAME,
-    savedPlaceSlugs: ['flameandflour'],
+    savedPlaceSlugs: [],
     isDemo: true,
     uid: 'demo-client',
     exploreMode: 'local',

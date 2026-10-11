@@ -1,6 +1,7 @@
 import { Button } from '../../../shared/ui/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Package } from 'lucide-react';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { PageBackButton } from '../../../shared/ui/PageBackButton';
 import { navigate, workspacePagePath } from '../../../app/routing';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
@@ -198,6 +199,7 @@ export function ProductsPage({ routeRest = [] }) {
     removeProduct,
     setProductCategories
   } = useWorkspace();
+  const catalogReady = workspace.isDemo === true || ownerWorkspaceReady;
   const isMobile = useIsMobileEditor();
   const productsPath = workspacePagePath('products');
   const [draftOpen, setDraftOpen] = useState(false);
@@ -220,7 +222,7 @@ export function ProductsPage({ routeRest = [] }) {
   );
 
   useEffect(() => {
-    if (!ownerWorkspaceReady) return;
+    if (!catalogReady) return;
     if (!editorRoute) {
       openedEditorRoute.current = '';
       setDraftOpen(false);
@@ -244,7 +246,7 @@ export function ProductsPage({ routeRest = [] }) {
         navigate(productsPath, { replace: true });
       }
     }
-  }, [editorRoute, mode, editId, products, productsPath, ownerWorkspaceReady]);
+  }, [editorRoute, mode, editId, products, productsPath, catalogReady]);
 
   const openCreate = () => {
     navigate(`${productsPath}/new`);
@@ -290,7 +292,7 @@ export function ProductsPage({ routeRest = [] }) {
     closeDraft();
   };
 
-  if ((pageView || editorRoute) && !ownerWorkspaceReady) {
+  if ((pageView || editorRoute) && !catalogReady) {
     return <div className="bb-services-desk bb-managed-catalog" role="status">Loading product details…</div>;
   }
 
@@ -352,9 +354,8 @@ export function ProductsPage({ routeRest = [] }) {
 
       <CatalogToolbar query={query} onQueryChange={setQuery} status={catalogStatus} onStatusChange={setCatalogStatus} count={visibleProducts.length} total={products.length} noun="products" />
       {products.length === 0 ? (
-        <div className="bb-services-catalog-empty">
-          No products yet. Add your first item.
-        </div>
+        <EmptyState icon={Package} title="Make room for your first product" description="Add photos, choose a category, and set up your price and options. Your collection starts here."
+          action={<Button action="add" variant="primary" onClick={openCreate}>Add product</Button>} />
       ) : visibleProducts.length === 0 ? <div className="bb-services-catalog-empty"><strong>No matching products</strong><p>Try a different name, SKU, category or status.</p><Button action="clear" variant="secondary" className="bb-btn" type="button" onClick={() => { setQuery(''); setCatalogStatus('all'); }}>Clear filters</Button></div> : (
         <div className="bb-managed-catalog-list">
           {visibleProducts.map((product) => (

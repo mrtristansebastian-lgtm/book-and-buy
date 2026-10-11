@@ -7,6 +7,7 @@ import { useDialogFocus } from '../../../shared/ui/useDialogFocus';
 import { WEEKDAY_KEYS } from '../../../utils/staffAvailability';
 import { seedWeekdayHours, buildBusinessHoursPatch } from '../utils/businessHoursSettings';
 import { AdvanceBookingField } from './AdvanceBookingField';
+import { BookingModeSettings } from '../../settings/components/BookingModeSettings';
 
 const WEEKDAY_LABELS = {
   mon: 'Mon',
@@ -19,6 +20,7 @@ const WEEKDAY_LABELS = {
 };
 
 const SECTIONS = [
+  { id: 'mode', label: 'Booking mode', Icon: CalendarDays },
   { id: 'hours', label: 'Business hours', Icon: Clock },
   { id: 'window', label: 'Booking window', Icon: CalendarDays }
 ];
@@ -122,7 +124,7 @@ export function AvailabilityStudioSettingsSheet({
   const [sectionId, setSectionId] = useState(sections[0]?.id || 'window');
   const active = sections.find((section) => section.id === sectionId) || sections[0];
   const copy =
-    active?.id === 'hours'
+    active?.id === 'mode' ? { title: 'Booking mode', lede: 'Choose an appointment calendar or a request queue.' } : active?.id === 'hours'
       ? {
           title: 'Business hours',
           lede: 'Set open days and hours for each weekday.'
@@ -195,6 +197,7 @@ export function AvailabilityStudioSettingsSheet({
                   onUpdateRules={onUpdateRules}
                 />
               ) : null}
+              {active?.id === 'mode' ? <BookingModeSettings rules={availabilityRules} onChange={onUpdateRules} /> : null}
 
               {active?.id === 'window' ? (
                 <div className="bb-schedule-avail-settings-section">

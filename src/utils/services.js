@@ -1,4 +1,5 @@
 import { getServiceScheduleType } from './scheduleTypes';
+import { getServiceTimingMode, serviceTimingLabel, serviceNeedsTimingConversation } from '../../functions/serviceTiming';
 import { parseDateKey, toDateKey } from './dates';
 import { isValidExploreCategoryPair } from '../config/businessCategories';
 import { normalizeServiceConfiguration } from '../../functions/serviceTemplates';
@@ -163,6 +164,7 @@ export const formatServiceDuration = (duration = '') => {
 
 /** Catalog / card label for fixed or minimum duration. */
 export const formatServiceDurationLabel = (service = {}, variant = null) => {
+  if (serviceNeedsTimingConversation(service)) return serviceTimingLabel(service);
   if (getServiceScheduleType(service) === 'class_session') return formatServiceSessionLabel(service);
   if (variant) {
     const min = parseDurationMinutes(variant.minDuration);
@@ -187,6 +189,7 @@ export const formatServiceDurationLabel = (service = {}, variant = null) => {
 
 /** End-sticker meta: session window for spots, duration for slots. */
 export const formatServiceCardMeta = (service = {}, variant = null) => {
+  if (serviceNeedsTimingConversation(service)) return serviceTimingLabel(service);
   if (getServiceScheduleType(service) === 'class_session') {
     return formatServiceSessionLabel(service);
   }
@@ -211,6 +214,7 @@ export const getServiceOpenSpots = (service = {}, bookings = []) => {
 
 /** Remaining capacity label for spot programmes — updates with bookings. */
 export const formatServiceSpotsLabel = (service = {}, bookings = []) => {
+  if (serviceNeedsTimingConversation(service)) return '';
   if (getServiceScheduleType(service) !== 'class_session') return '';
   const open = getServiceOpenSpots(service, bookings);
   return `${open} spot${open === 1 ? '' : 's'} left`;
@@ -270,6 +274,8 @@ export const normalizeService = (service = {}, index = 0) => {
         ? [service.image]
         : [],
     scheduleType,
+    timingMode: getServiceTimingMode(service),
+    timingNotes: String(service.timingNotes || '').trim(),
     capacity: Math.max(1, Math.round(Number(service.capacity || 1) || 1)),
     approvalRequired: service.approvalRequired ?? false,
     variants

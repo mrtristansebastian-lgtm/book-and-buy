@@ -1,5 +1,7 @@
 // Shared, dependency-free catalogue templates. Keep these IDs stable in saved listings.
 // The discovery taxonomy supplies the menus; these templates supply the actual product setup.
+import { RETAIL_CATEGORY_ADDITIONS, extendRetailProductGroups } from './retailCategories.js';
+import { retailSpecificationFields, RETAIL_FACT_KEYS, RETAIL_FACT_UNITS } from './retailSpecifications.js';
 const text = (key, label, extra = {}) => ({ key, label, ...extra });
 const number = (key, label, unit = '', extra = {}) => ({ key, label, unit, type: 'number', min: 0, max: 100000000, ...extra });
 const select = (key, label, options, extra = {}) => ({ key, label, options, ...extra });
@@ -24,6 +26,7 @@ const dimensions = [
 ];
 const group = (label, fields) => ({ label, fields });
 const familyFields = {
+  ...retailSpecificationFields(text, number, select),
   generic: [text('model', 'Model / range'), text('size', 'Size', essential), text('features', 'Features', { multiline: true, maxLength: 1200 })],
   apparel: [text('size', 'Size', essential), select('fit', 'Fit', ['Regular', 'Slim', 'Relaxed', 'Oversized', 'Fitted', 'Other'], essential), select('clothingSizeSystem', 'Clothing size system', ['Letter sizes (XS–XXL)', 'SA / UK', 'EU', 'US', 'Age-based', 'One size', 'Custom measurements']), text('fabricComposition', 'Fabric composition'), select('stretch', 'Fabric stretch', ['Non-stretch', 'Slight stretch', 'Stretch', 'Four-way stretch']), select('waistRise', 'Waist rise', ['Low rise', 'Mid rise', 'High rise']), text('waistMeasurement', 'Waist measurement', { hint: 'Include units, for example 76 cm.' }), text('chestMeasurement', 'Chest / bust measurement', { hint: 'Include units, for example 96 cm.' }), text('hipMeasurement', 'Hip measurement'), text('inseam', 'Inside leg length'), text('ageRange', 'Age range'), select('lining', 'Lining', ['Fully lined', 'Partially lined', 'Unlined']), select('opacity', 'Opacity', ['Opaque', 'Semi-sheer', 'Sheer']), text('garmentLength', 'Garment length'), text('sleeveLength', 'Sleeve length'), text('pattern', 'Pattern'), text('fastening', 'Fastening'), text('sizeGuide', 'Size guide', { multiline: true, maxLength: 1200 }), text('careLabel', 'Washing instructions', { multiline: true, maxLength: 600 })],
   footwear: [text('size', 'Shoe size', essential), select('sizeSystem', 'Size system', ['UK', 'EU', 'US', 'SA', 'Other'], essential), text('upperMaterial', 'Upper material'), text('soleMaterial', 'Sole material'), text('fastening', 'Fastening'), number('heelHeight', 'Heel height', 'cm', { max: 100 }), select('waterproof', 'Waterproof', ['Yes', 'No']), text('sizeGuide', 'Size guide', { multiline: true, maxLength: 1200 })],
@@ -50,8 +53,8 @@ const familyFields = {
   digital: [text('fileFormat', 'File format', essential), text('compatibility', 'Required software / compatibility', essential), text('licence', 'Usage licence', { essential: true, multiline: true, maxLength: 1000 }), text('assetCount', 'Files / assets included'), text('digitalDimensions', 'Dimensions / resolution'), text('version', 'Version'), text('language', 'Language'), text('features', 'Contents', { multiline: true, maxLength: 1200 })]
 };
 
-export const PRODUCT_CATEGORY_GROUPS = Object.freeze({
-  buy_vehicles: ['vehicles_cars'], buy_equipment: ['equipment_machinery', 'equipment_construction', 'equipment_agricultural', 'equipment_workshop', 'equipment_generators', 'equipment_commercial', 'equipment_tools'],
+export const PRODUCT_CATEGORY_GROUPS = Object.freeze(extendRetailProductGroups({
+  buy_vehicles: ['vehicles_cars'], buy_tools: ['equipment_tools'],
   buy_fashion: ['fashion', 'fashion_womens', 'fashion_mens', 'fashion_kids', 'fashion_streetwear', 'fashion_footwear', 'fashion_accessories', 'clothing_tops', 'clothing_bottoms', 'clothing_dresses', 'clothing_outerwear', 'clothing_activewear', 'clothing_underwear', 'clothing_swimwear', 'clothing_baby', 'clothing_workwear', 'clothing_occasion'],
   buy_jewelry: ['jewelry', 'jewelry_fine', 'jewelry_fashion', 'jewelry_watches', 'jewelry_bags'],
   buy_art: ['art_prints', 'art_originals', 'art_print_editions', 'art_photo_prints'],
@@ -65,7 +68,7 @@ export const PRODUCT_CATEGORY_GROUPS = Object.freeze({
   buy_home: ['home_decor', 'home_furniture', 'home_soft', 'home_accents', 'home_kitchenware'],
   buy_florists: ['florists_retail', 'florist_bouquets', 'florist_plants', 'florist_events'],
   buy_pets: ['pet_supplies', 'pet_food', 'pet_toys', 'pet_grooming_products']
-});
+}));
 const all = (...groups) => groups.flatMap(key => PRODUCT_CATEGORY_GROUPS[key]);
 const templates = [];
 function add(family, categoryIds, entries, extra = {}) {
@@ -86,7 +89,7 @@ add('jewellery', ['jewelry', 'jewelry_fine', 'jewelry_fashion', 'handmade', 'han
 ]);
 add('watch', ['jewelry', 'jewelry_watches', 'vintage_thrift', 'vintage_collectibles'], [['watch_wristwatch', 'Wristwatch']]);
 add('bag', ['jewelry', 'jewelry_bags', ...all('buy_fashion'), 'sports_gear', 'sports_outdoor'], [['bag_handbag', 'Handbag'], ['bag_backpack', 'Backpack'], ['bag_wallet', 'Wallet / purse'], ['bag_luggage', 'Luggage / travel bag'], ['bag_tote', 'Tote / shoulder bag']]);
-add('art', all('buy_art'), [['art_painting', 'Painting'], ['art_drawing', 'Drawing / illustration'], ['art_print', 'Art print'], ['art_photo', 'Photographic print'], ['art_sculpture', 'Sculpture']]);
+add('art', ['art_prints', 'art_originals', 'art_print_editions', 'art_photo_prints'], [['art_painting', 'Painting'], ['art_drawing', 'Drawing / illustration'], ['art_print', 'Art print'], ['art_photo', 'Photographic print'], ['art_sculpture', 'Sculpture']]);
 add('ceramic', ['handmade', 'handmade_ceramics', 'home_decor', 'home_accents'], [['ceramic_mug', 'Mug / cup'], ['ceramic_bowl', 'Bowl / plate'], ['ceramic_vase', 'Vase'], ['ceramic_object', 'Ceramic object']]);
 add('textile', ['handmade', 'handmade_textiles'], [['textile_woven', 'Woven textile'], ['textile_knitted', 'Knitted / crocheted item'], ['textile_fabric', 'Fabric / textile piece']]);
 add('gift', ['handmade', 'handmade_gifts', 'home_accents'], [['gift_personalised', 'Personalised gift'], ['gift_set', 'Gift set'], ['gift_craft', 'Craft / decorative object']]);
@@ -123,23 +126,16 @@ add('electronics', [...electronicCategories, 'electronics_audio'], [
   ['electronics_headphones', 'Headphones', { deviceType: 'Audio', detailDefaults: { audioType: 'Headphones' } }], ['electronics_earbuds', 'Earbuds', { deviceType: 'Audio', detailDefaults: { audioType: 'Earbuds' } }], ['electronics_speaker', 'Speaker', { deviceType: 'Audio', detailDefaults: { audioType: 'Speaker' } }], ['electronics_soundbar', 'Soundbar', { deviceType: 'Audio', detailDefaults: { audioType: 'Soundbar' } }], ['electronics_microphone', 'Microphone', { deviceType: 'Audio', detailDefaults: { audioType: 'Microphone' } }], ['electronics_audio', 'Audio equipment', { deviceType: 'Audio' }]
 ], { listingType: 'electronics' });
 add('vehicle', ['vehicles_cars'], [['vehicle_car', 'Car'], ['vehicle_bakkie', 'Bakkie / pickup', { detailDefaults: { body: 'Bakkie' } }], ['vehicle_van', 'Van / minibus', { detailDefaults: { body: 'Van' } }], ['vehicle_suv', 'SUV', { detailDefaults: { body: 'SUV' } }]], { listingType: 'vehicle' });
-add('equipment', ['equipment_machinery'], [
-  ['equipment_construction', 'Construction machine', { detailDefaults: { equipmentType: 'Construction machinery' } }], ['equipment_agricultural', 'Agricultural machine', { detailDefaults: { equipmentType: 'Agricultural machinery' } }], ['equipment_workshop', 'Workshop / industrial machine', { detailDefaults: { equipmentType: 'Workshop / industrial machinery' } }], ['equipment_generator', 'Generator', { detailDefaults: { equipmentType: 'Generator' } }], ['equipment_commercial', 'Commercial equipment', { detailDefaults: { equipmentType: 'Commercial equipment' } }], ['equipment_tool', 'Specialist tool', { detailDefaults: { equipmentType: 'Specialist tool' } }]
-], { listingType: 'equipment' });
+add('generic', ['equipment_tools'], [['retail_tool', 'Tool']]);
 
 export const PRODUCT_TEMPLATES = Object.freeze(templates);
 // New products choose only a category and subcategory. These internal setups keep
 // that classification useful without asking the seller to name an exact item type.
 // Original template IDs stay supported so existing listings retain their details.
 const categorySetups = {
+  ...Object.fromEntries(RETAIL_CATEGORY_ADDITIONS.map(({ id, label, family }) => [id, [label, family]])),
   vehicles_cars: ['Cars & dealerships', 'vehicle', { listingType: 'vehicle' }],
-  equipment_machinery: ['Equipment & machinery', 'equipment', { listingType: 'equipment' }],
-  equipment_construction: ['Construction machinery', 'equipment', { listingType: 'equipment', schemaTemplateId: 'equipment_construction', detailDefaults: { equipmentType: 'Construction machinery' } }],
-  equipment_agricultural: ['Agricultural machinery', 'equipment', { listingType: 'equipment', schemaTemplateId: 'equipment_agricultural', detailDefaults: { equipmentType: 'Agricultural machinery' } }],
-  equipment_workshop: ['Workshop & industrial machinery', 'equipment', { listingType: 'equipment', schemaTemplateId: 'equipment_workshop', detailDefaults: { equipmentType: 'Workshop / industrial machinery' } }],
-  equipment_generators: ['Generators', 'equipment', { listingType: 'equipment', schemaTemplateId: 'equipment_generator', detailDefaults: { equipmentType: 'Generator' } }],
-  equipment_commercial: ['Commercial equipment', 'equipment', { listingType: 'equipment', schemaTemplateId: 'equipment_commercial', detailDefaults: { equipmentType: 'Commercial equipment' } }],
-  equipment_tools: ['Specialist tools', 'equipment', { listingType: 'equipment', schemaTemplateId: 'equipment_tool', detailDefaults: { equipmentType: 'Specialist tool' } }],
+  equipment_tools: ['Tools & DIY', 'generic'],
   clothing_tops: ['Tops, T-shirts & shirts', 'apparel'],
   clothing_bottoms: ['Trousers, jeans & shorts', 'apparel'],
   clothing_dresses: ['Dresses & skirts', 'apparel'],
@@ -235,12 +231,13 @@ export function productTemplateSchema(product = {}) {
 }
 export function productTemplateFacts(product = {}, details = {}) {
   const family = getProductTemplate(product.catalogTemplateId)?.family || 'generic';
-  const keys = {
+  const keys = RETAIL_FACT_KEYS[family] || {
     apparel: ['size', 'fit', 'material'], footwear: ['size', 'sizeSystem', 'upperMaterial'], jewellery: ['metal', 'gemstone', 'size'], watch: ['movement', 'caseDiameter', 'condition'], bag: ['material', 'size', 'volume'], art: ['artist', 'medium', 'artworkSize'], ceramic: ['material', 'finish', 'volume'], textile: ['material', 'size', 'pattern'], gift: ['occasion', 'material'], collectible: ['era', 'condition', 'edition'], sports: ['sport', 'size', 'material'], outdoor: ['activity', 'personCapacity', 'seasonRating'], book: ['author', 'format', 'language'], stationery: ['size', 'ruling', 'pageCount'], beauty: ['netContent', 'shade', 'skinHairType'], furniture: ['material', 'furnitureSize', 'seatingCapacity'], soft: ['size', 'material', 'pattern'], decor: ['material', 'size', 'scent'], flowers: ['flowerVarieties', 'bouquetSize'], plant: ['plantName', 'plantSize', 'plantPlacement'], pet: ['animal', 'size', 'lifeStage'], petFood: ['animal', 'netContent', 'lifeStage'], digital: ['fileFormat', 'compatibility'], generic: ['brand', 'size', 'material']
   }[family] || ['brand', 'size', 'material'];
   return keys.flatMap(key => {
     const value = details[key];
-    if (!value) return [];
+    if (value == null || String(value).trim() === '') return [];
+    if (RETAIL_FACT_UNITS[key]) return [`${value} ${RETAIL_FACT_UNITS[key]}`];
     if (key === 'caseDiameter') return [`${value} mm`];
     if (key === 'volume') return [`${value} L`];
     if (key === 'pageCount') return [`${value} pages`];

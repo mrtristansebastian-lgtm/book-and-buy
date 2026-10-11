@@ -7,10 +7,12 @@ import { useDetailDialog } from '../../../shared/ui/useDetailDialog';
 import { formatServicePrice, formatServiceCardMeta } from '../../../utils/services';
 import { getScheduleTypeMeta } from '../../../utils/scheduleTypes';
 import { ServiceSpecifications } from './ServiceSpecifications';
+import { DemoShowcaseGuide } from '../../showcase/DemoShowcaseGuide';
 import { getServiceTemplate } from '../../../../functions/serviceTemplates';
+import { serviceTimingLabel } from '../../../../functions/serviceTiming';
 import '../../../shared/ui/owner-catalog-detail.css';
 
-export function ServiceInfoSheet({ service, staff = [], onClose, onEdit, variant = 'sheet' }) {
+export function ServiceInfoSheet({ service, staff = [], onClose, onEdit, isDemo = false, variant = 'sheet' }) {
   const isPage = variant === 'page';
   const dialogRef = useDetailDialog(Boolean(service), onClose, isPage);
   const [imageIndex, setImageIndex] = useState(0);
@@ -48,10 +50,13 @@ export function ServiceInfoSheet({ service, staff = [], onClose, onEdit, variant
             </div>
           </div>
           {service.description && <section className="bb-product-info-block"><h3 className="bb-stock-section-label">About this service</h3><p className="bb-product-info-desc">{service.description}</p></section>}
+          <DemoShowcaseGuide isDemo={isDemo} kind="service" itemId={service.id} onEdit={onEdit ? () => onEdit(service) : undefined} />
           <ServiceSpecifications service={service} />
           <dl className="bb-stock-info-facts">
-            <div><dt>Category</dt><dd>{service.category || 'Not set'}</dd></div>
-            <div><dt>Booking type</dt><dd>{getServiceTemplate(service.catalogTemplateId)?.event ? 'Event' : getScheduleTypeMeta(service.scheduleType).singular}</dd></div>
+            <div><dt>Store Category</dt><dd>{service.category || 'Not set'}</dd></div>
+            <div><dt>Booking type</dt><dd>{getScheduleTypeMeta(service.scheduleType).singular}</dd></div>
+            <div><dt>When</dt><dd>{serviceTimingLabel(service)}</dd></div>
+            {service.timingNotes && <div><dt>Timing details</dt><dd>{service.timingNotes}</dd></div>}
             {!isClass && <div><dt>Duration</dt><dd>{service.fixedDuration === false ? `From ${service.minDuration || service.duration || '—'} minutes` : service.duration ? `${service.duration} minutes` : 'Varies by option'}</dd></div>}
             {isClass && <div><dt>Capacity</dt><dd>{service.capacity || 1} spots</dd></div>}
             <div><dt>Assigned staff</dt><dd>{assigned.map(person => person.name).join(', ') || 'No staff assigned'}</dd></div>

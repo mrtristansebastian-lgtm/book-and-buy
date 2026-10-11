@@ -305,14 +305,14 @@ export function StockInfoSheet({ product, onClose, onEdit, variant = 'sheet' }) 
 
             {hasVariants ? (
               <div className="bb-stock-info-variants">
-                <p className="bb-stock-section-label">Variants</p>
+                <p className="bb-stock-section-label">Options</p>
                 <ul className="bb-stock-info-variant-list">
                   {(product.variants || []).map((variant) => (
                     <li key={variant.id}>
                       <strong>
                         {variant.title ||
                           Object.values(variant.optionValues || {}).join(' / ') ||
-                          'Variant'}
+                          'Option'}
                       </strong>
                       <span>
                         {[
@@ -417,8 +417,8 @@ export function StockEditSheet({ product, initialVariantId, onClose, onSave, var
           {hasVariants ? (
             <div className="bb-stock-edit-layout">
               <nav className="bb-stock-variant-nav" aria-label="Choose stock to adjust">
-                <p className="bb-stock-section-label">{draft.variants.length} variants</p>
-                <label className="bb-stock-variant-picker"><span>Choose a variant</span><select className="native-control-input" value={activeVariantId} onChange={event => setActiveVariantId(event.target.value)}>{draft.variants.map(item => <option key={item.id} value={item.id}>{item.title || Object.values(item.optionValues || {}).join(' / ') || 'Variant'}{item.sku ? ` · ${item.sku}` : ''}</option>)}<option value="product">Product defaults</option></select></label>
+                <p className="bb-stock-section-label">{draft.variants.length} options</p>
+                <label className="bb-stock-variant-picker"><span>Choose an option</span><select className="native-control-input" value={activeVariantId} onChange={event => setActiveVariantId(event.target.value)}>{draft.variants.map(item => <option key={item.id} value={item.id}>{item.title || Object.values(item.optionValues || {}).join(' / ') || 'Option'}{item.sku ? ` · ${item.sku}` : ''}</option>)}<option value="product">Product defaults</option></select></label>
               </nav>
               <section className="bb-stock-active-editor" aria-label="Inventory details">
                 <header><h3>{activeVariant ? activeVariant.title || Object.values(activeVariant.optionValues || {}).join(' / ') : 'Product defaults'}</h3><p>{activeVariant ? 'Manage inventory and shipping for this variant.' : 'Variant quantities are tracked separately. Manage the product’s stock display, warning level and shipping details here.'}</p></header>

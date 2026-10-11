@@ -97,7 +97,7 @@ export function parseAppRoute(path = getLocationPath()) {
   }
 
   if (parts[0] === 'demo') {
-    // Guest demo opens the owner dashboard; public site stays at /w/flameandflour
+    // Guest demo opens the owner dashboard; its blank public preview uses /w/example.
     if (!parts[1] || parts[1] === 'dashboard') {
       return {
         kind: 'owner',
@@ -114,7 +114,7 @@ export function parseAppRoute(path = getLocationPath()) {
           : '';
       return {
         kind: 'public',
-        slug: 'flameandflour',
+        slug: 'example',
         page,
         itemId,
         demo: true

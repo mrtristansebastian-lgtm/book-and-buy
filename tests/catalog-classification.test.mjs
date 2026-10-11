@@ -97,16 +97,18 @@ test('broad computer categories do not assume a laptop and restrict device choic
   assert.equal(normalizeListing(desktop).electronicsDetails.deviceType, 'Desktop');
 });
 
-test('vehicle and equipment categories keep enquiries and relevant machine specifications', () => {
+test('vehicles keep enquiries while tools use ordinary retail checkout and machinery is absent', () => {
   const car = getProductCategoryTemplate('vehicles_cars');
   assert.equal(isEnquiryListing({ catalogTemplateId: car.id, transactionMode: 'checkout' }), true);
   assert.equal(normalizeListing({ catalogTemplateId: car.id }).transactionMode, 'enquiry');
-  const generator = getProductCategoryTemplate('equipment_generators');
-  const item = { catalogTemplateId: generator.id, exploreMainCategoryId: generator.mainCategoryId, exploreSubcategoryId: 'equipment_generators', equipmentDetails: { manufacturer: 'Example', model: 'G5', condition: 'New', location: 'Cape Town', ratedPower: '5', fuel: 'Diesel' } };
+  const tools = getProductCategoryTemplate('equipment_tools');
+  const item = { catalogTemplateId: tools.id, exploreMainCategoryId: tools.mainCategoryId, exploreSubcategoryId: 'equipment_tools', physicalDetails: { brand: 'Example', material: 'Steel', colour: 'Black', size: '165 mm' } };
   assert.equal(validateListing(item), '');
-  const fields = getApplicableListingSchema(item).flatMap(group => group.fields);
-  assert.equal(fields.find(field => field.key === 'ratedPower').essential, true);
-  assert.ok(fields.some(field => field.key === 'phase'));
-  assert.equal(fields.some(field => field.key === 'liftingCapacity'), false);
-  assert.equal(normalizeListing(item).equipmentDetails.equipmentType, 'Generator');
+  assert.equal(tools.mainCategoryId, 'buy_tools');
+  assert.equal(normalizeListing(item).listingType, 'physical');
+  assert.equal(isEnquiryListing(item), false);
+  for (const leaf of ['equipment_machinery', 'equipment_construction', 'equipment_agricultural', 'equipment_workshop', 'equipment_generators', 'equipment_commercial']) {
+    assert.equal(getProductCategoryTemplate(leaf), null);
+    assert.equal(groupsForExploreMode('buy').some(group => categoriesInGroup(group.id).some(category => category.id === leaf)), false);
+  }
 });

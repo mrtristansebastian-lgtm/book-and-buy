@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../../../shared/ui/Button';
-import { Check, DollarSign, Hourglass } from 'lucide-react';
+import { CalendarDays, Check, DollarSign, Hourglass } from 'lucide-react';
+import { EmptyState } from '../../../shared/ui/EmptyState';
 import { getLocationPath, navigate, workspacePagePath } from '../../../app/routing';
 import { parseDateKey, toDateKey } from '../../../utils/dates';
 import {
@@ -15,6 +16,8 @@ import { PeriodPageHeader } from '../../../shared/ui/PeriodPageHeader';
 import { SortField } from '../../../shared/ui/SortField';
 import { useWorkspace } from '../../workspace/WorkspaceContext';
 import { setSupportFocusThread } from '../../support/utils/supportFormat';
+import { isUnscheduledBooking } from '../../../../functions/bookingModes';
+import { BookingTimeSheet } from './BookingTimeSheet';
 import {
   OpsAction,
   OpsAssignSelect,
@@ -53,6 +56,8 @@ function matchesFilter(booking, filter, todayKey) {
   const closed = ['declined', 'cancelled'].includes(status);
 
   switch (filter) {
+    case 'awaiting_time':
+      return isUnscheduledBooking(booking) && ['pending', 'confirmed'].includes(status);
     case 'upcoming':
       return !past && !closed;
     case 'review':
@@ -75,6 +80,10 @@ function bookingDateKey(booking) {
 }
 
 function compareBookings(a, b, sortBy) {
+  if (isUnscheduledBooking(a) && isUnscheduledBooking(b)) {
+    const ordered = Number(a.timestamp || 0) - Number(b.timestamp || 0);
+    if (sortBy === 'latest' || sortBy === 'oldest') return (sortBy === 'latest' ? -ordered : ordered) || String(a.id).localeCompare(String(b.id));
+  }
   const dateA = `${bookingDateKey(a)} ${a.time || ''}`;
   const dateB = `${bookingDateKey(b)} ${b.time || ''}`;
   const chronoCompare = dateA.localeCompare(dateB);
@@ -100,6 +109,7 @@ function compareBookings(a, b, sortBy) {
 
 export function BookingRequestsDesk({ heading = null, headingActions = null }) {
   const {
+    workspace,
     bookings,
     services,
     staff,
@@ -110,14 +120,15 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
     assignBookingStaff,
     startThreadFromBooking
   } = useWorkspace();
-  const [filter, setFilter] = useState('upcoming');
+  const [filter, setFilter] = useState(workspace.availabilityRules?.scheduleMode === 'first_come' ? 'awaiting_time' : 'upcoming');
+  const [timeBooking, setTimeBooking] = useState(null);
   const [actionError, setActionError] = useState('');
   const runBookingAction = async (action) => { setActionError(''); try { await action(); } catch (error) { setActionError(error.message || 'The booking was not changed. Please try again.'); } };
   const [period, setPeriod] = useState('week');
   const [day, setDay] = useState(() => toDateKey(new Date()));
   const [customRange, setCustomRange] = useState({ from: '', to: '' });
   const [customPickerOpen, setCustomPickerOpen] = useState(false);
-  const [sortBy, setSortBy] = useState('latest');
+  const [sortBy, setSortBy] = useState(workspace.availabilityRules?.scheduleMode === 'first_come' ? 'oldest' : 'latest');
   const locationPath = typeof window === 'undefined' ? '' : getLocationPath();
   const focusParams = new URLSearchParams(locationPath.split('?')[1] || '');
   const focusedId = focusParams.get('booking') || '';
@@ -143,6 +154,7 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
   const counts = useMemo(() => {
     const next = {
       upcoming: 0,
+      awaiting_time: 0,
       review: 0,
       confirmed: 0,
       waitlist: 0,
@@ -150,6 +162,7 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
       all: bookings.length
     };
     for (const booking of bookings) {
+      if (matchesFilter(booking, 'awaiting_time', todayKey)) next.awaiting_time += 1;
       if (matchesFilter(booking, 'upcoming', todayKey)) next.upcoming += 1;
       if (matchesFilter(booking, 'review', todayKey)) next.review += 1;
       if (matchesFilter(booking, 'confirmed', todayKey)) next.confirmed += 1;
@@ -163,7 +176,7 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
     () =>
       bookings
         .filter((booking) => matchesFilter(booking, filter, todayKey))
-        .filter((booking) => period === 'all' || isDateKeyInPeriod(bookingDateKey(booking), periodRange))
+        .filter((booking) => matchesFilter(booking, 'awaiting_time', todayKey) || period === 'all' || isDateKeyInPeriod(bookingDateKey(booking), periodRange))
         .slice()
         .sort((a, b) => compareBookings(a, b, sortBy)),
     [bookings, filter, period, periodRange, sortBy, todayKey]
@@ -216,6 +229,7 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
           value={filter}
           onChange={setFilter}
           options={[
+            { id: 'awaiting_time', label: 'Awaiting time', count: counts.awaiting_time },
             { id: 'upcoming', label: 'Upcoming', count: counts.upcoming },
             { id: 'review', label: 'Review', count: counts.review },
             { id: 'confirmed', label: 'Confirmed', count: counts.confirmed },
@@ -239,8 +253,9 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
 
       {focusedBooking ? <div className="bb-ops-booking-focus" role="status"><span>Selected booking · <strong>{focusedBooking.clientName || 'Client'}</strong></span><Button action="clear" variant="secondary" onClick={clearFocus}>Clear selection</Button></div> : null}
       <div className="bb-ops-rows">
+        {counts.awaiting_time > 0 && <p className="bb-muted text-sm">Requests awaiting a time stay visible across date ranges. Sort by Oldest to work through them in arrival order.</p>}
         {rows.length === 0 ? (
-          <div className="bb-ops-empty">No booking requests in this view.</div>
+          <EmptyState icon={CalendarDays} title={bookings.length === 0 ? 'Ready for your first booking' : 'No requests in this view'} description={bookings.length === 0 ? 'Booking requests will arrive here when clients choose a service and a time.' : 'Try another status or date range to find a booking.'} />
         ) : (
           rows.map((booking) => {
             const service = serviceFor(booking);
@@ -265,13 +280,14 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
                       <OpsStatusBadge status={status} label={STATUS_LABELS[status] || status} />
                     </div>
                     <p className="bb-ops-meta">{meta}</p>
+                    {booking.clientNote && <p className="bb-ops-meta" style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>{booking.clientNote}</p>}
                   </div>
                 </div>
 
                 <div className="bb-ops-when">
-                  <strong className="bb-ops-when-primary">{booking.time || '—'}</strong>
+                  <strong className="bb-ops-when-primary">{isUnscheduledBooking(booking) ? 'Awaiting time' : booking.time || '—'}</strong>
                   <span className="bb-ops-when-secondary">
-                    {formatOpsDayLabel(booking.dateKey || booking.date)}
+                    {isUnscheduledBooking(booking) ? 'First come, first served' : formatOpsDayLabel(booking.dateKey || booking.date)}
                   </span>
                 </div>
 
@@ -286,6 +302,7 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
                 />
 
                 <div className="bb-ops-actions">
+                  {booking.bookingMode === 'first_come' && ['pending', 'confirmed'].includes(status) && <OpsAction action="reschedule" onClick={() => setTimeBooking(booking)}><CalendarDays size={13} />{isUnscheduledBooking(booking) ? 'Set time' : 'Reschedule'}</OpsAction>}
                   <OpsChatAction onClick={() => openChat(booking)} />
                   <OpsAction action="markPaid" variant={booking.paymentStatus === 'paid' ? 'positive' : 'secondary'} disabled={booking.paymentStatus === 'paid'} onClick={() => runBookingAction(() => markPaid(booking.id))}>
                     <DollarSign size={13} strokeWidth={2.4} />
@@ -333,6 +350,7 @@ export function BookingRequestsDesk({ heading = null, headingActions = null }) {
           setCustomPickerOpen(false);
         }}
       />
+      {timeBooking && <BookingTimeSheet key={timeBooking.id} booking={bookings.find(row => row.id === timeBooking.id) || timeBooking} onClose={() => setTimeBooking(null)} />}
     </section>
   );
 }

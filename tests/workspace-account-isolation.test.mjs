@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import React from 'react';
 import ts from 'typescript';
+import { needsEmailVerification } from '../src/features/auth/emailVerification.js';
+import { workspaceConnectionError } from '../src/features/workspace/workspaceConnectionError.js';
 import { createWorkspaceConflictReview, assertWorkspaceConflictCurrent } from '../src/shared/firebase/workspaceConflict.js';
 
 test('switching owners blanks the previous business and waits for the new cloud workspace before saving', async () => {
@@ -26,6 +28,8 @@ test('switching owners blanks the previous business and waits for the new cloud 
       if (id==='react') return react;
       if (id==='react/jsx-runtime') return {jsx:React.createElement,jsxs:React.createElement};
       if (id.endsWith('AuthContext')) return {useAuth:() => auth};
+      if (id.endsWith('emailVerification')) return { needsEmailVerification };
+      if (id.endsWith('workspaceConnectionError')) return { workspaceConnectionError };
       if (id.endsWith('demoWorkspace')) return {hydrateDemoWorkspace:() => initial};
       if (id.endsWith('blankWorkspace')) return {createBlankWorkspace:seed => ({brandName:'',slug:'',bookings:[],orders:[],products:[],services:[],website:{},...seed})};
       if (id.endsWith('workspaceDomain.js')) return {WORKSPACE_SECTIONS:{general:['brandName','slug','tagline'],website:['website'],products:['products']}};
@@ -60,6 +64,14 @@ test('switching owners blanks the previous business and waits for the new cloud 
     assert.equal(merged.tagline,'Remote tagline'); assert.equal(merged.products[0].id,'new'); assert.equal(merged.bookings[0].id,'remote-booking');
     assert.equal(merged.sectionRevisions.general,0,'Dirty sections retain their expected revision for conflict detection');
     assert.equal(merged.sectionRevisions.products,1);
+    auth = {...auth, user:{uid:'owner-c',email:'c@example.test',emailVerified:false,providerData:[{providerId:'password'}]}};
+    render(); render();
+    assert.deepEqual(loads,['owner-a','owner-b'],'Unverified password accounts do not call protected workspace services');
+    assert.equal(state.workspace.ownerId,'owner-c');
+    assert.deepEqual(state.workspace.products,[]);
+    auth = {...auth,user:{...auth.user,emailVerified:true}};
+    render();
+    assert.deepEqual(loads,['owner-a','owner-b','owner-c'],'Verification resumes the protected account load');
   } finally {
     if (previousWindow===undefined) delete globalThis.window; else globalThis.window=previousWindow;
     if (previousStorage===undefined) delete globalThis.localStorage; else globalThis.localStorage=previousStorage;

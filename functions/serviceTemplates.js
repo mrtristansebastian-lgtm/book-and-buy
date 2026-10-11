@@ -77,27 +77,23 @@ export const SERVICE_CATEGORY_TEMPLATES = Object.freeze(Object.keys(parentGroups
     id: `service_category_${subcategoryId}_${scheduleType}`, label: categoryLabels[subcategoryId], subcategoryId,
     mainCategoryId: parentGroups[subcategoryId], family: existing[0].family, scheduleType, duration: 60, categorySetup: true
   }));
-  const eventFamilies = ['fitness', 'lesson', 'cooking', 'photo', 'event', 'experience', 'space'];
-  return eventFamilies.includes(existing[0].family) ? [...standard, Object.freeze({
-    id: `service_category_${subcategoryId}_event`, label: categoryLabels[subcategoryId], subcategoryId,
-    mainCategoryId: parentGroups[subcategoryId], family: existing[0].family, scheduleType: 'class_session', duration: 60, categorySetup: true, event: true
-  })] : standard;
+  return standard;
 }));
 export const getServiceCategoryTemplates = subcategoryId => SERVICE_CATEGORY_TEMPLATES.filter(template => template.subcategoryId === subcategoryId);
 const byId = new Map([...SERVICE_TEMPLATES, ...SERVICE_CATEGORY_TEMPLATES].map((template) => [template.id, template]));
 export const getServiceTemplate = (id) => byId.get(String(id || '')) || null;
+export const isRetiredEventService = (service = {}) => service.bookingFormat === 'event' || service.scheduleType === 'event' || /^service_category_.+_event$/.test(service.catalogTemplateId || '');
 export const getServiceBookingFormat = (service = {}) => {
   const template = getServiceTemplate(service.catalogTemplateId);
-  if (template) return template.event ? 'event' : template.scheduleType === 'class_session' ? 'spot' : 'slot';
-  if (!service.id && ['slot', 'spot', 'event'].includes(service.bookingFormat)) return service.bookingFormat;
+  if (template) return template.scheduleType === 'class_session' ? 'spot' : 'slot';
+  if (!service.id && ['slot', 'spot'].includes(service.bookingFormat)) return service.bookingFormat;
   return ['class_session', 'class', 'classes', 'event', 'group', 'workshop', 'session'].includes(service.scheduleType || service.bookingType || service.serviceType) ? 'spot' : 'slot';
 };
 export const getServiceTemplates = (subcategoryId) => SERVICE_TEMPLATES.filter((template) => template.subcategoryId === subcategoryId);
 export function getServiceConfigurationSchema(service = {}) {
   const template = getServiceTemplate(service.catalogTemplateId);
   if (!template) return [];
-  const eventFields = template.event ? [text('venue', 'Event venue', { essential: true }), text('venueAddress', 'Venue address', { essential: true, maxLength: 400 }), text('organiser', 'Event organiser'), text('admission', 'Admission and age requirements', { maxLength: 400, multiline: true }), text('accessibility', 'Accessibility information', { maxLength: 400, multiline: true })] : [];
-  const fields = [...eventFields, ...(families[template.family] || []), ...common];
+  const fields = [...(families[template.family] || []), ...common];
   return fields.filter((field, index) => fields.findIndex((item) => item.key === field.key) === index);
 }
 export function normalizeServiceConfiguration(service = {}) {

@@ -6,6 +6,7 @@ import { StatusBadge } from '../../../shared/ui/StatusBadge';
 import { useDetailDialog } from '../../../shared/ui/useDetailDialog';
 import { isEnquiryListing, hasListingSpecifications } from '../../../../functions/listingTypes.js';
 import { ListingSpecifications } from './ListingSpecifications';
+import { DemoShowcaseGuide } from '../../showcase/DemoShowcaseGuide';
 import '../../../shared/ui/owner-catalog-detail.css';
 import {
   formatCompareAtPrice,
@@ -19,6 +20,7 @@ export function ProductInfoSheet({
   product,
   onClose,
   onEdit,
+  isDemo = false,
   variant = 'sheet'
 }) {
   const dialogRef = useDetailDialog(Boolean(product), onClose, variant === 'page');
@@ -103,6 +105,7 @@ export function ProductInfoSheet({
               </div>
             </div>
 
+            <DemoShowcaseGuide isDemo={isDemo} itemId={product.id} onEdit={onEdit ? () => onEdit(product) : undefined} />
             {product.description ? (
               <div className="bb-product-info-block">
                 <p className="bb-stock-section-label">Description</p>
@@ -117,21 +120,21 @@ export function ProductInfoSheet({
                 <dd>{statusLabel}</dd>
               </div>
               <div>
-                <dt>Category</dt>
+                <dt>Store Category</dt>
                 <dd>{category || '—'}</dd>
               </div>
             </dl>
 
             {hasVariants ? (
               <div className="bb-product-info-block">
-                <p className="bb-stock-section-label">Variants</p>
+                <p className="bb-stock-section-label">Options</p>
                 <ul className="bb-stock-info-variant-list">
                   {(product.variants || []).map((variant) => (
                     <li key={variant.id}>
                       <strong>
                         {variant.title ||
                           Object.values(variant.optionValues || {}).join(' / ') ||
-                          'Variant'}
+                          'Option'}
                       </strong>
                       <span>
                         {[

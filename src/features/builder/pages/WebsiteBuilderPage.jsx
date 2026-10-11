@@ -160,7 +160,7 @@ function ConnectedWebsiteBuilder() {
           <div className="bb-builder-commerce-body">
             {commercePanel.kind === 'checkout' ? <PublicCartCheckout catalogWorkspace={workspace} testMode onBack={() => setCommercePanel(null)} /> : <PublicCatalogDetail key={`${commercePanel.kind}:${commercePanel.id}`} kind={commercePanel.kind} item={(commercePanel.kind === 'product' ? workspace.products : workspace.services).find(item => item.id === commercePanel.id)} workspace={workspace} slug={workspace.slug} checkoutTestMode onBack={() => setCommercePanel(null)} />}
           </div>
-          <footer><Button variant="secondary" icon={ShoppingBag} onClick={() => setCommercePanel({ kind: 'checkout' })}>Cart · {cart.count}</Button><span>Variants, stock and booking times use your app’s existing rules.</span></footer>
+          <footer><Button variant="secondary" icon={ShoppingBag} onClick={() => setCommercePanel({ kind: 'checkout' })}>Cart · {cart.count}</Button><span>Options, stock and booking times use your app’s existing rules.</span></footer>
         </section>
       </div>}
     </section>

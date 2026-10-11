@@ -58,7 +58,7 @@ test('Schedule booking links reveal the matching request after loading, preserve
       new Function('module', 'exports', 'require', outputText)(module, module.exports, id => {
         if (id === 'react') return hooks;
         if (id.endsWith('.css')) return {};
-        if (id === '../../workspace/WorkspaceContext') return { useWorkspace: () => ({ bookings, services: [], staff: [] }) };
+        if (id === '../../workspace/WorkspaceContext') return { useWorkspace: () => ({ bookings, services: [], staff: [], workspace: { availabilityRules: {} } }) };
         if (id === '../../../shared/ui/PeriodSegmentedControl') return { PeriodSegmentedControl: Period };
         if (id === '../../ops-desk/components/OpsDeskPrimitives') return new Proxy({ OpsDeskTabs: Tabs }, { get: (target, key) => target[key] || (() => null) });
         if (!id.startsWith('.')) return require(id);

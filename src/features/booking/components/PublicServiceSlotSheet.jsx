@@ -108,7 +108,7 @@ export function PublicServiceSlotSheet({
     );
   };
 
-  if (!open || !service) return null;
+  if (!open || !service || ['arranged', 'to_be_announced'].includes(service.timingMode)) return null;
 
   const variantPicker =
     needsVariant && variants.length ? (
